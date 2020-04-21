@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.factories import ForumFactory, ForumCategoryFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
@@ -39,7 +39,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
 
         self.beta_forum = ForumFactory(
             pk=overridden_zds_app['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
@@ -155,7 +155,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
 
         self.beta_forum = ForumFactory(
             pk=overridden_zds_app['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()

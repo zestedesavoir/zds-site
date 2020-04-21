@@ -21,7 +21,10 @@ clean: clean-back clean-front ## Clean everything (`clean-back` & `clean-front`)
 ## ~ Backend
 
 install-back: ## Install the Python packages for the backend
-	pip3 install --upgrade -r requirements-dev.txt
+	pip install --upgrade -r requirements-dev.txt
+
+install-back-with-prod:
+	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
 
 run-back: zmd-check ## Run the backend server
 	python manage.py runserver
@@ -60,17 +63,19 @@ clean-front: ## Clean the frontend builds
 ##
 ## ~ zmarkdown
 
+ZMD_URL="http://localhost:27272"
+
 zmd-install: ## Install the Node.js packages for zmarkdown
-	cd zmd && npm -g install pm2 && npm install --production
+	cd zmd && npm install --production
 
 zmd-start: ## Start the zmarkdown server
 	cd zmd/node_modules/zmarkdown && npm run server
 
 zmd-check: ## Check if the zmarkdown server is running
-	@curl -s http://localhost:27272 || echo 'Use `make zmd-start` to start zmarkdown server'
+	@curl -s $(ZMD_URL) || echo 'Use `make zmd-start` to start zmarkdown server'
 
 zmd-stop: ## Stop the zmarkdown server
-	pm2 kill
+	node ./zmd/node_modules/pm2/bin/pm2 kill
 
 ##
 ## ~ Elastic Search
@@ -97,12 +102,16 @@ migrate-db: ## Create or update database schema
 	python manage.py migrate
 
 generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
-	python manage.py loaddata fixtures/*.yaml
-	python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml
-	python manage.py load_fixtures --size=low --all
+	@if curl -s $(ZMD_URL) > /dev/null; then \
+		python manage.py loaddata fixtures/*.yaml; \
+		python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; \
+		python manage.py load_fixtures --size=low --all; \
+	else \
+		echo 'Start zmarkdown first with `make zmd-start`'; \
+	fi
 
 wipe-db: ## Remove the database and the contents directories
-	rm base.db
+	rm -f base.db
 	rm -rf contents-private/*
 	rm -rf contents-public/*
 
@@ -116,6 +125,13 @@ generate-doc: ## Generate the project's documentation
 
 generate-release-summary: ## Generate a release summary from Github's issues and PRs
 	@python scripts/generate_release_summary.py
+
+start-publication-watchdog: ## Start the publication watchdog
+	@if curl -s $(ZMD_URL) > /dev/null; then \
+		python manage.py publication_watchdog; \
+	else \
+		echo 'Start zmarkdown first with `make zmd-start`'; \
+	fi
 
 # inspired from https://gist.github.com/sjparkinson/f0413d429b12877ecb087c6fc30c1f0a
 

@@ -19,11 +19,12 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import Category, Forum, Topic, Post, is_read, mark_read, TopicRead
+from zds.forum.models import ForumCategory, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
 from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
+from zds.featured.mixins import FeatureableMixin
 from zds.utils import slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
@@ -35,7 +36,7 @@ class CategoriesForumsListView(ListView):
 
     context_object_name = 'categories'
     template_name = 'forum/index.html'
-    queryset = Category.objects.all()
+    queryset = ForumCategory.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super(CategoriesForumsListView, self).get_context_data(**kwargs)
@@ -44,14 +45,14 @@ class CategoriesForumsListView(ListView):
         return context
 
 
-class CategoryForumsDetailView(DetailView):
+class ForumCategoryForumsDetailView(DetailView):
 
     context_object_name = 'category'
     template_name = 'forum/category/index.html'
-    queryset = Category.objects.all()
+    queryset = ForumCategory.objects.all()
 
     def get_context_data(self, **kwargs):
-        context = super(CategoryForumsDetailView, self).get_context_data(**kwargs)
+        context = super(ForumCategoryForumsDetailView, self).get_context_data(**kwargs)
         context['forums'] = context.get('category').get_forums(self.request.user)
         return context
 
@@ -155,7 +156,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         return queryset
 
 
-class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
+class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin):
 
     context_object_name = 'posts'
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
@@ -169,6 +170,9 @@ class TopicPostsListView(ZdSPagingListView, SingleObjectMixin):
         if not self.kwargs.get('topic_slug') == slugify(self.object.title):
             return redirect(self.object.get_absolute_url())
         return super(TopicPostsListView, self).get(request, *args, **kwargs)
+
+    def featured_request_allowed(self):
+        return not self.object.is_locked
 
     def get_context_data(self, **kwargs):
         context = super(TopicPostsListView, self).get_context_data(**kwargs)
@@ -273,7 +277,7 @@ class TopicNew(CreateView, SingleObjectMixin):
         return redirect(topic.get_absolute_url())
 
 
-class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
+class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin):
 
     template_name = 'forum/topic/edit.html'
     form_class = TopicForm
@@ -314,6 +318,9 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
         })
         return render(request, self.template_name, {'topic': self.object, 'form': form, 'is_staff': is_staff})
 
+    def featured_request_allowed(self):
+        return not self.object.is_locked
+
     def post(self, request, *args, **kwargs):
         if 'text' in request.POST:
             form = self.get_form(self.form_class)
@@ -347,6 +354,8 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin):
             self.perform_sticky(request, self.object)
         elif 'move' in request.POST:
             self.perform_move()
+        elif 'request_featured' in request.POST:
+            response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)
 
         self.object.save()
         if request.is_ajax():

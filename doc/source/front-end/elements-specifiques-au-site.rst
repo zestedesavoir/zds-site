@@ -51,7 +51,7 @@ On peut se dire qu'avec ce code tout va bien fonctionner :
    </div>
 
 Malheureusement, non : le bouton de fermeture ne prend que la moitié de la place ! Ce problème se résout
-très rapidement en ajoutant l'attribut ``data-modal-close="Fermez-moi !"`` à le boîte modale. Le texte
+très rapidement en ajoutant l'attribut ``data-modal-close="Fermez-moi !"`` à la boîte modale. Le texte
 de l'attribut (ici ``Fermez-moi !``) deviendra le texte du bouton.
 
 .. sourcecode:: html
@@ -60,20 +60,47 @@ de l'attribut (ici ``Fermez-moi !``) deviendra le texte du bouton.
        Une super boîte modale !
    </div>
 
-Créer le lien
--------------
-
-La création du lien affichant la boîte modale est tout aussi simple : il suffit de mettre une ancre correspondant à l'``id`` de la boîte modale ainsi que la classe ``open-modal`` :
+Si on désire un second bouton pointant vers un lien arbitraire, il suffit d'ajouter à la fin de l'élément
+contenant la boîte un lien avec les classes ``btn`` et ``btn-success`` ; il sera automatiquement ajouté
+à côté du bouton de fermeture de la modale.
 
 .. sourcecode:: html
 
-   <a href="#une-ancre" class="open-modal">
+   <div id="une-ancre" class="modal" data-modal-close="Fermez-moi !">
+       Une super boîte modale !
+        <a class="btn btn-submit" href="#">Cliquez moi !</a>
+   </div>
+
+Créer le lien
+-------------
+
+La création du lien affichant la boîte modale est tout aussi simple : il suffit
+de mettre une ancre correspondant à l'``id`` de la boîte modale ainsi que la
+classe ``open-modal``. N'oubliez pas l'attribut ``aria-haspopup="dialog"`` pour
+l'accessibilité.
+
+.. sourcecode:: html
+
+   <a href="#une-ancre" class="open-modal" aria-haspopup="dialog">
        Un super lien !
    </a>
 
 .. Attention::
 
-   Attention, le texte du lien sera le titre de la boîte modale.
+   Le texte du lien sera le titre de la boîte modale, sauf si explicitement spécifié (voir ci-dessous).
+
+Quand le texte du lien n'est pas le titre
+-----------------------------------------
+
+Si vous voulez un autre titre que le texte du lien pour votre modale, vous pouvez ajouter
+l'attribut ``data-modal-title="Le titre de ma boîte"`` à la boîte modale. Le texte
+de l'attribut (ici ``Le titre de ma boîte``) deviendra le titre de la boîte modale.
+
+.. sourcecode:: html
+
+   <div id="une-ancre" class="modal" data-modal-title="Le titre de ma boîte">
+       Une super boîte modale !
+   </div>
 
 Les tailles des modales
 -----------------------

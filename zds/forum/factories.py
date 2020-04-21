@@ -1,11 +1,11 @@
 import factory
-from zds.forum.models import Category, Forum, Topic, Post
+from zds.forum.models import ForumCategory, Forum, Topic, Post
 from zds.utils.models import Tag
 
 
-class CategoryFactory(factory.DjangoModelFactory):
+class ForumCategoryFactory(factory.DjangoModelFactory):
     class Meta:
-        model = Category
+        model = ForumCategory
 
     title = factory.Sequence('Ma catégorie No{0}'.format)
     slug = factory.Sequence('category{0}'.format)
@@ -56,7 +56,7 @@ class PostFactory(factory.DjangoModelFactory):
 
 
 def create_category_and_forum(group=None):
-    category = CategoryFactory(position=1)
+    category = ForumCategoryFactory(position=1)
     forum = ForumFactory(category=category, position_in_category=1)
     if group is not None:
         forum.groups.add(group)

@@ -5,25 +5,28 @@
 {% load thumbnail %}
 {% load interventions %}
 {% load messages %}
+{% load trail %}
 
 
 <!DOCTYPE html>
-<html class="enable-mobile-menu" lang="fr">
+<html class="enable-mobile-menu" lang="fr" antidoteapi_jsconnect="true">
 <head>
     <meta charset="utf-8">
 
-    <title>
-        {% captureas title %}
+    {% captureas title %}
+        {% trail %}
             {% captureas title_blocks %}
                 {% block title %}{% endblock %}
                 {% block title_base %}{% endblock %}
             {% endcaptureas %}
             {% if title_blocks %}
-                {{ title_blocks|safe }}
-                &bull;
+                {{ title_blocks|safe }} &bull;
             {% endif %}
-            {{app.site.literal_name}}
-        {% endcaptureas %}
+            {{ app.site.literal_name }}
+        {% endtrail %}
+    {% endcaptureas %}
+
+    <title>
         {{ title|safe }}
     </title>
 
@@ -67,7 +70,11 @@
 
     {# Twitter cards #}
     <meta property="twitter:domain" content="{{app.site.url}}/">
-    <meta property="twitter:card" content="summary">
+    {% if request.GET.twittercard == 'large' %}
+        <meta property="twitter:card" content="summary_large_image">
+    {% else %}
+        <meta property="twitter:card" content="summary">
+    {% endif %}
     <meta property="twitter:url" content="{{app.site.url}}{{ request.path }}">
     <meta property="twitter:title" content="{{ title|safe }}">
     <meta property="twitter:description" content="{{ description|safe }}">
@@ -81,6 +88,12 @@
 
 
     {# Stylesheets #}
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+        integrity="sha384-v8BU367qNbs/aIZIxuivaU55N5GPF89WBerHoGA4QTcbUjYiLQtKdrfXnqAcXyTv"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static "css/easymde.min.css" %}">
+    <link rel="stylesheet" href="{% static "css/idea.css" %}">
     <link rel="stylesheet" href="{% static "css/katex.min.css" %}">
     <link rel="stylesheet" href="{% static "css/main.css" %}">
     {% if not debug %}
@@ -163,7 +176,7 @@
 
         <div id="cookies-eu-banner">
             <p>
-                {% trans "Nous souhaitons déposer des cookies à des fins de mesure d'audience avec Google Analytics. Vous êtes libre d'accepter ou de refuser. En poursuivant votre navigation sur ce site sans exprimer votre choix, vous autorisez la mesure d'audience." %}
+                {% trans "Nous souhaitons déposer des cookies à des fins de mesure d'audience avec Google Analytics. Vous êtes libre d'accepter ou de refuser." %}
             </p>
             <a href="/pages/cookies" id="cookies-eu-more">{% trans "En savoir plus" %}</a>
             <button id="cookies-eu-accept">{% trans "Accepter" %}</button>
@@ -201,7 +214,9 @@
             {% block doc_api %}
                 <div class="main wrapper clearfix">
                     <main class="content-container" role="main" id="content">
-                        {% messages messages %}
+                        {% block flash_messages %}
+                            {% messages messages %}
+                        {% endblock %}
 
                         {% block content_out %}
                             {% captureas schema %}
@@ -260,10 +275,9 @@
             '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
             })(window,document,'script','dataLayer','{{ app.site.googleTagManagerID }}');
             {% endif %}
-        });
+        }, true);
     </script>
     {% endif %}
-
 
 
     {% include "mathjax_config.html" %}

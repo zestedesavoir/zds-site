@@ -1,0 +1,6 @@
+{% load i18n %}
+{% load pluralize_fr %}
+
+{% blocktrans with plural=featured_request_count|pluralize_fr %}
+    (<span id="featured_request_count">{{ featured_request_count }}</span> vote<span id="featured_request_plural">{{ plural }}</span>)
+{% endblocktrans %}

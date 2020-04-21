@@ -16,8 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.template.loader import render_to_string
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
-from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError,\
-    FailureDuringPublication
+from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.utils.misc import compute_hash
 from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_BETA, CONTENT_TYPES_REQUIRING_VALIDATION
 from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
@@ -83,8 +82,7 @@ class Container:
         """Note: This function relies on the fact that every child has the
         same type.
 
-        :return: ``True`` if the container contains extracts, ``False``
-        otherwise.
+        :return: ``True`` if the container contains extracts, ``False`` otherwise.
         :rtype: bool
         """
         if len(self.children) == 0:
@@ -316,19 +314,21 @@ class Container:
             elif isinstance(child, Extract):
                 child.text = child.get_path(relative=True)
 
-    def get_path(self, relative=False):
+    def get_path(self, relative=False, os_sensitive=True):
         """Get the physical path to the draft version of the container.
         Note: this function rely on the fact that the top container is VersionedContainer.
 
         :param relative: if ``True``, the path will be relative, absolute otherwise.
         :type relative: bool
+        :param os_sensitive: if ``True`` will use os.path.join to ensure compatibility with all OS, otherwise \\
+                             will build with ``/``, mainly for urls.
         :return: physical path
         :rtype: str
         """
         base = ''
         if self.parent:
             base = self.parent.get_path(relative=relative)
-        return os.path.join(base, self.slug)
+        return os.path.join(base, self.slug) if os_sensitive else '/'.join([base, self.slug]).strip('/')
 
     def get_prod_path(self, relative=False, file_ext='html'):
         """Get the physical path to the public version of the container. If the container have extracts, then it\
@@ -356,7 +356,7 @@ class Container:
         :return: url to access the container
         :rtype: str
         """
-        return self.top_container().get_absolute_url() + self.get_path(relative=True) + '/'
+        return self.top_container().get_absolute_url() + self.get_path(relative=True, os_sensitive=False) + '/'
 
     def get_absolute_url_online(self):
         """
@@ -427,7 +427,8 @@ class Container:
         """
         if self.introduction:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
-                            self.introduction)
+                            self.introduction.replace('\\', '/')) or ''
+        return ''
 
     def get_conclusion(self):
         """
@@ -436,29 +437,36 @@ class Container:
         """
         if self.conclusion:
             return get_blob(self.top_container().repository.commit(self.top_container().current_version).tree,
-                            self.conclusion)
+                            self.conclusion.replace('\\', '/')) or ''
+        return ''
 
     def get_introduction_online(self):
         """The introduction content for online version.
 
-        :return: the full text if introduction exists ``None`` otherwise
+        This method should be only used in templates
+
+        :return: the full text if introduction exists, empty string otherwise
         :rtype: str
         """
         if self.introduction:
             path = os.path.join(self.top_container().get_prod_path(), self.introduction)
             if os.path.isfile(path):
                 return codecs.open(path, 'r', encoding='utf-8').read()
+        return ''
 
     def get_conclusion_online(self):
         """The conclusion content for online version.
 
-        :return: the full text if introduction exists ``None`` otherwise
+        This method should be only used in templates
+
+        :return: the full text if introduction exists, empty string otherwise
         :rtype: str
         """
         if self.conclusion:
             path = os.path.join(self.top_container().get_prod_path(), self.conclusion)
             if os.path.isfile(path):
                 return codecs.open(path, 'r', encoding='utf-8').read()
+        return ''
 
     def get_content_online(self):
         if os.path.isfile(self.get_prod_path()):
@@ -783,7 +791,7 @@ class Container:
         :rtype: bool
         """
         if self.get_tree_depth() == 2:
-                return True
+            return True
         return False
 
     def next_level_is_chapter(self):
@@ -793,7 +801,7 @@ class Container:
         :rtype: bool
         """
         if self.get_tree_depth() == 1 and self.can_add_container():
-                return True
+            return True
         return False
 
     def can_be_in_beta(self):
@@ -828,6 +836,7 @@ class Container:
             with file_path.open('w', encoding='utf-8') as f:
                 f.write(emarkdown(content, db_object.js_support))
         except (UnicodeError, UnicodeEncodeError):
+            from zds.tutorialv2.publication_utils import FailureDuringPublication
             raise FailureDuringPublication(
                 _("Une erreur est survenue durant la publication de l'introduction de « {} »,"
                   ' vérifiez le code markdown').format(self.title))
@@ -870,6 +879,15 @@ class Container:
         # as introduction and conclusion are published in the full file, we remove reference to them
         self.introduction = None
         self.conclusion = None
+
+    def is_validable(self):
+        """
+        Return ``true`` if the container can be validate ie. (would be in the public version if
+        the content is validate.
+        """
+        if self.parent is not None and not self.parent.is_validable():
+            return False
+        return self.ready_to_publish
 
 
 class Extract:
@@ -998,7 +1016,8 @@ class Extract:
         if self.text:
             return get_blob(
                 self.container.top_container().repository.commit(self.container.top_container().current_version).tree,
-                self.text)
+                self.text.replace('\\', '/'))
+        return ''
 
     def compute_hash(self):
         """Compute an MD5 hash from the text, for comparison purpose
@@ -1119,6 +1138,9 @@ class Extract:
             current = current.parent
             depth += 1
         return depth
+
+    def is_validable(self):
+        return self.container.is_validable()
 
 
 class VersionedContent(Container, TemplatableContentModelMixin):

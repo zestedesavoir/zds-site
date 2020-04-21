@@ -131,7 +131,10 @@ Coder plus simplement avec ``watch``
 
 Si votre ordinateur n'est pas très puissant ou la commande ``watch`` est lente. Vous aurez besoin de l'option ``--speed``. Cette option permet de désactiver les fonctions de parsing pour la prod. Ainsi ``watch`` a besoin de moins de CPU.
 
-``npm run gulp -- --speed``
+.. sourcecode:: bash
+
+    $ npm run watch -- --speed
+
 
 -----
 

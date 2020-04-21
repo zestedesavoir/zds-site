@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
         for filename in glob.glob(files):
             stream = open(filename, 'r')
-            fixture_list = yaml.load(stream)
+            fixture_list = yaml.load(stream, Loader=yaml.FullLoader)
             for fixture in fixture_list:
                 splitted = str(fixture['factory']).split('.')
                 module_part = '.'.join(splitted[:-1])

@@ -14,9 +14,18 @@
     }
 
     .article-content {
+        .extract-wrapper {
+            h3, h4, h5, h6 {
+                &:first-child {
+                    margin-top: 14px;
+                }
+            }
+        }
         p,
         > a,
         p a,
+        th,
+        td,
         ul:not(.pagination),
         ol:not(.summary-part) {
             font-family: $font-serif;
@@ -74,11 +83,18 @@
 
     .article-content,
     .message-content {
-        margin-top: 20px;
         margin-bottom: 20px;
         color: #424242;
 
         @import "base/content";
+    }
+
+    .message-content {
+        h3, h4, h5, h6 {
+            &:first-child {
+                margin-top: 14px;
+            }
+        }
     }
 
     .comments-title {

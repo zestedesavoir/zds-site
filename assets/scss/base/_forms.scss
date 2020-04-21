@@ -11,6 +11,11 @@
         p {
             position: relative;
         }
+
+        &.btn-inline {
+            width: auto;
+            vertical-align: middle;
+        }
     }
 
     .search-form {
@@ -111,7 +116,7 @@
             padding-left: 30px;
 
             &:after {
-                margin: 12px 0 0 7px;
+                margin: 12px 0 0 10px;
             }
         }
     }
@@ -138,7 +143,7 @@
                 position: absolute;
                 left: 0;
                 bottom: 0;
-                width: 0%;
+                width: 0;
                 height: 1px;
                 background: #555;
                 animation: lineLoading linear 1s infinite;
@@ -195,8 +200,8 @@
             &:not([disabled]):focus,
             &:not(.disabled):hover,
             &:not(.disabled):focus {
-            background: $bg_hover;
-            color: $color_hover;
+                background: $bg_hover;
+                color: $color_hover;
             }
 
             &.disabled.submitted {
@@ -210,6 +215,13 @@
     }
     .btn-grey {
         @include addBtnColorProperties(#EEE, #555, #CCC, #333, #999);
+    }
+    .btn-inline {
+        display: inline-block;
+    }
+    .btn-no-float {
+        float: none !important;
+        vertical-align: middle;
     }
     [disabled],
     .disabled {

@@ -1,46 +1,42 @@
-from pathlib import Path
-
-from django.db.models import CASCADE
-from datetime import datetime
 import contextlib
-
-from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-from zds import json_handler
-
-from math import ceil
+import logging
+import os
 import shutil
+from datetime import datetime
+from math import ceil
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.db import models
-from django.http import Http404
-from django.utils.http import urlencode
-from django.utils.translation import ugettext_lazy as _
+from django.db.models import CASCADE
 from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
-
-from git import Repo, BadObject
-from gitdb.exc import BadName
-import os
-from uuslug import uuslug
-
+from django.http import Http404
+from django.urls import reverse
+from django.utils.http import urlencode
+from django.utils.translation import ugettext_lazy as _
 from elasticsearch_dsl import Mapping, Q as ES_Q
 from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
+from git import Repo, BadObject
+from gitdb.exc import BadName
+from uuslug import uuslug
 
+from zds import json_handler
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
+from zds.mp.models import PrivateTopic
+from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
+    ESIndexManager
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
-from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
+from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
-from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
-    ESIndexManager
+from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.tutorials import get_blob
-import logging
-
 
 ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip', 'tex']
 logger = logging.getLogger(__name__)
@@ -56,7 +52,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     - Creation, publication and update date ;
     - Public, beta, validation and draft sha, for versioning ;
     - Comment support ;
-    - Type, which is either "ARTICLE" "TUTORIAL" or "OPINION"
+    - Type, which is either ``'ARTICLE'``, ``'TUTORIAL'`` or ``'OPINION'``
     """
     class Meta:
         verbose_name = 'Contenu'
@@ -105,6 +101,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                                   blank=True, null=True, max_length=80, db_index=True)
     beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True,
                                    on_delete=models.SET_NULL)
+    validation_private_message = models.ForeignKey(PrivateTopic, verbose_name='Message de suivi staff',
+                                                   default=None, blank=True, null=True,
+                                                   on_delete=models.SET_NULL)
     licence = models.ForeignKey(Licence,
                                 verbose_name='Licence',
                                 blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
@@ -158,14 +157,15 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         self.refresh_from_db(fields=list(fields.keys()))
         return self
 
-    def save(self, *args, force_slug_update=True, **kwargs):
+    def save(self, *args, force_slug_update=True, update_date=True, **kwargs):
         """
-        Rewrite the `save()` function to handle slug uniqueness
-        :param force_slug_update: if set to ``False``do not try to update the slug
+        Rewrite the ``save()``  function to handle slug uniqueness
+
+        :param update_date: if ``True`` will assign "update_date" property to now
+        :param force_slug_update: if set to ``False`` do not try to update the slug
         """
         if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
-        update_date = kwargs.pop('update_date', True)
         if update_date:
             self.update_date = datetime.now()
         super(PublishableContent, self).save(*args, **kwargs)
@@ -317,6 +317,16 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
                     type(error), str(error)))
 
+    @property
+    def first_publication_date(self):
+        """
+        traverse PublishedContent instances to find the first ever published and get its date
+        :return: the first publication date
+        :rtype: datetime
+        """
+        return Validation.objects.filter(content=self, status='ACCEPT').order_by('date_validation')\
+            .values_list('date_validation', flat=True)[0]
+
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
         the draft/public version is used (if ``public`` is ``True``).
@@ -373,6 +383,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             data = get_blob(repo.commit(sha).tree, 'manifest.json')
             try:
                 json = json_handler.loads(data)
+                logger.debug('loaded json')
             except ValueError:
                 raise BadManifestError(
                     _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
@@ -547,14 +558,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :param tag_collection: A collection of tags.
         :type tag_collection: list
         """
-        for tag in tag_collection:
+        for tag in filter(None, tag_collection):
             try:
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
                 logger.warning(e)
-
-        self.save()
+        logger.debug('Initial number of tags=%s, after filtering=%s', len(tag_collection), len(self.tags.all()))
+        self.save(force_slug_update=False)
 
     def requires_validation(self):
         """
@@ -615,6 +626,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
+    _meta_description = None
 
     @staticmethod
     def get_slug_from_file_path(file_path):
@@ -634,6 +646,17 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             return self.versioned_model.description
         else:
             return self.load_public_version().description
+
+    def meta_description(self):
+        """Generate a description for the HTML tag <meta name='description'>"""
+        if self._meta_description:
+            return self._meta_description
+        if not self.versioned_model:
+            self.load_public_version()
+        self._meta_description = self.versioned_model.description or self.versioned_model.get_introduction() or ''
+        if self._meta_description:
+            self._meta_description = self._meta_description[:settings.ZDS_APP['forum']['description_size']]
+        return self._meta_description
 
     def get_prod_path(self, relative=False):
         if not relative:
@@ -876,9 +899,6 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         return self.get_absolute_url_to_extra_content('zip')
 
-    def get_last_action_date(self):
-        return self.update_date or self.publication_date
-
     def get_char_count(self, md_file_path=None):
         """ Compute the number of letters for a given content
 
@@ -887,18 +907,21 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: Number of letters in the md file
         :rtype: int
         """
-
         if not md_file_path:
             md_file_path = os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.md')
 
         try:
-            with open(md_file_path, 'rb') as md_file:
-                content = md_file.read().decode('utf-8')
+            with open(md_file_path, encoding='utf-8') as md_file_handler:
+                content = md_file_handler.read()
             current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
             if current_content:
-                return len(content)
+                return render_markdown_stats(content)
         except OSError as e:
             logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
+
+    @property
+    def last_publication_date(self):
+        return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
     def get_es_mapping(cls):
@@ -1168,7 +1191,7 @@ class ContentRead(models.Model):
     """
     class Meta:
         verbose_name = 'Contenu lu'
-        verbose_name_plural = 'Contenu lus'
+        verbose_name_plural = 'Contenus lus'
 
     content = models.ForeignKey(PublishableContent, db_index=True, on_delete=models.CASCADE)
     note = models.ForeignKey(ContentReaction, db_index=True, null=True, on_delete=models.SET_NULL)
@@ -1298,6 +1321,105 @@ class PickListOperation(models.Model):
         raise ValueError('Content cannot be null or something else than opinion.', self.content)
 
 
+STATE_CHOICES = [
+    ('REQUESTED', _('Export demandé')),
+    ('RUNNING', _('Export en cours')),
+    ('SUCCESS', _('Export réalisé')),
+    ('FAILURE', _('Export échoué')),
+]
+
+
+class PublicationEvent(models.Model):
+    class Meta:
+        verbose_name = _('Événement de publication')
+        verbose_name_plural = _('Événements de publication')
+
+    published_object = models.ForeignKey(PublishedContent, null=False, on_delete=models.CASCADE,
+                                         verbose_name='contenu publié')
+    state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20, db_index=True)
+    # 25 for formats such as "printable.pdf", if tomorrow we want other "long" formats this will be ready
+    format_requested = models.CharField(blank=False, null=False, max_length=25)
+    created = models.DateTimeField(verbose_name='date de création', name='date', auto_now_add=True)
+
+    def __str__(self):
+        return '{}: {} - {}'.format(self.published_object.title(), self.format_requested, self.state_of_processing)
+
+
+class ContentContributionRole(models.Model):
+    """
+    Contribution role of content
+    """
+    class Meta:
+        verbose_name = 'Role de la contribution au contenu'
+        verbose_name_plural = 'Roles de la contribution au contenu'
+
+    title = models.CharField(null=False, blank=False, max_length=80)
+    subtitle = models.CharField(null=True, blank=True, max_length=200)
+    position = models.IntegerField(default=0)
+
+    def __str__(self):
+        return "<Role de type '{0}', #{1}>".format(self.title, self.pk)
+
+
+class ContentContribution(models.Model):
+    """
+    Content contributions
+    """
+    class Meta:
+        verbose_name = 'Contribution aux contenus'
+        verbose_name_plural = 'Contributions aux contenus'
+
+    contribution_role = models.ForeignKey(ContentContributionRole,
+                                          null=False,
+                                          verbose_name='role de la contribution',
+                                          db_index=True,
+                                          on_delete=models.CASCADE)
+    user = models.ForeignKey(User,
+                             null=False,
+                             verbose_name='Contributeur',
+                             db_index=True,
+                             on_delete=models.CASCADE)
+    content = models.ForeignKey(PublishableContent,
+                                null=False,
+                                verbose_name='Contenu',
+                                db_index=True,
+                                on_delete=models.CASCADE)
+    comment = models.CharField(verbose_name='Commentaire',
+                               null=True,
+                               blank=True,
+                               max_length=200)
+
+    def __str__(self):
+        return "<Contribution a '{0}' par {1} de type {2}, #{3}>".format(self.content.title,
+                                                                         self.user.username,
+                                                                         self.contribution_role.title,
+                                                                         self.pk)
+
+
+class ContentSuggestion(models.Model):
+    """
+    Content suggestion
+    """
+
+    publication = models.ForeignKey(PublishableContent,
+                                    null=False,
+                                    verbose_name='Contenu',
+                                    db_index=True,
+                                    on_delete=models.CASCADE,
+                                    related_name='publication')
+    suggestion = models.ForeignKey(PublishableContent,
+                                   null=False,
+                                   verbose_name='Suggestion',
+                                   db_index=True,
+                                   on_delete=models.CASCADE,
+                                   related_name='suggestion')
+
+    def __str__(self):
+        return "<Suggest '{0}' for content {1}, #{2}>".format(self.suggestion.title,
+                                                              self.publication.title,
+                                                              self.pk)
+
+
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
     """
@@ -1306,5 +1428,6 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     external = sender.objects.get(username=settings.ZDS_APP['member']['external_account'])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
+
 
 import zds.tutorialv2.receivers  # noqa

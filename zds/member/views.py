@@ -21,8 +21,9 @@ from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as __
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, UpdateView, CreateView, FormView
+from django.views.generic import DetailView, UpdateView, CreateView, FormView, View
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
@@ -40,11 +41,13 @@ from zds.member.models import Profile, TokenForgotPassword, TokenRegister, Karma
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.pages.models import GroupContact
-from zds.tutorialv2.models.database import PublishedContent, PickListOperation
+from zds.tutorialv2.models import CONTENT_TYPES
+from zds.tutorialv2.models.database import PublishedContent, PickListOperation, ContentContribution
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings, \
     get_hat_to_add
 from zds.utils.mps import send_mp
 from zds.utils.paginator import ZdSPagingListView
+from zds.utils.templatetags.pluralize_fr import pluralize_fr
 from zds.utils.tokens import generate_token
 import logging
 
@@ -73,6 +76,82 @@ class MemberDetail(DetailView):
         # sent through emarkdown parser).
         return get_object_or_404(User, username=urlunquote(self.kwargs['user_name']))
 
+    def get_summaries(self, profile):
+        """
+        Returns a summary of this profile's activity, as a list of list of tuples.
+        Each first-level list item is an activity category (e.g. contents, forums, etc.)
+        Each second-level list item is a stat in this activity category.
+        Each tuple is (link url, count, displayed name of the item), where the link url can be None if it's not a link.
+
+        :param profile: The profile.
+        :return: The summary data.
+        """
+        summaries = []
+
+        if self.request.user.has_perm('member.change_post'):
+            count_post = profile.get_post_count_as_staff()
+        else:
+            count_post = profile.get_post_count()
+
+        count_topic = profile.get_topic_count()
+        count_tutorials = profile.get_public_tutos().count()
+        count_articles = profile.get_public_articles().count()
+        count_opinions = profile.get_public_opinions().count()
+
+        summary = []
+        if count_tutorials + count_articles + count_opinions == 0:
+            summary.append((None, 0, __('Aucun contenu publié')))
+
+        if count_tutorials > 0:
+            summary.append(
+                (
+                    reverse_lazy('tutorial:find-tutorial', args=(profile.user.username,)),
+                    count_tutorials,
+                    __('tutoriel{}').format(pluralize_fr(count_tutorials))
+                )
+            )
+        if count_articles > 0:
+            summary.append(
+                (
+                    reverse_lazy('article:find-article', args=(profile.user.username,)),
+                    count_articles,
+                    __('article{}').format(pluralize_fr(count_articles))
+                )
+            )
+        if count_opinions > 0:
+            summary.append(
+                (
+                    reverse_lazy('opinion:find-opinion', args=(profile.user.username,)),
+                    count_opinions,
+                    __('billet{}').format(pluralize_fr(count_opinions))
+                )
+            )
+        summaries.append(summary)
+
+        summary = []
+        if count_post > 0:
+            summary.append(
+                (
+                    reverse_lazy('post-find', args=(profile.user.pk,)),
+                    count_post,
+                    __('message{}').format(pluralize_fr(count_post))
+                )
+            )
+        else:
+            summary.append((None, 0, __('Aucun message')))
+        if count_topic > 0:
+            summary.append(
+                (
+                    reverse_lazy('topic-find', args=(profile.user.pk,)),
+                    count_topic,
+                    __('sujet{}').format(pluralize_fr(count_topic))
+                )
+            )
+
+        summaries.append(summary)
+
+        return summaries
+
     def get_context_data(self, **kwargs):
         context = super(MemberDetail, self).get_context_data(**kwargs)
         usr = context['usr']
@@ -86,8 +165,22 @@ class MemberDetail(DetailView):
         context['articles'] = PublishedContent.objects.last_articles_of_a_member_loaded(usr)
         context['opinions'] = PublishedContent.objects.last_opinions_of_a_member_loaded(usr)
         context['tutorials'] = PublishedContent.objects.last_tutorials_of_a_member_loaded(usr)
+        context['articles_and_tutorials'] = PublishedContent.objects.last_tutorials_and_articles_of_a_member_loaded(usr)
         context['topic_read'] = TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.object).count()
+        context['contribution_articles_count'] = ContentContribution\
+            .objects\
+            .filter(user__pk=usr.pk, content__sha_public__isnull=False, content__type=CONTENT_TYPES[1]['name'])\
+            .values_list('content', flat=True)\
+            .distinct()\
+            .count()
+        context['contribution_tutorials_count'] = ContentContribution\
+            .objects\
+            .filter(user__pk=usr.pk, content__sha_public__isnull=False, content__type=CONTENT_TYPES[0]['name'])\
+            .values_list('content', flat=True)\
+            .distinct()\
+            .count()
+
         if self.request.user.has_perm('member.change_profile'):
             sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
             notes = list(KarmaNote.objects.filter(user=usr).select_related('moderator'))
@@ -96,6 +189,10 @@ class MemberDetail(DetailView):
             actions.reverse()
             context['actions'] = actions
             context['karmaform'] = KarmaForm(profile)
+            context['alerts'] = profile.alerts_on_this_profile.all().order_by('-pubdate')
+            context['has_unsolved_alerts'] = profile.alerts_on_this_profile.filter(solved=False).exists()
+
+        context['summaries'] = self.get_summaries(profile)
         return context
 
 
@@ -325,6 +422,8 @@ class UpdateUsernameEmailMember(UpdateMember):
                       karma=0).save()
             # Change the username
             profile.user.username = new_username
+            # update skeleton
+            profile.username_skeleton = Profile.find_username_skeleton(new_username)
         if new_email and new_email != previous_email:
             profile.user.email = new_email
             # Create an alert for the staff if it's a new provider
@@ -365,10 +464,16 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     def form_valid(self, form):
         profile = self.create_profile(form.data)
         profile.last_ip_address = get_client_ip(self.request)
+        profile.username_skeleton = Profile.find_username_skeleton(profile.user.username)
         self.save_profile(profile)
         token = self.generate_token(profile.user)
-        self.send_email(token, profile.user)
-
+        try:
+            self.send_email(token, profile.user)
+        except Exception as e:
+            logging.getLogger(__name__).warning('Mail not sent', exc_info=e)
+            messages.warning(self.request, _("Impossible d'envoyer l'email."))
+            self.object = None
+            return self.form_invalid(form)
         return render(self.request, self.get_success_template())
 
     def get_success_template(self):
@@ -420,7 +525,12 @@ class SendValidationEmailView(FormView, TokenGenerator):
 
         # Generate new token and send email
         token = self.generate_token(self.usr)
-        self.send_email(token, self.usr)
+        try:
+            self.send_email(token, self.usr)
+        except Exception as e:
+            logging.getLogger(__name__).warning('Mail not sent', exc_info=e)
+            messages.warning(_("Impossible d'envoyer l'email."))
+            return self.form_invalid(form)
 
         return render(self.request, self.get_success_template())
 
@@ -1341,3 +1451,43 @@ def modify_karma(request):
         logging.getLogger(__name__).warn('ValueError: modifying karma failed because {}'.format(e))
 
     return redirect(reverse('member-detail', args=[profile.user.username]))
+
+
+class CreateProfileReportView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(Profile, pk=kwargs['profile_pk'])
+        reason = request.POST.get('reason', '')
+        if reason == '':
+            messages.warning(request, _('Veuillez saisir une raison.'))
+        else:
+            alert = Alert(
+                author=request.user,
+                profile=profile,
+                scope='PROFILE',
+                text=reason,
+                pubdate=datetime.now())
+            alert.save()
+            messages.success(request, _('Votre signalement a été transmis à l\'équipe de modération. '
+                                        'Merci de votre aide !'))
+        return redirect(profile.get_absolute_url())
+
+
+class SolveProfileReportView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permissions = ['member.change_profile']
+
+    def post(self, request, *args, **kwargs):
+        alert = get_object_or_404(Alert, pk=kwargs['alert_pk'], solved=False, scope='PROFILE')
+        text = request.POST.get('text', '')
+        if text:
+            msg_title = _('Signalement traité : profil de {}').format(alert.profile.user.username)
+            msg_content = render_to_string('member/messages/alert_solved.md', {
+                'alert_author': alert.author.username,
+                'reported_user': alert.profile.user.username,
+                'moderator': request.user.username,
+                'staff_message': text,
+            })
+            alert.solve(request.user, text, msg_title, msg_content)
+        else:
+            alert.solve(request.user)
+        messages.success(request, _("Merci, l'alerte a bien été résolue."))
+        return redirect(alert.profile.get_absolute_url())

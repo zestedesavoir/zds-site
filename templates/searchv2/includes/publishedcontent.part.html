@@ -16,7 +16,7 @@
         </h3>
     </a>
 
-    <p class="content-description">
+    <p class="content-description" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
         {% if search_result.text %}
             {% highlight search_result "text" %}
         {% else %}

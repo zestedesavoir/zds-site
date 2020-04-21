@@ -352,7 +352,7 @@ $logo-width: 240px;
         }
     }
 
-    .my-account {
+    #my-account {
         display: block;
         height: 60px;
         width: 60px;
@@ -364,6 +364,8 @@ $logo-width: 240px;
 
         .avatar {
             background: $color-header-hover;
+            width: 60px;
+            height: 60px;
         }
     }
 
@@ -409,6 +411,7 @@ $logo-width: 240px;
     .header-container {
         .header-logo {
             width: 40px;
+            min-width: 40px;
             height: 50px;
             margin-left: 50px;
         }
@@ -425,14 +428,19 @@ $logo-width: 240px;
         }
 
         .logbox {
+            display: flex;
+
             .notifs-links {
                 background: none;
                 width: 100%;
+            }
 
-                .ico-link {
-                    height: 50px;
-                    width: 50px;
-                }
+
+            .notifs-links .ico-link, 
+            #my-account, 
+            #my-account .avatar{
+                height: 50px;
+                width: 50px;
             }
 
             .dropdown {
@@ -461,6 +469,32 @@ $logo-width: 240px;
                 }
             }
         }
+    }
+}
+
+@media only screen and (max-width: 339px) {
+    .header-container {
+        .header-mobile-page-title {
+            margin:0;
+        }
+        .mobile-menu-btn,
+        .logbox .notifs-links .ico-link {
+            width:40px !important;
+        }
+        .mobile-menu-btn::after {
+            left:8px !important;
+        }
+    }
+}
+
+@media only screen and (max-width: 239px) {
+    .header-container .header-logo {
+        width: 20px;
+        min-width: 20px;
+        height: 20px;
+        position: absolute;
+        left: 10px;
+        top: 32px;
     }
 }
 

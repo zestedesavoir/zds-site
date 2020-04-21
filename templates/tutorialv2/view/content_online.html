@@ -25,9 +25,9 @@
     {% endfor %}
     <meta name="DC.type" content="text" />
     <meta name="DC.title" content="{{ content.title }}" />
-    <meta name="DC.abstract" content="{{ content.title }}{% if content.description %} – {{ content.description }}{% endif %}" />
+    <meta name="DC.abstract" content="{{ content.title }}{% if content.meta_description %} – {{ content.meta_description }}{% endif %}" />
     <meta name="DC.subject" lang="fr" content="{% joinby content.subcategory.all %}{% if content.tags.all %} – {% joinby content.tags.all separator=' ; ' final_separator=' ; ' %}{% endif %}" />
-    {% if content.description %}<meta name="DC.description" lang="fr" content="{{ content.description }}" />{% endif %}
+    {% if content.meta_description %}<meta name="DC.description" lang="fr" content="{{ content.meta_description }}" />{% endif %}
     <meta name="DC.date" content="{% if content.pubdate %}{{ content.pubdate|date:'Y/m/d' }}{% else %}{{ content.update_date|date:'Y/m/d' }}{% endif %}" />
     <meta name="DC.format" content="text/html" />
     {% if content.source %}<meta name="DC.source" content="{{ content.source }}" />{% endif %}
@@ -46,18 +46,7 @@
 
 
 {% block meta_image %}{% spaceless %}
-    {% if content.image %}
-        {{ content.image.physical|thumbnail_url:'social_network' }}
-    {% else %}
-        {% load static %}
-        {% if content.type == 'TUTORIAL' %}
-            {% static "images/tutorial-illu.png" %}
-        {% elif content.type == 'ARTICLE' %}
-            {% static "images/article-illu.png" %}
-        {% elif content.type == 'OPINION' %}
-            {% static "images/opinion-illu.png" %}
-        {% endif %}
-    {% endif %}
+    {% include "tutorialv2/includes/image_illu.part.html" with content=content %}
 {% endspaceless %}{% endblock %}
 
 
@@ -171,7 +160,6 @@
     {% if content.has_extracts %}
         {{ content.get_content_online|safe }}
     {% else %}
-
         {% if content.introduction %}
             {{ content.get_introduction_online|default:""|safe }}
         {% endif %}
@@ -196,7 +184,6 @@
         {% endif %}
 
     {% endif %}
-
     {{ content_pager }}
     {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
     {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
@@ -231,6 +218,18 @@
         {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
     {% endwith %}
     </li>
+    <li>
+        {% url 'content:request-featured' object.pk as link_request %}
+        {% if is_requesting %}
+            {% trans "Proposer la mise en une" as data_onclick %}
+            {% trans "Ne plus proposer la mise en une" as button_text %}
+        {% else %}
+            {% trans "Proposer la mise en une" as button_text %}
+            {% trans "Ne plus proposer la mise en une" as data_onclick %}
+        {% endif %}
+        {% include 'featured/includes/featured_request.part.html' with link=link_request is_requesting=is_requesting data_onclick=data_onclick button_text=button_text featured_request_count=featured_request_count %}
+
+    </li>
     {% if not user in content.authors.all %}
     <li>
         <a href="{{ pm_link }}" class="ico-after cite blue">
@@ -246,7 +245,7 @@
     {% if public_object.is_opinion %}
         {% for author in public_object.authors.all %}
             <li>
-                <a href="{% url 'content:find-opinion' author.pk %}" class="ico-after offline blue">
+                <a href="{% url 'opinion:find-opinion' author.username %}" class="ico-after offline blue">
                     {% blocktrans %}
                         Voir la tribune de {{ author }}
                     {% endblocktrans %}
@@ -273,6 +272,14 @@
                         {% trans "Voir les statistiques" %}
                     </a>
                 </li>
+                <li>
+                    <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue"
+                    data-success-text="{% trans "Export en cours, veuillez attendre quelques minutes" %}"
+                    data-error-text="{% trans "La demande d'export a échoué" %}"
+                    data-base-text="{% trans "Exporter le contenu (epub, pdf, latex...)" %}">
+                        {% trans "Exporter le contenu (epub, pdf, latex...)" %}
+                    </button>
+                </li>
                 {% if is_staff %}
                     {% if content.requires_validation %}
                         <li>
@@ -298,7 +305,7 @@
                         {% if not content.converted_to %}
                             <li>
                                 <a href="#convert-opinion" class="ico-after open-modal tick green">
-                                    {% trans "Convertir en article" %}
+                                    {% trans "Proposer comme article" %}
                                 </a>
                                 {% crispy formConvertOpinion %}
                             </li>
@@ -366,11 +373,16 @@
             </ul>
         </div>
     {% endif %}
-
+    {% if is_staff %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Editorialisation">
+        {%  include "tutorialv2/includes/editorialization.part.html"  %}
+        </div>
+    {% endif %}
     {% include "misc/social_buttons.part.html" with link=content.get_absolute_url_online text=content.title %}
 {% endblock %}
 
 {% block content_after %}
+    {% include "tutorialv2/includes/content_suggestion.part.html" with content=content content_suggestions=content_suggestions_random %}
     <h3 class="comments-title" id="comments">
         {% if content.get_note_count > 0 %}
             <span itemprop="commentCount">

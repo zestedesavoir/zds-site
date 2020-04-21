@@ -16,7 +16,12 @@ $color-keyboard: #F8F6EA;
 
 $color-staff-link: $color-secondary;
 $color-hat: #6F6F6F;
-$color-staff-hat: #2B5C73;
+$color-staff-hat: $color-primary;
 
 $color-console-bg: #000;
 $color-console-text: #DDD;
+
+$color-not-ready-content: #D0D0D0;
+$color-badge-sanction: #b71c1c;
+
+$color-question-marks: desaturate(lighten($color-primary, 24%), 40%);

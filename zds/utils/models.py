@@ -504,6 +504,7 @@ class CommentEdit(models.Model):
 class Alert(models.Model):
     """Alerts on all kinds of Comments and PublishedContents."""
     SCOPE_CHOICES = [
+        ('PROFILE', _('Profil')),
         ('FORUM', _('Forum')),
         ('CONTENT', _('Contenu')),
     ] + TYPE_CHOICES
@@ -521,6 +522,12 @@ class Alert(models.Model):
                                 null=True,
                                 blank=True, on_delete=models.SET_NULL)
     # use of string definition of pk to avoid circular import.
+    profile = models.ForeignKey('member.Profile',
+                                verbose_name='Profil',
+                                related_name='alerts_on_this_profile',
+                                db_index=True,
+                                null=True,
+                                blank=True, on_delete=models.CASCADE)
     content = models.ForeignKey('tutorialv2.PublishableContent',
                                 verbose_name='Contenu',
                                 related_name='alerts_on_this_content',

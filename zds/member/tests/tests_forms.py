@@ -143,16 +143,6 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
-    def test_too_long_password_register_form(self):
-        data = {
-            'email': 'test@gmail.com',
-            'username': 'ZeTester',
-            'password': stringof77chars,
-            'password_confirm': stringof77chars
-        }
-        form = RegisterForm(data=data)
-        self.assertFalse(form.is_valid())
-
     def test_password_match_username_password_register_form(self):
         data = {
             'email': 'test@gmail.com',
@@ -186,7 +176,6 @@ class RegisterFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_username_spaces_register_form(self):
-        # since Django 1.9, models.CharField is striped by default
         ProfileFactory()
         data = {
             'email': 'test@gmail.com',
@@ -195,7 +184,7 @@ class RegisterFormTest(TestCase):
             'password_confirm': 'ZePassword'
         }
         form = RegisterForm(data=data)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
     def test_username_coma_register_form(self):
         ProfileFactory()
@@ -221,6 +210,46 @@ class MiniProfileFormTest(TestCase):
         data = {
             'biography': '',
             'site': '',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_site_url_without_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'www.airbus.com',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_site_url_with_bad_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'avion://www.airbus.com',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertFalse(form.is_valid())
+
+    def test_site_url_with_http_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'https://www.airbus.com',
+            'avatar_url': '',
+            'sign': ''
+        }
+        form = MiniProfileForm(data=data)
+        self.assertTrue(form.is_valid())
+
+    def test_site_url_with_https_protocol_miniprofile_form(self):
+        data = {
+            'biography': '',
+            'site': 'https://www.airbus.com',
             'avatar_url': '',
             'sign': ''
         }
@@ -360,14 +389,13 @@ class ChangeUserFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_username_spaces_register_form(self):
-        # since Django 1.9, models.CharField is striped by default
         ProfileFactory()
         data = {
             'username': '  ZeTester  ',
             'email': self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
-        self.assertTrue(form.is_valid())
+        self.assertFalse(form.is_valid())
 
     def test_username_coma_register_form(self):
         ProfileFactory()
@@ -422,15 +450,6 @@ class ChangePasswordFormTest(TestCase):
             'password_old': self.old_password,
             'password_new': too_short,
             'password_confirm': too_short
-        }
-        form = ChangePasswordForm(data=data, user=self.user1.user)
-        self.assertFalse(form.is_valid())
-
-    def test_too_long_change_password_form(self):
-        data = {
-            'password_old': self.old_password,
-            'password_new': stringof77chars,
-            'password_confirm': stringof77chars
         }
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
@@ -558,15 +577,6 @@ class NewPasswordFormTest(TestCase):
         data = {
             'password': too_short,
             'password_confirm': too_short
-        }
-        form = NewPasswordForm(data=data, identifier=self.user1.user.username)
-        self.assertFalse(form.is_valid())
-
-    def test_password_too_long_new_password_form(self):
-        toolong = 'abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----'
-        data = {
-            'password': toolong,
-            'password_confirm': toolong
         }
         form = NewPasswordForm(data=data, identifier=self.user1.user.username)
         self.assertFalse(form.is_valid())

@@ -29,12 +29,19 @@ h2 {
     border-top: 1px solid #e0e4e5;
     padding-left: 1%;
     font-weight: 400;
+
+    &.not-ready a {
+        color: $color-not-ready-content;
+    }
 }
 
 h3 {
     font-size: 20px;
     font-size: 2.0rem;
     margin-bottom: 14px;
+    &.not-ready a {
+        color: $color-not-ready-content;
+    }
 }
 
 h4 {
@@ -242,7 +249,7 @@ h6 {
     background: #EEE;
 }
 
- 
+
 
 img {
     max-width: 100%;
@@ -424,7 +431,7 @@ td {
     margin: 0 auto;
     max-width: 560px;
     max-height: 315px;
-    
+
     // Needed in case .video-container is wrapped with <div class="align-center"> or with <figure>
     text-align: left;
 
@@ -471,4 +478,25 @@ div.align-left, figure pre code.hljs {
     overflow-x: auto;
     padding: .5em;
 
+}
+
+// checkbox menu
+
+ul li p {
+    margin: 0;
+}
+
+li.task-list-item {
+    list-style-type: none;
+    position: relative;
+
+    input[type=checkbox] {
+        top: 4px;
+        position: absolute;
+        left: -20px;
+    }
+}
+
+.warn-typo {
+    height: 20px;
 }

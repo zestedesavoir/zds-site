@@ -1,192 +1,198 @@
-const path = require('path');
-const livereload = require('gulp-livereload');
-const concat = require('gulp-concat');
-const del = require('del');
-const gulp = require('gulp');
-const gulpif = require('gulp-if');
-const imagemin = require('gulp-imagemin');
-const postcss = require('gulp-postcss');
-const sass = require('gulp-sass');
-const sourcemaps = require('gulp-sourcemaps');
-const spritesmith = require('gulp.spritesmith');
-const uglify = require('gulp-uglify');
-const jshint = require('gulp-jshint');
-const options = require('gulp-options');
-const autoprefixer = require('autoprefixer');
-const cssnano = require('cssnano');
+const autoprefixer = require('autoprefixer')
+const concat = require('gulp-concat')
+const cssnano = require('cssnano')
+const del = require('del')
+const eslint = require('gulp-eslint')
+const gulp = require('gulp')
+const gulpif = require('gulp-if')
+const imagemin = require('gulp-imagemin')
+const options = require('gulp-options')
+const path = require('path')
+const postcss = require('gulp-postcss')
+const sass = require('gulp-sass')
+const spritesmith = require('gulp.spritesmith')
+const terser = require('gulp-terser-js')
+const fs = require('fs')
 
-const fast = options.has("speed");
 
-//>> PostCSS plugins used
-const postcssPlugins = [
-    autoprefixer({ browsers: ['last 2 versions', '> 1%', 'ie >= 9'] })
-];
+/* Speed mode */
 
+// You can use '--speed' to speed the tasks, it disables some optimisations like minification
+const fast = options.has('speed')
 if (!fast) {
-    postcssPlugins.push(cssnano());
-    console.log("The speed mode is not enabled.");
+  console.log('The speed mode is not enabled.')
 } else {
-    console.log("The speed mode is enabled.");
+  console.log('The speed mode is enabled.')
 }
-//<<
 
+
+/* SCSS tasks */
+
+// Generates a sprite with the website icons
+function spriteCss() {
+  return gulp.src('assets/images/sprite/*.png')
+    .pipe(spritesmith({
+      cssTemplate: 'assets/scss/_sprite.scss.hbs',
+      cssName: 'scss/_sprite.scss',
+      imgName: 'images/sprite.png',
+      retinaImgName: 'images/sprite@2x.png',
+      retinaSrcFilter: 'assets/images/sprite/*@2x.png'
+    }))
+    .pipe(gulp.dest('dist/'))
+}
+
+// PostCSS settings
+const postcssPlugins = [autoprefixer(), cssnano()]
+
+// Node SASS settings
 const customSass = () => sass({
-    sourceMapContents: true,
-    includePaths: [
-        path.join(__dirname, 'node_modules'),
-        path.join(__dirname, 'dist', 'scss'),
-    ],
-});
+  sourceMapContents: true,
+  includePaths: [
+    path.join(__dirname, 'node_modules'),
+    path.join(__dirname, 'dist', 'scss')
+  ]
+}).on('error', sass.logError)
 
-// Deletes the generated files
-gulp.task('clean', () => del([
-    'dist/',
-]));
+function customSassError(error) {
+  if (error.plugin === 'gulp-sass') {
+    terser.printError.call(this, {
+      name: error.name,
+      line: error.line,
+      col: error.column,
+      filePath: error.file,
+      fileContent: '' + fs.readFileSync(error.file),
+      message: (error.messageOriginal || '').replace(error.file, path.basename(error.file)).split(' in file')[0],
+      plugin: error.plugin
+    })
+    console.log('Original message:', error.messageFormatted)
+    this.emit('end')
+  } else {
+    console.log(error.message)
+  }
+  // TODO: https://github.com/A-312/gulp-terser-js#can-i-use-terser-to-format-error-of-an-other-gulp-module-
+}
 
-// Lint the js source files
-gulp.task('js:lint', () =>
-    gulp.src([
-        'assets/js/*.js',
-        '!assets/js/editor.js', // We'll fix that later
-    ])
-        .pipe(jshint())
-        .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(jshint.reporter('fail')));
+// Generates CSS for the website and the ebooks
+function css() {
+  return gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'], { sourcemaps: true })
+    .pipe(customSass()) // SCSS to CSS
+    .on('error', customSassError)
+    .pipe(gulpif(!fast, postcss(postcssPlugins))) // Adds browsers prefixs and minifies
+    .pipe(gulp.dest('dist/css/', { sourcemaps: '.' }))
+}
 
-// Concat and minify all the js files
-gulp.task('js', () =>
-    gulp.src([
-        require.resolve('jquery'),
-        require.resolve('cookies-eu-banner'),
-        require.resolve('moment/moment.js'),
-        require.resolve('moment/locale/fr.js'),
-        require.resolve('chart.js/dist/Chart.js'),
-        // Used by other scripts, must be first
-        'assets/js/modal.js',
-        'assets/js/tooltips.js',
+// Generates CSS for the static error pages in the folder `errors/`
+function errors() {
+  return gulp.src('errors/scss/main.scss', { sourcemaps: true })
+    .pipe(customSass())
+    .on('error', customSassError)
+    .pipe(gulpif(!fast, postcss(postcssPlugins)))
+    .pipe(gulp.dest('errors/css/', { sourcemaps: '.' }))
+}
 
-        'assets/js/accessibility-links.js',
-        'assets/js/accordeon.js',
-        'assets/js/ajax-actions.js',
-        'assets/js/autocompletion.js',
-        'assets/js/charts.js',
-        'assets/js/close-alert-box.js',
-        'assets/js/compare-commits.js',
-        'assets/js/content-publication-readiness.js',
-        'assets/js/dropdown-menu.js',
-        'assets/js/editor.js',
-        'assets/js/editor-persistence.js',
-        'assets/js/featured-resource-preview.js',
-        'assets/js/form-email-username.js',
-        'assets/js/gallery.js',
-        'assets/js/index.js',
-        'assets/js/jquery-tabbable.js',
-        'assets/js/karma.js',
-        'assets/js/keyboard-navigation.js',
-        'assets/js/markdown-help.js',
-        'assets/js/message-hidden.js',
-        'assets/js/message-signature.js',
-        'assets/js/mobile-menu.js',
-        'assets/js/select-autosubmit.js',
-        'assets/js/snow.js',
-        'assets/js/spoiler.js',
-        'assets/js/submit-dbclick.js',
-        'assets/js/tab-modalize.js',
-        'assets/js/topic-suggest.js',
-        'assets/js/tribune-pick.js',
-        'assets/js/zen-mode.js',
-    ], { base: '.' })
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(concat('script.js', { newline: ';\r\n' }))
-        .pipe(gulpif(!fast, uglify()))
-        .on('error', function (err) {
-            // gulp-uglify sucks
-            console.log(err.toString());
-        })
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../' }))
-        .pipe(gulp.dest('dist/js/')));
 
-gulp.task('prepare-zmd', () =>
-    gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
-        .pipe(gulp.dest('dist/css/')));
+/* JS tasks */
 
-// Compiles the SCSS files to CSS
-gulp.task('css', ['css:sprite'], () =>
-    gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'])
-        .pipe(sourcemaps.init())
-        .pipe(customSass())
-        .pipe(gulpif(!fast, postcss(postcssPlugins)))
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../../assets/scss/' }))
-        .pipe(gulp.dest('dist/css/')));
+// ESLint options
+var eslintOptions = {}
+const fix = options.has('fix')
+if (fix) {
+  eslintOptions = { fix: true }
+}
 
-// Generates a sprite
-gulp.task('css:sprite', () =>
-    gulp.src('assets/images/sprite/*.png')
-        .pipe(spritesmith({
-            cssTemplate: 'assets/scss/_sprite.scss.hbs',
-            cssName: 'scss/_sprite.scss',
-            imgName: 'images/sprite.png',
-            retinaImgName: 'images/sprite@2x.png',
-            retinaSrcFilter: 'assets/images/sprite/*@2x.png',
-        }))
-        .pipe(gulp.dest('dist/')));
+// Lints the JS source files
+
+function jsLint() {
+  return gulp.src(['assets/js/*.js', 'Gulpfile.js', '!assets/js/editor-old.js'], { base: '.' })
+    .pipe(eslint(eslintOptions))
+    .pipe(eslint.format())
+    .pipe(gulp.dest('.'))
+    .pipe(eslint.failAfterError())
+}
+
+// Generates JS for the website
+function js() {
+  return gulp.src([
+    require.resolve('jquery'),
+    require.resolve('cookies-eu-banner'),
+    require.resolve('moment/moment.js'),
+    require.resolve('moment/locale/fr.js'),
+    require.resolve('chart.js/dist/Chart.js'),
+    require.resolve('easymde/dist/easymde.min.js'),
+    // Used by other scripts, must be first
+    'assets/js/modal.js',
+    'assets/js/tooltips.js',
+    // All the scripts
+    'assets/js/*.js'
+  ], { base: '.', sourcemaps: true })
+    .pipe(gulpif(!fast, terser())) // Minifies the JS
+    .on('error', function(error) {
+      if (error.plugin.startsWith('gulp-terser')) {
+        this.emit('end')
+      } else {
+        console.log(error.message)
+      }
+    })
+    .pipe(concat('script.js', { newLine: ';\r\n' })) // One JS file to rule them all
+    .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }))
+}
+
+
+/* Images tasks */
 
 // Optimizes the images
-gulp.task('images', ['css:sprite'], () =>
-    gulp.src('assets/{images,smileys,licenses}/**/*')
-        .pipe(gulpif(!fast, imagemin()))
-        .pipe(gulp.dest('dist/'))
-);
+function images() {
+  return gulp.src(['assets/{images,smileys,licenses}/**/*', '!assets/images/sprite/*.png'])
+    .pipe(gulpif(!fast, imagemin())) // Minify the images
+    .pipe(gulp.dest('dist/'))
+}
+
+function spriteImages() {
+  return gulp.src(['dist/images/sprite*.png'])
+    .pipe(gulpif(!fast, imagemin())) // Minify the images
+    .pipe(gulp.dest('dist/images/'))
+}
+
+
+/* Other tasks */
+
+// Prepares files for zmarkdown
+function prepareZmd() {
+  return gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
+    .pipe(gulp.dest('dist/css/'))
+}
+
+// Prepares files for easy mde
+function prepareEasyMde() {
+  return gulp.src(['node_modules/easymde/dist/easymde.min.css', 'node_modules/codemirror/theme/idea.css'])
+    .pipe(gulp.dest('dist/css/'))
+}
+
+// Deletes the generated files
+function clean() {
+  return del('dist/')
+}
+
+
+/* Commands */
 
 // Watch for file changes
-gulp.task('watch-runner', () => {
-    gulp.watch('assets/js/*.js', ['js']);
-    gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite*.png'], ['images']);
-    gulp.watch(['assets/scss/**/*.scss', '!assets/scss/_sprite.scss'], ['css']);
+function watch() {
+  gulp.watch('assets/js/*.js', js)
+  gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images)
+  gulp.watch(['assets/scss/**/*.scss'], css)
+  gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
+}
 
-    gulp.watch('dist/**/*', file =>
-         livereload.changed(
-            path.join('static/', path.relative(path.join(__dirname, 'dist/'), file.path))
-        )
-    );
+// Build the front
+var build = gulp.parallel(prepareZmd, prepareEasyMde, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 
-    livereload.listen();
-});
+exports.build = build
+exports.watch = gulp.series(build, watch)
+exports.lint = jsLint
+exports.clean = clean
+exports.errors = errors
+exports.prepareZmd = prepareZmd
+exports.prepareEasyMde = prepareEasyMde
+exports.default = gulp.parallel(watch, jsLint)
 
-// https://github.com/gulpjs/gulp/issues/259#issuecomment-152177973
-gulp.task('watch', cb => {
-    function spawnGulp(args) {
-        if (fast)
-            args.push("--speed");
-        return require('child_process')
-            .spawn(
-                'node_modules/.bin/gulp',
-                args,
-                {stdio: 'inherit'}
-            )
-    }
-
-    function spawnBuild() {
-        return spawnGulp(['build'])
-            .on('close', spawnWatch)
-    }
-
-    function spawnWatch() {
-        return spawnGulp(['watch-runner'])
-            .on('close', spawnWatch)
-    }
-
-    spawnBuild();
-});
-
-// Compiles errors' CSS
-gulp.task('errors', () =>
-    gulp.src('errors/scss/main.scss')
-        .pipe(sourcemaps.init())
-        .pipe(customSass())
-        .pipe(gulpif(!fast, postcss(postcssPlugins)))
-        .pipe(sourcemaps.write('.', { includeContent: true, sourceRoot: '../scss/' }))
-        .pipe(gulp.dest('errors/css/')));
-
-gulp.task('build', ['prepare-zmd', 'css', 'js', 'images']);
-gulp.task('default', ['watch', 'js:lint']);

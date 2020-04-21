@@ -12,7 +12,7 @@ class CommonLayoutEditor(Layout):
 
     def __init__(self, *args, **kwargs):
         super(CommonLayoutEditor, self).__init__(
-            Field('text', css_class='md-editor'),
+            Field('text', css_class='md-editor mini-editor'),
             HTML("<div class='message-bottom'>"),
             HTML("<div class='message-submit'>"),
             StrictButton(
@@ -50,15 +50,6 @@ class CommonLayoutVersionEditor(Layout):
                         css_class='btn-grey preview-btn'),
                 ),
             ),
-            *args, **kwargs
-        )
-
-
-class CommonLayoutModalText(Layout):
-
-    def __init__(self, *args, **kwargs):
-        super(CommonLayoutModalText, self).__init__(
-            Field('text'),
             *args, **kwargs
         )
 

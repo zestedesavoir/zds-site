@@ -21,6 +21,12 @@
 
 {% block headline %}
     {% trans "Éditer une image" %}
+
+    {% if permissions.write %}
+        <a href="#form-delete-image" class="btn btn-cancel open-modal">
+            {% trans "Supprimer" %}
+        </a>
+    {% endif %}
 {% endblock %}
 
 
@@ -84,5 +90,15 @@
         </p>
 
         {% crispy as_avatar_form %}
+
+        {% if permissions.write %}
+            {# Confirmation modal for deleting image #}
+            <form id="form-delete-image" name="form" method="post" action="{% url "gallery-image-delete" gallery.pk %}" class="modal modal-flex">
+                {% csrf_token %}
+                <input type="hidden" name="image" value="{{ image.pk }}">
+                <p>{% trans "Attention, vous vous apprêtez à supprimer cette image." %}</p>
+                <button type="submit" name="delete" class="btn">{% trans "Confirmer" %}</button>
+            </form>
+        {% endif %}
     </div>
 {% endblock %}

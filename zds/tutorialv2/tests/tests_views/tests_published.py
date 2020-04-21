@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import ugettext_lazy as _
 
-from zds.forum.factories import ForumFactory, CategoryFactory as ForumCategoryFactory
+from zds.forum.factories import ForumFactory, ForumCategoryFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
@@ -864,7 +864,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_find_tutorial_or_article(self):
-        """test the behavior of `content:find-article` and `content-find-tutorial` urls"""
+        """test the behavior of `article:find-article` and `content-find-tutorial` urls"""
 
         self.assertEqual(
             self.client.login(
@@ -888,7 +888,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test without filters
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]),
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]),
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -896,7 +896,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(contents), 3)  # 3 tutorials
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]),
+            reverse('article:find-article', args=[self.user_author.username]),
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -905,14 +905,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test a non-existing filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=whatever',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=whatever',
             follow=False
         )
         self.assertEqual(404, response.status_code)  # this filter does not exists !
 
         # test 'redaction' filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=redaction',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -921,7 +921,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0].pk, tuto_draft.pk)
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=redaction',
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=redaction',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -930,7 +930,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test beta filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=beta',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=beta',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -939,7 +939,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0].pk, tuto_in_beta.pk)
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=beta',
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=beta',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -948,7 +948,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test validation filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=validation',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -956,7 +956,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(contents), 0)  # no tutorial in validation
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=validation',
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=validation',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -966,7 +966,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test public filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=public',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=public',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -975,7 +975,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0].pk, self.tuto.pk)
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public',
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=public',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -986,21 +986,21 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test validation filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=validation',
             follow=False
         )
         self.assertEqual(403, response.status_code)  # not allowed for public
 
         # test redaction filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=redaction',
             follow=False
         )
         self.assertEqual(403, response.status_code)  # not allowed for public
 
         # test beta filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=beta',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=beta',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -1009,7 +1009,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0].pk, tuto_in_beta.pk)
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=beta',
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=beta',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -1018,7 +1018,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test public filter
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=public',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=public',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -1027,7 +1027,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0].pk, self.tuto.pk)
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public',
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=public',
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -1036,7 +1036,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test no filter → same answer as 'public'
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]),
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]),
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -1045,7 +1045,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0].pk, self.tuto.pk)
 
         response = self.client.get(
-            reverse('content:find-article', args=[self.user_author.pk]),
+            reverse('article:find-article', args=[self.user_author.username]),
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -1059,7 +1059,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             True)
 
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]),
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]),
             follow=False
         )
         self.assertEqual(200, response.status_code)
@@ -1070,28 +1070,28 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test validation filter:
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=validation',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=validation',
             follow=False
         )
         self.assertEqual(403, response.status_code)
 
         # test redaction filter:
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=redaction',
             follow=False
         )
         self.assertEqual(403, response.status_code)
 
         # test beta filter:
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=beta',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=beta',
             follow=False
         )
         self.assertEqual(200, response.status_code)
 
         # test redaction filter:
         response = self.client.get(
-            reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction',
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=redaction',
             follow=False
         )
         self.assertEqual(403, response.status_code)
@@ -1448,7 +1448,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(old_published)  # still exists
         self.assertTrue(old_published.must_redirect)  # do redirection if any
         self.assertIsNone(old_published.update_date)
-
+        result = self.client.get(old_published.get_absolute_url_online(), follow=False)
+        self.assertEqual(result.status_code, 301)
+        # extra contents are also redirected
+        result = self.client.get(old_published.get_absolute_url_md(), follow=False)
+        self.assertEqual(result.status_code, 301)
         new_published = PublishedContent.objects.filter(content__pk=self.tuto.pk).last()
         self.assertIsNotNone(new_published)  # new version exists
         self.assertNotEqual(old_published.pk, new_published.pk)  # not the old one
@@ -1720,7 +1724,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': content_draft.compute_hash(),
-                'image': content_draft.image
+                'image': content_draft.image or 'None'
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1772,7 +1776,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
-
+        self.client.logout()
         # login with staff
         self.assertEqual(
             self.client.login(
@@ -2233,3 +2237,101 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False)
 
         self.assertEqual(tutorial.public_version.authors.count(), 1)
+
+    def check_images_socials(self, result, pattern_link_image, title, description):
+        start_reg = r'<meta(\s+)(\S+)'
+
+        for meta in ['twitter:image', 'og:image:url']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"http://(\S+)/' + pattern_link_image + '(\S+)\"')
+        for meta in ['og:image:secure_url']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"https://(\S+)/' + pattern_link_image + '(\S+)\"')
+        for meta in ['twitter:description']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"' + description)
+        for meta in ['twitter:title', 'og:title']:
+            self.assertRegex(result.content.decode('utf-8'),
+                             start_reg + meta + '(\S+)(\s+)content=\"' + title)
+
+    def test_social_cards_without_image(self):
+        """
+        Check that all cards are produce for social network twitter
+        """
+        # test access for guest user (bot of social network for example)
+        self.client.logout()
+
+        # check tutorial cards
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.check_images_socials(result, 'static/images/tutorial-illu', self.tuto.title, self.tuto.description)
+
+        # check part cards
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'container_slug': self.part1.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.check_images_socials(result, 'static/images/tutorial-illu', self.part1.title, self.tuto.description)
+
+        # check chapter cards
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'parent_container_slug': self.part1.slug,
+                                                                            'container_slug': self.chapter1.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.check_images_socials(result, 'static/images/tutorial-illu', self.chapter1.title, self.tuto.description)
+
+    def test_social_cards_with_image(self):
+        """
+        Check that all cards are produce for socials network
+        """
+        # connect with author:
+        self.assertEqual(
+            self.client.login(
+                username=self.user_author.username,
+                password='hostel77'),
+            True)
+        # add image to public tutorial
+        self.client.post(
+            reverse('content:edit', args=[self.tuto.pk, self.tuto.slug]),
+            {
+                'title': self.tuto.title,
+                'description': self.tuto.description,
+                'introduction': '',
+                'conclusion': '',
+                'type': 'TUTORIAL',
+                'licence': self.tuto.licence.pk,
+                'subcategory': self.subcategory.pk,
+                'last_hash': self.tuto.load_version().compute_hash(),
+                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
+            },
+            follow=True)
+
+        # test access for guest user (bot of social network for example)
+        self.client.logout()
+
+        # check tutorial cards
+        result = self.client.get(reverse('tutorial:view', kwargs={'pk': self.tuto.pk,
+                                                                  'slug': self.tuto.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.check_images_socials(result, 'media/galleries/', self.tuto.title, self.tuto.description)
+        # check part cards
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'container_slug': self.part1.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.check_images_socials(result, 'media/galleries/', self.part1.title, self.tuto.description)
+
+        # check chapter cards
+        result = self.client.get(reverse('tutorial:view-container', kwargs={'pk': self.tuto.pk,
+                                                                            'slug': self.tuto.slug,
+                                                                            'parent_container_slug': self.part1.slug,
+                                                                            'container_slug': self.chapter1.slug}))
+        self.assertEqual(result.status_code, 200)
+
+        self.check_images_socials(result, 'media/galleries/', self.chapter1.title, self.tuto.description)

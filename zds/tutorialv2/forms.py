@@ -7,11 +7,11 @@ from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidde
 from django.urls import reverse
 from django.core.validators import MinLengthValidator
 
-from zds.utils.forms import CommonLayoutModalText, CommonLayoutEditor, CommonLayoutVersionEditor
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.utils.models import HelpWriting
-from zds.tutorialv2.models.database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
@@ -49,10 +49,87 @@ class FormWithTitle(forms.Form):
         return cleaned_data
 
 
+class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
+
+    def label_from_instance(self, obj):
+        return obj.title
+
+
+class ContributionForm(forms.Form):
+
+    contribution_role = ReviewerTypeModelChoiceField(
+        label=_('Role'),
+        required=True,
+        queryset=ContentContributionRole.objects.order_by('title').all(),
+    )
+
+    username = forms.CharField(
+        label=_('Contributeur'),
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('Pseudo du membre à ajouter.'),
+                'data-autocomplete': "{ 'type': 'single' }"
+            }
+        )
+    )
+
+    comment = forms.CharField(
+        label=_('Commentaire'),
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                'placeholder': _('Commentaire sur ce contributeur.'),
+                'rows': '3'
+            }
+        )
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        self.helper = FormHelper()
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_id = 'add-contributor'
+        self.helper.form_method = 'post'
+        self.helper.form_action = reverse('content:add-contributor', kwargs={'pk': content.pk})
+        self.helper.layout = Layout(
+            Field('username'),
+            Field('contribution_role'),
+            Field('comment'),
+            ButtonHolder(
+                StrictButton(_('Ajouter'), type='submit'),
+            )
+        )
+        super(ContributionForm, self).__init__(*args, **kwargs)
+
+    def clean_username(self):
+        cleaned_data = super(ContributionForm, self).clean()
+        if cleaned_data.get('username'):
+            username = cleaned_data.get('username')
+            user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower())\
+                .first()
+            if user is not None:
+                cleaned_data['user'] = user.user
+            else:
+                self._errors['user'] = self.error_class([_('L\'utilisateur sélectionné n\'existe pas')])
+
+        if 'user' not in cleaned_data:
+            self._errors['user'] = self.error_class([_('Veuillez renseigner l\'utilisateur')])
+
+        return cleaned_data
+
+
+class RemoveContributionForm(forms.Form):
+
+    pk_contribution = forms.CharField(
+        label=_('Contributeur'),
+        required=True,
+    )
+
+
 class AuthorForm(forms.Form):
 
     username = forms.CharField(
-        label=_("Auteurs à ajouter séparés d'une virgule."),
+        label=_('Auteurs à ajouter séparés d\'une virgule.'),
         required=True
     )
 
@@ -625,7 +702,7 @@ class AskValidationForm(forms.Form):
         self.helper.form_id = 'ask-validation'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('source'),
             Field('version'),
             StrictButton(
@@ -721,7 +798,7 @@ class AcceptValidationForm(forms.Form):
         self.helper.form_id = 'valid-publish'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('source'),
             Field('is_major'),
             StrictButton(_('Publier'), type='submit')
@@ -760,7 +837,7 @@ class CancelValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>'),
-            CommonLayoutModalText(),
+            Field('text'),
             ButtonHolder(
                 StrictButton(
                     _('Confirmer'),
@@ -826,7 +903,7 @@ class RejectValidationForm(forms.Form):
         self.helper.form_id = 'reject'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             ButtonHolder(
                 StrictButton(
                     _('Rejeter'),
@@ -881,7 +958,7 @@ class RevokeValidationForm(forms.Form):
         self.helper.form_id = 'unpublish'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('version'),
             StrictButton(
                 _('Dépublier'),
@@ -1084,7 +1161,6 @@ class PublicationForm(forms.Form):
         self.helper.form_id = 'valid-publication'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
             Field('source'),
             HTML("<p>Ce billet sera publié directement et n'engage que vous.</p>"),
             StrictButton(_('Publier'), type='submit')
@@ -1121,7 +1197,7 @@ class UnpublicationForm(forms.Form):
         self.helper.form_id = 'unpublish'
 
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
+            Field('text'),
             Field('version'),
             StrictButton(
                 _('Dépublier'),
@@ -1148,7 +1224,6 @@ class PickOpinionForm(forms.Form):
         self.helper.layout = Layout(
             HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? '
                  'Il pourra maintenant être présent sur la page d’accueil.</p>'),
-            CommonLayoutModalText(),
             Field('version'),
             StrictButton(
                 _('Valider'),
@@ -1174,7 +1249,6 @@ class DoNotPickOpinionForm(forms.Form):
 
         self.helper.layout = Layout(
             HTML(_("<p>Ce billet n'apparaîtra plus dans la liste des billets à choisir.</p>")),
-            CommonLayoutModalText(),
             Field('operation'),
             StrictButton(
                 _('Valider'),
@@ -1249,8 +1323,9 @@ class PromoteOpinionToArticleForm(forms.Form):
         self.helper.form_id = 'convert-opinion'
 
         self.helper.layout = Layout(
-            HTML('<p>Êtes-vous certain(e) de vouloir promouvoir ce billet en article ?</p>'),
-            CommonLayoutModalText(),
+            HTML("""<p>Avez-vous la certitude de vouloir proposer ce billet comme article ?
+                    Cela copiera le billet pour en faire un article,
+                    puis créera une demande de validation pour ce dernier.</p>"""),
             Field('version'),
             StrictButton(
                 _('Valider'),
@@ -1278,3 +1353,47 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_('Vous devez choisir des URL a comparer'))
         if len(urls) < 2:
             raise forms.ValidationError(_('Il faut au minimum 2 urls à comparer'))
+
+
+class SearchSuggestionForm(forms.Form):
+    suggestion_pk = forms.CharField(
+        label='Contenu à suggerer',
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'data-autocomplete': '{"type": "multiple_checkbox",'
+                                     '"limit": 10,'
+                                     '"fieldname": "title",'
+                                     '"url": "/rechercher/suggestion-contenu/?q=%s&excluded=%e"}',
+                'placeholder': 'Rechercher un contenu',
+            })
+    )
+    excluded_pk = forms.CharField(required=False,
+                                  widget=forms.HiddenInput(attrs={'class': 'excluded_field'})
+                                  )
+
+    def __init__(self, content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse('content:add-suggestion', kwargs={'pk': content.pk})
+        self.helper.form_class = 'modal modal-large'
+        self.helper.form_id = 'add-suggestion'
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Field('suggestion_pk'),
+            Field('excluded_pk'),
+            StrictButton(
+                _('Ajouter'),
+                type='submit')
+        )
+        super(SearchSuggestionForm, self).__init__(*args, **kwargs)
+
+
+class RemoveSuggestionForm(forms.Form):
+
+    pk_suggestion = forms.CharField(
+        label=_('Suggestion'),
+        required=True,
+    )

@@ -6,6 +6,7 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 {% load interventions %}
+{% load cache %}
 
 {% block title %}
     {% if topic.is_solved %}[{% trans "Résolu" %}]{% endif %} {{ topic.title }}
@@ -27,7 +28,11 @@
     </li>
 {% endblock %}
 
-
+{% block description %}
+    {% cache 180 "topic-description" topic.pk %}
+        {{ topic.meta_description }}
+    {% endcache %}
+{% endblock %}
 
 {% block schema %}
     itemscope itemtype="http://schema.org/Question"
@@ -212,6 +217,23 @@
             {% endif %}
             {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=topic_is_email_followed data_onclick=data_onclick button_text=button_text %}
         {% endwith %}
+        {% endwith %}
+        {% endwith %}
+    </li>
+
+    <li>
+        {% url 'topic-edit' as link_request_without_parameter %}
+
+        {% with topic_id=topic.pk|stringformat:"s" %}
+        {% with link_request=link_request_without_parameter|add:'?topic='|add:topic_id %}
+            {% if is_requesting %}
+                {% trans "Proposer la mise en une" as data_onclick %}
+                {% trans "Ne plus proposer la mise en une" as button_text %}
+            {% else %}
+                {% trans "Proposer la mise en une" as button_text %}
+                {% trans "Ne plus proposer la mise en une" as data_onclick %}
+            {% endif %}
+            {% include 'featured/includes/featured_request.part.html' with link=link_request is_requesting=is_requesting data_onclick=data_onclick button_text=button_text featured_request_count=featured_request_count %}
         {% endwith %}
         {% endwith %}
     </li>

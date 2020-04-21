@@ -9,7 +9,7 @@ La majorité de ces modules proposent aussi des fonctions proposant les même fo
 Python.
 
 append_query_params
-=============
+===================
 
 L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
 ``module/toto``, le code de template suivant :
@@ -27,10 +27,31 @@ produira le code suivant :
 
 si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
 
+Le module ``trail``
+===================
+
+Ce module définit l'élément ``trail`` qui permet de retirer tous les sauts de ligne et les espaces dans le bloc de gabarit entre les balises HTML ainsi qu'à la fin et au début des lignes. Le code suivant :
+
+.. sourcecode:: html
+
+    {% load trail %}
+    {% trail %}
+    <h3>
+        Hello        world!
+        <a href="example.com">   Un exemple</a>
+    </h3>
+    {% endtrail %}
+
+Produira le code suivant :
+
+.. sourcecode:: html
+
+    <h3> Hello        world! <a href="example.com">   Un exemple</a></h3>
+
 Le module ``captureas``
 =======================
 
-Ce module défini l'élément ``captureas``, qui permet de demander d'effectuer le rendu d'un bloc de gabarit et de stocker son contenu dans
+Ce module définit l'élément ``captureas``, qui permet de demander d'effectuer le rendu d'un bloc de gabarit et de stocker son contenu dans
 une variable. Ainsi le code suivant :
 
 .. sourcecode:: html
@@ -152,7 +173,7 @@ On conviendra du fait que c'est parfaitement illisible ;)
 Le module ``emarkdown``
 =======================
 
-Ce module défini des filtres utilisés dans la transformation du markdown en HTML ou le traitement du markdown.
+Ce module définit des filtres utilisés dans la transformation du markdown en HTML ou le traitement du markdown.
 
 Markdown vers HTML
 ------------------
@@ -175,7 +196,7 @@ génération des fichiers PDF et EPUB des tutos :
 - ``shift_heading_3`` : Décale les titres de 3 niveaux (un titre de niveau 1 devient un titre de niveau 4, etc.)
 
 Le module ``htmldiff``
-=========================
+======================
 
 Ce module définit le tag ``htmldiff`` qui affiche la différence entre deux chaînes de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Le code généré est un tableau HTML à l'intérieur d'une div. Il est employé pour afficher le *diff* des tutoriels et des articles.
 
@@ -385,7 +406,7 @@ Ce *templatetag* est employé pour l'affichage des badges. Vous trouverez plus d
 Le module ``roman``
 ===================
 
-Défini le filtre ``roman``, qui transforme un nombre entier en chiffre romain, utilisé pour l'affichage du sommaire des tutoriels. Par exemple, le code suivant :
+définit le filtre ``roman``, qui transforme un nombre entier en chiffre romain, utilisé pour l'affichage du sommaire des tutoriels. Par exemple, le code suivant :
 
 .. sourcecode:: html
 
@@ -397,7 +418,7 @@ affichera ``CDLIII``, qui est bien la façon d'écrire 453 en chiffres romain.
 Le module ``set``
 =================
 
-Ce module défini l'élément ``set``, permetant de définir de nouvelles variables, il est donc complémentaire au module ``captureas``.
+Ce module définit l'élément ``set``, permetant de définir de nouvelles variables, il est donc complémentaire au module ``captureas``.
 
 Le code suivant permet de définir la variable ``var`` comme valant ``True`` :
 
@@ -435,7 +456,7 @@ Le module ``topbar``
 Ce module est utilisé pour récupéré les catégories dans le but de les afficher dans `le menu <structure-du-site.html#le-menu>`__ et dans la liste des tutoriels et articles.
 
 ``topbar_forum_categories``
-------------------
+---------------------------
 
 Ce filtre récupère les forums, classés par catégorie.
 
@@ -457,7 +478,7 @@ où,
 
 
 ``topbar_publication_categories``
---------------------------
+---------------------------------
 
 Ce filtres renvoit une liste des catégories utilisées dans les articles/tutoriels publiés.
 
@@ -511,12 +532,12 @@ Exemple :
 Le module ``target_tree``
 =========================
 
-Ce module défini un *templatetag* utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
+Ce module définit un *templatetag* utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l'arbre
 des déplacements possibles d'un élément. Il s'agit d'un wrapper autour de ``zds.tutorialv2.utils.get_target_tagged_tree``.
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% load target_tree %}
     {% for element in child|target_tree %}
@@ -529,11 +550,11 @@ Exemple :
 Le module ``url_category``
 ==========================
 
-Ce module défini un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
+Ce module définit un *templatetag* permetant d'accéder à l'url des listes de tutoriels et articles filtrés par tag. Il est employé pour l'affichage des *tags* des tutoriels et articles.
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% if content.subcategory.all|length > 0 %}
         <ul class="taglist" itemprop="keywords">
@@ -551,7 +572,7 @@ Par exemple, l'auteur principal du tuto peut avoir demandé de l'aide pour écri
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% load displayable_authors %}
     {% for authors in content|displayable_authors:True %}
@@ -570,20 +591,20 @@ Permet de mettre en surbrillance les résultats d'une recherche.
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% if search_result.text %}
         {% highlight search_result "text" %}
     {% endif %}
 
 Le module ``joinby``
-===========================
+====================
 
 Ce module permet de lister le contenu d'un itérable en une seule ligne. C'est un équivalent un peu plus flexible de la fonction ``str.join`` en Python. Le séparateur peut être modifié et une option permet d'utiliser le même séparateur pour le dernier élément. Par défaut, le mot "et" est utilisé pour précéder le dernier élément.
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: guess
 
     {% joinby fruits %}
     {% joinby fruits ';' final_separator=';' %}

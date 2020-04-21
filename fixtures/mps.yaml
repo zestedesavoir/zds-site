@@ -5,7 +5,7 @@
         subtitle: C'est mon rêve !
         author: 3
         participants: [1, 2]
-        pubdate: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
         last_message: 1
 -   model: mp.PrivatePost
     pk: 1
@@ -13,5 +13,5 @@
         privatetopic: 1
         author: 3
         text: Bonjour<br />On fait comment pour devenir staff svp ?
-        pubdate: 2013-12-21T13:20:30+00:00
+        pubdate: 2013-12-21 13:20:30
         position_in_topic: 1

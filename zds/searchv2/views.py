@@ -70,6 +70,63 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         return HttpResponse(json_handler.dumps(data), content_type='application/json')
 
 
+class SuggestionContentView(CreateView, SingleObjectMixin):
+    search_query = None
+    authorized_forums = ''
+    index_manager = None
+
+    def __init__(self, **kwargs):
+        """Overridden because the index manager must NOT be initialized elsewhere."""
+
+        super(SuggestionContentView, self).__init__(**kwargs)
+        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+
+    def get(self, request, *args, **kwargs):
+        if 'q' in request.GET:
+            self.search_query = ''.join(request.GET['q'])
+        excluded_content_ids = request.GET.get('excluded', '').split(',')
+        results = []
+        if self.index_manager.connected_to_es and self.search_query:
+            self.authorized_forums = get_authorized_forums(self.request.user)
+
+            search_queryset = Search()
+            if len(excluded_content_ids) > 0 and excluded_content_ids != ['']:
+                search_queryset = search_queryset.exclude('terms', content_pk=excluded_content_ids)
+            query = Match(_type='publishedcontent') & MultiMatch(query=self.search_query,
+                                                                 fields=['title', 'description'])
+
+            functions_score = [
+                {
+                    'filter': Match(content_type='TUTORIAL'),
+                    'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_tutorial']
+                },
+                {
+                    'filter': Match(content_type='ARTICLE'),
+                    'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_article']
+                },
+                {
+                    'filter': Match(content_type='OPINION'),
+                    'weight': settings.ZDS_APP['search']['boosts']['publishedcontent']['if_opinion']
+                }
+            ]
+
+            scored_query = FunctionScore(query=query, boost_mode='multiply', functions=functions_score)
+            search_queryset = search_queryset.query(scored_query)[:10]
+
+            # Build the result
+            for hit in search_queryset.execute():
+                result = {'id': hit.content_pk,
+                          'pubdate': hit.publication_date,
+                          'title': str(hit.title),
+                          'description': str(hit.description)
+                          }
+                results.append(result)
+
+        data = {'results': results}
+
+        return HttpResponse(json_handler.dumps(data), content_type='application/json')
+
+
 class SearchView(ZdSPagingListView):
     """Search view."""
 

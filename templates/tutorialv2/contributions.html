@@ -1,0 +1,153 @@
+{% extends "tutorialv2/base.html" %}
+{% load append_query_params %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+{% load interventions %}
+
+
+{% block title %}
+    {% if contribution_contents != None %}
+        {% trans "Contenus ayant reçus la contribution de" %} {{ usr.username }}
+    {% elif contribution_tutorials != None %}
+        {% trans "Tutoriels ayant reçus la contribution  de" %} {{ usr.username }}
+    {% elif contribution_articles != None %}
+        {% trans "Articles ayant reçus la contribution de" %} {{ usr.username }}
+    {% endif %}
+{% endblock %}
+
+{% block menu_publications %}
+    {% if contribution_tutorials != None or contribution_articles != None %}
+        current
+    {% endif %}
+{% endblock %}
+
+
+{% block breadcrumb_base %}
+    {% if contribution_contents != None %}
+        <li><a href="{% url 'content:list' %}?type=content">{% trans "Bibliothèque" %}</a></li>
+        <li><a href="{% url 'content:find-contribution-all' usr.username %}">{% trans "Contenus ayant reçu la contribution de" %} {{ usr.username }}</a></li>
+    {% elif contribution_tutorials != None %}
+        <li><a href="{% url 'publication:list' %}?type=tutorial">{% trans "Tutoriels" %}</a></li>
+        <li><a href="{% url "tutorial:find-contributions-tutorial" usr.username %}">{% trans "Tutoriels ayant reçu la contribution de" %} {{ usr.username }}</a></li>
+    {% elif contribution_articles != None %}
+        <li><a href="{% url 'publication:list' %}?type=article">{% trans "Articles" %}</a></li>
+        <li><a href="{% url "article:find-contributions-article" usr.username %}">{% trans "Articles ayant reçu la contribution de" %} {{ usr.username }}</a></li>
+    {% endif %}
+{% endblock %}
+
+
+
+{% block content_out %}
+    <section class="full-content-wrapper">
+        {% include "misc/paginator.html" with position="top" %}
+        {% block headline %}
+        {% endblock %}
+
+        {% if contribution_tutorials %}
+            <h2 class="ico-after ico-contribution_tutorials">
+                {% trans "Tutoriels ayant reçu la contribution de" %} {{ usr.username }}
+            </h2>
+            <div class="content-item-list clearfix">
+                {% for contribution_tutorial in contribution_tutorials %}
+                    {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=contribution_tutorial.public_version content=contribution_tutorial%}
+                {% endfor %}
+                <div class="fill"></div>
+                <div class="fill"></div>
+                <div class="fill"></div>
+            </div>
+        {% endif %}
+        {% if contribution_articles %}
+            <h2 class="ico-after ico-contribution_tutorials">
+                {% trans "Articles ayant reçu la contribution de" %} {{ usr.username }}
+            </h2>
+            <div class="content-item-list clearfix">
+                {% for contribution_article in contribution_articles %}
+                    {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=contribution_article.public_version content=contribution_article show_reactions=True %}
+                {% endfor %}
+                <div class="fill"></div>
+                <div class="fill"></div>
+                <div class="fill"></div>
+            </div>
+        {% endif %}
+
+        {% if not contribution_articles and not contribution_tutorials and not contribution_contents %}
+            <p>{% trans "Il n’y a aucun contenu pour cet utilisateur." %}</p>
+        {% endif %}
+
+        {% include "misc/paginator.html" with position="bottom" %}
+
+    </section>
+{% endblock %}
+
+{% block sidebar_actions %}
+    {% if usr != user and user.is_authenticated %}
+        <li>
+            {% with content_is_followed=usr|is_new_publication_followed %}
+                {% url 'content:follow' usr.pk as link_follow %}
+                {% if content_is_followed %}
+                    {% trans "Suivre ses publications" as data_onclick %}
+                    {% trans "Désinscription à ses publications" as button_text %}
+                {% else %}
+                    {% trans "Suivre ses publications" as button_text %}
+                    {% trans "Désinscription à ses publications" as data_onclick %}
+                {% endif %}
+                {% include 'notification/follow_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text subscriber_count=subscriber_count %}
+            {% endwith %}
+        </li>
+        <li>
+            {% with content_is_followed=usr|is_new_publication_email_followed %}
+                {% url 'content:follow' usr.pk as link_follow %}
+                {% if content_is_followed %}
+                    {% trans "Suivre ses publications par courriel" as data_onclick %}
+                    {% trans "Ne plus être notifié par courriel" as button_text %}
+                {% else %}
+                    {% trans "Suivre ses publications par courriel" as button_text %}
+                    {% trans "Ne plus être notifié par courriel" as data_onclick %}
+                {% endif %}
+                {% include 'notification/follow_by_email_template.html' with link=link_follow is_followed=content_is_followed data_onclick=data_onclick button_text=button_text %}
+            {% endwith %}
+        </li>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar_blocks %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Actions">
+        {% if sorts %}
+            <div class="mobile-menu-bloc mobile-all-links" data-title="Trier">
+                <h3>{% trans "Trier" %}</h3>
+                <ul>
+                    {% for current_sort in sorts %}
+                        <li><a href="{% append_query_params sort=current_sort.key %}" class="ico-after gear {% if sort == current_sort.key %}selected{% endif %}">{{ current_sort.text }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        <div class="mobile-menu-bloc mobile-all-links" data-title="Voir">
+            <h3>{% trans "Voir aussi" %}</h3>
+            <ul>
+                {% if contribution_contents == None %}
+                    <li>
+                        <a href="{% url 'content:find-contribution-all' usr.username %}" class="ico-after content">
+                            {% trans "Voir toutes ses contributions aux contenus" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if contribution_tutorials == None or contribution_contents != None %}
+                    <li>
+                        <a href="{% url 'tutorial:find-contributions-tutorial' usr.username %}" class="ico-after tutorial">
+                            {% trans "Voir toutes ses contributions aux tutoriels" %}
+                        </a>
+                    </li>
+                {% endif %}
+                {% if contribution_articles == None or contribution_contents != None %}
+                    <li>
+                        <a href="{% url 'article:find-contributions-article' usr.username %}" class="ico-after article">
+                            {% trans "Voir toutes ses contributions aux articles" %}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}

@@ -61,10 +61,12 @@ class FeaturedResourceForm(forms.ModelForm):
             '%Y-%m-%d', '%d/%m/%Y'  # day only
         ],
         widget=forms.DateTimeInput(
-            attrs={'placeholder': _('Exemple : 25/12/2016 10:00'), 'type': 'datetime-local'},
-            format='%Y-%m-%dT%H:%M'  # datetime field format
+            attrs={'placeholder': _('Exemple : 25/12/2016 10:00'), 'type': 'text'},
+            format='%d/%m/%Y %H:%M'  # datetime field format
         )
     )
+
+    request = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
         hide_major_update_field = kwargs.pop('hide_major_update_field', False)
@@ -76,6 +78,7 @@ class FeaturedResourceForm(forms.ModelForm):
         self.helper.form_action = reverse('featured-resource-create')
 
         fields = [
+            Field('request'),
             Field('title'),
             Field('type'),
             Field('authors'),

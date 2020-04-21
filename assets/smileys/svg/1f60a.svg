@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Clemoji 3.0: 1f60a.svg - licence GPLv3 or later - Author A-312 - https://zestedesavoir.com/ -->
+<!-- Clemoji is based on Twemoji (CC BY 4.0 - https://github.com/twitter/twemoji) -->
+<svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 42.5 63" style="enable-background: new 0 0 42.5 63" xml:space="preserve" version="1.1" id="clemoji3_1f60a" width="19px" height="27.8333px">
+  <g transform="matrix(1.25,0,0,-1.25,-2.5,62.5)" id="g10">
+    <g transform="translate(36,19)" id="g20">
+      <path id="path22" style="fill: rgb(250, 172, 44); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="m 0,0 c 0,-9.389 -7.611,-17 -17,-17 -9.389,0 -17,7.611 -17,17 0,9.389 7.611,17 17,17 C -7.611,17 0,9.389 0,0"></path>
+    </g>
+    <g transform="translate(13,19)" id="g24">
+      <path id="path26" style="fill:#ff7892;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 0,0 c 0,-2.762 -2.239,-5 -5,-5 -2.761,0 -5,2.238 -5,5 0,2.761 2.239,5 5,5 2.761,0 5,-2.239 5,-5"></path>
+    </g>
+    <g transform="translate(35,19)" id="g28">
+      <path id="path30" style="fill:#ff7892;fill-opacity:1;fill-rule:nonzero;stroke:none" d="m 0,0 c 0,-2.762 -2.238,-5 -5,-5 -2.762,0 -5,2.238 -5,5 0,2.761 2.238,5 5,5 2.762,0 5,-2.239 5,-5"></path>
+    </g>
+    <g transform="translate(28.335,15.3711)" id="g32">
+      <path id="path34" style="fill: rgb(153, 37, 0); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="m 0,0 c -0.178,0.161 -0.444,0.171 -0.635,0.029 -0.039,-0.029 -3.922,-2.9 -8.7,-2.9 -4.766,0 -8.662,2.871 -8.7,2.9 -0.191,0.142 -0.457,0.13 -0.635,-0.029 -0.177,-0.16 -0.217,-0.424 -0.094,-0.628 0.129,-0.215 3.217,-5.243 9.429,-5.243 6.212,0 9.301,5.028 9.429,5.243 C 0.217,-0.423 0.178,-0.16 0,0"></path>
+    </g>
+    <g transform="translate(8.999,22)" id="g36">
+      <path id="path38" style="fill: rgb(153, 37, 0); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="M 0,0 C -0.15,0 -0.303,0.034 -0.446,0.105 -0.94,0.353 -1.141,0.954 -0.894,1.447 -0.841,1.552 0.425,4 4.001,4 7.578,4 8.843,1.551 8.895,1.447 9.143,0.953 8.942,0.353 8.448,0.105 7.957,-0.139 7.363,0.057 7.112,0.542 7.069,0.621 6.282,2 4.001,2 1.684,2 0.902,0.567 0.896,0.553 0.72,0.202 0.367,0 0,0"></path>
+    </g>
+    <g transform="translate(29.001,22)" id="g40">
+      <path id="path42" style="fill: rgb(153, 37, 0); fill-opacity: 1; fill-rule: nonzero; stroke: none;" d="M 0,0 C -0.367,-0.001 -0.72,0.202 -0.896,0.553 -0.921,0.599 -1.702,2 -4.001,2 -6.3,2 -7.081,0.599 -7.113,0.54 -7.373,0.059 -7.973,-0.13 -8.458,0.12 -8.943,0.372 -9.14,0.958 -8.896,1.447 -8.844,1.551 -7.578,4 -4.001,4 -0.424,4 0.842,1.551 0.893,1.447 1.141,0.953 0.94,0.353 0.446,0.105 0.303,0.034 0.15,0 0,0"></path>
+    </g>
+    <g id="gfeuille" transform="translate(113.91075,50.659)">
+      <path id="path4138-2" fill="#479F00" d="M-80.758-0.674c-7.478-0.001-13.541-6.064-13.539-13.541c0.003-0.155,0.009-0.31,0.017-0.464c0.297-0.026,0.597-0.041,0.897-0.045c7.478-0.001,13.541,6.062,13.542,13.54c0,0.001,0,0.001,0,0.002c-0.005,0.154-0.009,0.308-0.017,0.462C-80.156-0.696-80.458-0.68-80.758-0.674L-80.758-0.674z"></path>
+      <path id="path4138-2-5" fill="#479F00" d="M-106.123-3.933c5.744,0,10.4-4.658,10.4-10.402c-0.003-0.12-0.006-0.238-0.013-0.357c-0.23-0.02-0.461-0.03-0.691-0.034c-5.745-0.001-10.402,4.656-10.402,10.4c0,0.002,0,0.002,0,0.002c0.002,0.119,0.006,0.237,0.013,0.355C-106.584-3.949-106.355-3.937-106.123-3.933L-106.123-3.933z"></path>
+    </g>
+  </g>
+</svg>

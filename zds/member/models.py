@@ -1,10 +1,10 @@
 from datetime import datetime
+from geoip2.errors import AddressNotFoundError
 from hashlib import md5
-import os
-import pygeoip
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.gis.geoip2 import GeoIP2
 from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
@@ -13,10 +13,11 @@ from django.utils.translation import ugettext_lazy as _
 from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Alert, Licence, Hat
 
 from zds.forum.models import Forum
+import homoglyphs as hg
 
 
 class Profile(models.Model):
@@ -38,6 +39,7 @@ class Profile(models.Model):
         User,
         verbose_name='Utilisateur',
         related_name='profile', on_delete=models.CASCADE)
+    username_skeleton = models.CharField('Squelette du username', max_length=150, null=True, blank=True, db_index=True)
 
     last_ip_address = models.CharField(
         'Adresse IP',
@@ -71,6 +73,7 @@ class Profile(models.Model):
     use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
     _permissions = {}
     _groups = None
+    _cached_city = None
 
     objects = ProfileManager()
 
@@ -92,29 +95,24 @@ class Profile(models.Model):
         Uses geo-localization to get physical localization of a profile through its last IP address.
         This works relatively well with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
         providers.
+        The result is cached on an instance level because this method is called a lot in the profile.
         :return: The city and the country name of this profile.
         """
-        # FIXME: this test to differentiate IPv4 and IPv6 addresses doesn't work, as IPv6 addresses may have length < 16
-        # Example: localhost ("::1"). Real test: IPv4 addresses contains dots, IPv6 addresses contains columns.
-        if len(self.last_ip_address) <= 16:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCity.dat'))
-        else:
-            gic = pygeoip.GeoIP(
-                os.path.join(
-                    settings.GEOIP_PATH,
-                    'GeoLiteCityv6.dat'))
+        if self._cached_city is not None and self._cached_city[0] == self.last_ip_address:
+            return self._cached_city[1]
 
-        geo = gic.record_by_addr(self.last_ip_address)
-
-        if geo is None:
+        try:
+            geo = GeoIP2().city(self.last_ip_address)
+        except AddressNotFoundError:
+            self._cached_city = (self.last_ip_address, '')
             return ''
 
         city = geo['city']
         country = geo['country_name']
-        return ', '.join(i for i in [city, country] if i)
+        geo_location = ', '.join(i for i in [city, country] if i)
+
+        self._cached_city = (self.last_ip_address, geo_location)
+        return geo_location
 
     def get_avatar_url(self):
         """Get the avatar URL for this profile.
@@ -164,14 +162,40 @@ class Profile(models.Model):
     def get_user_public_contents_queryset(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
-        :return: Queryset of contents with this user as author.
+        :return: Queryset of public contents with this user as author.
         """
-        queryset = PublishedContent.objects.filter(authors__in=[self.user])
+        queryset = PublishableContent.objects.filter(public_version__authors__in=[self.user])
 
         if _type:
-            queryset = queryset.filter(content_type=_type)
+            queryset = queryset.filter(type=_type)
 
         return queryset
+
+    def get_user_draft_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of draft contents with this user as author.
+        """
+        return self.get_user_contents_queryset(_type).filter(
+            sha_draft__isnull=False,
+            sha_beta__isnull=True,
+            sha_validation__isnull=True,
+            sha_public__isnull=True
+        )
+
+    def get_user_validate_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of contents in validation with this user as author.
+        """
+        return self.get_user_contents_queryset(_type).filter(sha_validation__isnull=False)
+
+    def get_user_beta_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of contents in beta with this user as author.
+        """
+        return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False)
 
     def get_content_count(self, _type=None):
         """
@@ -196,33 +220,28 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: All draft tutorials with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(
-            sha_draft__isnull=False,
-            sha_beta__isnull=True,
-            sha_validation__isnull=True,
-            sha_public__isnull=True
-        ).all()
+        return self.get_user_draft_contents_queryset(_type).all()
 
     def get_public_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: All published contents with this user as author.
         """
-        return self.get_user_public_contents_queryset(_type).filter(must_redirect=False).all()
+        return self.get_user_public_contents_queryset(_type).all()
 
     def get_validate_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: All contents in validation with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_validation__isnull=False).all()
+        return self.get_user_validate_contents_queryset(_type).all()
 
     def get_beta_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: All tutorials in beta with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False).all()
+        return self.get_user_beta_contents_queryset(_type).all()
 
     def get_tuto_count(self):
         """
@@ -423,6 +442,16 @@ class Profile(models.Model):
         if self._groups is None:
             self._groups = list(self.user.groups.all())
         return [g.pk for g in self._groups]
+
+    @staticmethod
+    def find_username_skeleton(username):
+        skeleton = ''
+        for ch in username:
+            homoglyph = hg.Homoglyphs(languages={'fr'}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
+            if len(homoglyph) > 0:
+                if homoglyph[0].strip() != '':
+                    skeleton += homoglyph[0]
+        return skeleton.lower()
 
 
 @receiver(models.signals.post_delete, sender=User)

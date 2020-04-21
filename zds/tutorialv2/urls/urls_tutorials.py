@@ -1,6 +1,6 @@
-from django.urls import re_path
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
-from zds.tutorialv2.views.contents import RedirectOldBetaTuto
+from zds.tutorialv2.views.contents import RedirectOldBetaTuto, ContentOfAuthor, ContentOfContributors
 
 from zds.tutorialv2.views.published import DisplayOnlineTutorial, DisplayOnlineContainer, \
     DownloadOnlineTutorial, RedirectContentSEO, TagsListView
@@ -40,12 +40,21 @@ urlpatterns = [
             name='download-tex'),
 
     #  Old beta url compatibility
-    re_path('^beta/(?P<pk>\d+)/(?P<slug>.+)',
+    re_path(r'^beta/(?P<pk>\d+)/(?P<slug>.+)',
             RedirectOldBetaTuto.as_view(), name='old-beta-url'),
 
     # Listing
     re_path(r'^$', RedirectView.as_view(
             pattern_name='publication:list', permanent=True)),
     re_path(r'tags/$',
-            TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags')
+            TagsListView.as_view(displayed_types=['TUTORIAL']), name='tags'),
+
+    path('voir/<str:username>/',
+         ContentOfAuthor.as_view(
+             type='TUTORIAL', context_object_name='tutorials'),
+         name='find-tutorial'),
+    path('contributions/<str:username>/',
+         ContentOfContributors.as_view(
+             type='TUTORIAL', context_object_name='contribution_tutorials'),
+         name='find-contributions-tutorial'),
 ]

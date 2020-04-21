@@ -8,7 +8,7 @@ from django.test import tag
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import Select, WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-
+from selenium.webdriver.common.action_chains import ActionChains
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.tutorialv2.factories import (
@@ -123,15 +123,18 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         article_edit_url = reverse('content:edit', args=[article.pk, article.slug])
 
         self.login(author)
-
+        selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
         selenium.get(self.live_server_url + article_edit_url)
 
-        intro = find_element('.md-editor#id_introduction')
-        intro.send_keys('intro')
+        intro = find_element('div#div_id_introduction div.CodeMirror')
+        # ActionChains: Support for CodeMirror https://stackoverflow.com/a/48969245/2226755
+        action_chains = ActionChains(selenium)
+        scrollDriverTo(selenium, 0, 312)
+        action_chains.click(intro).perform()
+        action_chains.send_keys('intro').perform()
 
-        selenium.refresh()
-
-        self.assertEqual('intro', find_element('.md-editor#id_introduction').get_attribute('value'))
+        output = 'div#div_id_introduction div.CodeMirror div.CodeMirror-code'
+        self.assertEqual('intro', find_element(output).text)
 
         article.sha_draft = versioned_article.repo_update('article', 'new intro', '', update_slug=False)
         article.save()
@@ -147,6 +150,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         author = ProfileFactory()
 
         self.login(author)
+        selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
         new_article_url = self.live_server_url + reverse('content:create-article')
         selenium.get(new_article_url)
         WebDriverWait(self.selenium, 10).until(ec.element_to_be_clickable(
@@ -157,8 +161,10 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         find_element('#id_title').send_keys('Oulipo')
 
-        intro = find_element('.md-editor#id_introduction')
-        intro.send_keys('Le cadavre exquis boira le vin nouveau.')
+        intro = find_element('div#div_id_introduction div.CodeMirror')
+        action_chains = ActionChains(selenium)
+        action_chains.click(intro).perform()
+        action_chains.send_keys('Le cadavre exquis boira le vin nouveau.').perform()
 
         find_element('.content-container button[type=submit]').click()
 
@@ -167,3 +173,8 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         selenium.get(new_article_url)
 
         self.assertEqual('', find_element('.md-editor#id_introduction').get_attribute('value'))
+
+
+def scrollDriverTo(driver, x, y):
+    scriptScrollTo = 'window.scrollTo(%s, %s);' % (x, y)
+    driver.execute_script(scriptScrollTo)

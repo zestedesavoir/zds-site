@@ -71,6 +71,9 @@ class PublishedContentManager(models.Manager):
         public_contents = queryset.all()[:settings.ZDS_APP['content']['user_page_number']]
         return public_contents
 
+    def last_tutorials_and_articles_of_a_member_loaded(self, author):
+        return self.last_contents_of_a_member_loaded(author, _type=['TUTORIAL', 'ARTICLE'])
+
     def last_tutorials_of_a_member_loaded(self, author):
         return self.last_contents_of_a_member_loaded(author, _type='TUTORIAL')
 

@@ -9,11 +9,11 @@
     "node": ">=8.0.0"
   },
   "scripts": {
-    "gulp": "gulp",
-    "build": "gulp build",
-    "watch": "gulp watch",
-    "lint": "gulp js:lint",
-    "clean": "gulp clean"
+    "gulp": "node ./node_modules/gulp/bin/gulp.js",
+    "build": "node ./node_modules/gulp/bin/gulp.js build",
+    "watch": "node ./node_modules/gulp/bin/gulp.js watch",
+    "lint": "node ./node_modules/gulp/bin/gulp.js lint",
+    "clean": "node ./node_modules/gulp/bin/gulp.js clean"
   },
   "repository": {
     "type": "git",
@@ -25,33 +25,39 @@
   },
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
-    "autoprefixer": "^7.2.6",
-    "body-parser": "^1.18.2",
-    "chart.js": "^2.7.1",
-    "cookies-eu-banner": "^1.2.10",
-    "cssnano": "3.10.0",
-    "del": "3.0.0",
-    "git-rev": "^0.2.1",
-    "gulp": "^3.9.1",
+    "autoprefixer": "9.7.5",
+    "chart.js": "2.9.3",
+    "cookies-eu-banner": "2.0.1",
+    "cssnano": "4.1.10",
+    "del": "5.1.0",
+    "easymde": "2.9.1-299.0",
+    "gulp": "4.0.2",
     "gulp-concat": "2.6.1",
-    "gulp-if": "^2.0.2",
-    "gulp-imagemin": "4.1.0",
-    "gulp-options": "^1.1.1",
-    "gulp-postcss": "7.0.1",
-    "gulp-sass": "4.0.1",
-    "gulp-sourcemaps": "^2.6.4",
-    "gulp-uglify": "3.0.0",
-    "gulp.spritesmith": "6.5.1",
-    "highlight.js": "^9.12.0",
-    "jquery": "3.2.1",
-    "katex": "^0.10.0",
-    "moment": "^2.20.1",
-    "normalize.css": "7.0.0"
+    "gulp-if": "3.0.0",
+    "gulp-imagemin": "7.0.0",
+    "gulp-options": "1.1.1",
+    "gulp-postcss": "8.0.0",
+    "gulp-sass": "4.0.2",
+    "gulp-terser-js": "5.1.2",
+    "gulp.spritesmith": "6.11.0",
+    "highlight.js": "9.18.1",
+    "jquery": "3.4.1",
+    "katex": "0.11.1",
+    "moment": "2.24.0",
+    "normalize.css": "8.0.1"
   },
   "devDependencies": {
-    "gulp-jshint": "2.1.0",
-    "gulp-livereload": "3.8.1",
-    "jshint": "2.9.5",
-    "jshint-stylish": "2.2.1"
-  }
+    "eslint-config-standard": "14.1.1",
+    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-jsdoc": "22.1.0",
+    "eslint-plugin-node": "11.0.0",
+    "eslint-plugin-promise": "4.2.1",
+    "eslint-plugin-standard": "4.0.1",
+    "gulp-eslint": "6.0.0"
+  },
+  "browserslist": [
+    "last 2 versions",
+    "> 1%",
+    "ie >= 9"
+  ]
 }

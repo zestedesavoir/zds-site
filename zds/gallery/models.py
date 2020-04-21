@@ -107,7 +107,7 @@ class Image(models.Model):
     title = models.CharField(_('Titre'), max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
-    legend = models.CharField(_('Légende'), max_length=80, null=True, blank=True)
+    legend = models.TextField(_('Légende'), null=True, blank=True)
     pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
     update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
 

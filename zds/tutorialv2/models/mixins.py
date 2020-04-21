@@ -42,6 +42,20 @@ class TemplatableContentModelMixin(object):
 
         return url
 
+    @property
+    def validation_message_title(self):
+        """
+        Generate validation private message title
+
+        :return: the generated title
+        """
+        if self.is_article:
+            return _("Suivi de l'article {}").format(self.title)
+        if self.is_tutorial:
+            return _('Suivi du tutoriel {}').format(self.title)
+        if self.is_opinion:
+            return _('Suivi du billet {}').format(self.title)
+
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article
 

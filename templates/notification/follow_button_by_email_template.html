@@ -1,0 +1,11 @@
+{% load interventions %}
+
+<form action="{{ link }}" method="post">
+    <input type="hidden" name="email" value="1">
+    {% csrf_token %}
+    <button class="email ico-after {% if not is_followed %}light{% else %}btn-grey{% endif %}"
+            type="submit" data-ajax-input="follow-topic-by-email"
+            data-content-on-click="{{ data_onclick }}">
+        {{ button_text }}
+    </button>
+</form>

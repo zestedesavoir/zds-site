@@ -1,0 +1,140 @@
+
+.hat,
+.hatlist a.btn {
+    /* Set height & lh of .hat to be sure to keep
+       the same size with .btn */
+    line-height: 30px;
+    box-sizing: border-box;
+    height: 32px;
+    /* --- */
+    margin: 0 0 1px 0; // bottom:1px
+    word-wrap: nowrap;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+/* hat in a message */
+.message .hat {
+    /* undo `line-height: 30px;` with `inherit` */
+    line-height: inherit;
+    margin: 5px 0;
+}
+
+.hat > a.name,
+.hatlist a.btn {
+    padding: 0 6px;
+    border: 1px solid transparent;
+}
+
+.hatlist a.btn.ico-after::after {
+    /* original : margin: 12px 0 0 7px; */
+    margin-top: 7px; /*   ^^ 12 - 10 / 2 = 7px */
+    color: #999;
+}
+
+.hat {
+    position: relative;
+
+    & > a.name {
+        color: #FFF;
+        background-color: $color-hat;
+
+        transition-property: color, background, border;
+        transition-timing-function: ease;
+        transition-duration: $transition-duration;
+
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    a.open-modal {
+        display: none;
+    }
+
+    &:hover a.open-modal {
+        position: absolute;
+        display: block;
+
+        top: -9px;
+        right: -9px;
+
+        width: 18px;
+        height: 18px;
+
+        text-align: center;
+        line-height: 16px;
+        font-size: 18px;
+
+        color: $color-hat;
+        text-decoration: none;
+
+        background: white;
+        border: solid 1px $color-hat;
+        border-radius: 426921px;
+
+        transition: background-color .2s ease-in-out, color .2s ease-in-out;
+
+        &:hover {
+            color: white;
+            text-decoration: none;
+            background: darken($color-hat, 10%);
+        }
+    }
+
+    &.is-staff a.open-modal {
+        color: $color-staff-hat;
+        border: solid 1px $color-staff-hat;
+
+        &:hover {
+            background: darken($color-staff-hat, 10%);
+        }
+    }
+
+    a.name:hover,
+    a.name:focus {
+        background-color: lighten($color-hat, 52%);
+        color: $color-hat;
+        border: 1px solid $color-hat;
+    }
+
+    &.staff-hat {
+        & > a.name {
+            background-color: $color-staff-hat;
+
+            span {
+                color: desaturate(lighten($color-staff-hat, 68%), 21%);
+                font-size: .96em;
+            }
+        }
+
+        a.name:hover,
+        a.name:focus {
+            background-color: desaturate(lighten($color-staff-hat, 74%), 40%);
+            border: 1px solid $color-staff-hat;
+
+            &, & span {
+                color: $color-staff-hat;
+            }
+        }
+    }
+}
+
+.hatlist {
+    /* reset ul css */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    /* --- */
+    
+    display: flex;
+    flex-wrap: wrap;
+
+    li {
+        & {
+            margin-left: 10px;
+            > a.name {
+                padding: 0 1rem;
+            }
+        }
+    }
+}

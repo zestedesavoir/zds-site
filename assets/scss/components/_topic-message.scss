@@ -205,26 +205,6 @@
                 display: none;
             }
 
-            .with-hat {
-                color: #FFF;
-                background-color: $color-hat;
-                display: inline-block;
-                padding: 0;
-                margin-top: 5px;
-                margin-bottom: 5px;
-
-                & > a {
-                    color: #FFF;
-                    text-decoration: none;
-                    display: inline-block;
-                    padding: 0 6px;
-                }
-            }
-
-            .staff-hat {
-                background-color: $color-staff-hat;
-            }
-
             .message-edited,
             .message-hidden,
             .message-helpful,
@@ -277,8 +257,7 @@
                 border-top: 1px solid #D2D5D6;
                 padding: 3px 0 3px 10px;
                 margin: 0 10px 0 0;
-                font-size: 12px;
-                font-size: 1.2rem;
+                font-size: 1.15rem;
                 color: #999;
                 flex: 1;
                 overflow: hidden;
@@ -286,6 +265,9 @@
                 p {
                     margin: 0;
                     padding: 0;
+                    img.smiley {
+                        max-height: 1.6rem;
+                    }
                 }
 
                 a {
@@ -505,19 +487,11 @@ form.topic-message {
                 float: left;
                 display: none;
             }
-            .badge {
-                float: left;
-                height: 20px;
-                line-height: 20px;
-                font-size: 12px;
-                width: 50px;
-                margin-top: -2px;
-                margin-left: 10px;
 
-                &.push-badge {
-                    margin-left: 105px;
-                }
+            .push-badge {
+                margin-left: 105px;
             }
+
             .user-metadata {
                 float: right;
                 width: 140px;
@@ -658,8 +632,10 @@ form.topic-message {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    img.smiley {
+                        max-height: 1.6rem;
+                    }
                 }
-
                 &.full p {
                     white-space: normal;
                 }

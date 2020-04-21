@@ -1,6 +1,7 @@
-from django.urls import re_path
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
+from zds.tutorialv2.views.contents import ContentOfAuthor, ContentOfContributors
 from zds.tutorialv2.views.published import DisplayOnlineArticle, DownloadOnlineArticle, \
     TagsListView
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
@@ -32,5 +33,14 @@ urlpatterns = [
     re_path(r'^$', RedirectView.as_view(
         pattern_name='publication:list', permanent=True)),
     re_path(
-        r'tags/*', TagsListView.as_view(displayed_types=['ARTICLE']), name='tags')
+        r'tags/*', TagsListView.as_view(displayed_types=['ARTICLE']), name='tags'),
+
+    path('voir/<str:username>/',
+         ContentOfAuthor.as_view(
+             type='ARTICLE', context_object_name='articles'),
+         name='find-article'),
+    path('contributions/<str:username>/',
+         ContentOfContributors.as_view(
+             type='ARTICLE', context_object_name='contribution_articles'),
+         name='find-contributions-article'),
 ]

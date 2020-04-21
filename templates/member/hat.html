@@ -74,19 +74,19 @@
                         {% if hat.group %}
                             <li class="inactive">
                                 <span class="ico-after cross disabled">
-                                    {% trans "Suppression impossible" %}
+                                    {% trans "Me retirer ma casquette" %}
                                 </span>
                             </li>
                         {% else %}
                             <li>
                                 <a href="#remove-hat" class="open-modal ico-after cross red">
-                                    {% trans "Supprimer ma casquette" %}
+                                    {% trans "Me retirer ma casquette" %}
                                 </a>
                                 <form action="{% url 'remove-hat' user.pk hat.pk %}" method="post" id="remove-hat" class="modal modal-flex">
                                     {% csrf_token %}
                                     <p>
                                         {% blocktrans with hat=hat.name %}
-                                            Voulez-vous vraiment supprimer votre casquette « {{ hat }} »&nbsp;?
+                                            Voulez-vous vraiment retirer votre casquette « {{ hat }} »&nbsp;?
                                         {% endblocktrans %}
                                     </p>
                                     <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}</p>

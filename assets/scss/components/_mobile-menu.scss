@@ -3,6 +3,12 @@
     display: none;
 }
 
+@media only screen and #{$media-wide} {
+    .mobile-menu-only {
+        display: none;
+    }
+}
+
 @media only screen and #{$media-mobile-tablet} {
     .js .page-container {
         position: relative;
@@ -268,41 +274,6 @@
                     left: 55px;
                     right: 205px;
                 }
-            }
-        }
-
-
-        .logbox {
-            .notifs-links .ico-link,
-            .my-account {
-                position: absolute;
-                top: 0;
-                right: 0;
-                height: 50px;
-                width: 50px;
-
-                .avatar {
-                    height: 50px;
-                    width: 50px;
-                }
-            }
-            .notifs-links  {
-                :nth-child(1) .ico-link {
-                    right: 150px;
-                }
-                :nth-child(2) .ico-link {
-                    right: 100px;
-                }
-                :nth-child(3) .ico-link,
-                .ico-link:nth-child(3) {
-                    right: 50px;
-                }
-            }
-
-            &.unlogged {
-                position: absolute;
-                top: 0;
-                right: 0;
             }
         }
     }

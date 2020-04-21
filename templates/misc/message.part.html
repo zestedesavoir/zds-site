@@ -163,8 +163,8 @@
 
         <div class="message-content">
             {% if message.hat and message.is_visible != False %}
-                <p class="with-hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
-                    <a href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
+                <p class="hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
+                    <a class="name" href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
                 </p>
             {% endif %}
 
@@ -173,11 +173,12 @@
                     {% trans "Reprise du dernier message de la page précédente" %}
                 </p>
             {% endif %}
-            <p class="message-helpful tick ico-after green {% if not message.is_useful or not message.is_visible %}hidden{% endif %}"
-               data-ajax-output="mark-message-as-useful">
-                {% trans "Cette réponse a aidé l’auteur du sujet" %}
-            </p>
-
+            {% if not is_mp %}
+                <p class="message-helpful tick ico-after green {% if not message.is_useful or not message.is_visible %}hidden{% endif %}"
+                   data-ajax-output="mark-message-as-useful">
+                    {% trans "Cette réponse a aidé l’auteur du sujet" %}
+                </p>
+            {% endif %}
             {% if message.is_visible != False %}
                 <div itemprop="text">
                     {{ message.text_html|safe }}

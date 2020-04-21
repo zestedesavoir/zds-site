@@ -6,24 +6,11 @@ from django.utils.translation import gettext_lazy as _
 from .config import config
 from .base_dir import BASE_DIR
 
-
 zds_config = config.get('zds', {})
 
 
 GEOIP_PATH = str(BASE_DIR / 'geodata')
-
-
-tex_template_path = str(BASE_DIR / 'assets' / 'tex' / 'template.tex')
-
-PANDOC_LOC = ''
-PANDOC_PDF_PARAM = (
-    '--latex-engine=xelatex '
-    '--template={} -s -S -N '
-    '--toc -V documentclass=scrbook -V lang=francais '
-    '-V mainfont=Merriweather -V monofont="SourceCodePro-Regular" '
-    '-V fontsize=12pt -V geometry:margin=1in '.format(tex_template_path)
-)
-
+GEOIP_CITY = 'GeoLite2-City.mmdb'
 
 ES_ENABLED = True
 
@@ -39,10 +26,8 @@ ES_SEARCH_INDEX = {
     'replicas': 0,
 }
 
-
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
 VOTES_ID_LIMIT = zds_config.get('VOTES_ID_LIMIT', 0)
-
 
 THUMBNAIL_ALIASES = {
     '': {
@@ -60,9 +45,11 @@ THUMBNAIL_ALIASES = {
         'social_network': {'size': (144, 144), 'crop': True},
         #                           ^^^  ^^^ -> minimum dimensions of 144x144
         # https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary
+        'social_network_large': {'size': (600, 314), 'crop': True}
     },
 }
 
+DEFAULT_ASSO_LINK = 'https://www.helloasso.com/associations/zeste-de-savoir/adhesions/zeste-de-savoir-cotisations-2018'
 
 ZDS_APP = {
     'site': {
@@ -88,7 +75,8 @@ ZDS_APP = {
             'fee': zds_config.get('association_fee', '20 €'),
             'email': 'zestedesavoir@gmail.com',
             'email_ca': 'ca-zeste-de-savoir@googlegroups.com',
-            'forum_ca_pk': 25
+            'forum_ca_pk': 25,
+            'subscribe_link': zds_config.get('association_subscribe_link', DEFAULT_ASSO_LINK)
         },
         'repository': {
             'url': 'https://github.com/zestedesavoir/zds-site',
@@ -124,7 +112,7 @@ ZDS_APP = {
             },
             'licence_info_title': 'http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic'
                                   'ences-sur-zeste-de-savoir/',
-            'licence_info_link': 'Le droit d\'auteur, Creative Commons et les licences sur Zeste de Savoir'
+            'licence_info_link': "Le droit d'auteur, Creative Commons et les licences sur Zeste de Savoir"
         },
         'hosting': {
             'name': 'GANDI SAS',
@@ -175,9 +163,9 @@ ZDS_APP = {
         'repo_private_path': str(BASE_DIR / 'contents-private'),
         'repo_public_path': str(BASE_DIR / 'contents-public'),
         'extra_contents_dirname': 'extra_contents',
-        # can also be 'extra_content_generation_policy': 'WATCHDOG'
+        # can also be 'extra_content_generation_policy': 'SYNC'
         # or 'extra_content_generation_policy': 'NOTHING'
-        'extra_content_generation_policy': 'SYNC',
+        'extra_content_generation_policy': 'WATCHDOG',
         'extra_content_watchdog_dir': BASE_DIR / 'watchdog-build',
         'max_tree_depth': 3,
         'default_licence_pk': 7,
@@ -188,6 +176,7 @@ ZDS_APP = {
         'notes_per_page': 25,
         'helps_per_page': 20,
         'commits_per_page': 20,
+        'suggestions_per_page': 2,
         'feed_length': 5,
         'user_page_number': 5,
         'default_image': BASE_DIR / 'fixtures' / 'noir_black.png',
@@ -196,7 +185,7 @@ ZDS_APP = {
         'maximum_slug_size': 150,
         'characters_per_minute': 1500,
         'editorial_line_link':
-        'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
+            'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'epub_stylesheets': {
             'toc': Path('toc.css'),
             'full': Path(BASE_DIR) / 'dist' / 'css' / 'zmd.css',
@@ -212,11 +201,13 @@ ZDS_APP = {
         'beta_forum_id': zds_config.get('publications_being_written_forum_id', 1),
         'max_post_length': 1000000,
         'top_tag_max': 5,
-        'home_number': 5,
+        'home_number': 6,
         'old_post_limit_days': 90,
         # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
         # Be warned exclude too much tags can restrict performance
-        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article']
+        'top_tag_exclu': ['bug', 'suggestion', 'tutoriel', 'beta', 'article'],
+        'greetings': ['salut', 'bonjour', 'yo ', 'hello', 'bon matin', 'tout le monde se secoue'],
+        'description_size': 120,
     },
     'topic': {
         'home_number': 5,
@@ -229,6 +220,7 @@ ZDS_APP = {
     'featured_resource': {
         'featured_per_page': 100,
         'home_number': 5,
+        'request_per_page': 50,
     },
     'notification': {
         'per_page': 50,

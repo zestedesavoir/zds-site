@@ -11,7 +11,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.gallery.factories import UserGalleryFactory
-from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.factories import ForumFactory, ForumCategoryFactory
 from zds.utils.factories import CategoryFactory as ContentCategoryFactory
 
 
@@ -40,7 +40,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.beta_forum = ForumFactory(
             pk=self.overridden_zds_app['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.tuto_draft = self.tuto.load_version()
@@ -60,23 +60,34 @@ class ContentTests(TutorialTestMixin, TestCase):
         article = PublishedContentFactory(author_list=[self.user_author], type='ARTICLE')
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type='ARTICLE')
         self.client.logout()
+
         resp = self.client.get(reverse('publication:list') + '?type=tutorial')
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
+
         resp = self.client.get(reverse('publication:list') + '?type=article')
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
-        resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=public')
+
+        resp = self.client.get(reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=public')
         self.assertContains(resp, tutorial.title)
         self.assertNotContains(resp, tutorial_unpublished.title)
-        resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]) + '?filter=redaction')
+
+        resp = self.client.get(
+            reverse('tutorial:find-tutorial', args=[self.user_author.username]) + '?filter=redaction'
+        )
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=public')
+
+        resp = self.client.get(reverse('article:find-article', args=[self.user_author.username]) + '?filter=public')
         self.assertContains(resp, article.title)
         self.assertNotContains(resp, article_unpublished.title)
-        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=redaction')
+
+        resp = self.client.get(reverse('article:find-article', args=[self.user_author.username]) + '?filter=redaction')
         self.assertEqual(resp.status_code, 403)
-        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]) + '?filter=chuck-norris')
+
+        resp = self.client.get(
+            reverse('article:find-article', args=[self.user_author.username]) + '?filter=chuck-norris'
+        )
         self.assertEqual(resp.status_code, 404)
 
     def _create_and_publish_type_in_subcategory(self, content_type, subcategory):
@@ -114,11 +125,11 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.login(
             username=self.user_author.username,
             password='hostel77')
-        resp = self.client.get(reverse('content:find-tutorial', args=[self.user_author.pk]))
+        resp = self.client.get(reverse('tutorial:find-tutorial', args=[self.user_author.username]))
         self.assertContains(resp, tutorial.title)
         self.assertContains(resp, tutorial_unpublished.title)
         self.assertContains(resp, 'content-illu')
-        resp = self.client.get(reverse('content:find-article', args=[self.user_author.pk]))
+        resp = self.client.get(reverse('article:find-article', args=[self.user_author.username]))
         self.assertContains(resp, article.title)
         self.assertContains(resp, article_unpublished.title)
         self.assertContains(resp, 'content-illu')

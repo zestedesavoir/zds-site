@@ -49,13 +49,13 @@ def search_container_or_404(base_content, kwargs_array):
         kwargs_array = dic
 
     if 'parent_container_slug' in kwargs_array:
-            try:
-                container = base_content.children_dict[kwargs_array['parent_container_slug']]
-            except KeyError:
+        try:
+            container = base_content.children_dict[kwargs_array['parent_container_slug']]
+        except KeyError:
+            raise Http404('Aucun conteneur trouvé.')
+        else:
+            if not isinstance(container, Container):
                 raise Http404('Aucun conteneur trouvé.')
-            else:
-                if not isinstance(container, Container):
-                    raise Http404('Aucun conteneur trouvé.')
     else:
         container = base_content
 
@@ -786,14 +786,6 @@ class BadArchiveError(Exception):
 
     def __init__(self, reason):
         self.message = reason
-
-
-class FailureDuringPublication(Exception):
-    """Exception raised if something goes wrong during the publication process
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(FailureDuringPublication, self).__init__(*args, **kwargs)
 
 
 NamedUrl = namedtuple('NamedUrl', ['name', 'url', 'level'])

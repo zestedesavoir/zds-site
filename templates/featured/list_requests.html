@@ -1,0 +1,126 @@
+{% extends "featured/base.html" %}
+{% load i18n %}
+{% load remove_url_scheme %}
+{% load date %}
+
+{% block title %}
+    {% trans "Liste des requêtes pour des unes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Liste des requêtes pour des unes" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Liste des requêtes pour des unes" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if featured_request_list %}
+
+        {% include "misc/paginator.html" with position="top" %}
+
+        <table class="fullwidth">
+            <thead>
+                <tr>
+                    <th>{% trans "Titre" %}</th>
+                    <th width="10%">{% trans "Type" %}</th>
+                    <th width="10%">{% trans "Votes" %}</th>
+                    <th width="45%">{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for featured_request in featured_request_list%}
+                <tr class="featured-request">
+                    <td>
+                        <a href="{% if featured_request.type == 'TOPIC' %}{{ featured_request.content_object.get_absolute_url }}{% else %}{{ featured_request.content_object.get_absolute_url_online }}{% endif %}">
+                            {{ featured_request.content_object.title }}
+                        </a>
+                    </td>
+                    <td>
+                        {% if featured_request.type == 'TOPIC' %}
+                            {% trans "Topic" %}
+                        {% else %}
+                            {% if  featured_request.content_object.type == 'ARTICLE' %}
+                                {% trans "Article" %}
+                            {% else %}
+                                {% trans "Tutoriel" %}
+                            {% endif %}
+                        {% endif %}
+
+                        {% if featured_request.featured %}
+                            {% trans "(acceptée)" %}
+                        {% endif %}
+                    </td>
+                    <td>{{ featured_request.num_vote }}</td>
+                    <td>
+                        {%  if featured_request.rejected %}
+                            <button type="button" class="btn btn-grey ico-after cross unpick-action" data-url="{% url 'featured-resource-request-update' featured_request.pk %}"
+                                    data-operation="CONSIDER">{% trans "Ne plus ignorer" %}</button>
+                        {% else %}
+                            <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'featured-resource-request-update' featured_request.pk %}"
+                                    data-operation="REJECT">{% trans "Ignorer" %}</button>
+                        {% endif %}
+
+                        <button type="button" class="btn btn-grey ico-after hide unpick-action" data-url="{% url 'featured-resource-request-update' featured_request.pk %}"
+                                data-operation="REJECT_FOR_GOOD">{% trans "Ignorer définitivement" %}</button>
+
+                        <a href="{% url "featured-resource-create" %}?content_type={% if featured_request.type == 'TOPIC' %}topic{% else %}published_content{% endif %}&amp;content_id={{ featured_request.content_object.pk }}">
+                            <button type="button" class="btn btn-grey ico-after star">{% trans "Nouvelle une" %}</button>
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+        {% include "misc/paginator.html" with position="bottom" %}
+
+    {% else %}
+        <p>
+            {% trans "Aucune requête pour le moment." %}
+        </p>
+    {% endif %}
+{% endblock %}
+
+{% block sidebar_actions %}
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="{% trans "Actions" %}">
+        <h3>{% trans "Filtres" %}</h3>
+        <ul>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=topic" class="ico-after view {% if request.GET.type == "topic" %}selected{% endif %}">
+                    {% trans "Sujets proposés" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=content" class="ico-after view {% if request.GET.type == "content" %}selected{% endif %}">
+                    {% trans "Contenus proposés" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=ignored" class="ico-after view {% if request.GET.type == "ignored" %}selected{% endif %}">
+                    {% trans "Requêtes ignorées" %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url "featured-resource-requests" %}?type=accepted" class="ico-after view {% if request.GET.type == "accepted" %}selected{% endif %}">
+                    {% trans "Requêtes acceptées" %}
+                </a>
+            </li>
+            {% if request.GET.type %}
+                <li>
+                    <a href="{% url "featured-resource-requests" %}" class="ico-after cross red">
+                        {% trans "Annuler le filtre" %}
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endblock %}

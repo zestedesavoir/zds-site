@@ -34,11 +34,9 @@
     </h1>
 
     {% include 'tutorialv2/includes/tags_authors.part.html' with online=False%}
-{% endblock %}
 
+    <a href="{{ content.get_absolute_url }}" class="btn btn-grey ico-after arrow-left">Retour</a>
 
-
-{% block content_ext %}
     <ul>
         <li>
             <strong>Version 1 :</strong>
@@ -55,7 +53,11 @@
             </a>)
         </li>
     </ul>
+{% endblock %}
 
+
+
+{% block content_ext %}
     <table>
         <tr>
             <th>{% trans "Légende" %}</th>

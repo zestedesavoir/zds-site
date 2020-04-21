@@ -36,7 +36,8 @@ class IsOwner(permissions.BasePermission):
             owners = [obj.author.pk]
         elif hasattr(obj, 'authors'):
             owners = list(obj.authors.values_list('pk', flat=True))
-
+        else:
+            owners = []
         return request.user.pk in owners
 
 

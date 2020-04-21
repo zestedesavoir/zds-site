@@ -1,12 +1,16 @@
 import os
 from datetime import datetime
+from smtplib import SMTPException
+
+from django.core.mail.backends.base import BaseEmailBackend
+from mock import Mock
 from oauth2_provider.models import AccessToken, Application
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.urls import reverse
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils.translation import ugettext_lazy as _
 
 from zds.notification.models import TopicAnswerSubscription
@@ -19,12 +23,12 @@ from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailP
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
 from zds.pages.models import GroupContact
-from zds.utils.models import CommentVote, Hat, HatRequest
+from zds.utils.models import CommentVote, Hat, HatRequest, Alert
 
 
 @override_for_contents()
@@ -41,7 +45,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.external = UserFactory(
             username=settings.ZDS_APP['member']['external_account'],
             password='anything')
-        self.category1 = CategoryFactory(position=1)
+        self.category1 = ForumCategoryFactory(position=1)
         self.forum11 = ForumFactory(
             category=self.category1,
             position_in_category=1)
@@ -390,6 +394,50 @@ class MemberTests(TutorialTestMixin, TestCase):
                             '?next=' + reverse('gallery-list'),
                             count=1)
 
+    def test_register_with_not_allowed_chars(self):
+        """
+        Test register account with not allowed chars
+        :return:
+        """
+        users = [
+            # empty username
+            {
+                'username': '',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            },
+            # space after username
+            {
+                'username': 'firm1 ',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            },
+            # space before username
+            {
+                'username': ' firm1',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            },
+            # username with utf8mb4 chars
+            {
+                'username': ' firm1',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'
+            }
+        ]
+
+        for user in users:
+            result = self.client.post(reverse('register-member'), user, follow=False)
+            self.assertEqual(result.status_code, 200)
+            # check any email has been sent.
+            self.assertEqual(len(mail.outbox), 0)
+            # user doesn't exist
+            self.assertEqual(User.objects.filter(username=user['username']).count(), 0)
+
     def test_register(self):
         """
         To test user registration.
@@ -496,7 +544,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         writing_article_2.authors.add(user2.user)
         writing_article_2.save()
         # beta content
-        beta_forum = ForumFactory(category=CategoryFactory())
+        beta_forum = ForumFactory(category=ForumCategoryFactory())
         beta_content = BetaContentFactory(author_list=[user.user], forum=beta_forum)
         beta_content_2 = BetaContentFactory(author_list=[user.user, user2.user], forum=beta_forum)
         # about posts and topics
@@ -710,7 +758,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-pubdate')[0]
-        self.assertEqual(ban.type, 'Lecture Seule')
+        self.assertEqual(ban.type, 'Lecture seule illimitée')
         self.assertEqual(ban.note, 'Texte de test pour LS')
         self.assertEqual(len(mail.outbox), 1)
 
@@ -732,7 +780,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Autorisation d\'écrire')
+        self.assertEqual(ban.type, 'Levée de la lecture seule')
         self.assertEqual(ban.note, 'Texte de test pour un-LS')
         self.assertEqual(len(mail.outbox), 2)
 
@@ -756,7 +804,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Lecture Seule Temporaire')
+        self.assertIn('Lecture seule temporaire', ban.type)
         self.assertEqual(ban.note, 'Texte de test pour LS TEMP')
         self.assertEqual(len(mail.outbox), 3)
 
@@ -779,7 +827,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Ban définitif')
+        self.assertEqual(ban.type, 'Bannissement illimité')
         self.assertEqual(ban.note, 'Texte de test pour BAN')
         self.assertEqual(len(mail.outbox), 4)
 
@@ -802,7 +850,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Autorisation de se connecter')
+        self.assertEqual(ban.type, 'Levée du bannissement')
         self.assertEqual(ban.note, 'Texte de test pour BAN')
         self.assertEqual(len(mail.outbox), 5)
 
@@ -826,7 +874,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertIsNone(user.end_ban_write)
         self.assertIsNotNone(user.end_ban_read)
         ban = Ban.objects.filter(user__id=user.user.id).order_by('-id')[0]
-        self.assertEqual(ban.type, 'Ban Temporaire')
+        self.assertIn('Bannissement temporaire', ban.type)
         self.assertEqual(ban.note, 'Texte de test pour BAN TEMP')
         self.assertEqual(len(mail.outbox), 6)
 
@@ -909,7 +957,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         groupbis = Group.objects.create(name='DummyGroup_2')
 
         # create Forums, Posts and subscribe member to them.
-        category1 = CategoryFactory(position=1)
+        category1 = ForumCategoryFactory(position=1)
         forum1 = ForumFactory(
             category=category1,
             position_in_category=1)
@@ -1155,9 +1203,10 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(notes), 1)
         self.assertTrue(old_pseudo in notes[0].note and 'dummy' in notes[0].note)
 
-    def test_ban_member_is_not_contactable(self):
+    def test_members_are_contactable(self):
         """
-        When a member is ban, we hide the button to send a PM.
+        The PM button is displayed to logged in users, except if it's the profile
+        of a banned user.
         """
         user_ban = ProfileFactory()
         user_ban.can_read = False
@@ -1166,28 +1215,34 @@ class MemberTests(TutorialTestMixin, TestCase):
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
 
-        phrase = 'Envoyer un message privé'
+        phrase = 'Envoyer un message'
 
+        # The PM button is hidden for anonymous users
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.assertNotContains(result, phrase)
 
+        # Also for anonymous users viewing banned members profiles
         result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
         self.assertNotContains(result, phrase)
 
         self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
+
+        # If an user is logged in, the PM button is shown for other normal users
         result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
-        self.client.logout()
         self.assertContains(result, phrase)
 
-        self.assertTrue(self.client.login(username=user_2.user.username, password='hostel77'))
+        # But not for banned users
         result = self.client.get(reverse('member-detail', args=[user_ban.user.username]), follow=False)
-        self.client.logout()
         self.assertNotContains(result, phrase)
 
-        self.assertTrue(self.client.login(username=user_1.user.username, password='hostel77'))
-        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.client.logout()
+        self.assertTrue(self.client.login(username=user_1.user.username, password='hostel77'))
+
+        # Neither for his own profile
+        result = self.client.get(reverse('member-detail', args=[user_1.user.username]), follow=False)
         self.assertNotContains(result, phrase)
+
+        self.client.logout()
 
     def test_github_token(self):
         user = ProfileFactory()
@@ -1394,38 +1449,36 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         profile = ProfileFactory()
         user = profile.user
-        # Test that hats doesn't appear if there are not hats and if the current user is not staff member
+        # Test that hats don't appear if there are no hats
         self.client.login(username=user.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
         self.assertNotContains(result, _('Casquettes'))
-        # Test that they appear with a staff member
+        # Test that they don't appear with a staff member but that the link to add one does appear
         self.client.login(username=self.staff.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _('Casquettes'))
+        self.assertNotContains(result, _('Casquettes'))
+        self.assertContains(result, _('Ajouter une casquette'))
         # Add a hat and check that it appears
         self.client.post(reverse('add-hat', args=[user.pk]),
                          {'hat': hat_name}, follow=False)
         self.assertIn(hat_name, profile.hats.values_list('name', flat=True))
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, _('Casquettes'))
         self.assertContains(result, hat_name)
         # And also for a member that is not staff
         self.client.login(username=user.username, password='hostel77')
         result = self.client.get(profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
         self.assertContains(result, _('Casquettes'))
         self.assertContains(result, hat_name)
         # Test that a hat linked to a group appears
         result = self.client.get(self.staff.profile.get_absolute_url())
-        self.assertEqual(result.status_code, 200)
         self.assertContains(result, _('Casquettes'))
         self.assertContains(result, 'Staff')
 
     def test_add_hat(self):
         short_hat = 'A new hat'
         long_hat = 'A very long hat' * 3
+        utf8mb4_hat = '🍊'
 
         profile = ProfileFactory()
         user = profile.user
@@ -1443,7 +1496,9 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertNotIn(long_hat, profile.hats.values_list('name', flat=True))
         # test that it doesn't work with a hat using utf8mb4 characters
         result = self.client.post(reverse('add-hat', args=[user.pk]),
-                                  {'hat': '🍊'}, follow=False)
+                                  {'hat': utf8mb4_hat}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertNotIn(utf8mb4_hat, profile.hats.values_list('name', flat=True))
         # test that it doesn't work with a hat linked to a group
         result = self.client.post(reverse('add-hat', args=[user.pk]),
                                   {'hat': 'Staff'}, follow=False)
@@ -1729,3 +1784,57 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(hat.get_absolute_url())
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, 'group description')
+
+    def test_profile_report(self):
+        profile = ProfileFactory()
+        self.client.logout()
+        alerts_count = Alert.objects.count()
+        # test that authentication is required to report a profile
+        result = self.client.post(reverse('report-profile', args=[profile.pk]), {'reason': 'test'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(alerts_count, Alert.objects.count())
+        # login and check it doesn't work without reason
+        self.client.login(username=self.staff.username, password='hostel77')
+        result = self.client.post(reverse('report-profile', args=[profile.pk]), {'reason': ''}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(alerts_count, Alert.objects.count())
+        # add a reason and check it works
+        result = self.client.post(reverse('report-profile', args=[profile.pk]), {'reason': 'test'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(alerts_count + 1, Alert.objects.count())
+        # test alert solving
+        alert = Alert.objects.latest('pubdate')
+        pm_count = PrivateTopic.objects.count()
+        result = self.client.post(reverse('solve-profile-alert', args=[alert.pk]), {'text': 'ok'}, follow=False)
+        self.assertEqual(result.status_code, 302)
+        alert = Alert.objects.get(pk=alert.pk)  # refresh
+        self.assertTrue(alert.solved)
+        self.assertEqual(pm_count + 1, PrivateTopic.objects.count())
+
+
+mail_backend = Mock()
+
+
+class FakeBackend(BaseEmailBackend):
+    def send_messages(self, email_messages):
+        return mail_backend.send_messages(email_messages)
+
+
+@override_settings(EMAIL_BACKEND='zds.member.tests.tests_views.FakeBackend')
+class RegisterTest(TestCase):
+    def test_exception_on_mail(self):
+        def message(l):
+            print('message sent')
+            raise SMTPException(l)
+        mail_backend.send_messages = message
+
+        result = self.client.post(
+            reverse('register-member'),
+            {
+                'username': 'firm1',
+                'password': 'flavour',
+                'password_confirm': 'flavour',
+                'email': 'firm1@zestedesavoir.com'},
+            follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertIn('Impossible d&#39;envoyer l&#39;email.', result.content.decode('utf-8'))

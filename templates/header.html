@@ -331,7 +331,7 @@
                 {% with profile=user.profile %}
                     <a href="{% url "member-detail" user.username %}"
                        id="my-account"
-                       class="my-account mobile-menu-link mobile-menu-bloc dont-click-if-sidebar"
+                       class="dont-click-if-sidebar"
                        title="{% trans 'Mon profil' %}"
                        data-title="{% trans 'Mon profil' %}"
 
@@ -344,7 +344,7 @@
                     </a>
                 {% endwith %}
 
-                <div class="dropdown my-account-dropdown mobile-menu-bloc mobile-all-links" data-title="{% trans 'Mon compte' %}">
+                <div class="dropdown my-account-dropdown mobile-all-links" data-title="{% trans 'Mon compte' %}">
                     <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
 
                     <ul class="dropdown-list">
@@ -352,13 +352,13 @@
                             <a href="{% url "member-detail" user.username %}">{% trans "Mon profil" %}</a>
                         </li>
                         <li>
-                            <a href="{% url "content:find-tutorial" user.pk %}">{% trans "Mes tutoriels" %}</a>
+                            <a href="{% url "tutorial:find-tutorial" user.username %}">{% trans "Mes tutoriels" %}</a>
                         </li>
                         <li>
-                            <a href="{% url "content:find-article" user.pk %}">{% trans "Mes articles" %}</a>
+                            <a href="{% url "article:find-article" user.username %}">{% trans "Mes articles" %}</a>
                         </li>
                         <li>
-                            <a href="{% url "content:find-opinion" user.pk %}">{% trans "Mes billets" %}</a>
+                            <a href="{% url "opinion:find-opinion" user.username %}">{% trans "Mes billets" %}</a>
                         </li>
                         <li>
                             <a href="{% url "gallery-list" %}">{% trans "Galeries d’images" %}</a>

@@ -1,0 +1,41 @@
+{% load interventions %}
+{% load pluralize_fr %}
+
+<div class="buttons-combined">
+    {% if followed_user != user %}
+        <div class="sub-button primary-button">
+            <form action="{{ link }}" method="post">
+                <input type="hidden" name="follow" value="1">
+                {% csrf_token %}
+
+                <button class="follow ico-after star light {% if is_followed %}is-following{% endif %}"
+                        type="submit" data-ajax-input="follow-topic" data-raw-subscriber-count="#subscriber_count_combined">
+                    <span id="follow_text" data-content-on-click="{{ data_onclick }}">{{ button_text }}</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="sub-button static-button statistic" id="subscriber_count_combined" aria-label="{{ subscriber_count_aria_label }}">
+            {{ subscriber_count }}
+        </div>
+    {% else %}
+        <span class="btn-ico btn ico-after star light">
+            {{ subscriber_count_aria_label }}
+        </span>
+    {% endif %}
+
+    {% if followed_user != user %}
+        <div class="sub-button">
+            <form action="{{ link }}" method="post">
+                <input type="hidden" name="email" value="1">
+                {% csrf_token %}
+                <button class="email ico-after light {% if is_followed_email %}is-following{% endif %}"
+                        type="submit" data-ajax-input="follow-topic-by-email"
+                        data-content-on-click="{{ email_data_onclick }}"
+                        title="{{ email_button_text }}">
+                    <span class="a11y">{{ email_button_text }}</span>
+                </button>
+            </form>
+        </div>
+    {% endif %}
+</div>

@@ -13,15 +13,12 @@ from crispy_forms.layout import HTML, Layout, \
 
 from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
-    validate_zds_password
-from zds.utils.forms import CommonLayoutModalText
+    validate_zds_password, validate_raw_zds_username
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Licence, HatRequest, Hat
 from zds.utils import get_current_user
 
-# Max password length for the user.
-# Unlike other fields, this is not the length of DB field
-MAX_PASSWORD_LENGTH = 76
+
 # Min password length for the user.
 MIN_PASSWORD_LENGTH = 6
 
@@ -43,7 +40,6 @@ class LoginForm(forms.Form):
 
     password = forms.CharField(
         label=_('Mot de passe'),
-        max_length=MAX_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
     )
@@ -91,7 +87,6 @@ class RegisterForm(forms.Form):
 
     password = forms.CharField(
         label=_('Mot de passe'),
-        max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
@@ -100,7 +95,6 @@ class RegisterForm(forms.Form):
 
     password_confirm = forms.CharField(
         label=_('Confirmation du mot de passe'),
-        max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         required=True,
         widget=forms.PasswordInput,
@@ -137,6 +131,7 @@ class RegisterForm(forms.Form):
         self.helper.layout = layout
 
     def clean(self):
+        validate_raw_zds_username(self.data)
         cleaned_data = super(RegisterForm, self).clean()
         return validate_passwords(cleaned_data)
 
@@ -159,8 +154,9 @@ class MiniProfileForm(forms.Form):
         )
     )
 
-    site = forms.CharField(
+    site = forms.URLField(
         label='Site web',
+        initial='http://',
         required=False,
         max_length=Profile._meta.get_field('site').max_length,
         widget=forms.TextInput(
@@ -394,6 +390,7 @@ class ChangeUserForm(forms.Form):
         )
 
     def clean(self):
+        validate_raw_zds_username(self.data)
         cleaned_data = super(ChangeUserForm, self).clean()
         cleaned_data['previous_username'] = self.previous_username
         cleaned_data['previous_email'] = self.previous_email
@@ -418,7 +415,6 @@ class ChangePasswordForm(forms.Form):
 
     password_new = forms.CharField(
         label=_('Nouveau mot de passe'),
-        max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
         validators=[validate_zds_password],
@@ -426,7 +422,6 @@ class ChangePasswordForm(forms.Form):
 
     password_confirm = forms.CharField(
         label=_('Confirmer le nouveau mot de passe'),
-        max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
         validators=[validate_zds_password],
@@ -530,14 +525,12 @@ class NewPasswordForm(forms.Form):
     """
     password = forms.CharField(
         label=_('Mot de passe'),
-        max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
         validators=[validate_zds_password],
     )
     password_confirm = forms.CharField(
         label=_('Confirmation'),
-        max_length=MAX_PASSWORD_LENGTH,
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput,
         validators=[validate_zds_password],
@@ -617,10 +610,8 @@ class KarmaForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'karmatiser-modal'
         self.helper.form_method = 'post'
-        # TODO : see how to fix the "commonlayoutmodaltext" issue that generates some
-        # useless exceptions. (field 'text' does not exists the choices are 'note' and 'karma')
+
         self.helper.layout = Layout(
-            CommonLayoutModalText(),
             Field('note'),
             Field('karma'),
             Hidden('profile_pk', '{{ profile.pk }}'),
@@ -668,7 +659,7 @@ class HatRequestForm(forms.ModelForm):
             }),
             'reason': forms.Textarea(attrs={
                 'placeholder': _('Expliquez pourquoi vous devriez porter cette casquette (3000 caractères maximum).'),
-                'class': 'md-editor preview-source'
+                'class': 'md-editor mini-editor preview-source'
             }),
         }
 

@@ -26,16 +26,18 @@ from oauth2client.service_account import ServiceAccountCredentials
 import googleapiclient
 
 from zds.forum.models import Forum
+from zds.featured.mixins import FeatureableMixin
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
-    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, ContentCompareStatsURLForm
+    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, ContentCompareStatsURLForm, SearchSuggestionForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentContribution, \
+    ContentSuggestion
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read, NamedUrl
 from zds.utils.models import Alert, CommentVote, Tag, Category, CommentEdit, SubCategory, get_hat_from_request, \
     CategorySubCategory
@@ -60,7 +62,7 @@ class RedirectContentSEO(RedirectView):
         return obj.get_absolute_url_online()
 
 
-class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
+class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin):
     """Base class that can show any online content"""
 
     model = PublishedContent
@@ -69,6 +71,11 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
     current_content_type = ''
     verbose_type_name = _('contenu')
     verbose_type_name_plural = _('contenus')
+
+    def featured_request_allowed(self):
+        """Featured request is not allowed on obsolete content and opinions
+        """
+        return self.object.type != 'OPINION' and not self.object.is_obsolete
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
@@ -116,6 +123,14 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
             context['formConvertOpinion'] = PromoteOpinionToArticleForm(
                 self.versioned_object, initial={'version': self.versioned_object.sha_public})
+        else:
+            context['content_suggestions'] = ContentSuggestion \
+                .objects \
+                .filter(publication=self.object)
+            excluded_for_search = [str(x.suggestion.pk) for x in context['content_suggestions']]
+            excluded_for_search.append(str(self.object.pk))
+            context['formAddSuggestion'] = SearchSuggestionForm(content=self.object,
+                                                                initial={'excluded_pk': ','.join(excluded_for_search)})
 
         # pagination of comments
         make_pagination(context,
@@ -146,10 +161,12 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes
         try:
-            context['reading_time'] = int(
-                self.versioned_object.get_tree_level() * self.object.public_version.char_count /
-                settings.ZDS_APP['content']['characters_per_minute']
-            )
+            char_count = self.object.public_version.char_count
+            if char_count:
+                context['reading_time'] = int(
+                    self.versioned_object.get_tree_level() * char_count /
+                    settings.ZDS_APP['content']['characters_per_minute']
+                )
         except ZeroDivisionError as e:
             logger.warning('could not compute reading time: setting characters_per_minute is set to zero (error=%s)', e)
 
@@ -160,6 +177,15 @@ class DisplayOnlineContent(SingleOnlineContentDetailViewMixin):
                 sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent)
         if last_participation_is_old(self.object, self.request.user):
             mark_read(self.object, self.request.user)
+
+        context['contributions'] = ContentContribution\
+            .objects\
+            .filter(content=self.object)\
+            .order_by('contribution_role__position')
+        context['content_suggestions_random'] = ContentSuggestion \
+            .objects \
+            .filter(publication=self.object) \
+            .order_by('?')[:settings.ZDS_APP['content']['suggestions_per_page']]
 
         return context
 
@@ -211,7 +237,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         try:
             self.public_content_object = self.get_public_object()
         except MustRedirect as redirect_url:
-            return HttpResponsePermanentRedirect(redirect_url)
+            return HttpResponsePermanentRedirect(redirect_url.url)
 
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
@@ -484,7 +510,7 @@ class ViewPublications(TemplateView):
         self.template_name = self.templates[self.level]
         recent_kwargs = {}
 
-        if self.level is 1:
+        if self.level == 1:
             # get categories and subcategories
             categories = ViewPublications.categories_with_contents_count(self.handle_types)
 
@@ -493,13 +519,13 @@ class ViewPublications(TemplateView):
                 .last_contents(content_type=self.handle_types, with_comments_count=False) \
                 .count()
 
-        elif self.level is 2:
+        elif self.level == 2:
             context['category'] = get_object_or_404(Category, slug=self.kwargs.get('slug'))
             context['subcategories'] = ViewPublications.subcategories_with_contents_count(
                 context['category'], self.handle_types)
             recent_kwargs['subcategories'] = context['subcategories']
 
-        elif self.level is 3:
+        elif self.level == 3:
             subcategory = get_object_or_404(SubCategory, slug=self.kwargs.get('slug'))
             context['category'] = subcategory.get_parent_category()
 
@@ -510,7 +536,7 @@ class ViewPublications(TemplateView):
             context['subcategory'] = subcategory
             recent_kwargs['subcategories'] = [subcategory]
 
-        elif self.level is 4:
+        elif self.level == 4:
             category = self.request.GET.get('category', None)
             subcategory = self.request.GET.get('subcategory', None)
             subcategories = None
@@ -978,6 +1004,25 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
         if self.request.is_ajax():
             return HttpResponse(json_handler.dumps(response), content_type='application/json')
         return redirect(self.get_object().get_absolute_url())
+
+
+class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, SingleOnlineContentViewMixin, FormView):
+    redirection_is_needed = False
+
+    def featured_request_allowed(self):
+        """Featured request is not allowed on obsolete content and opinions
+        """
+        return self.object.type != 'OPINION' and not self.object.is_obsolete
+
+    def post(self, request, *args, **kwargs):
+        self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
+
+        response = dict()
+        response['requesting'], response['newCount'] = self.toogle_featured_request(request.user)
+        if self.request.is_ajax():
+            return HttpResponse(json_handler.dumps(response), content_type='application/json')
+        return redirect(self.public_content_object.get_absolute_url_online())
 
 
 class FollowNewContent(LoggedWithReadWriteHability, FormView):

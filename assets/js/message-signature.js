@@ -2,10 +2,10 @@
    Single line/Multi lines signatures
    ========================================================================== */
 
-(function($, undefined){
-    "use strict";
+(function($) {
+  'use strict'
 
-    $(".message-bottom .signature").on("click", function(){
-        $(this).toggleClass("full");
-    });
-})(jQuery);
+  $('.message-bottom .signature').on('click', function() {
+    $(this).toggleClass('full')
+  })
+})(jQuery)

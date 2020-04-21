@@ -24,10 +24,10 @@ def sub_tag(tag):
     return '{0}'.format(start + end)
 
 
-class Category(models.Model):
+class ForumCategory(models.Model):
     """
-    A Category is a simple container for Forums.
-    There is no kind of logic in a Category. It simply here for Forum presentation in a predefined order.
+    A ForumCategory is a simple container for Forums.
+    There is no kind of logic in a ForumCategory. It simply here for Forum presentation in a predefined order.
     """
     class Meta:
         verbose_name = 'Catégorie'
@@ -36,9 +36,10 @@ class Category(models.Model):
 
     title = models.CharField('Titre', max_length=80)
     position = models.IntegerField('Position', default=0)
-    # Some category slugs are forbidden due to path collisions: Category path is `/forums/<slug>` but some actions on
-    # forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py` module.
-    # As Categories can only be managed by superadmin, this is purely declarative and there is no control on slug.
+    # Some category slugs are forbidden due to path collisions: ForumCategory path is `/forums/<slug>` but some actions
+    # on forums have path like `/forums/<action_name>`. Forbidden slugs are all top-level path in forum's `url.py`
+    # module. As Categories can only be managed by superadmin, this is purely declarative and there is no control on
+    # slug.
     slug = models.SlugField(max_length=80,
                             unique=True,
                             help_text='Ces slugs vont provoquer des conflits '
@@ -88,7 +89,7 @@ class Forum(models.Model):
         blank=True)
 
     # better handling of on_delete with SET(value)?
-    category = models.ForeignKey(Category, db_index=True, verbose_name='Catégorie', on_delete=models.CASCADE)
+    category = models.ForeignKey(ForumCategory, db_index=True, verbose_name='Catégorie', on_delete=models.CASCADE)
     position_in_category = models.IntegerField('Position dans la catégorie',
                                                null=True, blank=True, db_index=True)
 
@@ -220,6 +221,26 @@ class Topic(AbstractESDjangoIndexable):
     def is_solved(self):
         return self.solved_by is not None
 
+    @property
+    def meta_description(self):
+        first_post = self.first_post()
+        if len(first_post.text) < 120:
+            return first_post.text
+        return Topic.__remove_greetings(first_post)[:settings.ZDS_APP['forum']['description_size']]
+
+    @staticmethod
+    def __remove_greetings(post):
+        greetings = settings.ZDS_APP['forum']['greetings']
+        max_size = settings.ZDS_APP['forum']['description_size'] + 1
+        text = post.text
+        for greeting in greetings:
+            if text.strip().lower().startswith(greeting):
+                index_of_dot = max(text.index('\n') if '\n' in text else -1, -1)
+                index_of_dot = min(index_of_dot, text.index('.') if '.' in text else max_size)
+                index_of_dot = min(index_of_dot, text.index('!') if '!' in text else max_size)
+                return text[index_of_dot + 1:].strip()
+        return text
+
     def get_absolute_url(self):
         return reverse('topic-posts-list', args=[self.pk, self.slug()])
 
@@ -270,12 +291,12 @@ class Topic(AbstractESDjangoIndexable):
         If a tag is unknown, it is added to the system.
         :param tag_collection: A collection of tags.
         """
-        for tag in tag_collection:
+        for tag in filter(None, tag_collection):
             try:
                 current_tag, created = Tag.objects.get_or_create(title=tag.lower().strip())
                 self.tags.add(current_tag)
             except ValueError as e:
-                logging.getLogger(__name__).warn(e)
+                logging.getLogger(__name__).warning(e)
 
         self.save()
         signals.edit_content.send(sender=self.__class__, instance=self, action='edit_tags_and_title')

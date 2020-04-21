@@ -4,27 +4,25 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($, undefined){
-    "use strict";
+(function($) {
+  'use strict'
 
-    var buttonsSelector = "[type=submit], [type=reset]",
-        $lastButtonClicked = null;
+  var buttonsSelector = '[type=submit], [type=reset]'
+  var $lastButtonClicked = null
 
-    $("body").on("submit", "form", function(){
-        $(buttonsSelector)
-            .addClass("disabled");
+  $('body').on('submit', 'form', function() {
+    $(buttonsSelector)
+      .addClass('disabled')
 
-        if($lastButtonClicked === null)
-            $lastButtonClicked = $(buttonsSelector, $(this));
+    if ($lastButtonClicked === null) { $lastButtonClicked = $(buttonsSelector, $(this)) }
 
-        $lastButtonClicked
-            .addClass("submitted")
-            .append($("<span/>", { class: "line-loading" }));
-    });
-    $("form").on("click", buttonsSelector, function(e){
-        $lastButtonClicked = $(this);
+    $lastButtonClicked
+      .addClass('submitted')
+      .append($('<span/>', { class: 'line-loading' }))
+  })
+  $('form').on('click', buttonsSelector, function(e) {
+    $lastButtonClicked = $(this)
 
-        if($(this).hasClass("disabled"))
-            e.preventDefault();
-    });
-})(jQuery);
+    if ($(this).hasClass('disabled')) { e.preventDefault() }
+  })
+})(jQuery)

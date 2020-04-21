@@ -5,25 +5,19 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
-from django.urls import reverse
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, DetailView
-from django.views.generic.edit import FormView
 from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
 
 from zds.featured.models import FeaturedResource, FeaturedMessage
-from zds.forum.models import Forum, Topic
+from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
-from zds.pages.forms import AssocSubscribeForm
 from zds.pages.models import GroupContact
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
-from zds.utils.forums import create_topic
 from zds.utils.models import Alert, CommentEdit, Comment
 
 
@@ -62,50 +56,6 @@ def index(request):
 def about(request):
     """Display many informations about the website."""
     return render(request, 'pages/about.html')
-
-
-class AssocSubscribeView(FormView):
-
-    template_name = 'pages/assoc_subscribe.html'
-    form_class = AssocSubscribeForm
-
-    def form_valid(self, form):
-        user = self.request.user
-        data = form.data
-
-        site = settings.ZDS_APP['site']
-
-        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-        forum = get_object_or_404(Forum, pk=site['association']['forum_ca_pk'])
-
-        # create the topic
-        title = _('Demande d\'adhésion de {}').format(user.username)
-        subtitle = _('Sujet créé automatiquement pour la demande d\'adhésion à l\'association du membre {} via le form'
-                     'ulaire du site').format(user.username)
-        context = {
-            'full_name': data['full_name'],
-            'email': data['email'],
-            'birthdate': data['birthdate'],
-            'address': data['address'],
-            'justification': data['justification'],
-            'username': user.username,
-            'profile_url': site['url'] + reverse('member-detail', kwargs={'user_name': user.username}),
-
-        }
-        text = render_to_string('pages/messages/association_subscribre.md', context)
-        create_topic(self.request, bot, forum, title, subtitle, text)
-
-        messages.success(self.request, _('Votre demande d\'adhésion a bien été envoyée et va être étudiée.'))
-
-        return super(AssocSubscribeView, self).form_valid(form)
-
-    @method_decorator(login_required)
-    @method_decorator(can_write_and_read_now)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('pages-assoc-subscribe')
 
 
 def association(request):

@@ -1,7 +1,8 @@
-from django.urls import re_path
+from django.urls import path, re_path
 
-from zds.tutorialv2.views.published import ListOpinions, DisplayOnlineOpinion, DownloadOnlineOpinion
 from zds.tutorialv2.feeds import LastOpinionsFeedRSS, LastOpinionsFeedATOM
+from zds.tutorialv2.views.contents import ContentOfAuthor
+from zds.tutorialv2.views.published import ListOpinions, DisplayOnlineOpinion, DownloadOnlineOpinion
 
 urlpatterns = [
     # Flux
@@ -26,5 +27,10 @@ urlpatterns = [
     re_path(r'^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$', DownloadOnlineOpinion.as_view(requested_file='tex'),
             name='download-tex'),
     # Listing
-    re_path(r'^$', ListOpinions.as_view(), name='list')
+    re_path(r'^$', ListOpinions.as_view(), name='list'),
+
+    path('voir/<str:username>/',
+         ContentOfAuthor.as_view(
+             type='OPINION', context_object_name='opinions', sort='creation'),
+         name='find-opinion'),
 ]

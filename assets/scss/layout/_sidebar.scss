@@ -295,7 +295,8 @@
                 width: 100%;
                 line-height: 28px;
 
-                &.follow span {
+                &.follow span,
+                &.requesting span {
                     vertical-align: inherit;
                 }
             }
@@ -341,6 +342,16 @@
                     margin-top: 5px;
                 }
             }
+            
+            &.not-ready {
+                background: $color-not-ready-content;
+            }
+        }
+        
+        li {
+            &.not-ready {
+                background: $color-not-ready-content;
+            }   
         }
 
         ol li.current {

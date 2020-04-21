@@ -45,7 +45,8 @@ def _render_markdown_once(md_input, *, output_format='html', **kwargs):
     try:
         timeout = 10
         if output_format.startswith('tex'):
-            timeout = 30
+            # latex may be really long to generate but it is also restrained by server configuration
+            timeout = 120
         response = post('{}{}'.format(settings.ZDS_APP['zmd']['server'], endpoint), json={
             'opts': kwargs,
             'md': str(md_input),
@@ -117,6 +118,17 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
         return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(json.dumps(messages))), metadata, []
 
 
+def render_markdown_stats(md_input, **kwargs):
+    """
+    Returns contents statistics (words and chars)
+    """
+    kwargs['stats'] = True
+    content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    if metadata:
+        return metadata.get('stats', {}).get('signs', {})
+    return None
+
+
 @register.filter(name='epub_markdown', needs_autoescape=False)
 def epub_markdown(md_input, image_directory):
     return emarkdown(md_input, output_format='epub', images_download_dir=image_directory.absolute,
@@ -177,7 +189,7 @@ def emarkdown_inline(text):
     :rtype: str
     """
     rendered = emarkdown(text, inline=True)
-    return rendered
+    return mark_safe(rendered.replace('<a href=', '<a rel="nofollow" href='))
 
 
 def sub_hd(match, count):

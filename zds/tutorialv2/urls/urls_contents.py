@@ -1,15 +1,23 @@
-from django.urls import re_path
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, \
-    DeleteContent, CreateContainer, DisplayContainer, EditContainer, CreateExtract, EditExtract, \
-    DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff, ActivateJSFiddleInContent, MoveChild, \
-    DownloadContent, UpdateContentWithArchive, CreateContentFromArchive, ContentsWithHelps, AddAuthorToContent, \
-    RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer, ContentOfAuthor
+from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditContent,
+                                           DeleteContent, CreateContainer, DisplayContainer, EditContainer,
+                                           CreateExtract, EditExtract,
+                                           DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff,
+                                           ActivateJSFiddleInContent, MoveChild,
+                                           DownloadContent, UpdateContentWithArchive, CreateContentFromArchive,
+                                           ContentsWithHelps, AddAuthorToContent,
+                                           RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
+                                           ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
+                                           RemoveContributorFromContent, ContentOfContributors,
+                                           AddSuggestion, RemoveSuggestion)
 
-from zds.tutorialv2.views.published import SendNoteFormView, UpdateNoteView, \
-    HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView, \
-    FollowContentReaction, FollowNewContent, SendContentAlert, SolveContentAlert, ContentStatisticsView
+from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
+                                            HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
+                                            FollowContentReaction, FollowNewContent, SendContentAlert,
+                                            SolveContentAlert,
+                                            RequestFeaturedContent, ContentStatisticsView)
 
 urlpatterns = [
     # Flux
@@ -18,18 +26,19 @@ urlpatterns = [
     re_path(r'^flux/atom/$', RedirectView.as_view(pattern_name='publication:feed-atom',
                                                   permanent=True), name='feed-atom'),
 
-    re_path(r'^tutoriels/(?P<pk>\d+)/$',
-            ContentOfAuthor.as_view(
-                type='TUTORIAL', context_object_name='tutorials'),
-            name='find-tutorial'),
-    re_path(r'^articles/(?P<pk>\d+)/$',
-            ContentOfAuthor.as_view(
-                type='ARTICLE', context_object_name='articles'),
-            name='find-article'),
-    re_path(r'^tribunes/(?P<pk>\d+)/$',
-            ContentOfAuthor.as_view(
-                type='OPINION', context_object_name='opinions', sort='creation'),
-            name='find-opinion'),
+    path('voir/<str:username>/',
+         ContentOfAuthor.as_view(
+             type='ALL', context_object_name='contents'),
+         name='find-all'),
+    path('contributions/<str:username>/',
+         ContentOfContributors.as_view(
+             type='ALL', context_object_name='contribution_contents'),
+         name='find-contribution-all'),
+
+    path('tutoriels/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='TUTORIAL')),
+    path('articles/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='ARTICLE')),
+    path('tribunes/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='OPINION')),
+
     re_path(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
     re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
             DisplayContainer.as_view(public_is_prioritary=False),
@@ -74,6 +83,9 @@ urlpatterns = [
             FollowContentReaction.as_view(), name='follow-reactions'),
     re_path(r'^suivre/membres/(?P<pk>\d+)/$',
             FollowNewContent.as_view(), name='follow'),
+
+    # request
+    re_path(r'^requete/(?P<pk>\d+)/$', RequestFeaturedContent.as_view(), name='request-featured'),
 
     # content alerts:
     re_path(r'^alerter/(?P<pk>\d+)/$',
@@ -136,6 +148,10 @@ urlpatterns = [
             DisplayHistory.as_view(), name='history'),
     re_path(r'^comparaison/(?P<pk>\d+)/(?P<slug>.+)/$',
             DisplayDiff.as_view(), name='diff'),
+    re_path(r'^ajouter-contributeur/(?P<pk>\d+)/$',
+            AddContributorToContent.as_view(), name='add-contributor'),
+    re_path(r'^enlever-contributeur/(?P<pk>\d+)/$',
+            RemoveContributorFromContent.as_view(), name='remove-contributor'),
     re_path(r'^ajouter-auteur/(?P<pk>\d+)/$',
             AddAuthorToContent.as_view(), name='add-author'),
     re_path(r'^enlever-auteur/(?P<pk>\d+)/$',
@@ -147,6 +163,11 @@ urlpatterns = [
             name='inactive-beta'),
     re_path(r'^stats/(?P<pk>\d+)/(?P<slug>.+)/$', ContentStatisticsView.as_view(),
             name='stats-content'),
+    re_path(r'^ajouter-suggestion/(?P<pk>\d+)/$', AddSuggestion.as_view(),
+            name='add-suggestion'),
+    re_path(r'^enlever-suggestion/(?P<pk>\d+)/$',
+            RemoveSuggestion.as_view(), name='remove-suggestion'),
+
 
     # jsfiddle support:
     re_path(r'activer-js/', ActivateJSFiddleInContent.as_view(),

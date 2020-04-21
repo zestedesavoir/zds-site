@@ -1,26 +1,24 @@
 import logging
-from zds import json_handler
 import os
 import re
 import shutil
 import tempfile
 import time
 import zipfile
-from datetime import datetime
 from collections import OrderedDict
+from datetime import datetime
 
 from PIL import Image as ImagePIL
-
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.db import transaction
 from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
@@ -29,6 +27,7 @@ from easy_thumbnails.files import get_thumbnailer
 from git import BadName, BadObject, GitCommandError, objects
 from uuslug import slugify
 
+from zds import json_handler
 from zds.forum.models import Forum, mark_read, Topic
 from zds.gallery.models import Gallery, UserGallery, Image, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
@@ -37,21 +36,19 @@ from zds.notification.models import TopicAnswerSubscription, NewPublicationSubsc
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
-    UnpublicationForm
+    UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
-from zds.tutorialv2.models.database import PublishableContent, Validation
+from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContribution, ContentSuggestion
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
     try_adopt_new_child, TooDeepContainerError, BadManifestError, get_content_from_json, init_new_repo, \
     default_slug_pool, BadArchiveError, InvalidSlugError
 from zds.utils.forums import send_post, lock_topic, create_topic, unlock_topic
-
 from zds.utils.models import HelpWriting, get_hat_from_settings
-from zds.utils.mps import send_mp
+from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView, make_pagination
-
 
 logger = logging.getLogger(__name__)
 
@@ -134,6 +131,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
+
         self.content.ensure_author_gallery()
         self.content.save(force_slug_update=False)
         # Add subcategories on tutorial
@@ -217,6 +215,19 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['gallery'] = self.object.gallery
         context['public_content_object'] = self.public_content_object
+        if self.object.type.lower() != 'opinion':
+            context['formAddReviewer'] = ContributionForm(content=self.object)
+            context['contributions'] = ContentContribution\
+                .objects\
+                .filter(content=self.object)\
+                .order_by('contribution_role__position')
+            context['content_suggestions'] = ContentSuggestion \
+                .objects \
+                .filter(publication=self.object)
+            excluded_for_search = [str(x.suggestion.pk) for x in context['content_suggestions']]
+            excluded_for_search.append(str(self.object.pk))
+            context['formAddSuggestion'] = SearchSuggestionForm(content=self.object,
+                                                                initial={'excluded_pk': ','.join(excluded_for_search)})
 
         return context
 
@@ -324,7 +335,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             publishable.image = img
 
         publishable.save(force_slug_update=title_is_changed)
-
+        logger.debug('content %s updated, slug is %s', publishable.pk, publishable.slug)
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
         versioned.licence = form.cleaned_data['licence']
@@ -334,7 +345,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                                   form.cleaned_data['introduction'],
                                                   form.cleaned_data['conclusion'],
                                                   form.cleaned_data['msg_commit'])
-
+        logger.debug('slug consistency after repo update repo=%s db=%s', versioned.slug, publishable.slug)
         # update relationships :
         publishable.sha_draft = sha
 
@@ -354,7 +365,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.save(force_slug_update=False)
 
         self.success_url = reverse('content:view', args=[publishable.pk, publishable.slug])
-        return super(EditContent, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
@@ -401,16 +412,26 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                             'user': self.request.user,
                             'message': '\n'.join(['> ' + line for line in self.request.POST['text'].split('\n')])
                         })
-
-                    send_mp(
-                        bot,
-                        [validation.validator],
-                        _('Demande de validation annulée').format(),
-                        self.object.title,
-                        msg,
-                        False,
-                        hat=get_hat_from_settings('validation'),
-                    )
+                    if not validation.content.validation_private_message:
+                        validation.content.validation_private_message = send_mp(
+                            bot,
+                            [validation.validator],
+                            _('Demande de validation annulée').format(),
+                            self.object.title,
+                            msg,
+                            False,
+                            hat=get_hat_from_settings('validation'),
+                            automaticaly_read=[validation.validator]
+                        )
+                        validation.content.save(force_slug_update=False)
+                    else:
+                        send_message_mp(
+                            bot,
+                            validation.content.validation_private_message,
+                            msg,
+                            hat=get_hat_from_settings('validation'),
+                            no_notification_for=self.request.user
+                        )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
                 beta_topic.is_locked = True
@@ -428,7 +449,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
 
             messages.success(self.request, _('Vous avez bien supprimé {}.').format(_type))
 
-        return redirect(reverse('content:find-' + object_type, args=[request.user.pk]))
+        return redirect(reverse(object_type + ':find-' + object_type, args=[request.user.username]))
 
 
 class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
@@ -809,7 +830,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 
@@ -869,7 +890,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # Attach user to gallery
                 self.object.gallery = gal
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 # Add subcategories on tutorial
                 for subcat in form.cleaned_data['subcategory']:
@@ -877,7 +898,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # We need to save the tutorial before changing its author list since it's a many-to-many relationship
                 self.object.authors.add(self.request.user)
-                self.object.save()
+                self.object.save(force_slug_update=False)
                 self.object.ensure_author_gallery()
                 # ok, now we can import
                 introduction = ''
@@ -929,7 +950,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save()
+                self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
 
@@ -968,7 +989,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
         # then save:
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -1114,7 +1135,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = container.get_absolute_url()
 
@@ -1152,7 +1173,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save()
+        self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -1424,15 +1445,30 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             'user': self.request.user
                         }
                     )
-                    send_mp(bot,
-                            self.object.authors.all(),
-                            _(_type[0].upper() + _type[1:].lower() + ' en bêta'),
-                            beta_version.title,
-                            msg_pm,
-                            False,
-                            hat=get_hat_from_settings('validation'))
+                    if not self.object.validation_private_message:
+                        self.object.validation_private_message = send_mp(bot,
+                                                                         self.object.authors.all(),
+                                                                         self.object.validation_message_title,
+                                                                         beta_version.title,
+                                                                         msg_pm,
+                                                                         False,
+                                                                         hat=get_hat_from_settings('validation'))
+                        self.object.save(force_slug_update=False)
+                    else:
+                        send_message_mp(bot,
+                                        self.object.validation_private_message,
+                                        msg,
+                                        hat=get_hat_from_settings('validation'))
+
+                # When the anti-spam triggers (because the author of the
+                # message posted themselves within the last 15 minutes),
+                # it is likely that we want to avoid to generate a duplicated
+                # post that couldn't be deleted. We hence avoid to add another
+                # message to the topic.
+
                 else:
                     all_tags = self._get_all_tags()
+
                     if not already_in_beta:
                         unlock_topic(topic)
                         msg_post = render_to_string(
@@ -1443,7 +1479,8 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
-                    else:
+                        topic = send_post(self.request, topic, self.request.user, msg_post)
+                    elif not topic.antispam():
                         msg_post = render_to_string(
                             'tutorialv2/messages/beta_update.md',
                             {
@@ -1452,12 +1489,12 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                                 'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
                             }
                         )
-                    topic = send_post(self.request, topic, self.request.user, msg_post)
+                        topic = send_post(self.request, topic, self.request.user, msg_post)
 
-                    # make sure that all authors follow the topic:
-                    for author in self.object.authors.all():
-                        TopicAnswerSubscription.objects.get_or_create_active(author, topic)
-                        mark_read(topic, author)
+                # make sure that all authors follow the topic:
+                for author in self.object.authors.all():
+                    TopicAnswerSubscription.objects.get_or_create_active(author, topic)
+                    mark_read(topic, author)
 
             # finally set the tags on the topic
             if topic:
@@ -1537,10 +1574,7 @@ class WarnTypo(SingleContentFormViewMixin):
             if form.content.is_opinion:
                 _type = _('le billet')
 
-            if form.content.get_tree_depth() == 0:
-                pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
-            else:
-                pm_title = _('J\'ai trouvé une faute dans le chapitre « {} ».').format(form.content.title)
+            pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
 
             msg = render_to_string(
                 'tutorialv2/messages/warn_typo.md',
@@ -1733,6 +1767,111 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             return redirect(child.get_absolute_url())
 
 
+class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    only_draft_version = True
+    must_be_author = True
+    form_class = ContributionForm
+    authorized_for_staff = True
+
+    def get_form_kwargs(self):
+        kwargs = super(AddContributorToContent, self).get_form_kwargs()
+        kwargs.update({'content': self.object})
+        return kwargs
+
+    def get(self, request, *args, **kwargs):
+        content = self.get_object()
+        url = 'content:find-{}'.format('tutorial' if content.is_tutorial() else content.type.lower())
+        return redirect(url, self.request.user)
+
+    def form_valid(self, form):
+
+        _type = _("à l'article")
+
+        if self.object.is_tutorial:
+            _type = _('au tutoriel')
+        elif self.object.is_opinion:
+            raise PermissionDenied
+
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        all_authors_pk = [author.pk for author in self.object.authors.all()]
+        user = form.cleaned_data['user']
+        if user.pk in all_authors_pk:
+            messages.error(self.request,
+                           _('Un auteur ne peut pas être désigné comme contributeur'))
+            return redirect(self.object.get_absolute_url())
+        else:
+            contribution_role = form.cleaned_data.get('contribution_role')
+            comment = form.cleaned_data.get('comment')
+            if ContentContribution.objects.filter(user=user,
+                                                  contribution_role=contribution_role,
+                                                  content=self.object).exists():
+                messages.error(self.request,
+                               _('Ce membre fait déjà partie des '
+                                 'contributeurs {} avec pour rôle "{}"'.format(_type, contribution_role.title)))
+                return redirect(self.object.get_absolute_url())
+
+            contribution = ContentContribution(user=user,
+                                               contribution_role=contribution_role,
+                                               comment=comment,
+                                               content=self.object)
+            contribution.save()
+            url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
+            send_mp(
+                bot,
+                [user],
+                format_lazy('{} {}', _('Contribution'), _type),
+                self.versioned_object.title,
+                render_to_string('tutorialv2/messages/add_contribution_pm.md', {
+                    'content': self.object,
+                    'type': _type,
+                    'url': self.object.get_absolute_url(),
+                    'index': url_index,
+                    'user': user.username,
+                    'role': contribution.contribution_role.title
+                }),
+                True,
+                direct=False,
+            )
+            self.success_url = self.object.get_absolute_url()
+
+            return super(AddContributorToContent, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, form.errors)
+        self.success_url = self.object.get_absolute_url()
+        return super(AddContributorToContent, self).form_valid(form)
+
+
+class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+
+    form_class = RemoveContributionForm
+    only_draft_version = True
+    must_be_author = True
+    authorized_for_staff = True
+
+    def form_valid(self, form):
+        _type = _('cet article')
+        if self.object.is_tutorial:
+            _type = _('ce tutoriel')
+        elif self.object.is_opinion:
+            raise PermissionDenied
+
+        contribution = get_object_or_404(ContentContribution, pk=form.cleaned_data['pk_contribution'])
+        user = contribution.user
+        contribution.delete()
+
+        messages.success(
+            self.request, _('Vous avez enlevé {} de la liste des contributeurs de {}.').format(user.username, _type))
+        self.success_url = self.object.get_absolute_url()
+
+        return super(RemoveContributorFromContent, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Les contributeurs sélectionnés n'existent pas."))
+        self.success_url = self.object.get_absolute_url()
+        return super(RemoveContributorFromContent, self).form_valid(form)
+
+
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     only_draft_version = True
     must_be_author = True
@@ -1756,28 +1895,32 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data['users']:
-            if user.pk not in all_authors_pk and user != self.request.user:
+            if user.pk not in all_authors_pk:
                 self.object.authors.add(user)
+                if self.object.validation_private_message\
+                   and not self.object.validation_private_message.is_participant(user):
+                    self.object.validation_private_message.participants.add(user)
                 all_authors_pk.append(user.pk)
-                url_index = reverse('content:find-' + self.object.type.lower(), args=[user.pk])
-                send_mp(
-                    bot,
-                    [user],
-                    format_lazy('{}{}', _('Ajout à la rédaction '), _type),
-                    self.versioned_object.title,
-                    render_to_string('tutorialv2/messages/add_author_pm.md', {
-                        'content': self.object,
-                        'type': _type,
-                        'url': self.object.get_absolute_url(),
-                        'index': url_index,
-                        'user': user.username
-                    }),
-                    True,
-                    direct=False,
-                    hat=get_hat_from_settings('validation'),
-                )
+                if user != self.request.user:
+                    url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
+                    send_mp(
+                        bot,
+                        [user],
+                        format_lazy('{}{}', _('Ajout à la rédaction '), _type),
+                        self.versioned_object.title,
+                        render_to_string('tutorialv2/messages/add_author_pm.md', {
+                            'content': self.object,
+                            'type': _type,
+                            'url': self.object.get_absolute_url(),
+                            'index': url_index,
+                            'user': user.username
+                        }),
+                        True,
+                        direct=False,
+                        hat=get_hat_from_settings('validation'),
+                    )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
-        self.object.save()
+        self.object.save(force_slug_update=False)
         self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
@@ -1856,13 +1999,78 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
             messages.success(self.request, _('Vous avez bien quitté la rédaction de {}.').format(_type))
-            self.success_url = reverse('content:find-' + self.object.type.lower(), args=[self.request.user.pk])
+            self.success_url = reverse(
+                self.object.type.lower() + ':find-' + self.object.type.lower(), args=[self.request.user.username]
+            )
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
         return super(RemoveAuthorFromContent, self).form_valid(form)
+
+
+class ContentOfContributors(ZdSPagingListView):
+    type = 'ALL'
+    context_object_name = 'contribution_contents'
+    paginate_by = settings.ZDS_APP['content']['content_per_page']
+    template_name = 'tutorialv2/contributions.html'
+    model = PublishableContent
+
+    sorts = OrderedDict([
+        ('creation', [lambda q: q.order_by('content__creation_date'), _('Par date de création')]),
+        ('abc', [lambda q: q.order_by('content__title'), _('Par ordre alphabétique')]),
+        ('modification', [lambda q: q.order_by('-content__update_date'), _('Par date de dernière modification')])
+    ])
+    sort = ''
+    filter = ''
+    user = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.user = get_object_or_404(User, username=self.kwargs['username'])
+        return super(ContentOfContributors, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.type == 'ALL':
+            queryset = ContentContribution.objects.filter(user__pk=self.user.pk, content__sha_public__isnull=False)
+        elif self.type in list(TYPE_CHOICES_DICT.keys()):
+            queryset = ContentContribution.objects.filter(user__pk=self.user.pk,
+                                                          content__sha_public__isnull=False,
+                                                          content__type=self.type)
+        else:
+            raise Http404('Ce type de contenu est inconnu dans le système.')
+
+        # Sort.
+        if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
+            self.sort = self.request.GET['sort']
+        elif not self.sort:
+            self.sort = 'abc'
+        queryset = self.sorts[self.sort.lower()][0](queryset)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super(ContentOfContributors, self).get_context_data(**kwargs)
+        context['sorts'] = []
+        context['sort'] = self.sort.lower()
+        context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
+        context['type'] = self.type.lower()
+        contents = list(self.object_list.values_list('content', flat=True).distinct())
+
+        queryset = PublishableContent.objects.filter(pk__in=contents)
+        # prefetch:
+        queryset = queryset\
+            .prefetch_related('authors')\
+            .prefetch_related('subcategory')\
+            .select_related('licence')\
+            .select_related('image')
+
+        context['contribution_tutorials'] = queryset.filter(type='TUTORIAL').all()
+        context['contribution_articles'] = queryset.filter(type='ARTICLE').all()
+
+        context['usr'] = self.user
+        for sort in list(self.sorts.keys()):
+            context['sorts'].append({'key': sort, 'text': self.sorts[sort][1]})
+        return context
 
 
 class ContentOfAuthor(ZdSPagingListView):
@@ -1873,12 +2081,10 @@ class ContentOfAuthor(ZdSPagingListView):
     model = PublishableContent
 
     authorized_filters = OrderedDict([
-        ('public', [lambda q: q.filter(sha_public__isnull=False), _('Publiés'), True, 'tick green']),
-        ('validation', [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick']),
-        ('beta', [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta']),
-        ('redaction', [
-            lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
-            _('Brouillons'), False, 'edit']),
+        ('public', [lambda p, t: p.get_user_public_contents_queryset(t), _('Publiés'), True, 'tick green']),
+        ('validation', [lambda p, t: p.get_user_validate_contents_queryset(t), _('En validation'), False, 'tick']),
+        ('beta', [lambda p, t: p.get_user_beta_contents_queryset(t), _('En bêta'), True, 'beta']),
+        ('redaction', [lambda p, t: p.get_user_draft_contents_queryset(t), _('Brouillons'), False, 'edit']),
     ])
     sorts = OrderedDict([
         ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
@@ -1890,7 +2096,7 @@ class ContentOfAuthor(ZdSPagingListView):
     user = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, pk=int(self.kwargs['pk']))
+        self.user = get_object_or_404(User, username=self.kwargs['username'])
         if self.user != self.request.user and 'filter' in self.request.GET:
             filter_ = self.request.GET.get('filter').lower()
             if filter_ in self.authorized_filters:
@@ -1901,17 +2107,12 @@ class ContentOfAuthor(ZdSPagingListView):
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        if self.type in list(TYPE_CHOICES_DICT.keys()):
-            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
-        else:
+        profile = self.user.profile
+        if self.type not in list(TYPE_CHOICES_DICT.keys()):
             raise Http404('Ce type de contenu est inconnu dans le système.')
-
-        # prefetch:
-        queryset = queryset\
-            .prefetch_related('authors')\
-            .prefetch_related('subcategory')\
-            .select_related('licence')\
-            .select_related('image')
+        _type = self.type
+        if self.type == 'ALL':
+            _type = None
 
         # Filter.
         if 'filter' in self.request.GET:
@@ -1920,8 +2121,17 @@ class ContentOfAuthor(ZdSPagingListView):
                 raise Http404("Le filtre n'est pas autorisé.")
         elif self.user != self.request.user:
             self.filter = 'public'
-        if self.filter != '':
-            queryset = self.authorized_filters[self.filter][0](queryset)
+
+        if self.filter == '':
+            queryset = profile.get_user_contents_queryset(_type=_type)
+        else:
+            queryset = self.authorized_filters[self.filter][0](profile, _type)
+        # prefetch:
+        queryset = queryset\
+            .prefetch_related('authors')\
+            .prefetch_related('subcategory')\
+            .select_related('licence')\
+            .select_related('image')
 
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:
@@ -1929,6 +2139,7 @@ class ContentOfAuthor(ZdSPagingListView):
         elif not self.sort:
             self.sort = 'abc'
         queryset = self.sorts[self.sort.lower()][0](queryset)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1938,6 +2149,13 @@ class ContentOfAuthor(ZdSPagingListView):
         context['sort'] = self.sort.lower()
         context['filter'] = self.filter.lower()
         context['subscriber_count'] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()
+        context['type'] = self.type.lower()
+
+        if self.type == 'ALL':
+            contents = list(context['contents'])
+            context['tutorials'] = [content for content in contents if content.type == 'TUTORIAL']
+            context['articles'] = [content for content in contents if content.type == 'ARTICLE']
+            context['opinions'] = [content for content in contents if content.type == 'OPINION']
 
         context['usr'] = self.user
         for sort in list(self.sorts.keys()):
@@ -1948,3 +2166,106 @@ class ContentOfAuthor(ZdSPagingListView):
                 continue
             context['filters'].append({'key': filter_, 'text': authorized_filter[1], 'icon': authorized_filter[3]})
         return context
+
+
+class RedirectOldContentOfAuthor(RedirectView):
+    """
+    allows to redirect the old lists of users' tutorials/articles/opinions (with
+    pks) to the new ones (with usernames and different root).
+    """
+    permanent = True
+    type = None
+
+    def get_redirect_url(self, **kwargs):
+        user = User.objects.filter(pk=int(kwargs['pk'])).first()
+        route = None
+
+        if self.type == 'TUTORIAL':
+            route = 'tutorial:find-tutorial'
+        elif self.type == 'ARTICLE':
+            route = 'article:find-article'
+        elif self.type == 'OPINION':
+            route = 'opinion:find-opinion'
+
+        if not route:
+            raise Http404('Ce type de contenu est inconnu dans le système')
+
+        return reverse(route, args=[user.username])
+
+
+class AddSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    only_draft_version = True
+    authorized_for_staff = True
+
+    def post(self, request, *args, **kwargs):
+        publication = get_object_or_404(PublishableContent, pk=kwargs['pk'])
+
+        _type = _('cet article')
+        if publication.is_tutorial:
+            _type = _('ce tutoriel')
+        elif self.object.is_opinion:
+            raise PermissionDenied
+
+        if 'options' in request.POST:
+            options = request.POST.getlist('options')
+            for option in options:
+                suggestion = get_object_or_404(PublishableContent, pk=option)
+                if ContentSuggestion.objects.filter(publication=publication, suggestion=suggestion).exists():
+                    messages.error(self.request, _(
+                        'Le contenu "{}" fait déjà partie des suggestions de {}'.format(suggestion.title, _type)))
+                elif suggestion.pk == publication.pk:
+                    messages.error(self.request, _(
+                        'Vous ne pouvez pas ajouter {} en tant que suggestion pour lui même.'.format(_type)))
+                elif suggestion.is_opinion and suggestion.sha_picked != suggestion.sha_public:
+                    messages.error(self.request, _(
+                        'Vous ne pouvez pas suggerer pour {} un billet qui n\'a pas été mis en avant.'.format(_type)))
+                elif not suggestion.sha_public:
+                    messages.error(self.request, _(
+                        'Vous ne pouvez pas suggerer pour {} un contenu qui n\'a pas été publié.'.format(_type)))
+                else:
+                    obj_suggestion = ContentSuggestion(publication=publication, suggestion=suggestion)
+                    obj_suggestion.save()
+                    messages.info(self.request, _(
+                        'Le contenu "{}" a été ajouté dans les suggestions de {}'.format(suggestion.title, _type)))
+
+        if self.object.public_version:
+            return redirect(self.object.get_absolute_url_online())
+        else:
+            return redirect(self.object.get_absolute_url())
+
+
+class RemoveSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+
+    form_class = RemoveSuggestionForm
+    only_draft_version = True
+    authorized_for_staff = True
+
+    def form_valid(self, form):
+        _type = _('cet article')
+        if self.object.is_tutorial:
+            _type = _('ce tutoriel')
+        elif self.object.is_opinion:
+            raise PermissionDenied
+
+        content_suggestion = get_object_or_404(ContentSuggestion, pk=form.cleaned_data['pk_suggestion'])
+        content_suggestion.delete()
+
+        messages.success(
+            self.request,
+            _('Vous avez enlevé "{}" de la liste des suggestions de {}.').format(content_suggestion.suggestion.title,
+                                                                                 _type))
+
+        if self.object.public_version:
+            self.success_url = self.object.get_absolute_url_online()
+        else:
+            self.success_url = self.object.get_absolute_url()
+
+        return super(RemoveSuggestion, self).form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, _("Les suggestions sélectionnées n'existent pas."))
+        if self.object.public_version:
+            self.success_url = self.object.get_absolute_url_online()
+        else:
+            self.success_url = self.object.get_absolute_url()
+        return super(RemoveSuggestion, self).form_valid(form)

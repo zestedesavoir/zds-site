@@ -23,7 +23,7 @@
 {% endif %}
 
 {% if online %}
-    {% set public_object.get_last_action_date as update_date %}
+    {% set public_object.last_publication_date as update_date %}
 {% else %}
     {% set  content.update_date as update_date %}
 {% endif %}
@@ -59,12 +59,45 @@
 
         {% if add_author == True %}
             <li>
-                <a href="#add-author" class="open-modal ico-after more blue">
+                <a href="#add-author-content" class="open-modal ico-after more blue">
                     {% trans "Ajouter un auteur" %}
                 </a>
+                <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author-content">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
+                    <button type="submit" name="add_author">
+                        {% trans "Confirmer" %}
+                    </button>
+                </form>
             </li>
         {% endif %}
     </ul>
+    {% with count_contributions=contributions|length %}
+        {% if count_contributions > 0 %}
+        <br/>
+        <span class="authors-label">
+            {% trans "Ce contenu a bénéficié des apports de" %} <a href="#view-contributions" class="open-modal">{{ count_contributions }} {% trans "contributeur" %}{{ count_contributions|pluralize }}</a>
+        </span>
+        <div class="modal modal-flex" id="view-contributions">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="50%">{% trans "Membre" %}</th>
+                        <th width="50%">{% trans "Role" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for contribution in contributions %}
+                    <tr>
+                        <td>{% include "misc/member_item.part.html" with member=contribution.user %}</td>
+                        <td>{{contribution.contribution_role.title}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    {% endwith %}
     <br/>
     <span class="authors-label">
         {% trans "Catégorie" %}{{ content.subcategory.all|pluralize }} :

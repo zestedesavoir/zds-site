@@ -181,7 +181,7 @@
                 <ul>
                     <li>
                         <a href="{% url "content:create-container" content.pk content.slug %}">{% trans "Ajouter une partie" %}</a>
-                        {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %} 
+                        {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %}
                     </li>
                     <li>
                         <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
@@ -275,8 +275,7 @@
         <a href="{% url "content:import" content.pk content.slug %}" class="ico-after import blue new-btn">
             {% trans "Importer une nouvelle version" %}
         </a>
-
-    {% else %}
+    {% elif not version or version != content.sha_draft %}
         <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
             {% trans "Version brouillon" %}
         </a>
@@ -334,6 +333,49 @@
         </li>
     {% endif %}
     {# END AUTHORS #}
+    {# CONTRIBUTORS #}
+    {% if can_add_something and formAddReviewer %}
+        <li>
+            <a href="#add-contributor" class="open-modal ico-after more blue">
+                {% trans "Ajouter un contributeur" %}
+            </a>
+            {% crispy formAddReviewer %}
+        </li>
+        <li>
+            <a href="#manage-contributions" class="open-modal ico-after gear blue">
+                {% trans "Gérer les contributeurs" %}
+            </a>
+            <form action="{% url "content:remove-contributor" content.pk  %}" method="post" class="modal modal-large" id="manage-contributions" data-modal-close="Fermer">
+                <table class="fullwidth">
+                    <thead>
+                        <th width="15%">{% trans "Membre" %}</th>
+                        <th width="15%">{% trans "Rôle" %}</th>
+                        <th>{% trans "Commentaire" %}</th>
+                        <th width="15%">{% trans "Actions" %}</th>
+                    </thead>
+                    <tbody>
+                        {% for contribution in contributions %}
+                            <tr>
+                                <td>{% include "misc/member_item.part.html" with member=contribution.user %}</td>
+                                <td>{{contribution.contribution_role.title}}</td>
+                                <td>{{contribution.comment|default:""}}</td>
+                                <td>
+                                    <button type="submit" data-value="{{ contribution.pk }}" name="pk_contribution" value="{{ contribution.pk }}" class="modal-inner">
+                                        {% trans "Supprimer" %}
+                                    </button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4">Aucun contributeur</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                {% csrf_token %}
+            </form>
+        </li>
+    {% endif %}
+    {# END CONTRIBUTORS #}
     {% if can_edit or is_staff %}
         {# BETA #}
         {% if content.can_be_in_beta %}
@@ -434,6 +476,11 @@
                 <a href="{% url "content:stats-content" content.pk content.slug %}" class="ico-after stats blue">
                     {% trans "Voir les statistiques" %}
                 </a>
+            </li>
+            <li>
+                <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue">
+                    {% trans "Exporter le contenu (epub, pdf, latex...)" %}
+                </button>
             </li>
         {% endif %}
         {# END ONLINE VERSION #}
@@ -645,6 +692,9 @@
                     {% endif %}
                 {% endif %}
             </ul>
+        </div>
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Editorialisation">
+        {%  include "tutorialv2/includes/editorialization.part.html"  %}
         </div>
     {% endif %}
 
