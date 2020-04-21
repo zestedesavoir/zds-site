@@ -642,18 +642,18 @@
         {
           name: 'switch-contentAreaStyle',
           action: (evt) => {
-            if(easyMDE.isFullscreenActive()) {
-                easyMDE.toggleFullScreen()
+            if (easyMDE.isFullscreenActive()) {
+              easyMDE.toggleFullScreen()
             }
             const wrapper = easyMDE.codemirror.getWrapperElement()
             $(wrapper.parentElement).children('.textarea-multivers').toggle()
             $(wrapper).toggle()
             // deactivating buttons incompatible with the textarea mode
             var $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
-            if($toolbar.hasClass('disabled-for-textarea-mode')) {
-                $toolbar.removeClass("disabled-for-textarea-mode")
+            if ($toolbar.hasClass('disabled-for-textarea-mode')) {
+              $toolbar.removeClass('disabled-for-textarea-mode')
             } else {
-                $toolbar.addClass("disabled-for-textarea-mode")
+              $toolbar.addClass('disabled-for-textarea-mode')
             }
             easyMDE.codemirror.refresh()
           },
