@@ -47,7 +47,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
 
     def test_public_cant_access_content_display_page(self):
         for content in self.contents.values():
-            result = self.access_content_display_page(self.kwargs_to_display_contents[content])
+            result = self.content_view_get(self.kwargs_to_display_contents[content])
             self.assertEqual(
                 result.status_code,
                 302,
@@ -57,7 +57,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
     def test_guest_cant_access_content_display_page(self):
         self.login(self.user_guest, 'hostel77')
         for content in self.contents.values():
-            result = self.access_content_display_page(self.kwargs_to_display_contents[content])
+            result = self.content_view_get(self.kwargs_to_display_contents[content])
             self.assertEqual(
                 result.status_code,
                 403,
@@ -68,7 +68,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
     def test_read_only_author_can_access_content_display_page(self):
         self.login(self.user_read_only_author, 'hostel77')
         for content in self.contents.values():
-            result = self.access_content_display_page(self.kwargs_to_display_contents[content])
+            result = self.content_view_get(self.kwargs_to_display_contents[content])
             self.assertEqual(
                 result.status_code,
                 200,
@@ -81,7 +81,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
         self.login(self.user_author, 'hostel77')
         a = True
         for content in self.contents.values():
-            result = self.access_content_display_page(self.kwargs_to_display_contents[content])
+            result = self.content_view_get(self.kwargs_to_display_contents[content])
             self.assertEqual(
                 result.status_code,
                 200,
@@ -92,7 +92,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
     def test_staff_can_access_content_display_page(self):
         self.login(self.user_staff, 'hostel77')
         for content in self.contents.values():
-            result = self.access_content_display_page(self.kwargs_to_display_contents[content])
+            result = self.content_view_get(self.kwargs_to_display_contents[content])
             self.assertEqual(
                 result.status_code,
                 200,
@@ -113,7 +113,7 @@ class CreateContentAccessTests(TutorialTestMixin, TestCase):
 
     def test_public_cant_access_content_creation_page(self):
         for _type in self.content_types:
-            result = self.access_content_creation_page(_type)
+            result = self.content_create_get(_type)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -123,7 +123,7 @@ class CreateContentAccessTests(TutorialTestMixin, TestCase):
     def test_read_only_user_cant_access_content_creation_page(self):
         self.login(self.user_read_only, 'hostel77')
         for _type in self.content_types:
-            result = self.access_content_creation_page(_type.lower())
+            result = self.content_create_get(_type.lower())
             self.assertEqual(
                 result.status_code,
                 403,
@@ -134,7 +134,7 @@ class CreateContentAccessTests(TutorialTestMixin, TestCase):
     def test_user_can_access_content_creation_page(self):
         self.login(self.user, 'hostel77')
         for _type in self.content_types:
-            result = self.access_content_creation_page(_type.lower())
+            result = self.content_create_get(_type.lower())
             self.assertEqual(
                 result.status_code,
                 200,
@@ -192,7 +192,7 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         for _type in self.content_types:
             old_content_number = PublishableContent.objects.all().count()
             kwargs = self.kwargs_to_create_contents[_type]
-            result = self.create_content(kwargs)
+            result = self.content_create_post(kwargs)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -210,7 +210,7 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         for _type in self.content_types:
             old_content_number = PublishableContent.objects.all().count()
             kwargs = self.kwargs_to_create_contents[_type]
-            result = self.create_content(kwargs)
+            result = self.content_create_post(kwargs)
             self.assertEqual(
                 result.status_code,
                 403,
@@ -229,7 +229,7 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         for _type in self.content_types:
             old_content_number = PublishableContent.objects.filter(type=_type).count()
             kwargs = self.kwargs_to_create_contents[_type]
-            result = self.create_content(kwargs)
+            result = self.content_create_post(kwargs)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -255,7 +255,7 @@ class CreateContentTests(TutorialTestMixin, TestCase):
             old_content_number = PublishableContent.objects.filter(type=_type).count()
             kwargs = self.kwargs_to_create_contents[_type]
             kwargs['image'] = open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
-            result = self.create_content(kwargs)
+            result = self.content_create_post(kwargs)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -309,7 +309,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
 
     def test_public_cant_access_content_edition_page(self):
         for content in self.contents.values():
-            result = self.access_content_edition_page(self.kwargs_to_edit_contents[content])
+            result = self.content_edit_get(self.kwargs_to_edit_contents[content])
             self.assertEqual(
                 result.status_code,
                 302,
@@ -319,7 +319,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
     def test_guest_cant_access_content_edition_page(self):
         self.login(self.user_guest, 'hostel77')
         for content in self.contents.values():
-            result = self.access_content_edition_page(self.kwargs_to_edit_contents[content])
+            result = self.content_edit_get(self.kwargs_to_edit_contents[content])
             self.assertEqual(
                 result.status_code,
                 403,
@@ -330,7 +330,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
     def test_read_only_author_cant_access_content_edition_page(self):
         self.login(self.user_read_only_author, 'hostel77')
         for content in self.contents.values():
-            result = self.access_content_edition_page(self.kwargs_to_edit_contents[content])
+            result = self.content_edit_get(self.kwargs_to_edit_contents[content])
             self.assertEqual(
                 result.status_code,
                 403,
@@ -341,7 +341,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
     def test_author_can_access_content_edition_page(self):
         self.login(self.user_author, 'hostel77')
         for content in self.contents.values():
-            result = self.access_content_edition_page(self.kwargs_to_edit_contents[content])
+            result = self.content_edit_get(self.kwargs_to_edit_contents[content])
             self.assertEqual(
                 result.status_code,
                 200,
@@ -352,7 +352,7 @@ class EditContentAccessTests(TutorialTestMixin, TestCase):
     def test_staff_can_access_content_edition_page(self):
         self.login(self.user_staff, 'hostel77')
         for content in self.contents.values():
-            result = self.access_content_edition_page(self.kwargs_to_edit_contents[content])
+            result = self.content_edit_get(self.kwargs_to_edit_contents[content])
             self.assertEqual(
                 result.status_code,
                 200,
@@ -410,7 +410,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = content.title
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -426,7 +426,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = content.title
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 403,
@@ -443,7 +443,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = content.title
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 403,
@@ -460,7 +460,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = content.title
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -480,7 +480,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = content.title
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -499,7 +499,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             kwargs = {'pk': content.pk, 'slug': content.slug}
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = 'new_title'
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -516,12 +516,12 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 f'The #{content.type} content slug should have changed since its title has been modified.'
             )
             self.assertEqual(
-                self.access_content_display_page({'pk': content.pk, 'slug': content.slug}).status_code,
+                self.content_view_get({'pk': content.pk, 'slug': content.slug}).status_code,
                 404,
                 f'Author should not be able to access its {content.type} content using old slug.'
             )
             self.assertEqual(
-                self.access_content_display_page({'pk': content.pk, 'slug': new_version.slug}).status_code,
+                self.content_view_get({'pk': content.pk, 'slug': new_version.slug}).status_code,
                 200,
                 f'Author should be able to access its {content.type} content using the new slug.'
             )
@@ -535,7 +535,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             content_informations['title'] = content.title
             content_informations['image'] = open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
             images_number = Image.objects.filter(gallery__pk=content.gallery.pk).count()
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 302,
@@ -557,7 +557,7 @@ class EditContentTests(TutorialTestMixin, TestCase):
             content_informations = self.kwargs_to_edit_contents[content]
             content_informations['title'] = content.title
             content_informations['last_hash'] = ''
-            result = self.edit_content(kwargs, content_informations)
+            result = self.content_edit_post(kwargs, content_informations)
             self.assertEqual(
                 result.status_code,
                 200,
@@ -598,7 +598,7 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
 
     def test_public_cant_delete_content(self):
         for content in self.contents.values():
-            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            result = self.content_delete_post(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
                 302,
@@ -613,7 +613,7 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
     def test_guest_cant_delete_content(self):
         self.login(self.user_guest, 'hostel77')
         for content in self.contents.values():
-            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            result = self.content_delete_post(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
                 403,
@@ -631,7 +631,7 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
         for content in self.contents.values():
             content.authors.add(self.user_read_only_author)
             content.save()
-            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            result = self.content_delete_post(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
                 403,
@@ -647,7 +647,7 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
     def test_staff_cant_delete_content(self):
         self.login(self.user_staff, 'hostel77')
         for content in self.contents.values():
-            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            result = self.content_delete_post(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
                 403,
@@ -668,7 +668,7 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
             content.save()
             versioned = content.load_version()
             gallery = content.gallery
-            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            result = self.content_delete_post(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
                 302,
@@ -695,7 +695,7 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
             UserGalleryFactory(gallery=content.gallery, user=self.user_author, mode='W')
             UserGalleryFactory(gallery=content.gallery, user=self.user_guest, mode='W')
             content.save()
-            result = self.delete_content(self.kwargs_to_delete_contents[content])
+            result = self.content_delete_post(self.kwargs_to_delete_contents[content])
             self.assertEqual(
                 result.status_code,
                 302,

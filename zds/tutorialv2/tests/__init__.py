@@ -53,17 +53,17 @@ class TutorialTestMixin:
     def logout(self):
         self.client.logout()
 
-    def access_content_display_page(self, kwargs):
+    def content_view_get(self, kwargs):
         return self.client.get(
             reverse('content:view', kwargs=kwargs),
             follow=False)
 
-    def access_content_creation_page(self, _type='TUTORIAL'):
+    def content_create_get(self, _type='TUTORIAL'):
         return self.client.get(
             reverse(f'content:create-{_type.lower()}'),
             follow=False)
 
-    def create_content(self, content_informations):
+    def content_create_post(self, content_informations):
         _type = content_informations['type'].lower()
         return self.client.post(
             reverse(f'content:create-{_type}'),
@@ -113,22 +113,21 @@ class TutorialTestMixin:
                 1,
             )
 
-    def access_content_edition_page(self, kwargs):
+    def content_edit_get(self, kwargs):
         return self.client.get(
             reverse('content:edit', kwargs=kwargs),
             follow=False)
 
-    def edit_content(self, kwargs, content_informations):
+    def content_edit_post(self, kwargs, content_informations):
         return self.client.post(
             reverse('content:edit', kwargs=kwargs),
             content_informations,
             follow=False)
 
-    def delete_content(self, kwargs):
+    def content_delete_post(self, kwargs):
         return self.client.post(
             reverse('content:delete', kwargs=kwargs),
             follow=False)
-
 
 class TutorialFrontMixin:
     def login(self, profile):
