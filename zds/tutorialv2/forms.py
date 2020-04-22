@@ -22,11 +22,7 @@ class FormWithTitle(forms.Form):
     title = forms.CharField(
         label=_('Titre'),
         max_length=PublishableContent._meta.get_field('title').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'required': 'required',
-            }
-        )
+        required=False
     )
 
     def clean(self):
@@ -34,11 +30,9 @@ class FormWithTitle(forms.Form):
 
         title = cleaned_data.get('title')
 
-        if title is not None and not title.strip():
-            self._errors['title'] = self.error_class(
-                [_('Le champ du titre ne peut être vide.')])
-            if 'title' in cleaned_data:
-                del cleaned_data['title']
+        if title is None or not title.strip():
+            title = 'Titre par défaut'
+            cleaned_data['title'] = title
 
         try:
             slugify_raise_on_invalid(title)
