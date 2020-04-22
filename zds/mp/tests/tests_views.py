@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 
 from zds.member.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.models import PrivateTopic, PrivatePost, PrivateTopicRead, mark_read
 from zds.utils.models import Hat
 
 
@@ -1151,3 +1151,113 @@ class PrivateTopicEditTest(TestCase):
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
         self.assertEqual('super title', topic.title)
         self.assertEqual('super subtitle', topic.subtitle)
+
+
+class PrivatePostUnreadTest(TestCase):
+    def setUp(self):
+        self.author = ProfileFactory()
+        self.participant = ProfileFactory()
+        self.outsider = ProfileFactory()
+
+        self.topic1 = PrivateTopicFactory(author=self.author.user)
+        self.topic1.participants.add(self.participant.user)
+        self.post1 = PrivatePostFactory(
+            privatetopic=self.topic1,
+            author=self.author.user,
+            position_in_topic=1)
+
+        self.post2 = PrivatePostFactory(
+            privatetopic=self.topic1,
+            author=self.participant.user,
+            position_in_topic=2)
+
+    def test_denies_anonymous(self):
+        """Test the case of an unauthenticated user trying to unread a private post."""
+        self.client.logout()
+        response = self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post2.pk),
+            follow=True
+        )
+
+        self.assertRedirects(
+            response,
+            reverse('member-login') + '?next=' + reverse('private-post-unread') + '?message=' + str(self.post2.pk))
+
+    def test_failing_unread_post(self):
+        """Test cases of invalid unread requests by an authenticated user."""
+        self.assertTrue(self.client.login(username=self.author.user.username, password='hostel77'))
+
+        # parameter is missing
+        result = self.client.get(reverse('private-post-unread'), follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # parameter is empty
+        result = self.client.get(reverse('private-post-unread') + '?message=', follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # parameter is weird
+        result = self.client.get(reverse('private-post-unread') + '?message=' + 'abc', follow=False)
+        self.assertEqual(result.status_code, 404)
+
+        # parameter doesn't (yet) exist
+        result = self.client.get(reverse('private-post-unread') + '?message=' + '424242', follow=False)
+        self.assertEqual(result.status_code, 404)
+
+    def test_user_not_participating(self):
+        """Test the case of a user not participating in a private topic attempting to unread a post. """
+        self.assertTrue(self.client.login(username=self.outsider.user.username, password='hostel77'))
+        result = self.client.get(reverse('private-post-unread') + '?message=' + str(self.post2.pk), follow=False)
+        self.assertEqual(result.status_code, 403)
+
+    def test_unread_first_post(self):
+        self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
+        result = self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post1.pk),
+            follow=True)
+        self.assertRedirects(result, reverse('mp-list'))
+        with self.assertRaises(PrivateTopicRead.DoesNotExist):
+            PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
+
+    def test_unread_normal_post(self):
+        self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
+        self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post2.pk),
+            follow=True)
+        topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
+        self.assertEqual(topic_read.privatetopic, self.topic1)
+        self.assertEqual(topic_read.user, self.participant.user)
+        self.assertEqual(topic_read.privatepost, self.post1)
+
+    def test_multiple_unread1(self):
+        self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
+        self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post1.pk),
+            follow=True)
+        self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post2.pk),
+            follow=True)
+        topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
+        self.assertEqual(topic_read.privatetopic, self.topic1)
+        self.assertEqual(topic_read.user, self.participant.user)
+        self.assertEqual(topic_read.privatepost, self.post1)
+
+    def test_multiple_unread2(self):
+        self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
+        self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post1.pk),
+            follow=True)
+        self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post1.pk),
+            follow=True)
+        with self.assertRaises(PrivateTopicRead.DoesNotExist):
+            PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
+
+    def test_no_interference(self):
+        mark_read(self.topic1, self.author.user)
+        topic_read_old = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
+        self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
+        self.client.get(
+            reverse('private-post-unread') + '?message=' + str(self.post2.pk),
+            follow=True)
+        topic_read_new = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
+        self.assertQuerysetEqual(topic_read_old, [repr(t) for t in topic_read_new])

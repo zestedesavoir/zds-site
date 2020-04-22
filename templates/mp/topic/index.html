@@ -66,13 +66,23 @@
                 {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
+            {% captureas unread_link %}
+                {% url "private-post-unread" %}?message={{ message.pk }}
+            {% endcaptureas %}
+
+            {% if forloop.first and page_obj.number > 1 %}
+                {% set True as is_repeated_message %}
+            {% else %}
+                {% set False as is_repeated_message %}
+            {% endif %}
+
             {% if topic.last_message.pk == message.pk %}
                 {% set True as can_edit %}
             {% else %}
                 {% set False as can_edit %}
             {% endif %}
 
-            {% include "misc/message.part.html" with can_hide=False is_mp=True %}
+            {% include "misc/message.part.html" with can_hide=False is_mp=True can_unread=True %}
         {% endfor %}
     </div>
 
