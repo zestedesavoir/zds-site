@@ -44,7 +44,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     pubdate = datetime.now()
 
     @classmethod
-    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, **kwargs):
+    def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None, add_category=True, **kwargs):
         auths = author_list or []
         given_licence = licence or Licence.objects.first()
         if isinstance(given_licence, str) and given_licence:
@@ -60,6 +60,9 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         publishable_content.licence = licence
         for auth in auths:
             publishable_content.authors.add(auth)
+
+        if add_category:
+            publishable_content.subcategory.add(SubCategoryFactory())
 
         publishable_content.save()
 
