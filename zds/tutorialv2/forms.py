@@ -282,7 +282,7 @@ class ContentForm(ContainerForm):
     subcategory = forms.ModelMultipleChoiceField(
         label=_('Sélectionnez les catégories qui correspondent à votre contenu.'),
         queryset=SubCategory.objects.order_by('title').all(),
-        required=True,
+        required=False,
         widget=forms.CheckboxSelectMultiple()
     )
 
@@ -296,7 +296,7 @@ class ContentForm(ContainerForm):
             )
         ),
         queryset=Licence.objects.order_by('title').all(),
-        required=True,
+        required=False,
         empty_label=_('Choisir une licence')
     )
 
