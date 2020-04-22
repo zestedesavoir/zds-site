@@ -168,6 +168,22 @@ def mark_pm_reactions_read(sender, *, user, instance, **__):
         subscription.mark_notification_read()
 
 
+@receiver(answer_unread, sender=PrivateTopic)
+def unread_private_topic_event(sender, *, user, instance, **__):
+    """
+    Send a notification to the user, without sending an email, when a private post is marked as unread.
+
+    :param instance: the private post being marked as unread
+    :param user: the user marking the answer as unread
+
+    """
+    private_post = instance
+
+    subscription = PrivateTopicAnswerSubscription.objects.get_existing(user, private_post.privatetopic, is_active=True)
+    if subscription:
+        subscription.send_notification(content=private_post, sender=private_post.author, send_email=False)
+
+
 @receiver(content_read, sender=ContentReaction)
 @receiver(content_read, sender=Post)
 def mark_comment_read(sender, *, instance, user, **__):
