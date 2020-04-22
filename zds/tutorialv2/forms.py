@@ -1158,17 +1158,35 @@ class PublicationForm(forms.Form):
     def __init__(self, content, *args, **kwargs):
         super(PublicationForm, self).__init__(*args, **kwargs)
 
+        self.previous_page_url = content.get_absolute_url()
+
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:publish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'valid-publication'
 
+        self.no_subcategories = content.subcategory.count() == 0
+        no_category_msg = HTML(_("""<p><strong>Votre billet n'est dans aucune catégorie.
+                                    Vous devez choisir une catégorie avant de le publier !</strong></p>
+                                 """))
+
         self.helper.layout = Layout(
+            no_category_msg if self.no_subcategories else None,
+            HTML(_('<p>Pensez à vérifier la licence de votre billet avant de le publier.</p>')),
             Field('source'),
-            HTML("<p>Ce billet sera publié directement et n'engage que vous.</p>"),
+            HTML(_("<p>Ce billet sera publié directement et n'engage que vous.</p>")),
             StrictButton(_('Publier'), type='submit')
         )
+
+    def clean(self):
+        cleaned_data = super(PublicationForm, self).clean()
+
+        if self.no_subcategories:
+            self._errors['no_subcategories'] = self.error_class(
+                [_('Vous devez spécifier une catégorie pour votre publication.')])
+
+        return cleaned_data
 
 
 class UnpublicationForm(forms.Form):
