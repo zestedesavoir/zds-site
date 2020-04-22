@@ -217,7 +217,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             return ''
         else:
             # get the full path (with tutorial/article before it)
-            return str(settings.ZDS_APP['content']['repo_private_path'] / self.slug)
+            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
 
     def ensure_author_gallery(self):
         """
@@ -356,7 +356,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             path = public.get_prod_path()
             slug = public.content_public_slug
 
-            if not os.path.isdir(path):
+            if not 
+            path.isdir(path):
                 raise OSError(path)
 
             if sha != public.sha_public:
