@@ -695,7 +695,13 @@ class AskValidationForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'ask-validation'
 
+        self.no_subcategories = content.subcategory.count() == 0
+        no_category_msg = HTML(_("""<p><strong>Votre contenu n'est dans aucune catégorie.
+                                    Vous devez choisir une catégorie avant de demander la validation !</strong></p>
+                                 """))
         self.helper.layout = Layout(
+            no_category_msg if self.no_subcategories else None,
+            HTML(_('<p>Pensez à vérifier la licence de votre contenu avant de demander la validation.</p>')),
             Field('text'),
             Field('source'),
             Field('version'),
@@ -720,6 +726,10 @@ class AskValidationForm(forms.Form):
                 [_('Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
+
+        if self.no_subcategories:
+            self._errors['no_subcategories'] = self.error_class(
+                [_('Vous devez spécifier une catégorie pour votre publication.')])
 
         return cleaned_data
 
