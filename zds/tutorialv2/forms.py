@@ -288,6 +288,18 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
+    source = forms.CharField(
+        label=_("""Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
+                   indiquez le lien de la publication originale : """),
+        max_length=PublishableContent._meta.get_field('source').max_length,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('https://...')
+            }
+        )
+    )
+
     def _create_layout(self, hide_help):
         html_part = HTML(_("<p>Demander de l'aide à la communauté !<br>"
                            "Si vous avez besoin d'un coup de main, "
@@ -314,7 +326,8 @@ class ContentForm(ContainerForm):
             HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
             Field('last_hash'),
-            Field('subcategory', template='crispy/checkboxselectmultiple.html'),
+            Field('source'),
+            Field('subcategory', template='crispy/checkboxselectmultiple.html')
         )
 
         if not hide_help:
@@ -697,15 +710,6 @@ class AskValidationForm(forms.Form):
             }
         )
     )
-    source = forms.CharField(
-        label='',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _("Pour un contenu importé d'un autre site, adresse de la source.")
-            }
-        )
-    )
 
     version = forms.CharField(widget=forms.HiddenInput(), required=True)
 
@@ -747,7 +751,6 @@ class AskValidationForm(forms.Form):
             no_category_msg if self.no_subcategories else None,
             no_license_msg if self.no_license else None,
             Field('text'),
-            Field('source'),
             Field('version'),
             StrictButton(
                 _('Confirmer'),
@@ -808,16 +811,6 @@ class AcceptValidationForm(forms.Form):
         initial=True
     )
 
-    source = forms.CharField(
-        label='',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _("Pour un contenu importé d'un autre site, adresse de la source.")
-            }
-        )
-    )
-
     def __init__(self, validation, *args, **kwargs):
         """
 
@@ -849,7 +842,6 @@ class AcceptValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('text'),
-            Field('source'),
             Field('is_major'),
             StrictButton(_('Publier'), type='submit')
         )
@@ -1191,16 +1183,6 @@ class PublicationForm(forms.Form):
     The publication form (used only for content without preliminary validation).
     """
 
-    source = forms.CharField(
-        label='',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _('Pour un contenu importé d\'un autre site, adresse de la source.')
-            }
-        )
-    )
-
     def __init__(self, content, *args, **kwargs):
         super(PublicationForm, self).__init__(*args, **kwargs)
 
@@ -1228,7 +1210,6 @@ class PublicationForm(forms.Form):
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
             no_license_msg if self.no_license else None,
-            Field('source'),
             HTML(_("<p>Ce billet sera publié directement et n'engage que vous.</p>")),
             StrictButton(_('Publier'), type='submit')
         )

@@ -103,6 +103,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.description = form.cleaned_data['description']
         self.content.type = form.cleaned_data['type']
         self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
+        self.content.source = form.cleaned_data['source']
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
@@ -280,6 +281,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial['type'] = versioned.type
         initial['introduction'] = versioned.get_introduction()
         initial['conclusion'] = versioned.get_conclusion()
+        initial['source'] = versioned.source
         initial['subcategory'] = self.object.subcategory.all()
         initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         initial['helps'] = self.object.helps.all()
@@ -319,6 +321,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         title_is_changed = publishable.title != form.cleaned_data['title']
         publishable.title = form.cleaned_data['title']
         publishable.description = form.cleaned_data['description']
+        publishable.source = form.cleaned_data['source']
 
         publishable.update_date = datetime.now()
 
