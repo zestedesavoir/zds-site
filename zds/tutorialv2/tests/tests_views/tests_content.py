@@ -1990,8 +1990,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         """test if the author suscribes to their own content"""
 
         text_validation = "Valide moi ce truc, s'il te plait"
-        source = 'http://example.com'  # thanks the IANA for that one ;-)
-        different_source = 'http://example.org'
         text_accept = "C'est cool, merci !"
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -2010,14 +2008,11 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
-                'source': source,
                 'version': self.tuto_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
-
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
 
         validation = Validation.objects.filter(content=tuto).last()
         self.assertIsNotNone(validation)
@@ -2057,8 +2052,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
-                'is_major': True,
-                'source': different_source  # because ;)
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -2100,14 +2094,11 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
-                'source': source,
                 'version': versioned.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 2)
-
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
 
         validation = Validation.objects.filter(content=tuto).last()
         self.assertIsNotNone(validation)
@@ -2147,8 +2138,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
-                'is_major': True,
-                'source': different_source  # because ;)
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -2168,8 +2158,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         """test the different case of validation"""
 
         text_validation = "Valide moi ce truc, s'il te plait"
-        source = 'http://example.com'  # thanks the IANA for that one ;-)
-        different_source = 'http://example.org'
         text_accept = "C'est cool, merci !"
         text_reject = 'Je refuse ce contenu.'
 
@@ -2189,7 +2177,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': '',
-                'source': source,
                 'version': self.tuto_draft.current_version
             },
             follow=False)
@@ -2200,14 +2187,11 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
-                'source': source,
                 'version': self.tuto_draft.current_version
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
-
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).source, source)  # source is set
 
         validation = Validation.objects.filter(content=tuto).last()
         self.assertIsNotNone(validation)
@@ -2229,8 +2213,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
@@ -2320,7 +2303,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
-                'source': source,
                 'version': self.tuto_draft.current_version
             },
             follow=False)
@@ -2351,8 +2333,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 403)
@@ -2400,7 +2381,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
-                'source': source,
                 'version': self.tuto_draft.current_version
             },
             follow=False)
@@ -2431,8 +2411,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': '',
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -2444,8 +2423,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_accept,
-                'is_major': True,
-                'source': different_source  # because ;)
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -2470,7 +2448,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(ContentReactionAnswerSubscription.objects
                         .get_existing(user=self.user_author, content_object=tuto).is_active)
 
-        self.assertEqual(published.content.source, different_source)
         self.assertEqual(published.content_public_slug, self.tuto_draft.slug)
         self.assertTrue(os.path.exists(published.get_prod_path()))
         # ... another test cover the file creation and so all, lets skip this part
@@ -2612,7 +2589,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         """this test ensure that the validator is warned if the content he is validing is removed"""
 
         text_validation = "Valide moi ce truc, s'il te plait"
-        source = 'http://example.com'
         text_cancel = 'Veux pas !'
 
         # let's create a medium-size tutorial
@@ -2632,7 +2608,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
-                'source': source,
                 'version': self.tuto_draft.current_version
             },
             follow=False)
@@ -2748,7 +2723,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': self.tuto.pk, 'slug': self.tuto.slug}),
             {
                 'text': 'blaaaaa',
-                'source': '',
                 'version': 'unexistingversion'
             },
             follow=False)
@@ -3185,7 +3159,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': 'valide moi ça, please',
-                'source': '',
                 'version': versioned.current_version
             },
             follow=False)
@@ -3213,8 +3186,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': "ça m'a l'air intéressant, je valide",
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -3676,7 +3648,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': 'Valide ?',
-                'source': '',
                 'version': versioned.current_version
             },
             follow=False)
@@ -3704,8 +3675,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': 'Je valide !',
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -3799,7 +3769,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': 'Valide ?',
-                'source': '',
                 'version': tuto.sha_draft
             },
             follow=False)
@@ -3827,8 +3796,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': 'Je valide !',
-                'is_major': False,  # !
-                'source': ''
+                'is_major': False  # !
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -3856,7 +3824,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': 'Valide ?',
-                'source': '',
                 'version': tuto.sha_draft
             },
             follow=False)
@@ -3884,8 +3851,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': 'Je valide !',
-                'is_major': False,
-                'source': ''
+                'is_major': False
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -4222,7 +4188,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': article_draft.current_version
             },
             follow=False)
@@ -4250,8 +4215,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -4302,7 +4266,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': midsize_tuto.pk, 'slug': midsize_tuto.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': midsize_tuto_draft.current_version
             },
             follow=False)
@@ -4330,8 +4293,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -4413,7 +4375,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': bigtuto.pk, 'slug': bigtuto.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': bigtuto_draft.current_version
             },
             follow=False)
@@ -4441,8 +4402,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': True,
-                'source': ''
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5484,7 +5443,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tuto.pk, 'slug': tuto.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': tuto.sha_draft
             },
             follow=False)
@@ -5512,8 +5470,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': False,  # minor modification (just the title)
-                'source': ''
+                'is_major': False  # minor modification (just the title)
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5572,7 +5529,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', args=[tuto.pk, tuto.slug]),
             {
                 'text': 'something good',
-                'source': '',
                 'version': tuto.sha_draft
             },
             follow=False)
@@ -5712,7 +5668,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': published.pk, 'slug': published.slug}),
             {
                 'text': 'abcdefg',
-                'source': '',
                 'version': published.load_version().current_version
             },
             follow=False)
@@ -5739,7 +5694,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': publishable.pk, 'slug': publishable.slug}),
             {
                 'text': 'abcdefg',
-                'source': '',
                 'version': publishable.load_version().current_version
             },
             follow=False)
@@ -5769,7 +5723,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_author.username, password='hostel77'), True)
         result = self.client.post(
             reverse('validation:ask', kwargs={'pk': content_draft.pk, 'slug': content_draft.slug}),
-            {'text': text_validation, 'source': '', 'version': content_draft.current_version},
+            {'text': text_validation, 'version': content_draft.current_version},
             follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
@@ -5802,7 +5756,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
         result = self.client.post(
             reverse('validation:ask', kwargs={'pk': content_draft.pk, 'slug': content_draft.slug}),
-            {'text': text_validation, 'source': '', 'version': content_draft.current_version},
+            {'text': text_validation, 'version': content_draft.current_version},
             follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -5843,7 +5797,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': article_draft.current_version
             },
             follow=False)
@@ -5877,8 +5830,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5900,7 +5852,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': article.pk, 'slug': article.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': article_draft.current_version
             },
             follow=False)
@@ -5928,8 +5879,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -6253,7 +6203,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': tutorial_draft.current_version
             },
             follow=False)
@@ -6270,8 +6219,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': True,
-                'source': ''
+                'is_major': True
             },
             follow=False)
         self.assertEqual(tutorial.public_version.authors.count(), 2)
@@ -6287,7 +6235,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:ask', kwargs={'pk': tutorial.pk, 'slug': tutorial.slug}),
             {
                 'text': text_validation,
-                'source': '',
                 'version': tutorial_draft.current_version
             },
             follow=False)
@@ -6304,8 +6251,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             reverse('validation:accept', kwargs={'pk': validation.pk}),
             {
                 'text': text_publication,
-                'is_major': False,
-                'source': ''
+                'is_major': False
             },
             follow=False)
 

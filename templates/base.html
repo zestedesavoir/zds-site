@@ -96,9 +96,8 @@
     <link rel="stylesheet" href="{% static "css/idea.css" %}">
     <link rel="stylesheet" href="{% static "css/katex.min.css" %}">
     <link rel="stylesheet" href="{% static "css/main.css" %}">
-    {% if not debug %}
-        {% block canonical %}{% endblock %}
-    {% endif %}
+
+    {% block canonical %}{% endblock %}
 
     {# Webfont async loading #}
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>

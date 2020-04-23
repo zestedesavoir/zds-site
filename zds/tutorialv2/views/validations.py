@@ -190,7 +190,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                                 msg)
 
         # update the content with the source and the version of the validation
-        self.object.source = form.cleaned_data['source']
+        self.object.source = self.versioned_object.source
         self.object.sha_validation = validation.version
         self.object.save()
 
@@ -474,7 +474,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             messages.error(self.request, e.message)
         else:
             save_validation_state(db_object, is_update, published, validation, versioned,
-                                  source=form.cleaned_data['source'], is_major=form.cleaned_data['is_major'],
+                                  source=db_object.source, is_major=form.cleaned_data['is_major'],
                                   user=self.request.user, request=self.request, comment=form.cleaned_data['text'])
             notify_update(db_object, is_update, form.cleaned_data['is_major'])
 
@@ -594,12 +594,11 @@ class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormVi
             messages.error(self.request, e.message)
         else:
             # save in database
-
-            db_object.source = form.cleaned_data['source']
+            db_object.source = db_object.source
             db_object.sha_validation = None
-
             db_object.public_version = published
             db_object.save()
+
             # if only ignore, we remove it from history
             PickListOperation.objects.filter(content=db_object,
                                              operation__in=['NO_PICK', 'PICK']).update(is_effective=False)
