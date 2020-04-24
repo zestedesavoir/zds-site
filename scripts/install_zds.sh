@@ -216,12 +216,12 @@ if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+f
         nvm install
         npm -g add yarn
 
-        if [[ $(grep -c -i "nvm use" $ZDS_ENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
+        if [[ $(grep -c -i "nvm use" $ZDS_VENV/bin/activate) == "0" ]]; then # add nvm activation to venv activate's
             ACTIVATE_NVM="nvm use > /dev/null # activate nvm (from install_zds.sh)"
 
-            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate
-            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.csh
-            echo $ACTIVATE_NVM >> $ZDS_ENV/bin/activate.fish
+            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate
+            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.csh
+            echo $ACTIVATE_NVM >> $ZDS_VENV/bin/activate.fish
         fi
     else
         print_error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
