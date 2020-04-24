@@ -142,8 +142,19 @@ function js() {
 
 // Optimizes the images
 function images() {
+  var plugins = [
+    imagemin.gifsicle(),
+    imagemin.mozjpeg(),
+    imagemin.optipng(),
+    // Avoid over-optimizing svg animations
+    imagemin.svgo({
+      plugins: [
+        { removeHiddenElems: false }
+      ]
+    })
+  ]
   return gulp.src(['assets/{images,smileys,licenses}/**/*', '!assets/images/sprite/*.png'])
-    .pipe(gulpif(!fast, imagemin())) // Minify the images
+    .pipe(gulpif(!fast, imagemin(plugins))) // Minify the images
     .pipe(gulp.dest('dist/'))
 }
 
