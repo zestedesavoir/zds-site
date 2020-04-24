@@ -129,6 +129,12 @@ class TutorialTestMixin:
             reverse('content:delete', kwargs=kwargs),
             follow=False)
 
+    def content_download_get(self, kwargs):
+        return self.client.get(
+            reverse('content:download-zip', kwargs=kwargs),
+            follow=False)
+
+
 class TutorialFrontMixin:
     def login(self, profile):
         """

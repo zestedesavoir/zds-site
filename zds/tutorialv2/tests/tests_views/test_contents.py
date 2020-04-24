@@ -735,17 +735,99 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
 
 
 
+@override_for_contents()
+class DownloadContentTests(TutorialTestMixin, TestCase):
+
+    def create_users(self):
+        self.user_staff = StaffProfileFactory().user
+        self.user_author = ProfileFactory().user
+        self.user_guest = ProfileFactory().user
+        self.user_read_only_author = ProfileFactory(can_write=False).user
+
+    def create_contents_set(self):
+        self.contents = {}
+        for _type in self.content_types:
+            content = PublishableContentFactory(type=_type)
+            content.authors.add(self.user_author)
+            content.authors.add(self.user_read_only_author)
+            content.save()
+            self.contents[_type] = content
+
+    def create_kwargs_to_download_contents(self):
+        self.kwargs_to_download_contents = {}
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk, 'slug': content.slug}
+            self.kwargs_to_download_contents[content] = kwargs
+
+    def setUp(self):
+        self.content_types = ['TUTORIAL', 'ARTICLE', 'OPINION']
+        self.create_users()
+        self.create_contents_set()
+        self.create_kwargs_to_download_contents()
+
+    def test_public_cant_download_content(self):
+        for content in self.contents.values():
+            result = self.content_download_get(self.kwargs_to_download_contents[content])
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Public should be redirected to login page if it tries to download {content.type}.'
+            )
+
+    def test_guest_cant_download_content(self):
+        self.login(self.user_guest, 'hostel77')
+        for content in self.contents.values():
+            result = self.content_edit_get(self.kwargs_to_download_contents[content])
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Guest user should obtain an error if he tries to download {content.type} content.'
+            )
+        self.logout()
+
+    def test_read_only_author_cant_download_content(self):
+        self.login(self.user_read_only_author, 'hostel77')
+        for content in self.contents.values():
+            result = self.content_edit_get(self.kwargs_to_download_contents[content])
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Read-only user should obtain an error if he tries to download {content.type} content even if he is author.'
+            )
+        self.logout()
+
+    def test_author_can_download_content(self):
+        self.login(self.user_author, 'hostel77')
+        for content in self.contents.values():
+            result = self.content_edit_get(self.kwargs_to_download_contents[content])
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Author should be able to download its {content.type} content.'
+            )
+        self.logout()
+
+    def test_staff_can_download_content(self):
+        self.login(self.user_staff, 'hostel77')
+        for content in self.contents.values():
+            result = self.content_edit_get(self.kwargs_to_download_contents[content])
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Staff should be able to download {content.type} content even if he is not author.'
+            )
+        self.logout()
 
 
 
+# Write tests to create and update content from archive
 
-
-
-
-
-
-
-
+@override_for_contents()
+def AddAuthorToContentTest(TutorialTestMixin, TestCase):
+    # Tester que l'ajout rajoute bien aux auteurs.
+    # Tester que l'ajout ajoute bien à la galerie.
+    # Tester que l'ajout ne rajoute pas à la version publiée.
+    pass
 
 
 
