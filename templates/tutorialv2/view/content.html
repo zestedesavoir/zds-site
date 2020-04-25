@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        {% if helps.count %}
+        {% if helps %}
             <div class="content-wrapper">
                 <div class="alert-box info">
                     {% if content.authors.count > 1 %}
@@ -124,7 +124,7 @@
                         {% trans "L’auteur de ce contenu recherche" %}
                     {% endif %}
 
-                    {% for help in helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
+                    {% for help in content.helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
 
                     {% if not can_edit %}
                         {% blocktrans with plural=content.authors.count|pluralize_fr %}
@@ -473,7 +473,6 @@
             {% endif %}
         {% endif %}
         {# END BETA #}
-
         {# ONLINE VERSION #}
         {% if public_content_object %}
             <li>
@@ -708,6 +707,22 @@
         {%  include "tutorialv2/includes/editorialization.part.html"  %}
     </div>
 
+    {% if can_edit and not content.is_opinion %}
+        <h3>{% trans "Demander de l'aide à la communauté" %}</h3>
+        <ul>
+            {# HELPS #}
+            {% for help in helps %}
+                <li>
+                    <a href="{% url 'content:helps-change' content.pk %}"
+                       class="help-toogle {% if help.pk in content_helps %}help-activated{% endif %}"
+                       data-activated="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
+                        <img src="{{ help.image.help_illu.url }}" alt="{{ help.title }}"> {{ help.title }}
+                    </a>
+                </li>
+            {% endfor %}
+            {# END HELPS #}
+        </ul>
+    {% endif %}
     {%  include "tutorialv2/includes/summary.part.html"  %}
 
     {% if can_edit %}

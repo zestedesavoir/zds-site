@@ -379,3 +379,13 @@
         }
     }
 }
+.help-activated:after{
+  position: absolute;
+  display: block;
+  content: "✓";
+  border-left: 2px solid green;
+  top: 0px;
+}
+.help-wanted img{
+    max-width: 100%;
+}
