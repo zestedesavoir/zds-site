@@ -161,10 +161,12 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes
         try:
-            context['reading_time'] = int(
-                self.versioned_object.get_tree_level() * self.object.public_version.char_count /
-                settings.ZDS_APP['content']['characters_per_minute']
-            )
+            char_count = self.object.public_version.char_count
+            if char_count:
+                context['reading_time'] = int(
+                    self.versioned_object.get_tree_level() * char_count /
+                    settings.ZDS_APP['content']['characters_per_minute']
+                )
         except ZeroDivisionError as e:
             logger.warning('could not compute reading time: setting characters_per_minute is set to zero (error=%s)', e)
 

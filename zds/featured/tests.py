@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested
-from zds.forum.factories import CategoryFactory, ForumFactory, TopicFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory
 from zds.gallery.factories import GalleryFactory, ImageFactory
 from zds.tutorialv2.factories import PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
@@ -178,7 +178,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
 
     def test_success_initial_content_topic(self):
         author = ProfileFactory().user
-        category = CategoryFactory(position=1)
+        category = ForumCategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=author)
         staff = StaffProfileFactory()
@@ -444,7 +444,7 @@ class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
     def test_filters(self):
         # create topic and content and toggle request
         author = ProfileFactory().user
-        category = CategoryFactory(position=1)
+        category = ForumCategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=author)
 
@@ -529,7 +529,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
     def test_update(self):
         # create topic and content and toggle request
         author = ProfileFactory().user
-        category = CategoryFactory(position=1)
+        category = ForumCategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=author)
 
@@ -597,7 +597,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         self.assertTrue(login_check)
 
         # create topic and toggle request
-        category = CategoryFactory(position=1)
+        category = ForumCategoryFactory(position=1)
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=author.user)
 

@@ -6,7 +6,7 @@ from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from zds.forum.factories import CategoryFactory, ForumFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
@@ -31,7 +31,7 @@ class ForumNotification(TestCase):
         self.to_be_changed_staff = StaffProfileFactory().user
         self.staff = StaffProfileFactory().user
         self.assertTrue(self.staff.has_perm('forum.change_topic'))
-        self.category1 = CategoryFactory(position=1)
+        self.category1 = ForumCategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
         for group in self.staff.groups.all():

@@ -13,7 +13,7 @@ from django.utils.translation import ugettext_lazy as _
 from zds.forum.models import Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Alert, Licence, Hat
 
 from zds.forum.models import Forum
@@ -162,14 +162,40 @@ class Profile(models.Model):
     def get_user_public_contents_queryset(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
-        :return: Queryset of contents with this user as author.
+        :return: Queryset of public contents with this user as author.
         """
-        queryset = PublishedContent.objects.filter(authors__in=[self.user])
+        queryset = PublishableContent.objects.filter(public_version__authors__in=[self.user])
 
         if _type:
-            queryset = queryset.filter(content_type=_type)
+            queryset = queryset.filter(type=_type)
 
         return queryset
+
+    def get_user_draft_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of draft contents with this user as author.
+        """
+        return self.get_user_contents_queryset(_type).filter(
+            sha_draft__isnull=False,
+            sha_beta__isnull=True,
+            sha_validation__isnull=True,
+            sha_public__isnull=True
+        )
+
+    def get_user_validate_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of contents in validation with this user as author.
+        """
+        return self.get_user_contents_queryset(_type).filter(sha_validation__isnull=False)
+
+    def get_user_beta_contents_queryset(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of contents in beta with this user as author.
+        """
+        return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False)
 
     def get_content_count(self, _type=None):
         """
@@ -194,33 +220,28 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: All draft tutorials with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(
-            sha_draft__isnull=False,
-            sha_beta__isnull=True,
-            sha_validation__isnull=True,
-            sha_public__isnull=True
-        ).all()
+        return self.get_user_draft_contents_queryset(_type).all()
 
     def get_public_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: All published contents with this user as author.
         """
-        return self.get_user_public_contents_queryset(_type).filter(must_redirect=False).all()
+        return self.get_user_public_contents_queryset(_type).all()
 
     def get_validate_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: All contents in validation with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_validation__isnull=False).all()
+        return self.get_user_validate_contents_queryset(_type).all()
 
     def get_beta_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: All tutorials in beta with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False).all()
+        return self.get_user_beta_contents_queryset(_type).all()
 
     def get_tuto_count(self):
         """

@@ -93,70 +93,23 @@ RAVEN_CONFIG = {
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
-    'formatters': {
-        'verbose': {
-            'format': '[%(levelname)s] -- %(asctime)s -- %(name)s : %(message)s'
-        },
-        'simple': {
-            'format': '[%(levelname)s] %(message)s'
-        },
-    },
-
     'handlers': {
-        'django_log': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
-            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
-            'filename': '/var/log/zds/logging.django.log',
-            'formatter': 'verbose'
-        },
-        'debug_log': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
-            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
-            'filename': '/var/log/zds/debug.django.log',
-            'formatter': 'verbose'
-        },
-        'generator_log': {
-            'level': 'WARNING',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'maxBytes': 1024 * 1024 * 10,  # rotate when it reaches 10 MB
-            'backupCount': 50,  # only keep the last 50 rotated files, 10M*50 -> 500M
-            'filename': '/var/log/zds/generator.log',
-            'formatter': 'verbose'
-        },
-        'mail_admins': {
-            'level': 'ERROR',
-            'class': 'django.utils.log.AdminEmailHandler',
-        },
         'sentry': {
-            'level': 'WARNING',  # For beta purpose it can be lowered to WARNING
+            'level': 'WARNING',
             'class': 'raven.handlers.logging.SentryHandler',
             'dsn': RAVEN_CONFIG['dsn'],
         },
     },
 
     'loggers': {
-        'django': {
-            'handlers': ['django_log'],
-            'propagate': True,
-            'level': 'WARNING',
-        },
         'zds': {
-            'handlers': ['django_log', 'sentry'],
+            'handlers': ['sentry'],
             'propagate': True,
             'level': 'DEBUG',
         },
-        'django.request': {
-            'handlers': ['mail_admins', 'django_log'],
-            'level': 'ERROR',
+        'zds.utils.templatetags.emarkdown': {
             'propagate': False,
-        },
-        'generator': {
-            'handlers': ['generator_log'],
-            'level': 'WARNING',
+            'level': 'NOTSET',
         }
     }
 }
@@ -213,3 +166,5 @@ ZDS_APP['content']['extra_content_generation_policy'] = 'WATCHDOG'
 ZDS_APP['comment']['enable_pings'] = False
 
 ZDS_APP['visual_changes'] = zds_config.get('visual_changes', [])
+
+ZDS_APP['very_top_banner'] = config.get('very_top_banner', False)

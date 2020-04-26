@@ -9,10 +9,7 @@
 
     canvas.style.zIndex = -1
     canvas.style.position = 'absolute'
-    canvas.style.top =
-            canvas.style.left =
-            canvas.style.right =
-            canvas.style.bottom = 0
+    canvas.style.left = 0
 
     canvas.style.background = window
       .getComputedStyle(this._parent)

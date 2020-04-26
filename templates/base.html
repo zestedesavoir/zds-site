@@ -9,7 +9,7 @@
 
 
 <!DOCTYPE html>
-<html class="enable-mobile-menu" lang="fr">
+<html class="enable-mobile-menu" lang="fr" antidoteapi_jsconnect="true">
 <head>
     <meta charset="utf-8">
 
@@ -88,6 +88,10 @@
 
 
     {# Stylesheets #}
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+        integrity="sha384-v8BU367qNbs/aIZIxuivaU55N5GPF89WBerHoGA4QTcbUjYiLQtKdrfXnqAcXyTv"
+        crossorigin="anonymous">
     <link rel="stylesheet" href="{% static "css/easymde.min.css" %}">
     <link rel="stylesheet" href="{% static "css/idea.css" %}">
     <link rel="stylesheet" href="{% static "css/katex.min.css" %}">
@@ -158,6 +162,17 @@
 
 
     <div class="page-container">
+        {% with banner=app.very_top_banner %}
+            {% if banner %}
+                <div id="very-top-banner"
+                     style="background-color: {{ banner.background_color }}; color: {{ banner.color }}; border-color: {{ banner.border_color }};"
+                >
+                    <span>{{ banner.message }}</span>
+                    <a aria-hidden="true" href="javascript:document.querySelector('#very-top-banner').remove()">Masquer</a>
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <ul id="accessibility">
             <li>
                 <a href="#menu">{% trans "Aller au menu" %}</a>

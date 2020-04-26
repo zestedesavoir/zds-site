@@ -30,7 +30,7 @@
     "cookies-eu-banner": "2.0.1",
     "cssnano": "4.1.10",
     "del": "5.1.0",
-    "easymde": "2.9.1-246.0",
+    "easymde": "2.9.1-299.0",
     "gulp": "4.0.2",
     "gulp-concat": "2.6.1",
     "gulp-if": "3.0.0",
@@ -42,7 +42,7 @@
     "gulp.spritesmith": "6.11.0",
     "highlight.js": "9.18.1",
     "jquery": "3.4.1",
-    "katex": "0.10.1",
+    "katex": "0.11.1",
     "moment": "2.24.0",
     "normalize.css": "8.0.1"
   },

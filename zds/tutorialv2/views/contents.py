@@ -1574,10 +1574,7 @@ class WarnTypo(SingleContentFormViewMixin):
             if form.content.is_opinion:
                 _type = _('le billet')
 
-            if form.content.get_tree_depth() == 0:
-                pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
-            else:
-                pm_title = _('J\'ai trouvé une faute dans le chapitre « {} ».').format(form.content.title)
+            pm_title = _('J\'ai trouvé une faute dans {} « {} ».').format(_type, form.content.title)
 
             msg = render_to_string(
                 'tutorialv2/messages/warn_typo.md',
@@ -1898,29 +1895,30 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data['users']:
-            if user.pk not in all_authors_pk and user != self.request.user:
+            if user.pk not in all_authors_pk:
                 self.object.authors.add(user)
                 if self.object.validation_private_message\
                    and not self.object.validation_private_message.is_participant(user):
                     self.object.validation_private_message.participants.add(user)
                 all_authors_pk.append(user.pk)
-                url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
-                send_mp(
-                    bot,
-                    [user],
-                    format_lazy('{}{}', _('Ajout à la rédaction '), _type),
-                    self.versioned_object.title,
-                    render_to_string('tutorialv2/messages/add_author_pm.md', {
-                        'content': self.object,
-                        'type': _type,
-                        'url': self.object.get_absolute_url(),
-                        'index': url_index,
-                        'user': user.username
-                    }),
-                    True,
-                    direct=False,
-                    hat=get_hat_from_settings('validation'),
-                )
+                if user != self.request.user:
+                    url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
+                    send_mp(
+                        bot,
+                        [user],
+                        format_lazy('{}{}', _('Ajout à la rédaction '), _type),
+                        self.versioned_object.title,
+                        render_to_string('tutorialv2/messages/add_author_pm.md', {
+                            'content': self.object,
+                            'type': _type,
+                            'url': self.object.get_absolute_url(),
+                            'index': url_index,
+                            'user': user.username
+                        }),
+                        True,
+                        direct=False,
+                        hat=get_hat_from_settings('validation'),
+                    )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
         self.object.save(force_slug_update=False)
         self.success_url = self.object.get_absolute_url()
@@ -2083,12 +2081,10 @@ class ContentOfAuthor(ZdSPagingListView):
     model = PublishableContent
 
     authorized_filters = OrderedDict([
-        ('public', [lambda q: q.filter(sha_public__isnull=False), _('Publiés'), True, 'tick green']),
-        ('validation', [lambda q: q.filter(sha_validation__isnull=False), _('En validation'), False, 'tick']),
-        ('beta', [lambda q: q.filter(sha_beta__isnull=False), _('En bêta'), True, 'beta']),
-        ('redaction', [
-            lambda q: q.filter(sha_validation__isnull=True, sha_public__isnull=True, sha_beta__isnull=True),
-            _('Brouillons'), False, 'edit']),
+        ('public', [lambda p, t: p.get_user_public_contents_queryset(t), _('Publiés'), True, 'tick green']),
+        ('validation', [lambda p, t: p.get_user_validate_contents_queryset(t), _('En validation'), False, 'tick']),
+        ('beta', [lambda p, t: p.get_user_beta_contents_queryset(t), _('En bêta'), True, 'beta']),
+        ('redaction', [lambda p, t: p.get_user_draft_contents_queryset(t), _('Brouillons'), False, 'edit']),
     ])
     sorts = OrderedDict([
         ('creation', [lambda q: q.order_by('creation_date'), _('Par date de création')]),
@@ -2111,19 +2107,12 @@ class ContentOfAuthor(ZdSPagingListView):
         return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        if self.type == 'ALL':
-            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk])
-        elif self.type in list(TYPE_CHOICES_DICT.keys()):
-            queryset = PublishableContent.objects.filter(authors__pk__in=[self.user.pk], type=self.type)
-        else:
+        profile = self.user.profile
+        if self.type not in list(TYPE_CHOICES_DICT.keys()):
             raise Http404('Ce type de contenu est inconnu dans le système.')
-
-        # prefetch:
-        queryset = queryset\
-            .prefetch_related('authors')\
-            .prefetch_related('subcategory')\
-            .select_related('licence')\
-            .select_related('image')
+        _type = self.type
+        if self.type == 'ALL':
+            _type = None
 
         # Filter.
         if 'filter' in self.request.GET:
@@ -2132,8 +2121,17 @@ class ContentOfAuthor(ZdSPagingListView):
                 raise Http404("Le filtre n'est pas autorisé.")
         elif self.user != self.request.user:
             self.filter = 'public'
-        if self.filter != '':
-            queryset = self.authorized_filters[self.filter][0](queryset)
+
+        if self.filter == '':
+            queryset = profile.get_user_contents_queryset(_type=_type)
+        else:
+            queryset = self.authorized_filters[self.filter][0](profile, _type)
+        # prefetch:
+        queryset = queryset\
+            .prefetch_related('authors')\
+            .prefetch_related('subcategory')\
+            .select_related('licence')\
+            .select_related('image')
 
         # Sort.
         if 'sort' in self.request.GET and self.request.GET['sort'].lower() in self.sorts:

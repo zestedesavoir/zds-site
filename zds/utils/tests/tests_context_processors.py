@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 
-from zds.forum.factories import CategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.context_processor import header_notifications as notifications_processor
 from zds.utils.models import Alert
@@ -14,7 +14,7 @@ class AlertsTest(TestCase):
         self.staff = StaffProfileFactory()
         self.dummy_author = ProfileFactory()
 
-        self.category = CategoryFactory(position=1)
+        self.category = ForumCategoryFactory(position=1)
         self.forum = ForumFactory(category=self.category, position_in_category=1)
         self.topic = TopicFactory(forum=self.forum, author=self.dummy_author.user)
         self.post = PostFactory(topic=self.topic, author=self.dummy_author.user, position=1)

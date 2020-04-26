@@ -8,6 +8,15 @@
         .editor-toolbar {
             border: 0;
 
+            &.disabled-for-textarea-mode {
+                button {
+                    &.disable-for-textarea-mode {
+                        opacity: .6;
+                        pointer-events: none;
+                    }
+                }
+            }
+
             button:not(.link) {
                 height: auto;
                 line-height: 0px;
@@ -20,12 +29,39 @@
                 border: 1px solid transparent;
                 border-radius: 3px;
                 cursor: pointer;
+
+                vertical-align: middle;
+            }
+            button.blocMenu {
+                border-color: #fcfcfc;
             }
             button.active,
             button:hover {
                 border: 1px solid transparent;
                 background: #fcfcfc;
                 border-color: #95a5a6;
+            }
+        }
+
+        textarea.textarea-multivers {
+            margin: 0 !important;
+            padding: 14px;
+            line-height: 23px;
+            box-sizing: border-box;
+            display: block;
+            width: 100%;
+        }
+
+        .zdsicon {
+            & > i {
+                display: inline-block;
+                height: 17px;
+                width: 17px;
+                background-size: 100%;
+            }
+
+            &.zi-grammalecte > i {
+                background-image: url(../images/editor/svg/grammalecte_H084561.svg);
             }
         }
 

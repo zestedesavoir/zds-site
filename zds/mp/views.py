@@ -13,9 +13,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
+from django.views.decorators.http import require_GET
+
 
 from zds.member.models import Profile
-from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
+from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost, SinglePrivatePostObjectMixin
 from zds.mp.decorator import is_participant
 from zds.utils.models import get_hat_from_request
 from zds.utils.forums import CreatePostView
@@ -360,3 +362,18 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
                             hat=get_hat_from_request(self.request, self.current_post.author))
 
         return redirect(self.current_post.get_absolute_url())
+
+
+class PrivatePostUnread(UpdateView, UpdatePrivatePost, SinglePrivatePostObjectMixin):
+    @method_decorator(require_GET)
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(PrivatePostUnread, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if not self.object.privatetopic.author == request.user \
+           and request.user not in list(self.object.privatetopic.participants.all()):
+            raise PermissionDenied
+        self.perform_unread_private_post(self.object, self.request.user)
+        return redirect(reverse('mp-list'))

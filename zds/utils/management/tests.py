@@ -3,7 +3,7 @@ from django.test import TestCase
 
 from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
-from zds.forum.models import Forum, Topic, Category as FCategory
+from zds.forum.models import Forum, Topic, ForumCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, \
     HelpWriting, Licence
 from zds.member.factories import ProfileFactory
@@ -29,7 +29,7 @@ class CommandsTestCase(TutorialTestMixin, TestCase):
         self.assertTrue(Profile.objects.count() > 0)
         self.assertTrue(Forum.objects.count() > 0)
         self.assertTrue(Topic.objects.count() > 0)
-        self.assertTrue(FCategory.objects.count() > 0)
+        self.assertTrue(ForumCategory.objects.count() > 0)
         self.assertTrue(Tag.objects.count() > 0)
         self.assertTrue(TCategory.objects.count() > 0)
         self.assertTrue(CategorySubCategory.objects.count() > 0)

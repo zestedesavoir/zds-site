@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin
-from zds.forum.factories import CategoryFactory, ForumFactory, \
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, \
     TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
 from zds.member.factories import ProfileFactory, StaffProfileFactory
@@ -24,9 +24,9 @@ class ForumMemberTests(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
 
-        self.category1 = CategoryFactory(position=1)
-        self.category2 = CategoryFactory(position=2)
-        self.category3 = CategoryFactory(position=3)
+        self.category1 = ForumCategoryFactory(position=1)
+        self.category2 = ForumCategoryFactory(position=2)
+        self.category3 = ForumCategoryFactory(position=3)
         self.forum11 = ForumFactory(
             category=self.category1,
             position_in_category=1)
@@ -80,7 +80,7 @@ class ForumMemberTests(TestCase):
         # Forum root
         response = self.client.get(reverse('cats-forums-list'))
         self.assertContains(response, 'Liste des forums')
-        # Category
+        # ForumCategory
         response = self.client.get(
             reverse(
                 'cat-forums-list',
@@ -882,9 +882,9 @@ class ForumGuestTests(TestCase):
         settings.EMAIL_BACKEND = \
             'django.core.mail.backends.locmem.EmailBackend'
 
-        self.category1 = CategoryFactory(position=1)
-        self.category2 = CategoryFactory(position=2)
-        self.category3 = CategoryFactory(position=3)
+        self.category1 = ForumCategoryFactory(position=1)
+        self.category2 = ForumCategoryFactory(position=2)
+        self.category3 = ForumCategoryFactory(position=3)
         self.forum11 = ForumFactory(
             category=self.category1,
             position_in_category=1)
@@ -931,7 +931,7 @@ class ForumGuestTests(TestCase):
         # Forum root
         response = self.client.get(reverse('cats-forums-list'))
         self.assertContains(response, 'Liste des forums')
-        # Category
+        # ForumCategory
         response = self.client.get(
             reverse(
                 'cat-forums-list',
@@ -1247,7 +1247,7 @@ class ManagerTests(TestCase):
 
     def setUp(self):
 
-        self.cat1 = CategoryFactory()
+        self.cat1 = ForumCategoryFactory()
         self.forum1 = ForumFactory(category=self.cat1)
         self.forum2 = ForumFactory(category=self.cat1)
 
@@ -1297,7 +1297,7 @@ class TestMixins(TestCase):
     def test_double_unread_is_handled(self):
         author = ProfileFactory().user
         viewer = ProfileFactory().user
-        topic = TopicFactory(author=author, forum=ForumFactory(category=CategoryFactory(), position_in_category=1))
+        topic = TopicFactory(author=author, forum=ForumFactory(category=ForumCategoryFactory(), position_in_category=1))
         post = PostFactory(topic=topic, author=author, position=1)
         TopicRead(topic=topic, post=post, user=viewer).save()
         PostEditMixin.perform_unread_message(post, viewer)

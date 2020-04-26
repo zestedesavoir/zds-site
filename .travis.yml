@@ -76,13 +76,15 @@ install:
 script:
   - source ./scripts/travis_run.sh
 
+  - ./scripts/travis_overview/travis_overview.sh --travis-output
+
 
 after_success:
   - du -sh $HOME/.texlive 2>/dev/null | true
 
   - |
     # upload coverage
-    if [[ "$ZDS_TEST_JOB" != "none" ]]; then
+    if [[ "$ZDS_TEST_JOB" != "none" && "$ZDS_TEST_JOB" != *"ci_turbo"* ]]; then
       coveralls
     fi
 

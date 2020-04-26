@@ -11,7 +11,7 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.gallery.factories import UserGalleryFactory
-from zds.forum.factories import ForumFactory, CategoryFactory
+from zds.forum.factories import ForumFactory, ForumCategoryFactory
 from zds.utils.factories import CategoryFactory as ContentCategoryFactory
 
 
@@ -40,7 +40,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.beta_forum = ForumFactory(
             pk=self.overridden_zds_app['forum']['beta_forum_id'],
-            category=CategoryFactory(position=1),
+            category=ForumCategoryFactory(position=1),
             position_in_category=1)  # ensure that the forum, for the beta versions, is created
 
         self.tuto_draft = self.tuto.load_version()
