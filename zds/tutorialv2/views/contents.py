@@ -310,6 +310,12 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             messages.error(self.request, _('Une nouvelle version a été postée avant que vous ne validiez.'))
             return self.form_invalid(form)
 
+        # Forbid removing all categories of a validated content
+        if publishable.in_public() and not form.cleaned_data['subcategory']:
+            messages.error(self.request,
+                           _('Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.'))
+            return self.form_invalid(form)
+
         # first, update DB (in order to get a new slug if needed)
         title_is_changed = publishable.title != form.cleaned_data['title']
         publishable.title = form.cleaned_data['title']

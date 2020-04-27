@@ -4096,7 +4096,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             'subcategory': self.subcategory.pk,
         }
 
-        disallowed_titles = ['-', '_', '__', '-_-', '$', '@', '&', '{}', '    ', '...']
+        # empty title not disallowed because it is converted to the default title
+        disallowed_titles = ['-', '_', '__', '-_-', '$', '@', '&', '{}', '...']
 
         for title in disallowed_titles:
             dic['title'] = title
