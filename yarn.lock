@@ -3699,10 +3699,10 @@ just-debounce@^1.0.0:
   resolved "https://registry.yarnpkg.com/just-debounce/-/just-debounce-1.0.0.tgz#87fccfaeffc0b68cd19d55f6722943f929ea35ea"
   integrity sha1-h/zPrv/AtozRnVX2cilD+SnqNeo=
 
-katex@0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.10.1.tgz#5bb0b72bf19cecfc1fa217a9261760e5d301efff"
-  integrity sha512-iZXZ2L8pEP7HXBLAaeWkdLxnoRQ8Fdks8IuIVt01tYb+D8e0em5JYgfe6J48wXsuEr512IRCN5Kvwb9FjZH6kg==
+katex@0.11.1:
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.11.1.tgz#df30ca40c565c9df01a466a00d53e079e84ffaa2"
+  integrity sha512-5oANDICCTX0NqYIyAiFCCwjQ7ERu3DQG2JFHLbYOf+fXaMoH8eg/zOq5WSYJsKMi/QebW+Eh3gSM+oss1H/bww==
   dependencies:
     commander "^2.19.0"
 
