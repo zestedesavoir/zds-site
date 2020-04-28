@@ -1756,7 +1756,7 @@ class MessageActionTest(TestCase):
         self.client.login(username=profile.user.username, password='hostel77')
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
         alerts = [word for word in str(response.content).split() if word == 'alert']
-        self.assertEqual(len(alerts), 1)
+        self.assertEqual(len(alerts), 2)
 
     def test_hide(self):
         profile = ProfileFactory()
