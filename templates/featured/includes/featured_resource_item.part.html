@@ -3,7 +3,7 @@
 
 <article class="featured-resource-item">
     <a href="{{ featured_resource.url }}">
-        <img src="{{ featured_resource.image_url|remove_url_scheme }}" alt="illustration {{featured.title}}" class="featured-resource-illu">
+        <img src="{{ featured_resource.image_url|remove_url_scheme }}" alt="Illustration {{ featured.title }}" class="featured-resource-illu">
         <div class="featured-resource-meta">
             <h2>{{ featured_resource.title }}</h2>
             <p class="featured-resource-description">{{ featured_resource.type }} {% if featured_resource.authors %} {% trans "par" %} <i>{{ featured_resource.authors }}</i>{% endif %}</p>
