@@ -346,7 +346,6 @@ samp {
   font-family: $font-monospace;
   font-style: normal;
   font-size: 14px;
-}
 
   .hljs-line-numbers {
     counter-reset: line;
@@ -367,6 +366,7 @@ samp {
     width: 100%;
     overflow-x: auto;
   }
+}
 
 // touche
 kbd {
