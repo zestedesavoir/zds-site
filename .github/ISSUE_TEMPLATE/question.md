@@ -1,8 +1,7 @@
 ---
 name: Question
-about: Poser une question sur quelque chose qui n'est pas claire sur le site
+about: Poser une question sur quelque chose qui n'est pas clair sur le site ou dans le code.
 title: ''
-labels: C-Docs
 assignees: ''
 
 ---

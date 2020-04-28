@@ -9,11 +9,11 @@ assignees: ''
 
 **Description du bug**
 
-Une description claire et concise ce ce qu'est le bug.
+Une description claire et concise du bug.
 
 **Comment reproduire ?**
 
-La liste des étapes qui permet de reproduire le bug:
+La liste des étapes qui permet de reproduire le bug :
 
 1. Allez sur le site '...'
 2. Connectez vous avec le compte '....'
@@ -22,13 +22,13 @@ La liste des étapes qui permet de reproduire le bug:
 
 **Comportement attendu**
 
-Un description claire et concise du comportement qui est attendu.
+Une description claire et concise du comportement attendu.
 
 **Capture d'écran**
 
-Si possible, une capture d'écran qui explique du problème.
+Si possible, une capture d'écran qui explique le problème.
 
-**Information de la version**
+**Informations techniques**
 
 - OS: [ex: Windows, MacOS]
 - Navigateur: [ex: Chrome 72]
