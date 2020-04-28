@@ -222,7 +222,7 @@ class Gallery(models.Model):
         :return: filesystem path to this gallery root
         :rtype: unicode
         """
-        return os.path.join(settings.MEDIA_ROOT, 'galleries', str(self.pk))
+        return settings.MEDIA_ROOT / 'galleries' / str(self.pk)
 
     def get_linked_users(self):
         """Get all the linked users for this gallery whatever their rights

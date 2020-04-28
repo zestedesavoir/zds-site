@@ -357,8 +357,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         image_dir = base_directory / 'images'
         with contextlib.suppress(FileExistsError):
             image_dir.mkdir(parents=True)
-        if Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).exists():
-            for image in Path(settings.MEDIA_ROOT, 'galleries', str(gallery_pk)).iterdir():
+        if (settings.MEDIA_ROOT / 'galleries' / str(gallery_pk)).exists():
+            for image in (settings.MEDIA_ROOT / 'galleries' / str(gallery_pk)).iterdir():
                 with contextlib.suppress(OSError):
                     shutil.copy2(str(image.absolute()), str(image_dir))
         content_type = depth_to_size_map[public_versionned_source.get_tree_level()]
@@ -366,7 +366,6 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             content_type += ', ' + self.latex_classes
         title = published_content_entity.title()
         authors = [a.username for a in published_content_entity.authors.all()]
-        smileys_directory = SMILEYS_BASE_PATH + '/svg'
 
         licence = published_content_entity.content.licence.code
         licence_short = licence.replace('CC', '').strip().lower()
@@ -381,7 +380,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             licence_logo = licences['copyright']
             licence_url = ''
 
-        replacement_image_url = settings.MEDIA_ROOT
+        replacement_image_url = str(settings.MEDIA_ROOT)
         if not replacement_image_url.endswith('/') and settings.MEDIA_URL.endswith('/'):
             replacement_image_url += '/'
         elif replacement_image_url.endswith('/') and not settings.MEDIA_URL.endswith('/'):
@@ -394,10 +393,10 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             title=title,
             authors=authors,
             license=licence,
-            license_directory=LICENSES_BASE_PATH,
+            license_directory=str(LICENSES_BASE_PATH),
             license_logo=licence_logo,
             license_url=licence_url,
-            smileys_directory=smileys_directory,
+            smileys_directory=str(SMILEYS_BASE_PATH / 'svg'),
             images_download_dir=str(base_directory / 'images'),
             local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url]
         )

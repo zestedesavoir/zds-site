@@ -1,4 +1,3 @@
-from os.path import join
 from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
@@ -8,7 +7,7 @@ from .base_dir import BASE_DIR
 
 zds_config = config.get('zds', {})
 
-GEOIP_PATH = join(BASE_DIR, 'geodata')
+GEOIP_PATH = str(BASE_DIR / 'geodata')
 GEOIP_CITY = 'GeoLite2-City.mmdb'
 
 ES_ENABLED = True
@@ -159,13 +158,13 @@ ZDS_APP = {
         'home_number': 5
     },
     'content': {
-        'repo_private_path': join(BASE_DIR, 'contents-private'),
-        'repo_public_path': join(BASE_DIR, 'contents-public'),
+        'repo_private_path': BASE_DIR / 'contents-private',
+        'repo_public_path': BASE_DIR / 'contents-public',
         'extra_contents_dirname': 'extra_contents',
         # can also be 'extra_content_generation_policy': 'SYNC'
         # or 'extra_content_generation_policy': 'NOTHING'
         'extra_content_generation_policy': 'WATCHDOG',
-        'extra_content_watchdog_dir': join(BASE_DIR, 'watchdog-build'),
+        'extra_content_watchdog_dir': BASE_DIR / 'watchdog-build',
         'max_tree_depth': 3,
         'default_licence_pk': 7,
         'content_per_page': 42,
@@ -178,7 +177,7 @@ ZDS_APP = {
         'suggestions_per_page': 2,
         'feed_length': 5,
         'user_page_number': 5,
-        'default_image': join(BASE_DIR, 'fixtures', 'noir_black.png'),
+        'default_image': BASE_DIR / 'fixtures' / 'noir_black.png',
         'import_image_prefix': 'archive',
         'build_pdf_when_published': True,
         'maximum_slug_size': 150,
@@ -187,8 +186,8 @@ ZDS_APP = {
             'https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/',
         'epub_stylesheets': {
             'toc': Path('toc.css'),
-            'full': Path(BASE_DIR) / 'dist' / 'css' / 'zmd.css',
-            'katex': Path(BASE_DIR) / 'dist' / 'css' / 'katex.min.css'
+            'full': BASE_DIR / 'dist' / 'css' / 'zmd.css',
+            'katex': BASE_DIR / 'dist' / 'css' / 'katex.min.css'
         },
         'latex_template_repo': 'NOT_EXISTING_DIR'
     },

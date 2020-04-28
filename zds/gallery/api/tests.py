@@ -290,7 +290,7 @@ class ImageListAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+                'physical': (settings.BASE_DIR / 'fixtures' / 'noir_black.png').open('rb')
             },
             format='multipart'
         )
@@ -311,7 +311,7 @@ class ImageListAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/assets/licenses/0.svg'.format(settings.BASE_DIR), 'rb')
+                'physical': (settings.BASE_DIR / 'assets' / 'licenses' / '0.svg').open('rb')
             },
             format='multipart'
         )
@@ -328,7 +328,7 @@ class ImageListAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+                'physical': (settings.BASE_DIR / 'fixtures' / 'noir_black.png').open('rb')
             },
             format='multipart'
         )
@@ -345,7 +345,7 @@ class ImageListAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+                'physical': (settings.BASE_DIR / 'fixtures' / 'noir_black.png').open('rb')
             },
             format='multipart'
         )
@@ -415,7 +415,7 @@ class ImageDetailAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+                'physical': (settings.BASE_DIR / 'fixtures' / 'noir_black.png').open('rb')
             },
             format='multipart'
         )
@@ -436,7 +436,7 @@ class ImageDetailAPITest(APITestCase):
             {
                 'title': title,
                 'legend': legend,
-                'physical': open('{}/assets/licenses/0.svg'.format(settings.BASE_DIR), 'rb')
+                'physical': (settings.BASE_DIR / 'assets' / 'licenses' / '0.svg').open('rb')
             }
         )
 

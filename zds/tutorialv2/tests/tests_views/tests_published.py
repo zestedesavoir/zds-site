@@ -1,7 +1,5 @@
 import datetime
 
-import os
-
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
@@ -28,16 +26,13 @@ from copy import deepcopy
 from zds import json_handler
 
 
-BASE_DIR = settings.BASE_DIR
-
-
 overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['repo_private_path'] = settings.BASE_DIR / 'contents-private-test'
+overridden_zds_app['content']['repo_public_path'] = settings.BASE_DIR / 'contents-public-test'
 overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(MEDIA_ROOT=settings.BASE_DIR / 'media-test')
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class PublishedContentTests(TutorialTestMixin, TestCase):
@@ -1391,7 +1386,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1569,7 +1564,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 'licence': article.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=False)
         public_count = PublishedContent.objects.count()
@@ -2306,7 +2301,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': self.tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=True)
 

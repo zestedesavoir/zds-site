@@ -13,7 +13,7 @@ INTERNAL_IPS = ('127.0.0.1',)  # debug toolbar
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': join(BASE_DIR, 'base.db'),
+        'NAME': str(BASE_DIR / 'base.db'),
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -36,7 +36,7 @@ LANGUAGE_CODE = 'fr-fr'
 USE_I18N = True
 
 LOCALE_PATHS = (
-    join(BASE_DIR, 'conf/locale/'),
+    str(BASE_DIR / 'conf' / 'locale'),
 )
 
 # If you set this to False, Django will not format dates, numbers and
@@ -53,7 +53,7 @@ LANGUAGES = (
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: '/home/media/media.lawrence.com/media/'
-MEDIA_ROOT = join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
@@ -64,7 +64,7 @@ MEDIA_URL = '/media/'
 # Don't put anything in this directory yourself; store your static files
 # in apps' 'static/' subdirectories and in STATICFILES_DIRS.
 # Example: '/home/media/media.lawrence.com/static/'
-STATIC_ROOT = join(BASE_DIR, 'static')
+STATIC_ROOT = str(BASE_DIR / 'static')
 
 # URL prefix for static files.
 # Example: 'http://media.lawrence.com/static/'
@@ -75,7 +75,7 @@ STATICFILES_DIRS = (
     # Put strings here, like '/home/html/static' or 'C:/www/django/static'.
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    join(BASE_DIR, 'dist'),
+    str(BASE_DIR / 'dist'),
 )
 
 # List of finder classes that know how to find static files in
@@ -118,7 +118,7 @@ django_template_engine = {
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
     'APP_DIRS': True,
     'DIRS': [
-        join(BASE_DIR, 'templates'),
+        str(BASE_DIR / 'templates'),
     ],
     'OPTIONS': {
         'context_processors': [
