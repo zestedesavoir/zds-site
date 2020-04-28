@@ -598,7 +598,7 @@ class EditImageViewTest(TestCase):
         login_check = self.client.login(username=self.profile3.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'logo.png'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb') as fp:
 
             self.client.post(
                 reverse(
@@ -624,7 +624,7 @@ class EditImageViewTest(TestCase):
 
         nb_files = len(os.listdir(self.gallery.get_gallery_path()))
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'logo.png'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb') as fp:
 
             response = self.client.post(
                 reverse(
@@ -785,7 +785,7 @@ class NewImageViewTest(TestCase):
         self.assertTrue(login_check)
         self.assertEqual(0, len(self.gallery.get_images()))
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'logo.png'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb') as fp:
             response = self.client.post(
                 reverse(
                     'gallery-image-new',
@@ -810,7 +810,7 @@ class NewImageViewTest(TestCase):
         self.assertTrue(login_check)
         self.assertEqual(0, len(self.gallery.get_images()))
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'logo.png'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb') as fp:
             response = self.client.post(
                 reverse(
                     'gallery-image-new',
@@ -833,7 +833,7 @@ class NewImageViewTest(TestCase):
         self.assertTrue(login_check)
         self.assertEqual(0, len(self.gallery.get_images()))
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'logo.png'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb') as fp:
             response = self.client.post(
                 reverse(
                     'gallery-image-new',
@@ -855,7 +855,7 @@ class NewImageViewTest(TestCase):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'logo.png'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb') as fp:
             response = self.client.post(
                 reverse(
                     'gallery-image-new',
@@ -876,7 +876,7 @@ class NewImageViewTest(TestCase):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'archive-gallery.zip'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'archive-gallery.zip').open('rb') as fp:
             response = self.client.post(
                 reverse(
                     'gallery-image-import',
@@ -905,7 +905,7 @@ class NewImageViewTest(TestCase):
         login_check = self.client.login(username=self.profile1.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'archive-gallery.zip'), 'rb'):
+        with (settings.BASE_DIR / 'fixtures' / 'archive-gallery.zip').open('rb'):
             response = self.client.post(
                 reverse(
                     'gallery-image-import',
@@ -925,7 +925,7 @@ class NewImageViewTest(TestCase):
         login_check = self.client.login(username=self.profile2.user.username, password='hostel77')
         self.assertTrue(login_check)
 
-        with open(os.path.join(settings.BASE_DIR, 'fixtures', 'archive-gallery.zip'), 'rb') as fp:
+        with (settings.BASE_DIR / 'fixtures' / 'archive-gallery.zip').open('rb') as fp:
             response = self.client.post(
                 reverse(
                     'gallery-image-import',

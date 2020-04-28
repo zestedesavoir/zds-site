@@ -271,7 +271,7 @@ class ContentTests(TutorialTestMixin, TestCase):
                 'type': 'TUTORIAL',
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
-                'image': open('{}/fixtures/noir_black.png'.format(settings.BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'noir_black.png').open('rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -320,7 +320,7 @@ class ContentTests(TutorialTestMixin, TestCase):
                 'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': versioned.compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1761,10 +1761,10 @@ class ContentTests(TutorialTestMixin, TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        archive_path = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'BadArchive.zip')
+        archive_path = settings.BASE_DIR / 'fixtures' / 'tuto' / 'BadArchive.zip'
         answer = self.client.post(reverse('content:import',
                                           args=[new_article.pk, new_article.slug]),
-                                  {'archive': open(archive_path, 'rb'),
+                                  {'archive': archive_path.open('rb'),
                                    'image_archive': None,
                                    'msg_commit': "let it go, let it goooooooo ! can't hold it back anymoooooore!"})
         self.assertEqual(200, answer.status_code)
@@ -2097,7 +2097,7 @@ class ContentTests(TutorialTestMixin, TestCase):
                 'licence': tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version(tuto.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=False)
 
@@ -3572,25 +3572,25 @@ class ContentTests(TutorialTestMixin, TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        base = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto')
+        base = settings.BASE_DIR / 'fixtures' / 'tuto'
         old_contents = [
-            os.path.join(base, 'article_v1'),
-            os.path.join(base, 'balise_audio'),
-            os.path.join(base, 'big_tuto_v1'),
+            base / 'article_v1',
+            base / 'balise_audio',
+            base / 'big_tuto_v1',
         ]
         for old_path in old_contents:
-            draft_zip_path = old_path + '.zip'
+            draft_zip_path = old_path.with_suffix('.zip')
             shutil.make_archive(old_path, 'zip', old_path)
 
             result = self.client.post(
                 reverse('content:import-new'),
                 {
-                    'archive': open(draft_zip_path, 'rb'),
+                    'archive': draft_zip_path.open('rb'),
                     'subcategory': self.subcategory.pk
                 },
                 follow=False
             )
-            manifest = open(os.path.join(old_path, 'manifest.json'), 'rb')
+            manifest = (old_path / 'manifest.json').open('rb')
             json = json_handler.loads(manifest.read())
             manifest.close()
             self.assertEqual(result.status_code, 302)
@@ -3602,16 +3602,16 @@ class ContentTests(TutorialTestMixin, TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        base = os.path.join(settings.BASE_DIR, 'fixtures', 'tuto')
-        old_path = os.path.join(base, 'article_v1')
+        base = settings.BASE_DIR / 'fixtures' / 'tuto'
+        old_path = base / 'article_v1'
 
-        shutil.move(os.path.join(old_path, 'text.md'), os.path.join(old_path, 'text2.md'))
+        shutil.move(old_path / 'text.md', old_path / 'text2.md')
         shutil.make_archive(old_path, 'zip', old_path)
-        shutil.move(os.path.join(old_path, 'text2.md'), os.path.join(old_path, 'text.md'))
+        shutil.move(old_path / 'text2.md', old_path / 'text.md')
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + '.zip', 'rb'),
+                'archive': old_path.with_suffix('.zip').open('rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -3621,15 +3621,15 @@ class ContentTests(TutorialTestMixin, TestCase):
         levels = [msg.level for msg in msgs]
         self.assertIn(messages.ERROR, levels)
 
-        shutil.copyfile(os.path.join(old_path, 'manifest.json'), os.path.join(old_path, 'manifest2.json'))
-        with open(os.path.join(old_path, 'manifest.json'), 'w') as man_file:
+        shutil.copyfile(old_path / 'manifest.json', old_path / 'manifest2.json')
+        with (old_path / 'manifest.json').open('w') as man_file:
             man_file.write('{"version":2, "type":"Kitty Cat"}')
         shutil.make_archive(old_path, 'zip', old_path)
-        shutil.copyfile(os.path.join(old_path, 'manifest2.json'), os.path.join(old_path, 'manifest.json'))
+        shutil.copyfile(old_path / 'manifest2.json', old_path / 'manifest.json')
         result = self.client.post(
             reverse('content:import-new'),
             {
-                'archive': open(old_path + '.zip', 'rb'),
+                'archive': old_path.with_suffix('.zip').open('rb'),
                 'subcategory': self.subcategory.pk
             },
             follow=False
@@ -5472,7 +5472,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 'licence': self.tuto.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': tuto.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -5646,7 +5646,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 'licence': article.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=False)
         public_count = PublishedContent.objects.count()

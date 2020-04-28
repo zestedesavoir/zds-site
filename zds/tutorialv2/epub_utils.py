@@ -133,7 +133,7 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, 'ebook', mimetype_conf['filename'])
     with contextlib.suppress(FileExistsError, FileNotFoundError):
-        for img in Path(published_content_entity.content.gallery.get_gallery_path()).iterdir():
+        for img in published_content_entity.content.gallery.get_gallery_path().iterdir():
             shutil.copy(str(img), str(target_image_dir))
 
     with mime_path.open(mode='w', encoding='utf-8') as mimefile:
@@ -148,8 +148,8 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['toc'], style_dir_path, 'toc.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['full'], style_dir_path, 'zmd.css')
     copy_or_create_empty(settings.ZDS_APP['content']['epub_stylesheets']['katex'], style_dir_path, 'katex.css')
-    style_images_path = Path(settings.BASE_DIR, 'dist', 'images')
-    smiley_images_path = Path(settings.BASE_DIR, 'dist', 'smileys', 'svg')
+    style_images_path = settings.BASE_DIR / 'dist' / 'images'
+    smiley_images_path = settings.BASE_DIR / 'dist' / 'smileys' / 'svg'
     if style_images_path.exists():
         import_asset(style_images_path, target_image_dir)
     if smiley_images_path.exists():

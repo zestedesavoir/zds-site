@@ -1092,10 +1092,10 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
     urls = []
-    CACHE_PATH = os.path.join(settings.BASE_DIR, '.ga-api-cache')
+    CACHE_PATH = str(settings.BASE_DIR / '.ga-api-cache')
     SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
     DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
-    CLIENT_SECRETS_PATH = os.path.join(settings.BASE_DIR, 'api_analytics_secrets.json')
+    CLIENT_SECRETS_PATH = str(settings.BASE_DIR / 'api_analytics_secrets.json')
     VIEW_ID = settings.ZDS_APP['stats_ga_viewid']
 
     def post(self, request, *args, **kwargs):

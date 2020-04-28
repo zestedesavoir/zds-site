@@ -61,7 +61,7 @@ CACHES = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 4
 
-MEDIA_ROOT = '/opt/zds/data/media'
+MEDIA_ROOT = Path('/opt/zds/data/media')
 
 STATIC_ROOT = '/opt/zds/data/static'
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'

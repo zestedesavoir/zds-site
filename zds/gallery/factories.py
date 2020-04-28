@@ -1,5 +1,4 @@
 import contextlib
-from pathlib import Path
 
 import factory
 
@@ -40,7 +39,7 @@ class GalleryFactory(factory.DjangoModelFactory):
     def _prepare(cls, create, **kwargs):
         gal = super(GalleryFactory, cls)._prepare(create, **kwargs)
         with contextlib.suppress(OSError):
-            Path(gal.get_gallery_path()).mkdir(parents=True)
+            gal.get_gallery_path().mkdir(parents=True)
         return gal
 
 
