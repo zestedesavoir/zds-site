@@ -611,9 +611,7 @@ class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
         with transaction.atomic():
             self.object = self.get_object()
             can_read = self.object.topic.forum.can_read(request.user)
-            is_visible = self.object.is_visible
-            can_edit = request.user.has_perm('forum.change_post')
-            if can_read and (is_visible or can_edit):
+            if can_read:
                 return super(PostSignal, self).dispatch(request, *args, **kwargs)
         raise PermissionDenied
 
