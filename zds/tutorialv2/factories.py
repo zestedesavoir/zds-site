@@ -78,14 +78,14 @@ class ContainerFactory(factory.Factory):
     title = factory.Sequence(lambda n: 'Mon container No{0}'.format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, *, db_object=None, light=True, **kwargs):
+    def _prepare(cls, create, *, db_object=None, light=True, introduction=text_content, conclusion=text_content, **kwargs):
         parent = kwargs.pop('parent', None)
 
-        text = text_content
         if not light:
-            text = tricky_text_content
+            introduction = tricky_text_content
+            conclusion = tricky_text_content
 
-        sha = parent.repo_add_container(kwargs['title'], text, text)
+        sha = parent.repo_add_container(kwargs['title'], introduction, conclusion)
         container = parent.children[-1]
 
         if db_object:

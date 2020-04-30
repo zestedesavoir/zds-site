@@ -12,12 +12,10 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.models import Licence, SubCategory
 
-
-# Front tests to write : check content is correct and properly formatted.
-# Some to potentially check : introduction, authors, conclusion, title, description, children title
 @override_for_contents()
 class DisplayContentTests(TutorialTestMixin, TestCase):
-
+    # Front tests to write : check content is correct and properly formatted.
+    # Some to potentially check : introduction, authors, conclusion, title, description, children title
     def create_users(self):
         self.user_staff = StaffProfileFactory().user
         self.user_author = ProfileFactory().user
@@ -100,6 +98,7 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
             )
         self.logout()
 
+
 @override_for_contents()
 class CreateContentAccessTests(TutorialTestMixin, TestCase):
 
@@ -143,26 +142,26 @@ class CreateContentAccessTests(TutorialTestMixin, TestCase):
         self.logout()
 
 
-# Front tests to write : check it leads to content:view ie. content is correct and properly formatted.
-#                        check preview.
-#     # Refactor with preview_content_creation
-#     def test_preview_in_content_creation(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         random_with_md = 'un text contenant du **markdown** .'
-#         response = self.client.post(
-#             reverse('content:create-tutorial'),
-#             {
-#                 'text': random_with_md,
-#                 'preview': '',
-#             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
-
-#         self.assertEqual(response.status_code, 200)
-
-#         result_string = ''.join(str(a, 'utf-8') for a in response.streaming_content)
-#         self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
-#         self.logout()
 @override_for_contents()
 class CreateContentTests(TutorialTestMixin, TestCase):
+    # Front tests to write : check it leads to content:view ie. content is correct and properly formatted.
+    #                        check preview.
+    #     # Refactor with preview_content_creation
+    #     def test_preview_in_content_creation(self):
+    #         self.login(self.user_author.username, 'hostel77')
+    #         random_with_md = 'un text contenant du **markdown** .'
+    #         response = self.client.post(
+    #             reverse('content:create-tutorial'),
+    #             {
+    #                 'text': random_with_md,
+    #                 'preview': '',
+    #             }, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    #         self.assertEqual(response.status_code, 200)
+
+    #         result_string = ''.join(str(a, 'utf-8') for a in response.streaming_content)
+    #         self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
+    #         self.logout()
     def create_users(self):
         self.user = ProfileFactory().user
         self.user_read_only = ProfileFactory(can_write=False).user
@@ -274,7 +273,6 @@ class CreateContentTests(TutorialTestMixin, TestCase):
             self.check_content_informations(content, content_informations)
             self.check_content_gallery(content, set([self.user]), size=1)
         self.logout()
-
 
 
 @override_for_contents()
@@ -733,8 +731,6 @@ class DeleteContentTests(TutorialTestMixin, TestCase):
         self.logout()
 
 
-
-
 @override_for_contents()
 class DownloadContentTests(TutorialTestMixin, TestCase):
 
@@ -819,334 +815,227 @@ class DownloadContentTests(TutorialTestMixin, TestCase):
         self.logout()
 
 
+@override_for_contents()
+class DisplayContainerTests(TutorialTestMixin, TestCase):
 
-# Write tests to create and update content from archive
+    def create_users(self):
+        self.user_staff = StaffProfileFactory().user
+        self.user_author = ProfileFactory().user
+        self.user_guest = ProfileFactory().user
+        self.user_read_only_author = ProfileFactory(can_write=False).user
+
+    def create_tutorial(self):
+        self.tutorial = PublishableContentFactory(type='TUTORIAL', introduction='tutorial introduction', conclusion='tutorial conclusion')
+        self.tutorial.authors.add(self.user_author)
+        self.tutorial.authors.add(self.user_read_only_author)
+        self.tutorial.save()
+        self.containers = []
+        container = ContainerFactory(parent=self.tutorial.load_version(), db_object=self.tutorial, introduction='container 0 introduction', conclusion='container 0 conclusion')
+        self.containers.append(container)
+        for i in range(1, self.max_depth_container):
+            container = ContainerFactory(parent=container, db_object=self.tutorial, introduction=f'container {i} introduction', conclusion=f'container {i} conclusion')
+            self.containers.append(container)
+
+    def setUp(self):
+        self.container_slug_keys = ['container_slug', 'parent_container_slug']
+        self.max_depth_container = settings.ZDS_APP['content']['max_tree_depth'] - 1
+        self.create_users()
+        self.create_tutorial()
+
+
+    def test_public_cant_access_container_display_page(self):
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_view_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Public should not be able to display level {depth} container in tutorial.'
+            )
+
+    def test_guest_cant_access_container_display_page(self):
+        self.login(self.user_guest, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_view_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Guest should not be able to display level {depth} container in tutorial.'
+            )
+        self.logout()
+
+    def test_read_only_author_can_access_container_display_page(self):
+        self.login(self.user_read_only_author, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_view_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Read-only author should be able to display level {depth} container in tutorial even if he is author.'
+            )
+        self.logout()
+
+
+    def test_author_can_access_container_display_page(self):
+        self.login(self.user_author, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_view_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Author should be able to display level {depth} container in his tutorial.'
+            )
+        self.logout()
+
+    def test_staff_can_access_container_display_page(self):
+        self.login(self.user_staff, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_view_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Staff should be able to display level {depth} container in tutorial.'
+            )
+        self.logout()
+
 
 @override_for_contents()
-def AddAuthorToContentTest(TutorialTestMixin, TestCase):
-    # Tester que l'ajout rajoute bien aux auteurs.
-    # Tester que l'ajout ajoute bien à la galerie.
-    # Tester que l'ajout ne rajoute pas à la version publiée.
-    pass
-
-
-
-
-
-
-
-
-
-# @override_for_contents()
-# class DisplayContainerTests(TutorialTestMixin, TestCase):
-
-#     def setUp(self):
-#         # TODO
-#         # Only one content (a tutorial), opinions and articles
-#         # does not have container
-#         #
-#         self.part_dic = {
-#             'pk': self.tuto.pk,
-#             'slug': self.tuto.slug
-#             'container_slug': self.tuto.part1.slug
-#         }
-#         self.chapter_dic = {
-#             'pk': self.tuto.pk,
-#             'slug': self.tuto.slug,
-#             'parent_container_slug': self.tuto.part1.slug,
-#             'container_slug': self.tuto.part1.chapter.slug
-#         }
-#         self.kwargs_container = [part_dic, chapter_dic]
-
-#     def access_container(self, kwargs):
-#         return self.client.get(
-#             reverse('content:view-container', kwargs=kwargs),
-#             follow=False)
-
-#     def test_public_cant_access_container(self):
-#         "Redirect to connexion page."
-#         result = access_container(self.part_dic)
-#         for kwargs in self.kwargs_container
-#             result = access_container(kwargs)
-#             self.assertEqual(result.status_code, 302)
-
-#     def test_guest_cant_access_container(self):
-#         self.login(self.user_guest.username, 'hostel77')
-#         for kwargs in self.kwargs_container
-#             result = access_container(kwargs)
-#             self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_ls_author_can_access_container(self):
-#         self.login(self.user_ls_author.username, 'hostel77')
-#         for kwargs in self.kwargs_container
-#             result = access_container(kwargs)
-#             self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     def test_author_can_access_container(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         for kwargs in self.kwargs_container
-#             result = access_container(kwargs)
-#             self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     def test_staff_can_access_container(self):
-#         self.login(self.user_staff.username, 'hostel77')
-#         for kwargs in self.kwargs_container
-#             result = access_container(kwargs)
-#             self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-# class ContainerCreationAccessTests(TutorialTestMixin, TestCase):
-#     def setUp():
-#         # Create a tuto with part
-#         # Create an article and an opinion
-
-# # Pour public, ls, auteur et guest.
-# #     Tester accès à création container dans tuto vide.
-# #     Tester accès à création container dans tuto avec partie.
-# #     Tester accès à création container dans chapitre de tuto avec partie.
-# #     Tester accès à création container dans tuto avec chapitres.
-# #     Tester accès à création container dans article.
-# #     Tester accès à création container dans opinion.
-# #     Tester accès à création container dans tuto avec extrait.
-# #     Tester accès à création container dans chapitre de tuto avec partie.
-# #
-# # dans Tuto vide  OK
-# # dans tuto avec container  OK   => c'était
-# # dans tuto avec extrait    NOK
-
-# # dans level 1 container vide             OK => on rajoute un chapitre, ça devient une partie
-# # dans level 1 container avec container   OK => c'était une partie on rajoute un chapitre
-# # dans level 1 container avec extrait     NOK  c'était un chapitre
-
-# # dans level 2 container vide ou pas        NOK  => c'est un chapitre
-# # dans Article    NOK
-# # dans Opinion    NOK
-# #
-# # La règle c'est que si tu es un conteneur de profondeur inférieur à la profondeur maximale - 1
-# # et que tu ne contiens pas d'extraits, c'est OK.
-
-
-#     def setUp()
-
-#     self.slug_keys = ['parent_container_slug', 'container_slug']
-
-#     def compute_kwargs_to_create_container_of_depth(self, depth, with_extract=False):
-#         tuto = PublishableContentFactory(type='TUTORIAL')
-#         tuto.authors.add(self.user_author)
-#         tuto.save()
-#         kwargs = {'pk' = tuto.pk, 'slug' = tuto.slug}
-#         container = ContainerFactory(parent=tuto.load_version(), db_object=tuto)
-#         for i in range(1, depth):
-#             kwargs[self.slug_keys[depth - i]] = container.pk
-#             container = ContainerFactory(parent=container, db_object=tuto)
-#         ExtractFactory(container=container, db_object=tuto)
-#         return kwargs
-
-#     def compute_kwargs_to_create_container_of_depth_in_container_without_extract(self):
-#         for depth in range(max_depth):
-#             kwargs = self.compute_tuto_and_kwargs_to_create_container_of_depth(depth, with_extract=False)
-#             self.kwargs_to_create_container_of_depth_in_container_without_extract[depth] = kwargs
-
-#     def compute_kwargs_to_create_container_of_depth_in_container_with_extract(self):
-#         for depth in range(max_depth):
-#             kwargs = self.compute_tuto_and_kwargs_to_create_container_of_depth(depth, with_extract=True)
-#             self.kwargs_to_create_container_of_depth_in_container_without_extract[depth] = kwargs
-
-
-#     def test_public_cant_access_container_creation_page(self):
-#         for depth in range(max_depth - 1):
-#             result = access_container_creation_page(self.kwargs_without_extract_of_depth[depth])
-#             self.assertEqual(result, 302)
-
-#     # Faire la même chose pour with extract
-
-
-# # Faire la même chose pour l'utilisation de la page associée
-
-#     def access_container_creation_page(self, kwargs):
-#         return self.client.post(
-#             reverse('content:create-container', kwargs),
-#             follow=False)
-
-#     # COMMENT TO WRITE
-
-#     def test_public_cant_access_void_tuto_creation_container_page(self):
-#         result = access_container_creation_page(void_tuto_creation_container_kwargs)
-#         self.assertEqual(result.status_code, 302)
-
-#     def test_guest_cant_access_void_tuto_creation_container(self):
-#         self.login(self.user_guest.username, 'hostel77')
-#         result = access_container_creation_page(void_tuto_creation_container_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_ls_author_cant_access_void_tuto_creation_container(self):
-#         self.login(self.user_ls_author.username, 'hostel77')
-#         result = access_container_creation_page(void_tuto_creation_container_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_author_can_access_void_tuto_creation_container(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         result = access_container_creation_page(void_tuto_creation_container_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     def test_staff_can_access_void_tuto_creation_container(self):
-#         self.login(self.user_staff.username, 'hostel77')
-#         result = access_container_creation_page(void_tuto_creation_container_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     # COMMENT TO WRITE
-
-#     def test_public_cant_access_part_creation_page_of_tuto_with_part(self):
-#         result = access_container_creation_page(part_creation_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 302)
-
-#     def test_guest_cant_access_part_creation_page_of_tuto_with_part(self):
-#         self.login(self.user_guest.username, 'hostel77')
-#         result = access_container_creation_page(part_creation_page_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_ls_author_cant_access_part_creation_page_of_tuto_with_part(self):
-#         self.login(self.user_ls_author.username, 'hostel77')
-#         result = access_container_creation_page(part_creation_page_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_author_can_access_part_creation_page_of_tuto_with_part(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         result = access_container_creation_page(part_creation_page_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     def test_staff_can_access_part_creation_page_of_tuto_with_part(self):
-#         self.login(self.user_staff.username, 'hostel77')
-#         result = access_container_creation_page(part_creation_page_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     # COMMENT TO WRITE
-#     def test_public_cant_access_chapter_creation_page_of_part_of_tuto_with_part(self):
-#         result = access_container_creation_page(chapter_creation_page_of_part_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 302)
-
-#     def test_guest_cant_access_chapter_creation_page_of_part_of_tuto_with_part(self):
-#         self.login(self.user_guest.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_part_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_ls_author_cant_access_chapter_creation_page_of_part_of_tuto_with_part(self):
-#         self.login(self.user_ls_author.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_part_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_author_can_access_chapter_creation_page_of_part_of_tuto_with_part(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_part_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     def test_staff_can_access_chapter_creation_page_of_part_of_tuto_with_part(self):
-#         self.login(self.user_staff.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_part_of_tuto_with_part_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-
-#     # COMMENT TO WRITE
-#     def test_public_cant_access_chapter_creation_page_of_tuto_with_chapter(self):
-#         result = access_container_creation_page(chapter_creation_page_of_tuto_with_chapter_kwargs)
-#         self.assertEqual(result.status_code, 302)
-
-#     def test_guest_cant_access_chapter_creation_page_of_tuto_with_chapter(self):
-#         self.login(self.user_guest.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_tuto_with_chapter_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_ls_author_cant_access_chapter_creation_page_of_tuto_with_chapter(self):
-#         self.login(self.user_ls_author.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_tuto_with_chapter_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_author_can_access_chapter_creation_page_of_tuto_with_chapter(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_tuto_with_chapter_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     def test_staff_can_access_chapter_creation_page_of_tuto_with_chapter(self):
-#         self.login(self.user_staff.username, 'hostel77')
-#         result = access_container_creation_page(chapter_creation_page_of_tuto_with_chapter_kwargs)
-#         self.assertEqual(result.status_code, 200)
-#         self.logout()
-
-#     # COMMENT TO WRITE
-#     def test_public_cant_access_container_creation_page_of_article(self):
-#         result = access_container_creation_page(container_creation_page_of_article_kwargs)
-#         self.assertEqual(result.status_code, 302)
-
-#     def test_guest_cant_access_container_creation_page_of_article(self):
-#         self.login(self.user_guest.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_article_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_ls_author_cant_access_container_creation_page_of_article(self):
-#         self.login(self.user_ls_author.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_article_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_author_can_access_container_creation_page_of_article(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_article_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_staff_can_access_container_creation_page_of_article(self):
-#         self.login(self.user_staff.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_article_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-
-#     # COMMENT TO WRITE
-#     def test_public_cant_access_container_creation_page_of_opinion(self):
-#         result = access_container_creation_page(container_creation_page_of_opinion_kwargs)
-#         self.assertEqual(result.status_code, 302)
-
-#     def test_guest_cant_access_container_creation_page_of_opinion(self):
-#         self.login(self.user_guest.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_opinion_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_ls_author_cant_access_container_creation_page_of_opinion(self):
-#         self.login(self.user_ls_author.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_opinion_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_author_can_access_container_creation_page_of_opinion(self):
-#         self.login(self.user_author.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_opinion_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-#     def test_staff_can_access_container_creation_page_of_opinion(self):
-#         self.login(self.user_staff.username, 'hostel77')
-#         result = access_container_creation_page(container_creation_page_of_opinion_kwargs)
-#         self.assertEqual(result.status_code, 403)
-#         self.logout()
-
-
+class EditContainerAccessTests(TutorialTestMixin, TestCase):
+
+    def create_users(self):
+        self.user_staff = StaffProfileFactory().user
+        self.user_author = ProfileFactory().user
+        self.user_guest = ProfileFactory().user
+        self.user_read_only_author = ProfileFactory(can_write=False).user
+
+    def create_tutorial(self):
+        self.tutorial = PublishableContentFactory(type='TUTORIAL', introduction='tutorial introduction', conclusion='tutorial conclusion')
+        self.tutorial.authors.add(self.user_author)
+        self.tutorial.authors.add(self.user_read_only_author)
+        self.tutorial.save()
+        self.containers = []
+        container = ContainerFactory(parent=self.tutorial.load_version(), db_object=self.tutorial, introduction='container 0 introduction', conclusion='container 0 conclusion')
+        self.containers.append(container)
+        for i in range(1, self.max_depth_container):
+            container = ContainerFactory(parent=container, db_object=self.tutorial, introduction=f'container {i} introduction', conclusion=f'container {i} conclusion')
+            self.containers.append(container)
+
+    def setUp(self):
+        self.container_slug_keys = ['container_slug', 'parent_container_slug']
+        self.max_depth_container = settings.ZDS_APP['content']['max_tree_depth'] - 1
+        self.create_users()
+        self.create_tutorial()
+
+
+    def test_public_cant_access_container_edit_page(self):
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_edit_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Public should not be able to access level {depth} container edition page.'
+            )
+
+    def test_guest_cant_access_container_edit_page(self):
+        self.login(self.user_guest, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_edit_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Guest should not be able to access level {depth} container edition page.'
+            )
+        self.logout()
+
+    def test_read_only_author_cant_access_container_edit_page(self):
+        self.login(self.user_read_only_author, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_edit_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Read-only author should not be able to access level {depth} container edition page even if he is author.'
+            )
+        self.logout()
+
+
+    def test_author_can_access_container_edit_page(self):
+        self.login(self.user_author, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_edit_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Author should be able to access level {depth} container edition page of his tutorial.'
+            )
+        self.logout()
+
+    def test_staff_can_access_container_edit_page(self):
+        self.login(self.user_staff, 'hostel77')
+        for (depth, container) in enumerate(self.containers):
+            kwargs = {
+                'pk': self.tutorial.pk,
+                'slug': self.tutorial.slug
+            }
+            for i in range(depth + 1):
+                kwargs[self.container_slug_keys[depth - i]] = self.containers[i].slug
+            result = self.container_edit_get(kwargs)
+            self.assertEqual(
+                result.status_code,
+                200,
+                f'Staff should be able to access level {depth} container edition page.'
+            )
+        self.logout()

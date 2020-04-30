@@ -58,6 +58,11 @@ class TutorialTestMixin:
             reverse('content:view', kwargs=kwargs),
             follow=False)
 
+    def container_view_get(self, kwargs):
+        return self.client.get(
+            reverse('content:view-container', kwargs=kwargs),
+            follow=False)
+
     def content_create_get(self, _type='TUTORIAL'):
         return self.client.get(
             reverse(f'content:create-{_type.lower()}'),
@@ -118,6 +123,11 @@ class TutorialTestMixin:
             reverse('content:edit', kwargs=kwargs),
             follow=False)
 
+    def container_edit_get(self, kwargs):
+        return self.client.get(
+            reverse('content:edit-container', kwargs=kwargs),
+            follow=False)
+
     def content_edit_post(self, kwargs, content_informations):
         return self.client.post(
             reverse('content:edit', kwargs=kwargs),
@@ -132,6 +142,12 @@ class TutorialTestMixin:
     def content_download_get(self, kwargs):
         return self.client.get(
             reverse('content:download-zip', kwargs=kwargs),
+            follow=False)
+
+    def content_add_author_post(self, content_kwargs, new_author_kwags):
+        return self.client.post(
+            reverse('content:add-author', args=content_kwargs),
+            new_author_kwags,
             follow=False)
 
 
