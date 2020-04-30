@@ -10,10 +10,15 @@ const options = require('gulp-options')
 const path = require('path')
 const postcss = require('gulp-postcss')
 const sass = require('gulp-sass')
+const sourcemaps = require('gulp-sourcemaps')
 const spritesmith = require('gulp.spritesmith')
 const terser = require('gulp-terser-js')
 const fs = require('fs')
 
+const srcOptions = {
+  cwd: path.resolve(__dirname, '.'),
+  base: path.resolve(__dirname, '.')
+}
 
 /* Speed mode */
 
@@ -30,7 +35,7 @@ if (!fast) {
 
 // Generates a sprite with the website icons
 function spriteCss() {
-  return gulp.src('assets/images/sprite/*.png')
+  return gulp.src('assets/images/sprite/*.png', srcOptions)
     .pipe(spritesmith({
       cssTemplate: 'assets/scss/_sprite.scss.hbs',
       cssName: 'scss/_sprite.scss',
@@ -74,20 +79,28 @@ function customSassError(error) {
 
 // Generates CSS for the website and the ebooks
 function css() {
-  return gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'], { sourcemaps: true })
+  const srcCustomOptions = {
+    cwd: path.resolve(__dirname, 'assets/scss/'),
+    base: path.resolve(__dirname, 'assets/scss/')
+  }
+  return gulp.src(['main.scss', 'zmd.scss'], srcCustomOptions)
+    .pipe(gulpif(!fast, sourcemaps.init()))
     .pipe(customSass()) // SCSS to CSS
     .on('error', customSassError)
     .pipe(gulpif(!fast, postcss(postcssPlugins))) // Adds browsers prefixs and minifies
-    .pipe(gulp.dest('dist/css/', { sourcemaps: '.' }))
+    .pipe(gulpif(!fast, sourcemaps.write(path.relative(srcOptions.cwd, '.'))))
+    .pipe(gulp.dest('dist/css/'))
 }
 
 // Generates CSS for the static error pages in the folder `errors/`
 function errors() {
-  return gulp.src('errors/scss/main.scss', { sourcemaps: true })
+  return gulp.src('errors/scss/main.scss', srcOptions)
+    .pipe(gulpif(!fast, sourcemaps.init()))
     .pipe(customSass())
     .on('error', customSassError)
     .pipe(gulpif(!fast, postcss(postcssPlugins)))
-    .pipe(gulp.dest('errors/css/', { sourcemaps: '.' }))
+    .pipe(gulpif(!fast, sourcemaps.write(path.relative(srcOptions.cwd, '.'))))
+    .pipe(gulp.dest('errors/css/'))
 }
 
 
@@ -103,7 +116,7 @@ if (fix) {
 // Lints the JS source files
 
 function jsLint() {
-  return gulp.src(['assets/js/*.js', 'Gulpfile.js', '!assets/js/editor-old.js'], { base: '.' })
+  return gulp.src(['assets/js/*.js', 'Gulpfile.js', '!assets/js/editor-old.js'], srcOptions)
     .pipe(eslint(eslintOptions))
     .pipe(eslint.format())
     .pipe(gulp.dest('.'))
@@ -124,7 +137,9 @@ function js() {
     'assets/js/tooltips.js',
     // All the scripts
     'assets/js/*.js'
-  ], { base: '.', sourcemaps: true })
+  ], srcOptions)
+    .pipe(gulpif(!fast, sourcemaps.init()))
+    .pipe(concat('script.js', { newLine: ';\r\n' })) // One JS file to rule them all
     .pipe(gulpif(!fast, terser())) // Minifies the JS
     .on('error', function(error) {
       if (error.plugin.startsWith('gulp-terser')) {
@@ -133,8 +148,8 @@ function js() {
         console.log(error.message)
       }
     })
-    .pipe(concat('script.js', { newLine: ';\r\n' })) // One JS file to rule them all
-    .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }))
+    .pipe(gulpif(!fast, sourcemaps.write(path.relative(srcOptions.cwd, '.'))))
+    .pipe(gulp.dest('dist/js/'))
 }
 
 
@@ -197,6 +212,7 @@ function watch() {
 
 // Build the front
 var build = gulp.parallel(prepareZmd, prepareEasyMde, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
+var build = gulp.series(clean, gulp.parallel(prepareZmd, prepareEasyMde, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages))))
 
 exports.build = build
 exports.watch = gulp.series(build, watch)
