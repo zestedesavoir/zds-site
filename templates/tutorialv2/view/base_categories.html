@@ -5,6 +5,28 @@
 {% load pluralize_fr %}
 {% load set %}
 
+{% block breadcrumb_class %}breadcrumb-alt{% endblock %}
+{% block breadcrumb %}
+    {% if not category and not tag %}
+        <li>{% trans 'Bibliothèque' %}</a></li>
+    {% endif %}
+    {% if category and not subcategory %}
+        <li><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></li>
+        <li>{{ category.title }}</li>
+    {% endif %}
+    {% if category and subcategory %}
+        <li><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></li>
+        <li><a href="{% url 'publication:category' slug=category.slug %}">{{ category.title }}</a></li>
+        <li>{{ subcategory.title }}</li>
+    {% endif %}
+    {% if tag %}
+        <li><a href="{% url 'publication:list' %}">{% trans 'Bibliothèque' %}</a></li>
+        <li>{% trans "Tag" %} {{ tag }}</li>
+    {% endif %}
+    {% if type %}
+        <li>{{ type }}s</li>
+    {% endif %}
+{% endblock %}
 
 {% block title_base %}
     &bull; {% trans "Bibliothèque" %}

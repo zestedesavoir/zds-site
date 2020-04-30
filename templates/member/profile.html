@@ -24,6 +24,13 @@
     {{ usr.username }}
 {% endblock %}
 
+{% block breadcrumb_class %}breadcrumb-alt{% endblock %}
+{% block breadcrumb %}
+    <li>
+        {% blocktrans with username=profile.user.username %} Profil de {{ username }} {% endblocktrans %}
+    </li>
+{% endblock %}
+
 
 {% block body_class %}flexpage userprofilepage{% endblock %}
 

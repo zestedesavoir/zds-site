@@ -19,6 +19,7 @@ $logo-width: 240px;
     }
 
     header {
+        padding: 0 2rem;
         background: $color-primary;
         border-bottom: 3px solid $color-secondary;
 
@@ -127,6 +128,7 @@ $logo-width: 240px;
     }
 
     .sub-header {
+        padding: 0 2rem 0 0;
         background: #EEE;
     }
 

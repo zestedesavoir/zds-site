@@ -8,7 +8,7 @@
         display: flex;
         width: calc(100% - 60px * 4);
         height: 30px;
-        padding-left: 2rem;
+        padding-left: 4rem;
 
         &:after {
             content: " ";
@@ -59,6 +59,29 @@
                     @include sprite-position($ariane);
                     opacity: .2;
                 }
+            }
+        }
+    }
+}
+
+.breadcrumb-alt {
+    @extend .breadcrumb;
+    color: white;
+
+    @media only screen and #{$media-wide} {
+        background: #225871;
+
+        &:after {
+            background-image: none;
+        }
+
+        ol li {
+            a {
+                color: #ddd;
+            }
+            &:not(:last-child):after {
+                @include sprite();
+                @include sprite-position($ariane-alt);
             }
         }
     }
