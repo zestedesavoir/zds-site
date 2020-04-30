@@ -458,7 +458,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         return redirect(reverse(object_type + ':find-' + object_type, args=[request.user.username]))
 
 
-class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
+class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):
     """
     Download a zip archive with all the content of the repository directory
     """
