@@ -2902,12 +2902,13 @@ gulp-sourcemaps@2.6.5:
     strip-bom-string "1.X"
     through2 "2.X"
 
-gulp-terser-js@5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/gulp-terser-js/-/gulp-terser-js-5.2.0.tgz#177e3c6715ff70ef8d2d85e877558657eca92180"
-  integrity sha512-6jPOf+1eAZ3AK2feH1OUKa+riFqGKGRzVDXhpeai3SMRSSinio5n7OUetgI30oenRNnRSrT3+ts9nXFwoNEbvQ==
+gulp-terser-js@5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/gulp-terser-js/-/gulp-terser-js-5.2.1.tgz#85a12dbc7dd8d83ecbdc6e5358c953fbca6bb352"
+  integrity sha512-SEinX/4F7nKvZxPuJ914Zu1zRefj6V09Uulqk6V22smi/Ql3u3GME7EXe90kGCTty/S88ER9VqMSLfZ7h4EWYg==
   dependencies:
     plugin-error "^1.0.1"
+    source-map "^0.7.3"
     terser "^4.6.12"
     through2 "^3.0.1"
     vinyl-sourcemaps-apply "^0.2.1"
@@ -5959,6 +5960,11 @@ source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.0, source-map@~0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
   integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
+
+source-map@^0.7.3:
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
+  integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
 
 sparkles@^1.0.0:
   version "1.0.1"

@@ -211,7 +211,6 @@ function watch() {
 }
 
 // Build the front
-var build = gulp.parallel(prepareZmd, prepareEasyMde, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 var build = gulp.series(clean, gulp.parallel(prepareZmd, prepareEasyMde, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages))))
 
 exports.build = build
