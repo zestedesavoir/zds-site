@@ -90,7 +90,7 @@ class ContributionForm(forms.Form):
             Field('contribution_role'),
             Field('comment'),
             ButtonHolder(
-                StrictButton(_('Ajouter'), type='submit'),
+                StrictButton(_('Ajouter'), type='submit', css_class='btn-submit'),
             )
         )
         super(ContributionForm, self).__init__(*args, **kwargs)
@@ -752,9 +752,7 @@ class AskValidationForm(forms.Form):
             no_license_msg if self.no_license else None,
             Field('text'),
             Field('version'),
-            StrictButton(
-                _('Confirmer'),
-                type='submit')
+            StrictButton(_('Confirmer'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
@@ -843,7 +841,7 @@ class AcceptValidationForm(forms.Form):
         self.helper.layout = Layout(
             Field('text'),
             Field('is_major'),
-            StrictButton(_('Publier'), type='submit')
+            StrictButton(_('Publier'), type='submit', css_class='btn-submit')
         )
 
 
@@ -881,9 +879,8 @@ class CancelValidationForm(forms.Form):
             HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>'),
             Field('text'),
             ButtonHolder(
-                StrictButton(
-                    _('Confirmer'),
-                    type='submit'))
+                StrictButton(_('Confirmer'), type='submit', css_class='btn-submit')
+            )
         )
 
     def clean(self):
@@ -947,9 +944,8 @@ class RejectValidationForm(forms.Form):
         self.helper.layout = Layout(
             Field('text'),
             ButtonHolder(
-                StrictButton(
-                    _('Rejeter'),
-                    type='submit'))
+                StrictButton(_('Rejeter'), type='submit', css_class='btn-submit')
+            )
         )
 
     def clean(self):
@@ -1002,9 +998,7 @@ class RevokeValidationForm(forms.Form):
         self.helper.layout = Layout(
             Field('text'),
             Field('version'),
-            StrictButton(
-                _('Dépublier'),
-                type='submit')
+            StrictButton(_('Dépublier'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
@@ -1046,9 +1040,8 @@ class JsFiddleActivationForm(forms.Form):
         self.helper.layout = Layout(
             Field('js_support'),
             ButtonHolder(
-                StrictButton(
-                    _('Valider'),
-                    type='submit'),),
+                StrictButton(_('Valider'), type='submit', css_class='btn-submit'),
+            ),
             Hidden('pk', '{{ content.pk }}'), )
 
     def clean(self):
@@ -1155,7 +1148,9 @@ class WarnTypoForm(forms.Form):
             HTML(msg),
             Hidden('pk', '{{ content.pk }}'),
             Hidden('version', version),
-            ButtonHolder(StrictButton(_('Envoyer'), type='submit'))
+            ButtonHolder(
+                StrictButton(_('Envoyer'), type='submit', css_class='btn-submit')
+            )
         )
 
     def clean(self):
@@ -1210,7 +1205,7 @@ class PublicationForm(forms.Form):
             no_category_msg if self.no_subcategories else None,
             no_license_msg if self.no_license else None,
             HTML(_("<p>Ce billet sera publié directement et n'engage que vous.</p>")),
-            StrictButton(_('Publier'), type='submit')
+            StrictButton(_('Publier'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
@@ -1261,9 +1256,7 @@ class UnpublicationForm(forms.Form):
         self.helper.layout = Layout(
             Field('text'),
             Field('version'),
-            StrictButton(
-                _('Dépublier'),
-                type='submit')
+            StrictButton(_('Dépublier'), type='submit', css_class='btn-submit')
         )
 
 
@@ -1287,9 +1280,7 @@ class PickOpinionForm(forms.Form):
             HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? '
                  'Il pourra maintenant être présent sur la page d’accueil.</p>'),
             Field('version'),
-            StrictButton(
-                _('Valider'),
-                type='submit')
+            StrictButton(_('Valider'), type='submit', css_class='btn-submit')
         )
 
 
@@ -1312,9 +1303,7 @@ class DoNotPickOpinionForm(forms.Form):
         self.helper.layout = Layout(
             HTML(_("<p>Ce billet n'apparaîtra plus dans la liste des billets à choisir.</p>")),
             Field('operation'),
-            StrictButton(
-                _('Valider'),
-                type='submit')
+            StrictButton(_('Valider'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
@@ -1362,9 +1351,7 @@ class UnpickOpinionForm(forms.Form):
         self.helper.layout = Layout(
             Field('version'),
             Field('text'),
-            StrictButton(
-                _('Enlever'),
-                type='submit')
+            StrictButton(_('Enlever'), type='submit', css_class='btn-submit')
         )
 
 
@@ -1389,9 +1376,7 @@ class PromoteOpinionToArticleForm(forms.Form):
                     Cela copiera le billet pour en faire un article,
                     puis créera une demande de validation pour ce dernier.</p>"""),
             Field('version'),
-            StrictButton(
-                _('Valider'),
-                type='submit')
+            StrictButton(_('Valider'), type='submit', css_class='btn-submit')
         )
 
 

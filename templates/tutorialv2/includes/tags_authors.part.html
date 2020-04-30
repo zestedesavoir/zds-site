@@ -65,7 +65,7 @@
                 <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author-content">
                     {% csrf_token %}
                     <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
-                    <button type="submit" name="add_author">
+                    <button type="submit" name="add_author" class="btn btn-submit">
                         {% trans "Confirmer" %}
                     </button>
                 </form>

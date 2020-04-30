@@ -126,7 +126,7 @@
                 <input type="hidden" name="gallery" value="{{ gallery.pk }}">
                 {% csrf_token %}
                 <p>{% trans "Attention, vous vous appretez à supprimer toutes les images sélectionnées." %}</p>
-                <button type="submit" name="delete_multi" class="btn">{% trans "Confirmer" %}</button>
+                <button type="submit" name="delete_multi" class="btn btn-submit">{% trans "Confirmer" %}</button>
             </form>
         {% endif %}
 

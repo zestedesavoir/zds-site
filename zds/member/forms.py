@@ -618,7 +618,7 @@ class KarmaForm(forms.Form):
             Field('karma'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
-                StrictButton('Valider', type='submit'),
+                StrictButton('Valider', type='submit', css_class='btn-submit'),
             ),
         )
 

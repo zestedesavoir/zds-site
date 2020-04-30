@@ -329,7 +329,7 @@
                 <input type="hidden" name="container_slug" value="{{ container.parent.slug}}">
                 {% csrf_token %}
 
-                <button type="submit">{% trans "Déplacer" %}</button>
+                <button type="submit" class="btn btn-submit">{% trans "Déplacer" %}</button>
             </form>
         </li>
     {% endif %}
