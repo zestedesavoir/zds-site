@@ -337,7 +337,6 @@ samp {
   font-family: $font-monospace;
   background-color: #fff;
   margin: 0 auto;
-  margin-top: 14px;
   padding: 0.5em;
   border-radius: .25em;
   display: flex;
@@ -346,6 +345,10 @@ samp {
   font-family: $font-monospace;
   font-style: normal;
   font-size: 14px;
+
+  + .hljs-code-div {
+    margin-top: 14px;
+  }
 
   .hljs-line-numbers {
     counter-reset: line;
