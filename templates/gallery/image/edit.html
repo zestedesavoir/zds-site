@@ -97,7 +97,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="image" value="{{ image.pk }}">
                 <p>{% trans "Attention, vous vous apprêtez à supprimer cette image." %}</p>
-                <button type="submit" name="delete" class="btn">{% trans "Confirmer" %}</button>
+                <button type="submit" name="delete" class="btn btn-submit">{% trans "Confirmer" %}</button>
             </form>
         {% endif %}
     </div>

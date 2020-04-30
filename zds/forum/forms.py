@@ -169,5 +169,5 @@ class MoveTopicForm(forms.Form):
             Field('forum'),
             Hidden('move', ''),
             Hidden('topic', topic.pk),
-            StrictButton(_('Valider'), type='submit'),
+            StrictButton(_('Valider'), type='submit', css_class='btn-submit'),
         )

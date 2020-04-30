@@ -260,7 +260,7 @@
                             <p>
                                 {% trans 'Voulez-vous vraiment dissocier ce sujet de son ticket GitHub ?' %}
                             </p>
-                            <button type="submit" name="unlink">{% trans 'Confirmer' %}</button>
+                            <button type="submit" name="unlink" class="btn btn-submit">{% trans 'Confirmer' %}</button>
                         </form>
                     {% endif %}
                 {% else %}
@@ -280,7 +280,7 @@
                                         <input type="checkbox" name="tag-{{ tag }}" value="{{ tag }}" id="tag-{{ tag }}">
                                     </label>
                                 {% endfor %}
-                                <button type="submit" name="create">{% trans 'Envoyer' %}</button>
+                                <button type="submit" name="create" class="btn btn-submit">{% trans 'Envoyer' %}</button>
                             {% else %}
                                 <p>{% trans "Il semblerait que vous n’ayez pas spécifié de token d’identification GitHub, vous ne pouvez donc pas créer de ticket pour ce sujet." %}</p>
                                 {% url 'update-github' as update_github %}
@@ -303,7 +303,7 @@
                                 {% trans "Quel est le numéro du ticket GitHub que vous souhaitez associer ?" %}
                             </p>
                             <input type="number" name="issue" min="1" placeholder="{% trans "Numéro du ticket (sans #)" %}" required>
-                            <button type="submit" name="link">{% trans 'Associer' %}</button>
+                            <button type="submit" name="link" class="btn btn-submit">{% trans 'Associer' %}</button>
                         </form>
                     </li>
                 {% endif %}
@@ -347,7 +347,7 @@
                             {% trans "du sujet ?" %}
                         </p>
 
-                        <button type="submit" name="lock-open-topic-{{ topic.pk }}">
+                        <button type="submit" name="lock-open-topic-{{ topic.pk }}" class="btn btn-submit">
                             {% trans "Confirmer" %}
                         </button>
                     </form>

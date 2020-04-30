@@ -90,7 +90,7 @@
                     {% endif %}
                     <textarea name="comment" placeholder="{% trans "Commentaire (facultatif)." %}" maxlength="1000"></textarea>
                     {% csrf_token %}
-                    <button type="submit" name="grant">{% trans "Accorder" %}</button>
+                    <button type="submit" name="grant" class="btn btn-submit">{% trans "Accorder" %}</button>
                 </form>
 
                 <a href="#deny-hat" class="new-btn ico-after red cross open-modal">
@@ -100,7 +100,7 @@
                 <form id="deny-hat" class="modal modal-flex" method="post" action="{% url 'solve-hat-request' hat_request.pk %}">
                     <textarea name="comment" placeholder="{% trans "Commentaire de refus (facultatif)." %}" maxlength="1000"></textarea>
                     {% csrf_token %}
-                    <button type="submit">{% trans "Refuser" %}</button>
+                    <button type="submit" class="btn btn-submit">{% trans "Refuser" %}</button>
                 </form>
             {% else %}
                 <a href="{% url "solved-hat-requests" %}" class="new-btn ico-after arrow-left blue">

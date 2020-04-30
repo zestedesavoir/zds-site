@@ -64,7 +64,7 @@
 
             <input type="hidden" name="pk" value="{{ content.pk }}">
             {% csrf_token %}
-            <button type="submit">
+            <button type="submit" class="btn btn-submit">
                 {% trans "Déplacer" %}
             </button>
         </form>

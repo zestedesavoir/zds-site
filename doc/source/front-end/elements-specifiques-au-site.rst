@@ -61,7 +61,7 @@ de l'attribut (ici ``Fermez-moi !``) deviendra le texte du bouton.
    </div>
 
 Si on désire un second bouton pointant vers un lien arbitraire, il suffit d'ajouter à la fin de l'élément
-contenant la boîte un lien avec les classes ``btn`` et ``btn-success`` ; il sera automatiquement ajouté
+contenant la boîte un lien avec les classes ``btn`` et ``btn-submit`` ; il sera automatiquement ajouté
 à côté du bouton de fermeture de la modale.
 
 .. sourcecode:: html

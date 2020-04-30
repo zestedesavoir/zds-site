@@ -125,7 +125,7 @@
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
+                            <button type="submit" name="delete-post" class="btn btn-submit button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                         </form>
                     {% endif %}
                 </div>
@@ -338,7 +338,7 @@
                                         Il sera dépublié et ne pourra pas être republié.
                                     {% endblocktrans %}
                                 </p>
-                                <button type="submit">
+                                <button type="submit" class="btn btn-submit">
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>
