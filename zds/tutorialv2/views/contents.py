@@ -374,7 +374,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         return super().form_valid(form)
 
 
-class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
+class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     template_name = None
     http_method_names = ['delete', 'post']
