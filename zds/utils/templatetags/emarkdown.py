@@ -123,7 +123,9 @@ def render_markdown_stats(md_input, **kwargs):
     Returns contents statistics (words and chars)
     """
     kwargs['stats'] = True
-    content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    kwargs['disable_images_download'] = True
+    logger.setLevel(logging.INFO)
+    content, metadata, messages = _render_markdown_once(md_input, output_format='tex', **kwargs)
     if metadata:
         return metadata.get('stats', {}).get('signs', {})
     return None
