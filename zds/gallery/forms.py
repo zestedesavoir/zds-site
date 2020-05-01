@@ -122,7 +122,9 @@ class ImageForm(forms.ModelForm):
 
     class Meta:
         model = Image
-
+        widgets = {
+            'legend': forms.TextInput(),
+        }
         fields = ['title', 'legend']
 
     physical = forms.ImageField(

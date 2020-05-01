@@ -61,6 +61,9 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         for auth in auths:
             publishable_content.authors.add(auth)
 
+        if add_category:
+            publishable_content.subcategory.add(SubCategoryFactory())
+
         publishable_content.save()
 
         for author in publishable_content.authors.all():

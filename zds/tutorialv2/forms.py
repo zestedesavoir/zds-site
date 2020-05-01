@@ -22,11 +22,7 @@ class FormWithTitle(forms.Form):
     title = forms.CharField(
         label=_('Titre'),
         max_length=PublishableContent._meta.get_field('title').max_length,
-        widget=forms.TextInput(
-            attrs={
-                'required': 'required',
-            }
-        )
+        required=False
     )
 
     def clean(self):
@@ -34,11 +30,9 @@ class FormWithTitle(forms.Form):
 
         title = cleaned_data.get('title')
 
-        if title is not None and not title.strip():
-            self._errors['title'] = self.error_class(
-                [_('Le champ du titre ne peut être vide.')])
-            if 'title' in cleaned_data:
-                del cleaned_data['title']
+        if title is None or not title.strip():
+            title = 'Titre par défaut'
+            cleaned_data['title'] = title
 
         try:
             slugify_raise_on_invalid(title)
@@ -282,7 +276,7 @@ class ContentForm(ContainerForm):
     subcategory = forms.ModelMultipleChoiceField(
         label=_('Sélectionnez les catégories qui correspondent à votre contenu.'),
         queryset=SubCategory.objects.order_by('title').all(),
-        required=True,
+        required=False,
         widget=forms.CheckboxSelectMultiple()
     )
 
@@ -296,7 +290,7 @@ class ContentForm(ContainerForm):
             )
         ),
         queryset=Licence.objects.order_by('title').all(),
-        required=True,
+        required=False,
         empty_label=_('Choisir une licence')
     )
 
@@ -701,7 +695,13 @@ class AskValidationForm(forms.Form):
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'ask-validation'
 
+        self.no_subcategories = content.subcategory.count() == 0
+        no_category_msg = HTML(_("""<p><strong>Votre contenu n'est dans aucune catégorie.
+                                    Vous devez choisir une catégorie avant de demander la validation !</strong></p>
+                                 """))
         self.helper.layout = Layout(
+            no_category_msg if self.no_subcategories else None,
+            HTML(_('<p>Pensez à vérifier la licence de votre contenu avant de demander la validation.</p>')),
             Field('text'),
             Field('source'),
             Field('version'),
@@ -726,6 +726,10 @@ class AskValidationForm(forms.Form):
                 [_('Votre commentaire doit faire au moins 3 caractères.')])
             if 'text' in cleaned_data:
                 del cleaned_data['text']
+
+        if self.no_subcategories:
+            self._errors['no_subcategories'] = self.error_class(
+                [_('Vous devez spécifier une catégorie pour votre publication.')])
 
         return cleaned_data
 
@@ -1154,17 +1158,35 @@ class PublicationForm(forms.Form):
     def __init__(self, content, *args, **kwargs):
         super(PublicationForm, self).__init__(*args, **kwargs)
 
+        self.previous_page_url = content.get_absolute_url()
+
         self.helper = FormHelper()
         self.helper.form_action = reverse('validation:publish-opinion', kwargs={'pk': content.pk, 'slug': content.slug})
         self.helper.form_method = 'post'
         self.helper.form_class = 'modal modal-flex'
         self.helper.form_id = 'valid-publication'
 
+        self.no_subcategories = content.subcategory.count() == 0
+        no_category_msg = HTML(_("""<p><strong>Votre billet n'est dans aucune catégorie.
+                                    Vous devez choisir une catégorie avant de le publier !</strong></p>
+                                 """))
+
         self.helper.layout = Layout(
+            no_category_msg if self.no_subcategories else None,
+            HTML(_('<p>Pensez à vérifier la licence de votre billet avant de le publier.</p>')),
             Field('source'),
-            HTML("<p>Ce billet sera publié directement et n'engage que vous.</p>"),
+            HTML(_("<p>Ce billet sera publié directement et n'engage que vous.</p>")),
             StrictButton(_('Publier'), type='submit')
         )
+
+    def clean(self):
+        cleaned_data = super(PublicationForm, self).clean()
+
+        if self.no_subcategories:
+            self._errors['no_subcategories'] = self.error_class(
+                [_('Vous devez spécifier une catégorie pour votre publication.')])
+
+        return cleaned_data
 
 
 class UnpublicationForm(forms.Form):

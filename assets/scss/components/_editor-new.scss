@@ -8,6 +8,15 @@
         .editor-toolbar {
             border: 0;
 
+            &.disabled-for-textarea-mode {
+                button {
+                    &.disable-for-textarea-mode {
+                        opacity: .6;
+                        pointer-events: none;
+                    }
+                }
+            }
+
             button:not(.link) {
                 height: auto;
                 line-height: 0px;

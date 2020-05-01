@@ -63,9 +63,9 @@
                     </p>
                 {% endwith %}
                 <p class="topic-last-answer">
-                    {% with answer=topic.get_last_answer %}
+                    {% with answer=topic.get_last_answer last_read_url=topic.resolve_last_read_post_absolute_url %}
                         {% if answer %}
-                            <a href="{{ answer.get_absolute_url }}">
+                            <a href="{{ last_read_url }}">
                                 <span class="topic-last-answer-long-date">
                                     {% trans "Dernière réponse" %}
                                     <br>

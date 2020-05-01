@@ -7,6 +7,24 @@
 (function($) {
   'use strict'
 
+  function hidemsg() {
+    let $msg = $(this).next()
+    do {
+      $msg.toggleClass('hidden')
+      $msg = $msg.next()
+    } while ($msg[0] && $msg.hasClass('hidden-by-someone'))
+  }
+
+  $('div.msg-are-hidden.hidden').each(function() {
+    const $div = $(this)
+    $div.removeClass('hidden')
+    hidemsg.apply(this)
+    $div.children('a').click(function() {
+      hidemsg.apply(this.parentNode)
+      return false
+    })
+  })
+
   $("#content [href^='#show-message-hidden']").on('click', function(e) {
     $(this).parents('.message:first').find('.message-hidden-content').toggle()
     e.preventDefault()

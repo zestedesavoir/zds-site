@@ -1,3 +1,12 @@
+div.msg-are-hidden {
+    text-align: center;
+    margin: -15px 0;
+    a {
+        color: #999;
+        font-size: 12px;
+    }
+}
+
 .topic-message {
     position: relative;
 
@@ -35,6 +44,24 @@
                     border-right-color: desaturate($color-helpful, 50%);
                 }
             }
+        }
+    }
+
+    &.hidden-by-someone {
+        .message {
+            &,
+            .is-author {
+                background: #EEE;
+            }
+            &:after {
+                border-right-color: #EEE;
+            }
+        }
+        .user .avatar-link img {
+            opacity: 0.8;
+        }
+        & + .pagination, & + .alert-box {
+            margin-top: 25px;
         }
     }
 

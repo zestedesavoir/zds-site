@@ -146,6 +146,45 @@ class PrivateTopic(models.Model):
         except (PrivatePost.DoesNotExist, PrivateTopicRead.DoesNotExist):
             return self.first_post()
 
+    def resolve_last_read_post_absolute_url(self, user=None):
+        """resolve the url that leads to the last post the current user has read.
+
+        :return: the url
+        :rtype: str
+        """
+        if user is None:
+            user = get_current_user()
+
+        try:
+            pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
+            page_nb = 1
+            if pos > settings.ZDS_APP['forum']['posts_per_page']:
+                page_nb += (pos - 1) // settings.ZDS_APP['forum']['posts_per_page']
+            return '{}?page={}#p{}'.format(self.get_absolute_url(), page_nb, pk)
+        except PrivateTopicRead.DoesNotExist:
+            return self.first_unread_post().get_absolute_url()
+
+    def resolve_last_post_pk_and_pos_read_by_user(self, user):
+        """Determine the primary ey of position of the last post read by a user.
+
+        :param user: the current (authenticated) user. Please do not try with unauthenticated user, il would lead to a \
+        useless request.
+        :return: the primary key
+        :rtype: int
+        """
+        t_read = PrivateTopicRead.objects \
+            .select_related('privatepost') \
+            .filter(privatetopic__pk=self.pk, user__pk=user.pk) \
+            .latest('privatepost__position_in_topic')
+        if t_read:
+            return t_read.privatepost.pk, t_read.privatepost.position_in_topic
+        return list(
+            PrivatePost.objects
+            .filter(topic__pk=self.pk)
+            .order_by('position')
+            .values('pk', 'position').first().values()
+        )
+
     def alone(self):
         """
         Check if there just one participant in the conversation (PrivateTopic).

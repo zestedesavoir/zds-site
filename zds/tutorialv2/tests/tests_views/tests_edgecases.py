@@ -47,7 +47,7 @@ class ContentTests(TutorialTestMixin, TestCase):
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': opinion.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=False)
         self.assertEqual(result.status_code, 302)
@@ -66,7 +66,7 @@ class ContentTests(TutorialTestMixin, TestCase):
                 'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': article.load_version().compute_hash(),
-                'image': open('{}/fixtures/logo.png'.format(settings.BASE_DIR), 'rb')
+                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
             },
             follow=True)
         self.assertEqual(200, result.status_code)

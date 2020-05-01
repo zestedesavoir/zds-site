@@ -58,7 +58,7 @@ Ici, les différents choses que vous pouvez faire, sont :
   .. figure:: ../images/forum/edit_modo.png
      :align:   center
 
--   **Signaler** : cela permet d'envoyer une demande d'intervention à l'équipe de modération du site. Ce bouton n'est pas un résultant de votre rang, tous les membres le possèdent. Cependant, signaler un message masqué n'est pas possible, sauf pour les modérateurs.
+-   **Signaler** : cela permet d'envoyer une demande d'intervention à l'équipe de modération du site. Ce bouton est accessible à tous les membres, qu'ils soient modérateurs ou simples membres.
 -   **Citer** : permet de citer un message lors de la rédaction d'une réponse. Ce bouton n'est pas un résultant de votre rang.
 
 Les filtres sur les sujets

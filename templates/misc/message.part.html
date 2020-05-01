@@ -14,13 +14,19 @@
     {% set False as is_author %}
 {% endif %}
 
-
+{% ifchanged %}
+{% if not message.is_visible %}
+    <div class="msg-are-hidden hidden" aria-hidden="true"><a class="link" href="#show">{% trans "Un ou plusieurs messages ont été masqués" %}</a></div>
+{% endif %}
+{% endifchanged %}
 
 <article
     class="topic-message
-
            {% if message.is_useful and message.is_visible %}helpful{% endif %}
-           {% if is_repeated_message %}repeated{% endif %}"
+           {% if is_repeated_message %}repeated{% endif %}
+           {% if not message.is_visible %}hidden-by-someone{% endif %}"
+
+    {% if not message.is_visible %}aria-hidden="true"{% endif %}
 
     {% if comment_schema %}
         itemscope
@@ -122,24 +128,21 @@
                     {% endif %}
                 {% endif %}
                 {% if not is_mp %}
-                    {% if message.is_visible != False or perms_change %}
-                        <li>
-                            <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
+                    <li>
+                        <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
+                            {% trans "Signaler" %}
+                        </a>
+                        <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
+                            {% csrf_token %}
+                            <label for="signal-message-{{ message.id }}-field">
+                                {% trans "Pour quelle raison signalez-vous ce message ?" %}
+                            </label>
+                            <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
+                            <button type="submit" name="signal_message">
                                 {% trans "Signaler" %}
-                            </a>
-                            <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
-                                {% csrf_token %}
-                                <label for="signal-message-{{ message.id }}-field">
-                                    {% trans "Pour quelle raison signalez-vous ce message ?" %}
-                                </label>
-                                <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
-
-                                <button type="submit" name="signal_message">
-                                    {% trans "Signaler" %}
-                                </button>
-                            </form>
-                        </li>
-                    {% endif %}
+                            </button>
+                        </form>
+                    </li>
                 {% endif %}
             </ul>
         {% endif %}

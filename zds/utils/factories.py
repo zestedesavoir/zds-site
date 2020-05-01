@@ -26,7 +26,7 @@ class HelpWritingFactory(factory.DjangoModelFactory):
             image_path = join(settings.BASE_DIR, 'fixtures', fixture_image_path)
 
         if image_path is not None:
-            copyfile(image_path, join(settings.MEDIA_ROOT, basename(image_path)))
+            copyfile(image_path, settings.MEDIA_ROOT / basename(image_path))
             help_writing.image = basename(image_path)
             help_writing.save()
 

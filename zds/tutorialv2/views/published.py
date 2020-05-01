@@ -161,10 +161,12 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
         context['subscriber_count'] = ContentReactionAnswerSubscription.objects.get_subscriptions(self.object).count()
         # We need reading time expressed in minutes
         try:
-            context['reading_time'] = int(
-                self.versioned_object.get_tree_level() * self.object.public_version.char_count /
-                settings.ZDS_APP['content']['characters_per_minute']
-            )
+            char_count = self.object.public_version.char_count
+            if char_count:
+                context['reading_time'] = int(
+                    self.versioned_object.get_tree_level() * char_count /
+                    settings.ZDS_APP['content']['characters_per_minute']
+                )
         except ZeroDivisionError as e:
             logger.warning('could not compute reading time: setting characters_per_minute is set to zero (error=%s)', e)
 
@@ -1090,10 +1092,10 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = 'tutorialv2/stats/index.html'
     form_class = ContentCompareStatsURLForm
     urls = []
-    CACHE_PATH = os.path.join(settings.BASE_DIR, '.ga-api-cache')
+    CACHE_PATH = str(settings.BASE_DIR / '.ga-api-cache')
     SCOPES = ['https://www.googleapis.com/auth/analytics.readonly']
     DISCOVERY_URI = 'https://analyticsreporting.googleapis.com/$discovery/rest'
-    CLIENT_SECRETS_PATH = os.path.join(settings.BASE_DIR, 'api_analytics_secrets.json')
+    CLIENT_SECRETS_PATH = str(settings.BASE_DIR / 'api_analytics_secrets.json')
     VIEW_ID = settings.ZDS_APP['stats_ga_viewid']
 
     def post(self, request, *args, **kwargs):

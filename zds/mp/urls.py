@@ -2,7 +2,7 @@ from django.urls import re_path
 
 from zds.mp.views import PrivateTopicList, PrivatePostList, PrivateTopicNew, PrivateTopicAddParticipant, \
     PrivateTopicLeaveDetail, PrivateTopicLeaveList, \
-    PrivatePostAnswer, PrivatePostEdit, PrivateTopicEdit
+    PrivatePostAnswer, PrivatePostEdit, PrivatePostUnread, PrivateTopicEdit
 
 
 urlpatterns = [
@@ -26,4 +26,5 @@ urlpatterns = [
             PrivatePostAnswer.as_view(), name='private-posts-new'),
     re_path(r'^(?P<topic_pk>\d+)/(?P<topic_slug>.+)/messages/(?P<pk>\d+)/editer/$',
             PrivatePostEdit.as_view(), name='private-posts-edit'),
+    re_path(r'^message/nonlu/$', PrivatePostUnread.as_view(), name='private-post-unread'),
 ]

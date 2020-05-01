@@ -642,9 +642,19 @@
         {
           name: 'switch-contentAreaStyle',
           action: (evt) => {
+            if (easyMDE.isFullscreenActive()) {
+              easyMDE.toggleFullScreen()
+            }
             const wrapper = easyMDE.codemirror.getWrapperElement()
             $(wrapper.parentElement).children('.textarea-multivers').toggle()
             $(wrapper).toggle()
+            // deactivating buttons incompatible with the textarea mode
+            var $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
+            if ($toolbar.hasClass('disabled-for-textarea-mode')) {
+              $toolbar.removeClass('disabled-for-textarea-mode')
+            } else {
+              $toolbar.addClass('disabled-for-textarea-mode')
+            }
             easyMDE.codemirror.refresh()
           },
           className: 'fas fa-broom',
@@ -654,19 +664,19 @@
         {
           name: 'preview',
           action: EasyMDE.togglePreview,
-          className: 'fa fa-eye no-disable',
+          className: 'fa fa-eye no-disable disable-for-textarea-mode',
           title: 'Aperçu'
         },
         {
           name: 'side-by-side',
           action: EasyMDE.toggleSideBySide,
-          className: 'fa fa-columns no-disable no-mobile',
+          className: 'fa fa-columns no-disable no-mobile disable-for-textarea-mode',
           title: 'Aperçu sur le coté'
         },
         {
           name: 'fullscreen',
           action: EasyMDE.toggleFullScreen,
-          className: 'fa fa-arrows-alt no-disable no-mobile',
+          className: 'fa fa-arrows-alt no-disable no-mobile disable-for-textarea-mode',
           title: 'Plein écran'
         }
       ]
@@ -718,7 +728,7 @@
         .appendTo($alertbox)
         .after($hide)
 
-      $alertbox.insertAfter($(this).parent().children('.editor-toolbar'))
+      $(easyMDE.element.parentElement).children('.editor-toolbar').before($alertbox)
     }
 
     window.editors[this.id] = easyMDE
@@ -774,7 +784,7 @@ function mirroringEasyMDE(easyMDE, textarea) {
     }, 12) // <-- after default trigger (I mean after browser trigger)
   })
 
-  $(easyMDE.element.parentElement).children('.CodeMirror').before($twin)
+  $(easyMDE.element.parentElement).children('.editor-statusbar').before($twin)
 
   return $twin
 }

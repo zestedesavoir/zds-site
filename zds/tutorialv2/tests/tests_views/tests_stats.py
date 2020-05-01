@@ -1,5 +1,4 @@
 import datetime
-import os
 from copy import deepcopy
 from random import randint, uniform, shuffle
 
@@ -15,11 +14,9 @@ from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory
 from zds.tutorialv2.models.database import Validation, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin
 
-BASE_DIR = settings.BASE_DIR
-
 overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = os.path.join(BASE_DIR, 'contents-private-test')
-overridden_zds_app['content']['repo_public_path'] = os.path.join(BASE_DIR, 'contents-public-test')
+overridden_zds_app['content']['repo_private_path'] = settings.BASE_DIR / 'contents-private-test'
+overridden_zds_app['content']['repo_public_path'] = settings.BASE_DIR / 'contents-public-test'
 overridden_zds_app['content']['extra_content_generation_policy'] = 'SYNC'
 
 
@@ -191,7 +188,7 @@ def fake_config_ga_credentials(view):
     return MockGAService()
 
 
-@override_settings(MEDIA_ROOT=os.path.join(BASE_DIR, 'media-test'))
+@override_settings(MEDIA_ROOT=settings.BASE_DIR / 'media-test')
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
 class StatTests(TestCase, TutorialTestMixin):

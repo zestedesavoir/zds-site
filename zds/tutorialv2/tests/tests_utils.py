@@ -261,14 +261,13 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
     def test_update_manifest(self):
         opts = {}
-        shutil.copy(
-            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest.json'),
-            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')
-        )
+        path_manifest1 = settings.BASE_DIR / 'fixtures' / 'tuto' / 'balise_audio' / 'manifest.json'
+        path_manifest2 = settings.BASE_DIR / 'fixtures' / 'tuto' / 'balise_audio' / 'manifest2.json'
+        args = [str(path_manifest2)]
+        shutil.copy(path_manifest1, path_manifest2)
         LicenceFactory(code='CC BY')
-        args = [os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json')]
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'balise_audio', 'manifest2.json'), 'r')
+        manifest = path_manifest2.open('r')
         json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)
@@ -277,13 +276,12 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(json['children']), 3)
         self.assertEqual(json['children'][0]['object'], 'extract')
         os.unlink(args[0])
-        args = [os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')]
-        shutil.copy(
-            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest.json'),
-            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json')
-        )
+        path_manifest1 = settings.BASE_DIR / 'fixtures' / 'tuto' / 'big_tuto_v1' / 'manifest.json'
+        path_manifest2 = settings.BASE_DIR / 'fixtures' / 'tuto' / 'big_tuto_v1' / 'manifest2.json'
+        args = [str(path_manifest2)]
+        shutil.copy(path_manifest1, path_manifest2)
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'big_tuto_v1', 'manifest2.json'), 'r')
+        manifest = path_manifest2.open('r')
         json = json_handler.loads(manifest.read())
         os.unlink(args[0])
         self.assertTrue('version' in json)
@@ -293,13 +291,12 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(json['children'][0]['object'], 'container')
         self.assertEqual(len(json['children'][0]['children']), 3)
         self.assertEqual(len(json['children'][0]['children'][0]['children']), 3)
-        args = [os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')]
-        shutil.copy(
-            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest.json'),
-            os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json')
-        )
+        path_manifest1 = settings.BASE_DIR / 'fixtures' / 'tuto' / 'article_v1' / 'manifest.json'
+        path_manifest2 = settings.BASE_DIR / 'fixtures' / 'tuto' / 'article_v1' / 'manifest2.json'
+        args = [path_manifest2]
+        shutil.copy(path_manifest1, path_manifest2)
         call_command('upgrade_manifest_to_v2', *args, **opts)
-        manifest = open(os.path.join(settings.BASE_DIR, 'fixtures', 'tuto', 'article_v1', 'manifest2.json'), 'r')
+        manifest = path_manifest2.open('r')
         json = json_handler.loads(manifest.read())
 
         self.assertTrue('version' in json)

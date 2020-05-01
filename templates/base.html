@@ -162,6 +162,17 @@
 
 
     <div class="page-container">
+        {% with banner=app.very_top_banner %}
+            {% if banner %}
+                <div id="very-top-banner"
+                     style="background-color: {{ banner.background_color }}; color: {{ banner.color }}; border-color: {{ banner.border_color }};"
+                >
+                    <span>{{ banner.message }}</span>
+                    <a aria-hidden="true" href="javascript:document.querySelector('#very-top-banner').remove()">Masquer</a>
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <ul id="accessibility">
             <li>
                 <a href="#menu">{% trans "Aller au menu" %}</a>
