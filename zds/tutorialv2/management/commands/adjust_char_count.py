@@ -1,5 +1,3 @@
-import logging
-
 from django.core.management.base import BaseCommand
 
 from zds.tutorialv2.models.database import PublishedContent
@@ -25,7 +23,7 @@ class Command(BaseCommand):
             query = PublishedContent.objects.filter(must_redirect=False)
 
         for content in query:
-            logging.error('ids = ' + str(content))
+            self.stdout.write('Processing « {} »...'.format(content.title()))
             content.char_count = content.get_char_count()
             content.save()
-            logging.info('content %s got %d letters', content.title(), content.char_count)
+            self.stdout.write('  It got {} letters.'.format(content.char_count))
