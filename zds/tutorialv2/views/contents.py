@@ -15,7 +15,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -1183,7 +1183,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
         self.success_url = parent.children[-1].get_absolute_url()
         if self.request.is_ajax():
-            return HttpResponse(json.dumps({
+            return HttpResponse(json_handler.dumps({
                 'url': parent.children[-1].get_absolute_url(),
                 'slug': parent.children[-1].slug,
                 'title': form.cleaned_data['title'],
