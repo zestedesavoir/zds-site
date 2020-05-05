@@ -281,20 +281,6 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    licence = forms.ModelChoiceField(
-        label=(
-            _('Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
-            .format(
-                settings.ZDS_APP['site']['licenses']['licence_info_title'],
-                settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['literal_name'],
-            )
-        ),
-        queryset=Licence.objects.order_by('title').all(),
-        required=False,
-        empty_label=_('Choisir une licence')
-    )
-
     helps = forms.ModelMultipleChoiceField(
         label=_("Pour m'aider, je cherche un..."),
         queryset=HelpWriting.objects.all(),
@@ -328,7 +314,6 @@ class ContentForm(ContainerForm):
             HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
             Field('last_hash'),
-            Field('licence'),
             Field('subcategory', template='crispy/checkboxselectmultiple.html'),
         )
 
@@ -365,6 +350,55 @@ class ContentForm(ContainerForm):
         if not validator.validate_raw_string(cleaned_data.get('tags')):
             self._errors['tags'] = self.error_class(validator.errors)
         return cleaned_data
+
+
+class EditContentLicenseForm(forms.Form):
+    license = forms.ModelChoiceField(
+        label=_('Licence de votre publication : '),
+        queryset=Licence.objects.order_by('title').all(),
+        required=True,
+        empty_label=_('Choisir une licence'),
+        error_messages={'required': _('Merci de choisir une licence.'),
+                        'invalid_choice': _('Merci de choisir une licence valide dans la liste.')}
+    )
+
+    update_preferred_license = forms.BooleanField(
+        label=_('Je souhaite utiliser cette licence comme choix par défaut pour mes futures publications.'),
+        required=False
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'edit-license'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_action = reverse('content:edit-license', kwargs={'pk': content.pk})
+        self.previous_page_url = reverse('content:view',
+                                         kwargs={'pk': content.pk, 'slug': content.slug})
+        self._create_layout()
+
+        if 'type' in self.initial:
+            self.helper['type'].wrap(
+                Field,
+                disabled=True)
+
+    def _create_layout(self):
+        self.helper.layout = Layout(
+            HTML("""<p>{0} encourage l'utilisation de licences facilitant le partage,
+                    telles que les licences <a href="https://creativecommons.org/">Creative Commons</a>.</p>
+                    <p>Pour choisir la licence de votre publication, aidez-vous de la
+                    <a href="{1}" alt="{2}">présentation
+                    des différentes licences proposées sur le site</a>.</p>"""
+                 .format(settings.ZDS_APP['site']['literal_name'],
+                         settings.ZDS_APP['site']['licenses']['licence_info_title'],
+                         settings.ZDS_APP['site']['licenses']['licence_info_link'])),
+            Field('license'),
+            Field('update_preferred_license'),
+            ButtonHolder(StrictButton('Valider', type='submit'))
+        )
 
 
 class ExtractForm(FormWithTitle):
@@ -698,12 +732,20 @@ class AskValidationForm(forms.Form):
         self.helper.form_id = 'ask-validation'
 
         self.no_subcategories = content.subcategory.count() == 0
-        no_category_msg = HTML(_("""<p><strong>Votre contenu n'est dans aucune catégorie.
-                                    Vous devez choisir une catégorie avant de demander la validation !</strong></p>
-                                 """))
+        no_category_msg = HTML(_("""<p><strong>Votre publication n'est dans aucune catégorie.
+                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    avant de demander la validation.</strong></p>"""
+                                 .format(reverse('content:edit', kwargs={'pk': content.pk, 'slug': content.slug}),
+                                         'div_id_subcategory')))
+
+        self.no_license = not content.licence
+        no_license_msg = HTML(_("""<p><strong>Vous n'avez pas choisi de licence pour votre publication.
+                                   Vous devez <a href="#edit-license" class="open-modal">choisir une licence</a>
+                                   avant de demander la validation.</strong></p>"""))
+
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
-            HTML(_('<p>Pensez à vérifier la licence de votre contenu avant de demander la validation.</p>')),
+            no_license_msg if self.no_license else None,
             Field('text'),
             Field('source'),
             Field('version'),
@@ -717,21 +759,23 @@ class AskValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
+        base_error_msg = "La validation n'a pas été demandée. "
+
         if text is None or not text.strip():
-            self._errors['text'] = self.error_class(
-                [_('Vous devez fournir un commentaire aux validateurs.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
+            error = [_(base_error_msg + 'Vous devez fournir un commentaire aux validateurs.')]
+            self.add_error(field='text', error=error)
 
         elif len(text) < 3:
-            self._errors['text'] = self.error_class(
-                [_('Votre commentaire doit faire au moins 3 caractères.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
+            error = _(base_error_msg + 'Votre commentaire doit faire au moins 3 caractères.')
+            self.add_error(field='text', error=error)
 
         if self.no_subcategories:
-            self._errors['no_subcategories'] = self.error_class(
-                [_('Vous devez spécifier une catégorie pour votre publication.')])
+            error = [_(base_error_msg + 'Vous devez choisir au moins une catégorie pour votre publication.')]
+            self.add_error(field=None, error=error)
+
+        if self.no_license:
+            error = [_(base_error_msg + 'Vous devez choisir une licence pour votre publication.')]
+            self.add_error(field=None, error=error)
 
         return cleaned_data
 
@@ -1169,13 +1213,21 @@ class PublicationForm(forms.Form):
         self.helper.form_id = 'valid-publication'
 
         self.no_subcategories = content.subcategory.count() == 0
-        no_category_msg = HTML(_("""<p><strong>Votre billet n'est dans aucune catégorie.
-                                    Vous devez choisir une catégorie avant de le publier !</strong></p>
-                                 """))
+        no_category_msg = HTML(_("""<p><strong>Votre publication n'est dans aucune catégorie.
+                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    avant de demander la validation.</strong></p>"""
+                                 .format(reverse('content:edit', kwargs={'pk': content.pk, 'slug': content.slug}),
+                                         'div_id_subcategory')))
+
+        self.no_license = not content.licence
+        no_license_msg = HTML(_("""<p><strong>Vous n'avez pas choisi de licence pour votre publication.
+                                   Vous devez <a href="{}">choisir une licence</a>
+                                   avant de demander la validation.</strong></p>"""
+                                .format('#edit-license')))
 
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
-            HTML(_('<p>Pensez à vérifier la licence de votre billet avant de le publier.</p>')),
+            no_license_msg if self.no_license else None,
             Field('source'),
             HTML(_("<p>Ce billet sera publié directement et n'engage que vous.</p>")),
             StrictButton(_('Publier'), type='submit')
@@ -1184,9 +1236,15 @@ class PublicationForm(forms.Form):
     def clean(self):
         cleaned_data = super(PublicationForm, self).clean()
 
+        base_error_msg = "La publication n'a pas été effectuée. "
+
         if self.no_subcategories:
-            self._errors['no_subcategories'] = self.error_class(
-                [_('Vous devez spécifier une catégorie pour votre publication.')])
+            error = _(base_error_msg + 'Vous devez choisir au moins une catégorie pour votre publication.')
+            self.add_error(field=None, error=error)
+
+        if self.no_license:
+            error = _(base_error_msg + 'Vous devez choisir une licence pour votre publication.')
+            self.add_error(field=None, error=error)
 
         return cleaned_data
 

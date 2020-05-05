@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.webdriver import WebDriver
 from django.test import tag
 from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import Select, WebDriverWait
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.action_chains import ActionChains
 
@@ -159,8 +159,6 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         WebDriverWait(self.selenium, 10).until(ec.element_to_be_clickable(
             (By.CSS_SELECTOR, 'input[type=checkbox][name=subcategory]')
         )).click()
-        license_select = Select(find_element('#id_licence'))
-        license_select.select_by_index(len(license_select.options) - 1)
 
         find_element('#id_title').send_keys('Oulipo')
 
