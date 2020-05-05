@@ -1,7 +1,7 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditContent,
+from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditContent, EditContentLicense,
                                            DeleteContent, CreateContainer, DisplayContainer, EditContainer,
                                            CreateExtract, EditExtract,
                                            DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff,
@@ -156,6 +156,10 @@ urlpatterns = [
             AddAuthorToContent.as_view(), name='add-author'),
     re_path(r'^enlever-auteur/(?P<pk>\d+)/$',
             RemoveAuthorFromContent.as_view(), name='remove-author'),
+
+    # Modify the license
+    re_path(r'^modifier-licence/(?P<pk>\d+)/$', EditContentLicense.as_view(), name='edit-license'),
+
     # beta:
     re_path(r'^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='set'),
             name='set-beta'),

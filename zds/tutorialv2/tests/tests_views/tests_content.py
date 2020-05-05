@@ -306,9 +306,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         result_string = ''.join(a.decode() for a in result.streaming_content)
         self.assertIn('<strong>markdown</strong>', result_string, 'We need the text to be properly formatted')
 
-        # edit tutorial:
-        new_licence = LicenceFactory()
-
         result = self.client.post(
             reverse('content:edit', args=[pk, slug]),
             {
@@ -317,7 +314,6 @@ class ContentTests(TutorialTestMixin, TestCase):
                 'introduction': random,
                 'conclusion': random,
                 'type': 'TUTORIAL',
-                'licence': new_licence.pk,
                 'subcategory': self.subcategory.pk,
                 'last_hash': versioned.compute_hash(),
                 'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
@@ -330,12 +326,12 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=pk)
         self.assertEqual(tuto.title, random)
         self.assertEqual(tuto.description, random)
-        self.assertEqual(tuto.licence.pk, new_licence.pk)
+        self.assertEqual(tuto.licence, None)
         versioned = tuto.load_version()
         self.assertEqual(versioned.get_introduction(), random)
         self.assertEqual(versioned.get_conclusion(), random)
         self.assertEqual(versioned.description, random)
-        self.assertEqual(versioned.licence.pk, new_licence.pk)
+        self.assertEqual(versioned.licence, None)
         self.assertNotEqual(versioned.slug, slug)
 
         slug = tuto.slug  # make the title change also change the slug !!
@@ -1517,7 +1513,6 @@ class ContentTests(TutorialTestMixin, TestCase):
                 'introduction': some_text,
                 'conclusion': some_text,
                 'type': 'TUTORIAL',
-                'licence': self.licence.pk,
                 'subcategory': self.subcategory.pk,
             },
             follow=False)

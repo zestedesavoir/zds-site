@@ -24,8 +24,14 @@
     {% if content.licence %}
         <p class="license">
             {{ content.licence }}
+            <a href="#edit-license" class="open-modal">{% trans "Modifier la licence" %}</a>
+        </p>
+    {% else %}
+        <p class="license">
+            <a href="#edit-license" class="open-modal">Choisissez la licence de votre publication !</a>
         </p>
     {% endif %}
+    {% crispy form_edit_license %}
 
     <h1 {% if content.image %}class="illu"{% endif %}>
         {% if content.image %}
