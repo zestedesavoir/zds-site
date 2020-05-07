@@ -1716,11 +1716,11 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                 logger.debug('{} was moved down in tutorial id:{}'.format(child_slug, content.pk))
             elif form.data['moving_method'][0:len(MoveElementForm.MOVE_FIRST)] == MoveElementForm.MOVE_FIRST:
                 target = form.data['moving_method'][len(MoveElementForm.MOVE_FIRST) + 1:]
-                if not parent.has_child_with_path(target):
-                    if '/' not in target:
-                        target_parent = versioned
-                    else:
-                        target_parent = search_container_or_404(versioned, '/'.join(target.split('/')[:-1]))
+                if '/' not in target:
+                    target_parent = versioned
+                else:
+                    target_parent = search_container_or_404(versioned, '/'.join(target.split('/')[:-1]))
+                if not target_parent.has_child_with_path(target):
                     try_adopt_new_child(target_parent, child)
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
