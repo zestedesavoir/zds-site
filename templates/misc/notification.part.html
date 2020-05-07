@@ -34,6 +34,16 @@
                     </a>
                 </li>
             {% endfor %}
+            <template>
+                <li>
+                    <a href="{{ element.url }}">
+                        <img src="" alt="" class="avatar">
+                        <span class="username"></span>
+                        <span class="date"></span>
+                        <span class="topic"></span>
+                    </a>
+                </li>
+            </template>
 
             {% if elements.total == 0 %}
                 <li class="dropdown-empty-message">
