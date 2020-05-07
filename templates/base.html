@@ -267,8 +267,9 @@
 
 
     {# Javascript stuff start #}
+    <script src="{% static "js/jquery.min.js" %}"></script>
+    <script src="{% static "js/easymde.min.js" %}"></script>
     <script src="{% static "js/script.js" %}"></script>
-
     {% block extra_js %}
     {% endblock %}
 
@@ -276,6 +277,7 @@
 
     {# Google Analytics #}
     {% if debug or app.google_analytics_enabled %}
+    <script src="{% static "js/cookies-eu-banner.min.js" %}"></script>
     <script>
         new CookiesEuBanner(function(){
             {% if app.google_analytics_enabled %}
