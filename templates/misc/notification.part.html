@@ -1,0 +1,48 @@
+{% load date %}
+{% load i18n %}
+{% load remove_url_scheme %}
+
+<div>
+    <a href="{% url url %}" class="ico-link" title="{% trans url_title %}">
+        <span class="notif-count {% if elements.total == 0 %}hidden{% endif %}"
+        >{{ elements.total }}</span>
+        <span class="notif-text ico ico-{{ icon }}">{% trans url_title %}</span>
+    </a>
+
+    <div class="dropdown {% if url == "pages-alerts" %}staff-only{% endif %}">
+        <span class="dropdown-title {% if url == "mp-list" %}dropdown-pm{% endif %}">
+            {% trans url_title %}
+            {% if url == "mp-list" %}
+                    <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
+            {% endif %}
+        </span>
+
+        <ul class="dropdown-list">
+            {% for element in elements.list %}
+                <li>
+                    <a href="{{ element.url }}">
+                        {% if url == "pages-alerts" %}
+                            <span class="username">{{ element.title }}</span>
+                            <span class="date">{{ element.pubdate|format_date:True|capfirst }}</span>
+                            <span class="topic">{{ element.text }}</span>
+                        {% else %}
+                            <img src="{{ element.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                            <span class="username">{{ element.author.username }}</span>
+                            <span class="date">{{ element.pubdate|format_date:True|capfirst }}</span>
+                            <span class="topic">{{ element.title }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+
+            {% if elements.total == 0 %}
+                <li class="dropdown-empty-message">
+                    {% trans empty_message %}
+                </li>
+            {% endif %}
+        </ul>
+        <a href="{% url url %}" class="dropdown-link-all">
+            {% trans see_all %}
+        </a>
+    </div>
+</div>
