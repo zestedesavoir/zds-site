@@ -4,7 +4,7 @@
 
 <div>
     <a href="{% url url %}" class="ico-link" title="{% trans url_title %}">
-        <span class="notif-count {% if elements.total == 0 %}hidden{% endif %}"
+        <span class="notif-count{% if elements.total == 0 %} hidden{% endif %}"
         >{{ elements.total }}</span>
         <span class="notif-text ico ico-{{ icon }}">{% trans url_title %}</span>
     </a>
