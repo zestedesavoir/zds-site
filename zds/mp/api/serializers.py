@@ -29,13 +29,16 @@ class PrivateTopicSerializer(ZdSModelSerializer):
     """
     Serializers of a private topic object.
     """
+    author = UserListSerializer()
     permissions = DRYPermissionsField()
+    participants = UserListSerializer(many=True)
+    is_read = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = PrivateTopic
         fields = '__all__'
-        serializers = (PrivatePostSerializer, UserListSerializer,)
-        read_only_fields = ('permissions',)
+        serializers = (PrivatePostSerializer,)
+        read_only_fields = ('permissions','permissions5','is_read',)
 
 
 class PrivateTopicCreateSerializer(serializers.ModelSerializer, TitleValidator, TextValidator,

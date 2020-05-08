@@ -209,6 +209,9 @@ class PrivateTopic(models.Model):
 
         return is_privatetopic_unread(self, user)
 
+    def is_read(self, user=None):
+        return not self.is_unread(user)
+
     def is_author(self, user):
         """
         Check if the user given is the author of the private topic.

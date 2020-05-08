@@ -103,7 +103,7 @@ if (fix) {
 // Lints the JS source files
 
 function jsLint() {
-  return gulp.src(['assets/js/*.js', 'Gulpfile.js', '!assets/js/editor-old.js'], { base: '.' })
+  return gulp.src(['assets/js/**/*.js', 'Gulpfile.js', '!assets/js/editor-old.js'], { base: '.' })
     .pipe(eslint(eslintOptions))
     .pipe(eslint.format())
     .pipe(gulp.dest('.'))
@@ -123,7 +123,7 @@ function js() {
     'assets/js/modal.js',
     'assets/js/tooltips.js',
     // All the scripts
-    'assets/js/*.js'
+    'assets/js/**/*.js'
   ], { base: '.', sourcemaps: true })
     .pipe(gulpif(!fast, terser())) // Minifies the JS
     .on('error', function(error) {
@@ -189,7 +189,7 @@ function clean() {
 
 // Watch for file changes
 function watch() {
-  gulp.watch('assets/js/*.js', js)
+  gulp.watch('assets/js/**/*.js', js)
   gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images)
   gulp.watch(['assets/scss/**/*.scss'], css)
   gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(spriteCss, gulp.parallel(css, spriteImages)))

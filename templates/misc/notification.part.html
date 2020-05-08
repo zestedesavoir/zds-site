@@ -9,8 +9,8 @@
         <span class="notif-text ico ico-{{ icon }}">{% trans url_title %}</span>
     </a>
 
-    <div class="dropdown {% if url == "pages-alerts" %}staff-only{% endif %}">
-        <span class="dropdown-title {% if url == "mp-list" %}dropdown-pm{% endif %}">
+    <div class="dropdown{% if url == "pages-alerts" %} staff-only{% endif %}">
+        <span class="dropdown-title{% if url == "mp-list" %} dropdown-pm{% endif %}">
             {% trans url_title %}
             {% if url == "mp-list" %}
                     <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
@@ -19,31 +19,38 @@
 
         <ul class="dropdown-list">
             {% for element in elements.list %}
-                <li>
+                <li data-uniqid="{{ element.id }}">
                     <a href="{{ element.url }}">
                         {% if url == "pages-alerts" %}
                             <span class="username">{{ element.title }}</span>
                             <span class="date">{{ element.pubdate|format_date:True|capfirst }}</span>
                             <span class="topic">{{ element.text }}</span>
                         {% else %}
-                            <img src="{{ element.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                            <span class="username">{{ element.author.username }}</span>
+                            <img src="{{ element.sender.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar" />
+                            <span class="username">{{ element.sender.username }}</span>
                             <span class="date">{{ element.pubdate|format_date:True|capfirst }}</span>
                             <span class="topic">{{ element.title }}</span>
                         {% endif %}
                     </a>
                 </li>
             {% endfor %}
-            <template>
-                <li>
-                    <a href="{{ element.url }}">
-                        <img src="" alt="" class="avatar">
-                        <span class="username"></span>
-                        <span class="date"></span>
-                        <span class="topic"></span>
-                    </a>
-                </li>
-            </template>
+
+            {% if url != "pages-alerts" %}
+                <template tpl-request="{{ elements.api.url }}" tpl-next tpl-type="child" tpl-if="!is_read" tpl-interval="5">
+                    <li tpl-uniqid="id">
+                        <a tpl-attr-href="url">
+                            <img alt="" class="avatar"
+                                tpl-attr-src="{{ elements.api.sender }}.avatar_url"
+                                tpl-attr-src-filter="remove_url_scheme" />
+                            <span class="username" tpl-content="{{ elements.api.sender }}.username"></span>
+                            <span class="date"
+                                tpl-content="pubdate"
+                                tpl-content-filter="format_date:True|capfirst"></span>
+                            <span class="topic" tpl-content="title"></span>
+                        </a>
+                    </li>
+                </template>
+            {% endif %}
 
             {% if elements.total == 0 %}
                 <li class="dropdown-empty-message">

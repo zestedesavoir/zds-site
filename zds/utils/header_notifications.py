@@ -16,8 +16,9 @@ def _notifications_to_list(notifications_query):
 
     return [
         {
+            'id': n.id,
             'pubdate': n.pubdate,
-            'author': n.sender,
+            'sender': n.sender,
             'title': n.title,
             'url': n.url
         } for n in query
@@ -46,7 +47,7 @@ def _alert_to_dict(alert):
         'title': title,
         'url': url,
         'pubdate': alert.pubdate,
-        'author': alert.author,
+        'sender': alert.author,
         'text': alert.text
     }
 
@@ -78,10 +79,18 @@ def get_header_notifications(user):
 
     return {
         'general_notifications': {
+            'api': {
+                'url': '/api/notifications/',
+                'sender': 'sender',
+            },
             'total': general_notifications.count(),
             'list': _notifications_to_list(general_notifications),
         },
         'private_topic_notifications': {
+            'api': {
+                'url': '/api/mps/',
+                'sender': 'author',
+            },
             'total': private_notifications.count(),
             'list': _notifications_to_list(private_notifications),
         },
