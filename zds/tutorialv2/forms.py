@@ -15,7 +15,7 @@ from zds.tutorialv2.models.database import PublishableContent, ContentContributi
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
-from zds.utils.forms import TagValidator
+from zds.utils.forms import TagValidator, IncludeEasyMDE
 
 
 class FormWithTitle(forms.Form):
@@ -222,6 +222,7 @@ class ContainerForm(FormWithTitle):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
+            IncludeEasyMDE(),
             Field('title'),
             Field('introduction', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
@@ -310,6 +311,7 @@ class ContentForm(ContainerForm):
                            "alt=\"aider les auteurs\">la page d'aide</a>.</p>"))
 
         self.helper.layout = Layout(
+            IncludeEasyMDE(),
             Field('title'),
             Field('description'),
             Field('tags'),

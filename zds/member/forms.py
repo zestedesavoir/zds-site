@@ -14,6 +14,7 @@ from crispy_forms.layout import HTML, Layout, \
 from zds.member.models import Profile, KarmaNote, BannedEmailProvider
 from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username, validate_passwords, \
     validate_zds_password, validate_raw_zds_username
+from zds.utils.forms import IncludeEasyMDE
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Licence, HatRequest, Hat
 from zds.utils import get_current_user
@@ -195,6 +196,7 @@ class MiniProfileForm(forms.Form):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
+            IncludeEasyMDE(),
             Field('biography'),
             Field('site'),
             Field('avatar_url'),
@@ -671,6 +673,7 @@ class HatRequestForm(forms.ModelForm):
         self.helper.form_action = '{}#send-request'.format(reverse('hats-settings'))
 
         self.helper.layout = Layout(
+            IncludeEasyMDE(),
             Field('hat'),
             Field('reason'),
             ButtonHolder(

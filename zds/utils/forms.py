@@ -8,10 +8,21 @@ from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
 
 
+class IncludeEasyMDE(Layout):
+    """Include EasyMDE JS File for this form"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            HTML('{% include "easymde.html" %}'),
+            *args, **kwargs
+        )
+
+
 class CommonLayoutEditor(Layout):
 
     def __init__(self, *args, **kwargs):
         super(CommonLayoutEditor, self).__init__(
+            IncludeEasyMDE(),
             Field('text', css_class='md-editor mini-editor'),
             HTML("<div class='message-bottom'>"),
             HTML("<div class='message-submit'>"),
@@ -36,6 +47,7 @@ class CommonLayoutVersionEditor(Layout):
     def __init__(self, *args, **kwargs):
         super(CommonLayoutVersionEditor, self).__init__(
             Div(
+                IncludeEasyMDE(),
                 Field('text', css_class='md-editor'),
                 Field('msg_commit'),
                 ButtonHolder(
