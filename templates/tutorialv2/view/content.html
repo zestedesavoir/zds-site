@@ -714,9 +714,9 @@
             {% for help in helps %}
                 <li>
                     <a href="{% url 'content:helps-change' content.pk %}"
-                       class="help-toogle {% if help.pk in content_helps %}help-activated{% endif %}"
+                       class="help-toogle {% if help.pk in content_helps %}help-activated{% endif %} help-{{ help.slug }}"
                        data-activated="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
-                        <img src="{{ help.image.help_illu.url }}" alt="{{ help.title }}"> {{ help.title }}
+                        {{ help.title }}
                     </a>
                 </li>
             {% endfor %}
