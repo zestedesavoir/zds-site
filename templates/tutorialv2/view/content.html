@@ -708,7 +708,23 @@
     </div>
 
     {% if can_edit and not content.is_opinion %}
-        <h3>{% trans "Demander de l'aide à la communauté" %}</h3>
+        <h3 id="title-help">
+            {% trans "Demander de l'aide" %}
+            <a href="#what-is-a-help" class="help-question-mark open-modal"
+               title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}" aria-haspopup="dialog">?</a>
+        </h3>
+        <div id="what-is-a-help" class="modal modal-flex" data-modal-title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}"
+             data-modal-close="{% trans "Fermer" %}">
+            {% url 'content:helps' as help_url %}
+            {% blocktrans%}
+                <p>
+                    Lorsque vous rédigez un tutoriel ou un article, il se peut que vous ayiez
+                    besoin d'aide. La communauté est là pour vous ! En sélectionnant un des éléments
+                    ci-dessous, votre contenu sera répertorié dans la page <a href="{{ help_url }}">des aides</a>
+                    et la communauté pourra vous contacter.
+                </p>
+            {% endblocktrans %}
+        </div>
         <ul>
             {# HELPS #}
             {% for help in helps %}
