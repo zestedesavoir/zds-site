@@ -70,6 +70,10 @@ class TagValidator(object):
     """
     validate tags
     """
+    error_empty_slug = _("Le tag « {} » n'est constitué que de caractères spéciaux et est donc incorrect.")
+    error_tag_too_long = _('Le tag « {} » est trop long (maximum {} caractères).')
+    error_utf8mb4 = _('Le tag « {} » contient des caractères utf8mb4.')
+
     def __init__(self):
         self.__errors = []
         self.logger = logging.getLogger(__name__)
@@ -96,8 +100,7 @@ class TagValidator(object):
         :return: ``True`` if length is valid
         """
         if len(tag) > Tag._meta.get_field('title').max_length:
-            self.errors.append(_('Le tag {} est trop long (maximum {} caractères)'.format(
-                tag, Tag._meta.get_field('title').max_length)))
+            self.errors.append(TagValidator.error_tag_too_long.format(tag, Tag._meta.get_field('title').max_length))
             self.logger.debug('%s est trop long expected=%d got=%d', tag,
                               Tag._meta.get_field('title').max_length, len(tag))
             return False
@@ -125,8 +128,8 @@ class TagValidator(object):
         :return: ``True`` if no utf8mb4 string is found
         """
         if contains_utf8mb4(tag):
-            self.errors.append(_('Le tag {} contient des caractères utf8mb4').format(tag))
-            self.logger.warn('%s contains utf8mb4 char', tag)
+            self.errors.append(TagValidator.error_utf8mb4.format(tag))
+            self.logger.warning('%s contains utf8mb4 char', tag)
             return False
         return True
 
@@ -138,8 +141,9 @@ class TagValidator(object):
         :return: ``True`` if the tag slug is good
         """
         if not defaultfilters.slugify(tag):
-            self.errors.append(_("Le tag {} n'est constitué que de caractères spéciaux et est donc incorrect"))
-            self.logger.warn('%s bad slug', tag)
+            error = TagValidator.error_empty_slug.format(tag)
+            self.errors.append(error)
+            self.logger.warning('%s bad slug', tag)
             return False
         return True
 

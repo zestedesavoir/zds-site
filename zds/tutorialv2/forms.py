@@ -252,17 +252,6 @@ class ContentForm(ContainerForm):
         required=False,
     )
 
-    tags = forms.CharField(
-        label=_('Tag(s) séparés par une virgule (exemple: python,django,web)'),
-        max_length=64,
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'
-            }
-        )
-    )
-
     image = forms.ImageField(
         label=_('Sélectionnez le logo du contenu (max. {} Ko).').format(
             str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
@@ -312,7 +301,6 @@ class ContentForm(ContainerForm):
             IncludeEasyMDE(),
             Field('title'),
             Field('description'),
-            Field('tags'),
             Field('type'),
             Field('image'),
             Field('introduction', css_class='md-editor preview-source'),
@@ -354,11 +342,46 @@ class ContentForm(ContainerForm):
     def clean(self):
         cleaned_data = super(ContentForm, self).clean()
         image = cleaned_data.get('image', None)
-
         if image is not None and image.size > settings.ZDS_APP['gallery']['image_max_size']:
             self._errors['image'] = self.error_class(
                 [_('Votre logo est trop lourd, la limite autorisée est de {} Ko')
                  .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
+        return cleaned_data
+
+
+class EditContentTagsForm(forms.Form):
+    tags = forms.CharField(
+        label=_('Tags séparés par des virgules (exemple : python,django,web) :'),
+        max_length=64,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'
+            }
+        ),
+        error_messages={'max_length': _('La liste de tags saisie dépasse la longueur maximale autorisée.')}
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'edit-tags'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_action = reverse('content:edit-tags', kwargs={'pk': content.pk})
+        self.helper.layout = Layout(
+            HTML("""<p>Les tags permettent de grouper les publications plus finement que les catégories.
+                    Par exemple, vous pouvez indiquer une technologie ou une sous-discipline.
+                     Consultez <a href="/contenus/tags">la page des tags</a> pour voir des exemples."""),
+            Field('tags'),
+            ButtonHolder(StrictButton('Valider', type='submit'))
+        )
+        self.previous_page_url = reverse('content:view', kwargs={'pk': content.pk, 'slug': content.slug})
+
+    def clean(self):
+        cleaned_data = super(EditContentTagsForm, self).clean()
         validator = TagValidator()
         if not validator.validate_raw_string(cleaned_data.get('tags')):
             self._errors['tags'] = self.error_class(validator.errors)

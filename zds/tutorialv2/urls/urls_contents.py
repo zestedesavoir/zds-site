@@ -11,7 +11,7 @@ from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditCo
                                            RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
                                            ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
                                            RemoveContributorFromContent, ContentOfContributors,
-                                           AddSuggestion, RemoveSuggestion)
+                                           AddSuggestion, RemoveSuggestion, EditContentTags)
 
 from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
                                             HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
@@ -159,6 +159,9 @@ urlpatterns = [
 
     # Modify the license
     re_path(r'^modifier-licence/(?P<pk>\d+)/$', EditContentLicense.as_view(), name='edit-license'),
+
+    # Modify the tags
+    re_path(r'^modifier-tags/(?P<pk>\d+)/$', EditContentTags.as_view(), name='edit-tags'),
 
     # beta:
     re_path(r'^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$', ManageBetaContent.as_view(action='set'),
