@@ -37,7 +37,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
     UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm, \
-    EditContentLicenseForm
+    EditContentLicenseForm, EditContentTagsForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -141,9 +141,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         for helpwriting in form.cleaned_data['helps']:
             self.content.helps.add(helpwriting)
 
-        # Add tags
-        self.content.add_tags(form.cleaned_data['tags'].split(','))
-
         self.content.save(force_slug_update=False)
 
         # create a new repo :
@@ -194,9 +191,13 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['validation'] = validation
         context['formJs'] = form_js
+
         context['form_edit_license'] = EditContentLicenseForm(
             self.versioned_object,
             initial={'license': self.versioned_object.licence})
+
+        initial_tags_field = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
+        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, initial={'tags': initial_tags_field})
 
         if self.versioned_object.requires_validation:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
@@ -283,7 +284,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial['conclusion'] = versioned.get_conclusion()
         initial['source'] = versioned.source
         initial['subcategory'] = self.object.subcategory.all()
-        initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         initial['helps'] = self.object.helps.all()
         initial['last_hash'] = versioned.compute_hash()
 
@@ -359,9 +359,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         for subcat in form.cleaned_data['subcategory']:
             publishable.subcategory.add(subcat)
 
-        publishable.tags.clear()
-        publishable.add_tags(form.cleaned_data['tags'].split(','))
-
         # help can only be obtained on contents requiring validation before publication
         if versioned.requires_validation():
             publishable.helps.clear()
@@ -417,6 +414,30 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
             profile.save()
             messages.success(self.request, EditContentLicense.success_message_profile_update)
 
+        return redirect(form.previous_page_url)
+
+
+class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditContentTagsForm
+    success_message = _('Les tags ont bien été modifiés.')
+
+    def get_form_kwargs(self):
+        kwargs = super(EditContentTags, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def get_initial(self):
+        initial = super(EditContentTags, self).get_initial()
+        initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
+        return initial
+
+    def form_valid(self, form):
+        self.object.tags.clear()
+        self.object.add_tags(form.cleaned_data['tags'].split(','))
+        self.object.save(force_slug_update=False)
+        messages.success(self.request, EditContentTags.success_message)
         return redirect(form.previous_page_url)
 
 
