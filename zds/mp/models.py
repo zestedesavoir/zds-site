@@ -10,9 +10,35 @@ from zds.notification import signals
 from zds.utils import get_current_user, slugify
 
 
+class NotReachableError(Exception):
+    """Raised when a user cannot be reached using private messages (e.g. bots)."""
+    pass
+
+
+class NotParticipatingError(Exception):
+    """Raised when trying to perform an operation requiring the user to be a participant."""
+
+
+def is_reachable(user):
+    """
+    Check if a user is reachable. Unreachable users are unable to read replies to their messages (e.g. bots).
+
+    :param user: a given user
+    :return: True if the user is reachable, False otherwise.
+    """
+    user_group_names = [g.name for g in user.groups.all()]
+    return settings.ZDS_APP['member']['bot_group'] not in user_group_names
+
+
 class PrivateTopic(models.Model):
     """
-    Topic private, containing private posts.
+    Private topic, containing private posts.
+
+    We maintain the following invariants :
+        * all participants are reachable,
+        * no duplicate participant.
+
+    A participant is either the author or a mere participant.
     """
 
     class Meta:
@@ -51,7 +77,7 @@ class PrivateTopic(models.Model):
     def slug(self):
         """
         PrivateTopic doesn't have a slug attribute of a private topic. To be compatible
-        with older private topic, the slug is always re-calculate when we need one.
+        with older private topic, the slug is always re-calculated when we need one.
         :return: title slugify.
         """
         return slugify(self.title)
@@ -60,7 +86,7 @@ class PrivateTopic(models.Model):
         """
         Get the number of private posts in a single PrivateTopic object.
 
-        :return: number of post in PrivateTopic object
+        :return: number of posts in PrivateTopic object
         :rtype: int
         """
         return PrivatePost.objects.filter(privatetopic__pk=self.pk).count()
@@ -185,11 +211,11 @@ class PrivateTopic(models.Model):
             .values('pk', 'position').first().values()
         )
 
-    def alone(self):
+    def one_participant_remaining(self):
         """
-        Check if there just one participant in the conversation (PrivateTopic).
+        Check if there is only one participant remaining in the private topic.
 
-        :return: True if there just one participant in PrivateTopic
+        :return: True if there is only one participant remaining, False otherwise.
         :rtype: bool
         """
         return self.participants.count() == 0
@@ -211,21 +237,63 @@ class PrivateTopic(models.Model):
 
     def is_author(self, user):
         """
-        Check if the user given is the author of the private topic.
+        Check if a user is the author of the private topic.
 
-        :param user: User given.
-        :return: true if the user is the author.
+        :param user: a given user.
+        :return: True if the user is the author, False otherwise.
         """
         return self.author == user
 
+    def set_as_author(self, user):
+        """
+        Set a participant as the author of the private topic.
+
+        The previous author becomes a mere participant. If the user is already the author, nothing happens.
+
+        :param user: a given user.
+        :raise NotParticipatingError: if the user is not already participating in the private topic.
+        """
+        if not self.is_participant(user):
+            raise NotParticipatingError
+        if not self.is_author(user):  # nothing to do if user is already the author
+            self.participants.add(self.author)
+            self.participants.remove(user)
+            self.author = user
+
     def is_participant(self, user):
         """
-        Check if the user given is in participants or author of the private topic.
+        Check if a given user is participating in the private topic.
 
-        :param user: User given.
-        :return: true if the user is in participants
+        :param user: a given user.
+        :return: True if the user is the author or a mere participant, False otherwise.
         """
-        return self.author == user or user in self.participants.all()
+        return self.is_author(user) or user in self.participants.all()
+
+    def add_participant(self, user):
+        """
+        Add a participant to the private topic.
+        If the user is already participating, do not add it again.
+
+        :param user: the user to add to the private topic
+        :raise NotReachableError: if the user cannot receive private messages (e.g. a bot)
+        """
+        if not is_reachable(user):
+            raise NotReachableError
+        if not self.is_participant(user):  # avoid adding the same participant twice
+            self.participants.add(user)
+
+    def remove_participant(self, user):
+        """
+        Remove a participant from the private topic.
+        If the removed participant is the author, set the first mere participant as the author.
+        If the given user is not a participant, do nothing.
+
+        :param user: the user to remove from the private topic.
+        """
+        if self.is_participant(user):
+            if self.is_author(user):
+                self.set_as_author(self.participants.first())
+            self.participants.remove(user)
 
     @staticmethod
     def has_read_permission(request):

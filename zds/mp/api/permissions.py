@@ -29,7 +29,7 @@ class IsNotAloneInPrivatePost(permissions.BasePermission):
 
     def has_permission(self, request, view):
         private_topic = get_object_or_404(PrivateTopic, pk=view.kwargs.get('pk_ptopic'))
-        return not private_topic.alone()
+        return not private_topic.one_participant_remaining()
 
 
 class IsLastPrivatePostOfCurrentUser(permissions.BasePermission):

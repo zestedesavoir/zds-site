@@ -472,9 +472,10 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
                             _('Demande de validation annulée').format(),
                             self.object.title,
                             msg,
-                            False,
+                            send_by_mail=False,
+                            leave=True,
                             hat=get_hat_from_settings('validation'),
-                            automaticaly_read=[validation.validator]
+                            automatically_read=validation.validator
                         )
                         validation.content.save(force_slug_update=False)
                     else:
@@ -483,7 +484,7 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
                             validation.content.validation_private_message,
                             msg,
                             hat=get_hat_from_settings('validation'),
-                            no_notification_for=self.request.user
+                            no_notification_for=[self.request.user]
                         )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
@@ -1503,13 +1504,15 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         }
                     )
                     if not self.object.validation_private_message:
-                        self.object.validation_private_message = send_mp(bot,
-                                                                         self.object.authors.all(),
-                                                                         self.object.validation_message_title,
-                                                                         beta_version.title,
-                                                                         msg_pm,
-                                                                         False,
-                                                                         hat=get_hat_from_settings('validation'))
+                        self.object.validation_private_message = send_mp(
+                            bot,
+                            self.object.authors.all(),
+                            self.object.validation_message_title,
+                            beta_version.title,
+                            msg_pm,
+                            send_by_mail=False,
+                            leave=True,
+                            hat=get_hat_from_settings('validation'))
                         self.object.save(force_slug_update=False)
                     else:
                         send_message_mp(bot,
@@ -1886,8 +1889,9 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
                     'user': user.username,
                     'role': contribution.contribution_role.title
                 }),
-                True,
+                send_by_mail=True,
                 direct=False,
+                leave=True,
             )
             self.success_url = self.object.get_absolute_url()
 
@@ -1954,9 +1958,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         for user in form.cleaned_data['users']:
             if user.pk not in all_authors_pk:
                 self.object.authors.add(user)
-                if self.object.validation_private_message\
-                   and not self.object.validation_private_message.is_participant(user):
-                    self.object.validation_private_message.participants.add(user)
+                if self.object.validation_private_message:
+                    self.object.validation_private_message.add_participant(user)
                 all_authors_pk.append(user.pk)
                 if user != self.request.user:
                     url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
@@ -1972,7 +1975,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                             'index': url_index,
                             'user': user.username
                         }),
-                        True,
+                        send_by_mail=True,
                         direct=False,
                         hat=get_hat_from_settings('validation'),
                     )
