@@ -14,17 +14,12 @@ class LeavePrivateTopic(object):
     Leave a private topic.
     """
 
-    def perform_destroy(self, instance):
-        if instance.participants.count() == 0:
-            instance.delete()
-        elif self.get_current_user().pk == instance.author.pk:
-            move = instance.participants.first()
-            instance.author = move
-            instance.participants.remove(move)
-            instance.save()
+    def perform_destroy(self, topic):
+        if topic.one_participant_remaining():
+            topic.delete()
         else:
-            instance.participants.remove(self.get_current_user())
-            instance.save()
+            topic.remove_participant(self.get_current_user())
+            topic.save()
 
     def get_current_user(self):
         raise NotImplementedError('`get_current_user()` must be implemented.')

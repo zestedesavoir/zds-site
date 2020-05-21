@@ -181,7 +181,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                     self.object.validation_message_title,
                     self.versioned_object.title,
                     msg,
-                    False,
+                    send_by_mail=False,
                     hat=get_hat_from_settings('validation')
                 )
             else:
@@ -266,7 +266,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                     _('Demande de validation annulée').format(),
                     versioned.title,
                     msg,
-                    False,
+                    send_by_mail=False,
                     hat=get_hat_from_settings('validation'),
                 )
                 validation.content.save(force_slug_update=False)
@@ -322,7 +322,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                         _('Contenu réservé - {0}').format(validation.content.title),
                         validation.content.title,
                         msg,
-                        True,
+                        send_by_mail=True,
                         leave=False,
                         direct=False,
                         mark_as_read=True,
@@ -417,7 +417,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                 _('Rejet de la demande de publication').format(),
                 validation.content.title,
                 msg,
-                True,
+                send_by_mail=True,
                 direct=False,
                 hat=get_hat_from_settings('validation'),
             )
@@ -426,7 +426,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             send_message_mp(bot,
                             validation.content.validation_private_message,
                             msg,
-                            no_notification_for=self.request.user)
+                            no_notification_for=[self.request.user])
 
         messages.info(self.request, _('Le contenu a bien été refusé.'))
         self.success_url = reverse('validation:list')
@@ -543,7 +543,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                 self.object.validation_message_title,
                 validation.content.title,
                 msg,
-                True,
+                send_by_mail=True,
                 direct=False,
                 hat=get_hat_from_settings('validation'),
             )
@@ -553,7 +553,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                 bot,
                 validation.content.validation_private_message,
                 msg,
-                no_notification_for=self.request.user
+                no_notification_for=[self.request.user]
             )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
@@ -656,7 +656,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                     self.object.validation_message_title,
                     versioned.title,
                     msg,
-                    True,
+                    send_by_mail=True,
                     direct=False,
                     hat=get_hat_from_settings('moderation'),
                 )
@@ -666,7 +666,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                                 self.object.validation_private_message,
                                 msg,
                                 hat=get_hat_from_settings('moderation'),
-                                no_notification_for=self.request.user
+                                no_notification_for=[self.request.user]
                                 )
 
         messages.success(self.request, _('Le contenu a bien été dépublié.'))
@@ -736,7 +736,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                         self.object.validation_message_title,
                         versioned.title,
                         msg,
-                        True,
+                        send_by_mail=True,
                         direct=False,
                         hat=get_hat_from_settings('moderation'),
                     )
@@ -746,7 +746,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                                     self.object.validation_private_message,
                                     msg,
                                     hat=get_hat_from_settings('moderation'),
-                                    no_notification_for=self.request.user)
+                                    no_notification_for=[self.request.user])
         except ValueError:
             logger.exception('Could not %s the opinion %s', form.cleaned_data['operation'], str(self.object))
             return HttpResponse(json.dumps({'result': 'FAIL', 'reason': str(_('Mauvaise opération'))}), status=400)
@@ -833,7 +833,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
                 self.object.validation_message_title,
                 versioned.title,
                 msg,
-                True,
+                send_by_mail=True,
                 direct=False,
                 hat=get_hat_from_settings('moderation'),
             )
@@ -843,7 +843,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
                             self.object.validation_private_message,
                             msg,
                             hat=get_hat_from_settings('moderation'),
-                            no_notification_for=self.request.user)
+                            no_notification_for=[self.request.user])
 
         messages.success(self.request, _('Le billet a bien été choisi.'))
 
@@ -904,7 +904,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
                 self.object.validation_message_title,
                 versioned.title,
                 msg,
-                True,
+                send_by_mail=True,
                 direct=False,
                 hat=get_hat_from_settings('moderation'),
             )
@@ -1047,7 +1047,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             _('Billet proposé comme article'),
             versionned_article.title,
             msg,
-            True,
+            send_by_mail=True,
             direct=False,
             hat=get_hat_from_settings('validation'),
         )

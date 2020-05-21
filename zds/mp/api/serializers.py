@@ -62,8 +62,8 @@ class PrivateTopicCreateSerializer(serializers.ModelSerializer, TitleValidator, 
                        validated_data.get('title'),
                        validated_data.get('subtitle') or '',
                        validated_data.get('text'),
-                       True,
-                       False)
+                       send_by_mail=True,
+                       leave=False)
 
     def get_current_user(self):
         return self.context.get('request').user
@@ -126,7 +126,8 @@ class PrivatePostActionSerializer(serializers.ModelSerializer, TextValidator, Up
         author = self.context.get('view').request.user
 
         # Send post in mp
-        send_message_mp(author, topic, self.validated_data.get('text'), True, False)
+        send_message_mp(author, topic, self.validated_data.get('text'),
+                        send_by_mail=True, direct=False)
         return topic.last_message
 
     def update(self, instance, validated_data):

@@ -24,7 +24,7 @@ from zds.utils.forums import CreatePostView
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivatePost, mark_read
+from .models import PrivateTopic, PrivatePost, mark_read, NotReachableError
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -114,8 +114,8 @@ class PrivateTopicNew(CreateView):
                           form.data['title'],
                           form.data['subtitle'],
                           form.data['text'],
-                          True,
-                          False,
+                          send_by_mail=True,
+                          leave=False,
                           hat=get_hat_from_request(self.request))
 
         return redirect(p_topic.get_absolute_url())
@@ -180,24 +180,22 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
         return topic
 
     def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        topic = self.get_object()
 
         try:
             participant = get_object_or_404(Profile, user__username=request.POST.get('username'))
-            if participant.is_private():
-                raise ObjectDoesNotExist
-            if participant.user.pk == self.object.author.pk or participant.user in self.object.participants.all():
-                messages.warning(request, _('Le membre que vous essayez d\'ajouter à la conversation y est déjà.'))
+            if topic.is_participant(participant.user):
+                messages.warning(request, _("Le membre n'a pas été ajouté à la conversation, car il y est déjà."))
             else:
-                self.object.participants.add(participant.user)
-                self.object.save()
+                topic.add_participant(participant.user)
+                topic.save()
                 messages.success(request, _('Le membre a bien été ajouté à la conversation.'))
         except Http404:
-            messages.warning(request, _('Le membre que vous avez essayé d\'ajouter n\'existe pas.'))
-        except ObjectDoesNotExist:
-            messages.warning(request, _('Le membre que vous avez essayé d\'ajouter ne peut pas être contacté.'))
+            messages.warning(request, _("""Le membre n'a pas été ajouté à la conversation, car il n'existe pas."""))
+        except NotReachableError:
+            messages.warning(request, _("""Le membre n'a pas été ajouté à la conversation, car il est injoignable."""))
 
-        return redirect(reverse('private-posts-list', args=[self.object.pk, self.object.slug()]))
+        return redirect(reverse('private-posts-list', args=[topic.pk, topic.slug()]))
 
 
 class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView):
@@ -237,7 +235,7 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=PrivateTopic.objects.all())
-        if not self.object.author == request.user and request.user not in list(self.object.participants.all()):
+        if not self.object.is_participant(request.user):
             raise PermissionDenied
         return super(PrivatePostList, self).get(request, *args, **kwargs)
 
