@@ -182,7 +182,7 @@
         {% if content.can_add_extract and content.can_add_container and can_add_something %}
             <div class="ico-after warning">
                 <p>
-                    {% trans "Ce contenu est actuellement vide." %}{% trans "Vous pouvez :" %}
+                    {% trans "Ce contenu est actuellement vide." %} {% trans "Vous pouvez :" %}
                 </p>
                 <ul>
                     <li>
@@ -191,7 +191,7 @@
                     </li>
                     <li>
                         <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
-                        {% trans " pour adopter le format mini-tuto composé uniquement de section." %}
+                        {% trans " pour adopter le format mini-tuto composé uniquement de sections." %}
                     </li>
                 </ul>
             </div>
