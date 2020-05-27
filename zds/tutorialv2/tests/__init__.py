@@ -141,10 +141,10 @@ class TutorialTestMixin:
             reverse('content:download-zip', kwargs=kwargs),
             follow=False)
 
-    def content_add_author_post(self, content_kwargs, new_author_kwags):
+    def content_add_author_post(self, content_kwargs, new_author_kwargs):
         return self.client.post(
-            reverse('content:add-author', args=content_kwargs),
-            new_author_kwags,
+            reverse('content:add-author', kwargs=content_kwargs),
+            new_author_kwargs,
             follow=False)
 
 

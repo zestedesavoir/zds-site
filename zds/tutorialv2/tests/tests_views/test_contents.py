@@ -43,13 +43,16 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
         self.create_contents_set()
         self.create_kwargs_to_display_contents()
 
+    def redirect_login_url(self, content_kwargs):
+        return reverse('member-login') + '?next=' + reverse('content:view', kwargs=content_kwargs)
+
     def test_public_cant_access_content_display_page(self):
         for content in self.contents.values():
             result = self.content_view_get(self.kwargs_to_display_contents[content])
-            self.assertEqual(
-                result.status_code,
-                302,
-                f'Public should be redirected to login page if it tries to display {content.type} content.'
+            self.assertRedirects(
+                result,
+                self.redirect_login_url(self.kwargs_to_display_contents[content]),
+                msg_prefix=f'Public should be redirected to login page if it tries to display {content.type} content.'
             )
 
     def test_guest_cant_access_content_display_page(self):
@@ -812,6 +815,113 @@ class DownloadContentTests(TutorialTestMixin, TestCase):
                 200,
                 f'Staff should be able to download {content.type} content even if he is not author.'
             )
+        self.logout()
+
+
+@override_for_contents()
+class AddAuthorToContentTests(TutorialTestMixin, TestCase):
+
+    def create_users(self):
+        self.user_author = ProfileFactory().user
+        self.user_read_only_author = ProfileFactory(can_write=False).user
+        self.user_guest = ProfileFactory().user
+        self.new_author = ProfileFactory().user
+        self.user_staff = StaffProfileFactory().user
+
+    def create_contents_set(self):
+        self.contents = {}
+        for _type in self.content_types:
+            content = PublishableContentFactory(type=_type)
+            content.authors.add(self.user_author)
+            content.authors.add(self.user_read_only_author)
+            content.save()
+            self.contents[_type] = content
+
+    def create_kwargs_to_add_author_to_contents(self):
+        self.kwargs_to_add_author = {}
+        for content in self.contents.values():
+            kwargs = {'pk': content.pk}
+            self.kwargs_to_add_author[content] = kwargs
+
+    def setUp(self):
+        self.content_types = ['TUTORIAL', 'ARTICLE', 'OPINION']
+        self.create_users()
+        self.create_contents_set()
+        self.create_kwargs_to_add_author_to_contents()
+        self.new_author_informations = {'username': self.new_author.username}
+
+    def test_public_cant_add_author_to_content(self):
+        for content in self.contents.values():
+            result = self.content_add_author_post(self.kwargs_to_add_author[content], self.new_author_informations)
+            self.assertEqual(
+                result.status_code,
+                302,
+                f'Public should be redirected to login page if it tries to add author to {content.type} content.'
+            )
+            self.assertEqual(
+                PublishableContent.objects.get(pk=content.pk).authors.count(),
+                2,
+                f'It should a.'
+            )
+
+    def test_guest_cant_add_author_to_content(self):
+        self.login(self.user_guest, 'hostel77')
+        for content in self.contents.values():
+            result = self.content_add_author_post(self.kwargs_to_add_author[content], self.new_author_informations)
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Guest user should obtain an error if he tries to add author to {content.type} content.'
+            )
+        self.logout()
+
+    def test_read_only_author_can_add_author_to_content(self):
+        self.login(self.user_read_only_author, 'hostel77')
+        for content in self.contents.values():
+            content.authors.add(self.user_read_only_author)
+            content.save()
+            result = self.content_add_author_post(self.kwargs_to_add_author[content], self.new_author_informations)
+            self.assertEqual(
+                result.status_code,
+                403,
+                f'Read-only author should obtain an error if he tries to add author to a {content.type} content even if he is author.'
+            )
+        self.logout()
+
+    def test_staff_can_add_author_to_content(self):
+        self.login(self.user_staff, 'hostel77')
+        for content in self.contents.values():
+            result = self.content_add_author_post(self.kwargs_to_add_author[content], self.new_author_informations)
+            self.assertEqual(
+               result.status_code,
+               302,
+               f'Staff should not be able to add author to {content.type} content if he is not author.'
+            )
+        self.logout()
+
+    def test_author_can_add_author_to_content(self):
+        self.login(self.user_author, 'hostel77')
+        tuto = self.contents['TUTORIAL']
+        for content in self.contents.values():
+            #result = self.content_add_author_post(self.kwargs_to_add_author[content], self.new_author_informations)
+            result = self.client.post(
+            reverse('content:add-author', args=[content.pk]),
+            {
+                'username': self.user_guest.username
+            },
+            follow=False)
+            self.assertEqual(
+               result.status_code,
+               302,
+               f'Author should be able to add author to his {content.type} content.'
+            )
+            content_authors = PublishableContent.objects.get(pk=content.pk).authors
+            self.assertEqual(
+                content_authors.count(),
+                3,
+                f'It should a.'
+            )
+            self.assertIn(self.new_author, content_authors)
         self.logout()
 
 
