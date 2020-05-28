@@ -110,7 +110,7 @@ class InterventionsTest(TestCase):
         # check that the number of waiting tutorials is correct
         response = self.client.post(reverse('homepage'))
         self.assertEqual(200, response.status_code)
-        self.assertContains(response, '(1)')
+        self.assertContains(response, '(1 tutoriel)')
 
         # Mark the content as reserved
         self.validation.status = 'PENDING_V'
@@ -119,7 +119,7 @@ class InterventionsTest(TestCase):
         # and check that the count was removed
         response = self.client.post(reverse('homepage'))
         self.assertEqual(200, response.status_code)
-        self.assertNotContains(response, '(1)')
+        self.assertNotContains(response, '(1 tutoriel)')
 
     def test_interventions_humane_delta(self):
         tr = Template('{% load interventions %}'
