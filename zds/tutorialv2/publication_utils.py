@@ -418,18 +418,15 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         with open(latex_file_path, mode='w', encoding='utf-8') as latex_file:
             latex_file.write(content)
 
-        try:
-            self.full_tex_compiler_call(latex_file_path, draftmode='-draftmode')
-            self.full_tex_compiler_call(latex_file_path, draftmode='-draftmode')
-            self.make_glossary(base_name.split('/')[-1], latex_file_path)
-            self.full_tex_compiler_call(latex_file_path)
-        except FailureDuringPublication:
-            logging.getLogger(self.__class__.__name__).exception('could not publish %s', base_name + self.extension)
-        else:
-            shutil.copy2(latex_file_path, published_content_entity.get_extra_contents_directory())
-            shutil.copy2(pdf_file_path, published_content_entity.get_extra_contents_directory())
-            logging.info('published latex=%s, pdf=%s', published_content_entity.has_type('tex'),
-                         published_content_entity.has_type(self.doc_type))
+        self.full_tex_compiler_call(latex_file_path, draftmode='-draftmode')
+        self.full_tex_compiler_call(latex_file_path, draftmode='-draftmode')
+        self.make_glossary(base_name.split('/')[-1], latex_file_path)
+        self.full_tex_compiler_call(latex_file_path)
+
+        shutil.copy2(latex_file_path, published_content_entity.get_extra_contents_directory())
+        shutil.copy2(pdf_file_path, published_content_entity.get_extra_contents_directory())
+        logging.info('published latex=%s, pdf=%s', published_content_entity.has_type('tex'),
+                     published_content_entity.has_type(self.doc_type))
 
     def full_tex_compiler_call(self, latex_file, draftmode: str = ''):
         success_flag = self.tex_compiler(latex_file, draftmode)
