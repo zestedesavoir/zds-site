@@ -430,9 +430,10 @@ class FindFollowedTopic(ZdSPagingListView, SingleObjectMixin):
 
     def get_context_data(self, **kwargs):
         context = super(FindFollowedTopic, self).get_context_data(**kwargs)
+        topics_count = TopicAnswerSubscription.objects.get_objects_followed_by(self.object.id).count()
         context.update({
             'usr': self.object,
-            'hidden_topics_count': TopicAnswerSubscription.objects.get_objects_followed_by(self.object.id).count() - context['paginator'].count,
+            'hidden_topics_count': topics_count - context['paginator'].count,
             'followed_topics': True,
         })
         return context
