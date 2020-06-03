@@ -406,11 +406,39 @@ class FindTopic(ZdSPagingListView, SingleObjectMixin):
         context.update({
             'usr': self.object,
             'hidden_topics_count': Topic.objects.filter(author=self.object).count() - context['paginator'].count,
+            'created_topics': True,
         })
         return context
 
     def get_queryset(self):
         return Topic.objects.get_all_topics_of_a_user(self.request.user, self.object)
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(User, pk=self.kwargs.get(self.pk_url_kwarg))
+
+
+class FindFollowedTopic(ZdSPagingListView, SingleObjectMixin):
+    context_object_name = 'topics'
+    template_name = 'forum/find/topic.html'
+    paginate_by = settings.ZDS_APP['forum']['topics_per_page']
+    pk_url_kwarg = 'user_pk'
+    object = None
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(FindFollowedTopic, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(FindFollowedTopic, self).get_context_data(**kwargs)
+        context.update({
+            'usr': self.object,
+            'hidden_topics_count': TopicAnswerSubscription.objects.get_objects_followed_by(self.object.id).count() - context['paginator'].count,
+            'followed_topics': True,
+        })
+        return context
+
+    def get_queryset(self):
+        return TopicAnswerSubscription.objects.get_objects_followed_by(self.object.id)
 
     def get_object(self, queryset=None):
         return get_object_or_404(User, pk=self.kwargs.get(self.pk_url_kwarg))

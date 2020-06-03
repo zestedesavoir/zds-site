@@ -905,6 +905,24 @@ class FindTopicTest(TestCase):
         self.assertEqual(topic, response.context['topics'][0])
 
 
+class FindFollowedTopicTest(TestCase):
+    def test_failure_find_followed_topics_of_a_member_not_found(self):
+        response = self.client.get(reverse('followed-topic-find', args=[9999]), follow=False)
+
+        self.assertEqual(404, response.status_code)
+
+    def test_success_find_followed_topics_of_a_member(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+
+        response = self.client.get(reverse('followed-topic-find', args=[profile.user.pk]), follow=False)
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+
+
 class FindTopicByTagTest(TestCase):
     def test_failure_find_topics_of_a_tag_not_found(self):
         response = self.client.get(reverse('topic-tag-find', args=['x']), follow=False)

@@ -166,7 +166,7 @@
                             {% with content_is_followed=usr|is_new_publication_followed content_is_followed_email=usr|is_new_publication_email_followed %}
                                 {% url 'content:follow' usr.pk as link_follow %}
                                 {% if followed_user == user %}
-                                    
+
                                 {% elif content_is_followed %}
                                     {% trans "S'abonner" as data_onclick %}
                                     {% trans "Abonné" as button_text %}
@@ -295,7 +295,7 @@
 
                 {% captureas messages_count %}{% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
 
-                {% with topics_count=profile.get_topic_count messages_count=messages_count|add:"0" %}
+                {% with topics_count=profile.get_topic_count followed_topics_count=profile.get_followed_topic_count messages_count=messages_count|add:"0" %}
                     {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or messages_count > 0 %}
                         <div class="activity">
                             <div class="content-linkbox-list {% if profile.biography or profile.sign or profile.user == user %}is-vertical{% endif %}">
@@ -440,7 +440,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if topics_count > 0 or messages_count > 0 %}
+                                {% if topics_count > 0 or messages_count > 0 or followed_topics_count > 0%}
                                     <div class="linkbox-item primary">
                                         <div class="head">
                                             <h3>{% trans 'Forum' %}</h3>
@@ -453,6 +453,19 @@
                                                         <span class="bold">{{ topics_count }}</span> sujet créé
                                                     {% plural %}
                                                         <span class="bold">{{ topics_count }}</span> sujets créés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+
+                                        {% if followed_topics_count > 0 %}
+                                            <a href="{% url 'followed-topic-find' usr.pk %}" class="tail">
+                                                <p>
+
+                                                    {% blocktrans count followed_topics_count=followed_topics_count %}
+                                                        <span class="bold">{{ followed_topics_count }}</span> sujet suivi
+                                                    {% plural %}
+                                                        <span class="bold">{{ followed_topics_count }}</span> sujets suivis
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
@@ -618,7 +631,7 @@
                             <div class="head">
                                 <h3>{% trans 'Adresse IP' %}</h3>
                             </div>
-                            
+
                             <div class="tail">
                                 <p>{% trans "Dernière adresse IP" %} : {{ profile.last_ip_address }}</p>
                             </div>
