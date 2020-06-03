@@ -323,7 +323,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertEqual(len(topicsfollowed), 1)
         self.assertEqual(self.forumtopic, topicsfollowed[0])
         self.assertEqual(self.user1.get_followed_topic_count(), 1)
-        self.assertContains(self.user1.get_followed_topic(), self.forumtopic)
+        self.assertIn(self.forumtopic, self.user1.get_followed_topics())
 
     def test_get_city_with_wrong_ip(self):
         # Set a local IP to the user
