@@ -46,64 +46,64 @@
 
 
 {% block content %}
-        {% if hidden_topics_count %}
-            <p class="alert-box info">
-                {% blocktrans count counter=hidden_topics_count %}
-                    {{ counter }} sujet est invisible car dans un forum inaccessible.
-                {% plural %}
-                    {{ counter }} sujets sont invisibles car dans un forum inaccessible.
-                {% endblocktrans %}
-            </p>
-        {% endif %}
+    {% if hidden_topics_count %}
+        <p class="alert-box info">
+            {% blocktrans count counter=hidden_topics_count %}
+                {{ counter }} sujet est invisible car dans un forum inaccessible.
+            {% plural %}
+                {{ counter }} sujets sont invisibles car dans un forum inaccessible.
+            {% endblocktrans %}
+        </p>
+    {% endif %}
 
-        {% include "misc/paginator.html" with position="top" %}
+    {% include "misc/paginator.html" with position="top" %}
 
-        {% if topics %}
-            <table>
-                <thead>
+    {% if topics %}
+        <table>
+            <thead>
+                <tr>
+                    <th width="15%">{% trans "Sujet" %}</th>
+                    <th width="10%">{% trans "Date" %}</th>
+                    <th width="30%">{% trans "Extrait" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for topic in topics %}
                     <tr>
-                        <th width="15%">{% trans "Sujet" %}</th>
-                        <th width="10%">{% trans "Date" %}</th>
-                        <th width="30%">{% trans "Extrait" %}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for topic in topics %}
-                        <tr>
-                            <td>
-                                <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.is_unread %} unread {% endif %} {% endif %}">
-                                    <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a>
-                                    {% if topic.subtitle %}
-                                        <p> {{ topic.subtitle }} </p>
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td>
-                                {{ topic.pubdate|format_date }}
-                            </td>
-                            <td>
-                                {% if topic.first_post.is_visible %}
-                                    {{ topic.first_post.text|truncatechars:200 }}
-                                {% else %}
-                                    {% if topic.first_post.text_hidden %}
-                                        {% trans "Masqué par" %} {{ topic.first_post.editor }} :
-                                        {{ topic.first_post.text_hidden }}
-                                    {% endif %}
+                        <td>
+                            <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.is_unread %} unread {% endif %} {% endif %}">
+                                <a href="{{ topic.get_absolute_url }}">{{ topic.title }} </a>
+                                {% if topic.subtitle %}
+                                    <p> {{ topic.subtitle }} </p>
                                 {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>
-                {% if followed_topics %}
-                    {% trans "Aucun sujet public n’a été suivi par" %} {{ usr.username }}.
-                {% else %}
-                    {% trans "Aucun sujet public n’a été créé par" %} {{ usr.username }}.
-                {% endif %}
-            </p>
-        {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {{ topic.pubdate|format_date }}
+                        </td>
+                        <td>
+                            {% if topic.first_post.is_visible %}
+                                {{ topic.first_post.text|truncatechars:200 }}
+                            {% else %}
+                                {% if topic.first_post.text_hidden %}
+                                    {% trans "Masqué par" %} {{ topic.first_post.editor }} :
+                                    {{ topic.first_post.text_hidden }}
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>
+            {% if followed_topics %}
+                {% trans "Aucun sujet public n’a été suivi par" %} {{ usr.username }}.
+            {% else %}
+                {% trans "Aucun sujet public n’a été créé par" %} {{ usr.username }}.
+            {% endif %}
+        </p>
+    {% endif %}
 
-        {% include "misc/paginator.html" with position="bottom" %}
+    {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
