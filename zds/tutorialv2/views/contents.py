@@ -36,7 +36,8 @@ from zds.notification.models import TopicAnswerSubscription, NewPublicationSubsc
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
-    UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm
+    UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm, \
+    EditContentLicenseForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -86,9 +87,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
-        # Check for default licence in the profile
-        profile = self.request.user.profile
-        form.initial['licence'] = profile.licence
         return form
 
     def get_context_data(self, **kwargs):
@@ -104,7 +102,8 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.title = form.cleaned_data['title']
         self.content.description = form.cleaned_data['description']
         self.content.type = form.cleaned_data['type']
-        self.content.licence = form.cleaned_data['licence']
+        self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
+        self.content.source = form.cleaned_data['source']
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
@@ -195,6 +194,9 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['validation'] = validation
         context['formJs'] = form_js
+        context['form_edit_license'] = EditContentLicenseForm(
+            self.versioned_object,
+            initial={'license': self.versioned_object.licence})
 
         if self.versioned_object.requires_validation:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
@@ -279,11 +281,10 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial['type'] = versioned.type
         initial['introduction'] = versioned.get_introduction()
         initial['conclusion'] = versioned.get_conclusion()
-        initial['licence'] = versioned.licence
+        initial['source'] = versioned.source
         initial['subcategory'] = self.object.subcategory.all()
         initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
         initial['helps'] = self.object.helps.all()
-
         initial['last_hash'] = versioned.compute_hash()
 
         return initial
@@ -320,7 +321,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         title_is_changed = publishable.title != form.cleaned_data['title']
         publishable.title = form.cleaned_data['title']
         publishable.description = form.cleaned_data['description']
-        publishable.licence = form.cleaned_data['licence']
+        publishable.source = form.cleaned_data['source']
 
         publishable.update_date = datetime.now()
 
@@ -344,7 +345,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         logger.debug('content %s updated, slug is %s', publishable.pk, publishable.slug)
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
-        versioned.licence = form.cleaned_data['licence']
 
         sha = versioned.repo_update_top_container(form.cleaned_data['title'],
                                                   publishable.slug,
@@ -374,7 +374,53 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         return super().form_valid(form)
 
 
-class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
+class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditContentLicenseForm
+    success_message_license = _('La licence de la publication a bien été changée.')
+    success_message_profile_update = _('Votre licence préférée a bien été mise à jour.')
+
+    def get_form_kwargs(self):
+        kwargs = super(EditContentLicense, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+
+        # Update license in database
+        publishable.licence = form.cleaned_data['license']
+        publishable.update_date = datetime.now()
+        publishable.save(force_slug_update=False)
+
+        # Update license in repository
+        self.versioned_object.licence = form.cleaned_data['license']
+        sha = self.versioned_object.repo_update_top_container(
+            publishable.title,
+            publishable.slug,
+            self.versioned_object.get_introduction(),
+            self.versioned_object.get_conclusion(),
+            'Nouvelle licence ({})'.format(form.cleaned_data['license'])
+        )
+
+        # Update relationships in database
+        publishable.sha_draft = sha
+        publishable.save(force_slug_update=False)
+
+        messages.success(self.request, EditContentLicense.success_message_license)
+
+        # Update the preferred license of the user
+        if form.cleaned_data['update_preferred_license']:
+            profile = get_object_or_404(Profile, user=self.request.user)
+            profile.licence = form.cleaned_data['license']
+            profile.save()
+            messages.success(self.request, EditContentLicense.success_message_profile_update)
+
+        return redirect(form.previous_page_url)
+
+
+class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     template_name = None
     http_method_names = ['delete', 'post']
@@ -458,7 +504,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         return redirect(reverse(object_type + ':find-' + object_type, args=[request.user.username]))
 
 
-class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
+class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):
     """
     Download a zip archive with all the content of the repository directory
     """
@@ -758,9 +804,11 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
 
-                # warn user if licence have changed:
+                # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
-                if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
+                if new_version.licence \
+                   and 'licence' in manifest \
+                   and manifest['licence'] != new_version.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.').format(new_version.licence.code))
 
@@ -869,11 +917,13 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
 
-                # warn user if licence have changed:
+                # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
-                if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
-                    messages.info(
-                        self.request, _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
+                if new_content.licence \
+                   and 'licence' in manifest \
+                   and manifest['licence'] != new_content.licence.code:
+                    messages.info(self.request,
+                                  _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
 
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()

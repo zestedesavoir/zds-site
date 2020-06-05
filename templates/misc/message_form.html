@@ -1,6 +1,10 @@
 {% load crispy_forms_tags %}
 {% load i18n %}
 
+
+{% include "easymde.html" %}
+
+
 {% if topic.is_locked %}
     <div class="alert-box ico-after lock light">
         {% trans "Ce sujet est verrouillé." %}

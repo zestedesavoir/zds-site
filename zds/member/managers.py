@@ -14,7 +14,7 @@ class ProfileManager(models.Manager):
         :rtype: QuerySet
         """
         now = datetime.now()
-        excluded_groups = [Group.objects.get(name=settings.ZDS_APP['member']['bot_group'])]
+        excluded_groups = [Group.objects.filter(name=settings.ZDS_APP['member']['bot_group']).first()]
         qs = self.get_queryset() \
             .exclude(user__is_active=False) \
             .exclude(user__groups__in=excluded_groups) \

@@ -346,6 +346,10 @@ samp {
   font-style: normal;
   font-size: 14px;
 
+  + .hljs-code-div {
+    margin-top: 14px;
+  }
+
   .hljs-line-numbers {
     counter-reset: line;
     border-right: 1px solid #ddd;
@@ -366,7 +370,6 @@ samp {
     overflow-x: auto;
   }
 }
-
 
 // touche
 kbd {

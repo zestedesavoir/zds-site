@@ -123,15 +123,22 @@ function jsLint() {
     .pipe(eslint.failAfterError())
 }
 
+// Get JS minified files from packages
+function jsPackages() {
+  return gulp.src([
+    require.resolve('jquery/dist/jquery.min.js'),
+    require.resolve('cookies-eu-banner/dist/cookies-eu-banner.min.js'),
+    require.resolve('moment/min/moment.min.js'),
+    require.resolve('moment/locale/fr.js'),
+    require.resolve('chart.js/dist/Chart.min.js'),
+    require.resolve('easymde/dist/easymde.min.js')
+  ])
+    .pipe(gulp.dest('dist/js/'))
+}
+
 // Generates JS for the website
 function js() {
   return gulp.src([
-    require.resolve('jquery'),
-    require.resolve('cookies-eu-banner'),
-    require.resolve('moment/moment.js'),
-    require.resolve('moment/locale/fr.js'),
-    require.resolve('chart.js/dist/Chart.js'),
-    require.resolve('easymde/dist/easymde.min.js'),
     // Used by other scripts, must be first
     'assets/js/modal.js',
     'assets/js/tooltips.js',
@@ -211,7 +218,7 @@ function watch() {
 }
 
 // Build the front
-var build = gulp.series(clean, gulp.parallel(prepareZmd, prepareEasyMde, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages))))
+var build = gulp.series(clean, gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages))))
 
 exports.build = build
 exports.watch = gulp.series(build, watch)

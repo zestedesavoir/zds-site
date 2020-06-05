@@ -355,9 +355,8 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                 versioned.licence = hint_licence
             else:
                 versioned.licence = Licence.objects.filter(code=json['licence']).first()
-
-        if 'licence' not in json or not versioned.licence:
-            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
+        # Note: There is no fallback to a default license in case of problems.
+        # The author will have to set it himself prior to publication.
 
         if 'introduction' in json:
             versioned.introduction = json['introduction']
@@ -391,9 +390,9 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             versioned.conclusion = json['conclusion']
         if 'licence' in json:
             versioned.licence = Licence.objects.filter(code=json['licence']).first()
+        # Note: There is no fallback to a default license in case of problems.
+        # The author will have to set it himself prior to publication.
 
-        if 'licence' not in json or not versioned.licence:
-            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
         versioned.ready_to_publish = True  # the parent is always ready to publish
         if _type == 'ARTICLE':
             extract = Extract('text', '')

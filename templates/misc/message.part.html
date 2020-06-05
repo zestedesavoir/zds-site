@@ -14,13 +14,25 @@
     {% set False as is_author %}
 {% endif %}
 
+{% if is_mp or message.is_visible %}
+    {% set False as message_is_hidden %}
+{% else %}
+    {% set True as message_is_hidden %}
+{% endif %}
 
+{% ifchanged %}
+{% if message_is_hidden %}
+    <div class="msg-are-hidden hidden" aria-hidden="true"><a class="link" href="#show">{% trans "Un ou plusieurs messages ont été masqués" %}</a></div>
+{% endif %}
+{% endifchanged %}
 
 <article
     class="topic-message
+           {% if message.is_useful and not message_is_hidden %}helpful{% endif %}
+           {% if is_repeated_message %}repeated{% endif %}
+           {% if message_is_hidden %}hidden-by-someone{% endif %}"
 
-           {% if message.is_useful and message.is_visible %}helpful{% endif %}
-           {% if is_repeated_message %}repeated{% endif %}"
+    {% if message_is_hidden %}aria-hidden="true"{% endif %}
 
     {% if comment_schema %}
         itemscope
@@ -45,7 +57,7 @@
 
         {% if user.is_authenticated %}
             <ul class="message-actions">
-                {% if message.is_visible != False %}
+                {% if not message_is_hidden %}
                     {% if edit_link %}
                         {% if can_unread == True %}
                             <li>
@@ -159,7 +171,7 @@
         </div>
 
         <div class="message-content">
-            {% if message.hat and message.is_visible != False %}
+            {% if message.hat and not message_is_hidden %}
                 <p class="hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
                     <a class="name" href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
                 </p>
@@ -171,12 +183,12 @@
                 </p>
             {% endif %}
             {% if not is_mp %}
-                <p class="message-helpful tick ico-after green {% if not message.is_useful or not message.is_visible %}hidden{% endif %}"
+                <p class="message-helpful tick ico-after green {% if not message.is_useful or message_is_hidden %}hidden{% endif %}"
                    data-ajax-output="mark-message-as-useful">
                     {% trans "Cette réponse a aidé l’auteur du sujet" %}
                 </p>
             {% endif %}
-            {% if message.is_visible != False %}
+            {% if not message_is_hidden %}
                 <div itemprop="text">
                     {{ message.text_html|safe }}
                 </div>
@@ -186,7 +198,7 @@
                 </div>
             {% endif %}
 
-            {% if message.is_visible == False %}
+            {% if message_is_hidden %}
                 <p class="message-hidden">
                     {% trans "Masqué par" %} {{ message.editor }}
 
@@ -233,7 +245,7 @@
             {% endfor %}
         {% endif %}
 
-        {% if message.is_visible != False %}
+        {% if not message_is_hidden %}
             <div class="message-bottom">
                 {% with profile=message.author|profile %}
                     {% if profile.sign %}
