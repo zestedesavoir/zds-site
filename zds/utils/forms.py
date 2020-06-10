@@ -141,9 +141,8 @@ class TagValidator(object):
         :return: ``True`` if the tag slug is good
         """
         if not defaultfilters.slugify(tag):
-            error = TagValidator.error_empty_slug.format(tag)
-            self.errors.append(error)
-            self.logger.warning('%s bad slug', tag)
+            self.errors.append(TagValidator.error_empty_slug.format(tag))
+            self.logger.warning('"%s" bad slug', tag)
             return False
         return True
 

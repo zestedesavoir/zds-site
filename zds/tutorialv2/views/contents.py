@@ -196,7 +196,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             self.versioned_object,
             initial={'license': self.versioned_object.licence})
 
-        initial_tags_field = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
+        initial_tags_field = ', '.join(self.object.tags.values_list('title', flat=True))
         context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, initial={'tags': initial_tags_field})
 
         if self.versioned_object.requires_validation:
@@ -430,7 +430,7 @@ class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
 
     def get_initial(self):
         initial = super(EditContentTags, self).get_initial()
-        initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
+        initial['tags'] = ', '.join(self.object.tags.values_list('title', flat=True))
         return initial
 
     def form_valid(self, form):
