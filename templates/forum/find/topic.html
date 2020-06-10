@@ -33,7 +33,7 @@
     {% endwith %}
     <li>
         {% if followed_topics %}
-            <a href="{% url 'followed-topic-find' usr.pk %}">
+            <a href="{% url 'followed-topic-find' %}">
             {% trans "Sujets suivis" %}
         {% else %}
         <a href="{% url 'topic-find' usr.pk %}">

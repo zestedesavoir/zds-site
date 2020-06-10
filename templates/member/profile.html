@@ -440,7 +440,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if topics_count > 0 or messages_count > 0 or followed_topics_count > 0%}
+                                {% if topics_count > 0 or messages_count > 0 or followed_topics_count > 0 and profile.user == user %}
                                     <div class="linkbox-item primary">
                                         <div class="head">
                                             <h3>{% trans 'Forum' %}</h3>
@@ -458,8 +458,8 @@
                                             </a>
                                         {% endif %}
 
-                                        {% if followed_topics_count > 0 %}
-                                            <a href="{% url 'followed-topic-find' usr.pk %}" class="tail">
+                                        {% if followed_topics_count > 0 and profile.user == user %}
+                                            <a href="{% url 'followed-topic-find' %}" class="tail">
                                                 <p>
 
                                                     {% blocktrans count followed_topics_count=followed_topics_count %}

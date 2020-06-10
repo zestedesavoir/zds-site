@@ -31,10 +31,11 @@ urlpatterns = [
             ManageGitHubIssue.as_view(), name='manage-issue'),
     re_path(r'^sujet/(?P<topic_pk>\d+)/(?P<topic_slug>.+)/$',
             TopicPostsListView.as_view(), name='topic-posts-list'),
-    re_path(r'^sujets/membre/(?P<user_pk>\d+)/crees/$',
+    re_path(r'^sujets/membre/(?P<user_pk>\d+)/$',
             FindTopic.as_view(), name='topic-find'),
-    re_path(r'^sujets/membre/(?P<user_pk>\d+)/suivis/$',
+    re_path(r'^sujets/suivis/$',
             FindFollowedTopic.as_view(), name='followed-topic-find'),
+
     # The first is kept for URL backward-compatibility.
     re_path(r'^sujets/tag/(?P<tag_pk>\d+)/(?P<tag_slug>.+)/$',
             FindTopicByTag.as_view(), name='old-topic-tag-find'),
