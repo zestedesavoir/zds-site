@@ -906,7 +906,7 @@ class FindTopicTest(TestCase):
 
 
 class FindFollowedTopicTest(TestCase):
-    def test_puclic_cant_access_followed_topics(self):
+    def test_public_cant_access_followed_topics(self):
         response = self.client.get(reverse('followed-topic-find'), follow=False)
         self.assertEqual(302, response.status_code)
         self.assertRedirects(response, reverse('member-login') + '?next=' + reverse('followed-topic-find'))
