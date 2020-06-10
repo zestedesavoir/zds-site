@@ -148,7 +148,9 @@ class MemberDetail(DetailView):
                     __('sujet{} créé{}').format(pluralize_fr(count_topic), pluralize_fr(count_topic))
                 )
             )
-        if count_followed_topic > 0 and self.request.user.is_authenticated and User.objects.get(pk=self.request.user.pk).profile == profile:
+        user = self.request.user
+        is_user_profile = user.is_authenticated and User.objects.get(pk=user.pk).profile == profile
+        if count_followed_topic > 0 and is_user_profile:
             summary.append(
                 (
                     reverse_lazy('followed-topic-find'),
