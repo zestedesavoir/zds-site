@@ -401,6 +401,7 @@
       spellChecker: false,
       inputStyle: 'contenteditable',
       nativeSpellcheck: true,
+      sideBySideFullscreen: false,
       promptAbbrv: true,
       theme: 'idea',
       previewRender: customMarkdownParser,
