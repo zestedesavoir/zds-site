@@ -1197,15 +1197,14 @@ class PublicationForm(forms.Form):
         self.no_subcategories = content.subcategory.count() == 0
         no_category_msg = HTML(_("""<p><strong>Votre publication n'est dans aucune catégorie.
                                     Vous devez <a href="{}#{}">choisir une catégorie</a>
-                                    avant de demander la validation.</strong></p>"""
+                                    avant de publier.</strong></p>"""
                                  .format(reverse('content:edit', kwargs={'pk': content.pk, 'slug': content.slug}),
                                          'div_id_subcategory')))
 
         self.no_license = not content.licence
         no_license_msg = HTML(_("""<p><strong>Vous n'avez pas choisi de licence pour votre publication.
-                                   Vous devez <a href="{}">choisir une licence</a>
-                                   avant de demander la validation.</strong></p>"""
-                                .format('#edit-license')))
+                                   Vous devez <a href="#edit-license" class="open-modal">choisir une licence</a>
+                                   avant de publier.</strong></p>"""))
 
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
