@@ -379,7 +379,6 @@
       autosave: {
         enabled: true,
         uniqueId: mdeUniqueKey,
-        submit_delay: 10000,
         delay: 1000
       },
       indentWithTabs: false,
