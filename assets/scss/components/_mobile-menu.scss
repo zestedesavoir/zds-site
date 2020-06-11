@@ -3,13 +3,13 @@
     display: none;
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .mobile-menu-only {
         display: none;
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include touch {
     .js .page-container {
         position: relative;
         z-index: 10;

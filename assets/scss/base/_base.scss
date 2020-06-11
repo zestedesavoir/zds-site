@@ -153,7 +153,7 @@ nav {
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     html,
     body {
         height: 100%;
@@ -165,7 +165,7 @@ nav {
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include touch {
     body {
         background: #222;
 

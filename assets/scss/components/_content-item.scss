@@ -317,7 +317,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include touch {
     .full-content-wrapper .content-item {
         .content-info {
             h3 {
@@ -330,7 +330,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .content-item {
         &.write-tutorial {
             display: none;

@@ -101,13 +101,13 @@
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .pagination {
         border: 1px solid #d2d5d6;
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .pagination {
         li {
             &.prev a,
@@ -121,7 +121,7 @@
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include touch {
     .pagination {
         li {
             &.summary-button {

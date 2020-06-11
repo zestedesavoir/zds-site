@@ -21,17 +21,17 @@ $color-linkbox-default: #777;
         width: 33.33%;
         width: calc(33.33% - 20px);
 
-        @media only screen and #{$media-extra-wide} {
+        @include wide {
             width: 25%;
             width: calc(25% - 20px);
         }
 
-        @media only screen and #{$media-mobile-tablet} {
+        @include touch {
             width: 50%;
             width: calc(50% - 20px);
         }
 
-        @media only screen and #{$media-mobile} {
+        @include mobile {
             width: 100%;
             width: calc(100% - 20px);
         }
