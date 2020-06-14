@@ -213,4 +213,3 @@ exports.errors = errors
 exports.prepareZmd = prepareZmd
 exports.prepareEasyMde = prepareEasyMde
 exports.default = gulp.parallel(watch, jsLint)
-
