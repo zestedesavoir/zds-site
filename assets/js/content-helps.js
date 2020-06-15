@@ -13,12 +13,12 @@
         help_wanted: $current.text()
       },
       success: () => {
-        let current_el_classes = $current[0].classList
+        const currentHelpClasses = $current[0].classList
 
-        current_el_classes.toggle('selected', newActivation)
-        current_el_classes.toggle('ico-after', newActivation)
-        current_el_classes.toggle('tick', newActivation)
-        current_el_classes.toggle('green', newActivation)
+        currentHelpClasses.toggle('selected', newActivation)
+        currentHelpClasses.toggle('ico-after', newActivation)
+        currentHelpClasses.toggle('tick', newActivation)
+        currentHelpClasses.toggle('green', newActivation)
 
         $current.attr('data-activated', newActivation.toString())
       }
