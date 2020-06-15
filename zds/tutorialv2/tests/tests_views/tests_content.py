@@ -6265,7 +6265,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                                 {
                                     'activated': True,
                                     'help_wanted': help_wanted.title})
-        self.assertEqual(200, resp.status_code)
+        self.assertEqual(302, resp.status_code)
         self.assertEqual(1, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
 
     def test_add_help_opinion(self):

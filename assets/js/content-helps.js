@@ -1,16 +1,16 @@
 (function($) {
-  function changeHelpButtonState($help_button, state) {
-    const helpButtonClasses = $help_button[0].classList
+  function changeHelpButtonState($helpButton, state) {
+    const helpButtonClasses = $helpButton[0].classList
 
     helpButtonClasses.toggle('selected', state)
     helpButtonClasses.toggle('ico-after', state)
     helpButtonClasses.toggle('tick', state)
     helpButtonClasses.toggle('green', state)
 
-    $help_button.attr('data-activated', state.toString())
-    $help_button.blur()
+    $helpButton.attr('data-activated', state.toString())
+    $helpButton.blur()
 
-    $help_button.parent().find('input[name="activated"]').val((!state).toString())
+    $helpButton.parent().find('input[name="activated"]').val((!state).toString())
   }
 
   $('.help-toggle').click((e) => {
@@ -18,8 +18,6 @@
 
     const $current = $(e.target)
     const $form = $current.parent()
-    const data = $form.serialize()
-
     const newActivation = $current.attr('data-activated') !== 'true'
 
     // Change status before request for instant feeling.
