@@ -342,16 +342,16 @@
                     margin-top: 5px;
                 }
             }
-            
+
             &.not-ready {
                 background: $color-not-ready-content;
             }
         }
-        
+
         li {
             &.not-ready {
                 background: $color-not-ready-content;
-            }   
+            }
         }
 
         ol li.current {
@@ -377,30 +377,5 @@
                 }
             }
         }
-    }
-}
-
-.sidebar ul li a.help-toogle {
-    &:after {
-        position: absolute;
-        display: block;
-        left: 20px;
-        margin-left: 30px;
-        margin-right: 5px;
-        content: " ";
-    }
-
-    &.help-activated:after{
-        color: $color-success;
-        content: " ";
-        @include sprite();
-        @include sprite-position($tick-green);
-        width: 16px;
-        height: 16px;
-        top: 7px;
-        padding-left: 0;
-    }
-    &.help-activated {
-        font-weight: bolder;
     }
 }

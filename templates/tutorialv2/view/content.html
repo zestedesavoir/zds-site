@@ -708,36 +708,42 @@
     </div>
 
     {% if can_edit and not content.is_opinion %}
-        <h3 id="title-help">
-            {% trans "Demander de l'aide" %}
-            <a href="#what-is-a-help" class="help-question-mark open-modal"
-               title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}" aria-haspopup="dialog">?</a>
-        </h3>
-        <div id="what-is-a-help" class="modal modal-flex" data-modal-title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}"
-             data-modal-close="{% trans "Fermer" %}">
-            {% url 'content:helps' as help_url %}
-            {% blocktrans%}
-                <p>
-                    Lorsque vous rédigez un tutoriel ou un article, il se peut que vous ayiez
-                    besoin d'aide. La communauté est là pour vous ! En sélectionnant un des éléments
-                    ci-dessous, votre contenu sera répertorié dans la page <a href="{{ help_url }}">des aides</a>
-                    et la communauté pourra vous contacter.
-                </p>
-            {% endblocktrans %}
+        <div class="actions">
+            <h3 id="title-help">
+                {% trans "Demander de l'aide" %}
+                <a href="#what-is-a-help" class="help-question-mark open-modal"
+                   title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}" aria-haspopup="dialog">?</a>
+            </h3>
+            <div id="what-is-a-help" class="modal modal-flex" data-modal-title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}"
+                 data-modal-close="{% trans "Fermer" %}">
+                {% url 'content:helps' as help_url %}
+                {% blocktrans%}
+                    <p>
+                        Lorsque vous rédigez un tutoriel ou un article, il se peut que vous ayiez
+                        besoin d'aide. La communauté est là pour vous ! En sélectionnant un des éléments
+                        ci-dessous, votre contenu sera répertorié dans la page <a href="{{ help_url }}">des aides</a>
+                        et la communauté pourra vous contacter.
+                    </p>
+                {% endblocktrans %}
+            </div>
+            <ul>
+                {# HELPS #}
+                {% for help in helps %}
+                    <li>
+                        <form action="{% url 'content:helps-change' content.pk %}" method="POST">
+                            <input type="hidden" name="activated" value="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
+                            <input type="hidden" name="help_wanted" value="{{ help.title }}">
+                            <button href="{% url 'content:helps-change' content.pk %}" type="submit"
+                               class="help-toggle {% if help.pk in content_helps %}selected ico-after tick green{% endif %} help-{{ help.slug }}"
+                               data-activated="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
+                                {{ help.title }}
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+                {# END HELPS #}
+            </ul>
         </div>
-        <ul>
-            {# HELPS #}
-            {% for help in helps %}
-                <li>
-                    <a href="{% url 'content:helps-change' content.pk %}"
-                       class="help-toogle {% if help.pk in content_helps %}help-activated{% endif %} help-{{ help.slug }}"
-                       data-activated="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
-                        {{ help.title }}
-                    </a>
-                </li>
-            {% endfor %}
-            {# END HELPS #}
-        </ul>
     {% endif %}
     {%  include "tutorialv2/includes/summary.part.html"  %}
 

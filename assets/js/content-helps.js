@@ -1,5 +1,5 @@
 (function($) {
-  $('.help-toogle').click((e) => {
+  $('.help-toggle').click((e) => {
     const $current = $(e.target)
     e.preventDefault()
     const newActivation = $current.attr('data-activated') !== 'true'
@@ -13,13 +13,14 @@
         help_wanted: $current.text()
       },
       success: () => {
-        if (newActivation) {
-          $current.addClass('help-activated')
-          $current.attr('data-activated', 'true')
-        } else {
-          $current.removeClass('help-activated')
-          $current.attr('data-activated', 'false')
-        }
+        let current_el_classes = $current[0].classList
+
+        current_el_classes.toggle('selected', newActivation)
+        current_el_classes.toggle('ico-after', newActivation)
+        current_el_classes.toggle('tick', newActivation)
+        current_el_classes.toggle('green', newActivation)
+
+        $current.attr('data-activated', newActivation.toString())
       }
     })
   })
