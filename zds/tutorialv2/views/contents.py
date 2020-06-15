@@ -38,7 +38,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
     UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm, \
-    EditContentLicenseForm, EditContentTagsForm, ToogleHelpForm
+    EditContentLicenseForm, EditContentTagsForm, ToggleHelpForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -2068,7 +2068,7 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
 
 
 class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    form_class = ToogleHelpForm
+    form_class = ToggleHelpForm
 
     def form_valid(self, form):
         """
@@ -2085,7 +2085,11 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         else:
             self.object.helps.remove(data['help_wanted'])
         self.object.save(force_slug_update=False)
-        return HttpResponse(json.dumps({'result': 'ok'}), content_type='application/json')
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({'result': 'ok', 'help_wanted': data['activated']}),
+                                content_type='application/json')
+        self.success_url = self.object.get_absolute_url()
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         if self.request.is_ajax():

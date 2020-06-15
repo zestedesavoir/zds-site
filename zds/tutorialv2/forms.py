@@ -1450,7 +1450,7 @@ class RemoveSuggestionForm(forms.Form):
     )
 
 
-class ToogleHelpForm(forms.Form):
+class ToggleHelpForm(forms.Form):
     help_wanted = forms.CharField()
     activated = forms.BooleanField(required=False)
 

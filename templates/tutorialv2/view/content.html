@@ -721,7 +721,7 @@
                     <p>
                         Lorsque vous rédigez un tutoriel ou un article, il se peut que vous ayiez
                         besoin d'aide. La communauté est là pour vous ! En sélectionnant un des éléments
-                        ci-dessous, votre contenu sera répertorié dans la page <a href="{{ help_url }}">des aides</a>
+                        ci-dessous, votre contenu sera répertorié dans <a href="{{ help_url }}">la page des aides</a>
                         et la communauté pourra vous contacter.
                     </p>
                 {% endblocktrans %}
@@ -731,9 +731,10 @@
                 {% for help in helps %}
                     <li>
                         <form action="{% url 'content:helps-change' content.pk %}" method="POST">
-                            <input type="hidden" name="activated" value="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="activated" value="{% if help.pk in content_helps %}false{% else %}true{% endif %}">
                             <input type="hidden" name="help_wanted" value="{{ help.title }}">
-                            <button href="{% url 'content:helps-change' content.pk %}" type="submit"
+                            <button type="submit"
                                class="help-toggle {% if help.pk in content_helps %}selected ico-after tick green{% endif %} help-{{ help.slug }}"
                                data-activated="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
                                 {{ help.title }}
