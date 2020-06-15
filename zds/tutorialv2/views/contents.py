@@ -2088,7 +2088,9 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return HttpResponse(json.dumps({'result': 'ok'}), content_type='application/json')
 
     def form_invalid(self, form):
-        return HttpResponse(json.dumps({'errors': form.errors}), status=400, content_type='application/json')
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({'errors': form.errors}), status=400, content_type='application/json')
+        return super().form_invalid(form)
 
 
 class ContentOfContributors(ZdSPagingListView):
