@@ -73,7 +73,7 @@ Ajoutez une icône sur un bouton comme sur n'importe quel autre élément :
 Le style général du site se veut épuré, on évitera les icônes sur les boutons de soumission de formulaire. On les utilisera pour illustrer les boutons d'action : déplacer, supprimer, renommer, éditer, etc.
 
 Icône d'aide
--------------
+------------
 
 Il existe une classe, ``help-question-mark``, à appliquer sur un lien, affichant
 un petit cercle coloré autour du texte du lien. Avec ``?`` comme texte de lien,
@@ -86,6 +86,57 @@ N'oubliez pas d'ajouter un attribut ``title`` (ou si l'infobulle gêne,
 .. sourcecode:: html
 
   <a href="#" class="help-question-mark" title="Titre du lien">?</a>
+
+Bouton de modification
+----------------------
+
+Pour afficher un petit bouton permettant de modifier un élément, et *seulement si
+l'élément modifié est clairement identifié pour l'utilisateur*, il existe une
+classe ``edit-button`` à ajouter à un lien. Le texte de ce lien doit être masqué
+afin de ne pas briser son affichage. Le rendu sera un crayon bleu, virant au blanc
+sur fond bleu circulaire lorsque survolé.
+
+Il est important de tout de même spécifier *et* un texte dans le bouton (masqué),
+*et* une infobulle, afin d'être très clair sur le rôle du bouton tant pour un
+utilisateur normal (le bouton n'ayant pas de nom visuel, l'infobulle permet de
+confirmer ce qu'il fait) que pour un utilisateur usant d'un lecteur d'écran (le
+texte alternatif étant alors indispensable, l'icône crayon ne pouvant être vue).
+
+Aussi, si le lien ouvre une boîte modale, celle-ci sera sans titre si le lien est
+vide.
+
+Voici un exemple.
+
+.. sourcecode:: html
+
+  <a href="#modal" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+    <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+  </a>
+
+Pour s'assurer que le bouton de modification et ce qu'il permet de modifier
+soient correctement alignés verticalement et espacés, il existe une seconde
+classe à appliquer à un conteneur des deux éléments : ``editable-element``.
+
+Cet élément doit avoir deux enfants : l'un d'entre eux sera l'élément
+visuellement modifié, et l'autre le bouton de modification, avec la classe
+``edit-button``. S'il a plus de deux enfants, le bouton de modification prendra
+toujours le moins d'espace possible, et les autres se partageront équitablement
+la place disponible, tout en restant alignés verticalement.
+
+Le bouton peut être placé avant ou après l'élément : l'alignement et
+l'espacement seront correctement gérés.
+
+Si on prend l'exemple d'une licence d'un contenu à côté de laquelle on place un
+bouton de modification, l'on pourrait utiliser le code HTML suivant.
+
+.. sourcecode:: html
+
+  <div class="editable-element">
+    <p>{{ content.licence }}</p>
+    <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+      <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+    </a>
+  </div>
 
 
 Formulaires
@@ -215,4 +266,3 @@ Vous pouvez combiner icône et texte comme ceci :
       <span class="alert-box-text">Croix + texte.</span>
       <button class="close-alert-box close-alert-box-text ico-after cross white">Masquer l'alerte</button>
   </div>
-
