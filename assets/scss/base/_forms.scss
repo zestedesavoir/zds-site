@@ -191,7 +191,7 @@
             }
         }
     }
-    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {  
+    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {
         &:not(.link) {
             background: $bg;
             color: $color;

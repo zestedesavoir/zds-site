@@ -11,9 +11,10 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
-from zds.member.factories import ProfileFactory
+from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import ContentReactionFactory, PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.models.database import PublicationEvent
 from zds.utils.models import CommentVote
 
 
@@ -188,3 +189,101 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(1, len(response.data['dislike']['users']))
         self.assertEqual(1, response.data['like']['count'])
         self.assertEqual(1, response.data['dislike']['count'])
+
+
+@override_for_contents()
+class ContentExportsAPITest(TutorialTestMixin, APITestCase):
+    def setUp(self):
+        self.client = APIClient()
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+
+    def tearDown(self):
+        pass
+        # if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+        #     shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        # if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+        #     shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        # if os.path.isdir(settings.MEDIA_ROOT):
+        #     shutil.rmtree(settings.MEDIA_ROOT)
+
+    def test_request_content_exports_generation(self):
+        author = ProfileFactory()
+        not_author = ProfileFactory()
+        staff = StaffProfileFactory()
+
+        content = PublishedContentFactory(author_list=[author.user]).public_version
+
+        self.assertEqual(0, PublicationEvent.objects.filter(published_object=content).count())
+
+        # Anonymous sender should not be able to ask for exports generation
+        response = self.client.post(reverse('api:content:generate_export', args=[content.content.pk]))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(0, PublicationEvent.objects.filter(published_object=content).count())
+
+        # An authenticated author but not an author should not either
+        self.assertTrue(self.client.login(username=not_author.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:content:generate_export', args=[content.content.pk]))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(0, PublicationEvent.objects.filter(published_object=content).count())
+
+        # But if the user is staff, it should
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:content:generate_export', args=[content.content.pk]))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        requests_count = PublicationEvent.objects.filter(published_object=content).count()
+        self.assertGreater(requests_count, 0)
+
+        # And if the user is an author, it should too
+        self.assertTrue(self.client.login(username=author.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:content:generate_export', args=[content.content.pk]))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # And it should be greater than the previous one as we added new requets
+        self.assertGreater(PublicationEvent.objects.filter(published_object=content).count(), requests_count)
+
+        self.client.logout()
+
+    def test_content_exports_list(self):
+        author = ProfileFactory()
+        content = PublishedContentFactory(author_list=[author.user]).public_version
+
+        # Anonymous usage should be allowed
+        response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # At this point, no export was generated so this should be empty
+        self.assertEqual(response.data, [])
+
+        # Let's request some
+        self.assertTrue(self.client.login(username=author.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:content:generate_export', args=[content.content.pk]))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        requests_count = PublicationEvent.objects.filter(published_object=content).count()
+
+        self.client.logout()
+
+        response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), requests_count)
+
+        # Let's request some more. The API should only return the latest ones, so
+        # even if there are some more records in the database, the count should stay
+        # the same.
+        self.assertTrue(self.client.login(username=author.user.username, password='hostel77'))
+        response = self.client.post(reverse('api:content:generate_export', args=[content.content.pk]))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.client.logout()
+
+        response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), requests_count)
+
+        # We create another content. Even if there are some records in the database,
+        # they should not be returned for this new content.
+        other_content = PublishedContentFactory(author_list=[author.user])
+
+        response = self.client.get(reverse('api:content:list_exports', args=[other_content.pk]), type='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])

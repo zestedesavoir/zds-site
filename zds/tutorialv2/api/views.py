@@ -1,12 +1,15 @@
 import contextlib
 from pathlib import Path
 
+from django.db.models.expressions import Window
+from django.db.models.functions import RowNumber
+from django.db.models import F, Q, Subquery
 from django.http import Http404
 from django.utils import translation
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.fields import empty
-from rest_framework.generics import UpdateAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
@@ -16,7 +19,8 @@ from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, IsNotOwnerO
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
-from zds.tutorialv2.models.database import ContentReaction, PublishableContent
+from zds.tutorialv2.api.serializers import PublicationEventSerializer
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublicationEvent
 
 
 class ContainerReadinessSerializer(Serializer):
@@ -104,3 +108,33 @@ class ExportView(APIView):
             return Response({}, status=status.HTTP_400_BAD_REQUEST, headers={})
         else:
             return Response({}, status=status.HTTP_201_CREATED, headers={})
+
+
+"""
+Lists the most recent exports for this content, and their status.
+"""
+class ExportsView(ListAPIView):
+    serializer_class = PublicationEventSerializer
+    pagination_class=None
+
+    def get_queryset(self):
+        # Retrieves the latest entry for each `format_requested`, for our content.
+        # The `latest_events` sub-request retieves all events for the current content, and
+        # and annotates them with their row number if we would select them by requested format,
+        # ordered by descending date. The first one by date with the PDF type would be annotated
+        # 1, the second with PDF, 2, etc.
+        # The outer request selects everything in the inner request, but filtering only the first
+        # row for each format, keeping only the latest record for each type for this content.
+        # We have to use a sub-request as the SQL spec forbides to filter on a windowed element
+        # directly.
+        #
+        # This uses raw SQL because even if Django supports windowed requests, it does not allow
+        # to select _from_ a subrequest (« SELECT * FROM (SELECT … ) WHERE … »).
+        return PublicationEvent.objects.raw("""
+            WITH latest_events AS (
+                SELECT p.*, ROW_NUMBER() OVER (PARTITION BY format_requested ORDER BY date DESC) AS row
+                FROM tutorialv2_publicationevent AS p
+                INNER JOIN tutorialv2_publishedcontent published ON (p.published_object_id = published.id)
+                WHERE published.content_id = %s
+            )
+            SELECT * FROM latest_events WHERE row = 1""", [int(self.kwargs.get('pk', 0))])
