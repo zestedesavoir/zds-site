@@ -111,10 +111,11 @@ class ExportView(APIView):
             return Response({}, status=status.HTTP_201_CREATED, headers={})
 
 
-"""
-Lists the most recent exports for this content, and their status.
-"""
 class ExportsView(ListAPIView):
+    """
+    Lists the most recent exports for this content, and their status.
+    """
+
     serializer_class = PublicationEventSerializer
     pagination_class = None
 

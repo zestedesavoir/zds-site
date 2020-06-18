@@ -198,13 +198,12 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
     def tearDown(self):
-        pass
-        # if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
-        #     shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
-        # if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
-        #     shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
-        # if os.path.isdir(settings.MEDIA_ROOT):
-        #     shutil.rmtree(settings.MEDIA_ROOT)
+        if os.path.isdir(settings.ZDS_APP['content']['repo_private_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_private_path'])
+        if os.path.isdir(settings.ZDS_APP['content']['repo_public_path']):
+            shutil.rmtree(settings.ZDS_APP['content']['repo_public_path'])
+        if os.path.isdir(settings.MEDIA_ROOT):
+            shutil.rmtree(settings.MEDIA_ROOT)
 
     def test_request_content_exports_generation(self):
         author = ProfileFactory()
