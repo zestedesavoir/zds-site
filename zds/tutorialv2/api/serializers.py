@@ -11,5 +11,5 @@ class PublicationEventSerializer(ModelSerializer):
 
     class Meta:
         model = PublicationEvent
-        fields = ("state_of_processing", "format_requested", "date", "url")
+        fields = ('state_of_processing', 'format_requested', 'date', 'url')
         permissions_classes = DRYPermissions

@@ -9,15 +9,15 @@ from zds.tutorialv2.api.views import (
 
 urlpatterns = [
     path(
-        "reactions/<int:pk>/karma/",
+        'reactions/<int:pk>/karma/',
         ContentReactionKarmaView.as_view(),
-        name="reaction-karma",
+        name='reaction-karma',
     ),
     path(
-        "publication/preparation/<int:pk>/",
+        'publication/preparation/<int:pk>/',
         ContainerPublicationReadinessView.as_view(),
-        name="readiness",
+        name='readiness',
     ),
-    path("export/<int:pk>/", ExportView.as_view(), name="generate_export"),
-    path("exports/<int:pk>/", ExportsView.as_view(), name="list_exports"),
+    path('export/<int:pk>/', ExportView.as_view(), name='generate_export'),
+    path('exports/<int:pk>/', ExportsView.as_view(), name='list_exports'),
 ]
