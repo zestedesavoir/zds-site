@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django.db.models.expressions import Window
 from django.db.models.functions import RowNumber
+from django.db.models.query import prefetch_related_objects
 from django.db.models import F, Q, Subquery
 from django.http import Http404
 from django.utils import translation
@@ -115,7 +116,7 @@ Lists the most recent exports for this content, and their status.
 """
 class ExportsView(ListAPIView):
     serializer_class = PublicationEventSerializer
-    pagination_class=None
+    pagination_class = None
 
     def get_queryset(self):
         # Retrieves the latest entry for each `format_requested`, for our content.
@@ -130,7 +131,7 @@ class ExportsView(ListAPIView):
         #
         # This uses raw SQL because even if Django supports windowed requests, it does not allow
         # to select _from_ a subrequest (« SELECT * FROM (SELECT … ) WHERE … »).
-        return PublicationEvent.objects.raw("""
+        exports = PublicationEvent.objects.raw("""
             WITH latest_events AS (
                 SELECT p.*, ROW_NUMBER() OVER (PARTITION BY format_requested ORDER BY date DESC) AS row
                 FROM tutorialv2_publicationevent AS p
@@ -138,3 +139,7 @@ class ExportsView(ListAPIView):
                 WHERE published.content_id = %s
             )
             SELECT * FROM latest_events WHERE row = 1""", [int(self.kwargs.get('pk', 0))])
+
+        prefetch_related_objects(exports, 'published_object')
+
+        return exports

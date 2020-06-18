@@ -249,11 +249,17 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         content = PublishedContentFactory(author_list=[author.user]).public_version
 
         # Anonymous usage should be allowed
-        response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # We check that no extraneous SQL query is executed, as this API‌ is used
+        # for live updates.
+        # Here we expect one request, as there are no records. For other calls,
+        # we expect two requests: one for the exports list and one for the
+        # PublishedContent prefetch (to get the export's URL).
+        with self.assertNumQueries(1):
+            response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        # At this point, no export was generated so this should be empty
-        self.assertEqual(response.data, [])
+            # At this point, no export was generated so this should be empty
+            self.assertEqual(response.data, [])
 
         # Let's request some
         self.assertTrue(self.client.login(username=author.user.username, password='hostel77'))
@@ -264,9 +270,10 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
 
         self.client.logout()
 
-        response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), requests_count)
+        with self.assertNumQueries(2):
+            response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data), requests_count)
 
         # Let's request some more. The API should only return the latest ones, so
         # even if there are some more records in the database, the count should stay
@@ -276,14 +283,17 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.client.logout()
 
-        response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), requests_count)
+        with self.assertNumQueries(2):
+            response = self.client.get(reverse('api:content:list_exports', args=[content.content.pk]), type='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(len(response.data), requests_count)
 
         # We create another content. Even if there are some records in the database,
         # they should not be returned for this new content.
         other_content = PublishedContentFactory(author_list=[author.user])
 
-        response = self.client.get(reverse('api:content:list_exports', args=[other_content.pk]), type='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
+        # One request as there are no export: no prefetch needed.
+        with self.assertNumQueries(1):
+            response = self.client.get(reverse('api:content:list_exports', args=[other_content.pk]), type='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.data, [])
