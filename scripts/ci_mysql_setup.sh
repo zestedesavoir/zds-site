@@ -4,9 +4,18 @@ sudo sed -i'' 's/\[mysqld\]/\[mysqld\]\ninnodb_file_per_table=on\ninnodb_file_fo
 sudo systemctl restart mysql
 
 # Travis should fail as soon as possible
-mysql -u root -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';"
+sudo mysql -u root -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';"
+
 # Avoid "mysql has gone away" errors
-mysql -u root -e "SET GLOBAL wait_timeout = 36000;"
-mysql -u root -e "SET GLOBAL max_allowed_packet = 134209536;"
+sudo mysql -u root -e "SET GLOBAL wait_timeout = 36000;"
+sudo mysql -u root -e "SET GLOBAL max_allowed_packet = 134209536;"
+
+# Ensures correct charset and collation
+sudo mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4';"
+sudo mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci';"
+
+# Ensures the root user is able to connect without password
+sudo mysql -u root -e "SET Password=PASSWORD('')"
+
 # Create database with the correct charset and collation
-mysql -u root -e "CREATE DATABASE zds_test CHARACTER SET = utf8mb4 COLLATE utf8mb4_unicode_ci;"
+sudo mysql -u root -e "CREATE DATABASE zds_test CHARACTER SET = 'utf8mb4' COLLATE = 'utf8mb4_unicode_ci';"

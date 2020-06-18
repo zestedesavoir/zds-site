@@ -9,11 +9,11 @@ python:
 
 services:
   - memcached
-  - mysql
 
 
 addons:
   firefox: "latest"
+  mariadb: 10.4
   apt:
     packages:
       - language-pack-fr
