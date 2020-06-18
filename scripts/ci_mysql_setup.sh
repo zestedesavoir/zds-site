@@ -10,6 +10,10 @@ sudo mysql -u root -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRAN
 sudo mysql -u root -e "SET GLOBAL wait_timeout = 36000;"
 sudo mysql -u root -e "SET GLOBAL max_allowed_packet = 134209536;"
 
+# Ensures correct charset and collation
+sudo mysql -u root -e "SET GLOBAL character_set_server = 'utf8mb4';"
+sudo mysql -u root -e "SET GLOBAL collation_server = 'utf8mb4_unicode_ci';"
+
 # Ensures the root user is able to connect without password
 sudo mysql -u root -e "SET Password=PASSWORD('')"
 
