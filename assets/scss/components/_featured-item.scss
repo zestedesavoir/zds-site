@@ -1,13 +1,17 @@
 .featured-resource-item {
-    flex: 1;
-    margin-right: 1px;
-    background-color: #CCC;
     position: relative;
     overflow: hidden;
+
+    flex: 1;
+
+    margin-right: 1px;
+
     max-width: 228px;
     min-width: 170px;
+
+    border-radius: 8px;
+
     z-index: 0;
-    background-color: $color-primary;
 
     &::before {
         content: "";
@@ -33,53 +37,74 @@
 
     .featured-resource-meta {
         position: absolute;
+        bottom: .1rem;
+        right: .8rem;
+        left: .8rem;
+
         z-index: 3;
-        color: white;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        padding: 40px 14px 12px;
-        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.6);
-        background-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, .2) 30px, rgba(0, 0, 0, .4));
+
+        padding: 1.5rem;
+        border-radius: 8px;
+
+        @include shadow-1;
+
+        background-color: rgba($primary-800, .8);
+        color: $white;
+
+        hyphens: auto;
+
+        transition: box-shadow $transition-duration ease-in-out,
+                    background-color $transition-duration ease-in-out,
+                    transform $transition-duration ease-in-out;
 
         h2 {
-             font-size: 16px;
-             line-height: 20px;
-             font-weight: normal;
-             margin: 0;
-             display: table-cell;
-             vertical-align: middle;
-             height: 0;
-             transition: height $transition-duration ease;
-             color: #fff;
-             border: none;
+            margin: 0 0 .6rem 0;
+
+            border: none;
+
+            font-size: $size-8;
+            line-height: $size-7;
+
+            font-weight: normal;
+            color: $white;
          }
 
          p {
-            font-size: 12px;
             margin: 0;
-            line-height: 22px;
+
+            font-size: $size-10;
+            line-height: $size-9;
+
+            color: $primary-200;
          }
     }
 
-    a:focus,
-    a:hover {
-        .featured-resource-illu {
-            opacity: 0.4;
-            filter: blur(5px);
-            transform: scale(1.05), translateZ(0);
-        }
+    a:hover, a:focus {
         .featured-resource-meta {
-            h2 {
-                height: 190px;
-                font-size: 20px;
-            }
+            @include shadow-2;
+            background-color: rgba($primary-800, .96);
+            transform: scale(1.02);
         }
     }
 
-    & > a {
-        display: block;
-    }
+    // a:focus,
+    // a:hover {
+    //     .featured-resource-illu {
+    //         opacity: 0.4;
+    //         filter: blur(5px);
+    //         transform: scale(1.05), translateZ(0);
+    //     }
+    //     .featured-resource-meta {
+    //         h2 {
+    //             height: 190px;
+    //             font-size: 20px;
+    //         }
+    //     }
+    // }
+    //
+    // & > a {
+    //     display: block;
+    // }
 }
 
 .featured-resource-edit-form {

@@ -1,7 +1,16 @@
 .home {
     .home-row {
         display: flex;
-        margin-bottom: 10px;
+        margin-bottom: 1.5rem;
+
+        &:last-child {
+            margin-bottom: 4rem;
+        }
+
+        h2 {
+            margin: 0 .2rem 1.5rem;
+            border-bottom: none;
+        }
     }
 
     .flexpage-header {
@@ -132,12 +141,19 @@
 
     .featured-resource-row {
         display: flex;
-        margin-bottom: 30px;
-        padding: 1px 0 1px 1px;
-        background-color: #F7F7F7;
         flex-wrap: wrap;
         justify-content: center;
+
         width: 100%;
+
+        margin-bottom: 30px;
+        padding: 1px 0 1px 1px;
+
+        border-radius: 8px;
+
+        background-color: $true-white;
+
+        @include shadow-4;
 
         .no-featured-resource {
             margin: 0;
@@ -152,8 +168,11 @@
     }
 
     .home-heading.heading-white {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+
+        border-bottom: none;
         color: white;
-        border-bottom-color: white;
     }
 }
 

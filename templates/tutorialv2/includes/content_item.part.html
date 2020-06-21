@@ -72,17 +72,21 @@
     </a>
 
     <div class="content-info">
-        <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
+        <header>
             <h3 class="content-title" itemprop="itemListElement">
-                {{ content_title }}
+                <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
+                    {{ content_title }}
+                </a>
             </h3>
 
             <p class="content-description" {% if not show_description or not content_subtitle %}aria-hidden="true"{% endif %}>
                 {% if content_subtitle and show_description %}
-                    {{ content_subtitle }}
+                    <a href="{{ link }}" title="{{ content_title }}{% if content_subtitle and show_description %} − {{ content_subtitle }}{% endif %}">
+                        {{ content_subtitle }}
+                    </a>
                 {% endif %}
             </p>
-        </a>
+        </header>
 
         <div class="content-meta">
             {% if content.subcategory %}

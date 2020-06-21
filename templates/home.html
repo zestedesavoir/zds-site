@@ -97,7 +97,7 @@
                 {% trans "À la une" %}
 
                 {% if perms.featured.change_featuredresource %}
-                    <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
+                    <a href="{% url "featured-resource-list" %}" class="btn">{% trans "Gérer les unes" %}</a>
                 {% endif %}
             </h1>
 
@@ -113,7 +113,7 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
                     {% trans "Derniers tutoriels" %}
-                    <a href="{% url 'publication:list' %}?type=tutorial" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
+                    <a href="{% url 'publication:list' %}?type=tutorial" class="btn">{% trans "Tous les tutoriels" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
@@ -125,7 +125,7 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-articles home-heading" itemprop="name">
                     {% trans "Derniers articles" %}
-                    <a href="{% url 'publication:list' %}?type=article" class="btn btn-grey">{% trans "Tous les articles" %}</a>
+                    <a href="{% url 'publication:list' %}?type=article" class="btn">{% trans "Tous les articles" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
@@ -134,7 +134,7 @@
 
                 <div class="content-item-list">
 
-                    <div class="content-item write-tutorial">
+                    <div class="write-tutorial">
                         <div class="write-tutorial-text">
                             <p>
                                 {% blocktrans with plural=contents_count|pluralize_fr %}
@@ -143,6 +143,7 @@
                             </p>
                             <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
                         </div>
+
                         <a href="{% url "content:create-tutorial" %}" class="btn btn-write-tutorial">{% trans "Commencer à rédiger" %}</a>
                     </div>
                 </div>
@@ -153,7 +154,7 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-opinions home-heading" itemprop="name">
                     {% trans "Derniers billets choisis" %}
-                    <a href="{% url "opinion:list" %}" class="btn btn-grey">{% trans "Tous les billets" %}</a>
+                    <a href="{% url "opinion:list" %}" class="btn">{% trans "Tous les billets" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
@@ -170,7 +171,7 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="home-heading ico-after ico-forum" itemprop="name">
                     {% trans "Derniers sujets" %}
-                    <a href="{% url 'last-subjects' %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
+                    <a href="{% url 'last-subjects' %}" class="btn">{% trans "En voir plus" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">

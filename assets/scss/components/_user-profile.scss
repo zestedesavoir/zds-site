@@ -51,7 +51,7 @@ body.userprofilepage {
         text-align: center;
         text-transform: none;
 
-        background-color: darken($color-primary, 12%);
+        background-color: $primary-900;
     }
 
     .flexpage-title-tool a.badge-sanction {

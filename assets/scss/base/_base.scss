@@ -133,7 +133,7 @@ nav {
     width: 18px;
     height: 18px;
 
-    background-color: $color-question-marks;
+    background-color: $primary-500;
     border-radius: 426921px;
 
     font-weight: bold;
@@ -147,9 +147,11 @@ nav {
 
     user-select: none;
 
+    transition: background-color .1s ease-in-out;
+
     &:hover {
         color: white;
-        background-color: darken($color-question-marks, 10%);
+        background-color: $primary-600;
     }
 }
 

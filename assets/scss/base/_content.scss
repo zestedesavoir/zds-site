@@ -106,11 +106,11 @@ h6 {
     font-weight: bold;
 }
 .custom-block-information {
-    background: #daeaee;
+    background: $primary-100;
 
     .custom-block-heading {
         color: white;
-        background: lighten(#1C80B5, 20%);
+        background: $primary-500;
     }
 
     .custom-block-body:after {

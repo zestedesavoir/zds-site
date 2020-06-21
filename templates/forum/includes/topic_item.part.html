@@ -5,22 +5,24 @@
 
 <article class="content-item topic-item">
     <div class="content-info">
-        <a href="{{ topic.get_absolute_url }}" title="{{ topic.title }}">
-            <h3 class="content-title" itemprop="itemListElement">
-                {{ topic.title }}
-            </h3>
-        </a>
+        <header>
+            <a href="{{ topic.get_absolute_url }}" title="{{ topic.title }}">
+                <h3 class="content-title" itemprop="itemListElement">
+                    {{ topic.title }}
+                </h3>
+            </a>
 
-        <p class="content-description">
-            {{ topic.forum.title }},
-            {% trans "par" %}{% include "misc/member_item.part.html" with member=topic.author %}
-            -
+            <p class="content-description">
+                {{ topic.forum.title }},
+                {% trans "par" %}{% include "misc/member_item.part.html" with member=topic.author %}
+                –
 
-            <time pubdate="{{ topic.pubdate|date:"c" }}">
-                <span class="long">{{ topic.pubdate|format_date|capfirst }}</span>
-                <span class="short">{{ topic.pubdate|format_date:True|capfirst }}</span>
-            </time>
-        </p>
+                <time pubdate="{{ topic.pubdate|date:"c" }}">
+                    <span class="long">{{ topic.pubdate|format_date|capfirst }}</span>
+                    <span class="short">{{ topic.pubdate|format_date:True|capfirst }}</span>
+                </time>
+            </p>
+        </header>
 
         <p class="content-meta inline">
             {% with answer=topic.get_last_answer last_read_url=topic.resolve_last_read_post_absolute_url %}
