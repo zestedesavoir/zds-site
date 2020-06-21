@@ -118,7 +118,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         }
 
         .content-meta {
-            color: $accent-900;
+            color: $accent-800;
 
             font-size: $size-10;
             line-height: $size-9;
@@ -132,7 +132,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             }
 
             & a {
-                color: $accent-900;
+                color: $accent-800;
 
                 &:hover, &:focus {
                     text-decoration: underline;
@@ -152,7 +152,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             @include sprite();
             @include sprite-position($chat-bubble);
 
-            color: $accent-900;
+            color: $accent-800;
             text-align: center;
             line-height: 32px;
             font-weight: bold;
