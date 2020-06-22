@@ -4,7 +4,7 @@ Lancer Zeste de Savoir sur Linux
 
 Vous avez réussi à `installer Zeste de Savoir sur votre distribution GNU/Linux <install-linux.html>`_ ? Il est maintenant temps de le lancer !
 
-Si cela fait déjà un moment, n'hésitez pas à `mettre à jour votre environnement de développement <../guides.html>`_ avant de suivre ce guide.
+Si cela fait déjà un moment, n'hésitez pas à `mettre à jour votre environnement de développement <update-env.html>`_ avant de suivre ce guide.
 
 Activer l'environnement
 =======================
