@@ -18,6 +18,7 @@
 
     const $current = $(e.target)
     const $form = $current.parent()
+    const data = $form.serialize()
     const newActivation = $current.attr('data-activated') !== 'true'
 
     // Change status before request for instant feeling.
@@ -27,20 +28,10 @@
 
     $.ajax($form.attr('action'), {
       method: 'POST',
-      data: {
-        activated: newActivation ? 'true' : 'false',
-        help_wanted: $current.text()
-      },
-      success: () => {
-        const currentHelpClasses = $current[0].classList
-
-        currentHelpClasses.toggle('selected', newActivation)
-        currentHelpClasses.toggle('ico-after', newActivation)
-        currentHelpClasses.toggle('tick', newActivation)
-        currentHelpClasses.toggle('green', newActivation)
-
-        $current.attr('data-activated', newActivation.toString())
-      }
+      data,
+      success: resultData => changeHelpButtonState($current,
+        resultData.help_wanted),
+      error: () => changeHelpButtonState($current, !newActivation),
     })
   })
 })(jQuery)
