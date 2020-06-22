@@ -6256,3 +6256,25 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False)
 
         self.assertEqual(tutorial.public_version.authors.count(), 1)
+
+    def test_add_help_tuto(self):
+        self.client.login(username=self.user_author.username, password='hostel77')
+        tutorial = PublishableContentFactory(author_list=[self.user_author])
+        help_wanted = HelpWritingFactory()
+        resp = self.client.post(reverse('content:helps-change', args=[tutorial.pk]),
+                                {
+                                    'activated': True,
+                                    'help_wanted': help_wanted.title})
+        self.assertEqual(302, resp.status_code)
+        self.assertEqual(1, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
+
+    def test_add_help_opinion(self):
+        self.client.login(username=self.user_author.username, password='hostel77')
+        tutorial = PublishableContentFactory(author_list=[self.user_author], type='OPINION')
+        help_wanted = HelpWritingFactory()
+        resp = self.client.post(reverse('content:helps-change', args=[tutorial.pk]),
+                                {
+                                    'activated': True,
+                                    'help_wanted': help_wanted.title})
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(0, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())

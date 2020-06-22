@@ -82,8 +82,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 username=self.user_author.username,
                 password='hostel77'),
             True)
-        resp = self.client.get(reverse('content:create-opinion'))
-        self.assertNotContains(resp, 'id="div_id_helps"', msg_prefix='help field must not be displayed')
 
     def test_help_for_article(self):
         self.assertEqual(
@@ -93,7 +91,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             True)
         resp = self.client.get(reverse('content:create-article'))
         self.assertEqual(200, resp.status_code)
-        self.assertContains(resp, 'id="div_id_helps"', msg_prefix='help field must be displayed')
 
     def test_opinion_publication_staff(self):
         """

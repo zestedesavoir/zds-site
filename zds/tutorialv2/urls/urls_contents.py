@@ -11,7 +11,7 @@ from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditCo
                                            RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
                                            ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
                                            RemoveContributorFromContent, ContentOfContributors,
-                                           AddSuggestion, RemoveSuggestion, EditContentTags)
+                                           AddSuggestion, RemoveSuggestion, ChangeHelp, EditContentTags)
 
 from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
                                             HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
@@ -40,6 +40,7 @@ urlpatterns = [
     path('tribunes/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='OPINION')),
 
     re_path(r'^aides/$', ContentsWithHelps.as_view(), name='helps'),
+    re_path(r'^aides/(?P<pk>\d+)/change$', ChangeHelp.as_view(), name='helps-change'),
     re_path(r'^(?P<pk>\d+)/(?P<slug>.+)/(?P<parent_container_slug>.+)/(?P<container_slug>.+)/$',
             DisplayContainer.as_view(public_is_prioritary=False),
             name='view-container'),

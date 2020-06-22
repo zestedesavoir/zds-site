@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import re
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -37,7 +38,7 @@ from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidat
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
     UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm, \
-    EditContentLicenseForm, EditContentTagsForm
+    EditContentLicenseForm, EditContentTagsForm, ToggleHelpForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -78,11 +79,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     form_class = ContentForm
     content = None
     created_content_type = 'TUTORIAL'
-
-    def get_form_kwargs(self):
-        kwargs = super(CreateContent, self).get_form_kwargs()
-        kwargs['for_tribune'] = self.created_content_type == 'OPINION'
-        return kwargs
 
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
@@ -136,10 +132,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         # Add subcategories on tutorial
         for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
-
-        # Add helps if needed
-        for helpwriting in form.cleaned_data['helps']:
-            self.content.helps.add(helpwriting)
 
         self.content.save(force_slug_update=False)
 
@@ -257,7 +249,7 @@ class DisplayBetaContent(DisplayContent):
 
     def get_context_data(self, **kwargs):
         context = super(DisplayBetaContent, self).get_context_data(**kwargs)
-        context['helps'] = self.object.helps
+        context['helps'] = list(self.object.helps.all())
         context['pm_link'] = self.object.get_absolute_contact_url()
         return context
 
@@ -266,11 +258,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
-
-    def get_form_kwargs(self):
-        kwargs = super(EditContent, self).get_form_kwargs()
-        kwargs['for_tribune'] = self.object.type == 'OPINION'
-        return kwargs
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
@@ -284,7 +271,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial['conclusion'] = versioned.get_conclusion()
         initial['source'] = versioned.source
         initial['subcategory'] = self.object.subcategory.all()
-        initial['helps'] = self.object.helps.all()
         initial['last_hash'] = versioned.compute_hash()
 
         return initial
@@ -358,12 +344,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.subcategory.clear()
         for subcat in form.cleaned_data['subcategory']:
             publishable.subcategory.add(subcat)
-
-        # help can only be obtained on contents requiring validation before publication
-        if versioned.requires_validation():
-            publishable.helps.clear()
-            for help_ in form.cleaned_data['helps']:
-                publishable.helps.add(help_)
 
         publishable.save(force_slug_update=False)
 
@@ -1155,7 +1135,7 @@ class DisplayBetaContainer(DisplayContainer):
 
     def get_context_data(self, **kwargs):
         context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
-        context['helps'] = self.object.helps
+        context['helps'] = list(self.object.helps.all())
         context['pm_link'] = self.object.get_absolute_contact_url()
         return context
 
@@ -1713,7 +1693,7 @@ class ContentsWithHelps(ZdSPagingListView):
         if self.specific_need:
             context['specific_need'] = helps.filter(slug=self.specific_need).first()
 
-        context['helps'] = helps.all()
+        context['helps'] = list(helps.all())
         context['total_contents_number'] = queryset.count()
         return context
 
@@ -2087,6 +2067,36 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
         return super(RemoveAuthorFromContent, self).form_valid(form)
 
 
+class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    form_class = ToggleHelpForm
+
+    def form_valid(self, form):
+        """
+        change help needing state, assume this is ajax request
+        :param form: the data
+        :return: json answer
+        """
+        if self.object.is_opinion:
+            return HttpResponse(json.dumps({'errors': str(_("Impossible de demander de l'aide pour un billet"))}),
+                                status=400, content_type='application/json')
+        data = form.cleaned_data
+        if data['activated']:
+            self.object.helps.add(data['help_wanted'])
+        else:
+            self.object.helps.remove(data['help_wanted'])
+        self.object.save(force_slug_update=False)
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({'result': 'ok', 'help_wanted': data['activated']}),
+                                content_type='application/json')
+        self.success_url = self.object.get_absolute_url()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({'errors': form.errors}), status=400, content_type='application/json')
+        return super().form_invalid(form)
+
+
 class ContentOfContributors(ZdSPagingListView):
     type = 'ALL'
     context_object_name = 'contribution_contents'
@@ -2340,7 +2350,7 @@ class RemoveSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(RemoveSuggestion, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Les suggestions sélectionnées n'existent pas."))
+        messages.error(self.request, str(_("Les suggestions sélectionnées n'existent pas.")))
         if self.object.public_version:
             self.success_url = self.object.get_absolute_url_online()
         else:

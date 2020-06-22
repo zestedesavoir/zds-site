@@ -270,16 +270,9 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    helps = forms.ModelMultipleChoiceField(
-        label=_("Pour m'aider, je cherche un..."),
-        queryset=HelpWriting.objects.all(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple()
-    )
-
     source = forms.CharField(
         label=_("""Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
-                   indiquez le lien de la publication originale : """),
+                       indiquez le lien de la publication originale : """),
         max_length=PublishableContent._meta.get_field('source').max_length,
         required=False,
         widget=forms.TextInput(
@@ -289,14 +282,7 @@ class ContentForm(ContainerForm):
         )
     )
 
-    def _create_layout(self, hide_help):
-        html_part = HTML(_("<p>Demander de l'aide à la communauté !<br>"
-                           "Si vous avez besoin d'un coup de main, "
-                           "sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                           'et votre contenu apparaîtra alors sur <a href='
-                           '\"{% url \"content:helps\" %}\" '
-                           "alt=\"aider les auteurs\">la page d'aide</a>.</p>"))
-
+    def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
             Field('title'),
@@ -318,21 +304,16 @@ class ContentForm(ContainerForm):
             Field('subcategory', template='crispy/checkboxselectmultiple.html')
         )
 
-        if not hide_help:
-            self.helper.layout.append(html_part)
-            self.helper.layout.append(Field('helps'))
-
         self.helper.layout.append(Field('msg_commit'))
         self.helper.layout.append(ButtonHolder(StrictButton('Valider', type='submit')))
 
     def __init__(self, *args, **kwargs):
-        for_tribune = kwargs.pop('for_tribune', False)
         super(ContentForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self._create_layout(for_tribune)
+        self._create_layout()
 
         if 'type' in self.initial:
             self.helper['type'].wrap(
@@ -1467,3 +1448,15 @@ class RemoveSuggestionForm(forms.Form):
         label=_('Suggestion'),
         required=True,
     )
+
+
+class ToggleHelpForm(forms.Form):
+    help_wanted = forms.CharField()
+    activated = forms.BooleanField(required=False)
+
+    def clean(self):
+        clean_data = super().clean()
+        clean_data['help_wanted'] = HelpWriting.objects.filter(title=(self.data['help_wanted'] or '').strip()).first()
+        if not clean_data['help_wanted']:
+            self.add_error('help_wanted', _('Inconnu'))
+        return clean_data
