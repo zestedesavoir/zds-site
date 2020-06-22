@@ -31,7 +31,7 @@
       data,
       success: resultData => changeHelpButtonState($current,
         resultData.help_wanted),
-      error: () => changeHelpButtonState($current, !newActivation),
+      error: () => changeHelpButtonState($current, !newActivation)
     })
   })
 })(jQuery)
