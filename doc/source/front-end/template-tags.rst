@@ -102,7 +102,7 @@ sera rendu :
 
     jeudi 01 janvier 1970 à 00h00
 
-Si le contenu de ``date_epoch`` etait de ``42``.
+…si le contenu de ``date_epoch`` était de ``42``.
 
 ``from_elasticsearch_date``
 ---------------------------

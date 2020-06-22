@@ -149,8 +149,10 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             width: 32px;
             padding-left: 1px;
 
-            @include sprite();
-            @include sprite-position($chat-bubble);
+            background-color: $white;
+            @include shadow-1;
+
+            border-radius: 100%;
 
             color: $accent-800;
             text-align: center;
@@ -159,33 +161,40 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             font-size: 14px;
             font-size: 1.4rem;
 
+            transition: background-color $transition-duration ease-in-out;
+
             span {
                 position: relative;
                 z-index: 2;
             }
 
-            &::before {
-                content: "";
-                display: block;
-                position: absolute;
-                top: 0;
-                bottom: 0;
-                right: 0;
-                left: 0;
-                z-index: 1;
+            // The bubble tip
+            &:before {
+            	content: '';
+            	position: absolute;
 
-                @include sprite();
-                @include sprite-position($chat-bubble-orange);
+            	width: 0;
+            	height: 0;
 
-                opacity: 0;
-                transition: opacity $transition-duration;
+              bottom: -2%;
+              left: -13%;
+
+              border: .85rem solid transparent;
+            	border-top: none;
+            	border-bottom-color: $white;
+
+            	filter: drop-shadow(0 -1px 3px rgba($black, .1));
+              transform: rotate(-133deg) scaleY(1.8);
+
+              transition: border-bottom-color $transition-duration ease-in-out;
             }
 
             &:focus, &:hover {
                 color: $true-white;
+                background-color: $accent-800;
 
-                &::before {
-                    opacity: 1;
+                &:before {
+              	  border-bottom-color: $accent-800;
                 }
             }
         }

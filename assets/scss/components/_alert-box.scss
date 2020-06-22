@@ -1,4 +1,193 @@
+// An alert box is a message used to display an information to the user.
+// It can have a close button and/or an action button, and can either be
+// single-line or with a title and a content.
 .alert-box {
+    --border-color: #{$grey-500};
+    --background-color: #{$grey-100};
+
+    --text-color: #{$grey-800};
+    --text-link-color: #{$primary-600};
+    --text-link-color-hover: #{$primary-700};
+
+    --button-background-color: #{$grey-200};
+    --button-background-color-hover: #{$grey-300};
+    --button-text-color: #{$grey-900};
+
+    --close-color: #{$grey-700};
+    --close-color-hover: #{$grey-900};
+
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+
+    &.has-buttons-on-top {
+        align-items: flex-start;
+    }
+
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+
+    border-radius: 4px;
+
+    border-bottom: solid 1px var(--border-color);
+    background-color: var(--background-color);
+
+    color: var(--text-color);
+
+    a {
+        color: var(--text-link-color);
+        text-decoration: underline;
+
+        &:hover {
+            color: var(--text-link-color-hover);
+        }
+    }
+
+    > p,
+    > .alert-box-text, // deprecated
+    > .alert-box-content {
+        flex: 1;
+        margin: 0 !important;
+
+        &, * {
+            font-family: $font-sans-serif !important;
+            font-size: 1.5rem;
+        }
+
+        // specificity here is way too high :(
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0 !important;
+            font-size: 1.5rem !important;
+            font-weight: bold !important;
+            color: var(--text-color) !important;
+        }
+
+        p {
+            margin: 0 !important;
+        }
+    }
+
+    > button.btn,
+    > a.btn {
+        // counter global styles on `button` & `.btn`
+        float: none !important;
+        height: auto;
+        line-height: normal;
+
+        display: block;
+        padding: .4rem 2rem;
+
+        background-color: var(--button-background-color);
+        border-radius: 12px;
+        color: var(--button-text-color);
+
+        &:hover, &:focus {
+            background-color: var(--button-background-color-hover);
+        }
+
+        & + .alert-box-close, & + .close-alert-box {
+            margin-left: 1.5rem;
+        }
+    }
+
+    > a.close-alert-box, // deprecated
+    > button.close-alert-box, // deprecated
+    > a.alert-box-close,
+    > button.alert-box-close {
+        display: block;
+        position: relative;
+
+        width: 2rem;
+        height: 2rem;
+
+        float: none;
+        line-height: normal;
+        padding: 0;
+
+        background: transparent;
+
+        text-indent: -9999px;
+
+        &:after {
+            content: "\00d7";
+
+            display: block;
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 2rem;
+            height: 2rem;
+
+            background: none;
+
+            text-indent: 0;
+            font-size: 3rem;
+            line-height: 2rem;
+
+            color: var(--close-color);
+        }
+
+        &:hover, &:hover:after, &:focus, &:focus:after {
+            color: var(--close-color-hover);
+        }
+    }
+
+    // Alert themes
+
+    &.info, // TEMP PATCH WITH DJANGO ALERTS
+    &.success {
+        --border-color: #{$green-700};
+        --background-color: #{$green-100};
+
+        --text-color: #{$green-900};
+        --text-link-color: #{$green-700};
+        --text-link-color-hover: #{$green-800};
+
+        --button-background-color: #{$green-200};
+        --button-background-color-hover: #{$green-300};
+        --button-text-color: #{$green-900};
+
+        --close-color: #{$green-700};
+        --close-color-hover: #{$green-900};
+    }
+
+    &.error {
+        --border-color: #{$red-400};
+        --background-color: #{$red-100};
+
+        --text-color: #{$red-900};
+        --text-link-color: #{$red-600};
+        --text-link-color-hover: #{$red-700};
+
+        --button-background-color: #{$red-200};
+        --button-background-color-hover: #{$red-300};
+        --button-text-color: #{$red-900};
+
+        --close-color: #{$red-800};
+        --close-color-hover: #{$red-900};
+    }
+
+    &.alert, // TEMP PATCH WITH DJANGO ALERTS
+    &.warning {
+        --border-color: #{$accent-700};
+        --background-color: #{$accent-100};
+
+        --text-color: #{$accent-900};
+        --text-link-color: #{$accent-700};
+        --text-link-color-hover: #{$accent-800};
+
+        --button-background-color: #{$accent-200};
+        --button-background-color-hover: #{$accent-300};
+        --button-text-color: #{$accent-900};
+
+        --close-color: #{$accent-800};
+        --close-color-hover: #{$accent-900};
+    }
+}
+
+.alert-box-old {
     position: relative;
     padding: 8px 30px 8px 15px;
     margin: 0 0 15px 2%;
@@ -109,26 +298,13 @@
     }
 }
 
-.content-wrapper .alert-box {
-    margin: 0 0 20px;
-
-    & + .not-member {
-        margin-top: -20px;
-    }
-}
-
-.opinion-alerts {
-    .alert-box-text {
-        float: none;
-    }
+.content-wrapper .alert-box + .not-member {
+    margin-top: -20px;
 }
 
 @include tablet {
     .alert-box .alert-box-text {
         display: inline;
-    }
-    .topic-message .alert-box {
-        padding: 8px 75px 8px 15px;
     }
 }
 

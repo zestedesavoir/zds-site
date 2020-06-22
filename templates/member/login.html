@@ -28,13 +28,13 @@
                 {{ error }}
             </p>
         {% endif %}
-        <p class="alert-box success">
-            {% url "register-member" as url_register %}
-            {% blocktrans %}
-                Si vous n’avez pas de compte, vous pouvez <a href="{{url_register}}" >vous inscrire</a>.
-            {% endblocktrans %}
-        </p>
-
+        <div class="alert-box success">
+            <div class="alert-box-content">
+                <h4>{% trans "Vous n'avez pas de compte ?" %}</h4>
+                <p>{% trans "N'hésitez pas à vous inscrire afin de nous rejoindre et de pouvoir écrire, contribuer, ou réagir, sur Zeste de Savoir !" %}</p>
+            </div>
+            <a href="{% url "register-member" %}" class="btn">{% trans "S'inscrire sur Zeste de Savoir" %}</a>
+        </div>
         <section class="content-wrapper">
             <div class="content-col-2">
                 <h2>{% trans "Connexion classique" %}</h2>

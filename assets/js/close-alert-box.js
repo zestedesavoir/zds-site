@@ -7,7 +7,7 @@
 (function($) {
   'use strict'
 
-  $('.main').on('click', '.close-alert-box:not(.open-modal)', function(e) {
+  $('.main').on('click', '.close-alert-box:not(.open-modal), .alert-box-close:not(.open-modal)', function(e) {
     $(this).parents('.alert-box:first').slideUp(150, function() {
       $(this).remove()
     })

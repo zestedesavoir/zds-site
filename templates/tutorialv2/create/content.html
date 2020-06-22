@@ -24,9 +24,51 @@
 {% block content %}
     <div class="content-wrapper">
         <div class="alert-box info">
-            {% blocktrans %}
-                Vous allez créer un nouveau contenu sur {{ site_name }}. Pensez à prendre connaissance de la <a href="{{ editorial_line_link }}">ligne éditoriale du site</a>.
-            {% endblocktrans %}
+            <p>
+                {% blocktrans %}
+                    Vous allez créer un nouveau contenu sur {{ site_name }}. Pensez à prendre connaissance de la <a href="{{ editorial_line_link }}">ligne éditoriale du site</a>.
+                {% endblocktrans %}
+            </p>
+        </div>
+
+        <div class="alert-box">
+            <p>
+                Vous utilisez actuellement notre nouvel éditeur. Attention, il est au stade expérimental !
+            </p>
+            <button class="btn">Revenir à l'éditeur historique</button>
+        </div>
+
+        <div class="alert-box info">
+            <p>
+                La version actuelle du contenu provient d'une sauvegarde de votre navigateur.
+            </p>
+            <button class="btn">Utiliser la version du serveur (Ctrl + Z)</button>
+            <button class="alert-box-close">Fermer</button>
+        </div>
+
+        <div class="alert-box info">
+            <div class="alert-box-content">
+                <h3>Vous n'êtes pas encore membre ? Rejoignez-nous !</h3>
+                <p>C'est gratuit, et l'inscription ne demande que deux minutes.</p>
+            </div>
+            <button class="btn">S'inscrire dur Zeste de Savoir</button>
+        </div>
+
+        <div class="alert-box error">
+            <p>
+                Impossible de retirer Pluton de la liste des planètes.
+            </p>
+            <button class="btn">Réessayer plus fort</button>
+            <button class="alert-box-close">Fermer</button>
+        </div>
+
+        <div class="alert-box warning has-buttons-on-top">
+            <div class="alert-box-content">
+                <h3>Vous êtes en train de modifier le profil d'un autre utilisateur.</h3>
+                <p>Faites attention à ce que vous faites !</p>
+            </div>
+            <button class="btn">Modifier mon propre profil</button>
+            <button class="alert-box-close">Fermer</button>
         </div>
     </div>
 

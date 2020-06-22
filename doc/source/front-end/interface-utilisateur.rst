@@ -109,8 +109,8 @@ Voici un exemple.
 
 .. sourcecode:: html
 
-  <a href="#modal" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
-    <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+  <a href="#modal" class="open-modal edit-button" title="Modifier la licence">
+    <span class="visuallyhidden">Modifier la licence</span>
   </a>
 
 Pour s'assurer que le bouton de modification et ce qu'il permet de modifier
@@ -133,8 +133,8 @@ bouton de modification, l'on pourrait utiliser le code HTML suivant.
 
   <div class="editable-element">
     <p>{{ content.licence }}</p>
-    <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
-      <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+    <a href="#edit-license" class="open-modal edit-button" title="Modifier la licence">
+      <span class="visuallyhidden">Modifier la licence</span>
     </a>
   </div>
 
@@ -225,25 +225,26 @@ Dans certains cas, les modales ne sont pas des formulaires mais simplement des b
 Messages flash
 ==============
 
-Un message dit "flash" est un message d'information ou d'alerte qui est masquable selon la volonté de l'utilisateur et qui disparraîtra généralement à la page suivante (comportement selon le back-end).
+Un message dit "flash" est un message d'information ou d'alerte qui est masquable selon la volonté de l'utilisateur et qui disparaîtra généralement à la page suivante (comportement selon le back-end).
 
 Utilisation de base
 -------------------
 
 Le texte placé dans le bouton de fermeture est présent pour des raisons d'accessibilité. Il n'est pas visible par défaut.
 
-Il y a trois couleurs :
+Il y a quatre couleurs :
 
--  rouge, pour les erreurs ``alert-box error``
--  orange, pour les alertes/avertissements ``alert-box warning``
--  vert, pour les succès/confirmations ``alert-box success``
+-  rouge, pour les erreurs : ``alert-box error`` ;
+-  orange, pour les alertes/avertissements : ``alert-box warning`` ;
+-  vert, pour les succès/confirmations : ``alert-box success`` ;
+-  gris, pour les informations neutres : ``alert-box``.
 
 .. sourcecode:: html
 
   <!-- Changez simplement la classe "success" pour une autre pour changer le fond -->
   <div class="alert-box success">
-      <span class="alert-box-text">Votre message ici.</span>
-      <button class="close-alert-box ico-after cross white">Masquer l'alerte</button>
+      <span class="alert-box-content">Votre message ici.</span>
+      <button class="alert-box-close">Masquer l'alerte</button>
   </div>
 
 Modulation

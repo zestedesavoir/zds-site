@@ -11,8 +11,6 @@
 
     .ico,
     .ico-after:after,
-    .content-item .content-reactions,
-    .content-item .content-reactions::before,
     .breadcrumb ol li:not(:last-child):after {
         @include sprite-2x();
     }
