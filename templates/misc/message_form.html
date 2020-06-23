@@ -23,6 +23,10 @@
             <a href="{% url "register-member" %}" class="alert-box-btn">{% trans "Créer un compte" %}</a>
         </p>
     </div>
+{% elif not user.can_write_now %}
+<div class="alert-box ico-after ico-alert light">
+    {% trans "Vous êtes en lecture seule. Vous ne pouvez pas poster de messages." %}
+</div>
 {% elif topic.antispam or is_antispam %}
     <div class="alert-box ico-after ico-alert light">
         {% trans "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood." %}
