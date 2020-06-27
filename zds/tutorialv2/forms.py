@@ -204,7 +204,7 @@ class ContainerForm(FormWithTitle):
 
     msg_commit = forms.CharField(
         label=_('Message de suivi'),
-        max_length=80,
+        max_length=400,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -432,7 +432,7 @@ class ExtractForm(FormWithTitle):
 
     msg_commit = forms.CharField(
         label=_('Message de suivi'),
-        max_length=80,
+        max_length=400,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -514,7 +514,7 @@ class ImportContentForm(forms.Form):
 
     msg_commit = forms.CharField(
         label=_('Message de suivi'),
-        max_length=80,
+        max_length=400,
         required=False,
         widget=forms.TextInput(
             attrs={
