@@ -74,12 +74,12 @@
                                     </a>
                                     <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
                                         {% csrf_token %}
-                                        {% if perms_change %}
-                                            <p>
-                                                {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
-                                            </p>
-                                            <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
-                                        {% else %}
+                                        <p>
+                                            {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
+                                        </p>
+                                        <input type="text" name="text_hidden" placeholder="{% if perms_change %}Flood, Troll, Hors sujet, ...{% else %}Erreur, mauvaise compréhension, changement d'avis, ...{% endif %}">
+
+                                        {% if not perms_change  %}
                                             <p>
                                                 {% trans "Attention, en masquant ce message, vous ne pourrez plus l’afficher vous-même. Êtes-vous certain de vouloir le faire ?" %}
                                             </p>
