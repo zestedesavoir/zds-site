@@ -104,9 +104,7 @@ class PostEditMixin(object):
                 alert.solve(user, _('Le message a été masqué.'))
             post.is_visible = False
             post.editor = user
-
-            if is_staff:
-                post.text_hidden = data.get('text_hidden', '')
+            post.text_hidden = data.get('text_hidden', '')
 
             messages.success(request, _('Le message est désormais masqué.'))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
