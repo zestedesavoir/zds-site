@@ -98,7 +98,7 @@
           headerH4.innerText = t['trFormat' + contentExport.format_requested] || contentExport.format_requested
 
           headerP.setAttribute('title', formatterLong.format(date))
-          headerP.innerText = formatter.format(date) + ' – '
+          headerP.innerText = formatter.format(date) + (state !== 'failure' ? ' – ' : '')
 
           if (state === 'success') {
             headerDownloadLink.setAttribute('title', t.trDownloadTitle)
@@ -117,10 +117,7 @@
             })
           }
 
-          if (state === 'failure') {
-            headerDownloadLink.innerText = t.trRestart
-            headerDownloadLink.setAttribute('href', '#')
-          } else {
+          if (state !== 'failure') {
             headerDownloadLink.innerText = t.trDownload
             headerDownloadLink.setAttribute('href', contentExport.url)
           }

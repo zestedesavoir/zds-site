@@ -27,8 +27,6 @@
              data-tr-download="{% trans "Télécharger" %}"
              data-tr-download-title="{% trans "Télécharger cet export" %}"
              data-tr-download-unavailable-title="{% trans "Cet export est en cours de traitement ; ce lien ne fonctionnera pas ou sera obsolète." %}"
-             data-tr-restart="{% trans "Relancer" %}"
-             data-tr-restart-title="{% trans "Relancer la génération de cet export" %}"
              data-tr-statesuccess="{% trans "Terminé" %}"
              data-tr-staterunning="{% trans "En cours de traitement" %}"
              data-tr-statefailure="{% trans "Échoué" %}"
@@ -43,11 +41,11 @@
     </section>
 
     <footer>
-        <h3>{% trans "Exporter dans tous les formats" %}</h3>
+        <h3>{% trans "Regénérer les exports de votre contenu" %}</h3>
         {% blocktrans %}
             <p>
-                Si pour quelque raison, les exports ne sont pas disponibles, ou
-                si vous voulez les actualiser, cliquez sur le bouton ci-dessous
+                Si pour quelque raison, tous les exports ne sont pas disponibles,
+                ou si vous voulez les actualiser, cliquez sur le bouton ci-dessous
                 pour re-lancer leur génération.
             </p>
         {% endblocktrans %}
