@@ -16,7 +16,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     text-decoration: none;
 }
 
-@include touch {
+@include until-desktop {
 }
 
 @include mobile {

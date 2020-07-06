@@ -121,7 +121,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .pagination {
         li {
             &.summary-button {

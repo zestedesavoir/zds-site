@@ -123,7 +123,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .notification-list {
         .notification {
             background: none !important;

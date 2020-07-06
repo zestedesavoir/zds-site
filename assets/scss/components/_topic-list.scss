@@ -289,7 +289,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .topic-list {
         .topic {
             background: none !important;

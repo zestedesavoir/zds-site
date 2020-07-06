@@ -140,7 +140,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .main .content-container {
         .taglist,
         .pubdate {

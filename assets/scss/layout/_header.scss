@@ -407,7 +407,7 @@ $logo-width: 240px;
     }
 }
 
-@include touch {
+@include until-desktop {
     .header-container {
         .header-logo {
             width: 40px;

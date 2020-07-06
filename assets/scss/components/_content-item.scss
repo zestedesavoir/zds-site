@@ -317,7 +317,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
     }
 }
 
-@include touch {
+@include until-desktop {
     .full-content-wrapper .content-item {
         .content-info {
             h3 {

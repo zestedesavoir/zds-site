@@ -174,7 +174,7 @@
     clear: both;
 }
 
-@include fullhd {
+@include extra-wide {
     .main .content-container {
         .content-wrapper {
             max-width: 960px;
@@ -328,7 +328,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .main .content-container .new-btn-container {
         display: block;
         margin: 30px 0;

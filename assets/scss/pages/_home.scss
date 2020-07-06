@@ -210,7 +210,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .home {
         .flexpage-header {
             padding-top: 10px;

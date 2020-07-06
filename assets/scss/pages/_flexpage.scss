@@ -379,7 +379,7 @@ $content-width: 1145px;
     }
 }
 
-@include touch {
+@include until-desktop {
     .flexpage {
         .flexpage-wrapper {
             padding: 20px 10px;

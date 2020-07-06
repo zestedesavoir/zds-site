@@ -500,7 +500,7 @@ form.topic-message {
     margin-top: 50px;
 }
 
-@include touch {
+@include until-desktop {
     .topic-message {
         padding: 20px 0;
 

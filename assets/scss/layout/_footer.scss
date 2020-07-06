@@ -98,7 +98,7 @@
         }
     }
 
-    @include touch {
+    @include until-desktop {
         text-align: center;
         height: auto;
 

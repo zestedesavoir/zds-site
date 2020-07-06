@@ -165,7 +165,7 @@ nav {
     }
 }
 
-@include touch {
+@include until-desktop {
     body {
         background: #222;
 

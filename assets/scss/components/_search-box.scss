@@ -139,7 +139,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .search-box {
         margin: 30px 40px 0;
     }

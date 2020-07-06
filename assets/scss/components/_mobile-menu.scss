@@ -9,7 +9,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .js .page-container {
         position: relative;
         z-index: 10;

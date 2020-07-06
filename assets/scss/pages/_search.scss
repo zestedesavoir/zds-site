@@ -7,7 +7,7 @@
     }
 }
 
-@include touch {
+@include until-desktop {
     .pagination-top {
         margin-top: 10px;
     }

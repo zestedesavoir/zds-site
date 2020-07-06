@@ -26,7 +26,7 @@ $color-linkbox-default: #777;
             width: calc(25% - 20px);
         }
 
-        @include touch {
+        @include until-desktop {
             width: 50%;
             width: calc(50% - 20px);
         }
