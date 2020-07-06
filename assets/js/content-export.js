@@ -104,17 +104,6 @@
             headerDownloadLink.setAttribute('title', t.trDownloadTitle)
           } else if (state === 'running' || state === 'requested') {
             headerDownloadLink.setAttribute('title', t.trDownloadUnavailableTitle)
-          } else {
-            headerDownloadLink.setAttribute('title', t.trRestartTitle)
-            let restarRequestClicked = false
-            headerDownloadLink.addEventListener('click', () => {
-              if (restarRequestClicked) return
-
-              headerDownloadLink.innerText = t.trGenerationWaiting
-              restarRequestClicked = true
-
-              requestExports()
-            })
           }
 
           if (state !== 'failure') {
@@ -124,7 +113,7 @@
 
           footer.innerText = t[`trState${state}`]
 
-          headerP.appendChild(headerDownloadLink)
+          if (state !== 'failure') headerP.appendChild(headerDownloadLink)
           header.appendChild(headerH4)
           header.appendChild(headerP)
 
