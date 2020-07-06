@@ -1,0 +1,135 @@
+#exports-modal {
+    width: 500px;
+
+    p {
+        text-align: justify;
+    }
+
+    section.exports {
+        margin-top: 3.6rem;
+        margin-bottom: 4rem;
+
+        &.is-empty {
+
+            p {
+                margin: 0;
+                text-align: center;
+            }
+        }
+
+        article.export {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+
+            margin: 0 1rem 1.5rem 0;
+
+            header {
+                flex: 2;
+                margin-left: 4rem;
+
+                position: relative;
+
+                &:before {
+                    content: '';
+
+                    position: absolute;
+                    left: -3rem;
+                    top: calc(50% - 8px);
+
+                    width: 16px;
+                    height: 16px;
+
+                    background-repeat: no-repeat;
+
+                    @include sprite();
+                }
+
+                h4 {
+                    margin: 0;
+                    font-size: 1.2em;
+                }
+
+                p {
+                    font-size: .9em;
+                    margin-bottom: 0;
+
+                    color: #6c6c6c;
+
+                    a {
+                        text-decoration: none;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
+                    }
+                }
+            }
+
+            &:not(.is-success):not(.is-failure) {
+                header p a {
+                    &, &:hover {
+                        color: #999;
+                    }
+                }
+            }
+
+            &.is-requested {
+                header:before {
+                    @include sprite-position($radio)
+                }
+            }
+
+            &.is-running {
+                header:before {
+                    @include sprite-position($radio)
+                }
+
+                footer {
+                    color: $color-primary;
+                }
+            }
+
+            &.is-success {
+                header:before {
+                    @include sprite-position($tick-green);
+                }
+
+                footer {
+                    color: $color-success;
+                }
+            }
+
+            &.is-failure {
+                header:before {
+                    @include sprite-position($cross-red)
+                }
+
+                footer {
+                    color: $color-danger;
+                }
+            }
+        }
+    }
+
+    footer {
+        h3 {
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+        }
+
+        button.btn {
+            margin: .4rem 1rem 1.5rem;
+            float: none;
+            width: calc(100% - 2rem);
+
+            &[disabled] {
+                background-color: transparent !important;
+                color: #6c6c6c !important;
+            }
+        }
+    }
+}
