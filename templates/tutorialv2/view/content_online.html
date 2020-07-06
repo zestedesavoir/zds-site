@@ -273,12 +273,7 @@
                     </a>
                 </li>
                 <li>
-                    <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue"
-                    data-success-text="{% trans "Export en cours, veuillez attendre quelques minutes" %}"
-                    data-error-text="{% trans "La demande d'export a échoué" %}"
-                    data-base-text="{% trans "Exporter le contenu (epub, pdf, latex...)" %}">
-                        {% trans "Exporter le contenu (epub, pdf, latex...)" %}
-                    </button>
+                    {% include "tutorialv2/includes/exports.part.html" %}
                 </li>
                 {% if is_staff %}
                     {% if content.requires_validation %}

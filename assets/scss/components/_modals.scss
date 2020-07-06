@@ -136,6 +136,12 @@
     &.modal-large {
         width: 800px;
     }
+
+    &.modal-flex, &.modal-large {
+        p {
+            width: 100%;
+        }
+    }
 }
 
 @media only screen and #{$media-wide} {
