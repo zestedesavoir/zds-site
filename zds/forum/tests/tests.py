@@ -861,7 +861,7 @@ class ForumMemberTests(TestCase):
         profiles = [ProfileFactory(), ProfileFactory()]
         topic = TopicFactory(forum=forum, author=profiles[1].user)
         expected = '<strong>Attention</strong>, vous n’êtes pas sur la dernière page de '
-        expected += 'ce sujet, assurez-vous de l’avoir lu dans son intégralité avant d’y'
+        expected += 'ce sujet. Assurez-vous de l’avoir lu dans son intégralité avant d’y'
         expected += ' répondre.'
 
         for i in range(settings.ZDS_APP['forum']['posts_per_page'] + 2):
