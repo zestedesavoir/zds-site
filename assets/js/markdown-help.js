@@ -24,7 +24,10 @@
     'Pour écrire un bout de code au milieu d’une phrase, utilisez la syntaxe <code>`un bout de code`</code>.',
     'Le langage d’un bloc de code peut être spécifié après les <code>```</code> ouvrants. La liste des langages supportés <a href="' + linkToPygments + '">est disponible ici</a>.',
     'Vous pouvez <a href="' + linkToMathsTutorial + '">écrire des formules mathématiques</a> en encadrant ces dernières du signe dollar <code>$</code>.',
-    'Pour ajouter une image, vous pouvez simplement la glisser-déposer depuis votre explorateur.'
+    'Pour ajouter une image, vous pouvez simplement la glisser-déposer depuis votre explorateur.',
+    'Vous pouvez préciser à quel numéro commencent les lignes avec cette syntaxe : <code>```python linenostart=42</code> au début d\'un bloc de code. Pratique pour faire coïncider les numéros de ligne à une erreur, par exemple.',
+    'Vous pouvez surligner des lignes avec cette syntaxe : <code>```rust hl_lines=2,4-7</code> au début d\'un bloc de code.',
+    'Vous pouvez à la fois choisir à quel numéro démarrent les lignes et en surligner avec <code>```lisp linenostart=244 hl_lines=247,252</code> au début d\'un bloc de code.'
   ]
 
   function addDocMD($elem) {
