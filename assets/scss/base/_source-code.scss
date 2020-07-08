@@ -1,4 +1,5 @@
 // ZMD source code
+
 .hljs-code-div {
   display: flex;
 
@@ -29,10 +30,10 @@
     margin: 0;
     padding: .5em;
 
-    border-right: 1px solid #ddd;
+    border-right: 1px solid hsl(180, 7.7%, 94.9%);  // TODO $grey-100
 
     text-align: right;
-    color: #888;
+    color: hsl(192, 2%, 52%);  // TODO $grey-500
 
     z-index: 1;
 
@@ -50,6 +51,7 @@
       content: counter(line);
     }
 
+    // Support for content generated after zmd 9.1.
     span[data-count]:after {
       content: attr(data-count);
     }
@@ -58,7 +60,7 @@
     span.hll {
       &:after {
         font-weight: bold;
-        color: hsl(25.8, 95.9%, 19%);  // TODO $accent-900
+        color: hsl(15.1, 85.6%, 30%);  // TODO $accent-900
       }
 
       &:before {
@@ -71,16 +73,18 @@
         width: 100%;
         height: 1.3em;
 
-        background-color: transparentize(hsl(39.2, 78.8%, 87.1%), .6);  // TODO transparentize($accent-200, .6)
+        background-color: transparentize(hsl(38.2, 86.3%, 80%), .66);  // TODO transparentize($accent-300, .66)
       }
     }
   }
 
+  // Code part
   pre {
     margin: 0;
     width: 100%;
     overflow-x: auto;
 
+    // Required for highlight to work (same for the other one below)
     background-color: transparent;
 
     z-index: 2;
@@ -90,25 +94,32 @@
     }
   }
 
+  // This applies only to console codes rendered with zmd 9.1.2+, as previous
+  // versions were missing the possibility to style them as full console blocks.
+  // Old blocs only have a bkack background on the content, not the line numbers,
+  // and they get a degraded support for line highlight.
   &.hljs-code-console {
-    background-color: black;  // TODO $black
+    background-color: hsl(0, 0%, 6%);  // TODO $black
 
     .hljs-line-numbers {
       border-right-color: hsl(192, 2.6%, 62.9%);  // TODO $grey-400
 
       span {
         &:after , &.hll:after{
-          color: white;  // TODO $white
+          color: hsl(0, 0%, 98%);  // TODO $white
         }
       }
     }
 
+    // Required for highlight to work
     pre code.language-console {
-      background-color: transparent !important;
+      background-color: transparent;
     }
   }
 }
 
+// The code part of the console codes (shared for legacy and new versions,
+// the background-color being overrided for new versions).
 .language-console {
   display: block;
   padding: .5em;
