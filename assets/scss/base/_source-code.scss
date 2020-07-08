@@ -96,7 +96,7 @@
 
   // This applies only to console codes rendered with zmd 9.1.2+, as previous
   // versions were missing the possibility to style them as full console blocks.
-  // Old blocs only have a bkack background on the content, not the line numbers,
+  // Old blocs only have a black background on the content, not the line numbers,
   // and they get a degraded support for line highlight.
   &.hljs-code-console {
     background-color: hsl(0, 0%, 6%);  // TODO $black
@@ -119,7 +119,7 @@
 }
 
 // The code part of the console codes (shared for legacy and new versions,
-// the background-color being overrided for new versions).
+// the background-color being overridden for new versions).
 .language-console {
   display: block;
   padding: .5em;
