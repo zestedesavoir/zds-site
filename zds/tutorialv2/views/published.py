@@ -874,18 +874,22 @@ class SendContentAlert(FormView, LoginRequiredMixin):
             raise Http404('Identifiant manquant ou conversion en entier impossible.')
         content = get_object_or_404(PublishableContent, pk=content_pk)
 
-        alert = Alert(
-            author=request.user,
-            content=content,
-            scope='CONTENT',
-            text=request.POST['signal_text'],
-            pubdate=datetime.now())
-        alert.save()
+        if len(request.POST['signal_text'].strip()) == 0:
+            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+        else:
+            alert = Alert(
+                author=request.user,
+                content=content,
+                scope='CONTENT',
+                text=request.POST['signal_text'],
+                pubdate=datetime.now())
+            alert.save()
 
-        human_content_type = TYPE_CHOICES_DICT[content.type].lower()
-        messages.success(
-            self.request,
-            _('Ce {} a bien été signalé aux modérateurs.').format(human_content_type))
+            human_content_type = TYPE_CHOICES_DICT[content.type].lower()
+            messages.success(
+                self.request,
+                _('Ce {} a bien été signalé aux modérateurs.').format(human_content_type))
+
         return redirect(content.get_absolute_url_online())
 
 
@@ -942,15 +946,19 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
             raise Http404("Impossible de convertir l'identifiant en entier.")
         reaction = get_object_or_404(ContentReaction, pk=reaction_pk)
 
-        alert = Alert(
-            author=request.user,
-            comment=reaction,
-            scope=reaction.related_content.type,
-            text=request.POST['signal_text'],
-            pubdate=datetime.now())
-        alert.save()
+        if len(request.POST['signal_text'].strip()) == 0:
+            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+        else:
+            alert = Alert(
+                author=request.user,
+                comment=reaction,
+                scope=reaction.related_content.type,
+                text=request.POST['signal_text'],
+                pubdate=datetime.now())
+            alert.save()
 
-        messages.success(self.request, _('Ce commentaire a bien été signalé aux modérateurs.'))
+            messages.success(self.request, _('Ce commentaire a bien été signalé aux modérateurs.'))
+
         return redirect(reaction.get_absolute_url())
 
 
