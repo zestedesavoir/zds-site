@@ -36,7 +36,7 @@ Cas numéro 2 : installation sous Windows lui-même
 Installation automatique
 ------------------------
 
-Commencez par télécharger et installer `Python <https://www.python.org/>`_. Installez PowerShell et autorisez l'exécution des scripts powershell en copiant cette ligne de code dans votre console : ```powershell -Verb RunAs -ArgumentList "Set-ExecutionPolicy RemoteSigned" -WindowStyle Hidden -Wait``.
+Commencez par télécharger et installer `Python <https://www.python.org/>`_. Installez PowerShell et autorisez l'exécution des scripts powershell en copiant cette ligne de code dans votre console : ``powershell -Verb RunAs -ArgumentList "Set-ExecutionPolicy RemoteSigned" -WindowStyle Hidden -Wait``.
 
 Ensuite, ouvrez la console de Windows et faites :
 
@@ -84,7 +84,7 @@ Installation manuelle
 
 (?) Si vous avez ``(zdsenv)`` à gauche de la zone de saisie, c'est que vous êtes dans l'environnement *zdsenv*.
 
-Pour redémarrer le virtualenv les fois suivantes : exécutez à nouveau le fichier ``zdsenv/Scripts/activate.ps1``.
+Pour redémarrer l’environnent virtuel les fois suivantes : exécutez à nouveau le fichier ``zdsenv/Scripts/activate.ps1``.
 
 .. sourcecode:: bat
 
@@ -108,7 +108,7 @@ Avec PyCharm (pour avoir une license Pro contactez le directeur technique (DTC))
 Bien que le wrapper doive être installé comme dit au dessus, PyCharm vous offre une interface plus maniable.
 
 Ouvrez le projet dans PyCharm, puis allez dans Fichier(File) → Settings
-Dans *Project interpreter* sélectionnez la version “Python 3.4” que vous avez installé. Cliquez alors sur la roue dentée puis sur “Create virtualenv”. Vous pourrez alors sélectionner le dossier dans lequel se trouve le virtualenv et son accessibilité par PyCharm. PyCharm vous notifiera alors que vous n'avez pas toutes les dépendances et vous proposera de les installer.
+Dans *Project interpreter* sélectionnez la version “Python 3.x” que vous avez installé. Cliquez alors sur la roue dentée puis sur “Create virtualenv”. Vous pourrez alors sélectionner le dossier dans lequel se trouve le virtualenv et son accessibilité par PyCharm. PyCharm vous notifiera alors que vous n'avez pas toutes les dépendances et vous proposera de les installer.
 
 .. attention::
     Par défaut PyCharm ne va pas chercher les dépendances dans requirements-dev.txt.
