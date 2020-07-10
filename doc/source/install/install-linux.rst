@@ -95,7 +95,7 @@ Composant ``node``
 
 Installe ``nvm`` et l'utilise pour installer ``node``, puis ``yarn``.
 Ajoute ensuite un ``.nvmrc`` dans le dossier et ajoute ``node use`` au script d'activation du *virtualenv* (pour qu'il soit automatiquement utilisé au chargement).
-La version de node installée est controlée par la variable d'environement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut ``10.8.0``).
+La version de node installée est controlée par la variable d'environement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut ``12``).
 
 Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
 

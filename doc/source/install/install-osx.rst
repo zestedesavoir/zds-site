@@ -38,7 +38,7 @@ Pré-requis
 
 .. sourcecode:: bash
 
-  brew install gettext cairo --without-x11 py2cairo node && \
+  brew install gettext cairo --without-x11 py2cairo node@12 && \
   pip3 install virtualenv virtualenvwrapper
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l'installaton de l'environnement de zds.
