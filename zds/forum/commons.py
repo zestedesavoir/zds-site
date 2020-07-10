@@ -120,15 +120,18 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_alert_message(request, post, user, alert_text):
-        alert = Alert(
-            author=user,
-            comment=post,
-            scope='FORUM',
-            text=alert_text,
-            pubdate=datetime.now())
-        alert.save()
+        if len(alert_text.strip()) == 0:
+            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+        else:
+            alert = Alert(
+                author=user,
+                comment=post,
+                scope='FORUM',
+                text=alert_text,
+                pubdate=datetime.now())
+            alert.save()
 
-        messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
+            messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
 
     @staticmethod
     def perform_useful(post):
