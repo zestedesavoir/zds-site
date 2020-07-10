@@ -48,9 +48,9 @@ La procédure d'installation, si vous souhaitez utiliser Elasticsearch sans l'in
 
 .. sourcecode:: bash
 
-    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip
-    unzip elasticsearch-5.5.2.zip
-    cd elasticsearch-5.5.2/
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.3.zip
+    unzip elasticsearch-5.5.3.zip
+    cd elasticsearch-5.5.3/
 
 Pour démarrer Elasticsearch, utilisez
 
@@ -93,9 +93,9 @@ Sous Windows
 
 Elasticsearch requiert **la version 8** de Java, que vous pouvez trouver `sur la page officielle de java <http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html>`_. Prenez la version correspondante à votre système d'exploitation.
 
-Téléchargez ensuite Elasticsearch à l'adresse suivante : `https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip <https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip>`_, puis extrayez le dossier ``elasticsearch-5.5.2`` du zip à l'aide de votre outil préféré.
+Téléchargez ensuite Elasticsearch à l'adresse suivante : `https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.3.zip <https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.3.zip>`_, puis extrayez le dossier ``elasticsearch-5.5.3`` du zip à l'aide de votre outil préféré.
 
-Pour démarer Elasticsearch, ouvrez un *shell* (ou un *powershell*) et rendez-vous dans le dossier ``elasticsearch-5.5.2``.
+Pour démarer Elasticsearch, ouvrez un *shell* (ou un *powershell*) et rendez-vous dans le dossier ``elasticsearch-5.5.3``.
 Exécutez ensuite la commande suivante :
 
 .. sourcecode:: bash

@@ -154,7 +154,7 @@ Composant ``elastic-local``
 
 Installe une version **locale** d'Elasticsearch dans un dossier ``.local`` situé dans le dossier de ZdS.
 La commande ``elasticsearch`` est ensuite ajoutée dans le *virtualenv*, de telle sorte à ce que ce soit cette version locale qui soit utilisée.
-La version d'Elasticsearch installée est controlée par la variable d'environement ``ZDS_ELASTIC_VERSION`` (dont la valeur est par défaut ``5.5.2``).
+La version d'Elasticsearch installée est controlée par la variable d'environement ``ZDS_ELASTIC_VERSION`` (dont la valeur est par défaut ``5.5.3``).
 
 Notez que vous pouvez choisir d'installer Elasticsearch manuellement, `comme décrit ici <./extra-install-es.html#sous-linux>`_.
 
