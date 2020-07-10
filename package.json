@@ -57,7 +57,6 @@
   },
   "browserslist": [
     "last 2 versions",
-    "> 1%",
-    "ie >= 9"
+    "> 1%"
   ]
 }
