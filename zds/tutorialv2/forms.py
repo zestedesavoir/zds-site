@@ -448,12 +448,12 @@ class ExtractForm(FormWithTitle):
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-
+        display_save = bool(self.initial.get('last_hash', False))
         self.helper.layout = Layout(
             Field('title'),
             Field('last_hash'),
-            CommonLayoutVersionEditor(display_save=bool(self.initial.get('last_hash', False)),
-                                      send_label='Sauvegarder et quitter'),
+            CommonLayoutVersionEditor(display_save=display_save,
+                                      send_label='Sauvegarder et quitter' if display_save else 'Envoyer'),
         )
 
 
