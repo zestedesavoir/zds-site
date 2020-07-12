@@ -6296,5 +6296,4 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(200, resp.status_code)
         result = loads(resp.content.decode('utf-8'))
         self.assertEqual('ok', result.get('result', None))
-        tutorial = PublishableContent.objects.find(pk=tutorial.pk)
         self.assertEqual(extract.compute_hash(), result.get('last_hash', None))
