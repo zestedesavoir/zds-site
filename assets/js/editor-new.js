@@ -745,7 +745,6 @@
     // Does not handle Ctrl + s
     easyMDE.codemirror.addKeyMap({
       'Ctrl-S': () => {
-        console.log('override ' + $saveButton.length)
         if ($saveButton.length) {
           window.saveFormNoRedirect($($saveButton[0].form), $saveButton)
         }
