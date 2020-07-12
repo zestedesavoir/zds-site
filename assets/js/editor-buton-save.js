@@ -7,7 +7,6 @@ function toggleSubmitButtonsState() {
 function saveFormNoRedirect($form, $saveButton) {
   const data = $form.serialize()
   data.preview = undefined
-  console.log(data)
   toggleSubmitButtonsState()
   $saveButton.removeClass('btn-cancel')
   $.ajax($form.attr('action'), {
