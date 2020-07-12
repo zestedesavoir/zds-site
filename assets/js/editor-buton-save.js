@@ -1,11 +1,7 @@
 'use strict'
 function changeSubmitButtonState() {
   $('button[type=submit]').each((_, b) => {
-    if ($(b).prop('disabled')) {
-      $(b).prop('disabled', false)
-    } else {
-      $(b).prop('disabled', true)
-    }
+    $(b).prop('disabled', !$(b).prop('disabled'))
   })
 }
 function saveFormNoRedirect($form, $saveButton) {
