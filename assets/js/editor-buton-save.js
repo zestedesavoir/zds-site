@@ -1,6 +1,6 @@
 'use strict'
 function changeSubmitButtonState() {
-  $('button[type="submit"]').each((_, b) => {
+  $('button[type=submit]').each((_, b) => {
     if ($(b).prop('disabled')) {
       $(b).prop('disabled', false)
     } else {
@@ -19,8 +19,9 @@ function saveFormNoRedirect($form, $saveButton) {
     data,
     success: (resultData) => {
       changeSubmitButtonState()
-      $('input[name="last_hash"]').val(resultData.last_hash)
+      $('input[name=last_hash]').val(resultData.last_hash)
       $saveButton.addClass('btn-submit')
+      $form.attr('action', resultData.new_url)
       setTimeout(() => $saveButton.removeClass('btn-submit'), 5000)
     },
     error: () => {

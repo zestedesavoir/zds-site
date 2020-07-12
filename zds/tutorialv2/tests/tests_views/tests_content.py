@@ -6283,17 +6283,18 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_save_no_redirect(self):
         self.client.login(username=self.user_author.username, password='hostel77')
         tutorial = PublishableContentFactory(author_list=[self.user_author])
-        extract = ExtractFactory(db_object=tutorial)
-        tutorial = PublishableContent.objects.find(pk=tutorial.pk)
+        extract = ExtractFactory(db_object=tutorial, container=tutorial.load_version())
+        tutorial = PublishableContent.objects.get(pk=tutorial.pk)
         resp = self.client.post(reverse('content:edit-extract', args=[tutorial.pk, tutorial.slug, extract.slug]),
                                 {
-                                    'last_hash': extract.sha_draft,
+                                    'last_hash': tutorial.sha_draft,
                                     'text': 'a brand new text',
+                                    'title': extract.title,
                                     'msg_commit': 'a commit message'
                                 }, HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=False)
         # no redirect
         self.assertEqual(200, resp.status_code)
-        result = loads(resp.body.decode('utf-8'))
+        result = loads(resp.content.decode('utf-8'))
         self.assertEqual('ok', result.get('result', None))
         tutorial = PublishableContent.objects.find(pk=tutorial.pk)
-        self.assertEqual(tutorial.sha_draft, result.get('last_hash', None))
+        self.assertEqual(extract.compute_hash(), result.get('last_hash', None))

@@ -707,7 +707,8 @@
         if (name === 'Ctrl-Z' || name === 'Esc') {
           easyMDE.codemirror.off('keyHandled', onKeyHandled)
           $alertbox.hide(() => $(this).remove())
-        }        return true
+        }
+        return true
       }
 
       easyMDE.codemirror.on('keyHandled', onKeyHandled)
@@ -746,14 +747,14 @@
       'Ctrl-S': () => {
         console.log('override ' + $saveButton.length)
         if ($saveButton.length) {
-          saveFormNoRedirect($($saveButton[0].form), $saveButton)
+          window.saveFormNoRedirect($($saveButton[0].form), $saveButton)
         }
       }
     })
     easyMDE.codemirror.addKeyMap({
       'Cmd-S': () => {
         if ($saveButton.length) {
-          saveFormNoRedirect($($saveButton[0].form), $saveButton)
+          window.saveFormNoRedirect($($saveButton[0].form), $saveButton)
         }
       }
     })
@@ -766,7 +767,6 @@
 
     spellcheckerEasyMDE(easyMDE)
   })
-
 })(jQuery)
 
 
