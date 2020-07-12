@@ -1287,8 +1287,8 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         self.success_url = extract.get_absolute_url()
         if self.request.is_ajax():
-            return JsonResponse(json.dumps({'result': 'ok', 'last_hash': extract.compute_hash(),
-                                            'new_url': extract.get_edit_url()}))
+            return JsonResponse({'result': 'ok', 'last_hash': extract.compute_hash(),
+                                 'new_url': extract.get_edit_url()})
         return super(EditExtract, self).form_valid(form)
 
 
