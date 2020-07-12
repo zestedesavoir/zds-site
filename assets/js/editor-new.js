@@ -1,12 +1,10 @@
 /* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */ // eslint-disable-line camelcase
-
 (function($) {
   'use strict'
-
+  const $saveButton = $('.inline-save-button')
   if (localStorage.getItem('editor_choice') !== 'new') {
     return
   }
-
   (function() {
     /**
      * Migration easymde
@@ -709,9 +707,7 @@
         if (name === 'Ctrl-Z' || name === 'Esc') {
           easyMDE.codemirror.off('keyHandled', onKeyHandled)
           $alertbox.hide(() => $(this).remove())
-        }
-
-        return true
+        }        return true
       }
 
       easyMDE.codemirror.on('keyHandled', onKeyHandled)
@@ -745,6 +741,22 @@
     easyMDE.codemirror.addKeyMap({
       'Cmd-Enter': submit
     })
+    // Does not handle Ctrl + s
+    easyMDE.codemirror.addKeyMap({
+      'Ctrl-S': () => {
+        console.log('override ' + $saveButton.length)
+        if ($saveButton.length) {
+          saveFormNoRedirect($($saveButton[0].form), $saveButton)
+        }
+      }
+    })
+    easyMDE.codemirror.addKeyMap({
+      'Cmd-S': () => {
+        if ($saveButton.length) {
+          saveFormNoRedirect($($saveButton[0].form), $saveButton)
+        }
+      }
+    })
 
     this.removeAttribute('required')
 
@@ -754,6 +766,7 @@
 
     spellcheckerEasyMDE(easyMDE)
   })
+
 })(jQuery)
 
 

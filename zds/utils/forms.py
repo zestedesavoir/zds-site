@@ -44,7 +44,12 @@ class CommonLayoutEditor(Layout):
 
 class CommonLayoutVersionEditor(Layout):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, send_label='Envoyer', display_save=False, **kwargs):
+        save_button = Div()
+        if display_save:
+            save_button = StrictButton(_('Sauvegarder et continuer'),
+                                       name="save_and_continue",
+                                       css_class='btn-grey inline-save-button')
         super(CommonLayoutVersionEditor, self).__init__(
             Div(
                 IncludeEasyMDE(),
@@ -52,9 +57,10 @@ class CommonLayoutVersionEditor(Layout):
                 Field('msg_commit'),
                 ButtonHolder(
                     StrictButton(
-                        _('Envoyer'),
+                        _(send_label),
                         type='submit',
                         name='answer'),
+                    save_button,
                     StrictButton(
                         _('Aperçu'),
                         type='submit',

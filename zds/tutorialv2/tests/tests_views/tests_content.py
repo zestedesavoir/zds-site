@@ -1,4 +1,5 @@
 import datetime
+from json import loads
 import shutil
 import tempfile
 import zipfile
@@ -6278,3 +6279,21 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                                     'help_wanted': help_wanted.title})
         self.assertEqual(400, resp.status_code)
         self.assertEqual(0, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
+
+    def test_save_no_redirect(self):
+        self.client.login(username=self.user_author.username, password='hostel77')
+        tutorial = PublishableContentFactory(author_list=[self.user_author])
+        extract = ExtractFactory(db_object=tutorial)
+        tutorial = PublishableContent.objects.find(pk=tutorial.pk)
+        resp = self.client.post(reverse('content:edit-extract', args=[tutorial.pk, tutorial.slug, extract.slug]),
+                                {
+                                    'last_hash': extract.sha_draft,
+                                    'text': 'a brand new text',
+                                    'msg_commit': 'a commit message'
+                                }, HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=False)
+        # no redirect
+        self.assertEqual(200, resp.status_code)
+        result = loads(resp.body.decode('utf-8'))
+        self.assertEqual('ok', result.get('result', None))
+        tutorial = PublishableContent.objects.find(pk=tutorial.pk)
+        self.assertEqual(tutorial.sha_draft, result.get('last_hash', None))
