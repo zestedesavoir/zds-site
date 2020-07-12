@@ -48,7 +48,7 @@ class CommonLayoutVersionEditor(Layout):
         save_button = Div()
         if display_save:
             save_button = StrictButton(_('Sauvegarder et continuer'),
-                                       name="save_and_continue",
+                                       name='save_and_continue',
                                        css_class='btn-grey inline-save-button')
         super(CommonLayoutVersionEditor, self).__init__(
             Div(

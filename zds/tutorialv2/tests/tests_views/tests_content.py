@@ -6287,11 +6287,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         tutorial = PublishableContent.objects.get(pk=tutorial.pk)
         resp = self.client.post(reverse('content:edit-extract', args=[tutorial.pk, tutorial.slug, extract.slug]),
                                 {
-                                    'last_hash': tutorial.sha_draft,
+                                    'last_hash': extract.compute_hash(),
                                     'text': 'a brand new text',
                                     'title': extract.title,
-                                    'msg_commit': 'a commit message'
-                                }, HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=False)
+                                    'msg_commit': 'a commit message'},
+                                HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=False)
         # no redirect
         self.assertEqual(200, resp.status_code)
         result = loads(resp.content.decode('utf-8'))

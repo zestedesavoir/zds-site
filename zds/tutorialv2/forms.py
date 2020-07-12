@@ -452,7 +452,8 @@ class ExtractForm(FormWithTitle):
         self.helper.layout = Layout(
             Field('title'),
             Field('last_hash'),
-            CommonLayoutVersionEditor(display_save=bool(self.initial.get('last_hash', False)), send_label='Sauvegarder et quitter'),
+            CommonLayoutVersionEditor(display_save=bool(self.initial.get('last_hash', False)),
+                                      send_label='Sauvegarder et quitter'),
         )
 
 
