@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -1287,9 +1287,8 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         self.success_url = extract.get_absolute_url()
         if self.request.is_ajax():
-            return HttpResponse(json.dumps({'result': 'ok', 'last_hash': extract.compute_hash(),
-                                            'new_url': extract.get_edit_url()}),
-                                content_type='application/json')
+            return JsonResponse(json.dumps({'result': 'ok', 'last_hash': extract.compute_hash(),
+                                            'new_url': extract.get_edit_url()}))
         return super(EditExtract, self).form_valid(form)
 
 
