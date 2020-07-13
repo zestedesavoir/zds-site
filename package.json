@@ -1,6 +1,6 @@
 {
   "name": "zds-site",
-  "version": "29.0.0",
+  "version": "29.1",
   "private": true,
   "description": "Cœur du projet technique de Zeste de Savoir, utilise Django",
   "directories": {
