@@ -14,7 +14,11 @@
                     {% trans "ce billet" %}
                 {% endif %}
             {% else %}
-                {% trans "ce chapitre" %}
+                {% if container.is_chapter %}
+                    {% trans "ce chapitre" %}
+                {% else %}
+                    {% trans "cette partie" %}
+                {% endif %}
             {% endif %}
         </a>
 

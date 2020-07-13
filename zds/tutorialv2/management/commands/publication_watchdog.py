@@ -4,10 +4,9 @@ import time
 from pathlib import Path
 
 from django.core.management import BaseCommand
-from concurrent.futures import Future, ThreadPoolExecutor
 
 from zds.tutorialv2.models.database import PublicationEvent
-from zds.tutorialv2.publication_utils import PublicatorRegistry
+from zds.tutorialv2.publication_utils import PublicatorRegistry, FailureDuringPublication
 
 logger = logging.getLogger(__name__)
 
@@ -16,48 +15,26 @@ class Command(BaseCommand):
     help = 'Launch a watchdog that generate all exported formats (epub, pdf...) files without blocking request handling'
 
     def handle(self, *args, **options):
-        with ThreadPoolExecutor(1) as executor:
-            try:
-                discarded_set = PublicationEvent.objects.select_related('published_object', 'published_object__content',
-                                                                        'published_object__content__image') \
-                    .filter(state_of_processing='RUNNING')
-                for publication_event in discarded_set.iterator():
-                    publication_event.state_of_processing = 'FAILURE'
-                    publication_event.save()
-                while True:
-                    Command.launch_publicators(executor)
-                    time.sleep(10)
-            except KeyboardInterrupt:
-                executor.shutdown(wait=False)
-
-    @staticmethod
-    def get_callback_of(publication_event: PublicationEvent):
-        def callback(future: Future):
-            if future.cancelled() or future.exception():
-                publication_event.state_of_processing = 'FAILURE'
-                if future.exception():
-                    logger.error('error while producing %s of %s', publication_event.format_requested,
-                                 publication_event.published_object.title(), exc_info=future.exception())
-                # systemctl will restart it
-                exit(1)
-            elif future.done():
-                publication_event.state_of_processing = 'SUCCESS'
-
+        # We mark running events as failure, in case this command failed while running
+        running_events = PublicationEvent.objects.filter(state_of_processing='RUNNING')
+        for publication_event in running_events.iterator():
+            publication_event.state_of_processing = 'FAILURE'
             publication_event.save()
-        return callback
 
-    @staticmethod
-    def launch_publicators(executor):
-        query_set = PublicationEvent.objects.select_related('published_object', 'published_object__content',
-                                                            'published_object__content__image') \
-                                            .filter(state_of_processing='REQUESTED')
+        while True:
+            requested_events = PublicationEvent.objects.filter(state_of_processing='REQUESTED')
+            while requested_events.count() == 0:
+                time.sleep(60)
 
-        for publication_event in query_set.iterator():
-            logger.info('Export %s -- format=%s', publication_event.published_object.title(),
-                        publication_event.format_requested)
+            self.run()
+
+    def run(self):
+        requested_events = PublicationEvent.objects.select_related('published_object', 'published_object__content',
+                                                                   'published_object__content__image') \
+                                                   .filter(state_of_processing='REQUESTED')
+
+        for publication_event in requested_events.iterator():
             content = publication_event.published_object
-            publicator = PublicatorRegistry.get(publication_event.format_requested)
-
             extra_content_dir = content.get_extra_contents_directory()
             building_extra_content_path = Path(str(Path(extra_content_dir).parent) + '__building',
                                                'extra_contents', content.content_public_slug)
@@ -66,7 +43,17 @@ class Command(BaseCommand):
             base_name = str(building_extra_content_path)
             md_file_path = base_name + '.md'
 
+            logger.info('Exporting « %s » as %s', content.title(), publication_event.format_requested)
             publication_event.state_of_processing = 'RUNNING'
             publication_event.save()
-            future = executor.submit(publicator.publish, md_file_path, base_name)
-            future.add_done_callback(Command.get_callback_of(publication_event))
+
+            publicator = PublicatorRegistry.get(publication_event.format_requested)
+            try:
+                publicator.publish(md_file_path, base_name)
+            except FailureDuringPublication:
+                logger.error('Failed to export « %s » as %s', content.title(), publication_event.format_requested)
+                publication_event.state_of_processing = 'FAILURE'
+            else:
+                logger.info('Succeed to export « %s » as %s', content.title(), publication_event.format_requested)
+                publication_event.state_of_processing = 'SUCCESS'
+            publication_event.save()

@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import re
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -36,7 +37,8 @@ from zds.notification.models import TopicAnswerSubscription, NewPublicationSubsc
 from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
     RejectValidationForm, RevokeValidationForm, WarnTypoForm, ImportContentForm, ImportNewContentForm, ContainerForm, \
     ExtractForm, BetaForm, MoveElementForm, AuthorForm, RemoveAuthorForm, CancelValidationForm, PublicationForm, \
-    UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm
+    UnpublicationForm, ContributionForm, RemoveContributionForm, SearchSuggestionForm, RemoveSuggestionForm, \
+    EditContentLicenseForm, EditContentTagsForm, ToggleHelpForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
     SingleContentDownloadViewMixin, SingleContentPostMixin, FormWithPreview
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -78,17 +80,9 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     content = None
     created_content_type = 'TUTORIAL'
 
-    def get_form_kwargs(self):
-        kwargs = super(CreateContent, self).get_form_kwargs()
-        kwargs['for_tribune'] = self.created_content_type == 'OPINION'
-        return kwargs
-
     def get_form(self, form_class=ContentForm):
         form = super(CreateContent, self).get_form(form_class)
         form.initial['type'] = self.created_content_type
-        # Check for default licence in the profile
-        profile = self.request.user.profile
-        form.initial['licence'] = profile.licence
         return form
 
     def get_context_data(self, **kwargs):
@@ -104,7 +98,8 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.title = form.cleaned_data['title']
         self.content.description = form.cleaned_data['description']
         self.content.type = form.cleaned_data['type']
-        self.content.licence = form.cleaned_data['licence']
+        self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
+        self.content.source = form.cleaned_data['source']
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
@@ -137,13 +132,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         # Add subcategories on tutorial
         for subcat in form.cleaned_data['subcategory']:
             self.content.subcategory.add(subcat)
-
-        # Add helps if needed
-        for helpwriting in form.cleaned_data['helps']:
-            self.content.helps.add(helpwriting)
-
-        # Add tags
-        self.content.add_tags(form.cleaned_data['tags'].split(','))
 
         self.content.save(force_slug_update=False)
 
@@ -195,6 +183,13 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['validation'] = validation
         context['formJs'] = form_js
+
+        context['form_edit_license'] = EditContentLicenseForm(
+            self.versioned_object,
+            initial={'license': self.versioned_object.licence})
+
+        initial_tags_field = ', '.join(self.object.tags.values_list('title', flat=True))
+        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, initial={'tags': initial_tags_field})
 
         if self.versioned_object.requires_validation:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})
@@ -254,7 +249,7 @@ class DisplayBetaContent(DisplayContent):
 
     def get_context_data(self, **kwargs):
         context = super(DisplayBetaContent, self).get_context_data(**kwargs)
-        context['helps'] = self.object.helps
+        context['helps'] = list(self.object.helps.all())
         context['pm_link'] = self.object.get_absolute_contact_url()
         return context
 
@@ -263,11 +258,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
     template_name = 'tutorialv2/edit/content.html'
     model = PublishableContent
     form_class = ContentForm
-
-    def get_form_kwargs(self):
-        kwargs = super(EditContent, self).get_form_kwargs()
-        kwargs['for_tribune'] = self.object.type == 'OPINION'
-        return kwargs
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
@@ -279,11 +269,8 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial['type'] = versioned.type
         initial['introduction'] = versioned.get_introduction()
         initial['conclusion'] = versioned.get_conclusion()
-        initial['licence'] = versioned.licence
+        initial['source'] = versioned.source
         initial['subcategory'] = self.object.subcategory.all()
-        initial['tags'] = ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
-        initial['helps'] = self.object.helps.all()
-
         initial['last_hash'] = versioned.compute_hash()
 
         return initial
@@ -320,7 +307,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         title_is_changed = publishable.title != form.cleaned_data['title']
         publishable.title = form.cleaned_data['title']
         publishable.description = form.cleaned_data['description']
-        publishable.licence = form.cleaned_data['licence']
+        publishable.source = form.cleaned_data['source']
 
         publishable.update_date = datetime.now()
 
@@ -344,7 +331,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         logger.debug('content %s updated, slug is %s', publishable.pk, publishable.slug)
         # now, update the versioned information
         versioned.description = form.cleaned_data['description']
-        versioned.licence = form.cleaned_data['licence']
 
         sha = versioned.repo_update_top_container(form.cleaned_data['title'],
                                                   publishable.slug,
@@ -359,22 +345,83 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         for subcat in form.cleaned_data['subcategory']:
             publishable.subcategory.add(subcat)
 
-        publishable.tags.clear()
-        publishable.add_tags(form.cleaned_data['tags'].split(','))
-
-        # help can only be obtained on contents requiring validation before publication
-        if versioned.requires_validation():
-            publishable.helps.clear()
-            for help_ in form.cleaned_data['helps']:
-                publishable.helps.add(help_)
-
         publishable.save(force_slug_update=False)
 
         self.success_url = reverse('content:view', args=[publishable.pk, publishable.slug])
         return super().form_valid(form)
 
 
-class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
+class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditContentLicenseForm
+    success_message_license = _('La licence de la publication a bien été changée.')
+    success_message_profile_update = _('Votre licence préférée a bien été mise à jour.')
+
+    def get_form_kwargs(self):
+        kwargs = super(EditContentLicense, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+
+        # Update license in database
+        publishable.licence = form.cleaned_data['license']
+        publishable.update_date = datetime.now()
+        publishable.save(force_slug_update=False)
+
+        # Update license in repository
+        self.versioned_object.licence = form.cleaned_data['license']
+        sha = self.versioned_object.repo_update_top_container(
+            publishable.title,
+            publishable.slug,
+            self.versioned_object.get_introduction(),
+            self.versioned_object.get_conclusion(),
+            'Nouvelle licence ({})'.format(form.cleaned_data['license'])
+        )
+
+        # Update relationships in database
+        publishable.sha_draft = sha
+        publishable.save(force_slug_update=False)
+
+        messages.success(self.request, EditContentLicense.success_message_license)
+
+        # Update the preferred license of the user
+        if form.cleaned_data['update_preferred_license']:
+            profile = get_object_or_404(Profile, user=self.request.user)
+            profile.licence = form.cleaned_data['license']
+            profile.save()
+            messages.success(self.request, EditContentLicense.success_message_profile_update)
+
+        return redirect(form.previous_page_url)
+
+
+class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditContentTagsForm
+    success_message = _('Les tags ont bien été modifiés.')
+
+    def get_form_kwargs(self):
+        kwargs = super(EditContentTags, self).get_form_kwargs()
+        kwargs['content'] = self.versioned_object
+        return kwargs
+
+    def get_initial(self):
+        initial = super(EditContentTags, self).get_initial()
+        initial['tags'] = ', '.join(self.object.tags.values_list('title', flat=True))
+        return initial
+
+    def form_valid(self, form):
+        self.object.tags.clear()
+        self.object.add_tags(form.cleaned_data['tags'].split(','))
+        self.object.save(force_slug_update=False)
+        messages.success(self.request, EditContentTags.success_message)
+        return redirect(form.previous_page_url)
+
+
+class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     template_name = None
     http_method_names = ['delete', 'post']
@@ -425,9 +472,10 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                             _('Demande de validation annulée').format(),
                             self.object.title,
                             msg,
-                            False,
+                            send_by_mail=False,
+                            leave=True,
                             hat=get_hat_from_settings('validation'),
-                            automaticaly_read=[validation.validator]
+                            automatically_read=validation.validator
                         )
                         validation.content.save(force_slug_update=False)
                     else:
@@ -436,7 +484,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
                             validation.content.validation_private_message,
                             msg,
                             hat=get_hat_from_settings('validation'),
-                            no_notification_for=self.request.user
+                            no_notification_for=[self.request.user]
                         )
             if self.object.beta_topic is not None:
                 beta_topic = self.object.beta_topic
@@ -458,7 +506,7 @@ class DeleteContent(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteV
         return redirect(reverse(object_type + ':find-' + object_type, args=[request.user.username]))
 
 
-class DownloadContent(LoggedWithReadWriteHability, SingleContentDownloadViewMixin):
+class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):
     """
     Download a zip archive with all the content of the repository directory
     """
@@ -758,9 +806,11 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 return super(UpdateContentWithArchive, self).form_invalid(form)
             else:
 
-                # warn user if licence have changed:
+                # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
-                if 'licence' not in manifest or manifest['licence'] != new_version.licence.code:
+                if new_version.licence \
+                   and 'licence' in manifest \
+                   and manifest['licence'] != new_version.licence.code:
                     messages.info(
                         self.request, _('la licence « {} » a été appliquée.').format(new_version.licence.code))
 
@@ -869,11 +919,13 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 return super(CreateContentFromArchive, self).form_invalid(form)
             else:
 
-                # warn user if licence have changed:
+                # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read('manifest.json'), 'utf-8'))
-                if 'licence' not in manifest or manifest['licence'] != new_content.licence.code:
-                    messages.info(
-                        self.request, _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
+                if new_content.licence \
+                   and 'licence' in manifest \
+                   and manifest['licence'] != new_content.licence.code:
+                    messages.info(self.request,
+                                  _('la licence « {} » a été appliquée.'.format(new_content.licence.code)))
 
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
@@ -1084,7 +1136,7 @@ class DisplayBetaContainer(DisplayContainer):
 
     def get_context_data(self, **kwargs):
         context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
-        context['helps'] = self.object.helps
+        context['helps'] = list(self.object.helps.all())
         context['pm_link'] = self.object.get_absolute_contact_url()
         return context
 
@@ -1452,13 +1504,15 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         }
                     )
                     if not self.object.validation_private_message:
-                        self.object.validation_private_message = send_mp(bot,
-                                                                         self.object.authors.all(),
-                                                                         self.object.validation_message_title,
-                                                                         beta_version.title,
-                                                                         msg_pm,
-                                                                         False,
-                                                                         hat=get_hat_from_settings('validation'))
+                        self.object.validation_private_message = send_mp(
+                            bot,
+                            self.object.authors.all(),
+                            self.object.validation_message_title,
+                            beta_version.title,
+                            msg_pm,
+                            send_by_mail=False,
+                            leave=True,
+                            hat=get_hat_from_settings('validation'))
                         self.object.save(force_slug_update=False)
                     else:
                         send_message_mp(bot,
@@ -1642,7 +1696,7 @@ class ContentsWithHelps(ZdSPagingListView):
         if self.specific_need:
             context['specific_need'] = helps.filter(slug=self.specific_need).first()
 
-        context['helps'] = helps.all()
+        context['helps'] = list(helps.all())
         context['total_contents_number'] = queryset.count()
         return context
 
@@ -1835,8 +1889,9 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
                     'user': user.username,
                     'role': contribution.contribution_role.title
                 }),
-                True,
+                send_by_mail=True,
                 direct=False,
+                leave=True,
             )
             self.success_url = self.object.get_absolute_url()
 
@@ -1903,9 +1958,8 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         for user in form.cleaned_data['users']:
             if user.pk not in all_authors_pk:
                 self.object.authors.add(user)
-                if self.object.validation_private_message\
-                   and not self.object.validation_private_message.is_participant(user):
-                    self.object.validation_private_message.participants.add(user)
+                if self.object.validation_private_message:
+                    self.object.validation_private_message.add_participant(user)
                 all_authors_pk.append(user.pk)
                 if user != self.request.user:
                     url_index = reverse(self.object.type.lower() + ':find-' + self.object.type.lower(), args=[user.pk])
@@ -1921,7 +1975,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                             'index': url_index,
                             'user': user.username
                         }),
-                        True,
+                        send_by_mail=True,
                         direct=False,
                         hat=get_hat_from_settings('validation'),
                     )
@@ -2014,6 +2068,36 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
         messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
         return super(RemoveAuthorFromContent, self).form_valid(form)
+
+
+class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    form_class = ToggleHelpForm
+
+    def form_valid(self, form):
+        """
+        change help needing state, assume this is ajax request
+        :param form: the data
+        :return: json answer
+        """
+        if self.object.is_opinion:
+            return HttpResponse(json.dumps({'errors': str(_("Impossible de demander de l'aide pour un billet"))}),
+                                status=400, content_type='application/json')
+        data = form.cleaned_data
+        if data['activated']:
+            self.object.helps.add(data['help_wanted'])
+        else:
+            self.object.helps.remove(data['help_wanted'])
+        self.object.save(force_slug_update=False)
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({'result': 'ok', 'help_wanted': data['activated']}),
+                                content_type='application/json')
+        self.success_url = self.object.get_absolute_url()
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.is_ajax():
+            return HttpResponse(json.dumps({'errors': form.errors}), status=400, content_type='application/json')
+        return super().form_invalid(form)
 
 
 class ContentOfContributors(ZdSPagingListView):
@@ -2269,7 +2353,7 @@ class RemoveSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         return super(RemoveSuggestion, self).form_valid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, _("Les suggestions sélectionnées n'existent pas."))
+        messages.error(self.request, str(_("Les suggestions sélectionnées n'existent pas.")))
         if self.object.public_version:
             self.success_url = self.object.get_absolute_url_online()
         else:

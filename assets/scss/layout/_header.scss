@@ -436,8 +436,8 @@ $logo-width: 240px;
             }
 
 
-            .notifs-links .ico-link, 
-            #my-account, 
+            .notifs-links .ico-link,
+            #my-account,
             #my-account .avatar{
                 height: 50px;
                 width: 50px;
@@ -545,5 +545,9 @@ $logo-width: 240px;
         display: flex;
         flex-shrink: 0;
         justify-content: flex-end;
+
+        form {
+          display: flex;
+        }
     }
 }

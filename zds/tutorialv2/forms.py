@@ -15,7 +15,7 @@ from zds.tutorialv2.models.database import PublishableContent, ContentContributi
 from django.utils.translation import ugettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
-from zds.utils.forms import TagValidator
+from zds.utils.forms import TagValidator, IncludeEasyMDE
 
 
 class FormWithTitle(forms.Form):
@@ -90,7 +90,7 @@ class ContributionForm(forms.Form):
             Field('contribution_role'),
             Field('comment'),
             ButtonHolder(
-                StrictButton(_('Ajouter'), type='submit'),
+                StrictButton(_('Ajouter'), type='submit', css_class='btn-submit'),
             )
         )
         super(ContributionForm, self).__init__(*args, **kwargs)
@@ -204,7 +204,7 @@ class ContainerForm(FormWithTitle):
 
     msg_commit = forms.CharField(
         label=_('Message de suivi'),
-        max_length=80,
+        max_length=400,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -222,6 +222,7 @@ class ContainerForm(FormWithTitle):
         self.helper.form_method = 'post'
 
         self.helper.layout = Layout(
+            IncludeEasyMDE(),
             Field('title'),
             Field('introduction', css_class='md-editor preview-source'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
@@ -251,17 +252,6 @@ class ContentForm(ContainerForm):
         required=False,
     )
 
-    tags = forms.CharField(
-        label=_('Tag(s) séparés par une virgule (exemple: python,django,web)'),
-        max_length=64,
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'
-            }
-        )
-    )
-
     image = forms.ImageField(
         label=_('Sélectionnez le logo du contenu (max. {} Ko).').format(
             str(settings.ZDS_APP['gallery']['image_max_size'] / 1024)),
@@ -280,39 +270,23 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    licence = forms.ModelChoiceField(
-        label=(
-            _('Licence de votre publication (<a href="{0}" alt="{1}">En savoir plus sur les licences et {2}</a>).')
-            .format(
-                settings.ZDS_APP['site']['licenses']['licence_info_title'],
-                settings.ZDS_APP['site']['licenses']['licence_info_link'],
-                settings.ZDS_APP['site']['literal_name'],
-            )
-        ),
-        queryset=Licence.objects.order_by('title').all(),
+    source = forms.CharField(
+        label=_("""Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
+                       indiquez le lien de la publication originale : """),
+        max_length=PublishableContent._meta.get_field('source').max_length,
         required=False,
-        empty_label=_('Choisir une licence')
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('https://...')
+            }
+        )
     )
 
-    helps = forms.ModelMultipleChoiceField(
-        label=_("Pour m'aider, je cherche un..."),
-        queryset=HelpWriting.objects.all(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple()
-    )
-
-    def _create_layout(self, hide_help):
-        html_part = HTML(_("<p>Demander de l'aide à la communauté !<br>"
-                           "Si vous avez besoin d'un coup de main, "
-                           "sélectionnez une ou plusieurs catégories d'aide ci-dessous "
-                           'et votre contenu apparaîtra alors sur <a href='
-                           '\"{% url \"content:helps\" %}\" '
-                           "alt=\"aider les auteurs\">la page d'aide</a>.</p>"))
-
+    def _create_layout(self):
         self.helper.layout = Layout(
+            IncludeEasyMDE(),
             Field('title'),
             Field('description'),
-            Field('tags'),
             Field('type'),
             Field('image'),
             Field('introduction', css_class='md-editor preview-source'),
@@ -326,25 +300,20 @@ class ContentForm(ContainerForm):
             HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
             with text=form.conclusion.value %}{% endif %}'),
             Field('last_hash'),
-            Field('licence'),
-            Field('subcategory', template='crispy/checkboxselectmultiple.html'),
+            Field('source'),
+            Field('subcategory', template='crispy/checkboxselectmultiple.html')
         )
-
-        if not hide_help:
-            self.helper.layout.append(html_part)
-            self.helper.layout.append(Field('helps'))
 
         self.helper.layout.append(Field('msg_commit'))
         self.helper.layout.append(ButtonHolder(StrictButton('Valider', type='submit')))
 
     def __init__(self, *args, **kwargs):
-        for_tribune = kwargs.pop('for_tribune', False)
         super(ContentForm, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = 'content-wrapper'
         self.helper.form_method = 'post'
-        self._create_layout(for_tribune)
+        self._create_layout()
 
         if 'type' in self.initial:
             self.helper['type'].wrap(
@@ -354,15 +323,99 @@ class ContentForm(ContainerForm):
     def clean(self):
         cleaned_data = super(ContentForm, self).clean()
         image = cleaned_data.get('image', None)
-
         if image is not None and image.size > settings.ZDS_APP['gallery']['image_max_size']:
             self._errors['image'] = self.error_class(
                 [_('Votre logo est trop lourd, la limite autorisée est de {} Ko')
                  .format(settings.ZDS_APP['gallery']['image_max_size'] / 1024)])
+        return cleaned_data
+
+
+class EditContentTagsForm(forms.Form):
+    tags = forms.CharField(
+        label=_('Tags séparés par des virgules (exemple : python,django,web) :'),
+        max_length=64,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+                'data-autocomplete': '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'
+            }
+        ),
+        error_messages={'max_length': _('La liste de tags saisie dépasse la longueur maximale autorisée.')}
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'edit-tags'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_action = reverse('content:edit-tags', kwargs={'pk': content.pk})
+        self.helper.layout = Layout(
+            HTML("""<p>Les tags permettent de grouper les publications plus finement que les catégories.
+                    Par exemple, vous pouvez indiquer une technologie ou une sous-discipline.
+                     Consultez <a href="/contenus/tags">la page des tags</a> pour voir des exemples."""),
+            Field('tags'),
+            ButtonHolder(StrictButton('Valider', type='submit'))
+        )
+        self.previous_page_url = reverse('content:view', kwargs={'pk': content.pk, 'slug': content.slug})
+
+    def clean(self):
+        cleaned_data = super(EditContentTagsForm, self).clean()
         validator = TagValidator()
         if not validator.validate_raw_string(cleaned_data.get('tags')):
             self._errors['tags'] = self.error_class(validator.errors)
         return cleaned_data
+
+
+class EditContentLicenseForm(forms.Form):
+    license = forms.ModelChoiceField(
+        label=_('Licence de votre publication : '),
+        queryset=Licence.objects.order_by('title').all(),
+        required=True,
+        empty_label=_('Choisir une licence'),
+        error_messages={'required': _('Merci de choisir une licence.'),
+                        'invalid_choice': _('Merci de choisir une licence valide dans la liste.')}
+    )
+
+    update_preferred_license = forms.BooleanField(
+        label=_('Je souhaite utiliser cette licence comme choix par défaut pour mes futures publications.'),
+        required=False
+    )
+
+    def __init__(self, content, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'edit-license'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_action = reverse('content:edit-license', kwargs={'pk': content.pk})
+        self.previous_page_url = reverse('content:view',
+                                         kwargs={'pk': content.pk, 'slug': content.slug})
+        self._create_layout()
+
+        if 'type' in self.initial:
+            self.helper['type'].wrap(
+                Field,
+                disabled=True)
+
+    def _create_layout(self):
+        self.helper.layout = Layout(
+            HTML("""<p>{0} encourage l'utilisation de licences facilitant le partage,
+                    telles que les licences <a href="https://creativecommons.org/">Creative Commons</a>.</p>
+                    <p>Pour choisir la licence de votre publication, aidez-vous de la
+                    <a href="{1}" alt="{2}">présentation
+                    des différentes licences proposées sur le site</a>.</p>"""
+                 .format(settings.ZDS_APP['site']['literal_name'],
+                         settings.ZDS_APP['site']['licenses']['licence_info_title'],
+                         settings.ZDS_APP['site']['licenses']['licence_info_link'])),
+            Field('license'),
+            Field('update_preferred_license'),
+            ButtonHolder(StrictButton('Valider', type='submit'))
+        )
 
 
 class ExtractForm(FormWithTitle):
@@ -379,7 +432,7 @@ class ExtractForm(FormWithTitle):
 
     msg_commit = forms.CharField(
         label=_('Message de suivi'),
-        max_length=80,
+        max_length=400,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -461,7 +514,7 @@ class ImportContentForm(forms.Form):
 
     msg_commit = forms.CharField(
         label=_('Message de suivi'),
-        max_length=80,
+        max_length=400,
         required=False,
         widget=forms.TextInput(
             attrs={
@@ -661,15 +714,6 @@ class AskValidationForm(forms.Form):
             }
         )
     )
-    source = forms.CharField(
-        label='',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _("Pour un contenu importé d'un autre site, adresse de la source.")
-            }
-        )
-    )
 
     version = forms.CharField(widget=forms.HiddenInput(), required=True)
 
@@ -696,18 +740,23 @@ class AskValidationForm(forms.Form):
         self.helper.form_id = 'ask-validation'
 
         self.no_subcategories = content.subcategory.count() == 0
-        no_category_msg = HTML(_("""<p><strong>Votre contenu n'est dans aucune catégorie.
-                                    Vous devez choisir une catégorie avant de demander la validation !</strong></p>
-                                 """))
+        no_category_msg = HTML(_("""<p><strong>Votre publication n'est dans aucune catégorie.
+                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    avant de demander la validation.</strong></p>"""
+                                 .format(reverse('content:edit', kwargs={'pk': content.pk, 'slug': content.slug}),
+                                         'div_id_subcategory')))
+
+        self.no_license = not content.licence
+        no_license_msg = HTML(_("""<p><strong>Vous n'avez pas choisi de licence pour votre publication.
+                                   Vous devez <a href="#edit-license" class="open-modal">choisir une licence</a>
+                                   avant de demander la validation.</strong></p>"""))
+
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
-            HTML(_('<p>Pensez à vérifier la licence de votre contenu avant de demander la validation.</p>')),
+            no_license_msg if self.no_license else None,
             Field('text'),
-            Field('source'),
             Field('version'),
-            StrictButton(
-                _('Confirmer'),
-                type='submit')
+            StrictButton(_('Confirmer'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
@@ -715,21 +764,23 @@ class AskValidationForm(forms.Form):
 
         text = cleaned_data.get('text')
 
+        base_error_msg = "La validation n'a pas été demandée. "
+
         if text is None or not text.strip():
-            self._errors['text'] = self.error_class(
-                [_('Vous devez fournir un commentaire aux validateurs.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
+            error = [_(base_error_msg + 'Vous devez fournir un commentaire aux validateurs.')]
+            self.add_error(field='text', error=error)
 
         elif len(text) < 3:
-            self._errors['text'] = self.error_class(
-                [_('Votre commentaire doit faire au moins 3 caractères.')])
-            if 'text' in cleaned_data:
-                del cleaned_data['text']
+            error = _(base_error_msg + 'Votre commentaire doit faire au moins 3 caractères.')
+            self.add_error(field='text', error=error)
 
         if self.no_subcategories:
-            self._errors['no_subcategories'] = self.error_class(
-                [_('Vous devez spécifier une catégorie pour votre publication.')])
+            error = [_(base_error_msg + 'Vous devez choisir au moins une catégorie pour votre publication.')]
+            self.add_error(field=None, error=error)
+
+        if self.no_license:
+            error = [_(base_error_msg + 'Vous devez choisir une licence pour votre publication.')]
+            self.add_error(field=None, error=error)
 
         return cleaned_data
 
@@ -760,16 +811,6 @@ class AcceptValidationForm(forms.Form):
         label=_('Version majeure ?'),
         required=False,
         initial=True
-    )
-
-    source = forms.CharField(
-        label='',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _("Pour un contenu importé d'un autre site, adresse de la source.")
-            }
-        )
     )
 
     def __init__(self, validation, *args, **kwargs):
@@ -803,9 +844,8 @@ class AcceptValidationForm(forms.Form):
 
         self.helper.layout = Layout(
             Field('text'),
-            Field('source'),
             Field('is_major'),
-            StrictButton(_('Publier'), type='submit')
+            StrictButton(_('Publier'), type='submit', css_class='btn-submit')
         )
 
 
@@ -843,9 +883,8 @@ class CancelValidationForm(forms.Form):
             HTML('<p>Êtes-vous certain de vouloir annuler la validation de ce contenu ?</p>'),
             Field('text'),
             ButtonHolder(
-                StrictButton(
-                    _('Confirmer'),
-                    type='submit'))
+                StrictButton(_('Confirmer'), type='submit', css_class='btn-submit')
+            )
         )
 
     def clean(self):
@@ -909,9 +948,8 @@ class RejectValidationForm(forms.Form):
         self.helper.layout = Layout(
             Field('text'),
             ButtonHolder(
-                StrictButton(
-                    _('Rejeter'),
-                    type='submit'))
+                StrictButton(_('Rejeter'), type='submit', css_class='btn-submit')
+            )
         )
 
     def clean(self):
@@ -964,9 +1002,7 @@ class RevokeValidationForm(forms.Form):
         self.helper.layout = Layout(
             Field('text'),
             Field('version'),
-            StrictButton(
-                _('Dépublier'),
-                type='submit')
+            StrictButton(_('Dépublier'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
@@ -1008,9 +1044,8 @@ class JsFiddleActivationForm(forms.Form):
         self.helper.layout = Layout(
             Field('js_support'),
             ButtonHolder(
-                StrictButton(
-                    _('Valider'),
-                    type='submit'),),
+                StrictButton(_('Valider'), type='submit', css_class='btn-submit'),
+            ),
             Hidden('pk', '{{ content.pk }}'), )
 
     def clean(self):
@@ -1117,7 +1152,9 @@ class WarnTypoForm(forms.Form):
             HTML(msg),
             Hidden('pk', '{{ content.pk }}'),
             Hidden('version', version),
-            ButtonHolder(StrictButton(_('Envoyer'), type='submit'))
+            ButtonHolder(
+                StrictButton(_('Envoyer'), type='submit', css_class='btn-submit')
+            )
         )
 
     def clean(self):
@@ -1145,16 +1182,6 @@ class PublicationForm(forms.Form):
     The publication form (used only for content without preliminary validation).
     """
 
-    source = forms.CharField(
-        label='',
-        required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': _('Pour un contenu importé d\'un autre site, adresse de la source.')
-            }
-        )
-    )
-
     def __init__(self, content, *args, **kwargs):
         super(PublicationForm, self).__init__(*args, **kwargs)
 
@@ -1167,24 +1194,36 @@ class PublicationForm(forms.Form):
         self.helper.form_id = 'valid-publication'
 
         self.no_subcategories = content.subcategory.count() == 0
-        no_category_msg = HTML(_("""<p><strong>Votre billet n'est dans aucune catégorie.
-                                    Vous devez choisir une catégorie avant de le publier !</strong></p>
-                                 """))
+        no_category_msg = HTML(_("""<p><strong>Votre publication n'est dans aucune catégorie.
+                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    avant de publier.</strong></p>"""
+                                 .format(reverse('content:edit', kwargs={'pk': content.pk, 'slug': content.slug}),
+                                         'div_id_subcategory')))
+
+        self.no_license = not content.licence
+        no_license_msg = HTML(_("""<p><strong>Vous n'avez pas choisi de licence pour votre publication.
+                                   Vous devez <a href="#edit-license" class="open-modal">choisir une licence</a>
+                                   avant de publier.</strong></p>"""))
 
         self.helper.layout = Layout(
             no_category_msg if self.no_subcategories else None,
-            HTML(_('<p>Pensez à vérifier la licence de votre billet avant de le publier.</p>')),
-            Field('source'),
+            no_license_msg if self.no_license else None,
             HTML(_("<p>Ce billet sera publié directement et n'engage que vous.</p>")),
-            StrictButton(_('Publier'), type='submit')
+            StrictButton(_('Publier'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
         cleaned_data = super(PublicationForm, self).clean()
 
+        base_error_msg = "La publication n'a pas été effectuée. "
+
         if self.no_subcategories:
-            self._errors['no_subcategories'] = self.error_class(
-                [_('Vous devez spécifier une catégorie pour votre publication.')])
+            error = _(base_error_msg + 'Vous devez choisir au moins une catégorie pour votre publication.')
+            self.add_error(field=None, error=error)
+
+        if self.no_license:
+            error = _(base_error_msg + 'Vous devez choisir une licence pour votre publication.')
+            self.add_error(field=None, error=error)
 
         return cleaned_data
 
@@ -1221,9 +1260,7 @@ class UnpublicationForm(forms.Form):
         self.helper.layout = Layout(
             Field('text'),
             Field('version'),
-            StrictButton(
-                _('Dépublier'),
-                type='submit')
+            StrictButton(_('Dépublier'), type='submit', css_class='btn-submit')
         )
 
 
@@ -1247,9 +1284,7 @@ class PickOpinionForm(forms.Form):
             HTML('<p>Êtes-vous certain(e) de vouloir valider ce billet ? '
                  'Il pourra maintenant être présent sur la page d’accueil.</p>'),
             Field('version'),
-            StrictButton(
-                _('Valider'),
-                type='submit')
+            StrictButton(_('Valider'), type='submit', css_class='btn-submit')
         )
 
 
@@ -1272,9 +1307,7 @@ class DoNotPickOpinionForm(forms.Form):
         self.helper.layout = Layout(
             HTML(_("<p>Ce billet n'apparaîtra plus dans la liste des billets à choisir.</p>")),
             Field('operation'),
-            StrictButton(
-                _('Valider'),
-                type='submit')
+            StrictButton(_('Valider'), type='submit', css_class='btn-submit')
         )
 
     def clean(self):
@@ -1322,9 +1355,7 @@ class UnpickOpinionForm(forms.Form):
         self.helper.layout = Layout(
             Field('version'),
             Field('text'),
-            StrictButton(
-                _('Enlever'),
-                type='submit')
+            StrictButton(_('Enlever'), type='submit', css_class='btn-submit')
         )
 
 
@@ -1349,9 +1380,7 @@ class PromoteOpinionToArticleForm(forms.Form):
                     Cela copiera le billet pour en faire un article,
                     puis créera une demande de validation pour ce dernier.</p>"""),
             Field('version'),
-            StrictButton(
-                _('Valider'),
-                type='submit')
+            StrictButton(_('Valider'), type='submit', css_class='btn-submit')
         )
 
 
@@ -1419,3 +1448,15 @@ class RemoveSuggestionForm(forms.Form):
         label=_('Suggestion'),
         required=True,
     )
+
+
+class ToggleHelpForm(forms.Form):
+    help_wanted = forms.CharField()
+    activated = forms.BooleanField(required=False)
+
+    def clean(self):
+        clean_data = super().clean()
+        clean_data['help_wanted'] = HelpWriting.objects.filter(title=(self.data['help_wanted'] or '').strip()).first()
+        if not clean_data['help_wanted']:
+            self.add_error('help_wanted', _('Inconnu'))
+        return clean_data

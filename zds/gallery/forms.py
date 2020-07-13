@@ -103,7 +103,7 @@ class UserGalleryForm(forms.Form):
             Field('user', autocomplete='off'),
             Field('mode'),
             Field('action', value='add'),
-            StrictButton(_('Ajouter'), type='submit'),
+            StrictButton(_('Ajouter'), type='submit', css_class='btn-submit'),
         )
 
     def clean(self):

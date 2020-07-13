@@ -13,7 +13,7 @@ def is_participant(func):
     """
     def _is_participant(request, *args, **kwargs):
         private_topic = get_object_or_404(PrivateTopic, pk=kwargs.get('pk'))
-        if not request.user == private_topic.author and request.user not in list(private_topic.participants.all()):
+        if not private_topic.is_participant(request.user):
             raise PermissionDenied
         if 'cite' in request.GET:
             try:

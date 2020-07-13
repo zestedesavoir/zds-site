@@ -241,7 +241,7 @@
                                                         Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
                                                     {% endblocktrans %}
                                                 </p>
-                                                <button type="submit">{% trans 'Confirmer' %}</button>
+                                                <button type="submit" class="btn btn-submit">{% trans 'Confirmer' %}</button>
                                             </form>
                                         {% endif %}
                                     </li>
@@ -560,7 +560,7 @@
                                         </ul>
                                         <p>{% trans "La casquette sera créée si elle n’existe pas." %}</p>
                                         <input type="text" name="hat" maxlength="40" placeholder="{% trans 'Casquette à attribuer.' %}" required />
-                                        <button type="submit">{% trans 'Valider' %}</button>
+                                        <button type="submit" class="btn btn-submit">{% trans 'Valider' %}</button>
                                     </form>
                                 {% endif %}
 
@@ -680,7 +680,8 @@
                                            min="1">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ls-temp">
+                                            name="ls-temp"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -700,7 +701,8 @@
                                            placeholder="{% trans 'Spam, Troll, etc.' %}">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ls">
+                                            name="ls"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -732,7 +734,8 @@
                                            placeholder="{% trans 'Bonne action ?' %}">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="un-ls">
+                                            name="un-ls"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -762,7 +765,8 @@
                                            min="1">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ban-temp">
+                                            name="ban-temp"
+                                            class="btn  btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -782,7 +786,8 @@
                                            placeholder="{% trans 'Spam, Troll, etc.' %}">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ban">
+                                            name="ban"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -812,7 +817,8 @@
                                        placeholder="{% trans 'Bonne action ?' %}">
                                 {% csrf_token %}
                                 <button type="submit"
-                                        name="un-ban">
+                                        name="un-ban"
+                                        class="btn btn-submit">
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>
@@ -881,7 +887,7 @@
                                 <form id="solve-alert-{{ alert.pk }}" method="post" action="{% url 'solve-profile-alert' alert.pk %}" class="modal modal-flex">
                                     <textarea name="text" class="input" placeholder="{% trans 'Message à envoyer au membre ayant lancé l’alerte' %}"></textarea>
                                     {% csrf_token %}
-                                    <button type="submit" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
+                                    <button type="submit" class="btn btn-submit button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                                 </form>
                             {% endif %}
                         </div>
@@ -900,7 +906,7 @@
                     </label>
                     <textarea type="text" name="reason" id="report-reason" placeholder='{% trans "Spam, Contenu illégal, …" %}' pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
 
-                    <button type="submit">
+                    <button type="submit" class="btn btn-submit">
                         {% trans "Signaler" %}
                     </button>
                 </form>

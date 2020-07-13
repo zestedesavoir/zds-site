@@ -191,7 +191,7 @@
             }
         }
     }
-    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {  
+    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {
         &:not(.link) {
             background: $bg;
             color: $color;
@@ -318,6 +318,7 @@
     .checkbox,
     .radio {
         padding: 10px 0;
+        height: 100%;
 
         input {
             margin-top: 8px;
@@ -330,9 +331,6 @@
     // used in the "new content" page
     .checkbox-new-content {
         padding: 0;
-    }
-    #div_id_helps .checkbox {
-      padding: 0;
     }
 }
 

@@ -10,6 +10,7 @@ Sommaire
 .. toctree::
    :maxdepth: 2
 
+   guides
    install
    contributing
    workflow

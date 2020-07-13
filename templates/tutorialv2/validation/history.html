@@ -50,7 +50,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for validation in validations %}
+                {% for validation in validations reversed %}
                     <tr>
                         <td>
                             {{ validation.date_proposition|format_date|capfirst }}

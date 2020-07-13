@@ -32,7 +32,8 @@ from zds.member.views import get_client_ip
 from zds.notification import signals
 from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.forms import RevokeValidationForm, WarnTypoForm, NoteForm, NoteEditForm, UnpublicationForm, \
-    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, ContentCompareStatsURLForm, SearchSuggestionForm
+    PickOpinionForm, PromoteOpinionToArticleForm, UnpickOpinionForm, ContentCompareStatsURLForm, SearchSuggestionForm, \
+    EditContentTagsForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentViewMixin, DownloadViewMixin, \
     ContentTypeMixin, SingleOnlineContentFormViewMixin, MustRedirect
 from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
@@ -131,6 +132,9 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             excluded_for_search.append(str(self.object.pk))
             context['formAddSuggestion'] = SearchSuggestionForm(content=self.object,
                                                                 initial={'excluded_pk': ','.join(excluded_for_search)})
+
+        initial_tags_field = ', '.join(self.object.tags.values_list('title', flat=True))
+        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, initial={'tags': initial_tags_field})
 
         # pagination of comments
         make_pagination(context,
@@ -870,18 +874,22 @@ class SendContentAlert(FormView, LoginRequiredMixin):
             raise Http404('Identifiant manquant ou conversion en entier impossible.')
         content = get_object_or_404(PublishableContent, pk=content_pk)
 
-        alert = Alert(
-            author=request.user,
-            content=content,
-            scope='CONTENT',
-            text=request.POST['signal_text'],
-            pubdate=datetime.now())
-        alert.save()
+        if len(request.POST['signal_text'].strip()) == 0:
+            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+        else:
+            alert = Alert(
+                author=request.user,
+                content=content,
+                scope='CONTENT',
+                text=request.POST['signal_text'],
+                pubdate=datetime.now())
+            alert.save()
 
-        human_content_type = TYPE_CHOICES_DICT[content.type].lower()
-        messages.success(
-            self.request,
-            _('Ce {} a bien été signalé aux modérateurs.').format(human_content_type))
+            human_content_type = TYPE_CHOICES_DICT[content.type].lower()
+            messages.success(
+                self.request,
+                _('Ce {} a bien été signalé aux modérateurs.').format(human_content_type))
+
         return redirect(content.get_absolute_url_online())
 
 
@@ -938,15 +946,19 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
             raise Http404("Impossible de convertir l'identifiant en entier.")
         reaction = get_object_or_404(ContentReaction, pk=reaction_pk)
 
-        alert = Alert(
-            author=request.user,
-            comment=reaction,
-            scope=reaction.related_content.type,
-            text=request.POST['signal_text'],
-            pubdate=datetime.now())
-        alert.save()
+        if len(request.POST['signal_text'].strip()) == 0:
+            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+        else:
+            alert = Alert(
+                author=request.user,
+                comment=reaction,
+                scope=reaction.related_content.type,
+                text=request.POST['signal_text'],
+                pubdate=datetime.now())
+            alert.save()
 
-        messages.success(self.request, _('Ce commentaire a bien été signalé aux modérateurs.'))
+            messages.success(self.request, _('Ce commentaire a bien été signalé aux modérateurs.'))
+
         return redirect(reaction.get_absolute_url())
 
 

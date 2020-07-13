@@ -104,9 +104,7 @@ class PostEditMixin(object):
                 alert.solve(user, _('Le message a été masqué.'))
             post.is_visible = False
             post.editor = user
-
-            if is_staff:
-                post.text_hidden = data.get('text_hidden', '')
+            post.text_hidden = data.get('text_hidden', '')
 
             messages.success(request, _('Le message est désormais masqué.'))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
@@ -122,15 +120,18 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_alert_message(request, post, user, alert_text):
-        alert = Alert(
-            author=user,
-            comment=post,
-            scope='FORUM',
-            text=alert_text,
-            pubdate=datetime.now())
-        alert.save()
+        if len(alert_text.strip()) == 0:
+            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+        else:
+            alert = Alert(
+                author=user,
+                comment=post,
+                scope='FORUM',
+                text=alert_text,
+                pubdate=datetime.now())
+            alert.save()
 
-        messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
+            messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
 
     @staticmethod
     def perform_useful(post):

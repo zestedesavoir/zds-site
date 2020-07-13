@@ -67,10 +67,11 @@
           }
           break
         case 13: // Enter
-          e.preventDefault()
-          e.stopPropagation()
-
-          this.enter()
+          if (!e.ctrlKey) { // Do not capture Ctrl + Enter, as it is used to validate modals
+            e.preventDefault()
+            e.stopPropagation()
+            this.enter()
+          }
           break
       }
     },

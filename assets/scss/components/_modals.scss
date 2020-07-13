@@ -85,6 +85,7 @@
         select,
         textarea {
             margin: 0 0 15px;
+            width: 100%;
         }
     }
 
@@ -134,6 +135,12 @@
 
     &.modal-large {
         width: 800px;
+    }
+
+    &.modal-flex, &.modal-large {
+        p {
+            width: 100%;
+        }
     }
 }
 

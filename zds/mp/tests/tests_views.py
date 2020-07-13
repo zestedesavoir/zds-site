@@ -147,6 +147,7 @@ class TopicViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
+        self.profile3 = ProfileFactory()
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
         self.post1 = PrivatePostFactory(
@@ -171,15 +172,15 @@ class TopicViewTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_fail_topic_no_permission(self):
-        topic = PrivateTopicFactory(author=self.profile1.user)
+        """Check that a member not participating in a private topic is forbidden to view it."""
 
         login_check = self.client.login(
-            username=self.profile2.user.username,
+            username=self.profile3.user.username,
             password='hostel77'
         )
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('private-posts-list', args=[topic.pk, topic.slug]), follow=True)
+        response = self.client.get(reverse('private-posts-list', args=[self.topic1.pk, self.topic1.slug]), follow=True)
 
         self.assertEqual(403, response.status_code)
 
@@ -946,6 +947,9 @@ class AddParticipantViewTest(TestCase):
                 'username': self.anonymous_account.username
             }
         )
+
+        # TODO (Arnaud-D): this test actually succeeds because of a Http404.
+        #  NotReachableError is not raised.
         self.assertFalse(self.anonymous_account in self.topic1.participants.all())
 
     def test_fail_add_participant_who_no_exist(self):

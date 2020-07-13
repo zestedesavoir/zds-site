@@ -11,6 +11,7 @@ from django.views.generic import View
 from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.utils import mark_read
+from zds.utils.models import HelpWriting
 
 
 class SingleContentViewMixin(object):
@@ -174,7 +175,9 @@ class ModalFormView(FormView):
         else:
             errors = form.errors.as_data()
             if len(errors) > 0:
-                messages.error(self.request, list(errors.values())[0][0])  # only the first error is provided
+                # only the first error is provided
+                error_message = list(errors.values())[0][0].messages[0]
+                messages.error(self.request, error_message)
             else:
                 messages.error(
                     self.request, _('Une erreur inconnue est survenue durant le traitement des données.'))
@@ -257,7 +260,8 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(SingleContentDetailViewMixin, self).get_context_data(**kwargs)
-
+        context['helps'] = list(HelpWriting.objects.all())
+        context['content_helps'] = self.object.helps.values_list('pk', flat=True)
         context['content'] = self.versioned_object
         context['can_edit'] = self.is_author
         context['is_staff'] = self.is_staff

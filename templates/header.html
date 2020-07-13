@@ -6,6 +6,7 @@
 {% load remove_url_scheme %}
 {% load set %}
 {% load topbar %}
+{% load captureas %}
 
 <header>
     <div class="mobile-menu-btn ico-after"></div>
@@ -370,18 +371,22 @@
                         {% if perms.tutorialv2.change_validation %}
                             {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count waiting_opinions_count="OPINION"|waiting_count %}
                                 <li class="staff-only">
-                                    <a href="{% url "validation:list" %}?type=tuto">
-                                        {% trans "Validation des tutoriels" %}
-                                        {% if waiting_tutorials_count > 0 %}
-                                            ({{ waiting_tutorials_count }})
-                                        {% endif %}
-                                    </a>
-                                </li>
-                                <li class="staff-only">
-                                    <a href="{% url "validation:list" %}?type=article">
-                                        {% trans "Validation des articles" %}
-                                        {% if waiting_articles_count > 0 %}
-                                            ({{ waiting_articles_count }})
+                                    <a href="{% url "validation:list" %}">
+                                        {% trans "Validation" %}
+
+                                        {% captureas tutorials_chunk %}
+                                            {{ waiting_tutorials_count }} tutoriel{{ waiting_tutorials_count|pluralize:"s" }}
+                                        {% endcaptureas %}
+                                        {% captureas articles_chunk %}
+                                            {{ waiting_articles_count }} article{{ waiting_articles_count|pluralize:"s" }}
+                                        {% endcaptureas %}
+
+                                        {% if waiting_tutorials_count > 0 and waiting_articles_count > 0 %}
+                                            ({{ tutorials_chunk }} et {{ articles_chunk }})
+                                        {% elif waiting_tutorials_count > 0 and not waiting_articles_count > 0 %}
+                                            ({{ tutorials_chunk }})
+                                        {% elif not waiting_tutorials_count > 0 and waiting_articles_count > 0 %}
+                                            ({{ articles_chunk }})
                                         {% endif %}
                                     </a>
                                 </li>

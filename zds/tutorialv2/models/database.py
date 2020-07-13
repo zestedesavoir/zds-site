@@ -1344,6 +1344,9 @@ class PublicationEvent(models.Model):
     def __str__(self):
         return '{}: {} - {}'.format(self.published_object.title(), self.format_requested, self.state_of_processing)
 
+    def url(self):
+        return self.published_object.get_absolute_url_to_extra_content(self.format_requested)
+
 
 class ContentContributionRole(models.Model):
     """

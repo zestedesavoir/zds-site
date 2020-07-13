@@ -11,7 +11,7 @@
       $el.find('.featured-resource-illu').hide()
     }
 
-    $el.find('h3').text(data.title)
+    $el.find('h2').text(data.title)
     $el.find('.featured-resource-description').html(data.description)
     $el.find('a').attr('href', data.link)
   }
