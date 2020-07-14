@@ -23,7 +23,7 @@ body.userprofilepage {
         }
     }
 
-    @media only screen and #{$media-mobile} {
+    @include mobile {
         .flexpage-wrapper {
             padding-top: 0;
         }
@@ -65,7 +65,7 @@ body.userprofilepage {
 
         margin: 2.2rem -1.2rem 2.2rem 0;
 
-        @media only screen and #{$media-mobile} {
+        @include mobile {
             flex-direction: column;
             margin-top: 1.8rem;
         }
@@ -102,7 +102,7 @@ body.userprofilepage {
                     font-size: 2rem;
                     font-weight: 300;
 
-                    @media only screen and #{$media-mobile} {
+                    @include mobile {
                         margin-bottom: 1rem;
                     }
 
@@ -117,7 +117,7 @@ body.userprofilepage {
                 flex-direction: row;
                 align-items: center;
 
-                @media only screen and #{$media-mobile} {
+                @include mobile {
                     flex-direction: column;
                     align-items: baseline;
                 }
@@ -142,7 +142,7 @@ body.userprofilepage {
                         margin-left: 0;
                         margin-right: 10px;
 
-                        @media only screen and #{$media-mobile} {
+                        @include mobile {
                             margin-right: 4px;
                             margin-bottom: 4px;
                         }
@@ -235,7 +235,7 @@ body.userprofilepage {
             flex: 4;
             padding-right: 3.2rem;
 
-            @media only screen and #{$media-mobile} {
+            @include mobile {
                 margin-top: 20px;
 
                 .head-profile-links {
@@ -262,7 +262,7 @@ html.js body.userprofilepage .user-bio-and-activity .bio-container {
         max-height: 64rem;
         overflow: hidden;
 
-        @media only screen and #{$media-mobile} {
+        @include mobile {
             max-height: 16rem;
         }
     }

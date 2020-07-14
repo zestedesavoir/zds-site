@@ -157,7 +157,7 @@
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .home {
         .home-description:not(.connected):not(.short) {
             display: none;
@@ -210,7 +210,7 @@
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .home {
         .flexpage-header {
             padding-top: 10px;
@@ -246,7 +246,7 @@
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .home {
         $gap: 20px;
         .home-row {

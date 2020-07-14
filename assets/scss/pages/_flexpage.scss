@@ -231,7 +231,7 @@ $content-width: 1145px;
                 line-height: 50px;
                 border: none;
 
-                @media only screen and #{$media-mobile} {
+                @include mobile {
                     display: flex;
                     align-items: baseline;
 
@@ -364,7 +364,7 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .flexpage-title-tool .actions {
         & ~ .title,
         & ~ .aside {
@@ -373,13 +373,13 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and #{$media-under-extra-wide} {
+@include until-wide {
    .flexpage .flexpage-wrapper {
         padding: 20px 10px;
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .flexpage {
         .flexpage-wrapper {
             padding: 20px 10px;
@@ -412,7 +412,7 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .flexpage {
         .flexpage-title-tool {
             padding: 15px 0;

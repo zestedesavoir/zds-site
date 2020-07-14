@@ -98,7 +98,7 @@
         }
     }
 
-    @media only screen and #{$media-mobile-tablet} {
+    @include until-desktop {
         text-align: center;
         height: auto;
 

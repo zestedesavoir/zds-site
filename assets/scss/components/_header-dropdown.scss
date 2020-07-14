@@ -116,7 +116,7 @@
     display: block;
 }
 
-@media only screen and #{$media-tablet} {
+@include tablet {
     .dropdown {
         box-shadow: 0 5px 7px rgba(0, 0, 0, .3);
     }
@@ -160,7 +160,7 @@
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     html.dropdown-active {
         overflow: hidden;
 
@@ -200,7 +200,7 @@
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .dropdown {
         top: 60px;
     }
