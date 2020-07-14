@@ -106,8 +106,7 @@ class ExtractFactory(factory.Factory):
     title = factory.Sequence(lambda n: 'Mon extrait No{0}'.format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, *, light=True, container=None, **kwargs):
-        db_object = kwargs.pop('db_object', None)
+    def _prepare(cls, create, *, light=True, container=None, db_object=None, **kwargs):
         parent = container
         text = text_content
         if not light:
