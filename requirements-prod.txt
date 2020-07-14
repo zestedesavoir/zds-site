@@ -1,6 +1,6 @@
 -r requirements.txt
 
 gunicorn==20.0.4
-mysqlclient==1.4.6
+mysqlclient==2.0.1
 raven==6.10.0
-ujson==2.0.3
+ujson==3.0.0
