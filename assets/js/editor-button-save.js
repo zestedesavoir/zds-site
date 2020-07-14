@@ -8,7 +8,7 @@ function saveFormNoRedirect($form, $saveButton) {
   // force sync of technical textarea and form textarea
   const codeMirrorTextarea = $('.textarea-multivers')
   if (codeMirrorTextarea.length) {
-    $('textarea[name=text]').val(codeMirrorTextarea.val())
+    window.editors.id_text.codemirror.save()
   }
   const data = $form.serialize()
   data.preview = undefined
