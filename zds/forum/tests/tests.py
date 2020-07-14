@@ -1048,7 +1048,7 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(reverse('post-new') + '?sujet={0}&cite={0}'.format(topic1.pk, post2.pk), follow=False)
+        result = self.client.get(reverse('post-new') + '?sujet={}&cite={}'.format(topic1.pk, post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
 
