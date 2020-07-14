@@ -43,23 +43,40 @@ Quelques bonnes pratiques
 Les bonnes pratiques pour les PR et les commits
 -----------------------------------------------
 
-Les pull requests
+Les Pull Requests
 =================
 
-* Lors de l'ouverture d'une PR, la zone de texte sera pré-complété avec les informations essentielles à apporter à votre PR. Utilisez ce gabarit pour rédiger votre message.
-* Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu'il faut tester en priorité et les pièges auxquels il doit s'attendre et donc sur lesquels porter une attention particulière. Précisez tout particulièrement s'il est nécessaire d'effectuer une action de gestion préalable, comme `python manage.py migrate --fake-initial`, `python manage.py loaddata fixture/*.yaml` ou `yarn run build`.
+Lors de l'ouverture d'une PR, la zone de texte sera pré-complété avec les informations essentielles à apporter à votre PR. Utilisez ce gabarit pour rédiger votre message.
+
+| Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu'il faut tester en priorité et les pièges auxquels il doit s'attendre et donc sur lesquels porter une attention particulière.
+| Précisez tout particulièrement s'il est nécessaire d'effectuer une action de gestion préalable, comme ``python manage.py migrate --fake-initial``, ``python manage.py loaddata fixture/*.yaml`` ou ``yarn run build``.
+
+Mise à jour d'une Pull Request : *rebase*
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Au fil de l'avancement de votre PR, ou juste avant de la fusionner, il peut vous être demandé de *rebaser* (ou *rebase*). Cela permet de mettre à jour la branche de votre PR avec la toute dernière version de la branche principale du dépôt.
+
+C'est une opération assez simple, et très utile pour s'assurer que votre modification s'intègre toujours bien avec la toute dernière version du site (si d'autres contributeurs ont changé quelque chose, typiquement). Elle a l'avantage, par rapport à une classique fusion (``git merge``), d'intégrer les commits naturellement dans l'historique, sans en ajouter de supplémentaire inutile.
+
+Pour *rebase* en ligne de commande, utilisez la commande ``git pull --rebase upstream dev`` (c'est tout). Si vous utilisez une interface graphique pour git, la marche à suivre dépendra de cette interface.
+
+Vous devez ensuite publier sur GitHub avec un **force-push** (``git push --force``), car *rebase* réécrit l'historique (si vous oubliez, vous obtiendrez une erreur et git refusera l'opération). Ça ne pose aucun problème ici — c'est l'un des cas d'usage légitime du *force-push*, et vous ne le faites que sur votre propre branche.
+
+.. note::
+
+	Pour pouvoir *rebaser*, il vous faut avoir défini une *remote* ``upstream`` pointant vers le dépôt principal de ZdS (la *remote* ``origin`` devant pointer vers votre fork), de la façon suivante : ``git remote add upstream https://github.com/zestedesavoir/zds-site.git``.
+
+Il est également possible de mettre la branche à jour sur GitHub en bas de la page de la PR, mais GitHub créé un commit de fusion sans faire de *rebase*.
 
 Les commits
 ===========
 
-* Pour les commits, nous suivons le même ordre d'idée des standards Git, à savoir :
-    * La première ligne du commit ne doit pas faire plus de 50 caractères.
-    * Si besoin, complétez votre commit via des commentaires, en respectant une limite de 70 caractères par ligne.
-    * Bien que le code soit en anglais, le commit doit être de préférence en français.
-    * Vous pouvez également (c'est d'ailleurs conseillé) de référencer l'_issue_ que vous fixez.
-    * Un commit doit être atomique ; il fixe / implémente **une** chose et le fait **bien**.
+Pour les commits, nous suivons le même ordre d'idée que les standards Git.
 
-* Essayez d'éviter les commits dits inutiles (``fix previous commit``, ...). Si vous en avez dans votre pull-request,
-  un *squash* sera effectué lors du *merge*.
+* La première ligne du commit ne doit pas faire plus de 50 caractères.
+* Si besoin, complétez votre commit via des commentaires, en respectant une limite de 70 caractères par ligne.
+* Bien que le code soit en anglais, le commit doit être de préférence en français.
+* Vous pouvez également (c'est d'ailleurs conseillé) référencer l'*issue* que vous corrigez.
+* Un commit doit être atomique ; il fixe / implémente **une** chose et le fait **bien**.
 
 N'hésitez pas à demander de l'aide, et bon courage !
