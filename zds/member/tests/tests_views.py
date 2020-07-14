@@ -1823,10 +1823,10 @@ class FakeBackend(BaseEmailBackend):
 @override_settings(EMAIL_BACKEND='zds.member.tests.tests_views.FakeBackend')
 class RegisterTest(TestCase):
     def test_exception_on_mail(self):
-        def message(l):
+        def send_messages(messages):
             print('message sent')
-            raise SMTPException(l)
-        mail_backend.send_messages = message
+            raise SMTPException(messages)
+        mail_backend.send_messages = send_messages
 
         result = self.client.post(
             reverse('register-member'),

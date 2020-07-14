@@ -567,7 +567,7 @@ def handle_content_with_chapter_and_parts(container, current_size, fake, nb_avg_
         for k in range(random.randint(1, nb_avg_containers_in_content * 2)):
             subcontainer = ContainerFactory(parent=container, title=fake.text(max_nb_chars=60))
 
-            for l in range(random.randint(1, nb_avg_extracts_in_content * 2)):
+            for m in range(random.randint(1, nb_avg_extracts_in_content * 2)):
                 ExtractFactory(container=subcontainer, title=fake.text(max_nb_chars=60), light=False)
 
 
