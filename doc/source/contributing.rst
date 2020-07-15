@@ -60,11 +60,21 @@ C'est une opération assez simple, et très utile pour s'assurer que votre modif
 
 Pour *rebase* en ligne de commande, utilisez la commande ``git pull --rebase upstream dev`` (c'est tout). Si vous utilisez une interface graphique pour git, la marche à suivre dépendra de cette interface.
 
+.. warning::
+
+  Si git vous informe qu'il y a **des conflits** lors du *rebase*, cela signifie que des parties du code ont été modifiées à la fois par les autres contributeurs et par vous-même. Pas de panique ! Corriger un conflit est assez simple. Git va, pour chaque conflit, vous montrer votre version et la version des autres contributeurs côte à côte dans le fichier concerné, et ce sera à vous de décider ce que vous gardez (votre version, celle des autres, ou un savant mélange des deux). Concrètement, pour chacun des fichiers que git indique comme en conflit, vous devez :
+
+  1. ouvrir le fichier, chercher les marques qu'a laissé git à l'intérieur, et résoudre le conflit en choisissant quel bout garder (tout en retirant les marques de conflit de git — à la fin, le fichier doit être “normal”, comme si git n'était jamais passé par là) ;
+  2. marquer les conflits du fichier comme corrigés (``git add <path>`` en ligne de commande, et probablement quelque chose comme “Marquer comme résolu” en GUI) ;
+  3. continuer le *rebase* (``git rebase --continue`` en ligne de commande, “Continuer le rebase” ou similaire en GUI).
+
 Vous devez ensuite publier sur GitHub avec un **force-push** (``git push --force``), car *rebase* réécrit l'historique (si vous oubliez, vous obtiendrez une erreur et git refusera l'opération). Ça ne pose aucun problème ici — c'est l'un des cas d'usage légitime du *force-push*, et vous ne le faites que sur votre propre branche.
 
 .. note::
 
-	Pour pouvoir *rebaser*, il vous faut avoir défini une *remote* ``upstream`` pointant vers le dépôt principal de ZdS (la *remote* ``origin`` devant pointer vers votre fork), de la façon suivante : ``git remote add upstream https://github.com/zestedesavoir/zds-site.git``.
+  Pour pouvoir *rebaser*, il vous faut avoir défini une *remote* ``upstream`` pointant vers le dépôt principal de ZdS (la *remote* ``origin`` devant pointer vers votre fork), de la façon suivante : ``git remote add upstream https://github.com/zestedesavoir/zds-site.git``.
+
+  Cette opération n'est nécessaire qu'une seule fois au début, pour tous les *rebases* que vous ferez sur votre fork.
 
 Il est également possible de mettre la branche à jour sur GitHub en bas de la page de la PR, mais GitHub créé un commit de fusion sans faire de *rebase*.
 
