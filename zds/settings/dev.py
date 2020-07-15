@@ -11,6 +11,7 @@ INSTALLED_APPS += (
 
 MIDDLEWARE = (
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'zds.middlewares.nocacheindevmiddleware.NoCacheInDevMiddleware',
 ) + MIDDLEWARE
 
 LOGGING = {
