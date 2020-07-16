@@ -38,6 +38,22 @@
                        class="btn ico-after twitter light btn-twitter btn-holder"></a>
                 </li>
             {% endif %}
+
+            {% if app.site.social.discord %}
+                <li>
+                    <a href="{{app.site.social.discord}}"
+                       title="Discutez avec nous sur Discord"
+                       class="btn ico-after discord light btn-discord btn-holder"></a>
+                </li>
+            {% endif %}
+
+            {% if app.site.social.github %}
+                <li>
+                    <a href="{{app.site.social.github}}"
+                       title="Contribuez au développement"
+                       class="btn ico-after github light btn-github btn-holder"></a>
+                </li>
+            {% endif %}
         </ul>
 
         <ul class="links">
