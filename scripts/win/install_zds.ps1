@@ -94,8 +94,8 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
 
   mkdir temp_download | Out-Null
 
-  $node_filename = "node-v10.18.0-win-x64"
-  $node_url="https://nodejs.org/dist/v10.18.0/$node_filename.zip"
+  $node_filename = "node-v12.18.2-win-x64"
+  $node_url="https://nodejs.org/dist/v12.18.2/$node_filename.zip"
 
   PrintInfo " | -> Downloading NodeJS..."
   (new-object System.Net.WebClient).DownloadFile($node_url, "temp_download/node.zip")
