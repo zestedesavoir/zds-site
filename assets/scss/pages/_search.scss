@@ -7,7 +7,7 @@
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .pagination-top {
         margin-top: 10px;
     }

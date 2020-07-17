@@ -174,7 +174,7 @@
     clear: both;
 }
 
-@media only screen and #{$media-mega-wide} {
+@include extra-wide {
     .main .content-container {
         .content-wrapper {
             max-width: 960px;
@@ -183,7 +183,7 @@
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     body.no-sidebar .main {
         .content-container {
             width: 100%;
@@ -311,7 +311,7 @@
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .content-cols .main {
         .content-container {
             width: 79%;
@@ -328,7 +328,7 @@
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .main .content-container .new-btn-container {
         display: block;
         margin: 30px 0;

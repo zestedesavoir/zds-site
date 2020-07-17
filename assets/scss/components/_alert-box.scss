@@ -123,7 +123,7 @@
     }
 }
 
-@media only screen and #{$media-tablet} {
+@include tablet {
     .alert-box .alert-box-text {
         display: inline;
     }
@@ -132,7 +132,7 @@
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .alert-box {
         .alert-box-btn {
             &,
