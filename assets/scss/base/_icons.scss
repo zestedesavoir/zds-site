@@ -154,6 +154,18 @@
         }
     }
 
+    &.discord {
+        &:after {
+            @include sprite-position($discord);
+        }
+        &.blue:after {
+            @include sprite-position($discord-blue);
+        }
+        &.light:after {
+            @include sprite-position($discord-light);
+        }
+    }
+
     &.facebook {
         &:after {
             @include sprite-position($facebook);
