@@ -239,7 +239,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         # reject validation:
         quote = '\n'.join(['> ' + line for line in form.cleaned_data['text'].split('\n')])
         validation.status = 'CANCEL'
-        validation.comment_authors += _('\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
+        validation.comment_authors = _('\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
             .format(quote)
         validation.date_validation = datetime.now()
         validation.save()
@@ -247,7 +247,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         validation.content.sha_validation = None
         validation.content.save()
 
-        # warn the former validator that the all thing have been canceled
+        # warn the former validator that the whole thing has been cancelled
         if validation.validator:
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
             msg = render_to_string(
