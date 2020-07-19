@@ -7,15 +7,14 @@ register = template.Library()
 @register.filter('non_breaking_space')
 @stringfilter
 def non_breaking_space(str):
-    # Narrow non-breaking space: &#8239;
-    str = str.replace(' ;', '&#8239;;')
-    str = str.replace(' ?', '&#8239;?')
-    str = str.replace(' !', '&#8239;!')
-    str = str.replace(' %', '&#8239;%')
-
-    # Non-breaking space: &nbsp;
-    str = str.replace('« ', '«&nbsp;')
-    str = str.replace(' »', '&nbsp;»')
-    str = str.replace(' :', '&nbsp;:')
-
-    return mark_safe(str)
+    return mark_safe(
+        # Narrow non-breaking space: &#8239;
+		str.replace(' ;', '&#8239;;')
+		   .replace(' ?', '&#8239;?')
+		   .replace(' !', '&#8239;!')
+		   .replace(' %', '&#8239;%')
+        # Non-breaking space: &nbsp;
+		   .replace('« ', '«&nbsp;')
+		   .replace(' »', '&nbsp;»')
+		   .replace(' :', '&nbsp;:')
+	)
