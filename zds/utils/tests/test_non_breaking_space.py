@@ -9,26 +9,26 @@ class ReplaceNonBreakingSpace(TestCase):
             # Narrow non-breaking space: &#8239;
             'point-virgule':
                 {'input': ' ;',
-                'expected_output': mark_safe('&#8239;;')},
+                 'expected_output': mark_safe('&#8239;;')},
             'point d\'interrogation':
                 {'input': ' ?',
-                'expected_output': mark_safe('&#8239;?')},
+                 'expected_output': mark_safe('&#8239;?')},
             'point d\'exclamation':
                 {'input': ' !',
-                'expected_output': mark_safe('&#8239;!')},
+                 'expected_output': mark_safe('&#8239;!')},
             'pourcent':
                 {'input': ' %',
-                'expected_output': mark_safe('&#8239;%')},
+                 'expected_output': mark_safe('&#8239;%')},
             # Non-breaking space: &nbsp;
             'guillemet français ouvrant':
                 {'input': '« ',
-                'expected_output': mark_safe('«&nbsp;')},
+                 'expected_output': mark_safe('«&nbsp;')},
             'guillemet français fermant':
                 {'input': ' »',
-                'expected_output': mark_safe('&nbsp;»')},
+                 'expected_output': mark_safe('&nbsp;»')},
             'deux-points':
                 {'input': ' :',
-                'expected_output': mark_safe('&nbsp;:')}
+                 'expected_output': mark_safe('&nbsp;:')}
         }
 
     def test_non_breaking_space(self):
