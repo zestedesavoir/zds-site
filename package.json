@@ -6,7 +6,7 @@
     "doc": "doc"
   },
   "engines": {
-    "node": ">=10.x <=12.x"
+    "node": "12.x"
   },
   "scripts": {
     "gulp": "node ./node_modules/gulp/bin/gulp.js",
