@@ -34,7 +34,13 @@
             }
             button.blocMenu {
                 border-color: #fcfcfc;
+                background-image: linear-gradient(to right bottom, rgb(253, 253, 253) 0px, rgb(253, 253, 253) 84%, rgb(51, 51, 51) 50%, rgb(51, 51, 51) 100%);
             }
+
+            .easymde-dropdown-content {
+                background-color: #fcfcfc;
+            }
+
             button.active,
             button:hover {
                 border: 1px solid transparent;
