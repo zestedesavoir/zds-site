@@ -25,7 +25,7 @@ class ReplaceNonBreakingSpace(TestCase):
                 'expected_output': mark_safe('«&nbsp;')},
             'guillemet français fermant':
                 {'input': ' »',
-                'expected_output': mark_safe('«&nbsp;')},
+                'expected_output': mark_safe('&nbsp;»')},
             'deux-points':
                 {'input': ' :',
                 'expected_output': mark_safe('&nbsp;:')}
