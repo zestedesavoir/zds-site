@@ -36,5 +36,5 @@ class ReplaceNonBreakingSpace(TestCase):
     def test_non_breaking_space(self):
         test_cases = ReplaceNonBreakingSpace.get_cases()
         for case_name, case in test_cases.items():
-                with self.subTest(msg=case_name):
-                    self.assertEqual(case['expected_output'], non_breaking_space(case['input']))
+            with self.subTest(msg=case_name):
+                self.assertEqual(case['expected_output'], non_breaking_space(case['input']))
