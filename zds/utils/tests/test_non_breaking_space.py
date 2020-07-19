@@ -2,7 +2,9 @@ from django.test import TestCase
 from zds.utils.templatetags.non_breaking_space import non_breaking_space
 from django.utils.safestring import mark_safe
 
+
 class ReplaceNonBreakingSpace(TestCase):
+
     @staticmethod
     def get_cases():
         return {
