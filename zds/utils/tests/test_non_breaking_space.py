@@ -9,28 +9,38 @@ class ReplaceNonBreakingSpace(TestCase):
     def get_cases():
         return {
             # Narrow non-breaking space: &#8239;
-            'point-virgule':
+            'semicolon':
                 {'input': ' ;',
                  'expected_output': mark_safe('&#8239;;')},
-            'point d\'interrogation':
+            'question mark':
                 {'input': ' ?',
                  'expected_output': mark_safe('&#8239;?')},
-            'point d\'exclamation':
+            'exclamation mark':
                 {'input': ' !',
                  'expected_output': mark_safe('&#8239;!')},
-            'pourcent':
+            'percent sign':
                 {'input': ' %',
                  'expected_output': mark_safe('&#8239;%')},
             # Non-breaking space: &nbsp;
-            'guillemet français ouvrant':
+            'opening double guillemet':
                 {'input': '« ',
                  'expected_output': mark_safe('«&nbsp;')},
-            'guillemet français fermant':
+            'closing double guillemet':
                 {'input': ' »',
                  'expected_output': mark_safe('&nbsp;»')},
-            'deux-points':
+            'colon':
                 {'input': ' :',
-                 'expected_output': mark_safe('&nbsp;:')}
+                 'expected_output': mark_safe('&nbsp;:')},
+            # Miscellaneous
+            'several replacements':
+                {'input': 'Ô râge, oh ?! des zestes poires !',
+                 'expected_output': mark_safe('Ô râge, oh&#8239;?! des zestes poires&#8239;!')},
+            'no replacement':
+                {'input': 'Pulpe Fiction.',
+                 'expected_output': 'Pulpe Fiction.'},
+            'empty string':
+                {'input': '',
+                 'expected_output': ''}
         }
 
     def test_non_breaking_space(self):
