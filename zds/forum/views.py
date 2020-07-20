@@ -314,7 +314,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
             'title': self.object.title,
             'subtitle': self.object.subtitle,
             'text': self.object.first_post().text,
-            'tags': ', '.join([tag['title'] for tag in self.object.tags.values('title')]) or ''
+            'tags': ', '.join(self.object.tags.values_list('title', flat=True))
         })
         return render(request, self.template_name, {'topic': self.object, 'form': form, 'is_staff': is_staff})
 

@@ -597,17 +597,12 @@ def unregister(request):
     HatRequest.objects.filter(moderator=current).update(moderator=anonymous)
     # In case current user has been moderator in the past
     Comment.objects.filter(editor=current).update(editor=anonymous)
-    for topic in PrivateTopic.objects.filter(author=current):
-        topic.participants.remove(current)
-        if topic.participants.count() > 0:
-            topic.author = topic.participants.first()
-            topic.participants.remove(topic.author)
-            topic.save()
-        else:
+    for topic in PrivateTopic.objects.filter(Q(author=current) | Q(participants__in=[current])):
+        if topic.one_participant_remaining():
             topic.delete()
-    for topic in PrivateTopic.objects.filter(participants__in=[current]):
-        topic.participants.remove(current)
-        topic.save()
+        else:
+            topic.remove_participant(current)
+            topic.save()
     Topic.objects.filter(solved_by=current).update(solved_by=anonymous)
     Topic.objects.filter(author=current).update(author=anonymous)
 
@@ -1251,9 +1246,9 @@ def activate_account(request):
             _('Bienvenue sur {}').format(settings.ZDS_APP['site']['literal_name']),
             _('Le manuel du nouveau membre'),
             msg,
-            False,
-            True,
-            False,
+            send_by_mail=False,
+            leave=True,
+            direct=False,
             hat=get_hat_from_settings('moderation'))
     token.delete()
 
@@ -1394,8 +1389,8 @@ def settings_promote(request, user_pk):
             _('Modification des groupes'),
             '',
             msg,
-            True,
-            True,
+            send_by_mail=True,
+            leave=True,
             hat=get_hat_from_settings('moderation'),
         )
 

@@ -56,7 +56,7 @@
                                         <input name="g_items" type="hidden" value="{{ gallery.pk }}" form="delete-galleries" />
                                         <p>{% trans "Êtes-vous certain de vouloir supprimer cette galerie ?" %}</p>
                                         {% csrf_token %}
-                                        <button type="submit" name="delete_multi" class="btn">{% trans "Supprimer" %}</button>
+                                        <button type="submit" name="delete_multi" class="btn btn-submit">{% trans "Supprimer" %}</button>
                                     </form>
                                 </li>
                             {% endif %}

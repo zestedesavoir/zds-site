@@ -191,7 +191,7 @@
             }
         }
     }
-    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {  
+    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {
         &:not(.link) {
             background: $bg;
             color: $color;
@@ -332,12 +332,9 @@
     .checkbox-new-content {
         padding: 0;
     }
-    #div_id_helps .checkbox {
-      padding: 0;
-    }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .content-container,
     .modals-container {
         form.content-wrapper {

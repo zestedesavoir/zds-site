@@ -23,15 +23,22 @@ def send_mp(
         direct=False,
         mark_as_read=False,
         hat=None,
-        automaticaly_read=None):
+        automatically_read=None):
     """
-    Send MP at members.
-    Most of the param are obvious, excepted :
+    Send a private message in a new private topic.
 
+    :param author: sender of the message and author of the private topic
+    :param users: list of users receiving the message (participants of the private topic)
+    :param title: title of the private topic
+    :param subtitle: subtitle of the private topic
+    :param text: content of the private message
+    :param send_by_mail:
     :param direct: send a mail directly without mp (ex : ban members who wont connect again)
-    :param leave: the author leave the conversation (usefull for the bot : it wont read the response a member could
-    send)
-    :param automaticaly_read: a user or a list of users that will automatically be marked as reader of the mp
+    :param leave: if True, do not add the sender to the topic
+    :param mark_as_read:
+    :param hat: hat with which to send the private message
+    :param automatically_read: a user or a list of users that will automatically be marked as having read of the mp
+    :raise UnreachableUserError:
     """
 
     # Creating the thread
@@ -50,15 +57,13 @@ def send_mp(
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
     if mark_as_read:
         mark_read(topic, author)
-    if automaticaly_read:
-        if not isinstance(automaticaly_read, list):
-            automaticaly_read = [automaticaly_read]
-        for not_notified_user in automaticaly_read:
+    if automatically_read:
+        if not isinstance(automatically_read, list):
+            automatically_read = [automatically_read]
+        for not_notified_user in automatically_read:
             mark_read(n_topic, not_notified_user)
     if leave:
-        move = topic.participants.first()
-        topic.author = move
-        topic.participants.remove(move)
+        topic.remove_participant(topic.author)
         topic.save()
 
     return topic
@@ -74,9 +79,14 @@ def send_message_mp(
         no_notification_for=None):
     """
     Send a post in an MP.
-    Most of the param are obvious, excepted :
-    * direct : send a mail directly without mp (ex : ban members who wont connect again)
-    * leave : the author leave the conversation (usefull for the bot : it wont read the response a member could send)
+
+    :param author: sender of the private message
+    :param n_topic: topic in which it will be sent
+    :param text: content of the message
+    :param send_by_mail: if True, also notify by email
+    :param direct: send a mail directly without private message (ex : banned members who won't connect again)
+    :param hat: hat attached to the message
+    :param no_notification_for: list of participants who won't be notified of the message
     """
 
     # Getting the position of the post

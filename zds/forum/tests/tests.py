@@ -861,7 +861,7 @@ class ForumMemberTests(TestCase):
         profiles = [ProfileFactory(), ProfileFactory()]
         topic = TopicFactory(forum=forum, author=profiles[1].user)
         expected = '<strong>Attention</strong>, vous n’êtes pas sur la dernière page de '
-        expected += 'ce sujet, assurez-vous de l’avoir lu dans son intégralité avant d’y'
+        expected += 'ce sujet. Assurez-vous de l’avoir lu dans son intégralité avant d’y'
         expected += ' répondre.'
 
         for i in range(settings.ZDS_APP['forum']['posts_per_page'] + 2):
@@ -1048,7 +1048,7 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(reverse('post-new') + '?sujet={0}&cite={0}'.format(topic1.pk, post2.pk), follow=False)
+        result = self.client.get(reverse('post-new') + '?sujet={}&cite={}'.format(topic1.pk, post2.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
 

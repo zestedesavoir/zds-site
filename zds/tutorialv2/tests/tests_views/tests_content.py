@@ -1,4 +1,5 @@
 import datetime
+from json import loads
 import shutil
 import tempfile
 import zipfile
@@ -22,7 +23,7 @@ from zds.gallery.models import Image
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread, PrivatePost
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    NewPublicationSubscription, Notification, Subscription
+    NewPublicationSubscription, Notification
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
     SubCategoryFactory, PublishedContentFactory, tricky_text_content, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, Validation, PublishedContent, ContentReaction, \
@@ -5641,7 +5642,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False)
         self.assertEqual(302, result.status_code)
         self.assertEqual(public_count - 1, PublishedContent.objects.count())
-        self.assertEqual(Subscription.objects.filter(is_active=False).count(), 2)  # author + subscriber
+        self.assertEqual(ContentReactionAnswerSubscription.objects.filter(is_active=False).count(), 1)
 
     def test_validation_history(self):
         published = PublishedContentFactory(author_list=[self.user_author])
@@ -6256,3 +6257,43 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False)
 
         self.assertEqual(tutorial.public_version.authors.count(), 1)
+
+    def test_add_help_tuto(self):
+        self.client.login(username=self.user_author.username, password='hostel77')
+        tutorial = PublishableContentFactory(author_list=[self.user_author])
+        help_wanted = HelpWritingFactory()
+        resp = self.client.post(reverse('content:helps-change', args=[tutorial.pk]),
+                                {
+                                    'activated': True,
+                                    'help_wanted': help_wanted.title})
+        self.assertEqual(302, resp.status_code)
+        self.assertEqual(1, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
+
+    def test_add_help_opinion(self):
+        self.client.login(username=self.user_author.username, password='hostel77')
+        tutorial = PublishableContentFactory(author_list=[self.user_author], type='OPINION')
+        help_wanted = HelpWritingFactory()
+        resp = self.client.post(reverse('content:helps-change', args=[tutorial.pk]),
+                                {
+                                    'activated': True,
+                                    'help_wanted': help_wanted.title})
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(0, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
+
+    def test_save_no_redirect(self):
+        self.client.login(username=self.user_author.username, password='hostel77')
+        tutorial = PublishableContentFactory(author_list=[self.user_author])
+        extract = ExtractFactory(db_object=tutorial, container=tutorial.load_version())
+        tutorial = PublishableContent.objects.get(pk=tutorial.pk)
+        resp = self.client.post(reverse('content:edit-extract', args=[tutorial.pk, tutorial.slug, extract.slug]),
+                                {
+                                    'last_hash': extract.compute_hash(),
+                                    'text': 'a brand new text',
+                                    'title': extract.title,
+                                    'msg_commit': 'a commit message'},
+                                HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=False)
+        # no redirect
+        self.assertEqual(200, resp.status_code)
+        result = loads(resp.content.decode('utf-8'))
+        self.assertEqual('ok', result.get('result', None))
+        self.assertEqual(extract.compute_hash(), result.get('last_hash', None))

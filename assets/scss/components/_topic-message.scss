@@ -500,7 +500,7 @@ form.topic-message {
     margin-top: 50px;
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .topic-message {
         padding: 20px 0;
 
@@ -596,7 +596,7 @@ form.topic-message {
     margin: 10px;
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .topic-message {
         margin: 25px 0;
 
@@ -671,7 +671,7 @@ form.topic-message {
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .topic-message .message {
         .message-actions a {
             width: 0px;

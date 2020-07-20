@@ -127,7 +127,7 @@ class PrivatePostForm(forms.Form):
             Hidden('last_post', '{{ last_post_pk }}'),
         )
 
-        if topic.alone():
+        if topic.one_participant_remaining():
             self.helper['text'].wrap(
                 Field,
                 placeholder=_('Vous êtes seul dans cette conversation, '

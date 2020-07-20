@@ -581,7 +581,7 @@ class Alert(models.Model):
                 msg_title,
                 '',
                 msg_content,
-                True,
+                send_by_mail=True,
                 hat=get_hat_from_settings('moderation'),
             )
             self.privatetopic = privatetopic

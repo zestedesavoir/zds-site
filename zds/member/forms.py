@@ -281,6 +281,7 @@ class ProfileForm(MiniProfileForm):
             self.fields['options'].initial += 'email_for_new_mp'
 
         layout = Layout(
+            IncludeEasyMDE(),
             Field('biography'),
             ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
                                       css_class='btn btn-grey preview-btn'),),
@@ -618,7 +619,7 @@ class KarmaForm(forms.Form):
             Field('karma'),
             Hidden('profile_pk', '{{ profile.pk }}'),
             ButtonHolder(
-                StrictButton('Valider', type='submit'),
+                StrictButton('Valider', type='submit', css_class='btn-submit'),
             ),
         )
 

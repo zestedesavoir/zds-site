@@ -9,7 +9,7 @@ $logo-width: 240px;
     header, .sub-header {
         display: flex;
 
-        @media only screen and #{$media-wide} {
+        @include desktop {
             padding: 0 2rem;
 
             .header-right .dropdown {
@@ -118,7 +118,7 @@ $logo-width: 240px;
         background: url("../images/logo.png") no-repeat center center;
         background-size: $logo-width auto;
 
-        @media only screen and #{$media-wide} {
+        @include desktop {
             &:hover,
             &:focus {
                 background-color: $color-header-hover;
@@ -141,7 +141,7 @@ $logo-width: 240px;
         margin: 0 0.5em;
         line-height: 50px;
         font-size: 1.7rem;
-        @media only screen and #{$media-wide} {
+        @include desktop {
             display: none;
         }
     }
@@ -407,7 +407,7 @@ $logo-width: 240px;
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .header-container {
         .header-logo {
             width: 40px;
@@ -436,8 +436,8 @@ $logo-width: 240px;
             }
 
 
-            .notifs-links .ico-link, 
-            #my-account, 
+            .notifs-links .ico-link,
+            #my-account,
             #my-account .avatar{
                 height: 50px;
                 width: 50px;
@@ -498,7 +498,7 @@ $logo-width: 240px;
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .header-container {
         z-index: 1;
         position: relative;
@@ -545,5 +545,9 @@ $logo-width: 240px;
         display: flex;
         flex-shrink: 0;
         justify-content: flex-end;
+
+        form {
+          display: flex;
+        }
     }
 }

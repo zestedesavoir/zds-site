@@ -125,7 +125,7 @@
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
+                            <button type="submit" name="delete-post" class="btn btn-submit button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                         </form>
                     {% endif %}
                 </div>
@@ -273,12 +273,7 @@
                     </a>
                 </li>
                 <li>
-                    <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue"
-                    data-success-text="{% trans "Export en cours, veuillez attendre quelques minutes" %}"
-                    data-error-text="{% trans "La demande d'export a échoué" %}"
-                    data-base-text="{% trans "Exporter le contenu (epub, pdf, latex...)" %}">
-                        {% trans "Exporter le contenu (epub, pdf, latex...)" %}
-                    </button>
+                    {% include "tutorialv2/includes/exports.part.html" %}
                 </li>
                 {% if is_staff %}
                     {% if content.requires_validation %}
@@ -338,7 +333,7 @@
                                         Il sera dépublié et ne pourra pas être republié.
                                     {% endblocktrans %}
                                 </p>
-                                <button type="submit">
+                                <button type="submit" class="btn btn-submit">
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>
@@ -373,9 +368,9 @@
             </ul>
         </div>
     {% endif %}
-    {% if is_staff %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Editorialisation">
-        {%  include "tutorialv2/includes/editorialization.part.html"  %}
+    {% if is_staff or is_author %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
+            {%  include "tutorialv2/includes/editorialization.part.html"  %}
         </div>
     {% endif %}
     {% include "misc/social_buttons.part.html" with link=content.get_absolute_url_online text=content.title %}

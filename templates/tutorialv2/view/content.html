@@ -22,15 +22,18 @@
 
 {% block headline %}
     {% if content.licence %}
-        <p class="license">
-            {{ content.licence }}
-            <a href="#edit-license" class="open-modal">{% trans "Modifier la licence" %}</a>
-        </p>
+      <div class="editable-element license">
+        <p>{{ content.licence }}</p>
+        <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+          <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+        </a>
+      </div>
     {% else %}
         <p class="license">
             <a href="#edit-license" class="open-modal">Choisissez la licence de votre publication !</a>
         </p>
     {% endif %}
+
     {% crispy form_edit_license %}
 
     <h1 {% if content.image %}class="illu"{% endif %}>
@@ -112,7 +115,7 @@
             </div>
         </div>
 
-        {% if helps.count %}
+        {% if helps %}
             <div class="content-wrapper">
                 <div class="alert-box info">
                     {% if content.authors.count > 1 %}
@@ -121,7 +124,7 @@
                         {% trans "L’auteur de ce contenu recherche" %}
                     {% endif %}
 
-                    {% for help in helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
+                    {% for help in content.helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
 
                     {% if not can_edit %}
                         {% blocktrans with plural=content.authors.count|pluralize_fr %}
@@ -300,7 +303,7 @@
             <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author">
                 {% csrf_token %}
                 <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
-                <button type="submit" name="add_author">
+                <button type="submit" name="add_author" class="btn btn-submit">
                     {% trans "Confirmer" %}
                 </button>
             </form>
@@ -399,7 +402,7 @@
                             "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
                             {% endblocktrans %}
                         </p>
-                        <button type="submit">
+                        <button type="submit" class="btn btn-submit">
                             {% trans "Confirmer" %}
                         </button>
                     </form>
@@ -431,7 +434,7 @@
                                 Si cette mise à jour fait suite à des commentaires obtenus lors de la bêta, pensez à en remercier leurs auteurs dans votre conclusion.
                                 {% endblocktrans %}
                             </p>
-                            <button type="submit">
+                            <button type="submit" class="btn btn-submit">
                                 {% trans "Confirmer" %}
                             </button>
                         </form>
@@ -455,7 +458,7 @@
                             Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta de ce contenu "<em>{{ content_title }}</em>" ?
                             {% endblocktrans %}
                         </p>
-                        <button type="submit">
+                        <button type="submit" class="btn btn-submit">
                             {% trans "Confirmer" %}
                         </button>
                     </form>
@@ -470,7 +473,6 @@
             {% endif %}
         {% endif %}
         {# END BETA #}
-
         {# ONLINE VERSION #}
         {% if public_content_object %}
             <li>
@@ -484,9 +486,7 @@
                 </a>
             </li>
             <li>
-                <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue">
-                    {% trans "Exporter le contenu (epub, pdf, latex...)" %}
-                </button>
+                {% include "tutorialv2/includes/exports.part.html" %}
             </li>
         {% endif %}
         {# END ONLINE VERSION #}
@@ -689,7 +689,7 @@
                                         {% include "misc/member_item.part.html" with member=validation.validator %}.
                                         {% trans "Êtes-vous certain de vouloir le retirer" %} ?
                                     </p>
-                                    <button type="submit">
+                                    <button type="submit" class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -699,11 +699,51 @@
                 {% endif %}
             </ul>
         </div>
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Editorialisation">
-        {%  include "tutorialv2/includes/editorialization.part.html"  %}
-        </div>
     {% endif %}
 
+    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
+        {%  include "tutorialv2/includes/editorialization.part.html"  %}
+    </div>
+
+    {% if can_edit and not content.is_opinion %}
+        <div class="actions">
+            <h3 id="title-help">
+                {% trans "Demander de l'aide" %}
+                <a href="#what-is-a-help" class="help-question-mark open-modal"
+                   title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}" aria-haspopup="dialog">?</a>
+            </h3>
+            <div id="what-is-a-help" class="modal modal-flex" data-modal-title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}"
+                 data-modal-close="{% trans "Fermer" %}">
+                {% url 'content:helps' as help_url %}
+                {% blocktrans%}
+                    <p>
+                        Lorsque vous rédigez un tutoriel ou un article, il se peut que vous ayiez
+                        besoin d'aide. La communauté est là pour vous ! En sélectionnant un des éléments
+                        ci-dessous, votre contenu sera répertorié dans <a href="{{ help_url }}">la page des aides</a>
+                        et la communauté pourra vous contacter.
+                    </p>
+                {% endblocktrans %}
+            </div>
+            <ul>
+                {# HELPS #}
+                {% for help in helps %}
+                    <li>
+                        <form action="{% url 'content:helps-change' content.pk %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="activated" value="{% if help.pk in content_helps %}false{% else %}true{% endif %}">
+                            <input type="hidden" name="help_wanted" value="{{ help.title }}">
+                            <button type="submit"
+                               class="help-toggle {% if help.pk in content_helps %}selected ico-after tick green{% endif %} help-{{ help.slug }}"
+                               data-activated="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
+                                {{ help.title }}
+                            </button>
+                        </form>
+                    </li>
+                {% endfor %}
+                {# END HELPS #}
+            </ul>
+        </div>
+    {% endif %}
     {%  include "tutorialv2/includes/summary.part.html"  %}
 
     {% if can_edit %}
@@ -734,7 +774,7 @@
                                     <p><textarea name="text" class="textarea" placeholder="Raison de la suppression" cols="40"></textarea></p>
                                 {%  endif %}
 
-                                <button type="submit">
+                                <button type="submit" class="btn btn-submit">
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>

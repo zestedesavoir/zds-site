@@ -74,18 +74,18 @@
                                     </a>
                                     <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
                                         {% csrf_token %}
-                                        {% if perms_change %}
-                                            <p>
-                                                {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
-                                            </p>
-                                            <input type="text" name="text_hidden" placeholder="Flood, Troll, Hors sujet, ..." >
-                                        {% else %}
+                                        <p>
+                                            {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
+                                        </p>
+                                        <input type="text" name="text_hidden" placeholder="{% if perms_change %}Flood, Troll, Hors sujet, ...{% else %}Erreur, mauvaise compréhension, changement d'avis, ...{% endif %}">
+
+                                        {% if not perms_change  %}
                                             <p>
                                                 {% trans "Attention, en masquant ce message, vous ne pourrez plus l’afficher vous-même. Êtes-vous certain de vouloir le faire ?" %}
                                             </p>
                                         {% endif %}
 
-                                        <button type="submit" name="delete_message">
+                                        <button type="submit" name="delete_message" class="btn btn-submit">
                                             {% trans "Confirmer" %}
                                         </button>
                                     </form>
@@ -126,7 +126,7 @@
                                     {% endblocktrans %}
                                 </p>
 
-                                <button type="submit" name="show_message">
+                                <button type="submit" name="show_message" class="btn btn-submit">
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>
@@ -144,7 +144,7 @@
                                 {% trans "Pour quelle raison signalez-vous ce message ?" %}
                             </label>
                             <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
-                            <button type="submit" name="signal_message">
+                            <button type="submit" name="signal_message" class="btn btn-submit">
                                 {% trans "Signaler" %}
                             </button>
                         </form>
@@ -238,7 +238,7 @@
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
+                            <button type="submit" name="delete-post" class="btn btn-submit button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
                         </form>
                     {% endif %}
                 </div>

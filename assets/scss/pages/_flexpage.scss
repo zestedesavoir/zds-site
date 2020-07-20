@@ -95,7 +95,7 @@ $content-width: 1145px;
                 }
             }
         }
-        
+
         .avatar {
             flex: 4;
             align-self: start;
@@ -123,7 +123,7 @@ $content-width: 1145px;
                 }
             }
         }
-        
+
         .actions {
             flex: 4;
 
@@ -139,11 +139,11 @@ $content-width: 1145px;
                 text-transform: uppercase;
                 font-size: 0.7em;
                 font-weight: 400;
-                
+
                 #subscriber_count, #subscriber_count_combined {
                     margin-left: 10px;
                 }
-                
+
                 &:hover,
                 &:focus {
                     color: white !important;
@@ -231,7 +231,7 @@ $content-width: 1145px;
                 line-height: 50px;
                 border: none;
 
-                @media only screen and #{$media-mobile} {
+                @include mobile {
                     display: flex;
                     align-items: baseline;
 
@@ -289,7 +289,6 @@ $content-width: 1145px;
             flex-direction: column;
             margin-top: 10px;
             margin-right: 20px;
-            height: 50px;
 
             .search {
                 display: flex;
@@ -365,7 +364,7 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .flexpage-title-tool .actions {
         & ~ .title,
         & ~ .aside {
@@ -374,13 +373,13 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and #{$media-under-extra-wide} {
+@include until-wide {
    .flexpage .flexpage-wrapper {
         padding: 20px 10px;
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .flexpage {
         .flexpage-wrapper {
             padding: 20px 10px;
@@ -413,7 +412,7 @@ $content-width: 1145px;
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .flexpage {
         .flexpage-title-tool {
             padding: 15px 0;

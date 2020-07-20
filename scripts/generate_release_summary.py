@@ -90,8 +90,8 @@ def parse_issues(req):
         # check closed issue
         elif issue['state'] == 'closed':
             labels = []
-            for l in issue['labels']:
-                labels.append(l['name'])
+            for label in issue['labels']:
+                labels.append(label['name'])
 
             if 'S-BUG' in labels or 'S-Régression' in labels:
                 closed_bug.append(issue)

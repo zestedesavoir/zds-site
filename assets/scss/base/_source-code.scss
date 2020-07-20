@@ -1,0 +1,133 @@
+// ZMD source code
+
+.hljs-code-div {
+  display: flex;
+
+  // Required for line highlights
+  position: relative;
+
+  margin: 0 auto;
+  padding: 0.5em;
+
+  border-radius: .25em;
+
+  background-color: #fff;  // TODO $white
+  font-family: $font-monospace;
+  font-style: normal;
+  font-size: 14px;
+
+  line-height: 1.3em;
+
+  z-index: 0;
+
+  + .hljs-code-div {
+    margin-top: 14px;
+  }
+
+  .hljs-line-numbers {
+    counter-reset: line;
+
+    margin: 0;
+    padding: .5em;
+
+    border-right: 1px solid hsl(180, 7.7%, 94.9%);  // TODO $grey-100
+
+    text-align: right;
+    color: hsl(192, 2%, 52%);  // TODO $grey-500
+
+    z-index: 1;
+
+    span:after {
+      display: block;
+      position: relative;
+      top: -1px;
+    }
+
+    // LEGACY
+    // Support for content generated before zmd 9.1, without explicit
+    // line numbers.
+    span:not([data-count]):after {
+      counter-increment: line;
+      content: counter(line);
+    }
+
+    // Support for content generated after zmd 9.1.
+    span[data-count]:after {
+      content: attr(data-count);
+    }
+
+    // Highlighted lines
+    span.hll {
+      &:after {
+        font-weight: bold;
+        color: hsl(15.1, 85.6%, 30%);  // TODO $accent-900
+      }
+
+      &:before {
+        display: block;
+        content: '';
+
+        position: absolute;
+        left: 0;
+
+        width: 100%;
+        height: 1.3em;
+
+        background-color: transparentize(hsl(38.2, 86.3%, 80%), .66);  // TODO transparentize($accent-300, .66)
+      }
+    }
+  }
+
+  // Code part
+  pre {
+    margin: 0;
+    width: 100%;
+    overflow-x: auto;
+
+    // Required for highlight to work (same for the other one below)
+    background-color: transparent;
+
+    z-index: 2;
+
+    .hljs {
+      background-color: transparent;
+    }
+  }
+
+  // This applies only to console codes rendered with zmd 9.1.2+, as previous
+  // versions were missing the possibility to style them as full console blocks.
+  // Old blocs only have a black background on the content, not the line numbers,
+  // and they get a degraded support for line highlight.
+  &.hljs-code-console {
+    background-color: hsl(0, 0%, 6%);  // TODO $black
+
+    .hljs-line-numbers {
+      border-right-color: hsl(192, 2.6%, 62.9%);  // TODO $grey-400
+
+      span {
+        &:after , &.hll:after{
+          color: hsl(0, 0%, 98%);  // TODO $white
+        }
+      }
+    }
+
+    // Required for highlight to work
+    pre code.language-console {
+      background-color: transparent;
+    }
+  }
+}
+
+// The code part of the console codes (shared for legacy and new versions,
+// the background-color being overridden for new versions).
+.language-console {
+  display: block;
+  padding: .5em;
+
+  color: $color-console-text;
+  background-color: $color-console-bg;
+
+  font-family: $font-monospace;
+
+  overflow-x: auto;
+}

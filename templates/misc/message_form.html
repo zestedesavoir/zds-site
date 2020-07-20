@@ -11,12 +11,12 @@
     </div>
 {% elif not user.is_authenticated %}
     <div class="alert-box info alert-box-not-closable">
-        {% trans "Vous devez être connecté pour pouvoir poster un message." %}
+        {% trans "Connectez-vous pour pouvoir poster un message." %}
         <br>
         <a href="{% url "member-login" %}?next={{ request.path }}" class="alert-box-btn alert-box-btn-right">Connexion</a>
     </div>
     <div class="alert-box not-member alert-box-not-closable">
-        <h4 class="alert-box-title">Pas encore inscrit ?</h4>
+        <h4 class="alert-box-title">Pas encore membre ?</h4>
         <p>
             {% trans "Créez un compte en une minute pour profiter pleinement de toutes les fonctionnalités de Zeste de Savoir. Ici, tout est gratuit et sans publicité." %}
             <br>
@@ -27,9 +27,9 @@
     <div class="alert-box ico-after ico-alert light">
         {% trans "Vous venez de poster. Merci de patienter au moins 15 minutes entre deux messages consécutifs afin de limiter le flood." %}
     </div>
-{% elif topic.alone %}
+{% elif topic.one_participant_remaining %}
     <div class="alert-box info cross light">
-        {% trans "Vous êtes seul dans cette conversation." %}
+        {% trans "Il n'y a personne d'autre que vous dans cette conversation." %}
     </div>
 {% else %}
     {% if topic.old_post_warning %}
@@ -44,7 +44,7 @@
 
     {% if page_obj.has_next %}
         <div class="alert-box warning ico-after alert light">
-            {% trans "<strong>Attention</strong>, vous n’êtes pas sur la dernière page de ce sujet, assurez-vous de l’avoir lu dans son intégralité avant d’y répondre." %}
+            {% trans "<strong>Attention</strong>, vous n’êtes pas sur la dernière page de ce sujet. Assurez-vous de l’avoir lu dans son intégralité avant d’y répondre." %}
         </div>
     {% endif %}
 
@@ -59,7 +59,7 @@
                         name="text"
                         id="text"
                         class="md-editor mini-editor"
-                        {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
+                        {% if topic.is_locked or topic.antispam or topic.one_participant_remaining %}disabled{% endif %}
                         placeholder="Votre message au format Markdown"
                     >{{ text }}</textarea>
                     {% include 'misc/hat_choice.html' %}
@@ -72,7 +72,7 @@
                             name="preview"
                             class="btn-grey"
                             data-ajax-input="preview-message"
-                            {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
+                            {% if topic.is_locked or topic.antispam or topic.one_participant_remaining %}disabled{% endif %}
                         >
                             {% trans "Aperçu" %}
                         </button>
@@ -80,7 +80,7 @@
                         <button
                             type="submit"
                             name="answer"
-                            {% if topic.is_locked or topic.antispam or topic.alone %}disabled{% endif %}
+                            {% if topic.is_locked or topic.antispam or topic.one_participant_remaining %}disabled{% endif %}
                         >
                             {% trans "Envoyer" %}
                         </button>

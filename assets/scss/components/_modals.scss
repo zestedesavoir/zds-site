@@ -85,6 +85,7 @@
         select,
         textarea {
             margin: 0 0 15px;
+            width: 100%;
         }
     }
 
@@ -135,9 +136,15 @@
     &.modal-large {
         width: 800px;
     }
+
+    &.modal-flex, &.modal-large {
+        p {
+            width: 100%;
+        }
+    }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .enable-mobile-menu .modals-container .modal {
         box-shadow: 0 2px 7px rgba(0, 0, 0, .7);
 
