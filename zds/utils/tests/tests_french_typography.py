@@ -1,9 +1,9 @@
 from django.test import TestCase
-from zds.utils.templatetags.non_breaking_space import non_breaking_space
+from zds.utils.templatetags.french_typography import french_typography
 from django.utils.safestring import mark_safe
 
 
-class ReplaceNonBreakingSpace(TestCase):
+class FrenchTypographyTests(TestCase):
 
     @staticmethod
     def get_cases():
@@ -43,8 +43,8 @@ class ReplaceNonBreakingSpace(TestCase):
                  'expected_output': ''}
         }
 
-    def test_non_breaking_space(self):
-        test_cases = ReplaceNonBreakingSpace.get_cases()
+    def test_french_typography(self):
+        test_cases = FrenchTypographyTests.get_cases()
         for case_name, case in test_cases.items():
             with self.subTest(msg=case_name):
-                self.assertEqual(case['expected_output'], non_breaking_space(case['input']))
+                self.assertEqual(case['expected_output'], french_typography(case['input']))

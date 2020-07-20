@@ -7,7 +7,7 @@ register = template.Library()
 
 @register.filter()
 @stringfilter
-def non_breaking_space(str):
+def french_typography(str):
     return mark_safe(
         # Narrow non-breaking space: &#8239;
         str.replace(' ;', '&#8239;;')
