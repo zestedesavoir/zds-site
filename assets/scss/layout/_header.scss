@@ -445,6 +445,11 @@ $logo-width: 240px;
 
             .dropdown {
                 top: 50px;
+                height: calc(100vh - 50px);
+
+                @at-root body.has-top-banner .logbox .dropdown {
+                    height: calc(100vh - 75px);
+                }
             }
 
             .dropdown.my-account-dropdown .dropdown-list {
