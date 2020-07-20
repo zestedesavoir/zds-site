@@ -35,7 +35,6 @@
         {% endif %}
     >
 
-
         <ul class="header-menu-list">
             <li>
                 <a href="{% url "publication:list" %}" class="mobile-menu-link has-dropdown {% block menu_publications %}{% endblock %}">
@@ -229,7 +228,7 @@
 
                     <div class="dropdown">
                         <span class="dropdown-title dropdown-pm">
-                            {% trans "Messagerie privée" %}
+                            <h1>{% trans "Messagerie privée" %}</h1>
                             <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
                         </span>
 
@@ -237,9 +236,11 @@
                             {% for notification in header_private_topic_notifications.list %}
                                 <li>
                                     <a href="{{ notification.url }}">
-                                        <img src="{{ notification.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                        <span class="username">{{ notification.author.username }}</span>
-                                        <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                        <header>
+                                            <img src="{{ notification.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                            <span class="username">{{ notification.author.username }}</span>
+                                            <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                        </header>
                                         <span class="topic">{{ notification.title }}</span>
                                     </a>
                                 </li>
@@ -267,16 +268,18 @@
                     </a>
 
                     <div class="dropdown">
-                        <span class="dropdown-title">{% trans "Notifications" %}</span>
+                        <h1 class="dropdown-title">{% trans "Notifications" %}</h1>
 
                         <ul class="dropdown-list">
                             {% for first_unread in header_general_notifications.list %}
                                 <li>
                                     <a href="{{ first_unread.url }}">
-                                        <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                        <span class="username">{{ first_unread.author.username }}</span>
-                                        <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
-                                        <span class="topic">{{ first_unread.title }}</span>
+                                      <header>
+                                          <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                          <span class="username">{{ first_unread.author.username }}</span>
+                                          <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
+                                      </header>
+                                      <span class="topic">{{ first_unread.title }}</span>
                                     </a>
                                 </li>
                             {% endfor %}
@@ -304,13 +307,15 @@
                         </a>
 
                         <div class="dropdown staff-only">
-                            <span class="dropdown-title">{% trans "Alertes de modération" %}</span>
+                            <h1 class="dropdown-title">{% trans "Alertes de modération" %}</h1>
                             <ul class="dropdown-list">
                                 {% for alert in header_alerts.list %}
                                     <li>
                                         <a href="{{ alert.url }}">
-                                            <span class="username">{{ alert.title }}</span>
-                                            <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                            <header>
+                                                <span class="username">{{ alert.title }}</span>
+                                                <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                            </header>
                                             <span class="topic">{{ alert.text }}</span>
                                         </a>
                                     </li>
@@ -346,7 +351,7 @@
                 {% endwith %}
 
                 <div class="dropdown my-account-dropdown mobile-all-links" data-title="{% trans 'Mon compte' %}">
-                    <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
+                    <h1 class="dropdown-title">{{ user.username|truncatechars:25 }}</h1>
 
                     <ul class="dropdown-list">
                         <li>
@@ -452,4 +457,3 @@
         {% endif %}
     </div>
 </header>
-
