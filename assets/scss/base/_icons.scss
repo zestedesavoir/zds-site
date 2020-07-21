@@ -227,6 +227,18 @@
         }
     }
 
+    &.google {
+        &:after {
+            @include sprite-position($google);
+        }
+        &.blue:after {
+            @include sprite-position($google-blue);
+        }
+        &.light:after {
+            @include sprite-position($google-light);
+        }
+    }
+
     &.help {
         &:after {
             @include sprite-position($help);

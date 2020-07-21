@@ -272,7 +272,7 @@
             background: darken(#4099FF, 10%);
         }
     }
-    .btn-google-plus:not(.link) {
+    .btn-google:not(.link), .btn-google-plus:not(.link) {
         background: #d34836;
 
         &:hover,
@@ -283,6 +283,7 @@
 
     .btn-facebook,
     .btn-twitter,
+    .google,
     .btn-google-plus {
         width: 50%;
         margin: 0 auto;
