@@ -8,6 +8,12 @@ register = template.Library()
 @register.filter()
 @stringfilter
 def french_typography(str):
+    """
+    Replaces spaces with non-breaking-spaces or narrow non-breaking-spaces
+    before or after some symbols, according to French typography.
+    
+    This filter is naive and should not be used on Markdown content.
+    """
     return mark_safe(
         # Narrow non-breaking space: &#8239;
         str.replace(' ;', '&#8239;;')
