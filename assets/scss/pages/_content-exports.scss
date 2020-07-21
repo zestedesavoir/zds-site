@@ -1,10 +1,6 @@
 #exports-modal {
     width: 500px;
 
-    p {
-        text-align: justify;
-    }
-
     section.exports {
         margin-top: 3.6rem;
         margin-bottom: 4rem;
@@ -41,7 +37,9 @@
                     height: 16px;
 
                     background-repeat: no-repeat;
+                }
 
+                &:not(.is-requested):not(.is-running):before {
                     @include sprite();
                 }
 
@@ -74,15 +72,22 @@
                 }
             }
 
-            &.is-requested {
+            &.is-requested, &.is-running {
                 header:before {
-                    @include sprite-position($radio)
-                }
-            }
+                    content: '';
 
-            &.is-running {
-                header:before {
-                    @include sprite-position($radio)
+                    display: block;
+                    left: -2.6rem;
+
+                    width: 8px;
+                    height: 8px;
+
+                    background-color: $color-primary;
+                    border-radius: 100%;
+                }
+
+                &.is-running header:before {
+                    animation: pulse 2s infinite;
                 }
 
                 footer {
@@ -132,4 +137,18 @@
             }
         }
     }
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }
