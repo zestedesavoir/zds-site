@@ -16,6 +16,7 @@ from zds.utils.models import Licence, SubCategory
 class DisplayContentTests(TutorialTestMixin, TestCase):
     # Front tests to write : check content is correct and properly formatted.
     # Some to potentially check : introduction, authors, conclusion, title, description, children title
+
     def create_users(self):
         self.user_staff = StaffProfileFactory().user
         self.user_author = ProfileFactory().user
@@ -38,13 +39,17 @@ class DisplayContentTests(TutorialTestMixin, TestCase):
             self.kwargs_to_display_contents[content] = kwargs
 
     def setUp(self):
+        self.content_view_name = 'content:view'
         self.content_types = ['TUTORIAL', 'ARTICLE', 'OPINION']
         self.create_users()
         self.create_contents_set()
         self.create_kwargs_to_display_contents()
 
+    def content_view_get(self, kwargs):
+        return self.client.get(reverse(self.content_view_name, kwargs=kwargs))
+
     def redirect_login_url(self, content_kwargs):
-        return reverse('member-login') + '?next=' + reverse('content:view', kwargs=content_kwargs)
+        return reverse('member-login') + '?next=' + reverse(self.content_view_name, kwargs=content_kwargs)
 
     def test_public_cant_access_content_display_page(self):
         for content in self.contents.values():
@@ -113,12 +118,21 @@ class CreateContentAccessTests(TutorialTestMixin, TestCase):
         self.content_types = ['TUTORIAL', 'ARTICLE', 'OPINION']
         self.create_users()
 
+    def content_view_name(_type):
+        return f'content:create-{_type.lower()}'
+
+    def content_create_get(self, _type='TUTORIAL'):
+        return self.client.get(reverse(self.content_view_name(_type)))
+
+    def redirect_login_url(self, _type):
+        return reverse('member-login') + '?next=' + reverse(self.content_view_name())
+
     def test_public_cant_access_content_creation_page(self):
         for _type in self.content_types:
             result = self.content_create_get(_type)
-            self.assertEqual(
-                result.status_code,
-                302,
+            self.assertRedirects(
+                result,
+                self.redirect_login_url(_type)
                 f'Public should be redirected to login page if it tries access {_type} creation page.'
             )
 
@@ -190,14 +204,29 @@ class CreateContentTests(TutorialTestMixin, TestCase):
         self.subcategory = SubCategoryFactory()
         self.create_kwargs_to_create_contents()
 
+    def content_view_name(self,_type):
+        return f'content:create-{_type.lower()}'
+
+    def redirect_login_url(self, content_informations):
+        _type = content_informations['type'].lower()
+        return reverse('member-login') + '?next=' + reverse(self.content_view_name(), content_informations)
+
+    def content_create_post(self, content_informations):
+        _type = content_informations['type'].lower()
+        return self.client.post(reverse(self.content_view_name()), content_informations))
+
+    def redirect_login_url(self,  content_informations):
+        _type = content_informations['type'].lower()
+        return self.client.post(reverse(self.content_view_name(),content_informations)
+
     def test_public_cant_create_content(self):
         for _type in self.content_types:
             old_content_number = PublishableContent.objects.all().count()
             kwargs = self.kwargs_to_create_contents[_type]
             result = self.content_create_post(kwargs)
-            self.assertEqual(
+            self.assertRedirects(
                 result.status_code,
-                302,
+                self.redirect_login_url(kwargs),
                 f'Public should be redirected to login page if it tries to create {_type}.'
             )
             current_content_number = PublishableContent.objects.all().count()
