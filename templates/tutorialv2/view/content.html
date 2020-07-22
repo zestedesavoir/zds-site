@@ -115,7 +115,7 @@
             </div>
         </div>
 
-        {% if helps %}
+        {% if content_helps %}
             <div class="content-wrapper">
                 <div class="alert-box info">
                     {% if content.authors.count > 1 %}
@@ -124,7 +124,7 @@
                         {% trans "L’auteur de ce contenu recherche" %}
                     {% endif %}
 
-                    {% for help in content.helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
+                    {% for help in content_helps %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
 
                     {% if not can_edit %}
                         {% blocktrans with plural=content.authors.count|pluralize_fr %}
@@ -730,11 +730,11 @@
                     <li>
                         <form action="{% url 'content:helps-change' content.pk %}" method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="activated" value="{% if help.pk in content_helps %}false{% else %}true{% endif %}">
+                            <input type="hidden" name="activated" value="{% if help in content_helps %}false{% else %}true{% endif %}">
                             <input type="hidden" name="help_wanted" value="{{ help.title }}">
                             <button type="submit"
-                               class="help-toggle {% if help.pk in content_helps %}selected ico-after tick green{% endif %} help-{{ help.slug }}"
-                               data-activated="{% if help.pk in content_helps %}true{% else %}false{% endif %}">
+                               class="help-toggle {% if help in content_helps %}selected ico-after tick green{% endif %} help-{{ help.slug }}"
+                               data-activated="{% if help in content_helps %}true{% else %}false{% endif %}">
                                 {{ help.title }}
                             </button>
                         </form>
