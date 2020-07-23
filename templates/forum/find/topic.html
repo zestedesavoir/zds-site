@@ -7,7 +7,7 @@
 
 {% block title %}
     {% if followed_topics != None %}
-        {% trans "Sujets suivis par" %}
+        {% trans "Vos sujets suivis" %}
     {% else %}
         {% trans "Sujets créés par" %}
     {% endif %}
@@ -18,7 +18,7 @@
 
 {% block headline %}
     {% if followed_topics %}
-        {% trans "Sujets suivis par" %}
+        {% trans "Vos sujets suivis" %}
     {% else %}
         {% trans "Sujets créés par" %}
     {% endif %}
@@ -33,14 +33,11 @@
     {% endwith %}
     <li>
         {% if followed_topics %}
-            <a href="{% url 'followed-topic-find' %}">
             {% trans "Sujets suivis" %}
         {% else %}
-        <a href="{% url 'topic-find' usr.pk %}">
             {% trans "Sujets créés" %}
         {% endif %}
-    </a></li>
-    <li>{% trans "Recherche" %}</li>
+    </li>
 {% endblock %}
 
 
@@ -98,7 +95,7 @@
     {% else %}
         <p>
             {% if followed_topics %}
-                {% trans "Aucun sujet public n’a été suivi par" %} {{ usr.username }}.
+                {% trans "Vous ne suivez aucun sujet." %}
             {% else %}
                 {% trans "Aucun sujet public n’a été créé par" %} {{ usr.username }}.
             {% endif %}
