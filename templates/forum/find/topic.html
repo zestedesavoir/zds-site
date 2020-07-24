@@ -9,9 +9,10 @@
     {% if followed_topics != None %}
         {% trans "Vos sujets suivis" %}
     {% else %}
-        {% trans "Sujets créés par" %}
+        {% blocktrans with name=usr.username %}
+            Sujets créés par {{ name }}
+        {% endblocktrans %}
     {% endif %}
-    {{ usr.username }}
 {% endblock %}
 
 
@@ -20,9 +21,10 @@
     {% if followed_topics %}
         {% trans "Vos sujets suivis" %}
     {% else %}
-        {% trans "Sujets créés par" %}
+        {% blocktrans with name=usr.username %}
+            Sujets créés par {{ name }}
+        {% endblocktrans %}
     {% endif %}
-    {{ usr.username }}
 {% endblock %}
 
 
@@ -97,7 +99,9 @@
             {% if followed_topics %}
                 {% trans "Vous ne suivez aucun sujet." %}
             {% else %}
-                {% trans "Aucun sujet public n’a été créé par" %} {{ usr.username }}.
+                {% blocktrans with name=usr.username %}
+                    Aucun sujet public n’a été créé par {{ name }}.
+                {% endblocktrans %}
             {% endif %}
         </p>
     {% endif %}
