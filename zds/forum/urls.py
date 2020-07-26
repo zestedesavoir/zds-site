@@ -3,7 +3,7 @@ from django.urls import re_path
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, ForumCategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
-    PostSignal, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests
+    PostSignal, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests, FindFollowedTopic
 
 urlpatterns = [
 
@@ -33,6 +33,9 @@ urlpatterns = [
             TopicPostsListView.as_view(), name='topic-posts-list'),
     re_path(r'^sujets/membre/(?P<user_pk>\d+)/$',
             FindTopic.as_view(), name='topic-find'),
+    re_path(r'^sujets/suivis/$',
+            FindFollowedTopic.as_view(), name='followed-topic-find'),
+
     # The first is kept for URL backward-compatibility.
     re_path(r'^sujets/tag/(?P<tag_pk>\d+)/(?P<tag_slug>.+)/$',
             FindTopicByTag.as_view(), name='old-topic-tag-find'),
