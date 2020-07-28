@@ -6,13 +6,25 @@
 
 
 {% block title %}
-    {% trans "Sujets créés par" %} {{ usr.username }}
+    {% if followed_topics != None %}
+        {% trans "Vos sujets suivis" %}
+    {% else %}
+        {% blocktrans with name=usr.username %}
+            Sujets créés par {{ name }}
+        {% endblocktrans %}
+    {% endif %}
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "Sujets créés par" %} "{{ usr.username }}"
+    {% if followed_topics %}
+        {% trans "Vos sujets suivis" %}
+    {% else %}
+        {% blocktrans with name=usr.username %}
+            Sujets créés par {{ name }}
+        {% endblocktrans %}
+    {% endif %}
 {% endblock %}
 
 
@@ -21,14 +33,18 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url 'topic-find' usr.pk %}">{% trans "Sujets créés" %}</a></li>
-    <li>{% trans "Recherche" %}</li>
+    <li>
+        {% if followed_topics %}
+            {% trans "Sujets suivis" %}
+        {% else %}
+            {% trans "Sujets créés" %}
+        {% endif %}
+    </li>
 {% endblock %}
 
 
 
 {% block content %}
-
     {% if hidden_topics_count %}
         <p class="alert-box info">
             {% blocktrans count counter=hidden_topics_count %}
@@ -80,7 +96,13 @@
         </table>
     {% else %}
         <p>
-            {% trans "Aucun sujet public n’a été créé par" %} {{ usr.username }}.
+            {% if followed_topics %}
+                {% trans "Vous ne suivez aucun sujet." %}
+            {% else %}
+                {% blocktrans with name=usr.username %}
+                    Aucun sujet public n’a été créé par {{ name }}.
+                {% endblocktrans %}
+            {% endif %}
         </p>
     {% endif %}
 
