@@ -94,6 +94,7 @@ class MemberDetail(DetailView):
             count_post = profile.get_post_count()
 
         count_topic = profile.get_topic_count()
+        count_followed_topic = profile.get_followed_topic_count()
         count_tutorials = profile.get_public_tutos().count()
         count_articles = profile.get_public_articles().count()
         count_opinions = profile.get_public_opinions().count()
@@ -144,7 +145,17 @@ class MemberDetail(DetailView):
                 (
                     reverse_lazy('topic-find', args=(profile.user.pk,)),
                     count_topic,
-                    __('sujet{}').format(pluralize_fr(count_topic))
+                    __('sujet{} créé{}').format(pluralize_fr(count_topic), pluralize_fr(count_topic))
+                )
+            )
+        user = self.request.user
+        is_user_profile = user.is_authenticated and User.objects.get(pk=user.pk).profile == profile
+        if count_followed_topic > 0 and is_user_profile:
+            summary.append(
+                (
+                    reverse_lazy('followed-topic-find'),
+                    count_followed_topic,
+                    __('sujet{} suivi{}').format(pluralize_fr(count_followed_topic), pluralize_fr(count_followed_topic))
                 )
             )
 

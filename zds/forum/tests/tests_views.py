@@ -905,6 +905,23 @@ class FindTopicTest(TestCase):
         self.assertEqual(topic, response.context['topics'][0])
 
 
+class FindFollowedTopicTest(TestCase):
+    def test_public_cant_access_followed_topics(self):
+        response = self.client.get(reverse('followed-topic-find'), follow=False)
+        self.assertEqual(302, response.status_code)
+        self.assertRedirects(response, reverse('member-login') + '?next=' + reverse('followed-topic-find'))
+
+    def test_success_find_followed_topics_of_a_member(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.get(reverse('followed-topic-find'), follow=False)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context['topics']))
+        self.assertEqual(topic, response.context['topics'][0])
+
+
 class FindTopicByTagTest(TestCase):
     def test_failure_find_topics_of_a_tag_not_found(self):
         response = self.client.get(reverse('topic-tag-find', args=['x']), follow=False)

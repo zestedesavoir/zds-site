@@ -11,6 +11,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, Topic
+from zds.notification.models import TopicAnswerSubscription
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.database import PublishableContent
@@ -376,8 +377,13 @@ class Profile(models.Model):
         """
         :return: All forum topics followed by this user.
         """
-        return Topic.objects.filter(topicfollowed__user=self.user)\
-            .order_by('-last_message__pubdate')
+        return TopicAnswerSubscription.objects.get_objects_followed_by(self.user.id)
+
+    def get_followed_topic_count(self):
+        """
+        :return: the number of topics followeded by this user.
+        """
+        return TopicAnswerSubscription.objects.get_objects_followed_by(self.user.id).count()
 
     def is_dev(self):
         """
