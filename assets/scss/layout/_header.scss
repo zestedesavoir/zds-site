@@ -237,12 +237,20 @@ $logo-width: 240px;
 
         .dropdown-title {
             display: block;
+            margin: 0;
+
             width: 100%;
             height: 35px;
-            line-height: 37px;
-            text-align: center;
+
             border-bottom: 1px solid #274a5a;
+
             background-color: $color-header-hover;
+
+            line-height: 37px;
+            font-size: 1em;
+            font-weight: normal;
+
+            text-align: center;
         }
 
         &,
@@ -284,28 +292,39 @@ $logo-width: 240px;
                     }
                 }
 
-                .avatar {
-                    float: left;
-                    height: 30px;
-                    width: 30px;
-                }
+                header {
+                  display: flex;
+                  align-items: center;
 
-                .username {
-                    display: block;
-                    float: left;
-                    margin: 4px 0 0 7px;
-                    color: #95D7F5;
-                    width: 50%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
+                  // We should avoid too-generic styles…
+                  padding: 0;
+                  border: none;
+                  background: transparent;
 
-                .date {
-                    color: #5196b6;
-                    float: right;
-                    padding: 4px 10px 0 0;
-                    transition-property: color;
+                  .avatar {
+                      height: 30px;
+                      width: 30px;
+                  }
+
+                  .username {
+                      display: block;
+                      flex: 4;
+
+                      margin: 4px 0 0 7px;
+                      width: 50%;
+
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+
+                      color: #95D7F5;
+                  }
+
+                  .date {
+                      color: #5196b6;
+                      padding: 4px 10px 0 0;
+                      transition-property: color;
+                  }
                 }
 
                 .topic {
@@ -332,16 +351,25 @@ $logo-width: 240px;
         }
 
         .dropdown-pm {
-            text-align: left;
-            padding-left: 15px;
+            display: flex;
+            justify-content: space-between;
 
-            .ico-after {
-                float: right;
-                padding-right: 30px;
-                top: 9px;
+            text-align: left;
+            padding: 0 15px;
+
+            h1 {
+                flex: 2;
+                margin: 0;
+                font-size: 1em;
+                font-weight: normal;
             }
 
-            .pm-new {
+            .pm-new.ico-after {
+                display: block;
+                width: 1em;
+
+                top: 9px;
+
                 &.white:after {
                     @include sprite-position($pm-new-white);
 
@@ -356,7 +384,6 @@ $logo-width: 240px;
         display: block;
         height: 60px;
         width: 60px;
-        float: right;
 
         .username {
             display: none;
@@ -395,7 +422,6 @@ $logo-width: 240px;
             display: block;
             width: 60px * 2;
             text-align: center;
-            float: left;
             line-height: 60px;
             height: 60px;
 
