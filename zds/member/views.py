@@ -742,7 +742,7 @@ class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagi
 
     model = NewEmailProvider
     context_object_name = 'providers'
-    template_name = 'member/settings/new_email_providers.html'
+    template_name = 'member/admin/new_email_providers.html'
     queryset = NewEmailProvider.objects \
         .select_related('user') \
         .select_related('user__profile') \
@@ -773,7 +773,7 @@ class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSP
 
     model = BannedEmailProvider
     context_object_name = 'providers'
-    template_name = 'member/settings/banned_email_providers.html'
+    template_name = 'member/admin/banned_email_providers.html'
     queryset = BannedEmailProvider.objects \
         .select_related('moderator') \
         .select_related('moderator__profile') \
@@ -788,7 +788,7 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
 
     model = User
     context_object_name = 'members'
-    template_name = 'member/settings/members_with_provider.html'
+    template_name = 'member/admin/members_with_provider.html'
 
     def get_object(self):
         return get_object_or_404(BannedEmailProvider, pk=self.kwargs['provider_pk'])
@@ -812,7 +812,7 @@ class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, Create
     permissions = ['member.change_bannedemailprovider']
 
     model = BannedEmailProvider
-    template_name = 'member/settings/add_banned_email_provider.html'
+    template_name = 'member/admin/add_banned_email_provider.html'
     form_class = BannedEmailProviderForm
     success_url = reverse_lazy('banned-email-providers')
 
@@ -910,7 +910,7 @@ class RequestedHatsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingLi
 
     model = HatRequest
     context_object_name = 'requests'
-    template_name = 'member/settings/requested_hats.html'
+    template_name = 'member/admin/requested_hats.html'
     queryset = HatRequest.objects \
         .filter(is_granted__isnull=True) \
         .select_related('user') \
@@ -924,7 +924,7 @@ class SolvedHatRequestsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagi
 
     model = HatRequest
     context_object_name = 'requests'
-    template_name = 'member/settings/solved_hat_requests.html'
+    template_name = 'member/admin/solved_hat_requests.html'
     queryset = (HatRequest.objects
                 .filter(is_granted__isnull=False)
                 .select_related('user')
@@ -937,7 +937,7 @@ class SolvedHatRequestsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagi
 class HatRequestDetail(LoginRequiredMixin, DetailView):
     model = HatRequest
     context_object_name = 'hat_request'
-    template_name = 'member/settings/hat_request.html'
+    template_name = 'member/admin/hat_request.html'
 
     def get_object(self, queryset=None):
         request = super(HatRequestDetail, self).get_object()
@@ -1400,7 +1400,7 @@ def settings_promote(request, user_pk):
         'groups': user.groups.all(),
         'activation': user.is_active
     })
-    return render(request, 'member/settings/promote.html', {
+    return render(request, 'member/admin/promote.html', {
         'usr': user,
         'profile': profile,
         'form': form
@@ -1413,7 +1413,7 @@ def member_from_ip(request, ip_address):
     """List users connected from a particular IP."""
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by('-last_visit')
-    return render(request, 'member/settings/memberip.html', {
+    return render(request, 'member/admin/memberip.html', {
         'members': members,
         'ip': ip_address
     })
