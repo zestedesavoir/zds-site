@@ -249,7 +249,6 @@ class DisplayBetaContent(DisplayContent):
 
     def get_context_data(self, **kwargs):
         context = super(DisplayBetaContent, self).get_context_data(**kwargs)
-        context['helps'] = list(self.object.helps.all())
         context['pm_link'] = self.object.get_absolute_contact_url()
         return context
 
@@ -1136,7 +1135,6 @@ class DisplayBetaContainer(DisplayContainer):
 
     def get_context_data(self, **kwargs):
         context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
-        context['helps'] = list(self.object.helps.all())
         context['pm_link'] = self.object.get_absolute_contact_url()
         return context
 

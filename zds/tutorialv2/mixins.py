@@ -261,7 +261,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super(SingleContentDetailViewMixin, self).get_context_data(**kwargs)
         context['helps'] = list(HelpWriting.objects.all())
-        context['content_helps'] = self.object.helps.values_list('pk', flat=True)
+        context['content_helps'] = list(self.object.helps.all())
         context['content'] = self.versioned_object
         context['can_edit'] = self.is_author
         context['is_staff'] = self.is_staff

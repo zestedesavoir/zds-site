@@ -86,7 +86,6 @@
           const header = document.createElement('header')
           const headerH4 = document.createElement('h4')
           const headerP = document.createElement('p')
-          const headerDownloadLink = document.createElement('a')
           const footer = document.createElement('footer')
 
           const state = contentExport.state_of_processing.toLowerCase()
@@ -98,22 +97,20 @@
           headerH4.innerText = t['trFormat' + contentExport.format_requested] || contentExport.format_requested
 
           headerP.setAttribute('title', formatterLong.format(date))
-          headerP.innerText = formatter.format(date) + (state !== 'failure' ? ' – ' : '')
+          headerP.innerText = formatter.format(date) + (state === 'success' ? ' – ' : '')
 
           if (state === 'success') {
-            headerDownloadLink.setAttribute('title', t.trDownloadTitle)
-          } else if (state === 'running' || state === 'requested') {
-            headerDownloadLink.setAttribute('title', t.trDownloadUnavailableTitle)
-          }
+            const headerDownloadLink = document.createElement('a')
 
-          if (state !== 'failure') {
+            headerDownloadLink.setAttribute('title', t.trDownloadTitle)
             headerDownloadLink.innerText = t.trDownload
             headerDownloadLink.setAttribute('href', contentExport.url)
+
+            headerP.appendChild(headerDownloadLink)
           }
 
           footer.innerText = t[`trState${state}`]
 
-          if (state !== 'failure') headerP.appendChild(headerDownloadLink)
           header.appendChild(headerH4)
           header.appendChild(headerP)
 

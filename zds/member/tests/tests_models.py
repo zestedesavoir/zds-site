@@ -315,12 +315,15 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
     def test_get_followed_topics(self):
         # Start with 0
         self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(self.user1.user)), 0)
+        self.assertEqual(self.user1.get_followed_topic_count(), 0)
         # Follow !
         TopicAnswerSubscription.objects.toggle_follow(self.forumtopic, self.user1.user)
         # Should be 1
         topicsfollowed = TopicAnswerSubscription.objects.get_objects_followed_by(self.user1.user)
         self.assertEqual(len(topicsfollowed), 1)
         self.assertEqual(self.forumtopic, topicsfollowed[0])
+        self.assertEqual(self.user1.get_followed_topic_count(), 1)
+        self.assertIn(self.forumtopic, self.user1.get_followed_topics())
 
     def test_get_city_with_wrong_ip(self):
         # Set a local IP to the user

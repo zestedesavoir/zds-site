@@ -73,7 +73,7 @@
         </div>
     {% endif %}
 
-    {% if helps %}
+    {% if content_helps %}
         <div class="content-wrapper">
             <div class="alert-box info">
                 {% if content.authors.count > 1 %}
@@ -82,7 +82,7 @@
                     {% trans "L’auteur de ce contenu recherche" %}
                 {% endif %}
 
-                {% for help in helps.all %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
+                {% for help in content_helps %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
 
                 {% if not can_edit %}
                     {% blocktrans with plural=content.authors.count|pluralize_fr %}

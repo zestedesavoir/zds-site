@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title_base %}
+    &bull; {% trans "Administration des membres" %}
+{% endblock %}
+
+
+
+{% block mobile_title %}
+    {% trans "Administration des membres" %}
+{% endblock %}
+
+
+
+{% block breadcrumb_base %}
+    <li><a href="{% url 'member-list' %}">{% trans "Administration des membres" %}</a></li>
+{% endblock %}
+
+
+
+{% block sidebar %}
+    <aside class="sidebar mobile-menu-hide">
+        {% block sidebar_actions %}{% endblock %}
+    </aside>
+{% endblock %}
