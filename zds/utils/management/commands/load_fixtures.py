@@ -288,16 +288,16 @@ def __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_us
 
 def load_categories_content(cli, size, fake, *_, **__):
     """
-    Load categories and subcategories for tutorial and article
+    Load categories, subcategories and licenses for tutorials and articles
     """
 
-    lics = ['CB-BY', 'CC-BY-ND', 'CC-BY-ND-SA', 'CC-BY-SA', 'CC', 'CC-BY-IO', 'Tout-Droits']
+    # Load a few licenses, while avoiding creating duplicates of what may have been loaded before
+    lics = ['Tous droits réservés', 'CC BY']
     for lic in lics:
-        ex = Licence.objects.filter(code=lic).all()
-        if len(ex) == 0:
+        if Licence.objects.filter(code=lic).count() == 0:
             licence = Licence(code=lic, title=lic, description='')
             licence.save()
-            cli.stdout.write('Note: ajout de la licence {}'.format(lic))
+            cli.stdout.write('Note : ajout de la licence `{}`'.format(lic))
     categories = []
     sub_categories = []
     nb_categories = size * 5
