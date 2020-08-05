@@ -705,9 +705,11 @@
         </div>
     {% endif %}
 
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
-        {%  include "tutorialv2/includes/editorialization.part.html"  %}
-    </div>
+    {% if is_staff or can_edit %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
+            {%  include "tutorialv2/includes/editorialization.part.html"  %}
+        </div>
+    {% endif %}
 
     {% if can_edit and not content.is_opinion %}
         <div class="actions">
