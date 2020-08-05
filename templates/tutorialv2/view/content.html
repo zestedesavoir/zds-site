@@ -289,9 +289,11 @@
             {% trans "Importer une nouvelle version" %}
         </a>
     {% elif not version or version != content.sha_draft %}
-        <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
-            {% trans "Version brouillon" %}
-        </a>
+        {% if is_staff or can_edit %}
+            <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
+                {% trans "Version brouillon" %}
+            </a>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
