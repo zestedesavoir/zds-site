@@ -75,7 +75,6 @@
     var beforeChars = line.slice(0, posStart.ch).match(/^(\S)+/g)
     var afterChars = line.slice(posEnd.ch).match(/(\S)+$/g)
 
-
     if (beforeChars && afterChars) {
       if (checkMatch(beforeChars, /(.*)*\|\|$/) && checkMatch(afterChars, /^\|\|(.*)*/)) {
         ret.keyboard = true
@@ -405,278 +404,279 @@
       previewRender: customMarkdownParser,
       syncSideBySidePreviewScroll: false,
       toolbar: [
-        {
-          name: 'bold',
-          action: EasyMDE.toggleBold,
-          className: 'fa fa-bold',
-          title: 'Gras'
-        },
-        {
-          name: 'italic',
-          action: EasyMDE.toggleItalic,
-          className: 'fa fa-italic',
-          title: 'Italique'
-        },
-        {
-          name: 'strikethrough',
-          action: EasyMDE.toggleStrikethrough,
-          className: 'fa fa-strikethrough',
-          title: 'Barré'
-        },
-        {
-          name: 'abbr',
-          action: (e) => {
-            var options = e.options
-            var cm = e.codemirror
-            var abbr = cm.getSelection()
-            var description = ''
-            var lastLine = cm.lastLine()
-            var lastCh = cm.getLine(lastLine).length
-
-            var startPoint = cm.getCursor('start')
-            var endPoint = cm.getCursor('end')
-
-            if (options.promptAbbrv) {
-              if (abbr.length === 0) {
-                abbr = prompt('Mot abrégé', '')
-                if (abbr.length === 0) {
-                  return false
-                }
-              }
-              description = prompt('Description de l"abbréviation', '')
-            }
-
-            cm.replaceRange(cm.lineSeparator() + cm.lineSeparator() + '*[' + abbr + ']: ' + description, { line: lastLine, ch: lastCh }, { line: lastLine, ch: maxRange })
-            cm.setSelection(startPoint, endPoint)
-            cm.focus()
-          },
-          className: 'fa fa-text-width',
-          title: 'Abbréviation'
-        },
-        {
-          name: 'keyboard',
-          action: (e) => {
-            _toggleBlockZmd(e, 'keyboard', '||')
-          },
-          className: 'far fa-keyboard',
-          title: 'Touche clavier'
-        },
-        {
-          name: 'codeInline',
-          action: (e) => {
-            _toggleBlockZmd(e, 'codeInline', '`')
-          },
-          className: 'fa fa-terminal',
-          title: 'Code inline'
-        },
-        '|',
-        {
-          name: 'superscript',
-          action: (e) => {
-            _toggleBlockZmd(e, 'superscript', '^')
-          },
-          className: 'fa fa-superscript',
-          title: 'Exposant'
-        },
-        {
-          name: 'subscript',
-          action: (e) => {
-            _toggleBlockZmd(e, 'subscript', '~')
-          },
-          className: 'fa fa-subscript',
-          title: 'Indice'
-        },
-        '|',
-        {
-          name: 'alignCenter',
-          action: (e) => {
-            _toggleBlockZmd(e, 'alignCenter', '-> ', ' <-')
-          },
-          className: 'fa fa-align-center',
-          title: 'Aligner au centre'
-        },
-        {
-          name: 'alignRight',
-          action: (e) => {
-            _toggleBlockZmd(e, 'alignRight', '-> ', ' ->')
-          },
-          className: 'fa fa-align-right',
-          title: 'Aligner a droite'
-        },
-        '|',
-        {
-          name: 'list-ul',
-          action: EasyMDE.toggleUnorderedList,
-          className: 'fa fa-list-ul',
-          title: 'Liste à puces'
-        },
-        {
-          name: 'ordered-list',
-          action: EasyMDE.toggleOrderedList,
-          className: 'fa fa-list-ol',
-          title: 'Liste ordonnée'
-        },
-        {
-          name: 'checklist',
-          action: (e) => {
-            _toggleBlockZmd(e, 'checklist', '- [ ] ')
-          },
-          className: 'far fa-check-square',
-          title: 'Liste de taches'
-        },
-        '|',
-        {
-          name: 'heading',
-          action: EasyMDE.toggleHeadingSmaller,
-          className: 'fas fa-heading',
-          title: 'Titres'
-        },
-        '|',
-        {
-          name: 'image',
-          action: EasyMDE.drawImage,
-          className: 'far fa-image',
-          title: 'Image'
-        },
-        {
-          name: 'link_btn',
-          action: EasyMDE.drawLink,
-          className: 'fa fa-link',
-          title: 'Lien'
-        },
-        '|',
-        {
-          name: 'quote',
-          action: EasyMDE.toggleBlockquote,
-          className: 'fa fa-quote-left',
-          title: 'Citation'
-        },
-        {
-          name: 'code',
-          action: EasyMDE.toggleCodeBlock,
-          className: 'fa fa-code',
-          title: 'Bloc de code coloré'
-        },
-        {
-          name: 'math',
-          action: (e) => {
-            _toggleBlockZmd(e, 'math', '$$')
-          },
-          className: 'fa fa-percent',
-          title: 'Formule mathématique'
-        },
-        {
-          name: 'table',
-          action: EasyMDE.drawTable,
-          className: 'fa fa-table',
-          title: 'Table'
-        },
-        '|',
-        {
-          name: 'blocMenu',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocInformation', '| ')
-          },
-          className: 'fa fa-info',
-          title: 'Bloc information',
-          children: [
-            {
-              name: 'blocInformation',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocInformation', '| ')
-              },
-              className: 'fa fa-info',
-              title: 'Bloc information'
-            },
-            {
-              name: 'blocQuestion',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocQuestion', '| ')
-              },
-              className: 'fa fa-question',
-              title: 'Bloc question'
-            },
-            {
-              name: 'blocError',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocError', '| ')
-              },
-              className: 'fas fa-times-circle',
-              title: 'Bloc erreur'
-            },
-            {
-              name: 'blocSecret',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocSecret', '| ')
-              },
-              className: 'fa fa-eye-slash',
-              title: 'Bloc secret'
-            },
-            {
-              name: 'blocNeutral',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocNeutral', '| ')
-              },
-              className: 'fa fa-sticky-note',
-              title: 'Bloc neutre'
-            }
-          ]
-        },
-        '|',
-        {
-          name: 'abc-spellchecker',
-          action: (evt) => {},
-          className: 'fas fa-spell-check',
-          title: 'Correcteur orthographique externe'
-        },
-        {
-          name: 'abc-grammalecte',
-          action: (evt) => {
-            oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue(), easyMDE.codemirror.display.lineDiv)
-          },
-          className: 'zdsicon zi-grammalecte',
-          title: 'Correcteur orthographique externe'
-        },
-        {
-          name: 'switch-contentAreaStyle',
-          action: (evt) => {
-            if (easyMDE.isFullscreenActive()) {
-              easyMDE.toggleFullScreen()
-            }
-            const wrapper = easyMDE.codemirror.getWrapperElement()
-            $(wrapper.parentElement).children('.textarea-multivers').toggle()
-            $(wrapper).toggle()
-            // deactivating buttons incompatible with the textarea mode
-            var $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
-            if ($toolbar.hasClass('disabled-for-textarea-mode')) {
-              $toolbar.removeClass('disabled-for-textarea-mode')
-            } else {
-              $toolbar.addClass('disabled-for-textarea-mode')
-            }
-            easyMDE.codemirror.refresh()
-          },
-          className: 'fas fa-broom',
-          title: 'Passe au mode compatibilité'
-        },
-        '|',
-        {
-          name: 'preview',
-          action: EasyMDE.togglePreview,
-          className: 'fa fa-eye no-disable disable-for-textarea-mode',
-          title: 'Aperçu'
-        },
-        {
-          name: 'side-by-side',
-          action: EasyMDE.toggleSideBySide,
-          className: 'fa fa-columns no-disable no-mobile disable-for-textarea-mode',
-          title: 'Aperçu sur le coté'
-        },
-        {
-          name: 'fullscreen',
-          action: EasyMDE.toggleFullScreen,
-          className: 'fa fa-arrows-alt no-disable no-mobile disable-for-textarea-mode',
-          title: 'Plein écran'
-        }
+        // {
+        //   name: 'bold',
+        //   action: EasyMDE.toggleBold,
+        //   className: 'fa fa-bold',
+        //   title: 'Gras'
+        // },
+        // {
+        //   name: 'italic',
+        //   action: EasyMDE.toggleItalic,
+        //   className: 'fa fa-italic',
+        //   title: 'Italique'
+        // },
+        // {
+        //   name: 'strikethrough',
+        //   action: EasyMDE.toggleStrikethrough,
+        //   className: 'fa fa-strikethrough',
+        //   title: 'Barré'
+        // },
+        // {
+        //   name: 'abbr',
+        //   action: (e) => {
+        //     var options = e.options
+        //     var cm = e.codemirror
+        //     var abbr = cm.getSelection()
+        //     var description = ''
+        //     var lastLine = cm.lastLine()
+        //     var lastCh = cm.getLine(lastLine).length
+        //
+        //     var startPoint = cm.getCursor('start')
+        //     var endPoint = cm.getCursor('end')
+        //
+        //     if (options.promptAbbrv) {
+        //       if (abbr.length === 0) {
+        //         abbr = prompt('Mot abrégé', '')
+        //         if (abbr.length === 0) {
+        //           return false
+        //         }
+        //       }
+        //       description = prompt('Description de l"abbréviation', '')
+        //     }
+        //
+        //     cm.replaceRange(cm.lineSeparator() + cm.lineSeparator() + '*[' + abbr + ']: ' + description, { line: lastLine, ch: lastCh }, { line: lastLine, ch: maxRange })
+        //     cm.setSelection(startPoint, endPoint)
+        //     cm.focus()
+        //   },
+        //   className: 'fa fa-text-width',
+        //   title: 'Abbréviation'
+        // },
+        // {
+        //   name: 'keyboard',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'keyboard', '||')
+        //   },
+        //   className: 'far fa-keyboard',
+        //   title: 'Touche clavier'
+        // },
+        // {
+        //   name: 'codeInline',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'codeInline', '`')
+        //   },
+        //   className: 'fa fa-terminal',
+        //   title: 'Code inline'
+        // },
+        // '|',
+        // {
+        //   name: 'superscript',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'superscript', '^')
+        //   },
+        //   className: 'fa fa-superscript',
+        //   title: 'Exposant'
+        // },
+        // {
+        //   name: 'subscript',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'subscript', '~')
+        //   },
+        //   className: 'fa fa-subscript',
+        //   title: 'Indice'
+        // },
+        // '|',
+        // {
+        //   name: 'alignCenter',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'alignCenter', '-> ', ' <-')
+        //   },
+        //   className: 'fa fa-align-center',
+        //   title: 'Aligner au centre'
+        // },
+        // {
+        //   name: 'alignRight',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'alignRight', '-> ', ' ->')
+        //   },
+        //   className: 'fa fa-align-right',
+        //   title: 'Aligner a droite'
+        // },
+        // '|',
+        // {
+        //   name: 'list-ul',
+        //   action: EasyMDE.toggleUnorderedList,
+        //   className: 'fa fa-list-ul',
+        //   title: 'Liste à puces'
+        // },
+        // {
+        //   name: 'ordered-list',
+        //   action: EasyMDE.toggleOrderedList,
+        //   className: 'fa fa-list-ol',
+        //   title: 'Liste ordonnée'
+        // },
+        // {
+        //   name: 'checklist',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'checklist', '- [ ] ')
+        //   },
+        //   className: 'far fa-check-square',
+        //   title: 'Liste de taches'
+        // },
+        // '|',
+        // {
+        //   name: 'heading',
+        //   action: EasyMDE.toggleHeadingSmaller,
+        //   className: 'fas fa-heading',
+        //   title: 'Titres'
+        // },
+        // '|',
+        // {
+        //   name: 'image',
+        //   action: EasyMDE.drawImage,
+        //   className: 'far fa-image',
+        //   title: 'Image'
+        // },
+        // {
+        //   name: 'link_btn',
+        //   action: EasyMDE.drawLink,
+        //   className: 'fa fa-link',
+        //   title: 'Lien'
+        // },
+        // '|',
+        // {
+        //   name: 'quote',
+        //   action: EasyMDE.toggleBlockquote,
+        //   className: 'fa fa-quote-left',
+        //   title: 'Citation'
+        // },
+        // {
+        //   name: 'code',
+        //   action: EasyMDE.toggleCodeBlock,
+        //   className: 'fa fa-code',
+        //   title: 'Bloc de code coloré'
+        // },
+        // {
+        //   name: 'math',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'math', '$$')
+        //   },
+        //   className: 'fa fa-percent',
+        //   title: 'Formule mathématique'
+        // },
+        // {
+        //   name: 'table',
+        //   action: EasyMDE.drawTable,
+        //   className: 'fa fa-table',
+        //   title: 'Table'
+        // },
+        // '|',
+        // {
+        //   name: 'blocMenu',
+        //   action: (e) => {
+        //     _toggleBlockZmd(e, 'blocInformation', '| ')
+        //   },
+        //   className: 'fa fa-info',
+        //   title: 'Bloc information',
+        //   children: [
+        //     {
+        //       name: 'blocInformation',
+        //       action: (e) => {
+        //         _toggleBlockZmd(e, 'blocInformation', '| ')
+        //       },
+        //       className: 'fa fa-info',
+        //       title: 'Bloc information'
+        //     },
+        //     {
+        //       name: 'blocQuestion',
+        //       action: (e) => {
+        //         _toggleBlockZmd(e, 'blocQuestion', '| ')
+        //       },
+        //       className: 'fa fa-question',
+        //       title: 'Bloc question'
+        //     },
+        //     {
+        //       name: 'blocError',
+        //       action: (e) => {
+        //         _toggleBlockZmd(e, 'blocError', '| ')
+        //       },
+        //       className: 'fas fa-times-circle',
+        //       title: 'Bloc erreur'
+        //     },
+        //     {
+        //       name: 'blocSecret',
+        //       action: (e) => {
+        //         _toggleBlockZmd(e, 'blocSecret', '| ')
+        //       },
+        //       className: 'fa fa-eye-slash',
+        //       title: 'Bloc secret'
+        //     },
+        //     {
+        //       name: 'blocNeutral',
+        //       action: (e) => {
+        //         _toggleBlockZmd(e, 'blocNeutral', '| ')
+        //       },
+        //       className: 'fa fa-sticky-note',
+        //       title: 'Bloc neutre'
+        //     }
+        //   ]
+        // },
+        // '|',
+        // {
+        //   name: 'abc-spellchecker',
+        //   action: (evt) => {},
+        //   className: 'fas fa-spell-check',
+        //   title: 'Correcteur orthographique externe'
+        // },
+        // {
+        //   name: 'abc-grammalecte',
+        //   action: (evt) => {
+        //     oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue(), easyMDE.codemirror.display.lineDiv)
+        //   },
+        //   className: 'zdsicon zi-grammalecte',
+        //   title: 'Correcteur orthographique externe'
+        // },
+        // {
+        //   name: 'switch-contentAreaStyle',
+        //   action: (evt) => {
+        //     if (easyMDE.isFullscreenActive()) {
+        //       easyMDE.toggleFullScreen()
+        //     }
+        //     const wrapper = easyMDE.codemirror.getWrapperElement()
+        //     $(wrapper.parentElement).children('.textarea-multivers').toggle()
+        //     $(wrapper).toggle()
+        //     // deactivating buttons incompatible with the textarea mode
+        //     var $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
+        //     if ($toolbar.hasClass('disabled-for-textarea-mode')) {
+        //       $toolbar.removeClass('disabled-for-textarea-mode')
+        //     } else {
+        //       $toolbar.addClass('disabled-for-textarea-mode')
+        //     }
+        //     easyMDE.codemirror.refresh()
+        //   },
+        //   className: 'fas fa-broom',
+        //   title: 'Passe au mode compatibilité'
+        // },
+        // '|',
+        // {
+        //   name: 'preview',
+        //   action: EasyMDE.togglePreview,
+        //   className: 'fa fa-eye no-disable disable-for-textarea-mode',
+        //   title: 'Aperçu'
+        // },
+        // {
+        //   name: 'side-by-side',
+        //   action: EasyMDE.toggleSideBySide,
+        //   className: 'fa fa-columns no-disable no-mobile disable-for-textarea-mode',
+        //   title: 'Aperçu sur le coté'
+        // },
+        // {
+        //   name: 'fullscreen',
+        //   action: EasyMDE.toggleFullScreen,
+        //   className: 'fa fa-arrows-alt no-disable no-mobile disable-for-textarea-mode',
+        //   title: 'Plein écran'
+        // }
+        '|'
       ]
     })
 
@@ -764,6 +764,9 @@
 
     $twin.css('minHeight', minHeight + 22 + 'px')
 
+    buildEditorLayout(easyMDE)
+    switchToolbar(easyMDE)
+
     spellcheckerEasyMDE(easyMDE)
   })
 })(jQuery)
@@ -834,6 +837,7 @@ function convertAbsolute2CmPosition(cm, pos) {
 }
 
 function spellcheckerEasyMDE(easyMDE) {
+  return; // TODO fix with new editor toolbar layout
   $(easyMDE.toolbarElements['abc-spellchecker']).attr({
     'data-antidoteapi_jsconnect_groupe_id': '01',
     'data-antidoteapi_jsconnect_lanceoutil': 'C'
@@ -880,4 +884,28 @@ function spellcheckerEasyMDE(easyMDE) {
     setTimeout(() => stalker.disconnect(), 30000)
     stalker.observe(easyMDE.toolbarElements['abc-spellchecker'], { attributes: true })
   }
+}
+
+function buildEditorLayout(easyMDE) {
+  const toolbar_el = easyMDE.toolbar_div
+
+  const toolbar_small = document.createElement('div')
+  const toolbar_fullscreen = document.createElement('div')
+
+  toolbar_small.classList.add('is-small-toolbar')
+  toolbar_fullscreen.classList.add('is-fullscreen-toolbar')
+
+  toolbar_el.appendChild(toolbar_small)
+  toolbar_el.appendChild(toolbar_fullscreen)
+
+  console.log(easyMDE)
+}
+
+function switchToolbar(easyMDE) {
+  const toolbar_small = easyMDE.toolbar_div.querySelector('div.is-small-toolbar')
+  const toolbar_fullscreen = easyMDE.toolbar_div.querySelector('div.is-fullscreen-toolbar')
+  const fullscreen = easyMDE.isFullscreenActive()
+
+  toolbar_small.classList.toggle('is-hidden', fullscreen)
+  toolbar_fullscreen.classList.toggle('is-hidden', !fullscreen)
 }
