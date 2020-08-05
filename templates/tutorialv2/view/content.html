@@ -21,20 +21,24 @@
 
 
 {% block headline %}
-    {% if content.licence %}
-      <div class="editable-element license">
-        <p>{{ content.licence }}</p>
-        <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
-          <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
-        </a>
-      </div>
-    {% else %}
-        <p class="license">
-            <a href="#edit-license" class="open-modal">Choisissez la licence de votre publication !</a>
-        </p>
-    {% endif %}
+    {% if is_staff or can_edit %}
+        {% if content.licence %}
+          <div class="editable-element license">
+            <p>{{ content.licence }}</p>
+            <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+              <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+            </a>
+          </div>
+        {% else %}
+            <p class="license">
+                <a href="#edit-license" class="open-modal">Choisissez la licence de votre publication !</a>
+            </p>
+        {% endif %}
 
-    {% crispy form_edit_license %}
+        {% crispy form_edit_license %}
+    {% elif content.licence %}
+        <span class="license">{{ content.licence }}</span>
+    {% endif %}
 
     <h1 {% if content.image %}class="illu"{% endif %}>
         {% if content.image %}
@@ -285,9 +289,11 @@
             {% trans "Importer une nouvelle version" %}
         </a>
     {% elif not version or version != content.sha_draft %}
-        <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
-            {% trans "Version brouillon" %}
-        </a>
+        {% if is_staff or can_edit %}
+            <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
+                {% trans "Version brouillon" %}
+            </a>
+        {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -701,9 +707,11 @@
         </div>
     {% endif %}
 
-    <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
-        {%  include "tutorialv2/includes/editorialization.part.html"  %}
-    </div>
+    {% if is_staff or can_edit %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
+            {%  include "tutorialv2/includes/editorialization.part.html"  %}
+        </div>
+    {% endif %}
 
     {% if can_edit and not content.is_opinion %}
         <div class="actions">
