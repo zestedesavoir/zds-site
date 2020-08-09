@@ -343,9 +343,10 @@
       minHeight = 200
     }
 
-    var customMarkdownParser = function(plainText, preview) {
-      var editor = window.editors[textarea.id]
-      var request = function() {
+    const customMarkdownParser = function(plainText, preview) {
+      const editor = window.editors[textarea.id]
+
+      const request = function() {
         $.ajax({
           url: formEditor.attr('action'),
           type: 'POST',
@@ -362,9 +363,17 @@
         })
       }
 
-      clearTimeout(editor.timeout)
-      editor.timeout = setTimeout(request, 600)
-      editor.previous_value = plainText
+      // If we're fullscreen, the preview is realtime, so we add this debounce mecanism to
+      // avoid too many requests at the same time.
+      // Else it's the click of a button so we request the preview immediately.
+      if (editor.isFullscreenActive()) {
+        clearTimeout(editor.timeout)
+        editor.timeout = setTimeout(request, 600)
+        editor.previous_value = plainText
+      } else {
+        preview.innerHTML = 'Chargement en cours…'
+        request()
+      }
 
       return null
     }
@@ -837,7 +846,7 @@ function convertAbsolute2CmPosition(cm, pos) {
 }
 
 function spellcheckerEasyMDE(easyMDE) {
-  return; // TODO fix with new editor toolbar layout
+  return // TODO fix with new editor toolbar layout
   $(easyMDE.toolbarElements['abc-spellchecker']).attr({
     'data-antidoteapi_jsconnect_groupe_id': '01',
     'data-antidoteapi_jsconnect_lanceoutil': 'C'
@@ -889,6 +898,8 @@ function spellcheckerEasyMDE(easyMDE) {
 function buildEditorLayout(easyMDE) {
   const toolbar_el = easyMDE.toolbar_div
 
+  // First create the HTML structure
+
   const toolbar_small = document.createElement('div')
   const toolbar_fullscreen = document.createElement('div')
 
@@ -898,7 +909,228 @@ function buildEditorLayout(easyMDE) {
   toolbar_el.appendChild(toolbar_small)
   toolbar_el.appendChild(toolbar_fullscreen)
 
+  const toolbar_small_tabs = document.createElement('div')
+  const toolbar_small_buttons = document.createElement('div')
+
+  toolbar_small_tabs.classList.add('is-toolbar-tabs')
+  toolbar_small_buttons.classList.add('is-toolbar-buttons')
+
+  toolbar_small.appendChild(toolbar_small_tabs)
+  toolbar_small.appendChild(toolbar_small_buttons)
+
+  // Then build the small editor tabs
+
+  const ul = document.createElement('ul')
+  const liWrite = document.createElement('li')
+  const liPreview = document.createElement('li')
+  const buttonWrite = document.createElement('button')
+  const buttonPreview = document.createElement('button')
+
+  buttonWrite.innerText = 'Rédiger'
+  buttonPreview.innerText = 'Prévisualiser'
+
+  buttonWrite.addEventListener('click', e => {
+    e.preventDefault()
+
+    if (!easyMDE.isPreviewActive()) {
+      return
+    }
+
+    liWrite.classList.toggle('is-active', true)
+    liPreview.classList.toggle('is-active', false)
+    toolbar_small.classList.toggle('has-preview-active', false)
+
+    easyMDE.togglePreview()
+  })
+
+  buttonPreview.addEventListener('click', e => {
+    e.preventDefault()
+
+    if (easyMDE.isPreviewActive()) {
+      return
+    }
+
+    liWrite.classList.toggle('is-active', false)
+    liPreview.classList.toggle('is-active', true)
+    toolbar_small.classList.toggle('has-preview-active', true)
+
+    easyMDE.togglePreview()
+  })
+
+  liWrite.classList.add('is-active')
+
+  liWrite.appendChild(buttonWrite)
+  liPreview.appendChild(buttonPreview)
+
+  ul.appendChild(liWrite)
+  ul.appendChild(liPreview)
+
+  toolbar_small_tabs.appendChild(ul)
+
+  // Then build the toolbar buttons
+
+  buildToolbar(easyMDE, toolbar_small_buttons, [
+    {
+      name: 'bold',
+      action: EasyMDE.toggleBold,
+      icon: 'bold.svg',
+      title: 'Gras'
+    },
+    {
+      name: 'italic',
+      action: EasyMDE.toggleItalic,
+      icon: 'italic.svg',
+      title: 'Italique'
+    },
+    {
+      name: 'heading',
+      action: EasyMDE.toggleHeadingSmaller,
+      icon: 'heading.svg',
+      title: 'Titres'
+    },
+    '|',
+    {
+      name: 'unordered-list',
+      action: EasyMDE.toggleUnorderedList,
+      icon: 'list-unordered.svg',
+      title: 'Liste à puces',
+      classes: 'is-hidden-mobile'
+    },
+    {
+      name: 'ordered-list',
+      action: EasyMDE.toggleOrderedList,
+      icon: 'list-ordered.svg',
+      title: 'Liste ordonnée',
+      classes: 'is-hidden-mobile'
+    },
+    {
+      name: 'tasks-list',
+      action: e => {
+        _toggleBlockZmd(e, 'checklist', '- [ ] ')
+      },
+      icon: 'list-tasks.svg',
+      title: 'Liste de tâches',
+      classes: 'is-hidden-mobile'
+    },
+    '|',
+    {
+      name: 'quote',
+      action: EasyMDE.toggleBlockquote,
+      icon: 'quote.svg',
+      title: 'Citation'
+    },
+    {
+      name: 'link',
+      action: EasyMDE.drawLink,
+      icon: 'link.svg',
+      title: 'Lien'
+    },
+    '|',
+    {
+      name: 'code',
+      action: EasyMDE.toggleCodeBlock,
+      icon: 'code.svg',
+      title: 'Bloc de code coloré',
+      classes: 'is-hidden-mobile'
+    },
+    {
+      name: 'maths',
+      action: e => {
+        _toggleBlockZmd(e, 'math', '$$')
+      },
+      icon: 'maths.svg',
+      title: 'Formule mathématique',
+      classes: 'is-hidden-mobile'
+    },
+    '|',
+    {
+      name: 'blocks',
+      icon: 'info.svg',
+      title: 'Blocs d\'information, erreur, secret…',
+      children: [
+        {
+          name: 'blocInformation',
+          action: e => {
+            _toggleBlockZmd(e, 'blocInformation', '| ')
+          },
+          icon: 'info.svg',
+          title: 'Bloc d\'information'
+        },
+        {
+          name: 'blocQuestion',
+          action: e => {
+            _toggleBlockZmd(e, 'blocQuestion', '| ')
+          },
+          icon: 'question.svg',
+          title: 'Bloc de question'
+        },
+        {
+          name: 'blocError',
+          action: e => {
+            _toggleBlockZmd(e, 'blocError', '| ')
+          },
+          icon: 'error.svg',
+          title: 'Bloc d\'erreur'
+        },
+        {
+          name: 'blocSecret',
+          action: e => {
+            _toggleBlockZmd(e, 'blocSecret', '| ')
+          },
+          icon: 'secret.svg',
+          title: 'Bloc masqué'
+        },
+        {
+          name: 'blocNeutral',
+          action: e => {
+            _toggleBlockZmd(e, 'blocNeutral', '| ')
+          },
+          icon: 'neutral.svg',
+          title: 'Bloc neutre (théorème…)'
+        }
+      ]
+    }
+  ])
+
   console.log(easyMDE)
+}
+
+function buildToolbar(easyMDE, container, toolbar) {
+  for (const toolbarItem of toolbar) {
+    if (toolbarItem === '|') {
+      const sep = document.createElement('hr')
+      sep.classList.add('toolbar-separator')
+      container.appendChild(sep)
+    } else {
+      const xmlns = 'http://www.w3.org/2000/svg';
+
+      const button = document.createElement('button')
+      const buttonIcon = document.createElement('img')
+      const buttonLabel = document.createElement('span')
+
+      button.setAttribute('class', toolbarItem.classes || '')
+      button.classList.add('toolbar-button')
+      buttonIcon.classList.add('is-icon')
+      buttonLabel.classList.add('is-label')
+
+      if (toolbarItem.children) {
+        button.classList.add('has-children')
+      }
+
+      buttonIcon.setAttribute('src', `/static/images/editor/svg/${toolbarItem.icon}`)
+
+      button.setAttribute('title', toolbarItem.title)
+      button.addEventListener('click', e => {
+        e.preventDefault()
+        toolbarItem.action(easyMDE)
+      })
+
+      button.appendChild(buttonIcon)
+      button.appendChild(buttonLabel)
+
+      container.appendChild(button)
+    }
+  }
 }
 
 function switchToolbar(easyMDE) {

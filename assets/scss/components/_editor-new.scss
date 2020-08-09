@@ -5,48 +5,152 @@
             padding: 2px inherit;
             padding-right: 40px;
         }
+
         .editor-toolbar {
-            border: 0;
+          border: none;
+          border-radius: 0;
+          padding: 0;
 
-            &.disabled-for-textarea-mode {
-                button {
-                    &.disable-for-textarea-mode {
-                        opacity: .6;
-                        pointer-events: none;
-                    }
-                }
+          &:before {
+            display: none;
+          }
+
+          &:after {
+            display: none;
+          }
+
+          .is-small-toolbar {
+            display: flex;
+            align-items: center;
+
+            @include mobile {
+              flex-direction: column;
             }
 
-            button:not(.link) {
-                height: auto;
-                line-height: 0px;
-                color: #084561;
+            &.has-preview-active .is-toolbar-buttons {
+              display: none;
+            }
+
+            .is-toolbar-tabs {
+              flex: 2;
+
+              @include mobile {
+                width: 100%;
+              }
+
+              ul {
+                display: flex;
+                list-style-type: none;
+
+                margin: 0;
                 padding: 0;
-                display: inline;
-                float: unset;
 
-                height: 30px;
-                border: 1px solid transparent;
-                border-radius: 3px;
-                cursor: pointer;
+                li {
+                  @include mobile {
+                    flex: 1;
+                  }
 
-                vertical-align: middle;
-            }
-            button.blocMenu {
-                border-color: #fcfcfc;
-                background-image: linear-gradient(to right bottom, rgb(253, 253, 253) 0px, rgb(253, 253, 253) 84%, rgb(51, 51, 51) 50%, rgb(51, 51, 51) 100%);
+                  margin: 0;
+                  padding: 0;
+
+                  border-bottom: 2px solid transparent;
+                  transition: border-bottom-color .2s ease-in-out;
+
+                  &.is-active, &:hover {
+                    border-bottom-color: hsl(37, 93%, 58%);
+                  }
+
+                  button {
+                    padding: 0 2.4rem;
+
+                    float: none;
+                    width: auto;
+
+                    @include mobile {
+                      width: 100%;
+                    }
+
+                    background: transparent;
+
+                    font-size: 1.6rem;
+                    color: hsl(203, 8%, 19%);
+                  }
+                }
+              }
             }
 
-            .easymde-dropdown-content {
-                background-color: #fcfcfc;
-            }
+            .is-toolbar-buttons {
+              display: flex;
 
-            button.active,
-            button:hover {
-                border: 1px solid transparent;
-                background: #fcfcfc;
-                border-color: #95a5a6;
+              @include mobile {
+                margin-top: .8rem;
+              }
+
+              button {
+                margin: 0 0 0 .8rem;
+                padding: 0;
+
+                width: 2.4rem;
+                height: 2.4rem;
+
+                img {
+                  vertical-align: baseline;
+                }
+
+                &:hover, &:active {
+                  img {
+                    // Filters black to $primary-600
+                    // https://codepen.io/sosuke/pen/Pjoqqp
+                    filter: invert(14%)
+                            sepia(69%)
+                            saturate(2552%)
+                            hue-rotate(179deg)
+                            brightness(98%)
+                            contrast(94%);
+                  }
+                }
+
+                &.has-children {
+                  position: relative;
+                  margin-right: 1.4rem;
+
+                  &:after {
+                    content: ' ';
+
+                    position: absolute;
+                    top: calc(50% - 1px);
+                    right: -1.1rem;
+
+                    display: block;
+
+                    border: solid 4px transparent;
+                    border-top-color: hsl(200, 22%, 8%);
+                  }
+
+                  &:hover, &:active {
+                    &:after {
+                      border-top-color: hsl(199, 85%, 21%);
+                    }
+                  }
+                }
+
+                &.is-hidden-mobile {
+                  @include mobile {
+                    display: none;
+                  }
+                }
+              }
+
+              hr.toolbar-separator {
+                border: none;
+                width: 2rem;
+
+                & + button {
+                  margin-left: 0;
+                }
+              }
             }
+          }
         }
 
         textarea.textarea-multivers {
