@@ -166,7 +166,7 @@
     start = text.slice(0, startPoint.ch)
     end = text.slice(startPoint.ch)
     var offset = 0
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
+    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
       unShiftLines(cm, startPoint.line, endPoint.line)
       startPoint.ch = 0
     } else if (type === 'checklist') {
@@ -225,7 +225,7 @@
 
   function enableBlockZmd(cm, type, start, end, startPoint, endPoint) {
     let i, text
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
+    if (type === 'blocInformation' || type === 'blocQuestion'|| type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
       // blocs
       for (i = startPoint.line; i <= endPoint.line; i++) {
         text = start + cm.getLine(i)
@@ -235,13 +235,16 @@
         shiftLines(cm, startPoint.line, '[[information]]')
       } else if (type === 'blocQuestion') {
         shiftLines(cm, startPoint.line, '[[question]]')
+      } else if (type === 'blocWarning') {
+        shiftLines(cm, startPoint.line, '[[attention]]')
       } else if (type === 'blocError') {
         shiftLines(cm, startPoint.line, '[[erreur]]')
       } else if (type === 'blocSecret') {
         shiftLines(cm, startPoint.line, '[[secret]]')
       } else if (type === 'blocNeutral') {
-        shiftLines(cm, startPoint.line, '[[neutre|titre]]')
+        shiftLines(cm, startPoint.line, '[[neutre|Titre]]')
       }
+
       startPoint.ch = 0
       endPoint.line += 1
       endPoint.ch = endPoint.line.length
@@ -295,6 +298,14 @@
 
     cm.setSelection(startPoint, endPoint)
     cm.focus()
+  }
+
+  function insertText(editor, before, after) {
+    editor.codemirror.replaceSelections(
+      editor.codemirror.getSelections().map(selection => before + selection + after)
+    )
+
+    editor.codemirror.focus()
   }
 
   var uploadImage = function(file, onSuccess, onError) {
@@ -778,6 +789,445 @@
 
     spellcheckerEasyMDE(easyMDE)
   })
+
+  function buildEditorLayout(easyMDE) {
+    const toolbar_el = easyMDE.toolbar_div
+
+    // First create the HTML structure
+
+    const toolbar_small = document.createElement('div')
+    const toolbar_fullscreen = document.createElement('div')
+
+    toolbar_small.classList.add('is-small-toolbar')
+    toolbar_fullscreen.classList.add('is-fullscreen-toolbar')
+
+    toolbar_el.appendChild(toolbar_small)
+    toolbar_el.appendChild(toolbar_fullscreen)
+
+    const toolbar_small_tabs = document.createElement('div')
+    const toolbar_small_buttons = document.createElement('div')
+
+    toolbar_small_tabs.classList.add('is-toolbar-tabs')
+    toolbar_small_buttons.classList.add('is-toolbar-buttons')
+
+    toolbar_small.appendChild(toolbar_small_tabs)
+    toolbar_small.appendChild(toolbar_small_buttons)
+
+    // Then build the small editor tabs
+
+    const ul = document.createElement('ul')
+    const liWrite = document.createElement('li')
+    const liPreview = document.createElement('li')
+    const buttonWrite = document.createElement('button')
+    const buttonPreview = document.createElement('button')
+
+    buttonWrite.innerText = 'Rédiger'
+    buttonPreview.innerText = 'Prévisualiser'
+
+    buttonWrite.addEventListener('click', e => {
+      e.preventDefault()
+
+      if (!easyMDE.isPreviewActive()) {
+        return
+      }
+
+      liWrite.classList.toggle('is-active', true)
+      liPreview.classList.toggle('is-active', false)
+      toolbar_small.classList.toggle('has-preview-active', false)
+
+      easyMDE.togglePreview()
+    })
+
+    buttonPreview.addEventListener('click', e => {
+      e.preventDefault()
+
+      if (easyMDE.isPreviewActive()) {
+        return
+      }
+
+      liWrite.classList.toggle('is-active', false)
+      liPreview.classList.toggle('is-active', true)
+      toolbar_small.classList.toggle('has-preview-active', true)
+
+      easyMDE.togglePreview()
+    })
+
+    liWrite.classList.add('is-active')
+
+    liWrite.appendChild(buttonWrite)
+    liPreview.appendChild(buttonPreview)
+
+    ul.appendChild(liWrite)
+    ul.appendChild(liPreview)
+
+    toolbar_small_tabs.appendChild(ul)
+
+    // Then build the toolbar buttons
+
+    buildToolbar(easyMDE, toolbar_small_buttons, [
+      {
+        name: 'bold',
+        action: EasyMDE.toggleBold,
+        icon: 'bold.svg',
+        title: 'Gras'
+      },
+      {
+        name: 'italic',
+        action: EasyMDE.toggleItalic,
+        icon: 'italic.svg',
+        title: 'Italique'
+      },
+      '|',
+      {
+        name: 'heading',
+        action: EasyMDE.toggleHeadingSmaller,
+        icon: 'heading.svg',
+        title: 'Titres'
+      },
+      {
+        name: 'lists',
+        icon: 'list-unordered.svg',
+        title: 'Listes',
+        classes: 'is-hidden-mobile',
+        children: [
+          {
+            name: 'unordered-list',
+            action: EasyMDE.toggleUnorderedList,
+            icon: 'list-unordered.svg',
+            title: 'Liste à puces'
+          },
+          {
+            name: 'ordered-list',
+            action: EasyMDE.toggleOrderedList,
+            icon: 'list-ordered.svg',
+            title: 'Liste ordonnée'
+          },
+          {
+            name: 'tasks-list',
+            action: e => {
+              _toggleBlockZmd(e, 'checklist', '- [ ] ')
+            },
+            icon: 'list-tasks.svg',
+            title: 'Liste de tâches'
+          }
+        ]
+      },
+      '|',
+      {
+        name: 'link',
+        action: EasyMDE.drawLink,
+        icon: 'link.svg',
+        title: 'Lien'
+      },
+      {
+        name: 'quote',
+        action: EasyMDE.toggleBlockquote,
+        icon: 'quote.svg',
+        title: 'Citation'
+      },
+      {
+        name: 'code',
+        action: EasyMDE.toggleCodeBlock,
+        icon: 'code.svg',
+        title: 'Bloc de code coloré',
+        classes: 'is-hidden-mobile'
+      },
+      {
+        name: 'maths',
+        action: e => {
+          _toggleBlockZmd(e, 'math', '$$')
+        },
+        icon: 'maths.svg',
+        title: 'Formule mathématique',
+        classes: 'is-hidden-mobile'
+      },
+      '|',
+      {
+        name: 'blocks',
+        icon: 'info.svg',
+        title: 'Blocs d\'information, erreur, secret…',
+        children: [
+          {
+            name: 'blocInformation',
+            action: e => {
+              _toggleBlockZmd(e, 'blocInformation', '| ')
+            },
+            icon: 'info.svg',
+            title: 'Bloc d\'information'
+          },
+          {
+            name: 'blocQuestion',
+            action: e => {
+              _toggleBlockZmd(e, 'blocQuestion', '| ')
+            },
+            icon: 'question.svg',
+            title: 'Bloc de question'
+          },
+          {
+            name: 'blocWarning',
+            action: e => {
+              _toggleBlockZmd(e, 'blocWarning', '| ')
+            },
+            icon: 'warning.svg',
+            title: 'Bloc d\'avertissement'
+          },
+          {
+            name: 'blocError',
+            action: e => {
+              _toggleBlockZmd(e, 'blocError', '| ')
+            },
+            icon: 'error.svg',
+            title: 'Bloc d\'erreur'
+          },
+          {
+            name: 'blocSecret',
+            action: e => {
+              _toggleBlockZmd(e, 'blocSecret', '| ')
+            },
+            icon: 'secret.svg',
+            title: 'Bloc masqué'
+          },
+          {
+            name: 'blocNeutral',
+            action: e => {
+              _toggleBlockZmd(e, 'blocNeutral', '| ')
+            },
+            icon: 'neutral.svg',
+            title: 'Bloc neutre (théorème…)'
+          }
+        ]
+      },
+      {
+        name: 'smileys',
+        icon: 'smileys.svg',
+        title: 'Smileys',
+        classes: 'is-grid is-smileys',
+        children: _genCopySmileysActions(easyMDE, [
+          { name: "Sourire",         smiley: ":)",         icon: "smile.svg" },
+          { name: "Clin d'œil",         smiley: ";)",         icon: "clin.svg" },
+          { name: "Amusé",         smiley: "^^",         icon: "hihi.svg" },
+          { name: "Rire avec la langue",         smiley: ":p",         icon: "langue.svg" },
+          { name: "Rire",         smiley: ":D",         icon: "heureux.svg" },
+          { name: "Rire",      smiley: ":lol:",      icon: "rire.svg" },
+          { name: "Zdoing zdoing !",    smiley: ":bounce:",    icon: "bounce.svg" },
+          { name: "Sourire avec les dents",         smiley: ":B",         icon: "b.svg" },
+          { name: "Euh…",      smiley: ":euh:",      icon: "unsure.svg" },
+          { name: "Siflotte",        smiley: ":-°",        icon: "siffle.svg" },
+          { name: "Surpris",         smiley: ":o",         icon: "huh.svg" },
+          { name: "Très surpris",        smiley: "o_O",        icon: "blink.svg" },
+          { name: "Triste",         smiley: ":(",         icon: "triste.svg" },
+          { name: "Pleure",        smiley: ":'(",        icon: "pleure.svg" },
+          { name: "Honte",    smiley: ":honte:",    icon: "rouge.svg" },
+          { name: "Énervé",  smiley: ":colere2:",  icon: "mechant.svg" },
+          { name: "Très colérique",   smiley: ":colere:",   icon: "angry.svg" },
+          { name: "Embêté",         smiley: "X/",         icon: "pinch.svg" },
+          { name: "Classe",   smiley: ":soleil:",   icon: "soleil.svg" },
+          { name: "Woaw",      smiley: ":waw:",      icon: "waw.svg" },
+          { name: "Popcorn",    smiley: ":popcorn:",    icon: "popcorn.svg" },
+          { name: "Ange",     smiley: ":ange:",     icon: "ange.svg" },
+          { name: "Diable",   smiley: ":diable:",   icon: "diable.svg" },
+          { name: "Ninja",    smiley: ":ninja:",    icon: "ninja.svg" },
+          { name: "Magicien", smiley: ":magicien:", icon: "magicien.svg" },
+          { name: "Pirate",   smiley: ":pirate:",   icon: "pirate.svg" },
+          { name: "Zorro",    smiley: ":zorro:",    icon: "zorro.svg" },
+        ]),
+        footer: 'Les smileys natifs fonctionnent également, et seront convertis en version Clem\' si possible.'
+      },
+      {
+        name: 'typography',
+        icon: 'typography.svg',
+        title: 'Caractères spéciaux',
+        classes: 'is-hidden-mobile is-grid',
+        children: _genCopyStringsActions(easyMDE, [
+          { before: '« ', after: ' »', label: "« »" },
+          { before: '« '},
+          { after: ' »' },
+          { before: "“", after: "”" },
+          { before: "“" },
+          { after: "”" },
+          { after: "…" },
+          { after: " – " },
+          { after: " — " },
+          { after: "≠" },
+          { after: "±" },
+          { after: "∞" },
+          { after: "×" },
+          { after: "⋅" },
+          { after: " ", label: "Ins", title: "Espace insécable"},
+          { after: "À" },
+          { after: "É" },
+          { after: "È" },
+          { after: "Ù" },
+          { after: "Ç" },
+          { after: "æ" },
+          { after: "Æ" },
+          { after: "œ" },
+          { after: "Œ" }
+        ]),
+        footer: 'Certains caractères (tel “--”, “---”, “...”, ou les guillemets anglais) sont remplacés par leur version typographique automatiquement.'
+      }
+    ])
+  }
+
+  function _genCopyStringsActions(easyMDE, strings) {
+    return strings
+      .map(s => {
+        return {
+          ...s,
+          label: s.label || (s.before || '').trim() + (s.after || '').trim()
+        }
+      })
+      .map(s => {
+        return {
+          name: s.label,
+          label: s.label,
+          action: e => insertText(e, s.before || '', s.after || ''),
+          title: s.title || s.label
+        }
+      })
+  }
+
+  function _genCopySmileysActions(easyMDE, smileys) {
+    return smileys.map(s => {
+      return {
+        name: s.name,
+        title: `${s.name} — ${s.smiley}`,
+        icon: `/static/smileys/svg/${s.icon}`,
+        action: e => insertText(e, '', ` ${s.smiley} `),
+        classes: s.smiley === ':colere:' && Math.random() < .01 ? 'is-hover-inverted' : ''
+      }
+    })
+  }
+
+  function buildToolbar(easyMDE, container, toolbar) {
+    const list = document.createElement('ul')
+
+    for (const toolbarItem of toolbar) {
+      if (toolbarItem === '|') {
+        const sep = document.createElement('li')
+        sep.classList.add('toolbar-separator')
+        list.appendChild(sep)
+      } else {
+        list.appendChild(buildToolbarItem(easyMDE, toolbarItem, false))
+      }
+    }
+
+    container.appendChild(list)
+  }
+
+  function buildToolbarItem(easyMDE, toolbarItem, withLabel) {
+    const xmlns = 'http://www.w3.org/2000/svg';
+
+    const container = document.createElement('li')
+    const button = document.createElement('button')
+
+    container.setAttribute('class', toolbarItem.classes || '')
+    container.classList.add('toolbar-button')
+
+    if (toolbarItem.children) {
+      container.classList.add('has-children')
+    }
+
+    if (toolbarItem.icon) {
+      const buttonIcon = document.createElement('img')
+      buttonIcon.classList.add('is-icon')
+
+      if (toolbarItem.icon.startsWith('/')) {
+        buttonIcon.setAttribute('src', toolbarItem.icon)
+      } else {
+        buttonIcon.setAttribute('src', `/static/images/editor/svg/${toolbarItem.icon}`)
+      }
+
+      button.appendChild(buttonIcon)
+    }
+
+    button.setAttribute('title', toolbarItem.title)
+
+    if (!withLabel) {
+      button.setAttribute('aria-label', toolbarItem.label || toolbarItem.title)
+    }
+
+    if (withLabel) {
+      const buttonLabel = document.createElement('span')
+
+      buttonLabel.classList.add('is-label')
+      buttonLabel.innerText = toolbarItem.label || toolbarItem.title
+
+      container.classList.add('has-label')
+
+      button.appendChild(buttonLabel)
+    }
+
+    container.appendChild(button)
+
+    if (toolbarItem.children) {
+      const buttonDropdown = document.createElement('div')
+      buttonDropdown.classList.add('toolbar-button-dropdown')
+
+      const ulButtonDropdown = document.createElement('ul')
+
+      for (const child of toolbarItem.children) {
+        ulButtonDropdown.appendChild(buildToolbarItem(easyMDE, child, true))
+      }
+
+      buttonDropdown.appendChild(ulButtonDropdown)
+
+      if (toolbarItem.footer) {
+        const dropdownFooter = document.createElement('footer')
+        dropdownFooter.innerHTML = toolbarItem.footer
+        buttonDropdown.appendChild(dropdownFooter)
+      }
+
+      container.appendChild(buttonDropdown)
+
+      let closedAt = Date.now()
+
+      let toggleListener = e => {
+        e.preventDefault()
+
+        // If we close the dropdown by clicking the button, two listeners will
+        // trigger: the one from the button itself, and the one from the body.
+        // This will close then reopen the dropdown.
+        // To prevent that, we don't do anything if this was called less than
+        // 100ms ago.
+        if (buttonDropdown.classList.contains('is-active')) {
+          closedAt = Date.now()
+        } else if (Date.now() - closedAt < 100) {
+          return
+        }
+
+        buttonDropdown.classList.toggle('is-active')
+        container.classList.toggle('has-dropdown-active')
+
+        setTimeout(() => {
+          if (!buttonDropdown.classList.contains('is-active')) {
+            document.body.removeEventListener('click', toggleListener)
+          }
+          else {
+            document.body.addEventListener('click', toggleListener)
+          }
+        }, 100)
+      }
+
+      button.addEventListener('click', toggleListener)
+    } else {
+      button.addEventListener('click', e => {
+        e.preventDefault()
+        toolbarItem.action(easyMDE)
+      })
+    }
+
+    return container
+  }
+
+  function switchToolbar(easyMDE) {
+    const toolbar_small = easyMDE.toolbar_div.querySelector('div.is-small-toolbar')
+    const toolbar_fullscreen = easyMDE.toolbar_div.querySelector('div.is-fullscreen-toolbar')
+    const fullscreen = easyMDE.isFullscreenActive()
+
+    toolbar_small.classList.toggle('is-hidden', fullscreen)
+    toolbar_fullscreen.classList.toggle('is-hidden', !fullscreen)
+  }
 })(jQuery)
 
 
@@ -893,251 +1343,4 @@ function spellcheckerEasyMDE(easyMDE) {
     setTimeout(() => stalker.disconnect(), 30000)
     stalker.observe(easyMDE.toolbarElements['abc-spellchecker'], { attributes: true })
   }
-}
-
-function buildEditorLayout(easyMDE) {
-  const toolbar_el = easyMDE.toolbar_div
-
-  // First create the HTML structure
-
-  const toolbar_small = document.createElement('div')
-  const toolbar_fullscreen = document.createElement('div')
-
-  toolbar_small.classList.add('is-small-toolbar')
-  toolbar_fullscreen.classList.add('is-fullscreen-toolbar')
-
-  toolbar_el.appendChild(toolbar_small)
-  toolbar_el.appendChild(toolbar_fullscreen)
-
-  const toolbar_small_tabs = document.createElement('div')
-  const toolbar_small_buttons = document.createElement('div')
-
-  toolbar_small_tabs.classList.add('is-toolbar-tabs')
-  toolbar_small_buttons.classList.add('is-toolbar-buttons')
-
-  toolbar_small.appendChild(toolbar_small_tabs)
-  toolbar_small.appendChild(toolbar_small_buttons)
-
-  // Then build the small editor tabs
-
-  const ul = document.createElement('ul')
-  const liWrite = document.createElement('li')
-  const liPreview = document.createElement('li')
-  const buttonWrite = document.createElement('button')
-  const buttonPreview = document.createElement('button')
-
-  buttonWrite.innerText = 'Rédiger'
-  buttonPreview.innerText = 'Prévisualiser'
-
-  buttonWrite.addEventListener('click', e => {
-    e.preventDefault()
-
-    if (!easyMDE.isPreviewActive()) {
-      return
-    }
-
-    liWrite.classList.toggle('is-active', true)
-    liPreview.classList.toggle('is-active', false)
-    toolbar_small.classList.toggle('has-preview-active', false)
-
-    easyMDE.togglePreview()
-  })
-
-  buttonPreview.addEventListener('click', e => {
-    e.preventDefault()
-
-    if (easyMDE.isPreviewActive()) {
-      return
-    }
-
-    liWrite.classList.toggle('is-active', false)
-    liPreview.classList.toggle('is-active', true)
-    toolbar_small.classList.toggle('has-preview-active', true)
-
-    easyMDE.togglePreview()
-  })
-
-  liWrite.classList.add('is-active')
-
-  liWrite.appendChild(buttonWrite)
-  liPreview.appendChild(buttonPreview)
-
-  ul.appendChild(liWrite)
-  ul.appendChild(liPreview)
-
-  toolbar_small_tabs.appendChild(ul)
-
-  // Then build the toolbar buttons
-
-  buildToolbar(easyMDE, toolbar_small_buttons, [
-    {
-      name: 'bold',
-      action: EasyMDE.toggleBold,
-      icon: 'bold.svg',
-      title: 'Gras'
-    },
-    {
-      name: 'italic',
-      action: EasyMDE.toggleItalic,
-      icon: 'italic.svg',
-      title: 'Italique'
-    },
-    {
-      name: 'heading',
-      action: EasyMDE.toggleHeadingSmaller,
-      icon: 'heading.svg',
-      title: 'Titres'
-    },
-    '|',
-    {
-      name: 'unordered-list',
-      action: EasyMDE.toggleUnorderedList,
-      icon: 'list-unordered.svg',
-      title: 'Liste à puces',
-      classes: 'is-hidden-mobile'
-    },
-    {
-      name: 'ordered-list',
-      action: EasyMDE.toggleOrderedList,
-      icon: 'list-ordered.svg',
-      title: 'Liste ordonnée',
-      classes: 'is-hidden-mobile'
-    },
-    {
-      name: 'tasks-list',
-      action: e => {
-        _toggleBlockZmd(e, 'checklist', '- [ ] ')
-      },
-      icon: 'list-tasks.svg',
-      title: 'Liste de tâches',
-      classes: 'is-hidden-mobile'
-    },
-    '|',
-    {
-      name: 'quote',
-      action: EasyMDE.toggleBlockquote,
-      icon: 'quote.svg',
-      title: 'Citation'
-    },
-    {
-      name: 'link',
-      action: EasyMDE.drawLink,
-      icon: 'link.svg',
-      title: 'Lien'
-    },
-    '|',
-    {
-      name: 'code',
-      action: EasyMDE.toggleCodeBlock,
-      icon: 'code.svg',
-      title: 'Bloc de code coloré',
-      classes: 'is-hidden-mobile'
-    },
-    {
-      name: 'maths',
-      action: e => {
-        _toggleBlockZmd(e, 'math', '$$')
-      },
-      icon: 'maths.svg',
-      title: 'Formule mathématique',
-      classes: 'is-hidden-mobile'
-    },
-    '|',
-    {
-      name: 'blocks',
-      icon: 'info.svg',
-      title: 'Blocs d\'information, erreur, secret…',
-      children: [
-        {
-          name: 'blocInformation',
-          action: e => {
-            _toggleBlockZmd(e, 'blocInformation', '| ')
-          },
-          icon: 'info.svg',
-          title: 'Bloc d\'information'
-        },
-        {
-          name: 'blocQuestion',
-          action: e => {
-            _toggleBlockZmd(e, 'blocQuestion', '| ')
-          },
-          icon: 'question.svg',
-          title: 'Bloc de question'
-        },
-        {
-          name: 'blocError',
-          action: e => {
-            _toggleBlockZmd(e, 'blocError', '| ')
-          },
-          icon: 'error.svg',
-          title: 'Bloc d\'erreur'
-        },
-        {
-          name: 'blocSecret',
-          action: e => {
-            _toggleBlockZmd(e, 'blocSecret', '| ')
-          },
-          icon: 'secret.svg',
-          title: 'Bloc masqué'
-        },
-        {
-          name: 'blocNeutral',
-          action: e => {
-            _toggleBlockZmd(e, 'blocNeutral', '| ')
-          },
-          icon: 'neutral.svg',
-          title: 'Bloc neutre (théorème…)'
-        }
-      ]
-    }
-  ])
-
-  console.log(easyMDE)
-}
-
-function buildToolbar(easyMDE, container, toolbar) {
-  for (const toolbarItem of toolbar) {
-    if (toolbarItem === '|') {
-      const sep = document.createElement('hr')
-      sep.classList.add('toolbar-separator')
-      container.appendChild(sep)
-    } else {
-      const xmlns = 'http://www.w3.org/2000/svg';
-
-      const button = document.createElement('button')
-      const buttonIcon = document.createElement('img')
-      const buttonLabel = document.createElement('span')
-
-      button.setAttribute('class', toolbarItem.classes || '')
-      button.classList.add('toolbar-button')
-      buttonIcon.classList.add('is-icon')
-      buttonLabel.classList.add('is-label')
-
-      if (toolbarItem.children) {
-        button.classList.add('has-children')
-      }
-
-      buttonIcon.setAttribute('src', `/static/images/editor/svg/${toolbarItem.icon}`)
-
-      button.setAttribute('title', toolbarItem.title)
-      button.addEventListener('click', e => {
-        e.preventDefault()
-        toolbarItem.action(easyMDE)
-      })
-
-      button.appendChild(buttonIcon)
-      button.appendChild(buttonLabel)
-
-      container.appendChild(button)
-    }
-  }
-}
-
-function switchToolbar(easyMDE) {
-  const toolbar_small = easyMDE.toolbar_div.querySelector('div.is-small-toolbar')
-  const toolbar_fullscreen = easyMDE.toolbar_div.querySelector('div.is-fullscreen-toolbar')
-  const fullscreen = easyMDE.isFullscreenActive()
-
-  toolbar_small.classList.toggle('is-hidden', fullscreen)
-  toolbar_fullscreen.classList.toggle('is-hidden', !fullscreen)
 }
