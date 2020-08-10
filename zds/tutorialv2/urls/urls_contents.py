@@ -2,22 +2,27 @@ from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditContent, EditContentLicense,
-                                           DeleteContent, CreateContainer, DisplayContainer, EditContainer,
-                                           CreateExtract, EditExtract,
-                                           DeleteContainerOrExtract, ManageBetaContent, DisplayHistory, DisplayDiff,
-                                           ActivateJSFiddleInContent, MoveChild,
-                                           DownloadContent, UpdateContentWithArchive, CreateContentFromArchive,
-                                           ContentsWithHelps, AddAuthorToContent,
-                                           RemoveAuthorFromContent, WarnTypo, DisplayBetaContent, DisplayBetaContainer,
-                                           ContentOfAuthor, RedirectOldContentOfAuthor, AddContributorToContent,
-                                           RemoveContributorFromContent, ContentOfContributors,
-                                           AddSuggestion, RemoveSuggestion, ChangeHelp, EditContentTags)
+                                           DeleteContent)
+from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
+from zds.tutorialv2.views.containers_extracts import CreateContainer, DisplayContainer, EditContainer, \
+    CreateExtract, EditExtract, DeleteContainerOrExtract, MoveChild
+from zds.tutorialv2.views.beta import ManageBetaContent
+from zds.tutorialv2.views.display import DisplayBetaContent, DisplayBetaContainer
+from zds.tutorialv2.views.history import DisplayHistory, DisplayDiff
+from zds.tutorialv2.views.help import ContentsWithHelps, ChangeHelp
+from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
+from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
+from zds.tutorialv2.views.archives import DownloadContent, UpdateContentWithArchive, CreateContentFromArchive
+from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent, \
+    ContentOfContributors
+from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion, EditContentTags
 
-from zds.tutorialv2.views.published import (SendNoteFormView, UpdateNoteView,
-                                            HideReaction, ShowReaction, SendNoteAlert, SolveNoteAlert, TagsListView,
-                                            FollowContentReaction, FollowNewContent, SendContentAlert,
-                                            SolveContentAlert,
-                                            RequestFeaturedContent, ContentStatisticsView)
+from zds.tutorialv2.views.lists import (TagsListView, ContentOfAuthor)
+from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
+from zds.tutorialv2.views.misc import RequestFeaturedContent, FollowNewContent, WarnTypo
+from zds.tutorialv2.views.statistics import ContentStatisticsView
+from zds.tutorialv2.views.comments import SendNoteFormView, UpdateNoteView, HideReaction, ShowReaction, SendNoteAlert, \
+    SolveNoteAlert, FollowContentReaction
 
 urlpatterns = [
     # Flux

@@ -1,9 +1,11 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
-from zds.tutorialv2.views.contents import RedirectOldBetaTuto, ContentOfAuthor, ContentOfContributors
+from zds.tutorialv2.views.contributors import ContentOfContributors
 
-from zds.tutorialv2.views.published import DisplayOnlineTutorial, DisplayOnlineContainer, \
-    DownloadOnlineTutorial, RedirectContentSEO, TagsListView
+from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor
+from zds.tutorialv2.views.download_online import DownloadOnlineTutorial
+from zds.tutorialv2.views.display import DisplayOnlineTutorial, DisplayOnlineContainer
+from zds.tutorialv2.views.redirect import RedirectContentSEO, RedirectOldBetaTuto
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
 

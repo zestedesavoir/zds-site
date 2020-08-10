@@ -275,7 +275,7 @@ class StatTests(TestCase, TutorialTestMixin):
             self.assertEqual(cum_stat['newUsers'] >= 0, True)
             self.assertEqual(cum_stat['sessions'] >= 0, True)
 
-    @mock.patch('zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials',
+    @mock.patch('zds.tutorialv2.views.statistics.ContentStatisticsView.config_ga_credentials',
                 fake_config_ga_credentials)
     def test_query_date_parameter_duration(self):
         self.client.login(username=self.user_author.username, password='hostel77')
@@ -287,7 +287,7 @@ class StatTests(TestCase, TutorialTestMixin):
         self.check_success_result_by_duration(30)
         self.check_success_result_by_duration(365)
 
-    @mock.patch('zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials',
+    @mock.patch('zds.tutorialv2.views.statistics.ContentStatisticsView.config_ga_credentials',
                 fake_config_ga_credentials)
     def test_query_string_parameter_duration(self):
 
@@ -302,7 +302,7 @@ class StatTests(TestCase, TutorialTestMixin):
         for k, v in resp.context_data['stats'][0]['stats'].items():
             self.assertEqual(len(v), default_duration + 1)
 
-    @mock.patch('zds.tutorialv2.views.published.ContentStatisticsView.config_ga_credentials',
+    @mock.patch('zds.tutorialv2.views.statistics.ContentStatisticsView.config_ga_credentials',
                 fake_config_ga_credentials)
     def test_end_before_start_date_parameter_duration(self):
         today = datetime.datetime.today()
