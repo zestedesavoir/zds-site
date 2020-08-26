@@ -193,7 +193,7 @@ class PostEditMixin(object):
             # Save topic to update update_index_date
             post.topic.save()
         
-        if original_text != text:
+        if original_text != text and post.is_potential_spam:
             alert = Alert(
                 author=get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account']),
                 comment=post,
