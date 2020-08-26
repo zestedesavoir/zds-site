@@ -22,7 +22,7 @@ div.msg-are-hidden {
             }
         }
     }
-    &.helpful {
+    &.helpful:not(.potential-spam) {
         .message {
             &,
             .is-author {
@@ -42,6 +42,30 @@ div.msg-are-hidden {
 
                 &:after {
                     border-right-color: desaturate($color-helpful, 50%);
+                }
+            }
+        }
+    }
+    &.potential-spam {
+        .message {
+            &,
+            .is-author {
+                background: $color-potential-spam;
+            }
+
+            &:after {
+                border-right-color: $color-potential-spam;
+            }
+        }
+        &.repeated {
+            .message {
+                &,
+                .is-author {
+                    background: desaturate($color-potential-spam, 50%);
+                }
+
+                &:after {
+                    border-right-color: desaturate($color-potential-spam, 50%);
                 }
             }
         }
@@ -235,6 +259,7 @@ div.msg-are-hidden {
             .message-edited,
             .message-hidden,
             .message-helpful,
+            .message-potential-spam,
             .message-repeated {
                 padding-top: 3px 0 0;
 
@@ -263,7 +288,11 @@ div.msg-are-hidden {
             .message-hidden {
                 margin-top: 1px;
             }
-            .message-helpful {
+            .message-helpful:not(.message-potential-spam) {
+                color: #48A200;
+                text-indent: 20px;
+            }
+            .message-potential-spam {
                 color: #48A200;
                 text-indent: 20px;
             }

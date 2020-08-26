@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -7,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.models import User
 
 from zds.forum.models import Forum, Post, TopicRead
 from zds.notification import signals
@@ -139,6 +141,11 @@ class PostEditMixin(object):
         post.save()
 
     @staticmethod
+    def perform_potential_spam(post):
+        post.is_potential_spam = not post.is_potential_spam
+        post.save()
+
+    @staticmethod
     def perform_unread_message(post, user):
         """
         Marks a post unread so we create a notification between the user and the topic host of the post.
@@ -164,11 +171,12 @@ class PostEditMixin(object):
 
     @staticmethod
     def perform_edit_post(request, post, user, text):
+        original_text = post.text
         # create an archive
         edit = CommentEdit()
         edit.comment = post
         edit.editor = user
-        edit.original_text = post.text
+        edit.original_text = original_text
         edit.save()
 
         post.update_content(
@@ -184,6 +192,16 @@ class PostEditMixin(object):
         if post.position == 1:
             # Save topic to update update_index_date
             post.topic.save()
+        
+        if original_text != text:
+            alert = Alert(
+                author=get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account']),
+                comment=post,
+                scope='FORUM',
+                text=_("Spam potentiel - Contenu édité"),
+                pubdate=datetime.now())
+            alert.save()
+
         return post
 
 

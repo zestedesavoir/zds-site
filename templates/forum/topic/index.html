@@ -109,6 +109,10 @@
             {% url 'post-useful' %}?message={{ message.pk }}
         {% endcaptureas %}
 
+        {% captureas potential_spam_link %}
+            {% url 'post-potential-spam' %}?message={{ message.pk }}
+        {% endcaptureas %}
+
         {% captureas karma_link %}
             {% url 'api:forum:post-karma' message.pk %}
         {% endcaptureas %}

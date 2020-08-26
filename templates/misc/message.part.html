@@ -29,6 +29,7 @@
 <article
     class="topic-message
            {% if message.is_useful and not message_is_hidden %}helpful{% endif %}
+           {% if message.is_potential_spam and not message_is_hidden %}potential-spam{% endif %}
            {% if is_repeated_message %}repeated{% endif %}
            {% if message_is_hidden %}hidden-by-someone{% endif %}"
 
@@ -183,6 +184,10 @@
                 </p>
             {% endif %}
             {% if not is_mp %}
+                <p class="message-potential-spam tick ico-after green {% if not message.is_potential_spam or message_is_hidden %}hidden{% endif %}"
+                   data-ajax-output="mark-message-as-potential-spam">
+                    {% trans "Ce message est marqué comme spam potentiel" %}
+                </p>
                 <p class="message-helpful tick ico-after green {% if not message.is_useful or message_is_hidden %}hidden{% endif %}"
                    data-ajax-output="mark-message-as-useful">
                     {% trans "Cette réponse a aidé l’auteur du sujet" %}
@@ -273,6 +278,31 @@
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
+                        {% if user.is_authenticated and potential_spam_link %}
+                            {% if perms_change %}
+                                <form action="{{ potential_spam_link }}" method="post">
+                                    {% csrf_token %}
+
+                                    <button
+                                        type="submit"
+                                        class="tick ico-after {% if message.is_potential_spam %}green{% endif %}"
+                                        data-ajax-input="mark-message-as-potential-spam"
+                                        data-content-on-click="{% if message.is_potential_spam %}
+                                                                   {% trans "Ce message est potentiellement du spam" %}
+                                                               {% else %}
+                                                                   {% trans "Ce message n'est pas du spam" %}
+                                                               {% endif %}">
+
+                                        {% if message.is_potential_spam %}
+                                            {% trans "Ce message n'est pas du spam" %}
+                                        {% else %}
+                                            {% trans "Ce message est potentiellement du spam" %}
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                        
                         {% if user.is_authenticated and helpful_link %}
                             {% if topic.author == user or perms_change %}
                                 <form action="{{ helpful_link }}" method="post">

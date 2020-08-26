@@ -657,6 +657,26 @@ class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
         return redirect(self.object.get_absolute_url())
 
 
+class PostPotentialSpam(UpdateView, SinglePostObjectMixin, PostEditMixin):
+
+    @method_decorator(require_POST)
+    @method_decorator(login_required)
+    @method_decorator(can_write_and_read_now)
+    def dispatch(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if not request.user.has_perm('forum.change_post'):
+            raise PermissionDenied
+        return super(PostPotentialSpam, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.perform_potential_spam(self.object)
+
+        if request.is_ajax():
+            return HttpResponse(json.dumps(self.object.is_potential_spam), content_type='application/json')
+
+        return redirect(self.object.get_absolute_url())
+
+
 class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     @method_decorator(require_POST)
