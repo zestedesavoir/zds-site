@@ -184,9 +184,9 @@
                 </p>
             {% endif %}
             {% if not is_mp %}
-                <p class="message-potential-spam tick ico-after green {% if not message.is_potential_spam or message_is_hidden %}hidden{% endif %}"
+                <p class="message-potential-spam alert ico-after {% if not message.is_potential_spam or message_is_hidden %}hidden{% endif %}"
                    data-ajax-output="mark-message-as-potential-spam">
-                    {% trans "Ce message est marqué comme spam potentiel" %}
+                    {% trans "Ce message est marqué comme spam potentiel. Une alerte sera levée s'il est modifié." %}
                 </p>
                 <p class="message-helpful tick ico-after green {% if not message.is_useful or message_is_hidden %}hidden{% endif %}"
                    data-ajax-output="mark-message-as-useful">
@@ -285,24 +285,17 @@
 
                                     <button
                                         type="submit"
-                                        class="tick ico-after {% if message.is_potential_spam %}green{% endif %}"
+                                        class="alert ico-after {% if message.is_potential_spam %}green{% endif %}"
+                                        title="{% if not message.is_potential_spam %}{% trans "Marquer ce message comme spam potentiel, afin de recevoir une alerte de modération s'il est modifié." %}{% endif %}"
                                         data-ajax-input="mark-message-as-potential-spam"
-                                        data-content-on-click="{% if message.is_potential_spam %}
-                                                                   {% trans "Ce message est potentiellement du spam" %}
-                                                               {% else %}
+                                        data-content-on-click="{% if not message.is_potential_spam %}
                                                                    {% trans "Ce message n'est pas du spam" %}
-                                                               {% endif %}">
-
-                                        {% if message.is_potential_spam %}
-                                            {% trans "Ce message n'est pas du spam" %}
-                                        {% else %}
-                                            {% trans "Ce message est potentiellement du spam" %}
-                                        {% endif %}
-                                    </button>
+                                                               {% endif %}"
+                                        >{% if message.is_potential_spam %}{% trans "Ce message n'est pas du spam" %}{% endif %}</button>
                                 </form>
                             {% endif %}
                         {% endif %}
-                        
+
                         {% if user.is_authenticated and helpful_link %}
                             {% if topic.author == user or perms_change %}
                                 <form action="{{ helpful_link }}" method="post">

@@ -293,7 +293,7 @@ div.msg-are-hidden {
                 text-indent: 20px;
             }
             .message-potential-spam {
-                color: #48A200;
+                color: hsl(360, 67%, 44%);
                 text-indent: 20px;
             }
 
@@ -428,6 +428,13 @@ div.msg-are-hidden {
                         }
                     }
                 }
+
+                .alert {
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: hsl(360, 64%, 55%);
+                    }
+                }
             }
         }
 
@@ -480,6 +487,7 @@ div.msg-are-hidden {
                     margin: 0;
                 }
             }
+
             a,
             .upvote,
             .downvote,
@@ -490,7 +498,12 @@ div.msg-are-hidden {
                 height: 29px;
                 line-height: 30px;
                 padding: 0 10px;
+
+                &:empty {
+                  padding-right: 0;
+                }
             }
+
             a,
             button.ico-after {
                 cursor: pointer;
@@ -510,6 +523,7 @@ div.msg-are-hidden {
                 }
             }
         }
+
         .message-actions a,
         .message-buttons a,
         .message-karma button {
