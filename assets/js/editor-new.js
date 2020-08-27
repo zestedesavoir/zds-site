@@ -5,6 +5,7 @@
   if (localStorage.getItem('editor_choice') !== 'new') {
     return
   }
+
   (function() {
     /**
      * Migration easymde
@@ -409,16 +410,16 @@
       uploadImage: true,
       imageUploadFunction: uploadImage,
       imageTexts: {
-        sbInit: 'Joindre des images par glisser-déposer ou coller depuis le presse-papiers.',
-        sbOnDragEnter: 'Déposer l"image pour l"envoyer dans votre galérie',
-        sbOnDrop: 'Téléchargement d"images #images_names#',
-        sbProgress: 'Téléchargement #file_name#: #progress#%',
-        sbOnUploaded: 'Image téléchargée #image_name#'
+        sbInit: 'Envoyez des images en les glissant-déposant, ou en les collant depuis le presse-papier',
+        sbOnDragEnter: 'Déposez l\'image pour l\'insérer',
+        sbOnDrop: 'Téléversement de #images_names#…',
+        sbProgress: 'Téléversement de #file_name# : #progress#%…',
+        sbOnUploaded: '#image_name# téléversée avec succès'
       },
       spellChecker: false,
       inputStyle: 'contenteditable',
       nativeSpellcheck: true,
-      sideBySideFullscreen: false,
+      sideBySideFullscreen: true,
       promptAbbrv: true,
       theme: 'idea',
       previewRender: customMarkdownParser,
@@ -697,8 +698,33 @@
         //   title: 'Plein écran'
         // }
         '|'
+      ],
+      status: [
+        'upload-image',
+        {
+          className: 'autosave',
+          defaultValue: el => {
+            el.innerHTML = 'Auto-sauvegardé'
+          }
+        },
+        {
+          className: 'markdown',
+          defaultValue: el => {
+            const link = document.createElement('a')
+            const icon = document.createElement('img')
+
+            link.setAttribute('href', window.markdown_tips_tutorial_link)
+            link.setAttribute('title', 'Vous pouvez utiliser une version enrichie de Markdown pour rédiger. Cliquez ici pour en savoir plus.')
+            icon.setAttribute('src', '/static/images/editor/svg/markdown.svg')
+
+            link.appendChild(icon)
+            el.appendChild(link)
+          }
+        }
       ]
     })
+
+    console.log(easyMDE)
 
     if (smdeUniqueContent != null && localStorage['smde_' + mdeUniqueKey] !== textarea.value) {
       const $alertbox = $('<div class="alert-box info"></div>')
@@ -1002,7 +1028,7 @@
         icon: 'smileys.svg',
         title: 'Smileys',
         classes: 'is-grid is-smileys',
-        children: _genCopySmileysActions(easyMDE, [
+        children: _genInsertSmileysActions(easyMDE, [
           { name: "Sourire",         smiley: ":)",         icon: "smile.svg" },
           { name: "Clin d'œil",         smiley: ";)",         icon: "clin.svg" },
           { name: "Amusé",         smiley: "^^",         icon: "hihi.svg" },
@@ -1038,7 +1064,7 @@
         icon: 'typography.svg',
         title: 'Caractères spéciaux',
         classes: 'is-hidden-mobile is-grid',
-        children: _genCopyStringsActions(easyMDE, [
+        children: _genInsertStringsActions(easyMDE, [
           { before: '« ', after: ' »', label: "« »" },
           { before: '« '},
           { after: ' »' },
@@ -1069,7 +1095,7 @@
     ])
   }
 
-  function _genCopyStringsActions(easyMDE, strings) {
+  function _genInsertStringsActions(easyMDE, strings) {
     return strings
       .map(s => {
         return {
@@ -1087,7 +1113,7 @@
       })
   }
 
-  function _genCopySmileysActions(easyMDE, smileys) {
+  function _genInsertSmileysActions(easyMDE, smileys) {
     return smileys.map(s => {
       return {
         name: s.name,

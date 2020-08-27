@@ -129,6 +129,7 @@ function js() {
     // Used by other scripts, must be first
     'assets/js/modal.js',
     'assets/js/tooltips.js',
+    'assets/js/markdown-help.js',
     // All the scripts
     'assets/js/*.js'
   ], { base: '.', sourcemaps: true })
@@ -213,4 +214,3 @@ exports.errors = errors
 exports.prepareZmd = prepareZmd
 exports.prepareEasyMde = prepareEasyMde
 exports.default = gulp.parallel(watch, jsLint)
-
