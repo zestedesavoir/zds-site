@@ -196,7 +196,7 @@ class PostEditMixin(object):
         # If this post is marked as potential spam, we open an alert to notify the staff that
         # the post was edited. If an open alert already exist for this reason, we update the
         # date of this alert to avoid lots of them stacking up.
-        if original_text != text and post.is_potential_spam:
+        if original_text != text and post.is_potential_spam and post.editor == post.author:
             bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
 
             try:
