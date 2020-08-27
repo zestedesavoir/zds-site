@@ -189,18 +189,32 @@ class PostEditMixin(object):
         post.editor = user
         post.save()
 
+        # Save topic to update update_index_date
         if post.position == 1:
-            # Save topic to update update_index_date
             post.topic.save()
-        
+
+        # If this post is marked as potential spam, we open an alert to notify the staff that
+        # the post was edited. If an open alert already exist for this reason, we update the
+        # date of this alert to avoid lots of them stacking up.
         if original_text != text and post.is_potential_spam:
-            alert = Alert(
-                author=get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account']),
-                comment=post,
-                scope='FORUM',
-                text=_("Spam potentiel - Contenu édité"),
-                pubdate=datetime.now())
-            alert.save()
+            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+
+            try:
+                alert = post.alerts_on_this_comment.filter(
+                    author=bot,
+                    text=_("Un message de spam potentiel a été modifié."),
+                    solved=False
+                ).latest()
+                alert.pubdate = datetime.now()
+                alert.save()
+            except Alert.DoesNotExist:
+                Alert(
+                    author=bot,
+                    comment=post,
+                    scope='FORUM',
+                    text=_("Un message de spam potentiel a été modifié."),
+                    pubdate=datetime.now()
+                ).save()
 
         return post
 

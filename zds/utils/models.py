@@ -608,6 +608,7 @@ class Alert(models.Model):
     class Meta:
         verbose_name = 'Alerte'
         verbose_name_plural = 'Alertes'
+        get_latest_by = 'pubdate'
 
 
 class CommentVote(models.Model):
