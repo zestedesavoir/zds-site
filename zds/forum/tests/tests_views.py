@@ -1870,8 +1870,8 @@ class MessageActionTest(TestCase):
             author=bot, comment=topic.last_message, text=alert_text, solved=False)), 1)
 
         # let's assume the alert was solved
-        Alert.objects.filter(author=bot, comment=topic.last_message,
-                             text=alert_text).update(solved=True, moderator=staff)
+        for alert in Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False):
+            alert.solve(staff.user)
 
         # authenticated as non-staff, if we edit but the text doesn't actually change, there is no alert
         response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
@@ -1900,8 +1900,8 @@ class MessageActionTest(TestCase):
         self.assertEqual(response.url, topic.last_message.get_absolute_url())
 
         # oh, and the alert was solved in the meantime
-        Alert.objects.filter(author=bot, comment=topic.last_message,
-                             text=alert_text).update(solved=True, moderator=staff)
+        for alert in Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False):
+            alert.solve(staff.user)
 
         # if the staff edit the message, there is no alert
         self.client.logout()
