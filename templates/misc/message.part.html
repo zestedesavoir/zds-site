@@ -242,7 +242,13 @@
                     {% else %}
                         <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
                         <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
+                            {% if alert.is_automated %}
+                                <p>{% trans "Usuellement, vous pouvez joindre un message à la résolution d'une alerte, mais comme celle-ci a été ouverte automatiquement, ce n'est pas possible ici." %}</p>
+                                <input type="hidden" name="text" value="" />
+                            {% else %}
+                                <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
+                            {% endif %}
+
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}

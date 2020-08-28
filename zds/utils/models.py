@@ -566,6 +566,10 @@ class Alert(models.Model):
         else:
             return self.get_scope_display()
 
+    def is_automated(self):
+        """Returns true if this alert was opened automatically."""
+        return self.author.username == settings.ZDS_APP['member']['bot_account']
+
     def solve(self, moderator, resolve_reason='', msg_title='', msg_content=''):
         """Solve alert and send a PrivateTopic to the alert author if a reason is given
 
