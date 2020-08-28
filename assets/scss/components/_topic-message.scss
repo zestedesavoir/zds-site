@@ -746,3 +746,9 @@ form.topic-message {
         padding-top: 0 !important;
     }
 }
+
+// For alerts resolution modals
+.cannot-send-message-with-solved-alert {
+    font-size: .9em;
+    line-height: 1.2em;
+}

@@ -243,7 +243,13 @@
                         <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
                         <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
                             {% if alert.is_automated %}
-                                <p>{% trans "Usuellement, vous pouvez joindre un message à la résolution d'une alerte, mais comme celle-ci a été ouverte automatiquement, ce n'est pas possible ici." %}</p>
+                                <p>{% trans "Confirmez-vous vouloir résoudre cette alerte ?" %}</p>
+                                <p class="cannot-send-message-with-solved-alert">
+                                    {% blocktrans %}
+                                        Usuellement, vous pouvez joindre un message à la résolution d'une alerte, mais ce n'est pas possible
+                                        pour celle-ci car elle a été ouverte automatiquement.
+                                    {% endblocktrans %}
+                                </p>
                                 <input type="hidden" name="text" value="" />
                             {% else %}
                                 <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
