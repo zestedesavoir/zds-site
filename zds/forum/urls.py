@@ -3,7 +3,8 @@ from django.urls import re_path
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, ForumCategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostSignal, \
-    PostPotentialSpam, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests, FindFollowedTopic
+    PostPotentialSpam, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests, \
+    FindFollowedTopic
 
 urlpatterns = [
 

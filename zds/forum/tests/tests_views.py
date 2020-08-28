@@ -1773,14 +1773,12 @@ class MessageActionTest(TestCase):
 
         # staff can alert all messages
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in str(response.content).split() if word == 'alert']
-        self.assertEqual(len(alerts), 2)
+        self.assertContains(response, '<a href="#signal-message-', count=2)
 
-        # authenticated, user can't alert the hidden message
+        # authenticated, user can alert the hidden message too
         self.client.login(username=profile.user.username, password='hostel77')
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in str(response.content).split() if word == 'alert']
-        self.assertEqual(len(alerts), 2)
+        self.assertContains(response, '<a href="#signal-message-', count=2)
 
     def test_mark_as_potential_spam(self):
         potential_spam_class_not_thete_if_not_staff = 'potential-spam'
