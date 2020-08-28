@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.html import escape
 
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.views.contents import EditContentTags
+from zds.tutorialv2.views.editorialization import EditContentTags
 from zds.tutorialv2.forms import EditContentTagsForm
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.factories import PublishableContentFactory

@@ -1,9 +1,10 @@
 from django.urls import re_path
 
-from zds.tutorialv2.views.validations import AskValidationForContent, ReserveValidation, \
+from zds.tutorialv2.views.validations_contents import AskValidationForContent, ReserveValidation, \
     ValidationHistoryView, AcceptValidation, RejectValidation, RevokeValidation, CancelValidation, \
-    ValidationListView, PublishOpinion, UnpublishOpinion, PickOpinion, PromoteOpinionToArticle, \
-    ValidationOpinionListView, UnpickOpinion, MarkObsolete, DoNotPickOpinion, RevokePickOperation
+    ValidationListView, MarkObsolete
+from zds.tutorialv2.views.validations_opinions import PublishOpinion, UnpublishOpinion, DoNotPickOpinion, \
+    RevokePickOperation, PickOpinion, UnpickOpinion, ValidationOpinionListView, PromoteOpinionToArticle
 
 urlpatterns = [
     re_path(r'^historique/(?P<pk>\d+)/(?P<slug>.+)/$',
