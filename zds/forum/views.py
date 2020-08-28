@@ -662,10 +662,9 @@ class PostPotentialSpam(UpdateView, SinglePostObjectMixin, PostEditMixin):
     @method_decorator(require_POST)
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
+    @method_decorator(permission_required('forum.change_post', raise_exception=True))
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if not request.user.has_perm('forum.change_post'):
-            raise PermissionDenied
         return super(PostPotentialSpam, self).dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):

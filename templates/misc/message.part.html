@@ -187,7 +187,7 @@
                 {% if perms_change %}
                   <p class="message-potential-spam alert ico-after {% if not message.is_potential_spam or message_is_hidden %}hidden{% endif %}"
                      data-ajax-output="mark-message-as-potential-spam">
-                      {% trans "Ce message est marqué comme spam potentiel. Une alerte sera levée s'il est modifié." %}
+                      {% trans "Ce message est soupçonné d'être un spam. Une alerte sera levée s'il est modifié." %}
                   </p>
                 {% endif %}
 
