@@ -345,11 +345,12 @@ class ContentOfAuthor(ZdSPagingListView):
 
     def get_queryset(self):
         profile = self.user.profile
-        if self.type not in list(TYPE_CHOICES_DICT.keys()):
-            raise Http404('Ce type de contenu est inconnu dans le système.')
-        _type = self.type
         if self.type == 'ALL':
             _type = None
+        elif self.type in list(TYPE_CHOICES_DICT.keys()):
+            _type = self.type
+        else:
+            raise Http404('Ce type de contenu est inconnu dans le système.')
 
         # Filter.
         if 'filter' in self.request.GET:
