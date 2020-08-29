@@ -2,8 +2,9 @@ from django.urls import re_path
 
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, ForumCategoryForumsDetailView, ForumTopicsListView, \
-    TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, \
-    PostSignal, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests, FindFollowedTopic
+    TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostSignal, \
+    PostPotentialSpam, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests, \
+    FindFollowedTopic
 
 urlpatterns = [
 
@@ -48,6 +49,8 @@ urlpatterns = [
     re_path(r'^message/utile/$', PostUseful.as_view(), name='post-useful'),
     re_path(r'^message/signaler/$', PostSignal.as_view(),
             name='post-create-alert'),
+    re_path(r'^message/spam-potentiel/$', PostPotentialSpam.as_view(),
+            name='post-potential-spam'),
     re_path(r'^message/nonlu/$', PostUnread.as_view(), name='post-unread'),
     re_path(r'^messages/(?P<user_pk>\d+)/$',
             FindPost.as_view(), name='post-find'),
