@@ -1,28 +1,108 @@
-// If you want to change this, you may want to do it also in templates/base.html. Particulary in the meta tag named theme-color and msapplication-navbutton-color.
-$color-primary: #084561;
-$color-secondary: #F8AD32;
+// ZESTE DE SAVOIR COLOUR PALETTE
+// Except for things like brands colours (e.g. Facebook & Google login buttons),
+// and true blacks/whites, every colour used in Zeste de Savoir must be within
+// this palette.
+// A tool exist to find the closest colour to another one within the palette at
+// https://amaurycarrade.github.io/palette-zds/#couleurs
 
-$color-body-background: #F7F7F7;
-$color-header-hover: #396a81;
-$color-helpful: #e9f9dc;
-$color-potential-spam: hsl(360, 100%, 97%);
+$primary-100: hsl(198, 22%, 91%);
+$primary-200: hsl(201, 30%, 74%);
+$primary-300: hsl(198, 29%, 56%);
+$primary-400: hsl(199, 41%, 39%);
+$primary-500: hsl(199, 56%, 30%);
+$primary-600: hsl(199, 85%, 21%);
+$primary-700: hsl(199, 87%, 18%);
+$primary-800: hsl(199, 92%, 15%);
+$primary-900: hsl(199, 97%, 13%);
 
-$color-sidebar-background: #F0F0F0;
-$color-sidebar-hover: #FFF;
+$accent-100: hsl(51, 50%, 95%);
+$accent-200: hsl(40, 78%, 87%);
+$accent-300: hsl(38, 86%, 80%);
+$accent-400: hsl(38, 90%, 73%);
+$accent-500: hsl(37, 92%, 65%);
+$accent-600: hsl(37, 93%, 58%);
+$accent-700: hsl(29, 80%, 44%);
+$accent-800: hsl(22, 82%, 39%);
+$accent-900: hsl(15, 86%, 30%);
 
-$color-success: #48a200;
-$color-danger: #c0392b;
+$purple-100: hsl(264, 36%, 89%);
+$purple-200: hsl(264, 35%, 82%);
+$purple-300: hsl(265, 35%, 74%);
+$purple-400: hsl(265, 34%, 67%);
+$purple-500: hsl(265, 34%, 59%);
+$purple-600: hsl(264, 34%, 52%);
+$purple-700: hsl(264, 43%, 44%);
+$purple-800: hsl(264, 58%, 37%);
+$purple-900: hsl(264, 82%, 29%);
 
-$color-keyboard: #F8F6EA;
+$red-100: hsl(360, 100%, 97%);
+$red-200: hsl(360, 82%, 89%);
+$red-300: hsl(360, 77%, 78%);
+$red-400: hsl(360, 64%, 55%);
+$red-500: hsl(360, 67%, 44%);
+$red-600: hsl(360, 72%, 38%);
+$red-700: hsl(360, 79%, 32%);
+$red-800: hsl(360, 85%, 25%);
+$red-900: hsl(360, 92%, 20%);
 
-$color-staff-link: $color-secondary;
-$color-hat: #6F6F6F;
-$color-staff-hat: $color-primary;
+$green-100: hsl(83, 88%, 94%);
+$green-200: hsl(84, 77%, 86%);
+$green-300: hsl(83, 68%, 74%);
+$green-400: hsl(83, 55%, 52%);
+$green-500: hsl(83, 64%, 42%);
+$green-600: hsl(83, 70%, 34%);
+$green-700: hsl(83, 74%, 27%);
+$green-800: hsl(81, 78%, 21%);
+$green-900: hsl(81, 86%, 14%);
 
-$color-console-bg: #000;
-$color-console-text: #EEE;
+$blue-100: hsl(216, 100%, 93%);
+$blue-200: hsl(216, 100%, 85%);
+$blue-300: hsl(219, 95%, 76%);
+$blue-400: hsl(224, 69%, 54%);
+$blue-500: hsl(223, 71%, 47%);
+$blue-600: hsl(228, 74%, 43%);
+$blue-700: hsl(230, 80%, 38%);
+$blue-800: hsl(232, 86%, 32%);
+$blue-900: hsl(234, 90%, 25%);
 
-$color-not-ready-content: #D0D0D0;
-$color-badge-sanction: #b71c1c;
+$grey-100: hsl(180, 8%, 95%);
+$grey-200: hsl(180, 4%, 84%);
+$grey-300: hsl(195, 3%, 73%);
+$grey-400: hsl(192, 3%, 63%);
+$grey-500: hsl(192, 2%, 52%);
+$grey-600: hsl(190, 3%, 41%);
+$grey-700: hsl(197, 5%, 30%);
+$grey-800: hsl(203, 8%, 19%);
+$grey-900: hsl(200, 22%, 8%);
 
-$color-question-marks: desaturate(lighten($color-primary, 24%), 40%);
+$white: hsl(0, 0%, 98%);
+$black: hsl(0, 0%, 6%);
+
+$true-white: hsl(0, 0%, 100%);
+$true-black: hsl(0, 0%, 0%);
+
+// If you want to change this, you may want to do it also in templates/base.html.
+// Particulary in the meta tag named theme-color and msapplication-navbutton-color.
+$color-primary: $primary-600;
+$color-secondary: $accent-600;
+
+$color-body-background: $white;
+$color-header-hover: $primary-400;
+$color-helpful: $green-100;
+$color-potential-spam: $red-100;
+
+$color-sidebar-background: $grey-100;
+$color-sidebar-hover: $primary-100;
+
+$color-success: $green-500;
+$color-danger: $red-800;
+
+$color-staff-link: $accent-600;
+$color-hat: $grey-600;
+$color-staff-hat: $primary-600;
+
+$color-console-bg: $grey-900;
+$color-console-text: $grey-100;
+
+$color-not-ready-content: $grey-200;
+$color-badge-sanction: $red-900;
