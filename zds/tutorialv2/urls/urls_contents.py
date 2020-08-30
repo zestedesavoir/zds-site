@@ -19,12 +19,10 @@ from zds.tutorialv2.views.help import ContentsWithHelps, ChangeHelp
 from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
 from zds.tutorialv2.views.archives import DownloadContent, UpdateContentWithArchive, CreateContentFromArchive
-from zds.tutorialv2.views.contributors import (
-    AddContributorToContent,
-    RemoveContributorFromContent,
-    ContentOfContributors,
-)
-from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion, EditContentTags
+from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent, \
+    ContentOfContributors
+from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion, EditContentTags, \
+    EditContentCategories
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
@@ -156,7 +154,11 @@ urlpatterns = [
     # Modify the license
     re_path(r"^modifier-licence/(?P<pk>\d+)/$", EditContentLicense.as_view(), name="edit-license"),
     # Modify the tags
-    re_path(r"^modifier-tags/(?P<pk>\d+)/$", EditContentTags.as_view(), name="edit-tags"),
+    re_path(r'^modifier-tags/(?P<pk>\d+)/$', EditContentTags.as_view(), name='edit-tags'),
+
+    # Modify the categories
+    re_path(r'^modifier-categories/(?P<pk>\d+)/$', EditContentCategories.as_view(), name='edit-categories'),
+
     # beta:
     re_path(r"^activer-beta/(?P<pk>\d+)/(?P<slug>.+)/$", ManageBetaContent.as_view(action="set"), name="set-beta"),
     re_path(

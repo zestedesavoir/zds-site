@@ -7,16 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from zds.featured.mixins import FeatureableMixin
 from zds.tutorialv2 import signals
 from zds.notification.models import ContentReactionAnswerSubscription
-from zds.tutorialv2.forms import (
-    RevokeValidationForm,
-    UnpublicationForm,
-    WarnTypoForm,
-    PickOpinionForm,
-    UnpickOpinionForm,
-    PromoteOpinionToArticleForm,
-    SearchSuggestionForm,
-    EditContentTagsForm,
-)
+from zds.tutorialv2.forms import RevokeValidationForm, UnpublicationForm, WarnTypoForm, PickOpinionForm, \
+    UnpickOpinionForm, PromoteOpinionToArticleForm, SearchSuggestionForm, EditContentTagsForm, EditContentCategoriesForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
 
 from zds.tutorialv2.models.database import (
@@ -115,6 +107,8 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             )
 
         context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
+
+        context['form_edit_categories'] = EditContentCategoriesForm(self.versioned_object, self.object)
 
         # pagination of comments
         make_pagination(

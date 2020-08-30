@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.tutorialv2.forms import RemoveSuggestionForm, EditContentTagsForm
+from zds.tutorialv2.forms import RemoveSuggestionForm, EditContentTagsForm, EditContentCategoriesForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import ContentSuggestion, PublishableContent
 
@@ -116,4 +116,25 @@ class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         self.object.add_tags(form.cleaned_data["tags"].split(","))
         self.object.save()
         messages.success(self.request, EditContentTags.success_message)
+        return redirect(form.previous_page_url)
+
+
+class EditContentCategories(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditContentCategoriesForm
+    success_message = _('Les catégories ont bien été modifiées.')
+
+    def get_form_kwargs(self):
+        kwargs = super(EditContentCategories, self).get_form_kwargs()
+        kwargs['versioned_content'] = self.versioned_object
+        kwargs['db_content'] = self.object
+        return kwargs
+
+    def form_valid(self, form):
+        self.object.subcategory.clear()
+        for subcat in form.cleaned_data['subcategory']:
+            self.object.subcategory.add(subcat)
+        self.object.save(force_slug_update=False)
+        messages.success(self.request, EditContentCategories.success_message)
         return redirect(form.previous_page_url)

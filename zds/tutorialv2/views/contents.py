@@ -16,28 +16,12 @@ from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery, Image
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.models import Profile
-from zds.tutorialv2.forms import (
-    ContentForm,
-    JsFiddleActivationForm,
-    AskValidationForm,
-    AcceptValidationForm,
-    RejectValidationForm,
-    RevokeValidationForm,
-    WarnTypoForm,
-    CancelValidationForm,
-    PublicationForm,
-    UnpublicationForm,
-    ContributionForm,
-    SearchSuggestionForm,
-    EditContentLicenseForm,
-    EditContentTagsForm,
-)
-from zds.tutorialv2.mixins import (
-    SingleContentDetailViewMixin,
-    SingleContentFormViewMixin,
-    SingleContentViewMixin,
-    FormWithPreview,
-)
+from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
+    RejectValidationForm, RevokeValidationForm, WarnTypoForm, CancelValidationForm, PublicationForm, \
+    UnpublicationForm, ContributionForm, SearchSuggestionForm, EditContentLicenseForm, EditContentTagsForm, \
+    EditContentCategoriesForm
+from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
+    FormWithPreview
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContribution, ContentSuggestion
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
@@ -176,6 +160,8 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         context["form_edit_license"] = EditContentLicenseForm(self.versioned_object)
         context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
 
+        context['form_edit_categories'] = EditContentCategoriesForm(self.versioned_object, self.object)
+
         if self.versioned_object.requires_validation:
             context["formPublication"] = PublicationForm(self.versioned_object, initial={"source": self.object.source})
         else:
@@ -220,14 +206,13 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial = super().get_initial()
         versioned = self.versioned_object
 
-        initial["title"] = versioned.title
-        initial["description"] = versioned.description
-        initial["type"] = versioned.type
-        initial["introduction"] = versioned.get_introduction()
-        initial["conclusion"] = versioned.get_conclusion()
-        initial["source"] = versioned.source
-        initial["subcategory"] = self.object.subcategory.all()
-        initial["last_hash"] = versioned.compute_hash()
+        initial['title'] = versioned.title
+        initial['description'] = versioned.description
+        initial['type'] = versioned.type
+        initial['introduction'] = versioned.get_introduction()
+        initial['conclusion'] = versioned.get_conclusion()
+        initial['source'] = versioned.source
+        initial['last_hash'] = versioned.compute_hash()
 
         return initial
 
@@ -251,13 +236,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             data["conclusion"] = versioned.get_conclusion()
             form.data = data
             messages.error(self.request, _("Une nouvelle version a été postée avant que vous ne validiez."))
-            return self.form_invalid(form)
-
-        # Forbid removing all categories of a validated content
-        if publishable.in_public() and not form.cleaned_data["subcategory"]:
-            messages.error(
-                self.request, _("Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.")
-            )
             return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)

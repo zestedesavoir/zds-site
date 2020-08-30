@@ -248,13 +248,6 @@ class ContentForm(ContainerForm):
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
 
-    subcategory = forms.ModelMultipleChoiceField(
-        label=_("Sélectionnez les catégories qui correspondent à votre contenu."),
-        queryset=SubCategory.objects.order_by("title").all(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple(),
-    )
-
     source = forms.URLField(
         label=_(
             """Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
@@ -268,29 +261,22 @@ class ContentForm(ContainerForm):
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
-            Field("title"),
-            Field("description"),
-            Field("type"),
-            Field("image"),
-            Field("introduction", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-            with text=form.introduction.value %}{% endif %}'
-            ),
-            Field("conclusion", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-            with text=form.conclusion.value %}{% endif %}'
-            ),
-            Field("last_hash"),
-            Field("source"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
+            Field('title'),
+            Field('description'),
+            Field('type'),
+            Field('image'),
+            Field('introduction', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.introduction.value %}{% include "misc/preview.part.html" \
+            with text=form.introduction.value %}{% endif %}'),
+            Field('conclusion', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
+            with text=form.conclusion.value %}{% endif %}'),
+            Field('last_hash'),
+            Field('source'),
         )
 
         self.helper.layout.append(Field("msg_commit"))
@@ -360,6 +346,40 @@ class EditContentTagsForm(forms.Form):
         if not validator.validate_raw_string(cleaned_tags):
             self.add_error("tags", self.error_class(validator.errors))
         return cleaned_tags
+
+
+class EditContentCategoriesForm(forms.Form):
+    subcategory = forms.ModelMultipleChoiceField(
+        label=_('Sélectionnez les catégories qui correspondent à votre contenu.'),
+        queryset=SubCategory.objects.order_by('title').all(),
+        required=False,
+        widget=forms.CheckboxSelectMultiple()
+    )
+
+    def __init__(self, versioned_content, db_content, *args, **kwargs):
+        self.db_content = db_content
+        kwargs['initial'] = {'subcategory': db_content.subcategory.all()}
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'edit-categories'
+        self.helper.form_class = 'modal modal-flex'
+        self.helper.form_action = reverse('content:edit-categories', kwargs={'pk': versioned_content.pk})
+        self.helper.layout = Layout(
+            Field('subcategory', template='crispy/checkboxselectmultiple.html'),
+            ButtonHolder(StrictButton('Valider', type='submit'))
+        )
+        self.previous_page_url = reverse('content:view', kwargs={'pk': versioned_content.pk,
+                                                                 'slug': versioned_content.slug})
+
+    def is_valid(self):
+        # Forbid removing all categories of a validated content
+        if self.db_content.in_public() and 'subcategory' not in self.data:
+            self.add_error('subcategory',
+                           _('Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.'))
+        return super(EditContentCategoriesForm, self).is_valid()
 
 
 class EditContentLicenseForm(forms.Form):
@@ -709,15 +729,9 @@ class AskValidationForm(forms.Form):
         self.helper.form_id = "ask-validation"
 
         self.no_subcategories = content.subcategory.count() == 0
-        no_category_msg = HTML(
-            _(
-                """<p><strong>Votre publication n'est dans aucune catégorie.
-                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
-                                    avant de demander la validation.</strong></p>""".format(
-                    reverse("content:edit", kwargs={"pk": content.pk, "slug": content.slug}), "div_id_subcategory"
-                )
-            )
-        )
+        no_category_msg = HTML(_("""<p><strong>Votre publication n'est dans aucune catégorie.
+                                    Vous devez <a href="#edit-categories" class="open-modal">choisir une catégorie</a>
+                                    avant de demander la validation.</strong></p>"""))
 
         self.no_license = not content.licence
         no_license_msg = HTML(

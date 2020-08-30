@@ -10,6 +10,13 @@
         {% crispy form_edit_tags %}
     </li>
 
+    <li>
+        <a href="#edit-categories" class="open-modal ico-after gear blue">
+            Modifier les catégories
+        </a>
+        {% crispy form_edit_categories %}
+    </li>
+
     {% if is_staff and not content.is_opinion %}
         <li>
             <a href="#add-suggestion" class="open-modal ico-after more blue">
