@@ -1,7 +1,9 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.contents import (DisplayContent, CreateContent, EditContent,
+                                           EditContentLicense, EditContentTitle, EditContentSubtitle,
+                                           DeleteContent)
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -154,7 +156,12 @@ urlpatterns = [
     re_path(r"^ajouter-auteur/(?P<pk>\d+)/$", AddAuthorToContent.as_view(), name="add-author"),
     re_path(r"^enlever-auteur/(?P<pk>\d+)/$", RemoveAuthorFromContent.as_view(), name="remove-author"),
     # Modify the license
-    re_path(r"^modifier-licence/(?P<pk>\d+)/$", EditContentLicense.as_view(), name="edit-license"),
+    re_path(r'^modifier-licence/(?P<pk>\d+)/$', EditContentLicense.as_view(), name='edit-license'),
+    # Modify the title
+    re_path(r'^modifier-titre/(?P<pk>\d+)/$', EditContentTitle.as_view(), name='edit-title'),
+    # Modify the subtitle
+    re_path(r'^modifier-sous-titre/(?P<pk>\d+)/$', EditContentSubtitle.as_view(), name='edit-subtitle'),
+
     # Modify the tags
     re_path(r"^modifier-tags/(?P<pk>\d+)/$", EditContentTags.as_view(), name="edit-tags"),
     # beta:

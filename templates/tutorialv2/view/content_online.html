@@ -71,24 +71,7 @@
 
 
 {% block headline %}
-    {% if content.licence %}
-        <span class="license" itemprop="license">
-            {{ content.licence }}
-        </span>
-    {% endif %}
-
-    <h1 {% if content.image %}class="illu"{% endif %} itemprop="name">
-        {% if content.image %}
-            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
-        {% endif %}
-        {{ content.title }}
-    </h1>
-
-    {% if content.description %}
-        <h2 class="subtitle" itemprop="description">
-            {{ content.description }}
-        </h2>
-    {% endif %}
+    {% include "tutorialv2/includes/content_title.part.html" with editable=False %}
 
     {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
 

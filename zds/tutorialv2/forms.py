@@ -231,13 +231,6 @@ class ContainerForm(FormWithTitle):
 
 
 class ContentForm(ContainerForm):
-
-    description = forms.CharField(
-        label=_("Description"),
-        max_length=PublishableContent._meta.get_field("description").max_length,
-        required=False,
-    )
-
     image = forms.FileField(
         label=_("Sélectionnez le logo du contenu (max. {} Ko).").format(
             str(settings.ZDS_APP["gallery"]["image_max_size"] / 1024)
@@ -268,29 +261,22 @@ class ContentForm(ContainerForm):
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
-            Field("title"),
-            Field("description"),
-            Field("type"),
-            Field("image"),
-            Field("introduction", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-            with text=form.introduction.value %}{% endif %}'
-            ),
-            Field("conclusion", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-            with text=form.conclusion.value %}{% endif %}'
-            ),
-            Field("last_hash"),
-            Field("source"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
+            Field('title'),
+            Field('type'),
+            Field('image'),
+            Field('introduction', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.introduction.value %}{% include "misc/preview.part.html" \
+            with text=form.introduction.value %}{% endif %}'),
+            Field('conclusion', css_class='md-editor preview-source'),
+            ButtonHolder(StrictButton(_('Aperçu'), type='preview', name='preview',
+                                      css_class='btn btn-grey preview-btn'),),
+            HTML('{% if form.conclusion.value %}{% include "misc/preview.part.html" \
+            with text=form.conclusion.value %}{% endif %}'),
+            Field('last_hash'),
+            Field('source'),
+            Field('subcategory', template='crispy/checkboxselectmultiple.html')
         )
 
         self.helper.layout.append(Field("msg_commit"))
@@ -413,6 +399,74 @@ class EditContentLicenseForm(forms.Form):
             Field("license"),
             Field("update_preferred_license"),
             ButtonHolder(StrictButton("Valider", type="submit")),
+        )
+
+
+class EditContentTitleForm(forms.Form):
+    title = forms.CharField(
+        label=_('Titre'),
+        max_length=PublishableContent._meta.get_field('title').max_length,
+        required=True,
+        error_messages={'required': _('Le titre ne peut pas être vide.'),
+                        'invalid_slug': _("Ce titre n'est pas autorisé, son slug est invalide !"),
+                        'max_length': _('Ce titre est trop long.')}
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        kwargs['initial'] = {'title': versioned_content.title}
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'title-edit-form'
+        self.helper.form_action = reverse('content:edit-title', kwargs={'pk': versioned_content.pk})
+        self.previous_page_url = reverse('content:view',
+                                         kwargs={'pk': versioned_content.pk, 'slug': versioned_content.slug})
+        self._create_layout()
+
+    def _create_layout(self):
+        self.helper.layout = Layout(
+            Field('title'),
+            StrictButton(_('Enregistrer'), type='submit', css_class='btn-submit'),
+            StrictButton(_('Annuler'), css_class='link', id='hide-title-edit')
+        )
+
+    def clean(self):
+        cleaned_data = super(EditContentTitleForm, self).clean()
+        try:
+            slugify_raise_on_invalid(cleaned_data.get('title'))
+        except InvalidSlugError:
+            self.add_error('title', self.declared_fields['title'].error_messages['invalid_slug'])
+        return cleaned_data
+
+
+class EditContentSubtitleForm(forms.Form):
+    subtitle = forms.CharField(
+        label=_('Sous-titre'),
+        max_length=PublishableContent._meta.get_field('description').max_length,
+        required=False,
+        error_messages={'max_length': _('Le sous-titre est trop long.')}
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        kwargs['initial'] = {'subtitle': versioned_content.description}
+        super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = 'content-wrapper'
+        self.helper.form_method = 'post'
+        self.helper.form_id = 'subtitle-edit-form'
+        self.helper.form_action = reverse('content:edit-subtitle', kwargs={'pk': versioned_content.pk})
+        self.previous_page_url = reverse('content:view',
+                                         kwargs={'pk': versioned_content.pk, 'slug': versioned_content.slug})
+        self._create_layout()
+
+    def _create_layout(self):
+        self.helper.layout = Layout(
+            Field('subtitle'),
+            StrictButton(_('Enregistrer'), type='submit', css_class='btn-submit'),
+            StrictButton(_('Annuler'), css_class='link', id='hide-subtitle-edit')
         )
 
 

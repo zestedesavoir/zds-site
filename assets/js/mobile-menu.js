@@ -297,13 +297,9 @@
       var $newBtns = $('.sidebar .new-btn:not(.mobile-btn-imported)')
       if ($newBtns.length > 0) {
         var $prevElem = $('#content')
-          .find('> .content-wrapper, > .full-content-wrapper, > .content-col-2')
-          .first()
-          .find('h1, h2')
-          .first()
-        if ($prevElem.next('.license').length > 0) { $prevElem = $prevElem.next('.license') }
-        if ($prevElem.next('.subtitle').length > 0) { $prevElem = $prevElem.next('.subtitle') }
-        if ($prevElem.next('.taglist').length > 0) { $prevElem = $prevElem.next('.taglist') }
+          .find('> .content-wrapper, > .full-content-wrapper, > .content-col-2').first()
+          .find('header').first()
+          .find('.title').first()
 
         var $newBtnContainer = $('<div/>', {
           class: 'new-btn-container'

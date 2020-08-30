@@ -217,18 +217,29 @@
                                 {% block schema %}{% endblock %}
                             {% endcaptureas %}
                             <section class="content-wrapper" {{ schema|safe }}>
-                                <h1 {% if schema %}itemprop="name"{% endif %}>
-                                    {% block headline %}{% endblock %}
-                                </h1>
-
-                                {% captureas headlinesub %}
-                                    {% block headline_sub %}{% endblock %}
-                                {% endcaptureas %}
-
-                                {% if headlinesub %}
-                                    <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
-                                {% endif %}
-
+                                <div class="title">
+                                    <div class="is-title">
+                                        <div>
+                                            <div class="editable-element" id="title-show">
+                                                <h1 {% if schema %}itemprop="name"{% endif %}>
+                                                    {% block headline %}{% endblock %}
+                                                </h1>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% captureas headlinesub %}
+                                        {% block headline_sub %}{% endblock %}
+                                    {% endcaptureas %}
+                                    {% if headlinesub %}
+                                        <div class="is-subtitle">
+                                            <div>
+                                                <div class="editable-element" id="subtitle-show">
+                                                    <h2 class="subtitle" {% if schema %}itemprop="description"{% endif %}>{{ headlinesub|safe }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
                                 {% block content %}{% endblock %}
                             </section>
                         {% endblock %}

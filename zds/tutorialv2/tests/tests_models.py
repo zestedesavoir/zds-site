@@ -454,7 +454,6 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("content:edit", args=[article.pk, article.slug]),
             {
                 "title": old_title + "bla",
-                "description": old_description + "bla",
                 "type": "ARTICLE",
                 "licence": article.licence.pk,
                 "subcategory": SubCategoryFactory().pk,

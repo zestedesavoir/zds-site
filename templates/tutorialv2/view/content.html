@@ -19,38 +19,11 @@
 {% endblock %}
 
 
-
 {% block headline %}
-    {% if is_staff or can_edit %}
-        {% if content.licence %}
-          <div class="editable-element license">
-            <p>{{ content.licence }}</p>
-            <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
-              <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
-            </a>
-          </div>
-        {% else %}
-            <p class="license">
-                <a href="#edit-license" class="open-modal">Choisissez la licence de votre publication !</a>
-            </p>
-        {% endif %}
-
-        {% crispy form_edit_license %}
-    {% elif content.licence %}
-        <span class="license">{{ content.licence }}</span>
-    {% endif %}
-
-    <h1 {% if content.image %}class="illu"{% endif %}>
-        {% if content.image %}
-            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
-        {% endif %}
-        {{ content.title }}
-    </h1>
-
-    {% if content.description %}
-        <h2 class="subtitle">
-            {{ content.description }}
-        </h2>
+    {% if can_edit or is_staff %}
+        {% include "tutorialv2/includes/content_title.part.html" with content=content editable=True %}
+    {% else %}
+        {% include "tutorialv2/includes/content_title.part.html" with content=content editable=False %}
     {% endif %}
 
     {% if can_edit %}

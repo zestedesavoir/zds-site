@@ -1,0 +1,74 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+<div class="title">
+    {% if content.image %}
+        <div class="icon">
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        </div>
+    {% endif %}
+    <div class="is-title">
+        <div>
+            <div class="editable-element" id="title-show">
+                <h1 {% if content.image %}class="illu"{% endif %}>{{ content.title }}</h1>
+                {% if editable %}
+                    <a href="" class="edit-button" id="show-title-edit">
+                        <span class="visuallyhidden">{% trans "Modifier le titre" %}</span>
+                    </a>
+                {% endif %}
+            </div>
+            {% if editable %}
+                <div class="title-edit hidden {% if content.image %}illu{% endif %}" id="title-edit">
+                    {% spaceless %}{% crispy form_edit_title %}{% endspaceless %}
+                </div>
+            {% endif %}
+        </div>
+
+        <aside>
+            {% if content.licence %}
+                <div class="editable-element license">
+                    <p>{{ content.licence }}</p>
+                    {% if editable %}
+                        <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+                            <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+                        </a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="license">
+                    <a href="#edit-license" class="open-modal">{% trans "Choisissez la licence de votre publication !" %}</a>
+                </p>
+            {% endif %}
+            {% if editable %}
+                {% crispy form_edit_license %}
+            {% endif %}
+        </aside>
+    </div>
+
+    {% if content.description or editable %}
+        <div class="is-subtitle">
+            <div>
+                <div class="editable-element" id="subtitle-show">
+                    {% if content.description %}
+                        <h2 class="subtitle">{{ content.description }}</h2>
+                    {% endif %}
+                    {% if editable %}
+                        {% if content.description %}
+                            <a href="" id="show-subtitle-edit" class="edit-button">
+                                <span class="visuallyhidden">{% trans "Modifier le sous-titre" %}</span>
+                            </a>
+                        {% else %}
+                            <a href="" id="show-subtitle-edit" class="link">{% trans "Ajouter un sous-titre" %}</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                {% if editable %}
+                    <div class="subtitle-edit hidden" id="subtitle-edit">
+                        {% spaceless %}{% crispy form_edit_subtitle %}{% endspaceless %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</div>

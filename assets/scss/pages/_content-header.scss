@@ -1,0 +1,116 @@
+.title {
+    margin-bottom: 15px;
+
+    .icon img {
+        display: block;
+        float: left;
+        width: 50px;
+        height: 50px;
+    }
+
+    .is-title {
+        display: flex;
+
+        padding: 0;
+        border-bottom: 1px solid $color-secondary;
+
+        >div {
+            flex-grow: 1;
+            display: flex;
+
+            h1 {
+                border: 0px;
+                margin-bottom: 0px;
+            }
+
+            .illu {
+                padding-left: 8px;
+            }
+        }
+
+        aside {
+            flex-grow: 0;
+            justify-content: flex-end;
+            display: flex;
+
+            .license {
+                justify-content: flex-end;
+                margin: 0;
+                margin-top: 10px;
+            }
+        }
+    }
+
+    .is-subtitle {
+        clear: both;
+        display: flex;
+
+        margin: 0;
+        margin-bottom:15px;
+        border-bottom: 1px solid #eee;
+
+        >div{
+            flex-grow: 1;
+            display: flex;
+            padding: 5px 0px;
+
+            h2 {
+                border: 0px;
+                margin-bottom: 0;
+                font-size: 18px;
+                font-size: 1.8rem;
+                line-height: 23px;
+                color: #999;
+                font-weight: normal;
+            }
+        }
+    }
+}
+
+.title-edit, .subtitle-edit {
+    flex-grow: 10;
+    display: flex;
+
+    form {
+        display: flex;
+
+        .control-group, .controls {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .control-label {
+            display: none;
+        }
+
+        input {
+            flex-grow: 1;
+            vertical-align: middle;
+            margin: 0;
+            padding: 0;
+            font-weight: normal;
+            //font-size: 2.2rem;
+        }
+
+        button.btn, button.btn-submit, button.link, button {
+            flex-grow: 0;
+            vertical-align: middle;
+            cursor: pointer;
+            line-height: 32px;
+            height: 32px;
+        }
+
+        button.link {
+            flex-grow: 0;
+            box-sizing: border-box;
+            color: lighten($color-primary, 20%);
+            transition: color $transition-duration ease, text-decoration $transition-duration ease;
+            text-decoration: underline;
+
+            &:hover {
+                color: darken($color-secondary, 15%);
+                text-decoration: none;
+            }
+        }
+    }
+}
