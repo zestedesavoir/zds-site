@@ -216,12 +216,12 @@
                 <a class="force-blue" href="{% url "content:create-container" content.pk content.slug %}">
                     {% trans "Ajouter une nouvelle partie" %}
                 </a>
+                <div class="actions-title">
+                    <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more btn btn-grey">
+                        {% trans "Ajouter" %}
+                    </a>
+                </div>
             </h2>
-            <div class="actions-title">
-                <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more btn btn-grey">
-                    {% trans "Ajouter" %}
-                </a>
-            </div>
             <div class="ico-after information">
                 <p>{% trans "Cette partie n'est pas encore créée. Vous devez la créer avant de pouvoir y ajouter un élément." %}</p>
             </div>
@@ -231,12 +231,12 @@
                 <a class="force-blue" href="{% url "content:create-extract" content.pk content.slug %}">
                     {% trans "Ajouter une section" %}
                 </a>
+                <div class="actions-title">
+                    <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more btn btn-grey">
+                        {% trans "Ajouter" %}
+                    </a>
+                </div>
             </h2>
-            <div class="actions-title">
-                <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more btn btn-grey">
-                    {% trans "Ajouter" %}
-                </a>
-            </div>
             <div class="ico-after information">
                 <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
             </div>

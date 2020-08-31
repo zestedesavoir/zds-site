@@ -5,25 +5,28 @@ input,
 select,
 textarea {
     font-family: $font-sans-serif;
-    color: #222;
+    color: $black;
 }
 
 hr {
     display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 1em 0;
+    margin: $length-10 0;
     padding: 0;
+
+    height: $length-1;
+
+    border: 0;
+    border-top: $length-1 solid $grey-200;
 }
 
 a,
 .link {
-    color: lighten($color-primary, 20%);
-    transition: color $transition-duration ease, text-decoration $transition-duration ease;
+    color: $color-link;
+    transition: color $transition-duration ease-in-out,
+                text-decoration $transition-duration ease-in-out;
 
     &:hover {
-        color: darken($color-secondary, 15%);
+        color: $color-link-hover;
         text-decoration: none;
     }
 }

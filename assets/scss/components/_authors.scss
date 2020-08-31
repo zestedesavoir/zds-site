@@ -1,8 +1,9 @@
 .authors {
-    color: #9c9c9c;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e4e5;
-    margin-bottom: 20px !important;
+    margin-bottom: $length-20 !important;
+    padding-bottom: $length-10;
+
+    border-bottom: $length-1 solid $grey-100;
+    color: $grey-600;
 
     .authors-label {
         display: inline-block;
@@ -11,48 +12,56 @@
     ul {
         display: inline-block;
         list-style: none;
-        padding: 0;
+
         margin: 0;
+        padding: 0;
 
         li {
             display: inline-block;
             margin: 0;
 
             .avatar {
-                height: 28px;
-                width: 28px;
-                border: 1px solid #cdd0d1;
-                margin-right: 3px;
-                margin-top: -4px;
+                height: $length-32;
+                width: $length-32;
+
+                margin-right: $length-4;
+                margin-top: -$length-4;
+
+                border: $length-1 solid $grey-200;
             }
 
             a {
                 display: block;
+
+                padding: 0 $length-8;
+
+                height: $length-38;
+
+                line-height: 2.65;
+                color: $color-link;
                 text-decoration: none;
-                color: lighten($color-primary, 20%);
-                height: 36px;
-                line-height: 36px;
-                padding: 0 8px;
-                transition: background $transition-duration ease, color $transition-duration ease,;
+
+                transition: background $transition-duration ease,
+                            color $transition-duration ease,;
 
                 &.ico-after {
-                    padding-left: 30px;
+                    padding-left: $length-32;
 
                     &:after {
-                        margin: 10px 0 0 8px;
+                        margin: $length-10 0 0 $length-8;
                     }
                 }
 
                 &:hover,
                 &:focus {
-                    background: #DDD;
+                    background: $grey-200;
                     color: $color-primary;
                 }
             }
 
             .info {
-                padding-left: 5px;
-                color: #777;
+                padding-left: $length-6;
+                color: $grey-700;
             }
         }
     }
