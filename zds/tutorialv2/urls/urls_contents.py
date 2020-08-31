@@ -17,7 +17,7 @@ from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveCon
     ContentOfContributors
 from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion, EditContentTags
 
-from zds.tutorialv2.views.lists import (TagsListView, ContentOfAuthor)
+from zds.tutorialv2.views.lists import (TagsListView, ContentOfAuthor, ListContentReactions)
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
 from zds.tutorialv2.views.misc import RequestFeaturedContent, FollowNewContent, WarnTypo
 from zds.tutorialv2.views.statistics import ContentStatisticsView
@@ -39,6 +39,7 @@ urlpatterns = [
          ContentOfContributors.as_view(
              type='ALL', context_object_name='contribution_contents'),
          name='find-contribution-all'),
+    path('commentaires/<str:username>/', ListContentReactions.as_view(), name='list-content-reactions')
 
     path('tutoriels/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='TUTORIAL')),
     path('articles/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='ARTICLE')),
