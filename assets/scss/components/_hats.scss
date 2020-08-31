@@ -1,13 +1,14 @@
 
 .hat,
 .hatlist a.btn {
-    /* Set height & lh of .hat to be sure to keep
-       the same size with .btn */
-    line-height: 30px;
+    // Set height & lh of .hat to be sure to keep
+    // the same size with .btn
+    line-height: 2.2;
     box-sizing: border-box;
-    height: 32px;
-    /* --- */
-    margin: 0 0 1px 0; // bottom:1px
+    height: $length-32;
+
+    margin: 0 0 $length-1 0;
+
     word-wrap: nowrap;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -17,26 +18,19 @@
 .message .hat {
     /* undo `line-height: 30px;` with `inherit` */
     line-height: inherit;
-    margin: 5px 0;
+    margin: $length-6 0;
 }
 
-.hat > a.name,
-.hatlist a.btn {
-    padding: 0 6px;
-    border: 1px solid transparent;
-}
-
-.hatlist a.btn.ico-after::after {
-    /* original : margin: 12px 0 0 7px; */
-    margin-top: 7px; /*   ^^ 12 - 10 / 2 = 7px */
-    color: #999;
+.hat > a.name {
+    padding: 0 $length-6;
+    border: $length-1 solid transparent;
 }
 
 .hat {
     position: relative;
 
     & > a.name {
-        color: #FFF;
+        color: $white;
         background-color: $color-hat;
 
         transition-property: color, background, border;
@@ -55,62 +49,70 @@
         position: absolute;
         display: block;
 
-        top: -9px;
-        right: -9px;
+        top: -$length-8;
+        right: -$length-8;
 
-        width: 18px;
-        height: 18px;
+        width: $length-18;
+        height: $length-18;
 
         text-align: center;
-        line-height: 16px;
-        font-size: 18px;
+        text-indent: -$length-1;
+
+        line-height: .85;
+        font-size: $size-8;
 
         color: $color-hat;
         text-decoration: none;
 
-        background: white;
-        border: solid 1px $color-hat;
-        border-radius: 426921px;
+        background: $white;
+        border: solid $length-1 $color-hat;
+        border-radius: $radius-round;
 
         transition: background-color .2s ease-in-out, color .2s ease-in-out;
 
         &:hover {
-            color: white;
+            color: $color-hat;
             text-decoration: none;
-            background: darken($color-hat, 10%);
+            background: $color-hat-hover;
         }
     }
 
     &.is-staff a.open-modal {
         color: $color-staff-hat;
-        border: solid 1px $color-staff-hat;
+        border: solid $length-1 $color-staff-hat;
 
         &:hover {
-            background: darken($color-staff-hat, 10%);
+            background: $color-staff-hat;
         }
     }
 
     a.name:hover,
     a.name:focus {
-        background-color: lighten($color-hat, 52%);
+        background-color: $color-hat-hover;
         color: $color-hat;
-        border: 1px solid $color-hat;
+        border: $length-1 solid $color-hat;
     }
 
     &.staff-hat {
         & > a.name {
+            display: inline-flex;
+            align-items: center;
+
             background-color: $color-staff-hat;
 
             span {
-                color: desaturate(lighten($color-staff-hat, 68%), 21%);
-                font-size: .96em;
+                display: inline-block;
+                margin-left: $length-4;
+
+                color: $primary-000;
+                font-size: $size-11;
             }
         }
 
         a.name:hover,
         a.name:focus {
-            background-color: desaturate(lighten($color-staff-hat, 74%), 40%);
-            border: 1px solid $color-staff-hat;
+            background-color: $color-staff-hat-hover;
+            border: $length-1 solid $color-staff-hat;
 
             &, & span {
                 color: $color-staff-hat;
@@ -120,20 +122,20 @@
 }
 
 .hatlist {
-    /* reset ul css */
+    // reset ul css
     list-style: none;
     padding: 0;
     margin: 0;
-    /* --- */
-    
+
     display: flex;
     flex-wrap: wrap;
 
     li {
         & {
-            margin-left: 10px;
+            margin-left: $length-10;
+
             > a.name {
-                padding: 0 1rem;
+                padding: 0 $length-10;
             }
         }
     }

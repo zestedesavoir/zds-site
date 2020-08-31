@@ -1,34 +1,43 @@
 .dropdown {
     display: none;
+
     position: absolute;
-    text-align: left;
-    top: 50px;
+    top: $header-height;
     left: 0;
     right: 0;
-    background-color: $color-header-hover;
+
     margin: 0;
-    padding: 10px 2.5%;
-    font-size: 14px;
-    font-size: 1.4rem;
-    border-bottom: 3px solid $color-secondary;
+    padding: $length-10 2.5%;
+
+    border-bottom: $length-2 solid $color-secondary;
+
+    background-color: $color-header-hover;
+
+    text-align: left;
+    font-size: $size-10;
+
     z-index: 50;
 
     .dropdown-title {
-        color: #FFF;
+        color: $white;
+        font-weight: bold;
     }
 
     .dropdown-list .dropdown-title a {
         display: block;
+
         width: 95%;
-        min-height: 25px;
-        line-height: 25px;
+        min-height: $length-24;
+
+        line-height: 2;
         overflow: hidden;
+
         transition: padding-left $transition-duration ease, background-color $transition-duration ease;
 
         &:hover,
         &:focus {
-            padding-left: 3%;
-            background-color: rgba(0, 0, 0, .3)
+            padding-left: $length-12;
+            background-color: $primary-900;
         }
     }
 
@@ -44,21 +53,22 @@
     .dropdown-list {
         width: 100%;
         padding: 0;
-        margin-top: 15px;
+        margin-top: $length-16;
     }
+
     .dropdown-list > li {
         width: 20%;
         float: left;
 
         &.dropdown-empty-message {
-            color: rgba(255, 255, 255, .5);
+            color: $primary-000;
             text-align: center;
-            line-height: 60px;
+            line-height: $header-height;
             background: none !important;
         }
 
         ul {
-            margin: 0 0 10px;
+            margin: 0 0 $length-10;
             padding: 0;
 
             li {
@@ -66,18 +76,18 @@
 
                 &.dropdown-list-element {
                     a {
-                        color: #95d7f5;
+                        color: $primary-000;
                         display: block;
                         width: 95%;
-                        min-height: 25px;
-                        line-height: 25px;
+                        min-height: $length-24;
+                        line-height: 2;
                         overflow: hidden;
                         transition: padding-left $transition-duration ease, background-color $transition-duration ease;
 
                         &:hover,
                         &:focus {
-                            padding-left: 3%;
-                            background-color: rgba(0, 0, 0, .3)
+                            padding-left: $length-12;
+                            background-color: $primary-800
                         }
                     }
 
@@ -93,22 +103,22 @@
         display: block;
         clear: both;
         text-align: center;
-        height: 30px;
-        line-height: 30px;
-        border-top: 1px solid #274a5a;
+        height: $length-32;
+        line-height: 2.2;
+        border-top: $length-1 solid $primary-600;
         background-color: $color-header-hover;
         transition-property: color, background-color;
 
         &:first-child {
             border-top: 0 !important;
-            border-bottom: 1px solid #274a5a;
+            border-bottom: $length-1 solid $primary-800;
         }
 
         &:hover,
         &:focus {
-            color: #95d7f5;
-            background-color: #274a5a;
-            border-top: 1px solid $color-header-hover;
+            color: $primary-000;
+            background-color: $primary-800;
+            border-top: $length-1 solid $primary-700;
         }
     }
 }
@@ -118,43 +128,43 @@
 
 @include tablet {
     .dropdown {
-        box-shadow: 0 5px 7px rgba(0, 0, 0, .3);
+        box-shadow: 0 $length-6 $length-8 rgba($black, .3);
     }
 
     .header-right {
         .dropdown {
-            width: 350px;
+            width: $length-384;
             left: auto;
             padding: 0;
 
             .dropdown-list {
-                max-height: 390px;
+                max-height: $length-384;
                 overflow-x: hidden;
                 overflow-y: auto;
 
                 &::-webkit-scrollbar {
-                    width: 10px;
-                    height: 10px;
+                    width: $length-10;
+                    height: $length-10;
                 }
                 &::-webkit-scrollbar-track {
-                    background-color: #06354a;
+                    background-color: $primary-700;
                 }
                 &::-webkit-scrollbar-thumb {
-                    background-color: #396a81;
-                    border: 1px solid #06354a;
+                    background-color: $primary-200;
+                    border: 1px solid $primary-700;
                     transition: background-color $transition-duration ease;
 
                     &:hover {
-                        background-color: #5196b6;
+                        background-color: $primary-200;
                     }
                     &:active {
-                        background-color: #71b4d3;
+                        background-color: $primary-100;
                     }
                 }
             }
 
             &.my-account-dropdown {
-                width: 350px;
+                width: $length-384;
             }
         }
     }
@@ -189,6 +199,7 @@
             top: 36px;
             bottom: 50px;
         }
+
         .dropdown-link-all {
             position: absolute;
             left: 0;
@@ -202,6 +213,6 @@
 
 @include desktop {
     .dropdown {
-        top: 60px;
+        top: $header-height;
     }
 }

@@ -157,7 +157,7 @@
             &:not(.disabled):hover,
             &:not(.disabled):focus {
                 color: #EEE;
-                background: $color-success !important;
+                background: $color-success-hover !important;
             }
         }
 
@@ -165,7 +165,7 @@
             &:hover,
             &:focus {
                 color: #EEE;
-                background: $color-danger !important;
+                background: $color-danger-hover !important;
             }
         }
     }

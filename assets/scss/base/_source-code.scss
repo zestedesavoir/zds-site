@@ -7,40 +7,40 @@
   position: relative;
 
   margin: 0 auto;
-  padding: 0.5em;
+  padding: $length-4;
 
-  border-radius: .25em;
+  border-radius: $radius-1;
 
-  background-color: #fff;  // TODO $white
+  background-color: $true-white;
   font-family: $font-monospace;
   font-style: normal;
-  font-size: 14px;
+  font-size: $size-10;
 
-  line-height: 1.3em;
+  line-height: 1.3;
 
   z-index: 0;
 
   + .hljs-code-div {
-    margin-top: 14px;
+    margin-top: $length-14;
   }
 
   .hljs-line-numbers {
     counter-reset: line;
 
     margin: 0;
-    padding: .5em;
+    padding: $length-6;
 
-    border-right: 1px solid hsl(180, 7.7%, 94.9%);  // TODO $grey-100
+    border-right: $length-1 solid $grey-100;
 
     text-align: right;
-    color: hsl(192, 2%, 52%);  // TODO $grey-500
+    color: $grey-500;
 
     z-index: 1;
 
     span:after {
       display: block;
       position: relative;
-      top: -1px;
+      top: -$length-1;
     }
 
     // LEGACY
@@ -60,7 +60,7 @@
     span.hll {
       &:after {
         font-weight: bold;
-        color: hsl(15.1, 85.6%, 30%);  // TODO $accent-900
+        color: $accent-900;
       }
 
       &:before {
@@ -71,9 +71,9 @@
         left: 0;
 
         width: 100%;
-        height: 1.3em;
+        height: 1.3em; // This precise height is required for the highlighted lines to not overlap.
 
-        background-color: transparentize(hsl(38.2, 86.3%, 80%), .66);  // TODO transparentize($accent-300, .66)
+        background-color: transparentize($accent-300, .66);
       }
     }
   }
@@ -99,14 +99,14 @@
   // Old blocs only have a black background on the content, not the line numbers,
   // and they get a degraded support for line highlight.
   &.hljs-code-console {
-    background-color: hsl(0, 0%, 6%);  // TODO $black
+    background-color: $black;
 
     .hljs-line-numbers {
-      border-right-color: hsl(192, 2.6%, 62.9%);  // TODO $grey-400
+      border-right-color: $grey-400;
 
       span {
         &:after , &.hll:after{
-          color: hsl(0, 0%, 98%);  // TODO $white
+          color: $white;
         }
       }
     }
@@ -122,7 +122,7 @@
 // the background-color being overridden for new versions).
 .language-console {
   display: block;
-  padding: .5em;
+  padding: $length-6;
 
   color: $color-console-text;
   background-color: $color-console-bg;
