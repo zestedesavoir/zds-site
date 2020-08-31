@@ -19,9 +19,9 @@ commande suivante :
 
 ou si vous souhaitez purger les données existantes au préalable :
 
-```
-make new-db
-```
+.. sourcecode:: bash
+
+    make new-db
 
 Ces commandes chargent :
 
