@@ -13,9 +13,9 @@ Chargement du jeu de données standard
 En l'absence d'exigences particulières, le moyen le plus simple de charger un jeu de données est d'utiliser la
 commande suivante :
 
-```
-make generate-fixtures
-```
+.. sourcecode:: bash
+
+    make generate-fixtures
 
 ou si vous souhaitez purger les données existantes au préalable :
 
