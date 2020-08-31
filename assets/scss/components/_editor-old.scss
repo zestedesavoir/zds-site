@@ -1,6 +1,6 @@
 .zform-toolbar {
     margin: 0;
-    padding: 2px;
+    padding: $length-2;
     list-style-position: initial;
     list-style-type: none;
     border-bottom: none;
@@ -10,56 +10,57 @@
         display: block;
         float: left;
         cursor: pointer;
-        border-bottom: 1px solid transparent;
+        border-bottom: $length-1 solid transparent;
         text-decoration: none;
-        color: #999;
-        height: 27px;
-        line-height: 30px;
-        padding: 0 10px;
-        margin-left: 1px;
+        color: $grey-400;
+        height: $length-32;
+        line-height: 1;
+        padding: 0 $length-10;
+        margin-left: $length-1;
         text-indent: -9999px;
         width: 0;
 
         .zform-popup {
             text-indent: 0;
-            line-height: 20px;
+            line-height: 1.6;
         }
 
         &.ico-after {
-            padding-left: 30px;
+            padding-left: $length-32;
         }
 
         &:after {
-            top: 7px;
-            left: 12px;
-            // TODO : remake icons
-            //display: none;
+            top: $length-8;
+            left: $length-12;
         }
 
         &:hover,
         &:focus {
-            border-bottom-color: lighten($color-primary, 20%);
+            border-bottom-color: $primary-500;
+            background-color: $primary-000;
+
             outline: none;
-            background-color: #EEE;
         }
     }
+
     button {
-        padding: 0 15px;
-        height: 30px;
+        padding: 0 $length-16;
+        height: $length-32;
+
         border-top: none;
         border-right: none;
         border-left: none;
 
         &[type=submit] {
-            background: #084561;
-            border-bottom-color: #084561;
-            color: #DDD;
+            background: $primary-600;
+            border-bottom-color: $primary-600;
+            color: $white;
 
             &:hover,
             &:focus {
-                color: #FFF;
-                background: #396A81;
-                border-bottom-color: #396A81;
+                color: $true-white;
+                background: $primary-400;
+                border-bottom-color: $primary-400;
             }
         }
     }
@@ -107,14 +108,14 @@
 
 /* Simple dropdown */
 div.zform-popup {
-    top: 32px;
+    top: $length-32;
     z-index: 100;
     background: transparent;
-    background-color: #fff;
-    background-image: linear-gradient(center to top, #EBEBE5 8%, #F9F9F6 75%);
-    border: 1px solid #CCCCCC;
-    border-radius: 3px;
-    padding: 2px;
+    background-color: $white;
+    background-image: linear-gradient(center to top, $grey-100 8%, $white 75%);
+    border: 1px solid $grey-200;
+    border-radius: $radius-1;
+    padding: $length-2;
 }
 
 .zform-button-smilies .zform-code-col > span {
@@ -122,8 +123,8 @@ div.zform-popup {
 }
 
 .md-editor.selected {
-    box-shadow: 0 0 4px lighten($color-primary, 20%);
-    outline: 1px solid lighten($color-primary, 20%);
+    box-shadow: 0 0 4px $primary-400;
+    outline: 1px solid $primary-400;
 }
 
 
@@ -136,18 +137,17 @@ div.zform-popup {
 
     & > span {
         display: block;
-        color: #2677C9;
+        color: $color-link;
+
         cursor: pointer;
 
         &[data-zform-selected='true'] {
-            color: blue;
             font-weight: bold;
         }
 
         &:hover,
         &:focus {
-            color: #C87B02;
+            color: $color-link-hover;
         }
     }
 }
-

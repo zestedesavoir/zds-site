@@ -2,9 +2,10 @@
     form {
         .alert-box {
             margin: 0;
-            padding: 2px inherit;
-            padding-right: 40px;
+            padding: $length-2 inherit;
+            padding-right: $length-38;
         }
+
         .editor-toolbar {
             border: 0;
 
@@ -18,41 +19,43 @@
             }
 
             button:not(.link) {
-                height: auto;
-                line-height: 0px;
-                color: #084561;
-                padding: 0;
                 display: inline;
+
                 float: unset;
+                padding: 0;
 
-                height: 30px;
-                border: 1px solid transparent;
-                border-radius: 3px;
+                height: $length-32;
+
+                border: $length-1 solid transparent;
+                border-radius: $radius-1;
+
+                line-height: 0;
+                color: $primary-600;
+
                 cursor: pointer;
-
-                vertical-align: middle;
             }
+
             button.blocMenu {
-                border-color: #fcfcfc;
-                background-image: linear-gradient(to right bottom, rgb(253, 253, 253) 0px, rgb(253, 253, 253) 84%, rgb(51, 51, 51) 50%, rgb(51, 51, 51) 100%);
+                border-color: $true-white;
+                background-image: linear-gradient(to right bottom, $true-white 0px, $true-white 84%, $grey-800 50%, $grey-800 100%);
             }
 
             .easymde-dropdown-content {
-                background-color: #fcfcfc;
+                background-color: $white;
             }
 
             button.active,
             button:hover {
-                border: 1px solid transparent;
-                background: #fcfcfc;
-                border-color: #95a5a6;
+                border: $length-1 solid transparent;
+                background: $white;
+                border-color: $primary-100;
             }
         }
 
         textarea.textarea-multivers {
             margin: 0 !important;
-            padding: 14px;
-            line-height: 23px;
+            padding: $length-14;
+            line-height: 2;
             box-sizing: border-box;
             display: block;
             width: 100%;
@@ -61,8 +64,11 @@
         .zdsicon {
             & > i {
                 display: inline-block;
+
+                // Icon's size
                 height: 17px;
                 width: 17px;
+
                 background-size: 100%;
             }
 
@@ -76,7 +82,7 @@
         }
 
         .editor-preview {
-            background-color: #FDFDFD;
+            background-color: $white;
         }
     }
 }

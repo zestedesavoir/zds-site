@@ -16,7 +16,7 @@
         font-size: 16px;
         font-size: 1.6rem;
         position: relative;
-        color: lighten($color-primary, 20%);
+        color: $color-link;
         transition: background-color $transition-duration ease;
 
         &:first-child {
@@ -113,7 +113,7 @@
                 padding-left: 25px;
                 padding-right: 10px;
                 text-decoration: none;
-                color: #0079b2;
+                color: $color-link;
                 overflow: hidden;
                 height: 30px;
                 line-height: 30px;
@@ -344,13 +344,13 @@
             }
 
             &.not-ready {
-                background: $color-not-ready-content;
+                background: $grey-200;
             }
         }
 
         li {
             &.not-ready {
-                background: $color-not-ready-content;
+                background: $grey-200;
             }
         }
 
