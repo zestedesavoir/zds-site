@@ -1,21 +1,25 @@
 // ZESTE DE SAVOIR COLOUR PALETTE
+//
 // Except for things like brands colours (e.g. Facebook & Google login buttons),
 // and true blacks/whites, every colour used in Zeste de Savoir must be within
 // this palette.
-// A tool exist to find the closest colour to another one within the palette at
-// https://amaurycarrade.github.io/palette-zds/#couleurs
+//
+// A tool exist to see & copy all these colours at a glance, and find the closest colour
+// to another one within the palette, at https://amaurycarrade.github.io/palette-zds/#couleurs
 
-$primary-100: hsl(198, 22%, 91%);
-$primary-200: hsl(201, 30%, 74%);
-$primary-300: hsl(198, 29%, 56%);
-$primary-400: hsl(199, 41%, 39%);
-$primary-500: hsl(199, 56%, 30%);
+$primary-000: hsl(198, 40%, 87%);
+$primary-100: hsl(198, 49%, 69%);
+$primary-200: hsl(197, 50%, 52%);
+$primary-300: hsl(198, 100%, 34%);
+$primary-400: hsl(199, 84%, 32%);
+$primary-500: hsl(199, 84%, 27%);
 $primary-600: hsl(199, 85%, 21%);
 $primary-700: hsl(199, 87%, 18%);
 $primary-800: hsl(199, 92%, 15%);
 $primary-900: hsl(199, 97%, 13%);
 
-$accent-100: hsl(51, 50%, 95%);
+$accent-000: hsl(51, 50%, 95%);
+$accent-100: hsl(42, 73%, 91%);
 $accent-200: hsl(40, 78%, 87%);
 $accent-300: hsl(38, 86%, 80%);
 $accent-400: hsl(38, 90%, 73%);
@@ -25,6 +29,7 @@ $accent-700: hsl(29, 80%, 44%);
 $accent-800: hsl(22, 82%, 39%);
 $accent-900: hsl(15, 86%, 30%);
 
+$purple-000: hsl(262, 92%, 97%);
 $purple-100: hsl(264, 36%, 89%);
 $purple-200: hsl(264, 35%, 82%);
 $purple-300: hsl(265, 35%, 74%);
@@ -35,9 +40,10 @@ $purple-700: hsl(264, 43%, 44%);
 $purple-800: hsl(264, 58%, 37%);
 $purple-900: hsl(264, 82%, 29%);
 
-$red-100: hsl(360, 100%, 97%);
-$red-200: hsl(360, 82%, 89%);
-$red-300: hsl(360, 77%, 78%);
+$red-000: hsl(360, 100%, 97%);
+$red-100: hsl(360, 82%, 89%);
+$red-200: hsl(360, 77%, 78%);
+$red-300: hsl(360, 71%, 66%);
 $red-400: hsl(360, 64%, 55%);
 $red-500: hsl(360, 67%, 44%);
 $red-600: hsl(360, 72%, 38%);
@@ -45,9 +51,10 @@ $red-700: hsl(360, 79%, 32%);
 $red-800: hsl(360, 85%, 25%);
 $red-900: hsl(360, 92%, 20%);
 
-$green-100: hsl(83, 88%, 94%);
-$green-200: hsl(84, 77%, 86%);
-$green-300: hsl(83, 68%, 74%);
+$green-000: hsl(83, 88%, 94%);
+$green-100: hsl(84, 77%, 86%);
+$green-200: hsl(83, 68%, 74%);
+$green-300: hsl(83, 63%, 61%);
 $green-400: hsl(83, 55%, 52%);
 $green-500: hsl(83, 64%, 42%);
 $green-600: hsl(83, 70%, 34%);
@@ -55,9 +62,10 @@ $green-700: hsl(83, 74%, 27%);
 $green-800: hsl(81, 78%, 21%);
 $green-900: hsl(81, 86%, 14%);
 
-$blue-100: hsl(216, 100%, 93%);
-$blue-200: hsl(216, 100%, 85%);
-$blue-300: hsl(219, 95%, 76%);
+$blue-000: hsl(216, 100%, 93%);
+$blue-100: hsl(216, 100%, 85%);
+$blue-200: hsl(219, 95%, 76%);
+$blue-300: hsl(222, 81%, 65%);
 $blue-400: hsl(224, 69%, 54%);
 $blue-500: hsl(223, 71%, 47%);
 $blue-600: hsl(228, 74%, 43%);
@@ -65,16 +73,21 @@ $blue-700: hsl(230, 80%, 38%);
 $blue-800: hsl(232, 86%, 32%);
 $blue-900: hsl(234, 90%, 25%);
 
-$grey-100: hsl(180, 8%, 95%);
-$grey-200: hsl(180, 4%, 84%);
-$grey-300: hsl(195, 3%, 73%);
-$grey-400: hsl(192, 3%, 63%);
-$grey-500: hsl(192, 2%, 52%);
-$grey-600: hsl(190, 3%, 41%);
-$grey-700: hsl(197, 5%, 30%);
-$grey-800: hsl(203, 8%, 19%);
-$grey-900: hsl(200, 22%, 8%);
+$grey-000: hsl(216, 33%, 97%);
+$grey-100: hsl(214, 15%, 91%);
+$grey-200: hsl(210, 16%, 82%);
+$grey-300: hsl(211, 13%, 65%);
+$grey-400: hsl(211, 10%, 53%);
+$grey-500: hsl(211, 12%, 43%);
+$grey-600: hsl(209, 14%, 37%);
+$grey-700: hsl(209, 18%, 30%);
+$grey-800: hsl(209, 20%, 25%);
+$grey-900: hsl(210, 24%, 16%);
 
+// These white and blacks are volontary off because these are better for
+// the eye and seems, maybe paradoxically, more natural.
+// If you really need *true* blacks/whites, use the two true white/blacks
+// variables after.
 $white: hsl(0, 0%, 98%);
 $black: hsl(0, 0%, 6%);
 
@@ -87,22 +100,27 @@ $color-primary: $primary-600;
 $color-secondary: $accent-600;
 
 $color-body-background: $white;
-$color-header-hover: $primary-400;
+$color-header-hover: $primary-500;
 $color-helpful: $green-100;
 $color-potential-spam: $red-100;
 
 $color-sidebar-background: $grey-100;
 $color-sidebar-hover: $primary-100;
 
-$color-success: $green-500;
-$color-danger: $red-800;
+$color-success: $green-700;
+$color-success-hover: $green-600;
+$color-danger: $red-600;
+$color-danger-hover: $red-500;
 
+$color-link: $primary-300;
+$color-link-hover: $accent-800;
 $color-staff-link: $accent-600;
 $color-hat: $grey-600;
+$color-hat-hover: $grey-000;
 $color-staff-hat: $primary-600;
+$color-staff-hat-hover: $primary-000;
 
 $color-console-bg: $grey-900;
 $color-console-text: $grey-100;
 
-$color-not-ready-content: $grey-200;
 $color-badge-sanction: $red-900;
