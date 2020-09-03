@@ -1,26 +1,35 @@
 .markdown-help {
     position: relative;
-    min-height: 25px;
-    background: #EEE;
-    padding: 15px;
-    margin-bottom: 5px;
-    border-bottom: 1px solid #CCC;
+
+    margin-bottom: $length-4;
+    padding: $length-16;
+    padding-right: $length-20;
+
+    min-height: $length-24;
+
+    border-bottom: $length-1 solid $grey-200;
+    background: $grey-000;
 
     .close-alert-box {
-        display: block;
         position: absolute;
-        top: 5px;
-        right: 5px;
-        height: 20px;
-        width: 20px;
-        text-indent: -9999px;
-        text-decoration: none;
+        top: $length-4;
+        right: $length-4;
+
+        display: block;
+
+        width: $length-20;
+        height: $length-20;
+
         background-color: transparent;
-        line-height: 22px;
-        color: #FFF;
+
+        text-decoration: none;
+        text-indent: -9999px;
+        line-height: 2.2;
+
+        color: $white;
 
         &.ico-after:after {
-            margin-top: 4px;
+            margin-top: $length-4;
         }
     }
 }

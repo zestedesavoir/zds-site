@@ -12,52 +12,60 @@
 @include until-desktop {
     .js .page-container {
         position: relative;
-        z-index: 10;
+
         transform: translate3d(0, 0, 0);
+        z-index: 10;
     }
 
     .js .mobile-menu {
-        display: block;
-        position: absolute;
         position: fixed;
-        overflow-x: hidden;
-        overflow-y: auto;
-        z-index: 1;
-        transform: translate3d(-20%, 0, 0);
+
+        display: block;
+
         width: 90%;
         height: 100%;
-        padding-bottom: 20px;
-        background: #222;
+
+        padding-bottom: $length-4;
+        background: $grey-900;
+
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        transform: translate3d(-20%, 0, 0);
         user-select: none;
+        z-index: 1;
 
         .search {
-            height: 50px;
             position: relative;
             top: 0;
             left: 0;
-            width: 100%;
+
             display: flex;
+
+            width: 100%;
+            height: $length-48;
 
             form {
                 flex: 1;
             }
 
             input {
-                color: #EEE;
-                background-color: #333;
-                height: 30px;
-                padding: 10px 5%;
-                font-size: 16px;
-                font-size: 1.6rem;
+                padding: $length-10 $length-14;
+
                 width: 100%;
                 height: 100%;
                 box-sizing: border-box;
 
+                background-color: $grey-800;
+                color: $grey-000;
+
+                font-size: $size-9;
+
                 &:hover,
                 &:focus {
-                    padding-bottom: 7px;
-                    border-bottom: 3px solid #084561;
-                    background-color: #333;
+                    padding-bottom: $length-6;
+                    border-bottom: $length-4 solid $grey-600;
+                    background-color: $grey-800;
                 }
             }
 
@@ -66,26 +74,24 @@
             }
 
             .search-more {
-                background-color: #3F3F3F;
-                width: 50px;
-                height: 50px;
-                line-height: 50px;
-                color: #CCC;
+                width: $length-48;
+                height: $length-48;
+
+                background-color: $grey-700;
+                color: $grey-000;
+
+                line-height: 1.5;
             }
         }
 
         .mobile-menu-bloc,
         .mobile-menu-link {
-            width: 90%;
-            line-height: 40px;
+            line-height: 2.5;
             text-indent: 0;
         }
-        .mobile-menu-bloc {
-            margin: 0 5% 15px;
 
-            &:nth-child(2) {
-                margin-top: 15px;
-            }
+        .mobile-menu-bloc {
+            margin: $length-12 $length-16;
 
             ul,
             li {
@@ -107,80 +113,102 @@
             }
 
             &[data-title]:before {
-                display: block;
                 content: attr(data-title);
-                height: 30px;
-                font-size: 14px;
-                font-size: 1.4rem;
-                text-transform: uppercase;
-                padding-bottom: 3px;
-                border-bottom: 2px solid #3F3F3F;
+
+                display: block;
+                height: $length-32;
+
+                padding-bottom: $length-4;
+                border-bottom: $length-2 solid $grey-400;
+
+                font-size: $size-10;
                 font-weight: bold;
-                color: #666;
+                text-transform: uppercase;
+
+                color: $grey-400;
             }
 
             &.mobile-show-ico {
                 .ico-after {
-                    padding-left: 30px;
-                    width: calc(100% - 30px);
+                    padding-left: $length-32;
+                    width: calc(100% - #{$length-32});
 
                     &:after {
-                        top: 12px;
-                        left: 2px;
+                        top: $length-12;
+                        left: $length-2;
                     }
                 }
 
                 .icon {
                     display: inline-block;
-                    width: 16px;
-                    height: 16px;
-                    margin: 7px;
-                    line-height:30px;
-                    padding-left: 5px;
+
+                    width: $length-16;
+                    height: $length-16;
+
+                    margin: $length-8;
+                    padding-left: $length-6;
+
+                    line-height:1.5;
+
                     &:after {
-                        top: 0px;
-                        left: 0px;
+                        top: 0;
+                        left: 0;
                     }
                 }
             }
         }
+
         .mobile-menu-link {
             display: block;
-            height: 40px;
-            line-height: 40px;
+
+            height: $length-38;
+
+            padding: 0;
+            border: none;
+
+            background: none;
+
+            font-size: $size-9;
+            line-height: 2.5;
+
             text-decoration: none;
-            color: #CCC;
-            font-size: 16px;
-            font-size: 1.6rem;
+            text-align: left;
+
+            color: $grey-200;
+
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            background: none;
-            border: none;
-            text-align: left;
-            padding: 0;
 
             &.mobile-menu-sublink {
-                width: 90%;
-                margin: 0 0 0 10%;
+                margin: 0 0 0 $length-20;
             }
 
             &.mobile-menu-bloc[data-title] {
                 height: 80px;
             }
+
             &.mobile-menu-bloc:not([data-title]) {
                 margin-bottom: 0;
             }
+
             &:not(:last-child):not(.mobile-menu-bloc) {
-                border-bottom: 1px solid #2C2C2C;
+                border-bottom: $length-1 solid $grey-800;
             }
 
             &[data-prefix]:before {
                 content: "[" attr(data-prefix) "] ";
             }
+
             &.unread {
                 font-weight: bold;
-                color: #EEE;
+                color: $grey-000;
+            }
+
+            .a11y {
+                // Ensures the visually hidden assistive text does not
+                // forces the visible text to be on the next line.
+                position: absolute;
             }
 
             img, span {
@@ -188,19 +216,20 @@
             }
 
             img {
-                float: left;
-                margin: 5px 5px 5px 0;
-                width: 30px;
-                height: 30px;
+                margin: $length-4 $length-4 $length-4 0;
+                width: $length-32;
+                height: $length-32;
             }
+
             .label {
-                padding: 0 0 0 50px;
+                padding: 0 0 0 $length-48;
             }
             img + .label {
-                padding: 0 0 0 10px;
+                padding: 0 0 0 $length-8;
             }
         }
     }
+
     .js.show-mobile-menu {
         width: 100%;
 
@@ -211,7 +240,7 @@
         .page-container {
             transform: translate3d(90%, 0, 0);
             overflow: hidden;
-            box-shadow: 0 0 7px rgba(0, 0, 0, .25);
+            box-shadow: 0 0 $length-8 rgba($true-black, .25);
         }
 
         .mobile-menu {
@@ -236,23 +265,28 @@
                 margin-left: 0;
             }
 
-
             // Adapt menu to smartphone with sidebar
             .mobile-menu-btn {
                 display: block;
-                float: left;
-                height: 50px;
-                width: 50px;
+
+                height: $length-48;
+                width: $length-48;
+
                 cursor: pointer;
 
                 &:after {
-                    display: block;
                     content: " ";
+
                     position: absolute;
-                    top: 15px;
-                    left: 13px;
+                    top: $length-14;
+                    left: $length-12;
+
+                    display: block;
+
+                    // Sprite size
                     height: 22px;
                     width: 22px;
+
                     background-repeat: no-repeat;
                     @include sprite-position($menu);
                 }
@@ -262,17 +296,18 @@
 
     html:not(.enable-mobile-menu) {
         .header-container {
-            border-bottom: 1px solid #CCC;
+            border-bottom: 1px solid $grey-200;
         }
 
         .page-container {
             .header-logo {
-                margin-left: 10px;
+                margin-left: $length-10;
             }
+
             .header-logo-link {
                 &:after {
-                    left: 55px;
-                    right: 205px;
+                    left: $length-48;
+                    right: $length-192;
                 }
             }
         }

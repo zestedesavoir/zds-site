@@ -187,7 +187,7 @@ h6 {
     }
 }
 .custom-block-warning {
-    background: $accent-200;
+    background: $accent-100;
 
     .custom-block-heading {
         color: $white;
@@ -321,7 +321,7 @@ h6 {
         }
     }
     &.warning {
-        background: $accent-200;
+        background: $accent-100;
 
         &.ico-after:after {
             @include sprite-position($warning);
@@ -432,11 +432,11 @@ samp {
 kbd {
     padding: $length-2 $length-6;
 
-    border: solid $length-1 $accent-300;
+    border: solid $length-1 $accent-200;
     border-bottom-width: $length-4;
     border-radius: $radius-1;
 
-    background-color: $accent-100;
+    background-color: $accent-000;
 
     color: $accent-900;
     text-shadow: 0 $length-1 0 $white;

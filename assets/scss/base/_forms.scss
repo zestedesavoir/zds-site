@@ -4,7 +4,7 @@
         width: 100%;
 
         &.content-wrapper {
-            width: calc(100% - $length-20);
+            width: calc(100% - #{$length-20});
             margin: 0 $length-10;
         }
 

@@ -2,8 +2,8 @@
     width: 500px;
 
     section.exports {
-        margin-top: 3.6rem;
-        margin-bottom: 4rem;
+        margin-top: $length-32;
+        margin-bottom: $length-38;
 
         &.is-empty {
 
@@ -18,11 +18,11 @@
             flex-direction: row;
             align-items: center;
 
-            margin: 0 1rem 1.5rem 0;
+            margin: 0 $length-10 $length-16 0;
 
             header {
                 flex: 2;
-                margin-left: 4rem;
+                margin-left: $length-38;
 
                 position: relative;
 
@@ -30,11 +30,11 @@
                     content: '';
 
                     position: absolute;
-                    left: -3rem;
-                    top: calc(50% - 8px);
+                    left: -$length-32;
+                    top: calc(50% - #{$length-8});
 
-                    width: 16px;
-                    height: 16px;
+                    width: $length-16;
+                    height: $length-16;
 
                     background-repeat: no-repeat;
                 }
@@ -45,14 +45,14 @@
 
                 h4 {
                     margin: 0;
-                    font-size: 1.2em;
+                    font-size: $size-9;
                 }
 
                 p {
-                    font-size: .9em;
+                    font-size: $size-10;
                     margin-bottom: 0;
 
-                    color: #6c6c6c;
+                    color: $grey-500;
 
                     a {
                         text-decoration: none;
@@ -64,26 +64,18 @@
                 }
             }
 
-            &:not(.is-success):not(.is-failure) {
-                header p a {
-                    &, &:hover {
-                        color: #999;
-                    }
-                }
-            }
-
             &.is-requested, &.is-running {
                 header:before {
                     content: '';
 
                     display: block;
-                    left: -2.6rem;
+                    left: -2.8rem; // Alignment with other icons
 
-                    width: 8px;
-                    height: 8px;
+                    width: $length-8;
+                    height: $length-8;
 
                     background-color: $color-primary;
-                    border-radius: 100%;
+                    border-radius: $radius-round;
                 }
 
                 &.is-running header:before {
@@ -119,21 +111,22 @@
 
     footer {
         h3 {
-            margin-bottom: 1rem;
+            margin-bottom: $length-10;
         }
 
         p {
-            margin-bottom: 1.5rem;
+            margin-bottom: $length-16;
         }
 
         button.btn {
-            margin: .4rem 1rem 1.5rem;
             float: none;
-            width: calc(100% - 2rem);
+
+            margin: $length-4 $length-10 $length-16;
+            width: calc(100% - #{$length-20});
 
             &[disabled] {
                 background-color: transparent !important;
-                color: #6c6c6c !important;
+                color: $grey-500 !important;
             }
         }
     }

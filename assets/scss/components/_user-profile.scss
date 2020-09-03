@@ -1,11 +1,11 @@
 body.userprofilepage {
     .flexpage-title-tool .actions button.is-following,
     .flexpage-title-tool .actions button.is-following[disabled] {
-        background-color: darken($color-primary, 6%) !important;
-        color: #FFF;
+        background-color: $primary-700 !important;
+        color: $white;
 
         &:not([disabled]):hover {
-            background-color: lighten($color-primary, 20%);
+            background-color: $primary-500;
         }
     }
 
@@ -40,74 +40,80 @@ body.userprofilepage {
         display: inline-block;
 
         position: relative;
-        top: -6px;
+        top: -$length-6;
 
         width: auto;
 
-        margin-left: 2rem;
-        padding: .4rem 1.6rem;
+        margin-left: $length-20;
+        padding: $length-4 $length-16;
 
-        font-size: 2rem;
+        background-color: $primary-900;
+
+        font-size: $size-7;
         text-align: center;
         text-transform: none;
 
-        background-color: darken($color-primary, 12%);
+        line-height: 1.2;
     }
 
     .flexpage-title-tool a.badge-sanction {
         display: inline-block;
-        color: #EEE;
+        color: $white;
     }
 
     .user-bio-and-activity {
         display: flex;
         flex-direction: row;
 
-        margin: 2.2rem -1.2rem 2.2rem 0;
+        margin: $length-20 -#{$length-12} $length-20 0;
 
         @include mobile {
             flex-direction: column;
-            margin-top: 1.8rem;
+            margin-top: $length-18;
         }
 
         &.is-vertical {
             flex-direction: column;
-            margin-top: 1.8rem;
+            margin-top: $length-18;
 
             & > .activity {
-                padding-right: 1.2rem;
+                padding-right: $length-12;
             }
         }
 
         & > .bio {
             flex: 12;
 
-            padding-right: 1.2rem;
+            @include desktop {
+                max-width: 75%;
+            }
+
+            padding-right: $length-12;
 
             .profile-card {
-                padding: 1rem;
+                padding: $length-10;
 
-                border: 1px solid #D2D5D6;
-                border-right-width: 2px;
-                border-bottom-width: 3px;
+                border: $length-1 solid $grey-200;
+                border-right-width: $length-2;
+                border-bottom-width: $length-4;
 
-                background-color: #FDFDFD;
+                background-color: $true-white;
 
                 &:not(:last-child) {
-                    margin-bottom: 20px;
+                    margin-bottom: $length-20;
                 }
 
-                h3 {
-                    margin: 0 .4rem 0 0;
-                    font-size: 2rem;
+                > h3 {
+                    margin: 0 $length-4 0 0;
+                    font-size: $size-7;
                     font-weight: 300;
 
                     @include mobile {
-                        margin-bottom: 1rem;
+                        margin-bottom: $length-10;
                     }
 
                     .help-question-mark {
-                        margin-left: .6rem;
+                        margin-left: $length-6;
                     }
                 }
             }
@@ -131,7 +137,7 @@ body.userprofilepage {
 
                         &, &:hover {
                             text-decoration: none;
-                            color: #222;
+                            color: $black;
                         }
                     }
                 }
@@ -140,10 +146,10 @@ body.userprofilepage {
                     justify-content: flex-end;
 
                     li {
-                        margin: 4px 10px 4px 0;
+                        margin: $length-4 $length-10 $length-4 0;
 
                         @include mobile {
-                            margin: 2px 4px 2px 0;
+                            margin: $length-2 $length-4 $length-2 0;
                         }
                     }
                 }
@@ -151,19 +157,24 @@ body.userprofilepage {
 
             // Partial duplicate of _topic_message.scss -> .message
             .bio-container {
-                min-height: 75px;
+                display: flex;
+                flex-direction: column;
+
+                min-height: $length-96;
 
                 padding: 0;
 
-                border: 1px solid #D2D5D6;
-                border-right-width: 2px;
-                border-bottom-width: 3px;
+                border: $length-1 solid $grey-200;
+                border-right-width: $length-2;
+                border-bottom-width: $length-4;
 
-                background-color: #FDFDFD;
+                background-color: $true-white;
 
                 .message-content {
-                    padding: 1rem;
+                    flex: 21;
+
                     margin: 0;
+                    padding: $length-10;
 
                     & > :first-child {
                         margin-top: 0;
@@ -174,14 +185,14 @@ body.userprofilepage {
                     }
 
                     .no-bio {
-                        margin: 6rem 0;
+                        margin: $length-64 0;
                         text-align: center;
 
-                        font-size: 1.1em;
-                        color: #888;
+                        font-size: $size-9;
+                        color: $grey-500;
 
                         a:not(:hover) {
-                            color: desaturate(lighten($color-primary, 20%), 16%);
+                            color: $color-link;
                             text-decoration: none;
                         }
                     }
@@ -198,31 +209,32 @@ body.userprofilepage {
                 }
 
                 .message-bottom {
-                    border-top: solid 1px #D2D5D6;
+                    border-top: solid $length-1 $grey-200;
 
                     .signature {
-                        padding: 3px 0 3px 10px;
-                        margin: 0 10px 0 0;
-                        font-size: 12px;
-                        font-size: 1.15rem;
-                        color: #999;
+                        padding: $length-4 0 $length-4 $length-10;
+                        margin: 0 $length-10 0 0;
+                        font-size: $size-11;
+                        color: $grey-500;
 
                         // FIXME duplicated from _topic_message.scss
                         p {
                             margin: 0;
                             padding: 0;
+
                             img.smiley {
-                                max-height: 1.6rem;
+                                max-height: $length-16;
                             }
                         }
+
                         a {
-                            color: #999;
+                            color: $grey-500;
                             transition: color $transition-duration ease, text-decoration $transition-duration ease;
 
                             &:hover,
                             &:focus {
                                 text-decoration: none;
-                                color: #555;
+                                color: $grey-600;
                             }
                         }
                     }
@@ -232,10 +244,10 @@ body.userprofilepage {
 
         & > .activity {
             flex: 4;
-            padding-right: 3.2rem;
+            padding-right: $length-32;
 
             @include mobile {
-                margin-top: 20px;
+                margin-top: $length-20;
 
                 .head-profile-links {
                     display: none;
@@ -245,11 +257,11 @@ body.userprofilepage {
     }
 
     .profile-administration {
-        margin-top: 4rem;
+        margin-top: $length-38;
     }
 
     .report-profile {
-        margin: 4rem 0;
+        margin: $length-38 0;
         text-align: center;
     }
 }
@@ -258,17 +270,17 @@ body.userprofilepage {
 // biography is always shown).
 html.js body.userprofilepage .user-bio-and-activity .bio-container {
     .message-content {
-        max-height: 64rem;
+        max-height: $length-640;
         overflow: hidden;
 
         @include mobile {
-            max-height: 16rem;
+            max-height: $length-192;
         }
     }
 
     &.too-long-biography {
         .biography-overflow {
-            $biography-overflow-link-height: 16rem;
+            $biography-overflow-link-height: $length-192;
 
             display: block;
 
@@ -282,18 +294,18 @@ html.js body.userprofilepage .user-bio-and-activity .bio-container {
 
             background: linear-gradient(
                 to bottom,
-                rgba(#FDFDFD, 0) 0%,
-                rgba(#FDFDFD, 0.4) 20%,
-                rgba(#FDFDFD, 0.6) 40%,
-                rgba(#FDFDFD, 0.9) 80%,
-                rgba(#FDFDFD, 1) 100%
+                rgba($true-white,  0)   0%,
+                rgba($true-white, .4)  20%,
+                rgba($true-white, .6)  40%,
+                rgba($true-white, .9)  80%,
+                rgba($true-white,  1) 100%
             );
 
             p {
                 padding-top: $biography-overflow-link-height * (3/4);
                 text-align: center;
 
-                font-size: 1.2em;
+                font-size: $size-8;
                 letter-spacing: .06em;
             }
         }
@@ -306,7 +318,7 @@ html.js body.userprofilepage .user-bio-and-activity .bio-container {
 
                 // Same
                 .footnotes {
-                    margin-bottom: -1em;
+                    margin-bottom: -$length-1;
                 }
             }
 
@@ -315,7 +327,7 @@ html.js body.userprofilepage .user-bio-and-activity .bio-container {
                 align-items: center;
 
                 position: initial;
-                height: 8rem;
+                height: $length-64;
 
                 margin-bottom: 0;
 
@@ -332,32 +344,16 @@ html.js body.userprofilepage .user-bio-and-activity .bio-container {
 
 .badge-sanction {
     display: block;
-    width: 60px;
-    height: 25px;
-    line-height: 25px;
+
+    width: $length-48 + $length-1; // Align with border
+    height: $length-24;
+
+    background-color: $color-badge-sanction;
+
     text-align: center;
     text-transform: uppercase;
-    color: #EEE;
-    text-shadow: rgba(0, 0, 0, .25) 0 0 3px;
-    background-color: $color-badge-sanction;
-}
+    line-height: 1.8;
 
-.member-card {
-    .member-avatar {
-        float: left;
-        width: 60px;
-    }
-
-    .member-infos {
-        float: left;
-        list-style: none;
-        margin: 0;
-        padding-left: 15px;
-    }
-}
-
-.member-social {
-    list-style: none;
-    margin: 15px 0 0;
-    padding: 0;
+    color: $white;
+    text-shadow: rgba($black, .25) 0 0 3px;
 }

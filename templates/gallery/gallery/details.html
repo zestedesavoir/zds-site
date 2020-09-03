@@ -118,26 +118,28 @@
     </div>
 
     {% if images %}
-        {% if permissions.write %}
-            <!-- Delete images -->
-            <a class="btn btn-cancel open-modal" href="#form-delete-images">{% trans "Supprimer la sélection" %}</a>
-            <!-- Confirmation modal -->
-            <form id="form-delete-images" name="form" method="post" action="{% url "gallery-image-delete" gallery.pk %}" class="modal modal-flex">
-                <input type="hidden" name="gallery" value="{{ gallery.pk }}">
-                {% csrf_token %}
-                <p>{% trans "Attention, vous vous appretez à supprimer toutes les images sélectionnées." %}</p>
-                <button type="submit" name="delete_multi" class="btn btn-submit">{% trans "Confirmer" %}</button>
-            </form>
-        {% endif %}
+        <header class="gallery-header">
+            <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
+                {% trans "Vue grille" %}
+            </button>
 
-        <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
-            {% trans "Vue grille" %}
-        </button>
+            {% if permissions.write %}
+                <!-- Delete images -->
+                <a class="btn btn-cancel open-modal" href="#form-delete-images">{% trans "Supprimer la sélection" %}</a>
+                <!-- Confirmation modal -->
+                <form id="form-delete-images" name="form" method="post" action="{% url "gallery-image-delete" gallery.pk %}" class="modal modal-flex">
+                    <input type="hidden" name="gallery" value="{{ gallery.pk }}">
+                    {% csrf_token %}
+                    <p>{% trans "Attention, vous vous appretez à supprimer toutes les images sélectionnées." %}</p>
+                    <button type="submit" name="delete_multi" class="btn btn-submit">{% trans "Confirmer" %}</button>
+                </form>
+            {% endif %}
+        </header>
 
         <div class="gallery topic-list list-view clearfix navigable-list">
             {% for img in images %}
                 <div class="topic gallery-item navigable-elem">
-                    <div class="topic-infos">
+                    <div class="topic-infos is-vertically-centered">
                         {% if permissions.write %}
                             <input
                                 name="g_items"
@@ -146,15 +148,17 @@
                                 form="form-delete-images">
                         {% endif %}
                     </div>
-                    <div class="topic-description">
+                    <div class="topic-description has-image" title="{{ img.title }}">
                         <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
                             <img src="{{ img.physical.gallery.url }}"
                                  data-caption="{{ img.title }}"
                                  alt="{{ img.title }}"
                                  class="topic-image"
                             >
-                            <span class="topic-title">{{ img.title }}</span>
-                            <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
+                            <span>
+                                <span class="topic-title">{{ img.title }}</span>
+                                <span class="topic-subtitle">{{ img.legend|default:"" }}</span>
+                            </span>
                         </a>
                     </div>
                 </div>
@@ -179,4 +183,3 @@
 
     {% include "misc/paginator.html" with position="bottom" %}
 {% endblock %}
-

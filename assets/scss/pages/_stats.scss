@@ -1,48 +1,52 @@
 .stat-table {
-  .level-1 {
-    padding-left: 20px;
-  }
+    .level-1 {
+        padding-left: $length-20;
+    }
 
-  .level-2 {
-    padding-left: 40px;
-  }
+    .level-2 {
+        padding-left: $length-38;
+    }
 }
 
  /* Style the tab */
 .tab {
-    color: $color-primary;
-    background-color: #DDD;
-    border: 1px solid #DDD;
+    border: $length-1 solid $grey-100;
     border-bottom: none;
+
+    background-color: $grey-100;
+    color: $color-primary;
 }
 
 /* Style the buttons that are used to open the tab content */
 .tab span {
     display: inline-block;
+    padding: $length-8 $length-16;
+
     cursor: pointer;
-    padding: 7px 15px;
 }
 
 /* Change background color of buttons on hover */
 .tab span:hover {
-    background-color: #F7F7F7;
+    background-color: $white;
 }
 
 /* Create an active/current tablink class */
 .tab span.active {
-    background-color: #F7F7F7;
+    background-color: $white;
     font-weight: bold;
 }
 
 /* Style the tab content */
 .tabcontent {
     display: none;
-    padding: 6px 12px;
-    border: 1px solid #DDD;
+
+    padding: $length-6 $length-12;
+
+    border: $length-1 solid $grey-100;
     border-top: none;
 
     .stat-graph {
       width: 60%;
       margin: 0 auto;
     }
-} 
+}

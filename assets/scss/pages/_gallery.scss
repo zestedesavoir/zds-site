@@ -1,15 +1,27 @@
+header.gallery-header {
+    display: flex;
+    justify-content: space-between;
+
+    a, button {
+        float: none;
+    }
+}
+
 .gallery {
     &.grid-view {
-        clear: both;
+        display: flex;
+        flex-wrap: wrap;
 
         .gallery-item {
             position: relative;
-            width: 200px;
-            height: 200px;
-            float: left;
-            border: 10px solid #FFF;
-            margin: 10px;
-            clear: none;
+
+            margin: $length-10;
+            padding: $length-4 $length-10;
+
+            width: $length-192;
+
+            border: $length-1 solid $grey-200;
+            border-radius: $radius-1;
 
             &:hover,
             &.active {
@@ -20,20 +32,22 @@
                 }
 
                 .topic-title {
-                    background: lighten($color-primary, 20%) !important;
-                    color: #FFF;
                     text-decoration: none;
                 }
             }
 
             .topic-infos {
                 position: absolute;
-                bottom: 0;
-                left: 0;
+
+                left: $length-6;
+                bottom: $length-2;
+
+                width: $length-16;
+                height: $length-16;
+
+                padding: $length-4;
+
                 z-index: 1;
-                height: 15px;
-                width: 15px;
-                padding: 3px 0;
 
                 input {
                     margin: 0;
@@ -41,54 +55,65 @@
             }
 
             .topic-description {
-                &,
-                & a {
-                    display: block;
+                width: 100%;
+
+                a {
+                    flex-direction: column;
                     width: 100%;
-                    height: 100%;
+
+                    img.topic-image {
+                        width: 100%;
+                        max-width: 100%;
+                        max-height: 100%;
+                    }
+
+                    .topic-title {
+                        display: inline-block;
+
+                        width: calc(100% - #{$length-24});
+                        height: $length-20;
+
+                        margin-left: $length-24 !important;
+
+                        vertical-align: middle;
+
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+
+                        line-height: 1.5;
+                    }
+
+                    .topic-subtitle {
+                        display: none;
+                    }
                 }
-            }
-
-            .topic-image {
-                overflow: hidden;
-                max-height: 100%;
-                min-width: 100%;
-            }
-
-            .topic-title {
-                height: 15px;
-                background-color: rgba(255, 255, 255, 1);
-                position: absolute;
-                bottom: 7px;
-                left: 0;
-                right: 0;
-                padding: 10px 20px 5px;
-                font-size: 15px;
-                font-size: 1.5rem;
-                line-height: 15px;
-                color: #444;
             }
 
             &.selected {
-                border-color: lighten($color-primary, 75%);
-
-                .topic-title {
-                    background: lighten($color-primary, 75%);
-                }
+                border-color: $primary-400;
             }
 
             &.add-image {
-                font-size: 120px;
-                line-height: 200px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                background: $grey-100;
+                color: $grey-600;
+
+                font-size: 12rem;
                 text-align: center;
-                background: #DDD;
-                color: #555;
+
                 text-decoration: none;
+
+                border: $length-2 dashed $grey-400;
 
                 &:hover,
                 &:focus {
-                    background-color: #CCC;
-                    color: $color-link;
+                    background-color: $grey-200;
+                    border-color: $grey-600 !important;
+                    color: $grey-600;
                 }
             }
         }
@@ -98,32 +123,13 @@
         .topic {
             .topic-description {
                 .topic-title {
-                    margin-top: 12px;
+                    margin-top: $length-12;
                 }
             }
         }
+
         .add-image {
             display: none;
         }
-    }
-}
-.toggle-gallery-view {
-    float: left !important;
-}
-
-@include desktop {
-    .gallery-col-image {
-        float: left;
-        width: 50%;
-
-        img {
-            max-width: 100%;
-        }
-    }
-
-    .gallery-col-edit {
-        float: right;
-        width: calc(50% - 20px);
-        padding-left: 20px;
     }
 }
