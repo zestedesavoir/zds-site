@@ -5,22 +5,22 @@
     display: flex;
     align-items: center;
 
-    padding: 0 1rem;
-
-    z-index: 21;
+    padding: 0 $length-10;
 
     box-sizing: border-box;
-    min-height: 25px;
+    min-height: $length-24;
     width: 100%;
 
-    border-bottom: 2px solid black;
+    border-bottom: $length-2 solid $grey-900;
     text-align: center;
     font-weight: bold;
 
     /* Variables from `templates/very_top_banner.html` */
     background-color: var(--very-top-banner-background-color);
-    color: var(--very-top-banner-color);
     border-color: var(--very-top-banner-border-color);
+    color: var(--very-top-banner-color);
+
+    z-index: 21;
 
     span {
         flex: 12;
@@ -30,7 +30,7 @@
         background: transparent;
         border: none;
 
-        font-size: 2.6rem;
+        font-size: $size-6;
 
         color: inherit;
         font-weight: normal;

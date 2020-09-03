@@ -157,9 +157,10 @@
 
     {% include "old_browser_warning.html" %}
 
-    <div class="mobile-menu" id="mobile-menu"></div>
-
+    {# Must be at the very top (except old browser warning) so it does not overlap anything. #}
     {% include "very_top_banner.html" %}
+
+    <div class="mobile-menu" id="mobile-menu"></div>
 
     <div class="page-container">
 

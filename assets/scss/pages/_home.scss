@@ -1,13 +1,15 @@
 .home {
     .home-row {
         display: flex;
-        margin-bottom: 10px;
+        margin-bottom: $length-10;
     }
 
     .flexpage-header {
+        // Layout magic values
         margin-bottom: -170px;
-        padding-top: 20px;
         padding-bottom: 180px;
+
+        padding-top: $length-20;
     }
 
     .home-description {
@@ -16,43 +18,48 @@
         p {
             margin: 0;
             padding: 0;
-            color: white;
+
+            color: $white;
             text-align: justify;
         }
 
         ul {
-            color: #EEE;
-            margin: 10px 0;
+            color: $white;
+            margin: $length-10 0;
         }
 
         a:not(.home-description-button) {
-            color: white;
+            color: $white;
 
             &:hover, &:focus {
-                color: #90ABB6;
+                color: $grey-000;
                 text-decoration: none;
             }
         }
 
         .column {
             flex: 1;
-            padding: 0 20px;
+            padding: 0 $length-20;
 
             h1 {
-                font-size: 2.2rem;
-                color: white;
-                margin: 20px 0 10px 0;
-                border-bottom-color: white;
+                margin: $length-20 0 $length-10 0;
+                border-bottom-color: $white;
+
+                color: $white;
+
+                font-size: $size-6;
                 font-weight: 300; // Light
             }
         }
 
         blockquote {
-            font-size: 2.5rem;
-            color: white;
-            font-weight: 300;
-            padding: 0;
             margin: 0;
+            padding: 0;
+
+            font-size: $size-5;
+            font-weight: 300;
+
+            color: white;
 
             span:first-of-type::before {
                 content: "«\00A0";
@@ -63,7 +70,7 @@
         }
 
         &:not(.connected):not(.short) {
-            padding-bottom: 60px;
+            padding-bottom: $length-64;
         }
 
         &.connected {
@@ -71,34 +78,37 @@
             flex-direction: column;
 
             .important {
+                display: inline-block;
+                margin-right: $length-4;
+
                 color: $color-secondary;
                 text-transform: uppercase;
                 font-weight: bold;
             }
 
             p {
-                margin-top: 5px;
+                margin-top: $length-6;
                 text-align: center;
             }
 
             .home-description-button {
-                margin-left: 15px;
+                margin-left: $length-16;
             }
         }
 
         &.short {
             display: none;
-            color: white;
+
+            color: $white;
             text-align: center;
-            font-size: 1.4em;
+            font-size: $size-7;
 
             .home-description-button {
-                font-size: 14px;
-                font-size: 1.4rem;
-                line-height: 24px;
-                line-height: 2.4rem;
-                margin-top: 12px;
-                padding: 0 10px;
+                margin-top: $length-12;
+                padding: 0 $length-10;
+
+                font-size: $size-10;
+                line-height: 2;
             }
 
             blockquote > span {
@@ -110,19 +120,21 @@
 
     .home-description-button {
         display: inline-block;
-        line-height: 2rem;
-        font-size: 1.2rem;
-        font-size: 12px;
-        color: white;
+        margin-top: $length-6;
+        padding: 0 $length-6;
+
+        border: solid $length-1 $primary-100;
+
+        font-size: $size-11;
+        line-height: 1.5;
+
+        color: $white;
         text-decoration: none;
-        border: solid 1px rgba(255, 255, 255, .5);
-        padding: 0 6px;
-        margin-top: 5px;
 
         &:hover, &:focus {
             color: $color-primary;
-            border-color: white;
-            background-color: #FFF;
+            border-color: $white;
+            background-color: $white;
         }
 
         &.close-description {
@@ -132,28 +144,34 @@
 
     .featured-resource-row {
         display: flex;
-        margin-bottom: 30px;
-        padding: 1px 0 1px 1px;
-        background-color: #F7F7F7;
         flex-wrap: wrap;
         justify-content: center;
+
+        margin-bottom: $length-32;
+        padding: $length-1 0 $length-1 $length-1;
+
         width: 100%;
 
+        background-color: $white;
+
         .no-featured-resource {
-            margin: 0;
-            text-align: center;
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: #777;
-            padding: 1em;
-            height: 230px;
+            align-items: center;
+
+            margin: 0;
+            padding: $length-10;
+
+            height: $length-256;
+
+            text-align: center;
+            color: $grey-400;
         }
     }
 
     .home-heading.heading-white {
-        color: white;
-        border-bottom-color: white;
+        color: $white;
+        border-bottom-color: $white;
     }
 }
 
@@ -168,7 +186,7 @@
 
             // Rules to avoid being overridden by .home .search-box::before background-image
             width: auto;
-            padding: 0 20px;
+            padding: 0 $length-20;
 
             &:target {
                 .home-description-button {
@@ -181,13 +199,13 @@
 
                 & ~ .home-description:not(.short) {
                     display: block;
-                    margin-top: 20px;
+                    margin-top: $length-20;
                 }
             }
         }
         .home-description.connected {
             // Rules to avoid being overridden by .home .search-box::before background-image
-            padding: 0 20px !important;
+            padding: 0 $length-20 !important;
         }
 
         .home-description .featured-message {
@@ -213,34 +231,40 @@
 @include until-desktop {
     .home {
         .flexpage-header {
-            padding-top: 10px;
-            padding-bottom: 10px;
             margin-bottom: 0;
+            padding-top: $length-10;
+            padding-bottom: $length-10;
         }
+
         .featured-resource-row {
             .featured-resource-item {
-                margin: 4px;
+                margin: $length-4;
                 padding: 0 !important;
+
                 &:last-of-type {
                     display: none;
                 }
             }
         }
+
         .home-heading {
-            margin-top: 18px;
+            margin-top: $length-18;
+
             &.heading-white {
-                color: $color-primary;
                 border-color: $color-secondary;
+                color: $color-primary;
             }
         }
+
         .home-row {
             flex-direction: column;
         }
+
         .home-description {
             &.connected {
                 // Rules to avoid being overridden by .home .search-box::before background-image
                 width: auto;
-                padding: 0 80px;
+                padding: 0 $length-96;
             }
         }
     }
@@ -248,7 +272,8 @@
 
 @include desktop {
     .home {
-        $gap: 20px;
+        $gap: $length-20;
+
         .home-row {
             margin-right: -($gap/2);
             margin-left: -($gap/2);
@@ -256,26 +281,26 @@
             & > section {
                 margin: 0 $gap/2;
                 flex: 1;
-                min-width: 300px; // must be specified to have the elements correctely sized
+                min-width: $length-384; // must be specified to have the elements correctely sized
             }
         }
+
         .home-description {
             .column {
                 h2 {
-                    font-size: 22px;
-                    font-size: 2.2rem;
+                    font-size: $size-6;
                 }
 
                 p, ul {
-                    line-height: 22px;
-                    font-size: 15px;
-                    font-size: 1.5rem;
+                    font-size: $size-9;
+                    line-height: 1.5;
                 }
             }
+
             &.connected {
                 // Rules to avoid being overridden by .home .search-box::before background-image
-                max-width: 740px;
-                margin: 15px auto 0;
+                max-width: $length-768;
+                margin: $length-16 auto 0;
             }
         }
     }

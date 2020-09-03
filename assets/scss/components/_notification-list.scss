@@ -1,30 +1,36 @@
 .notification-list {
-    margin-top: 50px !important;
-    margin-bottom: 50px !important;
+    margin: $length-48 0 !important;
 
     .notification {
         position: relative;
-        line-height: 25px;
-        border-top: 1px solid #FFF;
-        border-bottom: 1px solid #CCC;
+
+        display: flex;
+        align-items: baseline;
+
+        border-top: $length-1 solid $true-white;
+        border-bottom: $length-1 solid $grey-200;
+        border-left: $length-1 solid transparent;
+
         overflow: hidden;
-        border-left: 1px solid transparent;
-        clear: both;
 
         &:first-child {
-            border-top: 1px solid #CCC;
+            border-top: $length-1 solid $grey-200;
         }
 
         &:before {
             content: " ";
-            display: block;
+
             position: absolute;
-            background: transparent;
+
+            display: block;
+            width: $length-2;
             height: 100%;
-            width: 2px;
+
+            background: transparent;
         }
+
         &.unread:before {
-            background: lighten($color-primary, 20%);
+            background: $primary-400;
         }
 
         &:nth-child(2n){
@@ -32,31 +38,33 @@
         }
 
         &.unread {
+            background: $true-white;
+
             .notification-description .notification-title {
                 font-weight: bold;
             }
-            background: #FFF;
         }
 
         &:hover,
         &.active {
             &:before {
-                width: 5px;
-                background: lighten($color-primary, 20%);
+                width: $length-6;
+                background: $primary-400;
             }
         }
 
         &.selected {
-            background-color: lighten($color-primary, 75%);
+            background-color: $primary-000;
         }
     }
+
     a {
         text-decoration: none;
-        color: lighten($color-primary, 15%);
+        color: $primary-300;
 
         &:hover,
         &:focus {
-            color: lighten($color-primary, 15%);
+            color: $primary-300;
             text-decoration: underline;
             outline: none;
         }
@@ -66,9 +74,9 @@
     .notification-description,
     .notification-last-answer {
         display: block;
-        float: left;
-        padding: 4px 0;
+
         margin: 0;
+        padding: $length-4 0;
     }
 
     .notification-infos {
@@ -79,13 +87,12 @@
             text-indent: -9999px;
 
             &:after {
-                margin: 4px 0 0 15px;
+                margin: $length-4 0 0 15px;
             }
         }
     }
 
     .notification-description {
-        position: relative;
         width: 60%;
 
         .notification-title-link {
@@ -105,11 +112,11 @@
             display: block;
             margin: 0 !important;
             padding: 0;
-            font-size: 16px;
-            font-size: 1.6rem;
+            font-size: $size-9;
             font-weight: normal;
         }
     }
+
     .notification-last-answer {
         width: 35%;
     }
@@ -133,8 +140,9 @@
                 text-align: right;
 
                 .notification-last-answer-short-date {
-                    font-size: 1.3rem;
+                    font-size: $size-10;
                 }
+
                 .notification-last-answer-long-date {
                     display: none;
                 }
@@ -146,7 +154,7 @@
 @include mobile {
     .notification-list {
         .notification-infos .ico-after:after {
-            margin: 4px 0 0 2px;
+            margin: $length-4 0 0 $length-2;
         }
         .notification {
             background: none !important;

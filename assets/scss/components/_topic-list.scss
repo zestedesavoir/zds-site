@@ -1,38 +1,45 @@
 .topic-list {
-    margin-top: 50px !important;
-    margin-bottom: 50px !important;
+    margin-top: $length-48 !important;
+    margin-bottom: $length-48 !important;
 
     h2 {
         margin-bottom: 0 !important;
     }
+
     h2 + .topic {
         border-top: none;
     }
 
     .topic {
         position: relative;
-        min-height: 81px;
-        line-height: 25px;
-        border-top: 1px solid #FFF;
-        border-bottom: 1px solid #CCC;
+
+        display: flex;
+        align-items: baseline;
+
+        min-height: $length-64;
+
+        border-top: $length-1 solid $true-white;
+        border-bottom: $length-1 solid $grey-200;
+        border-left: $length-1 solid transparent;
+
         overflow: hidden;
-        border-left: 1px solid transparent;
-        clear: both;
 
         &:first-child {
-            border-top: 1px solid #CCC;
+            border-top: $length-1 solid $grey-200;
         }
 
         &:before {
             content: " ";
-            display: block;
             position: absolute;
-            background: transparent;
+
+            display: block;
+            width: $length-2;
             height: 100%;
-            width: 2px;
+
+            background: transparent;
         }
         &.unread:before {
-            background: lighten($color-primary, 20%);
+            background: $primary-400;
         }
 
         &:nth-child(2n){
@@ -40,31 +47,33 @@
         }
 
         &.unread {
+            background: $true-white;
+
             .topic-description .topic-title {
                 font-weight: bold;
             }
-            background: #FFF;
         }
 
         &:hover,
         &.active {
             &:before {
-                width: 5px;
-                background: lighten($color-primary, 20%);
+                width: $length-6;
+                background: $primary-400;
             }
         }
 
         &.selected {
-            background-color: lighten($color-primary, 75%);
+            background-color: $primary-000;
         }
     }
+
     a {
         text-decoration: none;
-        color: lighten($color-primary, 15%);
+        color: $color-link;
 
         &:hover,
         &:focus {
-            color: lighten($color-primary, 15%);
+            color: $color-link;
             text-decoration: underline;
             outline: none;
         }
@@ -75,53 +84,62 @@
     .topic-answers,
     .topic-last-answer {
         display: block;
-        float: left;
-        padding: 4px 0;
+
         margin: 0;
+        padding: $length-4 0;
     }
 
     .topic-infos {
         width: 8%;
 
-        input[type=checkbox] {
-            margin: 29px 25% 0;
+        &.is-vertically-centered {
+            align-self: center;
         }
+
+        input[type=checkbox] {
+            margin: 0 25%;
+        }
+
         .ico-after {
             display: block;
             text-indent: -9999px;
 
             &:after {
-                margin: 4px 0 0 15px;
+                margin: $length-4 0 0 $length-16;
             }
         }
     }
+
     .topic-description {
-        position: relative;
         width: 60%;
 
         .topic-image {
-            float: left;
-            max-height: 60px;
-            max-width: 60px;
-            margin: 5px 15px 0 0;
+            margin: $length-6 $length-16 0 0;
+
+            max-width: $length-64;
+            max-height: $length-64;
         }
 
         .topic-tags {
-            list-style: none;
-            padding: 0;
+            display: flex;
+
             margin: 0;
-            display: inline;
+            padding: 0;
+
+            list-style: none;
 
             .topic-tag {
-                display: block;
-                height: 23px;
-                line-height: 23px;
-                float: left;
-                padding: 0 5px;
+                display: inline-block;
+
+                padding: 0 $length-6;
                 margin: 0 3px 0 0;
+
+                height: $length-24;
+
+                border: $length-1 solid $grey-200;
+
+                background: $white;
                 color: $color-header-hover;
-                background: #FCFCFC;
-                border: 1px solid #CCC;
 
                 &:hover,
                 &:focus {
@@ -136,13 +154,13 @@
             }
 
             li:last-child .topic-tag {
-                margin-right: 5px;
+                margin-right: $length-6;
             }
         }
 
         .topic-title-link {
             display: block;
-            min-height: 48px;
+            min-height: $length-48;
 
             &:hover,
             &:focus {
@@ -161,90 +179,88 @@
         }
         .topic-title {
             display: inline-block;
-            font-size: 16px;
-            font-size: 1.6rem;
+
+            font-size: $size-9;
             font-weight: normal;
         }
         .topic-subtitle {
             display: block;
-            min-height: 24px;
-            line-height: 1.5em;
-            color: #777;
+            min-height: $length-24;
+
+            color: $grey-600;
+            line-height: 1.5;
         }
         .topic-members {
             margin: 0;
-            color: #777;
+            color: $grey-600;
+        }
+
+        &.has-image a {
+            display: flex;
+
+            > span {
+                flex: 6;
+            }
         }
     }
+
     .topic-answers {
+        display: flex;
+
+        justify-content: center;
+        align-self: center;
+
         width: 12%;
         text-align: center;
-        padding-top: 29px;
     }
+
     .topic-last-answer {
+        align-self: center;
         width: 20%;
 
         .topic-no-last-answer {
-            display: block;
-            margin-top: 27px;
-            color: $color-primary;
-            opacity: .5;
+            color: rgba($color-primary, .5);
         }
     }
 
     .highlighted {
-        background-color: rgba(255, 255, 100, 0.4);
-        padding: 0 3px;
-        border-radius: 2px;
+        background-color: $primary-000;
+        padding: 0 $length-4;
+        border-radius: $radius-1;
     }
 }
 
 .forum-list {
     .group-title {
-        max-width: 100%;
-        margin-top: 30px !important;
-        clear: both;
-        border-bottom: 1px solid #CCC;
-        color: $color-secondary;
+        margin-top: $length-32 !important;
     }
 }
 
 .topic-list-small {
     .topic {
-        min-height: 60px;
-    }
-    .topic-infos {
-        input[type=checkbox] {
-            margin-top: 18px;
-        }
+        min-height: $length-64;
     }
     .topic-description {
-        padding: 4px 1.5%;
+        padding: $length-4 1.5%;
 
         .topic-title {
             display: block;
             font-weight: normal;
-            margin-top: 2px;
+            margin-top: $length-2;
         }
     }
     .topic-infos + .topic-description {
         padding-left: 0;
     }
     .topic-answers {
-        padding-top: 17px;
-
         span {
             display: block;
-            float: left;
-            width: 50%;
+            width: 40%;
         }
     }
     .topic-last-answer {
         width: 18%;
 
-        .topic-no-last-answer {
-            margin-top: 13px;
-        }
         .forum-last-message {
             display: block;
 
@@ -252,6 +268,7 @@
                 display: none;
             }
         }
+
         .forum-last-message-title {
             display: block;
             overflow: hidden;
@@ -266,19 +283,17 @@
         .topic-members-short-date {
             display: none;
         }
+
         .topic-last-answer-short-date {
             display: none;
         }
-        &:not(.topic-list-small) .topic-last-answer {
-            .topic-no-last-answer {
-                margin-top: 24px;
-            }
-        }
     }
+
     .forum-list {
         .topic {
             min-height: 0;
         }
+
         .topic-last-answer {
             .forum-last-message {
                 .forum-last-message-long {
@@ -303,16 +318,18 @@
                     display: none;
                 }
             }
+
             .topic-answers {
                 display: none;
             }
+
             .topic-last-answer {
                 width: 30%;
                 padding: 0;
                 text-align: right;
 
                 .topic-last-answer-short-date {
-                    font-size: 1.3rem;
+                    font-size: $size-10;
                 }
                 .topic-last-answer-long-date {
                     display: none;
@@ -328,7 +345,7 @@
 @include mobile {
     .topic-list {
         .topic-infos .ico-after:after {
-            margin: 4px 0 0 2px;
+            margin: $length-4 0 0 $length-2;
         }
         .topic-description {
             .topic-subtitle:empty {
@@ -337,14 +354,14 @@
         }
         .topic-last-answer {
             .topic-no-last-answer {
-                font-size: 1.3rem;
+                font-size: $size-10;
             }
         }
     }
     .forum-list {
         .topic-description {
             .topic-subtitle {
-                margin-left: 10px;
+                margin-left: $length-10;
             }
         }
     }

@@ -1,19 +1,20 @@
 #topic-result-container {
-	background-color: white;
-	border: 1px solid #d2d5d6;
+	background-color: $true-white;
+	border: 1px solid $grey-200;
 
 	ul {
-		list-style: none;
-		font-size: 12px;
-		padding: 0;
 		margin: 0;
+		padding: 0;
+
+		font-size: $size-10;
+		list-style: none;
 
 		li {
-			padding: 1px 10px;
-			border-bottom: solid 1px #CCC;
+			padding: $length-1 $length-10;
+			border-bottom: solid 1px $grey-200;
 
 			&.active, &:hover {
-				background-color: #d7d7d7;
+				background-color: $grey-000;
 
                 &.neither {
 				    background-color: transparent;
