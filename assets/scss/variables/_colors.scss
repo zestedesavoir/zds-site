@@ -19,12 +19,12 @@ $primary-800: hsl(199, 92%, 15%);
 $primary-900: hsl(199, 97%, 13%);
 
 $accent-000: hsl(51, 50%, 95%);
-$accent-100: hsl(42, 73%, 91%);
-$accent-200: hsl(40, 78%, 87%);
-$accent-300: hsl(38, 86%, 80%);
-$accent-400: hsl(38, 90%, 73%);
-$accent-500: hsl(37, 92%, 65%);
-$accent-600: hsl(37, 93%, 58%);
+$accent-100: hsl(40, 78%, 87%);
+$accent-200: hsl(38, 86%, 80%);
+$accent-300: hsl(38, 90%, 73%);
+$accent-400: hsl(37, 92%, 65%);
+$accent-500: hsl(37, 93%, 58%);
+$accent-600: hsl(33, 76%, 51%);
 $accent-700: hsl(29, 80%, 44%);
 $accent-800: hsl(22, 82%, 39%);
 $accent-900: hsl(15, 86%, 30%);
@@ -97,15 +97,15 @@ $true-black: hsl(0, 0%, 0%);
 // If you want to change this, you may want to do it also in templates/base.html.
 // Particulary in the meta tag named theme-color and msapplication-navbutton-color.
 $color-primary: $primary-600;
-$color-secondary: $accent-600;
+$color-secondary: $accent-500;
 
 $color-body-background: $white;
 $color-header-hover: $primary-500;
-$color-helpful: $green-100;
-$color-potential-spam: $red-100;
+$color-helpful: $green-000;
+$color-potential-spam: $red-000;
 
-$color-sidebar-background: $grey-100;
-$color-sidebar-hover: $primary-100;
+$color-sidebar-background: $grey-000;
+$color-sidebar-hover: $primary-000;
 
 $color-success: $green-700;
 $color-success-hover: $green-600;
@@ -114,7 +114,7 @@ $color-danger-hover: $red-500;
 
 $color-link: $primary-300;
 $color-link-hover: $accent-800;
-$color-staff-link: $accent-600;
+$color-staff-link: $accent-500;
 $color-hat: $grey-600;
 $color-hat-hover: $grey-000;
 $color-staff-hat: $primary-600;
@@ -123,4 +123,4 @@ $color-staff-hat-hover: $primary-000;
 $color-console-bg: $grey-900;
 $color-console-text: $grey-100;
 
-$color-badge-sanction: $red-900;
+$color-badge-sanction: $red-800;

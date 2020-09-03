@@ -1,19 +1,14 @@
-
-.footer-container footer {
-    color: #424242;
-    padding: 20px 0;
-}
-
 .page-footer {
     background: $color-primary;
-    height: 40px;
-    line-height: 40px;
-    border-top: 3px solid $color-secondary;
-    font-size: 14px;
-    font-size: 1.4rem;
+    height: $length-38;
+    border-top: $length-4 solid $color-secondary;
+    font-size: $size-10;
 
     .wrapper {
         display: flex;
+        align-items: center;
+
+        height: 100%;
     }
 
     .copyright, .links {
@@ -25,19 +20,19 @@
 
     .copyright {
         margin: 0;
-        padding: 0 1rem;
+        padding: 0 $length-10;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
 
         &,
         a {
-            color: rgba(white, .5);
+            color: $primary-100;
         }
 
         a:hover,
         a:focus {
-            color: white;
+            color: $white;
         }
     }
 
@@ -53,12 +48,12 @@
 
         &.links li {
             display: inline-block;
-            margin: 0 1rem;
+            margin: 0 $length-10;
 
             a {
                 text-decoration: none;
-                color: #EEE;
-                border-bottom: 1px solid transparent;
+                color: $white;
+                border-bottom: $length-1 solid transparent;
 
                 &:hover,
                 &:focus {
@@ -74,16 +69,16 @@
             text-align: center;
 
             li {
-                margin: -2px 10px;
+                margin: $length-2 #{$length-10};
                 display: inline-block;
 
                 a {
                     display: block;
-                    height: 16px;
-                    width: 16px;
+                    height: $length-10;
+                    width: $length-16;
 
                     &:after {
-                        opacity: 0.6;
+                        opacity: .6;
                     }
 
                     &:hover {
@@ -99,11 +94,18 @@
     }
 
     @include until-desktop {
-        text-align: center;
         height: auto;
+
+        padding: $length-12 $length-2;
+
+        text-align: center;
 
         .wrapper {
             flex-direction: column;
+
+            > *:not(:last-child) {
+                margin-bottom: $length-8;
+            }
 
             .social {
                 -ms-flex: none; // fix IE ≥ 10
@@ -111,7 +113,6 @@
         }
 
         .copyright, .social {
-            border-bottom: 2px solid lighten($color-primary, 4%);
             flex-basis: auto;
             flex-shrink: 0;
         }
@@ -124,7 +125,7 @@
             }
 
             li {
-                margin: 0 5px;
+                margin: 0 $length-6;
             }
         }
     }

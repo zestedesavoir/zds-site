@@ -3,16 +3,19 @@ $content-width: 1145px;
 .flexpage {
     .main {
         display: block;
-        height: auto;
+
         width: auto;
+        height: auto;
+
         margin: 0;
         padding: 0;
     }
 
     #content {
-        width: 100%;
         margin: 0;
         padding: 0;
+
+        width: 100%;
     }
 
     .sub-header {
@@ -25,23 +28,23 @@ $content-width: 1145px;
     }
 
     .flexpage-header {
-        margin-bottom: 20px;
-        border-bottom: solid 1px white;
+        margin-bottom: $length-20;
+        border-bottom: solid $length-1 $true-white;
 
         // fallback for older browser
-        background-color: #19516b;
-        background: #19516b radial-gradient(at top, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0) 60%);
+        background-color: $primary-500;
+        background: $primary-500 radial-gradient(at top, rgba($true-white, 0.1), transparent 60%);
     }
 
     .flexpage-column {
         display: flex;
         flex: 1;
-        margin-left: -20px;
+        margin-left: -$length-20;
 
         section {
             flex: 0 0 auto;
-            width: calc(50% - 20px);
-            margin-left: 20px;
+            width: calc(50% - #{$length-20});
+            margin-left: $length-20;
         }
     }
 
@@ -49,8 +52,8 @@ $content-width: 1145px;
         display: flex;
         flex-direction: row;
 
-        padding: 50px 0;
-        font-size: 2rem;
+        padding: $length-48 0;
+        font-size: $size-7;
         font-weight: 100;
 
         .picto {
@@ -64,7 +67,7 @@ $content-width: 1145px;
                 height: 60.04px;
                 margin: 30.02px 50px;
 
-                background: rgba(0, 0, 0, 0.2);
+                background: $primary-700;
 
                 &:before, &:after {
                     z-index: 0;
@@ -78,20 +81,20 @@ $content-width: 1145px;
                 &:before {
                     bottom: 100%;
                     left: 0;
-                    border-bottom: 30.02px solid rgba(0, 0, 0, 0.2);
+                    border-bottom: 30.02px solid $primary-700;
                 }
 
                 &:after {
                     top: 100%;
                     left: 0;
                     width: 0;
-                    border-top: 30.02px solid rgba(0, 0, 0, 0.2);
+                    border-top: 30.02px solid $primary-700;
                 }
 
                 img {
                     position: absolute;
-                    top: -20px;
-                    left: 2px;
+                    top: -$length-20;
+                    left: $length-2;
                 }
             }
         }
@@ -109,17 +112,17 @@ $content-width: 1145px;
                 margin: 0;
                 padding: 0;
 
-                width: 200px;
-                height: 200px;
+                width: $length-192;
+                height: $length-192;
 
-                border-radius: 4px;
+                border-radius: $radius-1;
 
-                background-color: $color-primary;
+                background-color: $primary-700;
 
                 img {
                     margin: auto;
-                    max-width: 190px;
-                    max-height: 190px;
+                    max-width: $length-192;
+                    max-height: $length-192;
                 }
             }
         }
@@ -129,31 +132,33 @@ $content-width: 1145px;
 
             button, .btn-ico {
                 width: 100%;
-                padding: 0;
-                margin-top: 5px;
-                margin-bottom: 5px;
-                background: saturate($color-primary, 5%);
 
-                color: white;
+                margin-top: $length-6;
+                margin-bottom: $length-6;
+                padding: 0;
+
+                background: $primary-600;
+
+                color: $white;
                 text-align: center;
                 text-transform: uppercase;
-                font-size: 0.7em;
+                font-size: $size-10;
                 font-weight: 400;
 
                 #subscriber_count, #subscriber_count_combined {
-                    margin-left: 10px;
+                    margin-left: $length-10;
                 }
 
                 &:hover,
                 &:focus {
-                    color: white !important;
-                    background: $color-header-hover !important;
+                    color: $white !important;
+                    background: $primary-700 !important;
                 }
 
                 &[disabled],
                 &[disabled]:hover {
-                    color: white !important;
-                    background: saturate($color-primary, 5%) !important;
+                    color: $white !important;
+                    background: $primary-600 !important;
                 }
             }
 
@@ -167,7 +172,7 @@ $content-width: 1145px;
                     flex: 2;
 
                     &:not(:first-child) {
-                        margin-left: .4rem;
+                        margin-left: $length-4;
                     }
 
                     &.primary-button {
@@ -177,21 +182,21 @@ $content-width: 1145px;
                     &.static-button {
                         @extend .btn-ico;
 
-                        padding-top: .4em;
+                        padding-top: $length-4;
 
                         &.statistic {
-                            font-size: .9em;
+                            font-size: $size-8;
                         }
 
                         &:hover,
                         &:focus {
-                            background: saturate($color-primary, 5%) !important;
+                            background: $primary-600 !important;
                         }
                     }
 
                     // FIXME too specific
                     #follow_text {
-                        padding-left: 12px;
+                        padding-left: $length-12;
                     }
                 }
             }
@@ -199,15 +204,15 @@ $content-width: 1145px;
 
         .title {
             flex: 12;
-            align-self: start;
+            align-self: flex-start;
 
             display: block;
             color: white;
-            font-size: 2.2rem;
+            font-size: $size-6;
 
             .line {
                 display: block;
-                line-height: 34px;
+                line-height: 1.5;
 
                 .line-item {
                     display: inline-block;
@@ -226,10 +231,13 @@ $content-width: 1145px;
                 display: block;
                 margin: 0;
                 padding: 0;
-                color: inherit;
-                font-size: 5rem;
-                line-height: 50px;
+
                 border: none;
+
+                color: inherit;
+
+                font-size: $size-3;
+                line-height: 1;
 
                 @include mobile {
                     display: flex;
@@ -245,99 +253,117 @@ $content-width: 1145px;
                 display: inline-block;
                 margin: 0;
                 padding: 0;
+
+                border: none;
+
                 vertical-align: bottom;
+
                 font-size: inherit;
                 line-height: inherit;
+
                 color: inherit;
-                border: none;
             }
 
             .option {
                 display: inline-block;
-                margin: 0 15px 0 0;
+                margin: 0 $length-16 0 0;
             }
 
             a {
                 display: inline;
-                color: white;
+                color: $white;
                 text-decoration: none;
             }
 
             .has-separator {
                 position: relative;
-                padding-left: 25px;
-                padding-right: 5px;
+
+                padding-left: $length-24;
+                padding-right: $length-6;
 
                 &:after {
                     content: '';
+
                     position: absolute;
-                    top: 10px;
+                    top: $length-12;
                     left: 0;
-                    width: 10px;
-                    height: 10px;
-                    transform: rotate(45deg);
-                    border-color: white;
+
+                    width: $length-10;
+                    height: $length-10;
+
+                    border-color: rgba($primary-000, .8);
                     border-style: solid;
-                    border-width: 2px 2px 0 0;
-                    opacity: .5;
+                    border-width: $length-2 $length-2 0 0;
+
+                    transform: rotate(45deg);
                 }
             }
         }
 
         .aside {
-            display: flex;
-            flex-direction: column;
-            margin-top: 10px;
-            margin-right: 20px;
+            margin-top: $length-10;
+            margin-right: $length-20;
 
             .search {
                 display: flex;
                 flex-direction: row;
-                background: white;
+
+                height: $length-48;
+
+                background: $true-white;
 
                 label {
-                    line-height: 50px;
+                    height: $length-48;
+
                     margin: 0;
-                    padding: 0 15px;
+                    padding: 0 $length-16;
+
+                    font-size: $size-6;
+                    line-height: 2;
                 }
 
                 input {
-                    line-height: 50px;
-                    height: 50px;
-                    margin: 0;
-                    padding: 0 15px;
-                    border: none;
                     flex: 1 1 auto;
+
                     width: initial !important;
                     min-width: 0;
+                    height: $length-48;
+
+                    margin: 0;
+                    padding: 0 $length-16;
+
+                    border: none;
+
                     font-weight: 100;
+                    line-height: $length-48;
                 }
 
                 button {
-                    width: 50px;
-                    height: 50px;
-                    line-height: 50px;
-                    background: #fff;
+                    width: $length-48;
+                    height: $length-48;
+
+                    background: $true-white;
+                    line-height: $length-48;
 
                     &:after {
-                        margin: 16px !important;
+                        margin: $length-16 !important;
                         @include sprite-position($search);
                         @include sprite-width($search);
                         @include sprite-height($search);
                     }
 
                     &:hover, &:focus {
-                        background: #ccc !important;
+                        background: $grey-200 !important;
                     }
                 }
             }
 
             .under-search {
-                font-size: .7em;
+                font-size: $size-8;
 
                 p, ul {
                     margin: 0;
-                    padding: .4rem 0;
+                    padding: $length-4 0;
                 }
 
                 ul li {
@@ -345,13 +371,13 @@ $content-width: 1145px;
                     list-style-type: none;
 
                     &:not(:first-child) {
-                        margin-left: 1.2rem;
+                        margin-left: $length-12;
 
                         &:before {
                             content: "—";
                             position: relative;
-                            left: -.65rem;
-                            top: -.1rem;
+                            left: -$length-6;
+                            top: -$length-1;
                         }
                     }
                 }
@@ -368,21 +394,15 @@ $content-width: 1145px;
     .flexpage-title-tool .actions {
         & ~ .title,
         & ~ .aside {
-            margin-right: 200px;
+            margin-right: $length-192;
         }
-    }
-}
-
-@include until-wide {
-   .flexpage .flexpage-wrapper {
-        padding: 20px 10px;
     }
 }
 
 @include until-desktop {
     .flexpage {
         .flexpage-wrapper {
-            padding: 20px 10px;
+            padding: $length-20 $length-10;
         }
 
         .flexpage-column {
@@ -396,7 +416,7 @@ $content-width: 1145px;
         }
 
         .flexpage-title-tool {
-            padding: 15px 25px;
+            padding: $length-16 $length-24;
 
             .picto,
             .avatar,
@@ -415,13 +435,13 @@ $content-width: 1145px;
 @include mobile {
     .flexpage {
         .flexpage-title-tool {
-            padding: 15px 0;
+            padding: $length-16 0;
 
             .aside {
                 margin-right: 0;
 
                 .search label {
-                    padding-right: 5px;
+                    padding-right: $length-6;
                 }
             }
         }

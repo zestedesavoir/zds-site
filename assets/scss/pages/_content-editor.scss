@@ -11,12 +11,12 @@
 .edit-button {
   position: relative;
 
-  margin: 0 .4rem;
+  margin: 0 $length-4;
 
-  width: 24px;
-  height: 24px;
+  width: $length-24;
+  height: $length-24;
 
-  border-radius: 100%;
+  border-radius: $radius-round;
 
   transition: background-color .1s ease-in-out;
 
@@ -42,11 +42,11 @@
 
     position: absolute;
 
-    top: 4px;
-    left: 4px;
+    top: $length-4;
+    left: $length-4;
 
-    width: 16px;
-    height: 16px;
+    width: $length-16;
+    height: $length-16;
 
     background-repeat: no-repeat;
 

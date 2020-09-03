@@ -23,13 +23,13 @@ body {
 }
 
 @mixin normal-selection {
-    color: white;
+    color: $white;
     background: $color-primary;
 }
 
 @mixin negative-selection {
     color: $color-primary;
-    background: white;
+    background: $white;
 }
 
 @include set-selection {
@@ -37,7 +37,7 @@ body {
 }
 
 // Elements with a dark background
-.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .taglist {
+.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .modal-title, .taglist, .hat, .linkbox-item.primary {
     &, * {
         @include set-selection {
             @include negative-selection;
@@ -134,7 +134,7 @@ nav {
     width: $length-18;
     height: $length-18;
 
-    background-color: $primary-600;
+    background-color: $primary-500;
     border-radius: $radius-round;
 
     font-weight: bold;

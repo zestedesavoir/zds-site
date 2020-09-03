@@ -73,7 +73,7 @@
         width: 100%;
         height: 1.3em; // This precise height is required for the highlighted lines to not overlap.
 
-        background-color: transparentize($accent-300, .66);
+        background-color: transparentize($accent-200, .66);
       }
     }
   }

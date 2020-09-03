@@ -26,6 +26,7 @@ $logo-width: 24rem;
         button {
             text-decoration: none;
             color: $white;
+
             transition-property: background;
             transition-duration: $transition-duration;
 
@@ -211,7 +212,7 @@ $logo-width: 24rem;
             .notif-count {
                 position: absolute;
                 top: 50%;
-                right: 50%;
+                right: 56%;
 
                 display: block;
 
@@ -271,11 +272,11 @@ $logo-width: 24rem;
         overflow: hidden;
 
         @include mobile {
-            top: 50px;
-            height: calc(100vh - 50px);
+            top: $length-48;
+            height: calc(100vh - #{$length-48});
 
             @at-root body.has-top-banner .logbox .dropdown {
-                height: calc(100vh - 75px);
+                height: calc(100vh - #{$length-48 + $length-24});
             }
         }
 
@@ -382,7 +383,7 @@ $logo-width: 24rem;
                     display: block;
                     padding: $length-4 $length-8 $length-2;
 
-                    width: calc(100% - $length-14);
+                    width: calc(100% - #{$length-14});
                     height: $length-32;
 
                     overflow: hidden;
@@ -513,8 +514,12 @@ $logo-width: 24rem;
             background-image: url("../images/logo-mobile.png") !important;
         }
 
-        header .header-menu {
-            display: none;
+        header {
+            height: $length-48 + $length-2; // Content height + border
+
+            .header-menu {
+                display: none;
+            }
         }
 
         .logbox {
@@ -533,21 +538,12 @@ $logo-width: 24rem;
                 width: $length-48;
             }
 
-            .dropdown {
-                top: $length-48;
-                height: calc(100vh - $length-48);
-
-                @at-root body.has-top-banner .logbox .dropdown {
-                    height: calc(100vh - ($length-48 + 15px));
-                }
-            }
-
             .dropdown.my-account-dropdown .dropdown-list {
                 bottom: 0;
 
                 li {
-                    height: 45px;
-                    line-height: 45px;
+                    height: $length-48;
+                    line-height: $length-48;
                 }
             }
 
@@ -582,7 +578,7 @@ $logo-width: 24rem;
     }
 }
 
-// Just in case someone use a 200px-wide phone in 2020+
+// Just in case, you know, someone use a 200px-wide phone in 2020+
 @media only screen and (max-width: 239px) {
     .header-container .header-logo {
         position: absolute;
@@ -599,7 +595,7 @@ $logo-width: 24rem;
     .header-container {
         position: relative;
 
-        box-shadow: 0 0 4 rgba($black, 0.3);
+        box-shadow: 0 0 $length-4 rgba($black, 0.3);
         z-index: 1;
 
         header {

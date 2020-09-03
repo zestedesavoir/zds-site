@@ -1,11 +1,17 @@
-$color-linkbox-default: #777;
-
 .content-linkbox-list {
+    --color-linkbox-head: #{$grey-600};
+    --color-linkbox-body: #{$grey-500};
+    --color-linkbox-tail: #{$grey-400};
+
+    --color-linkbox-head-hover: #{$grey-700};
+    --color-linkbox-body-hover: #{$grey-600};
+    --color-linkbox-tail-hover: #{$grey-500};
+
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
 
-    margin: 0 0 0 -20px;
+    margin: 0 0 0 -#{$length-20};
 
     &.is-vertical {
         flex-direction: column;
@@ -36,48 +42,28 @@ $color-linkbox-default: #777;
             width: calc(100% - 20px);
         }
 
-        margin: 0 0 20px 20px;
+        margin: 0 0 $length-20 $length-20;
 
-        color: white;
+        color: $true-white;
 
-        a {
-            position: relative;
-            color: white;
-            text-decoration: none;
-            
-            &:after {
-                content: '';
-                position: absolute;
-                top: 15px; right: 15px;
-
-                width: 10px; height: 10px;
-                transform: rotate(45deg);
-
-                border-color: white;
-                border-style: solid;
-                border-width: 2px 2px 0 0;
-                opacity: .5;
-            }
-
-            &:hover:after, &:focus:after {
-                opacity: 1;
-            }
-        }
         .icon {
             width: 25px;
-            background: white;
+            background: $true-white;
         }
 
         .head {
             display: flex;
-            padding: 10px;
+            padding: $length-10;
 
             h3 {
-                font-size: 2.2rem;
-                line-height: 32px;
-                font-weight: normal;
-                margin: 0; padding: 0;
+                margin: 0;
+                padding: 0;
+
                 width: 100%;
+
+                font-size: $size-6;
+                font-weight: normal;
+                line-height: 1.3;
 
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -87,14 +73,15 @@ $color-linkbox-default: #777;
 
         .body {
             display: block;
-            padding: 10px 10px 5px 10px;
-            font-size: 1.3rem;
-            line-height: 1.7rem;
+            padding: $length-10 $length-10 $length-6 $length-10;
+            font-size: $size-10;
+            line-height: 1.5;
 
-            border-top: solid 1px rgba(0, 0, 0, .25);
+            border-top: solid $length-1 rgba($true-black, .2);
 
             p {
-                margin: 0 0 5px 0; padding: 0;
+                margin: 0 0 $length-6 0;
+                padding: 0;
 
                 &.right {
                     text-align: right;
@@ -104,14 +91,18 @@ $color-linkbox-default: #777;
 
         .tail {
             display: flex;
-            padding: 10px;
-            
-            border-top: solid 1px rgba(255, 255, 255, .2);
+            padding: $length-10;
+
+            border-top: solid $length-1 rgba($true-white, .2);
+
+            font-size: $size-9;
 
             p {
-                margin: 0; padding: 0;
-                line-height: 2.2rem;
+                margin: 0;
+                padding: 0;
+
                 width: 100%;
+                line-height: 1.6;
 
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -122,25 +113,30 @@ $color-linkbox-default: #777;
         // onlink transformation
         a {
             position: relative;
-            color: white;
+
+            color: $true-white;
             text-decoration: none;
 
             &:after {
                 content: '';
+
                 position: absolute;
-                top: 15px; right: 15px;
+                top: $length-16;
+                right: $length-16;
 
-                width: 10px; height: 10px;
-                transform: rotate(45deg);
+                width: $length-10;
+                height: $length-10;
 
-                border-color: white;
+
+                border-color: rgba($white, .5);
                 border-style: solid;
-                border-width: 2px 2px 0 0;
-                opacity: .5;
+                border-width: $length-2 $length-2 0 0;
+
+                transform: rotate(45deg);
             }
 
             &:hover:after, &:focus:after {
-                opacity: 1;
+                border-color: $white;
             }
 
             &.head { padding-right: 30px; }
@@ -149,39 +145,35 @@ $color-linkbox-default: #777;
             &.tail { padding-right: 30px; }
         }
 
-        // color management
-        .head { background: darken($color-linkbox-default, 10%); }
-        .body { background: $color-linkbox-default; }
-        .tail { background: lighten($color-linkbox-default, 5%); }
+        // Boxes colours
+        .head { background: var(--color-linkbox-head); }
+        .body { background: var(--color-linkbox-body); }
+        .tail { background: var(--color-linkbox-tail); }
 
         a:hover, a:focus {
-            &.head { background: darken($color-linkbox-default, 15%); }
-            &.body { background: darken($color-linkbox-default, 5%); }
-            &.tail { background: darken($color-linkbox-default, 0%); }
+            &.head { background: var(--color-linkbox-head-hover); }
+            &.body { background: var(--color-linkbox-body-hover); }
+            &.tail { background: var(--color-linkbox-tail-hover); }
         }
 
         &.primary {
-            .head { background: darken($color-primary, 5%); }
-            .body { background: lighten($color-primary, 5%); }
-            .tail { background: lighten($color-primary, 15%); }
+            --color-linkbox-head: #{$primary-700};
+            --color-linkbox-body: #{$primary-500};
+            --color-linkbox-tail: #{$primary-300};
 
-            a:hover, a:focus {
-                &.head { background: darken($color-primary, 10%); }
-                &.body { background: $color-primary; }
-                &.tail { background: lighten($color-primary, 10%); }
-            }
+            --color-linkbox-head-hover: #{$primary-800};
+            --color-linkbox-body-hover: #{$primary-600};
+            --color-linkbox-tail-hover: #{$primary-400};
         }
 
         &.secondary {
-            .head { background: darken($color-secondary, 15%); }
-            .body { background: darken($color-secondary, 5%); }
-            .tail { background: $color-secondary; }
+            --color-linkbox-head: #{$accent-800};
+            --color-linkbox-body: #{$accent-700};
+            --color-linkbox-tail: #{$accent-600};
 
-            a:hover, a:focus {
-                &.head { background: darken($color-secondary, 20%); }
-                &.body { background: darken($color-secondary, 10%); }
-                &.tail { background: darken($color-secondary, 5%); }
-            }
+            --color-linkbox-head-hover: #{$accent-900};
+            --color-linkbox-body-hover: #{$accent-800};
+            --color-linkbox-tail-hover: #{$accent-800};
         }
     }
 }
