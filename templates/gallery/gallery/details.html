@@ -50,12 +50,12 @@
 
                 {% if permissions.write and not content_linked %}
                     <li>
-                        <a href="#add-user-modal" class="open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
+                        <a href="#add-user-modal" class="btn btn-add open-modal ico-after more blue">{% trans "Ajouter un utilisateur" %}</a>
                         {% crispy form %}
                     </li>
                     <li>
-                        <a href="#edit-user-modal" class="open-modal ico-after edit blue">{% trans "Gérer les utilisateurs" %}</a>
-                        <div id="edit-user-modal" class="modal" data-modal-close="{% trans "Fermer" %}">
+                        <a href="#edit-user-modal" class="btn btn-add open-modal ico-after edit blue">{% trans "Gérer les utilisateurs" %}</a>
+                        <div id="edit-user-modal" class="modal modal-flex" data-modal-close="{% trans "Fermer" %}">
                             {% if users|length > 1 %}
                                 <table>
                                     <thead>
@@ -103,7 +103,7 @@
                                     </tbody>
                                 </table>
                             {% else %}
-                                <p>{% trans "Vous êtes seul." %}</p>
+                                <p>{% trans "Vous êtes seul⋅e." %}</p>
                             {% endif %}
                             <p>
                                 <button type="submit" href="#add-user-modal" class="open-modal">

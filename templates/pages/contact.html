@@ -41,19 +41,19 @@
         {% if contact_group.persons_in_charge.count >= 1 %}
             <p>
                 {% if contact_group.persons_in_charge.count >= 2 %}
-                    {% trans "Les personnes responsables du groupe sont :" %}
+                    {% trans "Les personnes responsables du groupe sont" %}
                 {% else %}
-                    {% trans "La personne responsable du groupe est :" %}
+                    {% trans "La personne responsable du groupe est" %}
                 {% endif %}
                 {% for person in contact_group.persons_in_charge.all %}
-                    {% include "misc/member_item.part.html" with avatar=True member=person %}
+                    {% include "misc/member_item.part.html" with avatar=True member=person inline=True only %}
                 {% endfor %}
                 .
             </p>
         {% endif %}
         {% with users=contact_group.group.user_set.all %}
             {% if users %}
-                <p>{% trans "Les membres sont les suivants" %} :</p>
+                <p>{% trans "Les membres sont les suivants." %}</p>
                 <div class="authors">
                     <ul>
                         {% for member in users %}

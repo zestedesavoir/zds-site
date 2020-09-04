@@ -119,8 +119,8 @@
 
     .subtitle {
         margin-top: -$length-12;
-        margin-bottom: $length-12;
-        padding: 10px 0;
+        margin-bottom: $length-4;
+        padding: $length-10 0;
 
         border-bottom: 1px solid $grey-000;
 
@@ -135,38 +135,6 @@
         display: block;
         color: $grey-600;
         margin-bottom: $length-12;
-    }
-
-    .member-item {
-        .avatar {
-            margin-top: -$length-2;
-            height: $length-20;
-            width: $length-20;
-            border: $length-1 solid $grey-200;
-        }
-
-        .avatar + span {
-            padding-left: $length-4;
-        }
-
-        &:hover .avatar {
-            border-color: $grey-400;
-        }
-    }
-
-    .member-item + .member-item {
-        margin-left: $length-8;
-    }
-
-    .authors .member-item {
-        margin-right: 0;
-        margin-left: $length-8;
-
-        .avatar {
-            height: $length-32;
-            width: $length-32;
-            margin: -#{$length-4} $length-6 0 -#{$length-6};
-        }
     }
 
     .open-zen-mode {
