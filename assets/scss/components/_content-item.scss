@@ -232,7 +232,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
 
                 border-radius: $radius-2;
 
-                background-color: $primary-000;
+                background-color: $grey-100;
                 color: $primary-800;
 
                 text-align: center;
@@ -240,8 +240,8 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
                 transition: color $transition-duration, background-color $transition-duration;
 
                 &:hover, &:focus {
-                    background-color: $primary-100;
-                    color: $primary-600;
+                    background-color: $grey-200;
+                    color: $grey-900;
                 }
             }
         }
