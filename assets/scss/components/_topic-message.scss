@@ -828,7 +828,7 @@ form.topic-message {
             button {
                 float: right;
                 display: block;
-                width: calc(50% - $length-2);
+                width: calc(50% - #{$length-2});
                 margin-left: $length-1 !important;
 
                 &.btn-grey {
