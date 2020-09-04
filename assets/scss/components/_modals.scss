@@ -58,6 +58,8 @@
     .modal-title {
         display: block;
 
+        margin-left: 0;
+
         height: $length-48;
         background: $color-primary;
 
@@ -71,8 +73,6 @@
         text-shadow: rgba($black, 0.75) 0 0 $length-4;
 
         &.ico-after {
-            text-indent: $length-38;
-
             &:after {
                 margin: $length-16 0 0 $length-14;
             }
@@ -182,9 +182,7 @@
     }
 }
 
-/**
- * Specific modal content
- */
+// Specific modal content
 .modal .vote-details {
     display: flex;
 

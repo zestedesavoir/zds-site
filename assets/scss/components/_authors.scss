@@ -1,68 +1,91 @@
-.authors {
-    margin-bottom: $length-20 !important;
-    padding-bottom: $length-10;
+.member-item {
+    display: inline-flex;
+    align-items: center;
 
-    border-bottom: $length-1 solid $grey-100;
-    color: $grey-600;
+    margin: 0;
+    padding: 0;
+
+    height: $length-32 + $length-4;
+
+    text-decoration: none;
+
+    &:hover, &:focus {
+        background-color: $grey-100;
+    }
+
+    .avatar {
+        box-sizing: border-box;
+
+        width: $length-32;
+        height: $length-32;
+
+        border: $length-1 solid $grey-200;
+    }
+
+    span {
+        padding: 0 $length-8;
+
+        &:only-child {
+            padding: 0;
+        }
+    }
+
+    .info {
+        padding-left: $length-6;
+        color: $grey-700;
+    }
+
+    &.is-inline {
+        margin: 0;
+        padding: 0 $length-2;
+
+        height: $length-24;
+        vertical-align: middle;
+
+        .avatar {
+            width: $length-20;
+            height: $length-20;
+        }
+
+        span {
+            padding: 0 $length-2;
+        }
+    }
+}
+
+.authors {
+    display: flex;
+    align-items: center;
 
     .authors-label {
         display: inline-block;
+        margin-right: $length-4;
     }
 
     ul {
-        display: inline-block;
+        display: flex;
         list-style: none;
 
         margin: 0;
         padding: 0;
 
         li {
-            display: inline-block;
             margin: 0;
 
-            .avatar {
-                height: $length-32;
-                width: $length-32;
-
-                margin-right: $length-4;
-                margin-top: -$length-4;
-
-                border: $length-1 solid $grey-200;
+            .member-item {
+                margin: 0 $length-8 0 0;
+                padding: $length-1;
+                padding-left: $length-4;
             }
+        }
+    }
 
-            a {
-                display: block;
+    .btn-add {
+        color: $grey-600;
 
-                padding: 0 $length-8;
-
-                height: $length-38;
-
-                line-height: 2.65;
-                color: $color-link;
-                text-decoration: none;
-
-                transition: background $transition-duration ease,
-                            color $transition-duration ease,;
-
-                &.ico-after {
-                    padding-left: $length-32;
-
-                    &:after {
-                        margin: $length-10 0 0 $length-8;
-                    }
-                }
-
-                &:hover,
-                &:focus {
-                    background: $grey-200;
-                    color: $color-primary;
-                }
-            }
-
-            .info {
-                padding-left: $length-6;
-                color: $grey-700;
-            }
+        &:hover {
+            background-color: $grey-100;
+            color: $grey-700;
         }
     }
 }
