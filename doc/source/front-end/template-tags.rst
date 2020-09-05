@@ -25,7 +25,7 @@ produira le code suivant :
 
     <a href="module/toto?key1=1&key2=2">Mon lien</a>
 
-si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
+…si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
 
 Le module ``trail``
 ===================
@@ -63,7 +63,7 @@ une variable. Ainsi le code suivant :
     {% endfor %}
     {% endcaptureas %}
 
-ne produit rien en sortie mais affecte le résultat du bloc entre les éléments ``{% captureas var2 %}`` et
+…ne produit rien en sortie mais affecte le résultat du bloc entre les éléments ``{% captureas var2 %}`` et
 ``{% endcaptureas %}``, soit ``0123456789``, dans la variable de gabarit ``var2``
 
 Le module ``date``
@@ -102,7 +102,7 @@ sera rendu :
 
     jeudi 01 janvier 1970 à 00h00
 
-Si le contenu de ``date_epoch`` etait de ``42``.
+ …si le contenu de ``date_epoch`` était de ``42``.
 
 ``from_elasticsearch_date``
 ---------------------------
