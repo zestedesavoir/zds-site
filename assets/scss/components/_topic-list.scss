@@ -1,3 +1,12 @@
+.topics-list-header {
+    display: flex;
+    justify-content: space-between;
+
+    a, button {
+        float: none;
+    }
+}
+
 .topic-list {
     margin-top: $length-48 !important;
     margin-bottom: $length-48 !important;
