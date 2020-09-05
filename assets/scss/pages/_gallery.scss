@@ -1,12 +1,3 @@
-header.gallery-header {
-    display: flex;
-    justify-content: space-between;
-
-    a, button {
-        float: none;
-    }
-}
-
 .gallery {
     &.grid-view {
         display: flex;
