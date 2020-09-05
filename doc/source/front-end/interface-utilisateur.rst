@@ -109,8 +109,8 @@ Voici un exemple.
 
 .. sourcecode:: html+django
 
-  <a href="#modal" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
-    <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+  <a href="#modal" class="open-modal edit-button" title="Modifier la licence">
+    <span class="visuallyhidden">Modifier la licence</span>
   </a>
 
 Pour s'assurer que le bouton de modification et ce qu'il permet de modifier
@@ -133,11 +133,10 @@ bouton de modification, l'on pourrait utiliser le code HTML suivant.
 
   <div class="editable-element">
     <p>{{ content.licence }}</p>
-    <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
-      <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+    <a href="#edit-license" class="open-modal edit-button" title="Modifier la licence">
+      <span class="visuallyhidden">Modifier la licence</span>
     </a>
   </div>
-
 
 Formulaires
 ===========
@@ -225,7 +224,7 @@ Dans certains cas, les modales ne sont pas des formulaires mais simplement des b
 Messages flash
 ==============
 
-Un message dit "flash" est un message d'information ou d'alerte qui est masquable selon la volonté de l'utilisateur et qui disparraîtra généralement à la page suivante (comportement selon le back-end).
+Un message dit "flash" est un message d'information ou d'alerte qui est masquable selon la volonté de l'utilisateur et qui disparaîtra généralement à la page suivante (comportement selon le back-end).
 
 Utilisation de base
 -------------------
