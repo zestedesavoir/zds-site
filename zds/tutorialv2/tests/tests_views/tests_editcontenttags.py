@@ -133,7 +133,6 @@ class EditContentTagsWorkflowTests(TutorialTestMixin, TestCase):
 
 @override_for_contents()
 class EditContentTagsFunctionalTests(TutorialTestMixin, TestCase):
-    # TODO
     """Test the detailed behavior of the feature, such as updates of the database or repositories."""
 
     def setUp(self):

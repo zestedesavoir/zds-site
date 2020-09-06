@@ -92,8 +92,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             context['formAddSuggestion'] = SearchSuggestionForm(content=self.object,
                                                                 initial={'excluded_pk': ','.join(excluded_for_search)})
 
-        initial_tags_field = ', '.join(self.object.tags.values_list('title', flat=True))
-        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, initial={'tags': initial_tags_field})
+        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, self.object)
 
         # pagination of comments
         make_pagination(context,

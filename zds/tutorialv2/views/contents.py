@@ -150,8 +150,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             self.versioned_object,
             initial={'license': self.versioned_object.licence})
 
-        initial_tags_field = ', '.join(self.object.tags.values_list('title', flat=True))
-        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, initial={'tags': initial_tags_field})
+        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, self.object)
 
         if self.versioned_object.requires_validation:
             context['formPublication'] = PublicationForm(self.versioned_object, initial={'source': self.object.source})

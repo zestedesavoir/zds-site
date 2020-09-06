@@ -343,7 +343,9 @@ class EditContentTagsForm(forms.Form):
         error_messages={'max_length': _('La liste de tags saisie dépasse la longueur maximale autorisée.')}
     )
 
-    def __init__(self, content, *args, **kwargs):
+    def __init__(self, content, db_content, *args, **kwargs):
+        self.db_content = db_content
+        kwargs['initial'] = {'tags': ', '.join(db_content.tags.values_list('title', flat=True))}
         super(forms.Form, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()

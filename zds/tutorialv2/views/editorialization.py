@@ -96,12 +96,8 @@ class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def get_form_kwargs(self):
         kwargs = super(EditContentTags, self).get_form_kwargs()
         kwargs['content'] = self.versioned_object
+        kwargs['db_content'] = self.object
         return kwargs
-
-    def get_initial(self):
-        initial = super(EditContentTags, self).get_initial()
-        initial['tags'] = ', '.join(self.object.tags.values_list('title', flat=True))
-        return initial
 
     def form_valid(self, form):
         self.object.tags.clear()
