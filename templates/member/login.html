@@ -53,12 +53,8 @@
             <div class="content-col-2">
                 <h2>{% trans "Connexion via réseaux sociaux" %}</h2>
 
-                <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
-                    {% trans "Connexion via Facebook" %}
-                </a>
-                <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google light btn-google btn-holder">
-                    {% trans "Connexion via Google" %}
-                </a>
+                {% include "member/includes/login_button.part.html" with network="facebook" %}
+                {% include "member/includes/login_button.part.html" with network="google" %}
             </div>
         </section>
     {% else %}

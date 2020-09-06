@@ -1,0 +1,11 @@
+{% load captureas %}
+{% load i18n %}
+{% load static %}
+
+{% captureas route_name %}{% if network == "facebook" %}facebook{% else %}google-oauth2{% endif %}{% endcaptureas %}
+{% captureas icon_path %}images/brands/{{ network }}.svg{% endcaptureas %}
+
+<a href="{% url "social:begin" route_name %}" class="btn is-social-login is-{{ network }}">
+    <img src="{% static icon_path %}" alt="{{ network | capfirst }}" />
+    <span>Se connecter avec {{ network | capfirst }}</span>
+</a>
