@@ -1,24 +1,48 @@
 -   model: utils.Licence
-    pk: 1
-    fields:
-        code : Beerware
-        title : Licence Beerware
-        description : Si l'utilisateur rencontre l'auteur et considère que le logiciel de ce dernier est utile, il est encouragé à lui offrir une bière « en retour ».
--   model: utils.Licence
-    pk: 2
-    fields:
-        code : GNU GPL
-        title : Licence GNU GPL
-        description :  Chaque personne qui adhère aux termes et aux conditions de la GPL a la permission de modifier le travail, de l'étudier et de redistribuer le travail ou un travail dérivé.
--   model: utils.Licence
-    pk: 7
-    fields:
-        code : Tous droits réservés
-        title : Tous droits réservés
-        description :  Droit d'auteur pur et dur.
--   model: utils.Licence
-    pk: 42
+    pk: 8
     fields:
         code: CC 0
         title: Licence CC 0
-        description: Domaine public - Licence CC 0
+        description: Domaine public - Licence CC 0.
+-   model: utils.Licence
+    pk: 1
+    fields:
+        code: CC BY
+        title: Licence CC BY
+        description: Paternité - Licence CC BY.
+-   model: utils.Licence
+    pk: 4
+    fields:
+        code: CC BY-NC
+        title: Licence CC BY-NC
+        description: Paternité, non-commercial - Licence CC BY-NC.
+-   model: utils.Licence
+    pk: 6
+    fields:
+        code: CC BY-NC-ND
+        title: Licence CC BY-NC-ND
+        description: Paternité, non-commercial, pas de modification - Licence CC BY-NC-ND.
+-   model: utils.Licence
+    pk: 5
+    fields:
+        code: CC BY-NC-SA
+        title: Licence CC BY-NC-SA
+        description: Paternité, non-commercial, partage dans les mêmes conditions - Licence CC BY-NC-SA.
+-   model: utils.Licence
+    pk: 3
+    fields:
+        code: CC BY-ND
+        title: Licence CC BY-ND
+        description: Paternité, pas de modification - Licence CC BY-ND.
+-   model: utils.Licence
+    pk: 2
+    fields:
+        code: CC BY-SA
+        title: Licence CC BY-SA
+        description: Paternité, partage dans les mêmes conditions - Licence CC BY-SA.
+-   model: utils.Licence
+    pk: 7
+    fields:
+        code: Tous droits réservés
+        title: Tous droits réservés
+        description: Droit d'auteur pur et dur.
