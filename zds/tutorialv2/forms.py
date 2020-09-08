@@ -386,7 +386,8 @@ class EditContentLicenseForm(forms.Form):
         required=False
     )
 
-    def __init__(self, content, *args, **kwargs):
+    def __init__(self, versioned_content, *args, **kwargs):
+        kwargs['initial'] = {'license': versioned_content.licence}
         super(forms.Form, self).__init__(*args, **kwargs)
 
         self.helper = FormHelper()
@@ -394,9 +395,9 @@ class EditContentLicenseForm(forms.Form):
         self.helper.form_method = 'post'
         self.helper.form_id = 'edit-license'
         self.helper.form_class = 'modal modal-flex'
-        self.helper.form_action = reverse('content:edit-license', kwargs={'pk': content.pk})
+        self.helper.form_action = reverse('content:edit-license', kwargs={'pk': versioned_content.pk})
         self.previous_page_url = reverse('content:view',
-                                         kwargs={'pk': content.pk, 'slug': content.slug})
+                                         kwargs={'pk': versioned_content.pk, 'slug': versioned_content.slug})
         self._create_layout()
 
         if 'type' in self.initial:
