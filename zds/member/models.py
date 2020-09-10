@@ -15,6 +15,7 @@ from zds.notification.models import TopicAnswerSubscription
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils import slugify
 from zds.utils.models import Alert, Licence, Hat
 
 from zds.forum.models import Forum
@@ -404,7 +405,11 @@ class Profile(models.Model):
         profile_hats = list(self.hats.all())
         groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
         hats = profile_hats + groups_hats
-        hats.sort(key=lambda hat: hat.name)
+
+        # We sort internal hats before the others, and we slugify for sorting to sort correctly
+        # with diatrics.
+        hats.sort(key=lambda hat: f'{"a" if hat.is_staff else "b"}-{slugify(hat.name)}')
+
         return hats
 
     def get_requested_hats(self):
