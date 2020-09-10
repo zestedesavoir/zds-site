@@ -85,7 +85,13 @@ body.userprofilepage {
             flex: 12;
 
             @include desktop {
-                max-width: 75%;
+                &.is-single-column {
+                    max-width: 100%;
+                }
+
+                &:not(.is-single-column) {
+                    max-width: 75%;
+                }
             }
 
             padding-right: $length-12;
