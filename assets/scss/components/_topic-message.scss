@@ -130,6 +130,8 @@ div.msg-are-hidden {
             img {
                 height: $length-48;
                 width: $length-48;
+
+                box-shadow: inset 0 0 $length-1 rgba($black, .1);
             }
         }
 
@@ -185,117 +187,227 @@ div.msg-are-hidden {
 
         background-color: $true-white;
 
-        .is-author {
-            position: absolute;
-            top: -$length-16;
-            left: $length-10;
+        header {
+            display: flex;
+            align-items: flex-start;
 
-            padding: 0 $length-6;
+            ul.message-metadata {
+                flex: 2;
 
-            border-top: 1px solid $grey-200;
+                margin: $length-8;
+                margin-top: $length-6;
 
-            background: $true-white;
+                padding: 0;
 
-            color: $grey-500;
-            font-size: $font-size-11;
-            line-height: 1.5;
+                list-style: none;
 
-            &:before,
-            &:after {
-                content: " ";
+                li {
+                    display: inline-block;
+                    vertical-align: middle;
 
-                position: absolute;
-                top: 0;
+                    &:not(:first-child) {
+                        position: relative;
+                        margin-left: $length-16;
 
-                display: block;
+                        &::before {
+                            content: "•";
+                            position: absolute;
+                            left: -$length-10;
+                        }
+                    }
 
-                width: $length-1;
-                height: $length-16 - $length-1; // Align perfectly (off-grid but this will be removed soon anyway).
+                    &, a {
+                        color: $grey-500;
+                        font-size: $font-size-10;
+                    }
 
-                background: $grey-200;
-            }
+                    a {
+                        text-decoration: none;
 
-            &:before {
-                left: 0;
-            }
-            &:after {
-                right: 0;
-            }
-        }
+                        &:hover, &:focus {
+                            text-decoration: underline;
+                        }
 
-        .message-metadata {
-            display: inline-block;
-            margin-left: $length-6;
+                        &.username {
+                            color: $grey-900;
+                            font-weight: bold;
+                        }
+                    }
 
-            font-size: $font-size-10;
+                    div.hat {
+                        height: auto;
 
-            a {
-                display: block;
-                height: $length-32;
-                padding: 0 $length-6;
+                        margin: 0;
+                        padding: 0;
 
-                float: left;
+                        a.name {
+                            border-radius: $radius-1;
+                            color: $white;
 
-                border-bottom: $length-1 solid $grey-200;
-
-                color: $grey-500;
-                text-decoration: none;
-                line-height: $length-32;
-
-                transition-property: color, outline, border;
-                transition-timing-function: ease;
-                transition-duration: $transition-duration;
-
-                &:hover,
-                &:focus {
-                    border-bottom: $length-1 solid $color-link;
-                    color: $color-link;
-                    outline: none;
+                            &:hover, &:focus {
+                                color: $color-hat;
+                                background-color: $white;
+                                text-decoration: none;
+                            }
+                        }
+                    }
                 }
             }
 
-            .username {
-                color: $grey-800;
-                font-size: $font-size-9;
-                margin-right: $length-4;
-            }
+            aside.message-actions {
+                position: relative;
+                margin-bottom: $length-8;
 
-            .date {
-                line-height: $length-32;
+                ul {
+                    position: absolute;
+                    top: 0;
+                    right: 0;
 
-                .long-date {
-                    display: none;
+                    margin: 0;
+                    padding: 0;
+
+                    li {
+                        display: block;
+                        box-sizing: border-box;
+
+                        min-width: $length-128;
+                        height: $length-32;
+
+                        user-select: none;
+
+                        transition: $transition-duration ease-in-out;
+                        transition-property: min-width, width, box-shadow;
+
+                        form {
+                            margin: 0;
+                            padding: 0;
+
+                            width: 100%;
+                            height: 100%;
+                        }
+
+                        a, button {
+                            display: block;
+                            float: none; // to cancel universal button floating
+
+                            box-sizing: border-box;
+
+                            margin: 0;
+                            padding: $length-6;
+                            padding-left: $length-32;
+
+                            width: 100%;
+                            height: 100%;
+
+                            color: $grey-500;
+                            text-decoration: none;
+
+                            // for buttons
+                            text-align: left;
+                            line-height: unset;
+
+                            &:hover, &:focus {
+                                background-color: $blue-000;
+                            }
+
+                            &.ico-after:after {
+                                top: $length-8;
+                                left: $length-8;
+
+                                margin: 0; // for buttons
+                            }
+                        }
+
+                        &:not(:first-child) {
+                            display: none;
+                        }
+
+                        &:first-child {
+                            padding-right: $length-32;
+
+                            &:after {
+                                content: '…';
+
+                                position: absolute;
+
+                                top: 0;
+                                right: 0;
+
+                                padding: $length-6;
+                                padding-right: $length-16;;
+
+                                color: $grey-500;
+                                font-size: $font-size-9;
+
+                                line-height: .8;
+                            }
+                        }
+
+                        &.is-separator {
+                            // display: flex in :hover
+                            align-items: center;
+
+                            height: $length-48;
+                            padding: 0 0 0 $length-8;
+
+                            color: $grey-500;
+
+                            span {
+                                display: inline-block;
+
+                                margin-top: -$length-2;
+                                padding: 0 $length-8 0 0;
+                            }
+
+                            hr {
+                                flex: 2;
+
+                                height: $length-1;
+
+                                border: none;
+                                background-color: $grey-200;
+                            }
+                        }
+                    }
+
+                    &:hover, &:focus, &.is-active {
+                        z-index: 21;
+
+                        @include shadow-2;
+
+                        &, li, a, button {
+                            background-color: $true-white;
+                        }
+
+                        li {
+                            min-width: $length-192;
+
+                            &:first-child {
+                                padding-right: 0;
+
+                                &:after {
+                                    display: none;
+                                }
+                            }
+
+                            &:not(:first-child) {
+                                display: block;
+                            }
+
+                            &.is-separator {
+                                display: flex;
+                            }
+
+                            a, button {
+                                color: $grey-900;
+                            }
+                        }
+                    }
                 }
-            }
-        }
-
-        .message-actions {
-            position: absolute;
-            top: 0;
-            right: 0;
-
-            margin: 0;
-            padding: 0;
-
-            list-style: none;
-
-            li {
-                float: left;
             }
         }
 
         .message-content {
-            clear: both;
-            padding-top: $length-1;
-
-            & > div {
-                & > p:first-child {
-                    margin-top: $length-8;
-                }
-                & > figure:first-child {
-                    margin-top: $length-8;
-                }
-            }
 
             .message-hidden-content {
                 display: none;
@@ -349,6 +461,11 @@ div.msg-are-hidden {
                 margin: $length-10 0 $length-10 -#{$length-1};
                 background-color: transparent;
                 min-height: $length-128;
+            }
+
+            .message-hat-choice {
+                display: inline-block;
+                margin: $length-10;
             }
         }
 
@@ -504,29 +621,10 @@ div.msg-are-hidden {
             }
         }
 
-        .message-buttons {
-            margin: 0 0 0 $length-10;
-            padding: 0;
-
-            border-bottom: none;
-            list-style: none;
-
-            a {
-                text-indent: -9999px;
-                width: 0;
-
-                &:after {
-                    left: $length-12 !important;
-                }
-            }
-        }
-
         .message-submit {
             margin: 0 $length-10 $length-6 auto;
         }
 
-        .message-actions,
-        .message-buttons,
         .message-karma,
         .message-submit {
             display: flex;
@@ -596,7 +694,6 @@ div.msg-are-hidden {
         }
 
         .message-actions a,
-        .message-buttons a,
         .message-karma button {
             &:hover,
             &:focus {
@@ -656,32 +753,6 @@ form.topic-message {
             border-right: 0;
             border-left: 0;
 
-            padding-top: $length-64;
-
-            .message-metadata {
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: $length-10;
-
-                height: $length-32;
-                line-height: $length-32;
-
-                z-index: 15;
-
-                .username {
-                    margin-left: $length-6;
-                }
-
-                .date {
-                    float: right;
-                }
-            }
-
-            .message-actions {
-                margin: $length-32 $length-10 0 0;
-            }
-
             .message-bottom {
                 min-height: 0;
 
@@ -713,11 +784,6 @@ form.topic-message {
             }
         }
     }
-}
-
-.message-content .message-hat-choice {
-    display: inline-block;
-    margin: $length-10;
 }
 
 @include desktop {
@@ -772,10 +838,6 @@ form.topic-message {
                 border-right-color: $true-white;
             }
 
-            .is-author {
-                left: $length-6;
-            }
-
             .message-content {
                 margin: 0 $length-10;
 
@@ -810,15 +872,6 @@ form.topic-message {
 
 @include mobile {
     .topic-message .message {
-        .message-actions a {
-            width: 0;
-            text-indent: -9999px;
-
-            &:after {
-                left: $length-12 !important;
-            }
-        }
-
         .message-submit {
             display: block !important;
             margin: 0;
