@@ -1,14 +1,14 @@
 {% load date %}
 {% load i18n %}
 
+{% load captureas %}
 
+{% captureas edited_by_text %}
+    {% if message.editor and message.editor != message.author %}
+        {% blocktrans with editor=message.editor %}Modifié par {{ editor }}{% endblocktrans %}
+    {% else %}
+        {% blocktrans %}Modifié{% endblocktrans %}
+    {% endif %}
+{% endcaptureas %}
 
-{% if message.editor %}
-    {% blocktrans with editor=message.editor %}Édité par {{ editor }}{% endblocktrans %}
-{% else %}
-    {% blocktrans %}Édité{% endblocktrans %}
-{% endif %}
-
-<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}">
-    {{ message.update|format_date }}
-</time>
+<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}" title="{{ edited_by_text }} {{ message.update|format_date }}">{{ edited_by_text }}</time>

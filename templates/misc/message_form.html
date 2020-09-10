@@ -52,7 +52,6 @@
         <form action="{{ form_action }}" method="post">
             {% include "misc/message_user.html" with hide_metadata=True %}
 
-
             <div class="message">
                 <div class="message-content">
                     <textarea
@@ -62,6 +61,7 @@
                         {% if topic.is_locked or topic.antispam or topic.one_participant_remaining %}disabled{% endif %}
                         placeholder="Votre message au format Markdown"
                     >{{ text }}</textarea>
+
                     {% include 'misc/hat_choice.html' %}
                 </div>
 
@@ -90,6 +90,7 @@
                 <input type="hidden" name="last_note" value="{{ last_note_pk }}">
                 <input type="hidden" name="last_reaction" value="{{ last_reaction_pk }}">
                 <input type="hidden" name="last_post" value="{{ last_post_pk }}">
+
                 {% csrf_token %}
             </div>
         </form>
