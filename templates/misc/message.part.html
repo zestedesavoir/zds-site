@@ -34,6 +34,8 @@
            {% if is_repeated_message %}repeated{% endif %}
            {% if message_is_hidden %}hidden-by-someone{% endif %}"
 
+    id="p{{ message.id }}"
+
     {% if message_is_hidden %}aria-hidden="true"{% endif %}
 
     {% if comment_schema %}
@@ -53,11 +55,199 @@
 
 
     <div class="message">
-        {% if is_author %}
-            <span class="is-author">{% trans "Auteur du sujet" %}</span>
-        {% endif %}
+        {# Message header: name, date, “Topic author”, hat, actions #}
+        <header>
+            {% spaceless %}
+                <ul class="message-metadata">
+                    <li>
+                        <a href="{{ message.author.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                            <span itemprop="name">{{ message.author.username }}</span>
+                        </a>,
+                        <a href="#p{{ message.pk }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
+                            <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
+                                <span class="long-date">{{ message.pubdate | format_date }}</span>
+                                <span class="short-date">{{ message.pubdate | format_date:True }}</span>
+                            </time>
+                        </a>
+                    </li>
+                    {% if message.update %}
+                        <li class="message-edited">
+                            {% if can_view_history %}
+                                <a href="{% url 'comment-edits-history' message.pk %}">{% include "misc/message_edited_by.part.html" with message=message %}</a>
+                            {% else %}
+                                {% include "misc/message_edited_by.part.html" with message=message %}
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                    {% if is_author %}
+                        <li class="is-author">{% trans "Auteur du sujet" %}</li>
+                    {% endif %}
+                    {% if message.hat %}
+                        <li>
+                            <div class="hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
+                                <a class="name" href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
+                            </div>
+                        </li>
+                    {% endif %}
+                </ul>
+            {% endspaceless %}
 
-        {% if user.is_authenticated %}
+            {% if user.is_authenticated %}
+                {% spaceless %}
+                    <aside class="message-actions">
+                        <ul tabindex="0">
+                            {# User actions on his own message #}
+
+                            {% if message.author == user %}
+                                {% if edit_link %}
+                                    <li>
+                                        <a href="{{ edit_link | safe }}" class="ico-after edit">
+                                            {% trans "Modifier" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
+
+                                {% if message_is_hidden %}
+                                    <li>
+                                        <a href="#show-message-hidden-{{ message.id }}" class="ico-after view">
+                                            {% trans "Voir" %}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
+                                            {% trans "Masquer" %}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+
+                            {# Actions related to someother message (non-administrative) #}
+
+                            {% if not message_is_hidden and cite_link and not topic.is_locked and not is_antispam %}
+                                <li>
+                                    <a href="{{ cite_link | safe }}" class="ico-after cite" data-ajax-input="cite-message">
+                                        {% trans "Citer" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% if not is_mp %}
+                                <li>
+                                    <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
+                                        {% trans "Signaler" %}
+                                    </a>
+                                    <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
+                                        {% csrf_token %}
+                                        <label for="signal-message-{{ message.id }}-field">
+                                            {% trans "Pour quelle raison signalez-vous ce message ?" %}
+                                        </label>
+                                        <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
+                                        <button type="submit" name="signal_message" class="btn btn-submit">
+                                            {% trans "Signaler" %}
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endif %}
+
+                            {% if not message_is_hidden and can_unread %}
+                                <li>
+                                    <a class="ico-after unread" href="{{ unread_link | safe }}">
+                                        {% trans "Marquer comme non-lu" %}
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {# Administrative actions #}
+                            {% if perms_change %}
+                                <li class="is-separator"><span>{% trans "Modération" %}</span><hr /></li>
+
+                                {% if message.pk in user_can_modify %}
+                                    {% if message.author != user %}
+                                        <li>
+                                            <a href="{{ edit_link | safe }}" class="ico-after edit">
+                                                {% trans "Modifier" %}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if not message_is_hidden and message.author != user %}
+                                        <li>
+                                            <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
+                                                {% trans "Masquer" %}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% if message_is_hidden %}
+                                        {% if message.author != user %}
+                                            <li>
+                                                <a href="#show-message-hidden-{{ message.id }}" class="ico-after view">
+                                                    {% trans "Voir" %}
+                                                </a>
+                                            </li>
+                                        {% endif %}
+                                        <li>
+                                            <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
+                                                {% trans "Démasquer" %}
+                                            </a>
+
+                                            <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
+                                                {% csrf_token %}
+                                                <p>
+                                                    {% blocktrans with editor=message.editor %}
+                                                        Ce message a été masqué par <strong>{{ editor }}</strong>. Êtes-vous certain⋅e de vouloir le ré-afficher ?
+                                                    {% endblocktrans %}
+                                                </p>
+
+                                                <button type="submit" name="show_message" class="btn btn-submit">
+                                                    {% trans "Confirmer" %}
+                                                </button>
+                                            </form>
+                                        </li>
+                                    {% endif %}
+                                {% endif %}
+
+                                {% if user.is_authenticated and perms.utils.change_comment_potential_spam and potential_spam_link %}
+                                    <li>
+                                        <button
+                                            class="alert ico-after potential-spam-handle"
+                                            title="{% if not message.is_potential_spam %}{% trans "Marquer ce message comme spam potentiel, afin de recevoir une alerte de modération s'il est modifié." %}{% endif %}"
+                                            data-potential-spam-api="{{ potential_spam_link }}"
+                                            data-potential-spam-new-state="{% if message.is_potential_spam %}false{% else %}true{% endif %}"
+                                            data-content-on-click="{% if not message.is_potential_spam %}{% trans "Pas du spam" %}{% else %}{% trans "Spam potentiel" %}{% endif %}"
+                                            >{% if message.is_potential_spam %}{% trans "Pas du spam" %}{% else %}{% trans "Spam potentiel" %}{% endif %}</button>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+                        </ul>
+                    </aside>
+                {% endspaceless %}
+
+                {# Hide message modale #}
+                {% if message.pk in user_can_modify and not message_is_hidden %}
+                    <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
+                        {% csrf_token %}
+                        <p>
+                            {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
+                        </p>
+                        <input type="text" name="text_hidden" placeholder="{% if perms_change and message.author != user %}Flood, Troll, Hors sujet, ...{% else %}Erreur, mauvaise compréhension, changement d'avis, ...{% endif %}">
+
+                        {% if not perms_change  %}
+                            <p>
+                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l’afficher vous-même. Êtes-vous certain de vouloir le faire ?" %}
+                            </p>
+                        {% endif %}
+
+                        <button type="submit" name="delete_message" class="btn btn-submit">
+                            {% trans "Confirmer" %}
+                        </button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </header>
+
+        {% if user.is_authenticated and False %}
             <ul class="message-actions">
                 {% if not message_is_hidden %}
                     {% if edit_link %}
@@ -74,23 +264,7 @@
                                     <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                         {% trans "Masquer" %}
                                     </a>
-                                    <form action="{{ hide_link|safe }}" method="post" id="hide-message-{{ message.id }}" class="modal modal-flex">
-                                        {% csrf_token %}
-                                        <p>
-                                            {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
-                                        </p>
-                                        <input type="text" name="text_hidden" placeholder="{% if perms_change %}Flood, Troll, Hors sujet, ...{% else %}Erreur, mauvaise compréhension, changement d'avis, ...{% endif %}">
 
-                                        {% if not perms_change  %}
-                                            <p>
-                                                {% trans "Attention, en masquant ce message, vous ne pourrez plus l’afficher vous-même. Êtes-vous certain de vouloir le faire ?" %}
-                                            </p>
-                                        {% endif %}
-
-                                        <button type="submit" name="delete_message" class="btn btn-submit">
-                                            {% trans "Confirmer" %}
-                                        </button>
-                                    </form>
                                 </li>
                             {% endif %}
 
@@ -115,11 +289,13 @@
                             {% trans "Voir" %}
                         </a>
                     </li>
+
                     {% if perms_change %}
                         <li>
                             <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                                 {% trans "Démasquer" %}
                             </a>
+
                             <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
                                 {% csrf_token %}
                                 <p>
@@ -135,74 +311,39 @@
                         </li>
                     {% endif %}
                 {% endif %}
-                {% if not is_mp %}
-                    <li>
-                        <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
-                            {% trans "Signaler" %}
-                        </a>
-                        <form action="{{ alert_link|safe }}" method="post" id="signal-message-{{ message.id }}" class="modal modal-flex">
-                            {% csrf_token %}
-                            <label for="signal-message-{{ message.id }}-field">
-                                {% trans "Pour quelle raison signalez-vous ce message ?" %}
-                            </label>
-                            <textarea type="text" name="signal_text" id="signal-message-{{ message.id }}-field" placeholder="Flood, Troll, Hors sujet, …" pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
-                            <button type="submit" name="signal_message" class="btn btn-submit">
-                                {% trans "Signaler" %}
-                            </button>
-                        </form>
-                    </li>
-                {% endif %}
             </ul>
         {% endif %}
 
-        <div class="message-metadata">
-            <a href="{{ message.author.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
-                <span itemprop="name">{{ message.author.username }}</span>
-            </a>
-
-            <a href="#p{{ message.pk }}" id="p{{ message.id }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
-                <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
-                    <span class="long-date">
-                        {{ message.pubdate|format_date|capfirst }}
-                    </span>
-                    <span class="short-date">
-                        {{ message.pubdate|format_date:True|capfirst }}
-                    </span>
-                </time>
-            </a>
-        </div>
-
         <div class="message-content">
-            {% if message.hat and not message_is_hidden %}
-                <p class="hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
-                    <a class="name" href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
-                </p>
-            {% endif %}
+            {% spaceless %}
+                <aside>
+                    {% if is_repeated_message %}
+                        <p class="message-repeated">
+                            {% trans "Reprise du dernier message de la page précédente" %}
+                        </p>
+                    {% endif %}
+                    {% if not is_mp %}
+                        {% if perms_change and potential_spam_link and not message_is_hidden %}
+                        <p class="message-potential-spam alert ico-after {% if not message.is_potential_spam or message_is_hidden %}hidden{% endif %}"
+                            data-ajax-output="mark-message-as-potential-spam">
+                            {% trans "Ce message est soupçonné d'être un spam. Une alerte sera levée s'il est modifié." %}
+                        </p>
+                        {% endif %}
 
-            {% if is_repeated_message %}
-                <p class="message-repeated">
-                    {% trans "Reprise du dernier message de la page précédente" %}
-                </p>
-            {% endif %}
-            {% if not is_mp %}
-                {% if perms_change %}
-                  <p class="message-potential-spam alert ico-after {% if not message.is_potential_spam or message_is_hidden %}hidden{% endif %}"
-                     data-ajax-output="mark-message-as-potential-spam">
-                      {% trans "Ce message est soupçonné d'être un spam. Une alerte sera levée s'il est modifié." %}
-                  </p>
-                {% endif %}
+                        <p class="message-helpful tick ico-after green {% if not message.is_useful or message_is_hidden %}hidden{% endif %}"
+                        data-ajax-output="mark-message-as-useful">
+                            {% trans "Cette réponse a aidé l’auteur du sujet" %}
+                        </p>
+                    {% endif %}
+                </aside>
+            {% endspaceless %}
 
-                <p class="message-helpful tick ico-after green {% if not message.is_useful or message_is_hidden %}hidden{% endif %}"
-                   data-ajax-output="mark-message-as-useful">
-                    {% trans "Cette réponse a aidé l’auteur du sujet" %}
-                </p>
-            {% endif %}
             {% if not message_is_hidden %}
-                <div itemprop="text">
+                <div class="message-text" itemprop="text">
                     {{ message.text_html|safe }}
                 </div>
             {% elif perms_change or message.author == user %}
-                <div class="message-hidden-content">
+                <div class="message-text message-hidden-content">
                     {{ message.text_html|safe }}
                 </div>
             {% endif %}
@@ -213,16 +354,6 @@
 
                     {% if message.text_hidden %}
                         {# nbsp #} : {{ message.text_hidden }}
-                    {% endif %}
-                </p>
-            {% elif message.update %}
-                <p class="message-edited ico-after edit">
-                    {% if can_view_history %}
-                        <a href="{% url 'comment-edits-history' message.pk %}">
-                            {% include "misc/message_edited_by.part.html" with message=message %}
-                        </a>
-                    {% else %}
-                        {% include "misc/message_edited_by.part.html" with message=message %}
                     {% endif %}
                 </p>
             {% endif %}
