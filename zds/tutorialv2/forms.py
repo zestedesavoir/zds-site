@@ -354,10 +354,9 @@ class EditContentCategoriesForm(forms.Form):
         queryset=SubCategory.objects.order_by('title').all(),
         required=False,
         widget=forms.CheckboxSelectMultiple(),
-        error_messages={'invalid_choice':
-                            _('Merci de choisir un choix valide dans la liste.'),
-                        'empty_when_published':
-                            _('Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.')}
+        error_messages={
+            'invalid_choice': _('Merci de choisir un choix valide dans la liste.'),
+            'empty_when_published': _('Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.')}
     )
 
     def __init__(self, versioned_content, db_content, *args, **kwargs):
