@@ -161,8 +161,8 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         intro = find_element("div#div_id_introduction div.CodeMirror")
         action_chains = ActionChains(selenium)
-        action_chains.click(intro).perform()
-        action_chains.send_keys("Le cadavre exquis boira le vin nouveau.").perform()
+        action_chains.move_to_element(intro).click(intro).perform()
+        action_chains.send_keys('Le cadavre exquis boira le vin nouveau.').perform()
 
         find_element(".content-container button[type=submit]").click()
 
