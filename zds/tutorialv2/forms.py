@@ -353,7 +353,11 @@ class EditContentCategoriesForm(forms.Form):
         label=_('Sélectionnez les catégories qui correspondent à votre contenu.'),
         queryset=SubCategory.objects.order_by('title').all(),
         required=False,
-        widget=forms.CheckboxSelectMultiple()
+        widget=forms.CheckboxSelectMultiple(),
+        error_messages={'invalid_choice':
+                            _('Merci de choisir un choix valide dans la liste.'),
+                        'empty_when_published':
+                            _('Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.')}
     )
 
     def __init__(self, versioned_content, db_content, *args, **kwargs):
@@ -377,8 +381,7 @@ class EditContentCategoriesForm(forms.Form):
     def is_valid(self):
         # Forbid removing all categories of a validated content
         if self.db_content.in_public() and 'subcategory' not in self.data:
-            self.add_error('subcategory',
-                           _('Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.'))
+            self.add_error('subcategory', self.fields['subcategory'].error_messages['empty_when_published'])
         return super(EditContentCategoriesForm, self).is_valid()
 
 
