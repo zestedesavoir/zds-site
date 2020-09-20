@@ -15,6 +15,8 @@ function extractAnswer(radio, answers) {
     } else {
       answers[rb.parentNode.parentNode.getAttribute('id')].push(rb.checked)
     }
+    console.log(index - 1)
+    console.log(rb.checked)
     rb.setAttribute('value', answers[rb.parentNode.parentNode.getAttribute('id')].length - 1)
     rb.disabled = false
     rb.checked = false
@@ -58,21 +60,20 @@ function computeForm(formdata, answers) {
 }
 
 function markBadAnswers(names, answers) {
-  console.log(names)
-  console.log(answers)
-  Object.keys(names).forEach(name => {
-    console.log(names)
+  const toAdd = []
+  names.forEach(({ name }) => {
     document.querySelectorAll('input[name="' + name + '"]').forEach(field => {
       if (answers[name][parseInt(field.getAttribute('value'), 10)] && !field.checked) {
         field.parentElement.classList.add('quizz-forget')
+        toAdd.push({ name: name, value: field.getAttribute('value') })
       }
     })
   })
   names.forEach(({ name, value }) => {
-    console.log('name ' + name)
-    console.log('value ' + value)
-    document.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`).classList.add('quizz-forget')
+    document.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`)
+      .parentElement.classList.add('quizz-bad')
   })
+  toAdd.forEach(name => names.push(name))
 }
 
 const answers = {}
@@ -85,6 +86,13 @@ document.querySelectorAll('form.quizz').forEach(form => {
     // result = name of bad answers
     const result = computeForm(formData, answers)
     markBadAnswers(result, answers)
+    const questions = []
+    result.forEach(result => {
+      if (questions.indexOf(result.name) === -1) {
+        questions.push(result.name)
+      }
+    })
+    alert('Vous mal avez répondu à ' + questions.length + ' questions.')
     // here send result
     console.log(result)
   })
