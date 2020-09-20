@@ -202,7 +202,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         context = super().get_context_data(**kwargs)
         context["container"] = search_container_or_404(self.versioned_object, self.kwargs)
         context["gallery"] = self.object.gallery
-
+        context["quizz"] = self.quizz
         return context
 
     def render_to_response(self, context, **response_kwargs):

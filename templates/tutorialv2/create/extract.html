@@ -4,14 +4,22 @@
 
 
 {% block title %}
+    {% if quizz %}
+    {% trans "Nouveau Quizz" %}
+    {% else %}
     {% trans "Nouvelle section" %}
+    {% endif %}
 {% endblock %}
 
 
 
 {% block headline %}
     <h1>
-        {% trans "Nouvelle section" %}
+        {% if quizz %}
+    {% trans "Nouveau Quizz" %}
+    {% else %}
+    {% trans "Nouvelle section" %}
+    {% endif %}
     </h1>
 {% endblock %}
 
@@ -29,7 +37,11 @@
 
     <li><a href="{{ container.get_absolute_url }}">{{ container.title }}</a></li>
 
-    <li>{% trans "Nouvelle section" %}</li>
+    <li>{% if quizz %}
+    {% trans "Nouveau Quizz" %}
+    {% else %}
+    {% trans "Nouvelle section" %}
+    {% endif %}</li>
 {% endblock %}
 
 

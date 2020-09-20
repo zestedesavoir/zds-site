@@ -615,6 +615,12 @@ li.task-list-item {
 
         background-color: $true-white !important;
     }
+    &.quizz-forget {
+            font-weight: bolder;
+        }
+    &.quizz-bad {
+        color: $color-danger;
+    }
 }
 
 .warn-typo {

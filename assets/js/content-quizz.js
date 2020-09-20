@@ -3,6 +3,7 @@
 // then add the two methods in the callback lists
 
 let index = 0
+
 function extractAnswer(radio, answers) {
   radio.forEach((rb) => {
     if (!rb.parentElement.parentElement.getAttribute('id')) {
@@ -19,11 +20,11 @@ function extractAnswer(radio, answers) {
     rb.checked = false
   })
 }
+
 function initializeCheckboxes(answers) {
   const checkboxes = document.querySelectorAll('.quizz ul li input[type=checkbox]')
   extractAnswer(checkboxes, answers)
 }
-
 
 
 function initializeRadio(answers) {
@@ -32,41 +33,48 @@ function initializeRadio(answers) {
 }
 
 const initializePipeline = [initializeCheckboxes, initializeRadio]
+
 function computeForm(formdata, answers) {
   const badAnswers = []
-  formdata.entries().forEach(entry => {
+  for (const entry of formdata.entries()) {
     const name = entry[0]
-    const values = entry[1]
-    let good = true
+    const values = parseInt(entry[1], 10)
     if (!answers[name]) {
       console.log('not found ' + name)
-      return 0
+      continue
     } else {
+      console.log(name + ' ' + values + ' : ' + answers[name][values])
       // for poc we assume we only deal with lists
-      for (let i = 0; i < answers[name].length && good; i++) {
-        if (answers[name][i]) {
-          good = good && values.indexOf(answers[name][i]) !== -1
-        } else {
-          good = good && values.indexOf(answers[name][i]) === -1
-        }
-        if (!good) {
-          badAnswers.push(name)
-        }
+      if (!answers[name][values]) {
+        console.log('bad answer ' + name + ' ' + values)
+        badAnswers.push({
+          name: name,
+          value: values
+        })
       }
     }
-  })
+  }
+  return badAnswers
 }
+
 function markBadAnswers(names, answers) {
-  names.forEach(name => {
-    document.querySelectorAll('input[name=' + name + ']').forEach(field => {
-      if (answers[name].indexOf(field.getAttribute('value')) !== -1 && !field.checked) {
-        field.addClass('quizz-forget')
-      } else if (answers[name].indexOf(field.getAttribute('value')) === -1 && field.checked) {
-        field.addClass('quizz-bad')
+  console.log(names)
+  console.log(answers)
+  Object.keys(names).forEach(name => {
+    console.log(names)
+    document.querySelectorAll('input[name="' + name + '"]').forEach(field => {
+      if (answers[name][parseInt(field.getAttribute('value'), 10)] && !field.checked) {
+        field.parentElement.classList.add('quizz-forget')
       }
     })
   })
+  names.forEach(({ name, value }) => {
+    console.log('name ' + name)
+    console.log('value ' + value)
+    document.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`).classList.add('quizz-forget')
+  })
 }
+
 const answers = {}
 initializePipeline.forEach(func => func(answers))
 document.querySelectorAll('form.quizz').forEach(form => {

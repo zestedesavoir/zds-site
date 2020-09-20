@@ -111,6 +111,15 @@
                         {% trans "Ajouter une section" %}
                     </a>
                 </li>
+                <li class="simple-create-button">
+                    <a class="btn btn-grey" href="{% if child.parent == content %}
+                                {% url "content:create-quizz" content.pk content.slug child.slug %}
+                            {%  else %}
+                                {% url "content:create-quizz" content.pk content.slug child.parent.slug child.slug %}
+                            {%  endif %}">
+                        {% trans "Ajouter un quizz" %}
+                    </a>
+                </li>
             {% endif %}
         </ol>
     {% elif child.has_sub_containers %}
@@ -146,6 +155,13 @@
                                     <a class="btn btn-grey"
                                         href="{% url "content:create-extract" content.pk child.parent.slug child.slug subchild.slug %}"
                                     >{% trans "Ajouter une section" %}</a>
+                                </h4>
+                            </li>
+                            <li class="simple-create-button">
+                                <h4>
+                                    <a class="btn btn-grey"
+                                        href="{% url "content:create-quizz" content.pk child.parent.slug child.slug subchild.slug %}"
+                                    >{% trans "Ajouter un quizz" %}</a>
                                 </h4>
                             </li>
                         {% endif %}
@@ -190,6 +206,9 @@
                 <li class="simple-create-button">
                     <a class="btn btn-grey" href="{% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}">
                         {% trans "Ajouter une section" %}
+                    </a> {% trans 'ou' %}
+                    <a class="btn btn-grey" href="{% url "content:create-quizz" content.pk content.slug child.parent.slug child.slug %}">
+                        {% trans "un quizz" %}
                     </a>
                 </li>
             </ol>
