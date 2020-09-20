@@ -117,7 +117,25 @@ urlpatterns = [
         CreateExtract.as_view(),
         name="create-extract",
     ),
-    path("nouvelle-section/<int:pk>/<slug:slug>/", CreateExtract.as_view(), name="create-extract"),
+    path(
+        "nouveau-quizz/<int:pk>/<slug:slug>/<slug:parent_container_slug>/<slug:container_slug>/",
+        CreateExtract.as_view(quizz=True),
+        name="create-quizz"
+    ),
+    path(
+        "nouveau-quizz/(<int:pk>/<slug:slug>/<slug:container_slug>/",
+        CreateExtract.as_view(quizz=True),
+        name='create-quizz'
+    ),
+    path(
+        "nouvelle-section/<int:pk>/<slug:slug>/", CreateExtract.as_view(),
+        name="create-extract"
+    ),
+    path(
+        "nouveau-quizz/<int:pk>/<slug:slug>/",
+         CreateExtract.as_view(quizz=True),
+         name='create-quizz'
+    ),
     # edit:
     path(
         "editer-conteneur/<int:pk>/<slug:slug>/<slug:parent_container_slug>/" r"<slug:container_slug>/",

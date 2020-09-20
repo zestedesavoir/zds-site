@@ -46,6 +46,7 @@ class Container:
     children = []
     children_dict = {}
     slug_pool = {}
+    is_quizz = False
 
     def __init__(self, title, slug="", parent=None, position_in_parent=1):
         """Initialize the data model that will handle the dialog with raw versionned data at level container.
@@ -618,13 +619,14 @@ class Container:
             title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit
         )
 
-    def repo_add_extract(self, title, text, commit_message="", do_commit=True, slug=None):
+    def repo_add_extract(self, title, text, commit_message="", do_commit=True, slug=None, quizz=False):
         """
         :param title: title of the new extract
         :param text: text of the new extract
         :param commit_message: commit message that will be used instead of the default one
         :param do_commit: perform the commit in repository if ``True``
         :param generate_slug: indicates that is must generate slug
+        :param quizz: if is ``True`` marks the extract as quizz
         :return: commit sha
         :rtype: str
         """
@@ -632,6 +634,7 @@ class Container:
             extract = Extract(title)
         else:
             extract = Extract(title, slug)
+        extract.is_quizz = quizz
         # can an extract be added ?
         try:
             self.add_extract(extract, generate_slug=slug is None)

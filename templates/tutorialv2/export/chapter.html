@@ -24,9 +24,14 @@
         </a>
     </h2>
     {% if rendered_extract.text %}
-        <div class="extract-wrapper">
-            {{ rendered_extract.text|safe }}
-        </div>
+        {% if rendered_extract.is_quizz %}
+                <form action="{% url 'content:quizz' content.pk%}" class="quizz">
+            {% endif %}
+            {{ rendered_extract.get_text|emarkdown:is_js }}
+            {% if rendered_extract.is_quizz %}
+                <button type="submit" aria-label="{% trans 'Valider le Quizz' %}" class="validate-quizz btn-submit">{% trans 'Valider le Quizz' %}</button>
+                </form>
+            {% endif %}
     {% endif %}
 {% endfor %}
 
