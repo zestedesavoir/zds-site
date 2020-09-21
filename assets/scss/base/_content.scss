@@ -115,6 +115,24 @@ h6 {
 }
 
 
+.quizz .custom-block {
+    .custom-block {
+        display: none;
+    }
+    &.quizz-bad {
+        background-color: $color-danger !important;
+        .custom-block {
+            display: block;
+        }
+    }
+    &.quizz-good {
+         background:$color-success !important;
+        .custom-block {
+            display: block;
+        }
+    }
+
+}
 
 .custom-block {
     margin: $length-24 0;

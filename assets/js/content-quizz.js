@@ -10,6 +10,7 @@ function extractAnswer(radio, answers) {
       rb.parentElement.parentElement.setAttribute('id', 'id-' + (index++))
     }
     rb.setAttribute('name', rb.parentElement.parentElement.getAttribute('id'))
+    rb.parentElement.parentElement.parentElement.parentElement.setAttribute('data-name', rb.getAttribute('name'))
     if (!answers[rb.parentNode.parentNode.getAttribute('id')]) {
       answers[rb.parentNode.parentNode.getAttribute('id')] = [rb.checked]
     } else {
@@ -61,15 +62,16 @@ function computeForm(formdata, answers) {
 
 function markBadAnswers(names, answers) {
   const toAdd = []
-  names.forEach(({ name }) => {
+  names.forEach(({name}) => {
     document.querySelectorAll('input[name="' + name + '"]').forEach(field => {
       if (answers[name][parseInt(field.getAttribute('value'), 10)] && !field.checked) {
         field.parentElement.classList.add('quizz-forget')
-        toAdd.push({ name: name, value: field.getAttribute('value') })
+        toAdd.push({name: name, value: field.getAttribute('value')})
       }
     })
+    document.querySelector(`.custom-block[data-name=${name}]`).classList.add('quizz-bad')
   })
-  names.forEach(({ name, value }) => {
+  names.forEach(({name, value}) => {
     document.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`)
       .parentElement.classList.add('quizz-bad')
   })
@@ -92,7 +94,25 @@ document.querySelectorAll('form.quizz').forEach(form => {
         questions.push(result.name)
       }
     })
-    alert('Vous mal avez répondu à ' + questions.length + ' questions.')
+    const statistics = {}
+    Object.keys(answers).forEach(name => {
+      const element = document.querySelector(`.custom-block[data-name="${name}"]`)
+      const title = document.querySelector(`.custom-block[data-name="${name}"] .custom-block-heading`).textContent
+      if (!element.classList.contains('quizz-bad')) {
+        element.classList.add('quizz-good')
+        statistics[title] = 'ok'
+      } else {
+        statistics[title] = 'bad'
+      }
+    })
+    const csrfmiddlewaretoken = document.querySelector("input[name='csrfmiddlewaretoken']").value
+    const xhttp = new XMLHttpRequest()
+    xhttp.open('POST', form.getAttribute('action'))
+    xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+    xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+    xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
+    statistics.url = form.parentElement.previousElementSibling.firstElementChild.href
+    xhttp.send(Object.keys(statistics).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(statistics[k])).join('&'))
     // here send result
     console.log(result)
   })

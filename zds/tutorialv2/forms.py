@@ -42,6 +42,10 @@ class FormWithTitle(forms.Form):
         return cleaned_data
 
 
+class QuizzStatsForm(forms.Form):
+    url = forms.CharField(required=True)
+
+
 class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.title

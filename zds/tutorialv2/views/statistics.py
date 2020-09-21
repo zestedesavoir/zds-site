@@ -10,8 +10,9 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
-from zds.tutorialv2.forms import ContentCompareStatsURLForm
-from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
+from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
+from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentFormViewMixin
+from zds.tutorialv2.models.quizz import QuizzStat
 from zds.tutorialv2.utils import NamedUrl
 
 
@@ -22,6 +23,19 @@ class StatisticsException(Exception):
 
     def __init__(self, logger, msg):
         super().__init__(logger, msg)
+
+
+class ContentQuizzStatistics(SingleOnlineContentFormViewMixin):
+    form_class = QuizzStatsForm
+
+    def form_valid(self, form):
+        url = form.cleaned_data['url']
+        answers = {k: v for k, v in self.request.POST.items() if k != 'url'}
+        for question, answer in answers.items():
+            stat = QuizzStat(related_content=self.object, url=url, answer=answer, question=question)
+            stat.save()
+        self.success_url = self.object.get_absolute_url_online()
+        return super(ContentQuizzStatistics, self).form_valid(form)
 
 
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
