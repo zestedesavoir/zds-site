@@ -20,7 +20,7 @@ __ABS_DATE_FMT_NORMAL = _(r'l d F Y à H\hi')    # Normal format
 __ABS_HUMAN_TIME_FMT = _('%d %b %Y, %H:%M:%S')
 
 
-def date_formatter(value, tooltip, small, ignore_future=False):
+def date_formatter(value, tooltip, small, prefix='', ignore_future=False):
     """
     Format a date to an human readable string.
 
@@ -47,7 +47,7 @@ def date_formatter(value, tooltip, small, ignore_future=False):
         if (delta.days == 0) != tooltip:
             return naturaltime(value)
         else:
-            return date(value, str(__ABS_DATE_FMT_SMALL if small else __ABS_DATE_FMT_NORMAL))
+            return prefix + date(value, str(__ABS_DATE_FMT_SMALL if small else __ABS_DATE_FMT_NORMAL))
 
 
 @register.filter
@@ -57,6 +57,16 @@ def format_date(value, small=False):
     If ``value`` is in future it is replaced by "In the future".
     """
     return date_formatter(value, tooltip=False, small=small)
+
+
+@register.filter
+def format_date_prefixed(value, small=False):
+    """
+    Format a date to an human readable string.
+    If ``value`` is in future it is replaced by "In the future".
+    """
+    prefix = 'le ' if small else ''
+    return date_formatter(value, tooltip=False, small=small, prefix=prefix)
 
 
 @register.filter
