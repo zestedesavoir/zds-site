@@ -741,7 +741,7 @@ class NotificationPrivateTopicTest(TestCase):
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user3)
         self.assertEqual(0, len(subscriptions))
 
-        topic.participants.add(self.user3)
+        topic.add_participant(self.user3)
         topic.save()
 
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user3)
@@ -769,7 +769,7 @@ class NotificationPrivateTopicTest(TestCase):
         self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
 
         send_message_mp(self.user2, topic, 'Test')
-        topic.participants.remove(self.user2)
+        topic.remove_participant(self.user2)
         topic.save()
 
         self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user2)))
