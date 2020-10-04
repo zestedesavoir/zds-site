@@ -3,10 +3,10 @@
 {% with banner=app.very_top_banner %}
     {% if banner %}
         <style>
-            #very-top-banner {
-                background-color: {{ banner.background_color }};
-                color: {{ banner.color }};
-                border-color: {{ banner.border_color }};
+            :root {
+                --very-top-banner-background-color: {{ banner.background_color }};
+                --very-top-banner-color: {{ banner.color }};
+                --very-top-banner-border-color: {{ banner.border_color }};
             }
         </style>
 

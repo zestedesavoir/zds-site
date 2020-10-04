@@ -17,6 +17,11 @@
     text-align: center;
     font-weight: bold;
 
+    /* Variables from `templates/very_top_banner.html` */
+    background-color: var(--very-top-banner-background-color);
+    color: var(--very-top-banner-color);
+    border-color: var(--very-top-banner-border-color);
+
     span {
         flex: 12;
     }
