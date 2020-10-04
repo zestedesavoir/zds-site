@@ -556,6 +556,14 @@
         </li>
         {# END HISTORY #}
 
+        {# EVENTS #}
+        <li>
+            <a href="{% url "content:events" content.pk %}" class="ico-after history blue">
+                {% trans "Journal des événements" %}
+            </a>
+        </li>
+        {# END EVENTS #}
+
         {# VALIDATION OR PUBLICATION (NO VALIDATION BEFORE) #}
         {% if content.requires_validation %}
             {# Validation (require validation before publication) #}
