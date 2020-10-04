@@ -18,9 +18,9 @@
     font-weight: bold;
 
     /* Variables from `templates/very_top_banner.html` */
-    background-color: var(--very-top-banner-background-color);
-    color: var(--very-top-banner-color);
-    border-color: var(--very-top-banner-border-color);
+    background-color: var(--very-top-banner-background-color, black);
+    color: var(--very-top-banner-color, white);
+    border-color: var(--very-top-banner-border-color, grey);
 
     span {
         flex: 12;

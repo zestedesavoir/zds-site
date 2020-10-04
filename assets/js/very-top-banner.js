@@ -11,7 +11,7 @@
   } else {
     document.body.classList.add('has-top-banner')
 
-    document.querySelector('#very-top-banner button').addEventListener('click', e => {
+    banner.querySelector('button').addEventListener('click', e => {
       banner.remove()
       document.body.classList.remove('has-top-banner')
 
