@@ -18,9 +18,9 @@
     font-weight: bold;
 
     /* Variables from `templates/very_top_banner.html` */
-    background-color: var(--very-top-banner-background-color, black);
-    color: var(--very-top-banner-color, white);
-    border-color: var(--very-top-banner-border-color, grey);
+    background-color: var(--very-top-banner-background-color);
+    color: var(--very-top-banner-color);
+    border-color: var(--very-top-banner-border-color);
 
     span {
         flex: 12;
@@ -32,7 +32,7 @@
 
         font-size: 2.6rem;
 
-        color: white;
+        color: inherit;
         font-weight: normal;
 
         cursor: pointer;
