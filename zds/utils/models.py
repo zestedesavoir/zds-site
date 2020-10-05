@@ -571,7 +571,7 @@ class Alert(models.Model):
         return self.author.username == settings.ZDS_APP['member']['bot_account']
 
     def solve(self, moderator, resolve_reason='', msg_title='', msg_content=''):
-        """Solve alert and send a PrivateTopic to the alert author if a reason is given
+        """Solve the alert and send a private message to the author if a reason is given
 
         :param resolve_reason: reason
         :type resolve_reason: str
