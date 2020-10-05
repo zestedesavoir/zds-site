@@ -10,12 +10,17 @@
     z-index: 21;
 
     box-sizing: border-box;
-    height: 25px;
+    min-height: 25px;
     width: 100%;
 
     border-bottom: 2px solid black;
     text-align: center;
     font-weight: bold;
+
+    /* Variables from `templates/very_top_banner.html` */
+    background-color: var(--very-top-banner-background-color);
+    color: var(--very-top-banner-color);
+    border-color: var(--very-top-banner-border-color);
 
     span {
         flex: 12;
@@ -27,7 +32,7 @@
 
         font-size: 2.6rem;
 
-        color: white;
+        color: inherit;
         font-weight: normal;
 
         cursor: pointer;
