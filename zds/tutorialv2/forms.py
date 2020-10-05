@@ -363,12 +363,12 @@ class EditContentTagsForm(forms.Form):
         )
         self.previous_page_url = reverse('content:view', kwargs={'pk': content.pk, 'slug': content.slug})
 
-    def clean(self):
-        cleaned_data = super(EditContentTagsForm, self).clean()
+    def clean_tags(self):
         validator = TagValidator()
-        if not validator.validate_raw_string(cleaned_data.get('tags')):
-            self._errors['tags'] = self.error_class(validator.errors)
-        return cleaned_data
+        cleaned_tags = self.cleaned_data.get('tags')
+        if not validator.validate_raw_string(cleaned_tags):
+            self.add_error('tags', self.error_class(validator.errors))
+        return cleaned_tags
 
 
 class EditContentLicenseForm(forms.Form):
