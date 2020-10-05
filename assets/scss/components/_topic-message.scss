@@ -17,6 +17,9 @@ div.msg-are-hidden {
             padding-top: 5px;
         }
     }
+    & + .topic-message.hidden + .pagination {
+        margin-top: 10px;
+    }
     .topic-message + & {
         margin-top: -15px;
     }
