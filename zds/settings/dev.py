@@ -89,5 +89,6 @@ ZDS_APP['very_top_banner'] = {
     'background_color': '#666',
     'border_color': '#353535',
     'color': 'white',
-    'message': 'Version locale'
+    'message': 'Version locale',
+    'slug': 'version-locale'
 }
