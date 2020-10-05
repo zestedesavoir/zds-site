@@ -1,0 +1,18 @@
+{% load i18n %}
+
+{% with banner=app.very_top_banner %}
+    {% if banner %}
+        <style>
+            :root {
+                --very-top-banner-background-color: {{ banner.background_color }};
+                --very-top-banner-color: {{ banner.color }};
+                --very-top-banner-border-color: {{ banner.border_color }};
+            }
+        </style>
+
+        <div id="very-top-banner" data-slug="{{ banner.slug }}">
+            <span>{{ banner.message }}</span>
+            <button aria-label="{% trans "Fermer" %}" title="{% trans "Appuyer sur la touche majuscule ou la touche contrôle en cliquant pour que la fermeture persiste sur tout le navigateur." %}">×</button>
+        </div>
+    {% endif %}
+{% endwith %}
