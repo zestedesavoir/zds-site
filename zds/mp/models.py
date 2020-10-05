@@ -6,7 +6,8 @@ from django.urls import reverse
 from django.db import models
 
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
-from zds.notification import signals
+from zds import notification
+from zds.mp import signals
 from zds.utils import get_current_user, slugify
 
 
@@ -273,6 +274,7 @@ class PrivateTopic(models.Model):
         """
         Add a participant to the private topic.
         If the user is already participating, do not add it again.
+        Send the `participant_added` signal if successful.
 
         :param user: the user to add to the private topic
         :raise NotReachableError: if the user cannot receive private messages (e.g. a bot)
@@ -281,12 +283,14 @@ class PrivateTopic(models.Model):
             raise NotReachableError
         if not self.is_participant(user):  # avoid adding the same participant twice
             self.participants.add(user)
+            signals.participant_added.send(sender=PrivateTopic, topic=self)
 
     def remove_participant(self, user):
         """
         Remove a participant from the private topic.
         If the removed participant is the author, set the first mere participant as the author.
         If the given user is not a participant, do nothing.
+        Send the `participant_removed` signal if successful.
 
         :param user: the user to remove from the private topic.
         """
@@ -294,6 +298,7 @@ class PrivateTopic(models.Model):
             if self.is_author(user):
                 self.set_as_author(self.participants.first())
             self.participants.remove(user)
+            signals.participant_removed.send(sender=PrivateTopic, topic=self)
 
     @staticmethod
     def has_read_permission(request):
@@ -463,4 +468,4 @@ def mark_read(privatetopic, user=None):
         topic = PrivateTopicRead(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)
 
     topic.save()
-    signals.content_read.send(sender=privatetopic.__class__, instance=privatetopic, user=user)
+    notification.signals.content_read.send(sender=privatetopic.__class__, instance=privatetopic, user=user)

@@ -62,7 +62,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     title = models.CharField('Titre', max_length=80)
     slug = models.CharField('Slug', max_length=80)
     description = models.CharField('Description', max_length=200)
-    source = models.CharField('Source', max_length=200, blank=True, null=True)
+    source = models.URLField('Source', max_length=200, blank=True, null=True)
     authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory,
