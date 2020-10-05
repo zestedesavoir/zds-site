@@ -270,7 +270,7 @@ class ContentForm(ContainerForm):
         widget=forms.CheckboxSelectMultiple()
     )
 
-    source = forms.CharField(
+    source = forms.URLField(
         label=_("""Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
                        indiquez le lien de la publication originale : """),
         max_length=PublishableContent._meta.get_field('source').max_length,

@@ -1071,7 +1071,7 @@ class PrivateTopicUnreadListAPITest(APITestCase):
         """
         private_topic = PrivateTopicFactory(author=self.another_profile.user)
         PrivatePostFactory(author=self.another_profile.user, privatetopic=private_topic, position_in_topic=1)
-        private_topic.participants.add(self.profile.user)
+        private_topic.add_participant(self.profile.user)
         private_topic.save()
 
         response = self.client.get(reverse('api:mp:list-unread'))

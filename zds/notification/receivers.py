@@ -23,7 +23,7 @@ from zds.notification.models import TopicAnswerSubscription, ContentReactionAnsw
     PingSubscription
 from zds.notification.signals import answer_unread, content_read, new_content, edit_content, unsubscribe
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
-import zds.tutorialv2.signals
+import zds.mp.signals
 
 logger = logging.getLogger(__name__)
 
@@ -182,6 +182,32 @@ def unread_private_topic_event(sender, *, user, instance, **__):
     subscription = PrivateTopicAnswerSubscription.objects.get_existing(user, private_post.privatetopic, is_active=True)
     if subscription:
         subscription.send_notification(content=private_post, sender=private_post.author, send_email=False)
+
+
+@receiver(zds.mp.signals.participant_added, sender=PrivateTopic)
+def notify_participants(sender, *, topic, **__):
+    """
+    Show a notification to all participants of a private topic except the author.
+    The notification uses the last message of the private topic and respects email preferences.
+    """
+    for participant in topic.participants.all():
+        subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, topic)
+        subscription.send_notification(
+            content=topic.last_message,
+            sender=topic.last_message.author,
+            send_email=participant.profile.email_for_answer)
+
+
+@receiver(zds.mp.signals.participant_removed, sender=PrivateTopic)
+def clean_subscriptions(sender, *, topic, **__):
+    """
+    Delete all subscriptions from users not participating in the private topic.
+    """
+    subscriptions = PrivateTopicAnswerSubscription.objects.get_subscriptions(content_object=topic, is_active=True)
+    for subscription in subscriptions:
+        if not topic.is_participant(subscription.user):
+            subscription.mark_notification_read()
+            subscription.deactivate()
 
 
 @receiver(content_read, sender=ContentReaction)
@@ -386,7 +412,7 @@ def answer_private_topic_event(sender, *, instance, by_email, no_notification_fo
     the author to the following answers to the topic.
 
     :param instance: the new post.
-    :param by_mail: Send or not an email.
+    :param by_email: Send or not an email.
     :param no_notification_for: user or group of user to ignore, really usefull when dealing with moderation message.
     """
     post = instance
@@ -413,44 +439,6 @@ def answer_private_topic_event(sender, *, instance, by_email, no_notification_fo
             send_email = by_email and (subscription.user.profile.email_for_answer or (is_new_mp and subscription.user
                                                                                       .profile.email_for_new_mp))
             subscription.send_notification(content=post, sender=post.author, send_email=send_email)
-
-
-@receiver(m2m_changed, sender=PrivateTopic.participants.through)
-@disable_for_loaddata
-def add_participant_topic_event(sender, *, instance, action, reverse, **__):
-    """
-    Sends PrivateTopicAnswerSubscription to the subscribers to the private topic.
-
-    :param sender: the technical class representing the many2many relationship
-    :param instance: the technical class representing the many2many relationship
-    :param action: "pre_add", "post_add", ... action having sent the signal
-    :param reverse: indicates which side of the relation is updated
-            (from what I understand, forward is from topic to tags, so when the tag side is modified,
-            reverse is from tags to topics, so when the topics are modified)
-
-    """
-
-    private_topic = instance
-
-    # This condition is necessary because this receiver is called during the creation of the private topic.
-    if private_topic.last_message:
-        if action == 'post_add' and not reverse:
-            for participant in private_topic.participants.all():
-
-                subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, private_topic)
-                subscription.send_notification(
-                    content=private_topic.last_message,
-                    sender=private_topic.last_message.author,
-                    send_email=participant.profile.email_for_answer)
-
-        elif action == 'post_remove' and not reverse:
-            subscriptions = PrivateTopicAnswerSubscription.objects \
-                .get_subscriptions(content_object=private_topic, is_active=True)
-            for subscription in subscriptions:
-                if subscription.user not in private_topic.participants.all() \
-                        and subscription.user != private_topic.author:
-                    subscription.mark_notification_read()
-                    subscription.deactivate()
 
 
 @receiver(pre_delete, sender=PrivateTopic)
