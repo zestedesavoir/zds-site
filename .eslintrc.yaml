@@ -7,6 +7,9 @@ env:
   node: true
   jquery: true
 rules:
+  indent:
+    - error
+    - 4
   no-multiple-empty-lines: off
   space-before-function-paren:
     - error
