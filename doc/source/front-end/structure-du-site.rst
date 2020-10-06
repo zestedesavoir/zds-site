@@ -7,19 +7,19 @@ Le site est composé de plusieurs grandes parties.
 Tous ces éléments sont dans le fichier ``templates/base.html``. Pour les utiliser dans les gabarits, il suffit
 d'étendre ``base.html``, avec cette ligne :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base.html" %}
 
 Quand il s'agit d'un contenu comme un tutoriel ou un article, il faut étendre ``templates/base_content_page.html`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base_content_page.html" %}
 
 Il se peut aussi que les modules aient leur propre gabarit de base, auquel cas c'est ce dernier qu'il faut utiliser :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "module/base.html" %}
 
@@ -87,14 +87,14 @@ L'aide à la navigation
 
 Pour renseigner l'aide à la navigation, il faut utiliser le bloc ``{% block breadcrumb %}`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% block breadcrumb %}<li>Le titre de ma page</li>{% endblock %}
 
 Quand il s'agit d'un gabarit de base, comme ``templates/module/base.html``, il faut utiliser
 ``{% block breadcrumb_base %}`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% block breadcrumb_base %}
        <li>
@@ -117,7 +117,7 @@ Du contenu accompagné de titre et sous-titre
 
 Il faut mettre le contenu entre ``{% block content %}`` et ``{% endblock %}``, comme ceci :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base.html" %}
 
@@ -129,7 +129,7 @@ Il faut mettre le contenu entre ``{% block content %}`` et ``{% endblock %}``, c
 
 Vous avez deux autres blocs, le premier pour le titre et le deuxième pour le sous-titre :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base.html" %}
 
@@ -152,7 +152,7 @@ Du contenu sans titre ni sous-titre
 
 Dans ce cas là, il faut simplement utiliser ``{% block content_out %}`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base.html" %}
 
@@ -167,7 +167,7 @@ Du contenu comme un tutoriel ou un article
 
 Dans ce cas là, il faut utiliser ``{% block content %}`` mais avec ``{% extends "base_content_page.html" %}`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base_content_page.html" %}
 
@@ -188,7 +188,7 @@ Dans ce cas là, il faut utiliser ``{% block content %}`` mais avec ``{% extends
 Il peut arriver de devoir afficher d'autres types de contenus, comme des commentaires, en bas de la page. Dans ce
 cas là, on peut utiliser ``{% block content_after %}`` en plus :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base_content_page.html" %}
 
@@ -220,7 +220,7 @@ La barre latérale contient des listes de liens, boutons ou formulaires permetta
 
 Pour la barre latérale, il faut étendre ``templates/base.html`` et utiliser ``{% block sidebar %}`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base.html" %}
 
@@ -233,7 +233,7 @@ Pour les pages comme un tutoriel ou un article
 
 Il faut étendre ``templates/base_content_page.html`` et utiliser ``{% block sidebar_actions %}`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "base_content_page.html" %}
 
@@ -243,7 +243,7 @@ Il faut étendre ``templates/base_content_page.html`` et utiliser ``{% block sid
 
 Tout comme les modules peuvent avoir leur propre gabarit de base, il peuvent avoir leur propre bloc pour la barre latérale :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% extends "module/base.html" %}
 
