@@ -1,29 +1,27 @@
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+import inspect
 import logging
-
-from django.db import DatabaseError
-
-from zds.tutorialv2.signals import content_unpublished
-
-from zds.utils.models import Tag
 
 try:
     from functools import wraps
 except ImportError:
     from django.utils.functional import wraps
 
-import inspect
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db import DatabaseError
 from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
+
 from zds.forum.models import Topic, Post, Forum
 from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.signals import participant_added, participant_removed
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription, \
     PingSubscription
 from zds.notification.signals import answer_unread, content_read, new_content, edit_content, unsubscribe
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
-import zds.mp.signals
+from zds.tutorialv2.signals import content_unpublished
+from zds.utils.models import Tag
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +182,7 @@ def unread_private_topic_event(sender, *, user, instance, **__):
         subscription.send_notification(content=private_post, sender=private_post.author, send_email=False)
 
 
-@receiver(zds.mp.signals.participant_added, sender=PrivateTopic)
+@receiver(participant_added, sender=PrivateTopic)
 def notify_participants(sender, *, topic, **__):
     """
     Show a notification to all participants of a private topic except the author.
@@ -198,7 +196,7 @@ def notify_participants(sender, *, topic, **__):
             send_email=participant.profile.email_for_answer)
 
 
-@receiver(zds.mp.signals.participant_removed, sender=PrivateTopic)
+@receiver(participant_removed, sender=PrivateTopic)
 def clean_subscriptions(sender, *, topic, **__):
     """
     Delete all subscriptions from users not participating in the private topic.
@@ -462,8 +460,8 @@ def delete_notifications(sender, instance, **__):
     Notification.objects.filter(sender=instance).delete()
 
 
-@receiver(zds.tutorialv2.signals.content_unpublished, sender=PublishableContent)
-@receiver(zds.tutorialv2.signals.content_unpublished, sender=ContentReaction)
+@receiver(content_unpublished, sender=PublishableContent)
+@receiver(content_unpublished, sender=ContentReaction)
 def cleanup_notification_for_unpublished_content(sender, instance, **__):
     """
     Avoid persistant notification if a content is unpublished. A real talk has to be lead to avoid such cross module \
