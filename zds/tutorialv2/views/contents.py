@@ -145,11 +145,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context['validation'] = validation
         context['formJs'] = form_js
-
-        context['form_edit_license'] = EditContentLicenseForm(
-            self.versioned_object,
-            initial={'license': self.versioned_object.licence})
-
+        context['form_edit_license'] = EditContentLicenseForm(self.versioned_object)
         context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, self.object)
 
         if self.versioned_object.requires_validation:
@@ -294,7 +290,7 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
 
     def get_form_kwargs(self):
         kwargs = super(EditContentLicense, self).get_form_kwargs()
-        kwargs['content'] = self.versioned_object
+        kwargs['versioned_content'] = self.versioned_object
         return kwargs
 
     def form_valid(self, form):
