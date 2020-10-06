@@ -13,6 +13,9 @@ new-db: wipe-db migrate-db generate-fixtures ## Create a new full database (`wip
 run: ## Run the backend server and watch the frontend (`watch-front` in parallel with `run-back`)
 	make -j2 watch-front run-back
 
+run-fast: ## Run the backend in fast mode (no debug toolbar & full cache) and watch the frontend (`watch-front` + `run-back-fast`)
+	make -j2 watch-front run-back-fast
+
 lint: lint-back lint-front ## Lint everything (`lint-back` & `lint-front`)
 
 test: test-back test-back-selenium ## Test everything (`test-back` & `test-back-selenium`)
@@ -29,7 +32,10 @@ install-back-with-prod:
 	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
 
 run-back: zmd-check ## Run the backend server
-	python manage.py runserver
+	python manage.py runserver --nostatic
+
+run-back-fast: zmd-check ## Run the backend server in fast mode (no debug toolbar & full browser cache)
+	python manage.py runserver --settings zds.settings.dev_fast
 
 lint-back: ## Lint Python code
 	flake8 zds
