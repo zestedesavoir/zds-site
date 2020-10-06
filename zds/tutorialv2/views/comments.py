@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, StreamingHttpResponse, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
@@ -111,7 +111,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     def post(self, request, *args, **kwargs):
 
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
+            content = render(request, 'misc/preview.part.html', {'text': request.POST['text']})
             return StreamingHttpResponse(content)
         else:
             return super(SendNoteFormView, self).post(request, *args, **kwargs)
