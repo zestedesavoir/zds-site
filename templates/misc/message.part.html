@@ -21,7 +21,7 @@
 {% endif %}
 
 {% ifchanged %}
-{% if message_is_hidden %}
+{% if message_is_hidden and message.pk != topic.first_post.pk %}
     <div class="msg-are-hidden hidden" aria-hidden="true"><a class="link" href="#show">{% trans "Un ou plusieurs messages ont été masqués" %}</a></div>
 {% endif %}
 {% endifchanged %}

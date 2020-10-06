@@ -235,6 +235,15 @@ $logo-width: 240px;
     .dropdown {
         overflow: hidden;
 
+        @include mobile {
+            top: 50px;
+            height: calc(100vh - 50px);
+
+            @at-root body.has-top-banner .logbox .dropdown {
+                height: calc(100vh - 75px);
+            }
+        }
+
         .dropdown-title {
             display: block;
             margin: 0;
@@ -467,15 +476,6 @@ $logo-width: 240px;
             #my-account .avatar{
                 height: 50px;
                 width: 50px;
-            }
-
-            .dropdown {
-                top: 50px;
-                height: calc(100vh - 50px);
-
-                @at-root body.has-top-banner .logbox .dropdown {
-                    height: calc(100vh - 75px);
-                }
             }
 
             .dropdown.my-account-dropdown .dropdown-list {

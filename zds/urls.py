@@ -120,20 +120,15 @@ urlpatterns += [
             name='django.contrib.sitemaps.views.sitemap'),
 ]
 
-if settings.SERVE:
-    from django.views.static import serve
-    urlpatterns += [
-        re_path(r'^static/(?P<path>.*)$', serve,
-                {'document_root': str(settings.STATIC_ROOT)}),
-        re_path(r'^media/(?P<path>.*)$', serve,
-                {'document_root': str(settings.MEDIA_ROOT)}),
-    ]
-
 if settings.DEBUG:
     import debug_toolbar
+    from django.conf.urls.static import static
+    from django.contrib.staticfiles.views import serve
+
     urlpatterns += [
         re_path(r'^__debug__/', include(debug_toolbar.urls)),
     ]
+    urlpatterns += static(settings.STATIC_URL, view=serve)
 
 # custom view for 500 errors
 handler500 = 'zds.pages.views.custom_error_500'
