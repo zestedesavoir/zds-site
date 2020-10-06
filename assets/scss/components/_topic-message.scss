@@ -1,9 +1,27 @@
 div.msg-are-hidden {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    margin: -15px 0;
+    margin: 0;
+
     a {
         color: #999;
         font-size: 12px;
+    }
+
+    & ~ .topic-message.hidden + .topic-message:not(.hidden) {
+        margin-top: 10px;
+
+        @include until-desktop {
+            margin-top: 0;
+            padding-top: 5px;
+        }
+    }
+    & + .topic-message.hidden + .pagination {
+        margin-top: 10px;
+    }
+    .topic-message + & {
+        margin-top: -15px;
     }
 }
 
