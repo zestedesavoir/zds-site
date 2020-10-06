@@ -54,19 +54,19 @@
         {% else %}
             {% if profile.last_visit %}
                 <li>
-                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True %}
-                        Inscription le <time datetime="{{ datetime }}">{{ date }}</time>
+                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date_prefixed:True %}
+                        Inscription <time datetime="{{ datetime }}">{{ date }}</time>
                     {% endblocktrans %}
                 </li>
                 <li>
-                    {% blocktrans with datetime=profile.last_visit|date:"c" time=profile.last_visit|format_date:True ip=ip %}
-                        Dernière visite le <time datetime="{{ datetime }}">{{ time }}</time> {{ ip }}
+                    {% blocktrans with datetime=profile.last_visit|date:"c" time=profile.last_visit|format_date_prefixed:True ip=ip %}
+                        Dernière visite <time datetime="{{ datetime }}">{{ time }}</time> {{ ip }}
                     {% endblocktrans %}
                 </li>
             {% else %}
                 <li>
-                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True ip=ip %}
-                        Inscription le <time datetime="{{ datetime }}">{{ date }}</time> {{ ip }}
+                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date_prefixed:True ip=ip %}
+                        Inscription <time datetime="{{ datetime }}">{{ date }}</time> {{ ip }}
                     {% endblocktrans %}
                 </li>
             {% endif %}
