@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
-from django.shortcuts import redirect, get_object_or_404, render, render_to_response
+from django.shortcuts import redirect, get_object_or_404, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
@@ -248,7 +248,7 @@ class TopicNew(CreateView, SingleObjectMixin):
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
+                content = render(request, 'misc/preview.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
                 initial = {
@@ -327,7 +327,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
 
             if 'preview' in request.POST:
                 if request.is_ajax():
-                    content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
+                    content = render(request, 'misc/preview.part.html', {'text': request.POST['text']})
                     return StreamingHttpResponse(content)
                 else:
                     form = self.create_form(self.form_class, **{
@@ -593,7 +593,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
             if 'preview' in request.POST:
                 if request.is_ajax():
-                    content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
+                    content = render(request, 'misc/preview.part.html', {'text': request.POST.get('text')})
                     return StreamingHttpResponse(content)
                 else:
                     form = self.create_form(self.form_class, **{
