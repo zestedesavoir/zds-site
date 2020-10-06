@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.html import escape
 
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.views.contents import EditContentTags
+from zds.tutorialv2.views.editorialization import EditContentTags
 from zds.tutorialv2.forms import EditContentTagsForm
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.factories import PublishableContentFactory
@@ -128,12 +128,10 @@ class EditContentTagsWorkflowTests(TutorialTestMixin, TestCase):
                 response = self.client.post(self.form_url, case['inputs'], follow=True)
                 for msg in case['expected_outputs']:
                     self.assertContains(response, escape(msg))
-                    print(response)
 
 
 @override_for_contents()
 class EditContentTagsFunctionalTests(TutorialTestMixin, TestCase):
-    # TODO
     """Test the detailed behavior of the feature, such as updates of the database or repositories."""
 
     def setUp(self):
@@ -197,12 +195,8 @@ class EditContentTagsFunctionalTests(TutorialTestMixin, TestCase):
         tags = []
         for t in preconditions['content_tags']:
             tags.append(Tag.objects.get(title=t))
-        self.content.tags.clear()
-        for t in tags:
-            self.content.tags.add(t)
-        self.content.save()
-        tags_as_string = [tag.title for tag in self.content.tags.all()]
-        self.assertEqual(tags_as_string, preconditions['content_tags'])
+        self.content.tags.set(tags)
+        self.assertEqual(list(self.content.tags.values_list('title')), preconditions['content_tags'])
 
     def post_form(self, inputs):
         """Post the form with given inputs."""

@@ -1,29 +1,27 @@
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+import inspect
 import logging
-
-from django.db import DatabaseError
-
-from zds.tutorialv2.signals import content_unpublished
-
-from zds.utils.models import Tag
 
 try:
     from functools import wraps
 except ImportError:
     from django.utils.functional import wraps
 
-import inspect
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.db import DatabaseError
 from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
+
 from zds.forum.models import Topic, Post, Forum
 from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.signals import participant_added, participant_removed
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription, \
     PingSubscription
 from zds.notification.signals import answer_unread, content_read, new_content, edit_content, unsubscribe
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
-import zds.tutorialv2.signals
+from zds.tutorialv2.signals import content_unpublished
+from zds.utils.models import Tag
 
 logger = logging.getLogger(__name__)
 
@@ -182,6 +180,32 @@ def unread_private_topic_event(sender, *, user, instance, **__):
     subscription = PrivateTopicAnswerSubscription.objects.get_existing(user, private_post.privatetopic, is_active=True)
     if subscription:
         subscription.send_notification(content=private_post, sender=private_post.author, send_email=False)
+
+
+@receiver(participant_added, sender=PrivateTopic)
+def notify_participants(sender, *, topic, **__):
+    """
+    Show a notification to all participants of a private topic except the author.
+    The notification uses the last message of the private topic and respects email preferences.
+    """
+    for participant in topic.participants.all():
+        subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, topic)
+        subscription.send_notification(
+            content=topic.last_message,
+            sender=topic.last_message.author,
+            send_email=participant.profile.email_for_answer)
+
+
+@receiver(participant_removed, sender=PrivateTopic)
+def clean_subscriptions(sender, *, topic, **__):
+    """
+    Delete all subscriptions from users not participating in the private topic.
+    """
+    subscriptions = PrivateTopicAnswerSubscription.objects.get_subscriptions(content_object=topic, is_active=True)
+    for subscription in subscriptions:
+        if not topic.is_participant(subscription.user):
+            subscription.mark_notification_read()
+            subscription.deactivate()
 
 
 @receiver(content_read, sender=ContentReaction)
@@ -386,7 +410,7 @@ def answer_private_topic_event(sender, *, instance, by_email, no_notification_fo
     the author to the following answers to the topic.
 
     :param instance: the new post.
-    :param by_mail: Send or not an email.
+    :param by_email: Send or not an email.
     :param no_notification_for: user or group of user to ignore, really usefull when dealing with moderation message.
     """
     post = instance
@@ -415,44 +439,6 @@ def answer_private_topic_event(sender, *, instance, by_email, no_notification_fo
             subscription.send_notification(content=post, sender=post.author, send_email=send_email)
 
 
-@receiver(m2m_changed, sender=PrivateTopic.participants.through)
-@disable_for_loaddata
-def add_participant_topic_event(sender, *, instance, action, reverse, **__):
-    """
-    Sends PrivateTopicAnswerSubscription to the subscribers to the private topic.
-
-    :param sender: the technical class representing the many2many relationship
-    :param instance: the technical class representing the many2many relationship
-    :param action: "pre_add", "post_add", ... action having sent the signal
-    :param reverse: indicates which side of the relation is updated
-            (from what I understand, forward is from topic to tags, so when the tag side is modified,
-            reverse is from tags to topics, so when the topics are modified)
-
-    """
-
-    private_topic = instance
-
-    # This condition is necessary because this receiver is called during the creation of the private topic.
-    if private_topic.last_message:
-        if action == 'post_add' and not reverse:
-            for participant in private_topic.participants.all():
-
-                subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, private_topic)
-                subscription.send_notification(
-                    content=private_topic.last_message,
-                    sender=private_topic.last_message.author,
-                    send_email=participant.profile.email_for_answer)
-
-        elif action == 'post_remove' and not reverse:
-            subscriptions = PrivateTopicAnswerSubscription.objects \
-                .get_subscriptions(content_object=private_topic, is_active=True)
-            for subscription in subscriptions:
-                if subscription.user not in private_topic.participants.all() \
-                        and subscription.user != private_topic.author:
-                    subscription.mark_notification_read()
-                    subscription.deactivate()
-
-
 @receiver(pre_delete, sender=PrivateTopic)
 def delete_private_topic_event(sender, instance, **__):
     """
@@ -474,8 +460,8 @@ def delete_notifications(sender, instance, **__):
     Notification.objects.filter(sender=instance).delete()
 
 
-@receiver(zds.tutorialv2.signals.content_unpublished, sender=PublishableContent)
-@receiver(zds.tutorialv2.signals.content_unpublished, sender=ContentReaction)
+@receiver(content_unpublished, sender=PublishableContent)
+@receiver(content_unpublished, sender=ContentReaction)
 def cleanup_notification_for_unpublished_content(sender, instance, **__):
     """
     Avoid persistant notification if a content is unpublished. A real talk has to be lead to avoid such cross module \

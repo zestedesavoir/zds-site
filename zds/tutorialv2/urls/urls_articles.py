@@ -1,9 +1,10 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import ContentOfAuthor, ContentOfContributors
-from zds.tutorialv2.views.published import DisplayOnlineArticle, DownloadOnlineArticle, \
-    TagsListView
+from zds.tutorialv2.views.contributors import ContentOfContributors
+from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor
+from zds.tutorialv2.views.download_online import DownloadOnlineArticle
+from zds.tutorialv2.views.display import DisplayOnlineArticle
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 
 urlpatterns = [

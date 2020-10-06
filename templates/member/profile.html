@@ -54,19 +54,19 @@
         {% else %}
             {% if profile.last_visit %}
                 <li>
-                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True %}
-                        Inscription le <time datetime="{{ datetime }}">{{ date }}</time>
+                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date_prefixed:True %}
+                        Inscription <time datetime="{{ datetime }}">{{ date }}</time>
                     {% endblocktrans %}
                 </li>
                 <li>
-                    {% blocktrans with datetime=profile.last_visit|date:"c" time=profile.last_visit|format_date:True ip=ip %}
-                        Dernière visite le <time datetime="{{ datetime }}">{{ time }}</time> {{ ip }}
+                    {% blocktrans with datetime=profile.last_visit|date:"c" time=profile.last_visit|format_date_prefixed:True ip=ip %}
+                        Dernière visite <time datetime="{{ datetime }}">{{ time }}</time> {{ ip }}
                     {% endblocktrans %}
                 </li>
             {% else %}
                 <li>
-                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True ip=ip %}
-                        Inscription le <time datetime="{{ datetime }}">{{ date }}</time> {{ ip }}
+                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date_prefixed:True ip=ip %}
+                        Inscription <time datetime="{{ datetime }}">{{ date }}</time> {{ ip }}
                     {% endblocktrans %}
                 </li>
             {% endif %}
@@ -232,17 +232,32 @@
                                                 <span>({{ app.site.literal_name }})</span>
                                             {% endif %}
                                         </a>
-                                        {% if perms.utils.change_hat and not hat.group %}
-                                            <a href="#remove-hat-{{ hat.pk }}" class="open-modal" title="{% trans "Retirer la casquette" %}" aria-haspopup="dialog">×</a>
-                                            <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex" data-modal-title="{% trans "Retirer la casquette" %}">
-                                                {% csrf_token %}
-                                                <p>
-                                                    {% blocktrans with hat=hat.name username=usr.username %}
-                                                        Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
-                                                    {% endblocktrans %}
-                                                </p>
-                                                <button type="submit" class="btn btn-submit">{% trans 'Confirmer' %}</button>
-                                            </form>
+
+                                        {% if not hat.group %}
+                                            {% if perms.utils.change_hat or profile == user.profile %}
+                                                <a href="#remove-hat-{{ hat.pk }}" class="open-modal" title="{% trans "Retirer la casquette" %}" aria-haspopup="dialog">×</a>
+                                                <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex" data-modal-title="{% trans "Retirer la casquette" %}">
+                                                    {% if profile == user.profile %}
+                                                        {% blocktrans with hat=hat.name username=usr.username %}
+                                                            <p>
+                                                                Voulez-vous vraiment vous retirer la casquette « <strong>{{ hat }}</strong> » ?
+                                                                Vous ne pourrez plus poster avec, mais vos anciens messages l'auront toujours,
+                                                                tant que vous ne les modifiez pas.
+                                                            </p>
+                                                            <p>
+                                                                Vous pourrez toujours re-demander la casquette à l'avenir.
+                                                            </p>
+                                                        {% endblocktrans %}
+                                                    {% else %}
+                                                        {% blocktrans with hat=hat.name username=usr.username %}
+                                                            <p>Voulez-vous vraiment retirer la casquette « <strong>{{ hat }}</strong> » à {{ username }} ?</p>
+                                                        {% endblocktrans %}
+                                                    {% endif %}
+
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-submit">{% trans 'Confirmer' %}</button>
+                                                </form>
+                                            {% endif %}
                                         {% endif %}
                                     </li>
                                 {% endfor %}

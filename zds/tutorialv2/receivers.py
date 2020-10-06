@@ -1,9 +1,9 @@
 import datetime
 import logging
 
+from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 from django.utils.translation import ugettext_lazy as _
-from django.db import models
 
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
 from zds.tutorialv2.signals import content_unpublished
@@ -36,8 +36,8 @@ def cleanup_validation_alerts(sender, instance, *, moderator=None, **__):
                                                            solved=True)
 
 
-@receiver(models.signals.post_delete, sender=Gallery)
-@receiver(models.signals.post_delete, sender=PublishableContent)
+@receiver(post_delete, sender=Gallery)
+@receiver(post_delete, sender=PublishableContent)
 def log_content_deletion(sender, instance, **__):
     """
     When a content or gallery is deleted, this action is logged.

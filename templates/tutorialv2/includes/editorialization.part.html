@@ -1,52 +1,49 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% if not content.is_opinion %}
-    <h3>Éditorialisation</h3>
-    <ul>
+<h3>Éditorialisation</h3>
+<ul>
+    <li>
+        <a href="#edit-tags" class="open-modal ico-after gear blue">
+            Modifier les tags
+        </a>
+        {% crispy form_edit_tags %}
+    </li>
+
+    {% if is_staff and not content.is_opinion %}
         <li>
-            <a href="#edit-tags" class="open-modal ico-after gear blue">
-                Modifier les tags
+            <a href="#add-suggestion" class="open-modal ico-after more blue">
+                {% trans "Ajouter une suggestion" %}
             </a>
-            {% crispy form_edit_tags %}
+            {% crispy formAddSuggestion %}
         </li>
-
-        {% if is_staff %}
-            <li>
-                <a href="#add-suggestion" class="open-modal ico-after more blue">
-                    {% trans "Ajouter une suggestion" %}
-                </a>
-                {% crispy formAddSuggestion %}
-            </li>
-            <li>
-                <a href="#manage-suggestion" class="open-modal ico-after gear blue">
-                    {% trans "Gérer les suggestions" %}
-                </a>
-                <form action="{% url "content:remove-suggestion" content.pk  %}" method="post" class="modal modal-large" id="manage-suggestion" data-modal-close="Fermer">
-                    <table class="fullwidth">
-                        <thead>
-                            <th>{% trans "Contenus suggérés" %}</th>
-                            <th width="15%">{% trans "Actions" %}</th>
-                        </thead>
-                        <tbody>
-                            {% for content_suggestion in content_suggestions %}
-                                <tr>
-                                    <td>{{content_suggestion.suggestion.title}}</td>
-                                    <td>
-                                        <button type="submit" data-value="{{ content_suggestion.pk }}" name="pk_suggestion" value="{{ content_suggestion.pk }}" class="modal-inner">
-                                            {% trans "Supprimer" %}
-                                        </button>
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <tr><td colspan="2">Aucune suggestion de contenu.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-
-                    {% csrf_token %}
-                </form>
-            </li>
-        {% endif %}
-    </ul>
-{% endif %}
+        <li>
+            <a href="#manage-suggestion" class="open-modal ico-after gear blue">
+                {% trans "Gérer les suggestions" %}
+            </a>
+            <form action="{% url "content:remove-suggestion" content.pk  %}" method="post" class="modal modal-large" id="manage-suggestion" data-modal-close="Fermer">
+                <table class="fullwidth">
+                    <thead>
+                        <th>{% trans "Contenus suggérés" %}</th>
+                        <th width="15%">{% trans "Actions" %}</th>
+                    </thead>
+                    <tbody>
+                        {% for content_suggestion in content_suggestions %}
+                            <tr>
+                                <td>{{content_suggestion.suggestion.title}}</td>
+                                <td>
+                                    <button type="submit" data-value="{{ content_suggestion.pk }}" name="pk_suggestion" value="{{ content_suggestion.pk }}" class="modal-inner">
+                                        {% trans "Supprimer" %}
+                                    </button>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="2">Aucune suggestion de contenu.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% csrf_token %}
+            </form>
+        </li>
+    {% endif %}
+</ul>

@@ -304,7 +304,7 @@
     var formData = new FormData()
     formData.append('physical', file)
     formData.append('title', file.name)
-    // WARN: if you test zds with sqlite, you can"t upload multiple files at a time
+    // WARN: if you test zds with sqlite, you can't upload multiple files at a time
     $.ajax({
       url: galleryUrl,
       data: formData,
@@ -320,7 +320,7 @@
     }).fail(function(resp) {
       var error = 'Erreur inconnue'
       if (resp.responseText !== undefined && resp.responseText.indexOf('RequestDataTooBig') !== -1) {
-        error = 'L"image est trop lourde.'
+        error = 'L\'image est trop lourde.'
       } else if (resp.responseJSON !== undefined) {
         error = resp.responseJSON[0]
       } else if (resp.responseText !== undefined) {
@@ -391,8 +391,8 @@
       imageUploadFunction: uploadImage,
       imageTexts: {
         sbInit: 'Joindre des images par glisser-déposer ou coller depuis le presse-papiers.',
-        sbOnDragEnter: 'Déposer l"image pour l"envoyer dans votre galérie',
-        sbOnDrop: 'Téléchargement d"images #images_names#',
+        sbOnDragEnter: 'Déposez l\'image pour l\'envoyer dans votre galerie.',
+        sbOnDrop: 'Téléchargement d\'images #images_names#',
         sbProgress: 'Téléchargement #file_name#: #progress#%',
         sbOnUploaded: 'Image téléchargée #image_name#'
       },
@@ -443,7 +443,7 @@
                   return false
                 }
               }
-              description = prompt('Description de l"abbréviation', '')
+              description = prompt('Description de l\'abbréviation', '')
             }
 
             cm.replaceRange(cm.lineSeparator() + cm.lineSeparator() + '*[' + abbr + ']: ' + description, { line: lastLine, ch: lastCh }, { line: lastLine, ch: maxRange })
@@ -688,7 +688,7 @@
       $hide.attr({
         href: 'javascript:void(0)',
         class: 'close-alert-box ico-after cross white',
-        title: "Masquer l'alerte (raccourci clavier: Echap)"
+        title: 'Masquer l\'alerte (raccourci clavier: Echap)'
       })
 
       const $undo = $('<a href="javascript:void(0)">cliquant ici</a>.').click(function() {
@@ -714,7 +714,7 @@
       easyMDE.codemirror.on('keyHandled', onKeyHandled)
 
       const spanContent = [
-        "La version actuelle du contenu provient d'une sauvegarde de votre navigateur. ",
+        'La version actuelle du contenu provient d\'une sauvegarde de votre navigateur. ',
         'Vous pouvez revenir à la version originale (du serveur) avec CTRL+Z ou en ',
         $undo,
         '.'

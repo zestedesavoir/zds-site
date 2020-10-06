@@ -566,8 +566,12 @@ class Alert(models.Model):
         else:
             return self.get_scope_display()
 
+    def is_automated(self):
+        """Returns true if this alert was opened automatically."""
+        return self.author.username == settings.ZDS_APP['member']['bot_account']
+
     def solve(self, moderator, resolve_reason='', msg_title='', msg_content=''):
-        """Solve alert and send a PrivateTopic to the alert author if a reason is given
+        """Solve the alert and send a private message to the author if a reason is given
 
         :param resolve_reason: reason
         :type resolve_reason: str
@@ -608,6 +612,7 @@ class Alert(models.Model):
     class Meta:
         verbose_name = 'Alerte'
         verbose_name_plural = 'Alertes'
+        get_latest_by = 'pubdate'
 
 
 class CommentVote(models.Model):

@@ -21,7 +21,7 @@
 {% endif %}
 
 {% ifchanged %}
-{% if message_is_hidden %}
+{% if message_is_hidden and message.pk != topic.first_post.pk %}
     <div class="msg-are-hidden hidden" aria-hidden="true"><a class="link" href="#show">{% trans "Un ou plusieurs messages ont été masqués" %}</a></div>
 {% endif %}
 {% endifchanged %}
@@ -29,6 +29,7 @@
 <article
     class="topic-message
            {% if message.is_useful and not message_is_hidden %}helpful{% endif %}
+           {% if perms_change and message.is_potential_spam and not message_is_hidden %}potential-spam{% endif %}
            {% if is_repeated_message %}repeated{% endif %}
            {% if message_is_hidden %}hidden-by-someone{% endif %}"
 
@@ -183,6 +184,13 @@
                 </p>
             {% endif %}
             {% if not is_mp %}
+                {% if perms_change %}
+                  <p class="message-potential-spam alert ico-after {% if not message.is_potential_spam or message_is_hidden %}hidden{% endif %}"
+                     data-ajax-output="mark-message-as-potential-spam">
+                      {% trans "Ce message est soupçonné d'être un spam. Une alerte sera levée s'il est modifié." %}
+                  </p>
+                {% endif %}
+
                 <p class="message-helpful tick ico-after green {% if not message.is_useful or message_is_hidden %}hidden{% endif %}"
                    data-ajax-output="mark-message-as-useful">
                     {% trans "Cette réponse a aidé l’auteur du sujet" %}
@@ -234,7 +242,19 @@
                     {% else %}
                         <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
                         <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
+                            {% if alert.is_automated %}
+                                <p>{% trans "Confirmez-vous vouloir résoudre cette alerte ?" %}</p>
+                                <p class="cannot-send-message-with-solved-alert">
+                                    {% blocktrans %}
+                                        Usuellement, vous pouvez joindre un message à la résolution d'une alerte, mais ce n'est pas possible
+                                        pour celle-ci car elle a été ouverte automatiquement.
+                                    {% endblocktrans %}
+                                </p>
+                                <input type="hidden" name="text" value="" />
+                            {% else %}
+                                <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
+                            {% endif %}
+
                             <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
 
                             {% csrf_token %}
@@ -273,6 +293,22 @@
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
+                        {% if user.is_authenticated and perms_change and potential_spam_link %}
+                              <form action="{{ potential_spam_link }}" method="post">
+                                  {% csrf_token %}
+
+                                  <button
+                                      type="submit"
+                                      class="alert ico-after {% if message.is_potential_spam %}green{% endif %}"
+                                      title="{% if not message.is_potential_spam %}{% trans "Marquer ce message comme spam potentiel, afin de recevoir une alerte de modération s'il est modifié." %}{% endif %}"
+                                      data-ajax-input="mark-message-as-potential-spam"
+                                      data-content-on-click="{% if not message.is_potential_spam %}
+                                                                 {% trans "Ce message n'est pas du spam" %}
+                                                             {% endif %}"
+                                      >{% if message.is_potential_spam %}{% trans "Ce message n'est pas du spam" %}{% endif %}</button>
+                              </form>
+                        {% endif %}
+
                         {% if user.is_authenticated and helpful_link %}
                             {% if topic.author == user or perms_change %}
                                 <form action="{{ helpful_link }}" method="post">

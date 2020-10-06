@@ -1,9 +1,27 @@
 div.msg-are-hidden {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    margin: -15px 0;
+    margin: 0;
+
     a {
         color: #999;
         font-size: 12px;
+    }
+
+    & ~ .topic-message.hidden + .topic-message:not(.hidden) {
+        margin-top: 10px;
+
+        @include until-desktop {
+            margin-top: 0;
+            padding-top: 5px;
+        }
+    }
+    & + .topic-message.hidden + .pagination {
+        margin-top: 10px;
+    }
+    .topic-message + & {
+        margin-top: -15px;
     }
 }
 
@@ -22,7 +40,7 @@ div.msg-are-hidden {
             }
         }
     }
-    &.helpful {
+    &.helpful:not(.potential-spam) {
         .message {
             &,
             .is-author {
@@ -42,6 +60,30 @@ div.msg-are-hidden {
 
                 &:after {
                     border-right-color: desaturate($color-helpful, 50%);
+                }
+            }
+        }
+    }
+    &.potential-spam {
+        .message {
+            &,
+            .is-author {
+                background: $color-potential-spam;
+            }
+
+            &:after {
+                border-right-color: $color-potential-spam;
+            }
+        }
+        &.repeated {
+            .message {
+                &,
+                .is-author {
+                    background: desaturate($color-potential-spam, 50%);
+                }
+
+                &:after {
+                    border-right-color: desaturate($color-potential-spam, 50%);
                 }
             }
         }
@@ -235,6 +277,7 @@ div.msg-are-hidden {
             .message-edited,
             .message-hidden,
             .message-helpful,
+            .message-potential-spam,
             .message-repeated {
                 padding-top: 3px 0 0;
 
@@ -263,8 +306,12 @@ div.msg-are-hidden {
             .message-hidden {
                 margin-top: 1px;
             }
-            .message-helpful {
+            .message-helpful:not(.message-potential-spam) {
                 color: #48A200;
+                text-indent: 20px;
+            }
+            .message-potential-spam {
+                color: hsl(360, 67%, 44%);
                 text-indent: 20px;
             }
 
@@ -399,6 +446,13 @@ div.msg-are-hidden {
                         }
                     }
                 }
+
+                .alert {
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: hsl(360, 64%, 55%);
+                    }
+                }
             }
         }
 
@@ -451,6 +505,7 @@ div.msg-are-hidden {
                     margin: 0;
                 }
             }
+
             a,
             .upvote,
             .downvote,
@@ -461,7 +516,12 @@ div.msg-are-hidden {
                 height: 29px;
                 line-height: 30px;
                 padding: 0 10px;
+
+                &:empty {
+                  padding-right: 0;
+                }
             }
+
             a,
             button.ico-after {
                 cursor: pointer;
@@ -481,6 +541,7 @@ div.msg-are-hidden {
                 }
             }
         }
+
         .message-actions a,
         .message-buttons a,
         .message-karma button {
@@ -702,4 +763,10 @@ form.topic-message {
     form .message {
         padding-top: 0 !important;
     }
+}
+
+// For alerts resolution modals
+.cannot-send-message-with-solved-alert {
+    font-size: .9em;
+    line-height: 1.2em;
 }

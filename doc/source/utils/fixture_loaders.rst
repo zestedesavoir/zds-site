@@ -5,22 +5,47 @@ Le chargement de jeux de données (fixtures)
 Zeste de Savoir étant un projet très complet il est nécessaire de pouvoir charger un ensemble de jeux de données
 de manière automatique pour créer une nouvelle instance à des fins de test ou pour forker le site.
 
-Pour faciliter la tâche, trois outils sont mis à disposition des développeurs, testeurs et utilisateurs.
+Pour faciliter la tâche, des outils sont mis à disposition des développeurs, testeurs et utilisateurs.
+
+Chargement du jeu de données standard
+-------------------------------------
+
+En l'absence d'exigences particulières, le moyen le plus simple de charger un jeu de données est d'utiliser la
+commande suivante :
+
+.. sourcecode:: bash
+
+    make generate-fixtures
+
+ou si vous souhaitez purger les données existantes au préalable :
+
+.. sourcecode:: bash
+
+    make new-db
+
+Ces commandes chargent :
+
+* un jeu de données simples ;
+* quelques données plus complexes ;
+* un jeu de données modérément massif.
+
+Ces trois opérations correspondent à des appels aux outils décrits ci-après. Les paramètres exacts sont
+disponibles dans le fichier `Makefile` à la racine de l'environnement de développement.
 
 Les données sérialisables pour une base fonctionnelle
 -----------------------------------------------------
 
 Un premier ensemble de données simples est accessible par la commande intégrée à django ``python manage.py loaddata``.
 
-Cette commande s'attend à une liste de fichier au format yaml et supporte les *wildcards*.
-Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
+Cette commande s'attend à une liste de fichiers au format yaml et supporte les *wildcards*.
+Nous possédons un ensemble de données sérialisées dans le dossier fixtures :
 
-- ``categories.yaml`` : contient le chargement de 3 catégories de tutoriels, 2 sous catégories de tutoriels rangées dans les bonnes catégories parentes
-- ``forums.yaml`` : contient le chargment de 4 catégories de forum et de 10 forums dans ces catégories
-- ``licences.yaml`` : contient le chargement de 2 licences dont la licence par défaut (tous droit réservés)
-- ``mps.yaml`` : **nécessite le chargement des users**, contient la création d'un MP d'un membre à un admin
-- ``topics.yaml``: **nécessite le chargement des users**, contient la création de plusieurs topics dans les forums dont un résolu
-- ``users.yaml``: Crée 6 utilisateurs:
+- ``categories.yaml`` : contient le chargement de 3 catégories de tutoriels, 2 sous-catégories de tutoriels rangées dans les bonnes catégories parentes ;
+- ``forums.yaml`` : contient le chargement de 4 catégories de forum et de 10 forums dans ces catégories ;
+- ``licences.yaml`` : contient le chargement des licences, identiques à celles utilisées en production ;
+- ``mps.yaml`` : **nécessite le chargement des users**, contient la création d'un MP d'un membre à un admin ;
+- ``topics.yaml``: **nécessite le chargement des users**, contient la création de plusieurs topics dans les forums dont un résolu ;
+- ``users.yaml``: Crée 6 utilisateurs :
     - admin/admin avec les droits d'administration
     - staff/staff faisant partie du groupe staff
     - user/user un utilisateur normal et sans problème
@@ -31,9 +56,7 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures:
 - ``oauth_applications.yaml``: crée une application de test `pour l'API <../api.html>`_:
     - ``client_id``: ``w14aIFqE7z90ti1rXE8hCRMRUOPBP4rXpfLZIKmT`` ;
     - ``client_secret``: ``0q4ee800NWs8cSHa0FIbkTLwEncMqYHOCAxNkt9zRmd10bRk1J18TkbviO5QHy2b66ggzyLADm79tJw5BQf2XfApPnk0nogcFaYhtNO33uNlzzT8sXfxu3zzBFu5Wejv``.
-- ``group.yaml``: crée les descriptions de deux groupes de la page d'accueil (staff et groupe technique)
-
-De ce fait, le moyen le plus simple de charger l'ensemble des données de base est la commande ``make fixtures``.
+- ``group.yaml``: crée les descriptions de deux groupes de la page d'accueil (staff et groupe technique).
 
 Les données complexes voire les scénarios
 -----------------------------------------
@@ -62,7 +85,7 @@ Le format du fichier est celui-ci:
             champ_string: "valeur2"
             champ_int: 1
 
-Les fichiers de factory déjà existant sont rangés dans le dossier ``fixtures/advanced``.
+Les fichiers de factory déjà existants sont rangés dans le dossier ``fixtures/advanced``.
 
 Pour utiliser un fichier yaml de factory, il vous suffit de lancer la commande ``python manage.py load_factory_data chemin_vers_vos_fichier.yaml``.
 Cette méthode est compatible avec les *wildcards*.
@@ -117,9 +140,7 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 |category_forum                   |forum.Category                     |4                            |
 +---------------------------------+-----------------------------------+-----------------------------+
-|category_content                 |Licence                            | Plusieurs [#lic]_           |
-|                                 +-----------------------------------+-----------------------------+
-|                                 |utils.Category                     |5                            |
+|category_content                 |utils.Category                     |5                            |
 |                                 +-----------------------------------+-----------------------------+
 |                                 |utils.SubCategory                  |10                           |
 +---------------------------------+-----------------------------------+-----------------------------+
@@ -137,7 +158,5 @@ Ce coefficient sera à multiplier par le *coefficient de taille* dirrigé par :
 +---------------------------------+-----------------------------------+-----------------------------+
 
 
-
-.. [#lic] Les licences suivantes seront créée : "CB-BY", "CC-BY-ND", "CC-BY-ND-SA", "CC-BY-SA", "CC", "CC-BY-IO" et "Tout-Droits"
-.. [#cv2] C'est à dire 60% en validation (dont 20% réservés) et 30% publiés. S'il sagit de tutoriels, 50% de petits, 30% de moyen et 20% de *bigs*.
-.. [#moy] Ce nombre est une moyenne, le nombre réel est choisi au hasard autour de cette moyenne
+.. [#cv2] C'est-à-dire 60% en validation (dont 20% réservés) et 30% publiés. S'il sagit de tutoriels, 50% de petits, 30% de moyen et 20% de *bigs*.
+.. [#moy] Ce nombre est une moyenne, le nombre réel est choisi au hasard autour de cette moyenne.

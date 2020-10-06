@@ -1,14 +1,17 @@
 from datetime import datetime
 
-from django.contrib.auth.models import Group
+from django.conf import settings
+from django.contrib.auth.models import User, Group
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.test import TestCase
+
 from zds.forum.factories import create_category_and_forum, create_topic_in_forum
 from zds.forum.factories import PostFactory, TagFactory
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentEdit, Hat
+from zds.utils.models import CommentEdit, Hat, Alert
 
 
 class LastTopicsViewTests(TestCase):
@@ -1735,6 +1738,10 @@ class PostUsefulTest(TestCase):
 
 
 class MessageActionTest(TestCase):
+    def setUp(self):
+        # We need a bot for test_mark_as_potential_spam.
+        settings.ZDS_APP['member']['bot_account'] = ProfileFactory().user.username
+
     def test_alert(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
@@ -1766,14 +1773,155 @@ class MessageActionTest(TestCase):
 
         # staff can alert all messages
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in str(response.content).split() if word == 'alert']
-        self.assertEqual(len(alerts), 2)
+        self.assertContains(response, '<a href="#signal-message-', count=2)
 
-        # authenticated, user can't alert the hidden message
+        # authenticated, user can alert the hidden message too
         self.client.login(username=profile.user.username, password='hostel77')
         response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in str(response.content).split() if word == 'alert']
-        self.assertEqual(len(alerts), 2)
+        self.assertContains(response, '<a href="#signal-message-', count=2)
+
+    def test_mark_as_potential_spam(self):
+        potential_spam_class_not_thete_if_not_staff = 'potential-spam'
+        potential_spam_classes_if_hidden = 'class="message-potential-spam alert ico-after hidden"'
+        potential_spam_classes_if_visible = 'class="message-potential-spam alert ico-after "'
+        alert_text = 'Ce message, soupçonné d\'être un spam, a été modifié.'
+        bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+
+        profile = ProfileFactory()
+        staff = StaffProfileFactory()
+
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+        PostFactory(topic=topic, author=profile.user, position=2)
+
+        # unauthenticated, no potential spam, no message
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, potential_spam_class_not_thete_if_not_staff)
+
+        # authenticated, no potential spam, no message
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertContains(response, potential_spam_classes_if_hidden)
+
+        # unauthenticated, cannot mark a message as potential spam
+        self.client.logout()
+        response = self.client.post(reverse('post-potential-spam') + f'?message={topic.last_message.pk}', follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/membres/connexion/?next='))
+
+        # authenticated as non-staff, cannot mark a message as potential spam
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-potential-spam') + f'?message={topic.last_message.pk}', follow=False)
+        self.assertEqual(response.status_code, 403)
+
+        # authenticated as non-staff, if we edit the message, there is no alert
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (1)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0)
+
+        # authenticated as non-staff, if we edit the message, there is no alert
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (2)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0)
+
+        # authenticated as staff, can mark a message as potential spam
+        response = self.client.post(reverse('post-potential-spam') + f'?message={topic.last_message.pk}', follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, topic.last_message.get_absolute_url())
+
+        # ok so now we have a message marked as potential spam
+
+        # authenticated as staff, can see the message marked as potential spam
+        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertContains(response, potential_spam_classes_if_visible)
+
+        # authenticated as staff, if we edit the message, there is no alert
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (21)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0)
+
+        # authenticated as non-staff, if we edit the message, there is an alert
+        self.client.logout()
+        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (22)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 1)
+
+        # authenticated as non-staff, if we edit again the message, there is still one alert (we dont stack them up)
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (23)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 1)
+
+        # let's assume the alert was solved
+        for alert in Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False):
+            alert.solve(staff.user)
+
+        # authenticated as non-staff, if we edit but the text doesn't actually change, there is no alert
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (23)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0)
+
+        # ...but as the other alert was solved, if we now edit the message for real, there is a new alert
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (24)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 1)
+
+        # ... and there are two alerts in total, including the solved one
+        self.assertEqual(len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text)), 2)
+
+        # let's unmark the message, it's no longer some spam
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-potential-spam') + f'?message={topic.last_message.pk}', follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, topic.last_message.get_absolute_url())
+
+        # oh, and the alert was solved in the meantime
+        for alert in Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False):
+            alert.solve(staff.user)
+
+        # if the staff edit the message, there is no alert
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (25)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0)
+
+        # if the author edit the message, there is no alert either
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        response = self.client.post(reverse('post-edit') + f'?message={topic.last_message.pk}', follow=False, data={
+            'text': 'Argh du spam (26)'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(Alert.objects.filter(
+            author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0)
 
     def test_hide(self):
         profile = ProfileFactory()

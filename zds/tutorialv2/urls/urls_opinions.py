@@ -1,8 +1,9 @@
 from django.urls import path, re_path
 
 from zds.tutorialv2.feeds import LastOpinionsFeedRSS, LastOpinionsFeedATOM
-from zds.tutorialv2.views.contents import ContentOfAuthor
-from zds.tutorialv2.views.published import ListOpinions, DisplayOnlineOpinion, DownloadOnlineOpinion
+from zds.tutorialv2.views.lists import ListOpinions, ContentOfAuthor
+from zds.tutorialv2.views.download_online import DownloadOnlineOpinion
+from zds.tutorialv2.views.display import DisplayOnlineOpinion
 
 urlpatterns = [
     # Flux

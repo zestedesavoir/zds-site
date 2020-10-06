@@ -4,6 +4,13 @@ from .abstract_base import *
 
 DEBUG = True
 
+# NOTE: Can be removed once Django 3 is used
+ALLOWED_HOSTS = [
+    '.localhost',
+    '127.0.0.1',
+    '[::1]'
+]
+
 INSTALLED_APPS += (
     'debug_toolbar',
     'django_extensions',
@@ -83,5 +90,6 @@ ZDS_APP['very_top_banner'] = {
     'background_color': '#666',
     'border_color': '#353535',
     'color': 'white',
-    'message': 'Version locale'
+    'message': 'Version locale',
+    'slug': 'version-locale'
 }

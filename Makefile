@@ -6,6 +6,8 @@ install-linux: ## Install the minimal components needed
 install-linux-full: ## Install all the components needed
 	./scripts/install_zds.sh +full
 
+update: install-back install-front zmd-install migrate-db build-front ## Update the environment (`install-back` & `install-front` & `zmd-install` & `migrate-db` & `build-front`)
+
 new-db: wipe-db migrate-db generate-fixtures ## Create a new full database (`wipe-db` & `migrate-db` & `generate-fixtures`)
 
 run: ## Run the backend server and watch the frontend (`watch-front` in parallel with `run-back`)
@@ -107,7 +109,7 @@ generate-pdf: ## Generate PDFs of published contents
 migrate-db: ## Create or update database schema
 	python manage.py migrate
 
-generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
+generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics, licenses...)
 	@if curl -s $(ZMD_URL) > /dev/null; then \
 		python manage.py loaddata fixtures/*.yaml; \
 		python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; \

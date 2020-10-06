@@ -159,7 +159,7 @@
 
     <div class="mobile-menu" id="mobile-menu"></div>
 
-    {% include "top_banner.html" %}
+    {% include "very_top_banner.html" %}
 
     <div class="page-container">
 
@@ -258,10 +258,9 @@
 
     {# Javascript stuff start #}
     <script src="{% static "js/jquery.min.js" %}"></script>
-    <script src="{% static "js/script.js" %}"></script>
     {% block extra_js %}
     {% endblock %}
-
+    <script src="{% static "js/script.js" %}"></script>
 
 
     {# Google Analytics #}
