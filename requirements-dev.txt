@@ -9,6 +9,6 @@ autopep8==1.5.4
 Sphinx==3.2.1
 selenium==3.141.0
 sphinx_rtd_theme==0.5.0
-Faker==3.0.0
+Faker==4.5.0
 colorlog==4.2.1
 django-extensions==3.0.9
