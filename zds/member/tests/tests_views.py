@@ -3,7 +3,7 @@ from datetime import datetime
 from smtplib import SMTPException
 
 from django.core.mail.backends.base import BaseEmailBackend
-from mock import Mock
+from unittest.mock import Mock
 from oauth2_provider.models import AccessToken, Application
 
 from django.conf import settings
