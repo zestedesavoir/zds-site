@@ -104,7 +104,7 @@
     pk: 9
     fields:
         first_name: Clem
-        last_name: Agrumson
+        last_name: Sanspépins
         username: bot
         password: pbkdf2_sha256$150000$bzWpLKZ2InfO$pmA3IQng4g+79tJ4p99GHKfEkGoztRnzDqa7Ny6jNu8=
         is_superuser: False
