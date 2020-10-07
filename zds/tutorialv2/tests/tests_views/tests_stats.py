@@ -1,8 +1,8 @@
 import datetime
 from copy import deepcopy
 from random import randint, uniform, shuffle
+from unittest import mock
 
-import mock
 from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase
