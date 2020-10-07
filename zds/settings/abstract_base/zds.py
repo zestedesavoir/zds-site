@@ -126,7 +126,7 @@ ZDS_APP = {
         'cnil': '1771020',
     },
     'member': {
-        'bot_account': zds_config.get('member_bot_username', 'admin'),
+        'bot_account': zds_config.get('member_bot_username', 'bot'),
         'anonymous_account': zds_config.get('member_anonymous_username', 'anonymous'),
         'external_account': zds_config.get('member_external_username', 'external'),
         'bot_group': 'bot',
