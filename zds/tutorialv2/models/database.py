@@ -16,8 +16,7 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-from elasticsearch_dsl import Mapping, Q as ES_Q
-from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
+from elasticsearch_dsl import Mapping, Text, Keyword, Date, Boolean, Q as ES_Q
 from git import Repo, BadObject
 from gitdb.exc import BadName
 from uuslug import uuslug
@@ -1125,11 +1124,11 @@ class FakeChapter(AbstractESIndexable):
         return 'chapter'
 
     @classmethod
-    def get_es_mapping(self):
+    def get_es_mapping(cls):
         """Define mapping and parenting
         """
 
-        mapping = Mapping(self.get_es_document_type())
+        mapping = Mapping(cls.get_es_document_type())
         mapping.meta('parent', type='publishedcontent')
 
         mapping.field('title', Text(boost=1.5))
