@@ -260,7 +260,7 @@ if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpat
     fi
 
     zds_fold_end
-else 
+else
     print_info "!! Add \`$(realpath $ZDS_VENV)\` in your PATH."
 
     if [ ! -d $ZDS_VENV ]; then
@@ -273,7 +273,7 @@ fi
 export ZDS_ENV=$(realpath $ZDS_VENV)
 
 
-# local jdk 
+# local jdk
 if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) ); then
     zds_fold_start "jdk" "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)"
 
@@ -334,18 +334,23 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         rm -r "$es_path"
     fi
 
-    wget_nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
+    # TODO - Check how to deal with other architectures and such.
+    wget_nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}-linux-x86_64.tar.gz
     if [[ $? == 0 ]]; then
-        unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip 
-        rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
+        tar -xzf elasticsearch-${ZDS_ELASTIC_VERSION}-linux-x86_64.tar.gz
+        rm elasticsearch-${ZDS_ELASTIC_VERSION}-linux-x86_64.tar.gz
         mv elasticsearch-${ZDS_ELASTIC_VERSION} elasticsearch
 
         # add options to reduce memory consumption
-        print_info "#Options added by install_zds.sh" >> "$es_path/config/jvm.options"
-        print_info "-Xms512m" >> "$es_path/config/jvm.options"
-        print_info "-Xmx512m" >> "$es_path/config/jvm.options"
+        options_file="$es_path/config/jvm.options.d/zds.options"
+        echo "# Options added by install_zds.sh" >> "$options_file"
+        echo "-Xms512m" >> "$options_file"
+        echo "-Xmx512m" >> "$options_file"
 
         # symbolic link to elastic start script
+        if [ -e $ZDS_ENV/bin/elasticsearch ]; then # remove previous symlink
+            rm "$ZDS_ENV/bin/elasticsearch"
+        fi
         ln -s "$es_path/bin/elasticsearch" $ZDS_ENV/bin/
     else
         print_error "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"

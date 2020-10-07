@@ -11,7 +11,7 @@ if [[ $ZDS_NVM_VERSION == "" ]]; then
 fi
 
 if [[ $ZDS_ELASTIC_VERSION == "" ]]; then
-    ZDS_ELASTIC_VERSION="5.5.2"
+    ZDS_ELASTIC_VERSION="7.9.2"
 fi
 
 if [[ $ZDS_LATEX_REPO == "" ]]; then
@@ -27,4 +27,3 @@ fi
 if [[ $ZMD_URL == "" ]]; then
     ZMD_URL="http://localhost:27272"
 fi
-

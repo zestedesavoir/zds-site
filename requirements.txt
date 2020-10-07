@@ -1,8 +1,8 @@
 # Implicit dependencies (optional dependencies of dependencies)
 social-auth-app-django==4.0.0
 python-social-auth==0.3.6
-elasticsearch==5.5.3
-elasticsearch-dsl==5.4.0
+elasticsearch==7.9.1
+elasticsearch-dsl==7.3.0
 
 # Explicit dependencies (references in code)
 Django==2.2.16
