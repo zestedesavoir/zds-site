@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.http import HttpResponse, StreamingHttpResponse
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 from django.utils.translation import gettext as _
@@ -182,7 +182,7 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
 
         if 'preview' in request.POST or new_post:
             if request.is_ajax():
-                content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
+                content = render(request, 'misc/preview.part.html', {'text': request.POST.get('text')})
                 return StreamingHttpResponse(content)
             else:
                 form = self.create_forum(self.form_class, **{'text': request.POST.get('text')})
