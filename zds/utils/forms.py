@@ -117,8 +117,8 @@ class TagValidator(object):
         Same as ``validate_raw_string`` but with a list of tag labels.
 
         :param string_list:
-        :return: ``True`` if ``v`` is fully valid, ``False`` if at least one error appears. See ``self.errors``
-        to get all internationalized error.
+        :return: ``True`` if ``v`` is fully valid, ``False`` if at least one error appears. \
+        See ``self.errors`` to get all internationalized error.
         """
         string_list = list(filter(lambda s: s.strip(), string_list))  # needed to keep only real candidates
         self.__clean = filter(self.validate_length, string_list)

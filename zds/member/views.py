@@ -15,7 +15,7 @@ from django.urls import reverse, reverse_lazy, resolve, Resolver404, NoReverseMa
 from django.db import transaction
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
-from django.shortcuts import redirect, render, get_object_or_404, render_to_response
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
@@ -243,7 +243,7 @@ class UpdateMember(UpdateView):
         form = self.form_class(request.POST)
 
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
+            content = render(request, 'misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         if form.is_valid():
@@ -889,7 +889,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
+            content = render(request, 'misc/preview.part.html', {'text': request.POST.get('text')})
             return StreamingHttpResponse(content)
 
         return super(HatsSettings, self).post(request, *args, **kwargs)

@@ -12,7 +12,7 @@ L'élément que vous souhaitez imager (un bouton, un lien de la barre latérale,
 Toutes les icônes nécessitent la présence de la classe ``ico-after``.
 Elle sera mise en place de façon différente selon l'endroit où vous l'insérez.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <button class="ico-after btn-cancel cross light">
       Bouton de suppression
@@ -20,7 +20,7 @@ Elle sera mise en place de façon différente selon l'endroit où vous l'insére
 
 Ou :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <span class="ico-after beta blue"></span>
 
@@ -39,7 +39,7 @@ Tous les boutons doivent avoir la classe btn associé à la couleur que l'on sou
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#" class="btn btn-grey">Ceci est un lien</a>
   <button class="btn btn-grey">Ceci est un bouton</button>
@@ -65,7 +65,7 @@ Ajoutez une icône sur un bouton comme sur n'importe quel autre élément :
 .. figure:: ../images/design/boutons_icones.png
    :align: center
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <button type="submit" class="ico-after arrow-right light">Submit</button>
   <button type="submit" class="btn-cancel ico-after cross light">Supprimer</button>
@@ -83,7 +83,7 @@ petite icône ouvrant une aide.
 N'oubliez pas d'ajouter un attribut ``title`` (ou si l'infobulle gêne,
 ``aria-label``), pour l'accessibilité du lien.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#" class="help-question-mark" title="Titre du lien">?</a>
 
@@ -107,7 +107,7 @@ vide.
 
 Voici un exemple.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#modal" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
     <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
@@ -129,7 +129,7 @@ l'espacement seront correctement gérés.
 Si on prend l'exemple d'une licence d'un contenu à côté de laquelle on place un
 bouton de modification, l'on pourrait utiliser le code HTML suivant.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <div class="editable-element">
     <p>{{ content.licence }}</p>
@@ -167,7 +167,7 @@ Un lien, généralement sous la forme d'un bouton, ayant comme ``href`` l'``id``
 
 Une boite modale et son lien associés peuvent être n'importe où dans la page, le système se base sur un ``id`` qui est par définition unique.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#doc-modal" class="open-modal">Ce lien ouvre une boite modale</a>
   <form class="modal modal-small" id="doc-modal" action="">
@@ -197,7 +197,7 @@ Informations supplémentatires
 
 Si le lien a une icône, la modale la rajoutera automatiquement.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#doc-modal-ico" class="open-modal btn btn-grey ico-after view blue">Exemple avec icône</a>
   <form class="modal modal-small" id="doc-modal-ico" action="">
@@ -212,7 +212,7 @@ Lecture seule
 
 Dans certains cas, les modales ne sont pas des formulaires mais simplement des boites d'affichage en lecture seule. Il est alors possible de préciser le texte du bouton de fermeture au travers de l'attribut ``data-modal-close``.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#doc-modal-close" class="open-modal">Ce lien ouvre une boite modale</a>
   <div class="modal modal-small" id="doc-modal-close" data-modal-close="Fermer">
@@ -238,7 +238,7 @@ Il y a trois couleurs :
 -  orange, pour les alertes/avertissements ``alert-box warning``
 -  vert, pour les succès/confirmations ``alert-box success``
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <!-- Changez simplement la classe "success" pour une autre pour changer le fond -->
   <div class="alert-box success">
@@ -251,7 +251,7 @@ Modulation
 
 Il est possible de forcer l'affichage du texte à la place ou en plus de la croix en rajoutant la classe ``close-alert-box-text`` au bouton de fermeture.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <div class="alert-box success">
       <span class="alert-box-text">Pas d'icône, juste du texte.</span>
@@ -260,7 +260,7 @@ Il est possible de forcer l'affichage du texte à la place ou en plus de la croi
 
 Vous pouvez combiner icône et texte comme ceci :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <div class="alert-box success">
       <span class="alert-box-text">Croix + texte.</span>

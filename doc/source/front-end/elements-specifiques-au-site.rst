@@ -24,7 +24,7 @@ participants à une discussion ou nouveaux auteurs à un tutoriel) !
 
 Il arrive souvent d'avoir donc ceci :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <form action="{{ url }}" method="post" id="une-ancre" class="modal modal-flex">
        Voici un formulaire !
@@ -44,7 +44,7 @@ Cas particulier : quand ce n'est pas un formulaire
 
 On peut se dire qu'avec ce code tout va bien fonctionner :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <div id="une-ancre" class="modal modal-flex">
        Une super boîte modale !
@@ -54,7 +54,7 @@ Malheureusement, non : le bouton de fermeture ne prend que la moitié de la plac
 très rapidement en ajoutant l'attribut ``data-modal-close="Fermez-moi !"`` à la boîte modale. Le texte
 de l'attribut (ici ``Fermez-moi !``) deviendra le texte du bouton.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <div id="une-ancre" class="modal" data-modal-close="Fermez-moi !">
        Une super boîte modale !
@@ -64,7 +64,7 @@ Si on désire un second bouton pointant vers un lien arbitraire, il suffit d'ajo
 contenant la boîte un lien avec les classes ``btn`` et ``btn-submit`` ; il sera automatiquement ajouté
 à côté du bouton de fermeture de la modale.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <div id="une-ancre" class="modal" data-modal-close="Fermez-moi !">
        Une super boîte modale !
@@ -79,7 +79,7 @@ de mettre une ancre correspondant à l'``id`` de la boîte modale ainsi que la
 classe ``open-modal``. N'oubliez pas l'attribut ``aria-haspopup="dialog"`` pour
 l'accessibilité.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <a href="#une-ancre" class="open-modal" aria-haspopup="dialog">
        Un super lien !
@@ -96,7 +96,7 @@ Si vous voulez un autre titre que le texte du lien pour votre modale, vous pouve
 l'attribut ``data-modal-title="Le titre de ma boîte"`` à la boîte modale. Le texte
 de l'attribut (ici ``Le titre de ma boîte``) deviendra le titre de la boîte modale.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <div id="une-ancre" class="modal" data-modal-title="Le titre de ma boîte">
        Une super boîte modale !
@@ -148,7 +148,7 @@ Elle cache l'en-tête et la barre latérale de la page pour ne laisser que le co
 
 Pour avoir la lecture zen, il suffit d'inclure le bouton "Lecture zen" là où vous voulez :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "misc/zen_button.part.html" %}
 
@@ -170,7 +170,7 @@ Importation dans un gabarit
 Article
 ~~~~~~~
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "tutorialv2/includes/content_item_type_article.part.html" %}
 
@@ -182,13 +182,13 @@ Vous pouvez passer trois arguments aux fichiers :
 
 Par exemple, pour afficher un article publié avec sa description :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "tutorialv2/includes/content_item_type_article.part.html" with public_article=article show_description=True %}
 
 Ou sinon, pour afficher un article en béta sans description :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "tutorialv2/includes/content_item_type_article.part.html" with article=article type="beta" %}
 
@@ -196,7 +196,7 @@ Ou sinon, pour afficher un article en béta sans description :
 Tutoriel
 ~~~~~~~~
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" %}
 
@@ -209,13 +209,13 @@ Vous pouvez passer quatre arguments aux fichiers :
 
 Par exemple, pour afficher un tutoriel publié avec sa description :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with public_tutorial=tutorial show_description=True %}
 
 Ou sinon, pour afficher un tutoriel en béta sans description et en taille réduite :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "tutorialv2/includes/content_item_type_tutoriel.part.html" with tutorial=tutorial type="beta" item_class="mini" %}
 
@@ -228,7 +228,7 @@ Ou sinon, pour afficher un tutoriel en béta sans description et en taille rédu
 Sujet
 ~~~~~
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    {% include "forum/includes/topic_item.part.html" %}
 
@@ -239,7 +239,7 @@ Faire une liste d'*items*
 
 Si vous voulez faire une liste de tutoriels, il faut les regrouper dans une ``<div class="content-item-list"></div>``.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <div class="content-item-list">
        <!-- Mes tutoriels -->
@@ -262,7 +262,7 @@ Malheureusement, si les tutoriels sont affichés sur deux colonnes et qu'ils son
 Pour y remédier, il faut toujours mettre à la fin de votre liste d'articles trois ``<div class="fill"></div>``. Cela donne au final ceci :
 
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
    <div class="content-item-list">
        <!-- Mes tutoriels -->

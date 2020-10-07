@@ -7,7 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.db import transaction
 from django.http import Http404, StreamingHttpResponse
-from django.shortcuts import redirect, get_object_or_404, render, render_to_response
+from django.shortcuts import redirect, get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import CreateView, RedirectView, UpdateView
@@ -83,7 +83,7 @@ class PrivateTopicNew(CreateView):
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
+                content = render(request, 'misc/preview.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
             else:
                 form = self.form_class(request.user.username,
@@ -338,7 +338,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
 
         if 'preview' in request.POST:
             if request.is_ajax():
-                content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
+                content = render(request, 'misc/preview.part.html', {'text': request.POST['text']})
                 return StreamingHttpResponse(content)
         elif form.is_valid():
             return self.form_valid(form)
