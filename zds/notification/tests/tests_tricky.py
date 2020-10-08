@@ -443,7 +443,7 @@ class SubscriptionsTest(TestCase):
 
     def test_follow_by_email_after_normal(self):
         forum = ForumFactory(category=ForumCategoryFactory())
-        user = ProfileFactory()
+        user = ProfileFactory().user
         subsription = NewTopicSubscription.objects.toggle_follow(forum, user)
         self.assertIsNotNone(subsription)
         new_subsription = NewTopicSubscription.objects.toggle_follow(forum, user, by_email=True)
