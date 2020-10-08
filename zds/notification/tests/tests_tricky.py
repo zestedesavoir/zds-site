@@ -440,3 +440,13 @@ class SubscriptionsTest(TestCase):
         send_message_mp(self.userOAuth2, topic, '', send_by_mail=True)
 
         self.assertEqual(1, len(mail.outbox))
+
+    def test_follow_by_email_after_normal(self):
+        forum = ForumFactory(category=ForumCategoryFactory())
+        user = ProfileFactory()
+        subsription = NewTopicSubscription.objects.toggle_follow(forum, user)
+        self.assertIsNotNone(subsription)
+        new_subsription = NewTopicSubscription.objects.toggle_follow(forum, user, by_email=True)
+        self.assertIsNotNone(new_subsription)
+        self.assertEqual(subsription.pk, new_subsription.pk)
+        self.assertTrue(new_subsription.by_email)
