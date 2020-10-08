@@ -151,6 +151,11 @@
     fields:
         user: 8
         last_ip_address: 192.168.0.1
+-   model: member.Profile
+    pk: 9
+    fields:
+        user: 9
+        last_ip_address: 192.168.0.1
 
 -   model: utils.Hat
     pk: 1
