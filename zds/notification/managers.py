@@ -80,7 +80,7 @@ class SubscriptionManager(models.Manager):
         # boolean creation flag is useless for us. Use default method because of its robustness
         subscription = self.get_or_create(
             object_id=content_object.pk,
-            content_type__pk=content_type.pk,
+            content_type=content_type,
             user=user)
         if not subscription.is_active:
             subscription.activate()
