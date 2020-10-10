@@ -4,16 +4,16 @@ register = template.Library()
 
 
 @register.filter(is_safe=False)
-def pluralize_fr(value, arg='s'):
+def pluralize_fr(value, arg="s"):
     """
     Based on default pluralize filter : https://github.com/django/django/blob/master/django/template/defaultfilters.py
     Support french (-1, 0 and 1 are singular).
     """
-    if ',' not in arg:
-        arg = ',' + arg
-    bits = arg.split(',')
+    if "," not in arg:
+        arg = "," + arg
+    bits = arg.split(",")
     if len(bits) > 2:
-        return ''
+        return ""
     singular_suffix, plural_suffix = bits[:2]
 
     try:

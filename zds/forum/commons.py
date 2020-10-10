@@ -37,62 +37,62 @@ class TopicEditMixin:
 
     @staticmethod
     def perform_solve_or_unsolve(user, topic):
-        if user == topic.author or user.has_perm('forum.change_topic'):
+        if user == topic.author or user.has_perm("forum.change_topic"):
             topic.solved_by = None if topic.solved_by else user
             return topic.is_solved
         else:
             raise PermissionDenied
 
     @staticmethod
-    @permission_required('forum.change_topic', raise_exception=True)
+    @permission_required("forum.change_topic", raise_exception=True)
     def perform_lock(request, topic):
-        topic.is_locked = request.POST.get('lock') == 'true'
+        topic.is_locked = request.POST.get("lock") == "true"
         if topic.is_locked:
-            success_message = _('Le sujet « {0} » est désormais verrouillé.').format(topic.title)
+            success_message = _("Le sujet « {0} » est désormais verrouillé.").format(topic.title)
         else:
-            success_message = _('Le sujet « {0} » est désormais déverrouillé.').format(topic.title)
+            success_message = _("Le sujet « {0} » est désormais déverrouillé.").format(topic.title)
         messages.success(request, success_message)
 
     @staticmethod
-    @permission_required('forum.change_topic', raise_exception=True)
+    @permission_required("forum.change_topic", raise_exception=True)
     def perform_sticky(request, topic):
-        topic.is_sticky = request.POST.get('sticky') == 'true'
+        topic.is_sticky = request.POST.get("sticky") == "true"
         if topic.is_sticky:
-            success_message = _('Le sujet « {0} » est désormais épinglé.').format(topic.title)
+            success_message = _("Le sujet « {0} » est désormais épinglé.").format(topic.title)
         else:
             success_message = _("Le sujet « {0} » n'est désormais plus épinglé.").format(topic.title)
         messages.success(request, success_message)
 
     def perform_move(self):
-        if self.request.user.has_perm('forum.change_topic'):
+        if self.request.user.has_perm("forum.change_topic"):
             try:
-                forum_pk = int(self.request.POST.get('forum'))
+                forum_pk = int(self.request.POST.get("forum"))
             except (KeyError, ValueError, TypeError) as e:
-                raise Http404('Forum not found', e)
+                raise Http404("Forum not found", e)
             forum = get_object_or_404(Forum, pk=forum_pk)
             self.object.forum = forum
 
             # Save topic to update update_index_date
             self.object.save()
 
-            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action='move')
-            message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
+            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action="move")
+            message = _("Le sujet « {0} » a bien été déplacé dans « {1} ».").format(self.object.title, forum.title)
             messages.success(self.request, message)
         else:
             raise PermissionDenied()
 
     @staticmethod
     def perform_edit_info(request, topic, data, editor):
-        topic.title = data.get('title')
-        topic.subtitle = data.get('subtitle')
+        topic.title = data.get("title")
+        topic.subtitle = data.get("subtitle")
         topic.save()
 
-        PostEditMixin.perform_edit_post(request, topic.first_post(), editor, data.get('text'))
+        PostEditMixin.perform_edit_post(request, topic.first_post(), editor, data.get("text"))
 
         # add tags
         topic.tags.clear()
-        if data.get('tags'):
-            topic.add_tags(data.get('tags').split(','))
+        if data.get("tags"):
+            topic.add_tags(data.get("tags").split(","))
 
         return topic
 
@@ -100,37 +100,32 @@ class TopicEditMixin:
 class PostEditMixin:
     @staticmethod
     def perform_hide_message(request, post, user, data):
-        is_staff = user.has_perm('forum.change_post')
+        is_staff = user.has_perm("forum.change_post")
         if post.author == user or is_staff:
             for alert in post.alerts_on_this_comment.all():
-                alert.solve(user, _('Le message a été masqué.'))
+                alert.solve(user, _("Le message a été masqué."))
             post.is_visible = False
             post.editor = user
-            post.text_hidden = data.get('text_hidden', '')
+            post.text_hidden = data.get("text_hidden", "")
 
-            messages.success(request, _('Le message est désormais masqué.'))
+            messages.success(request, _("Le message est désormais masqué."))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
                 signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
         else:
             raise PermissionDenied
 
     @staticmethod
-    @permission_required('forum.change_post', raise_exception=True)
+    @permission_required("forum.change_post", raise_exception=True)
     def perform_show_message(request, post):
         post.is_visible = True
-        post.text_hidden = ''
+        post.text_hidden = ""
 
     @staticmethod
     def perform_alert_message(request, post, user, alert_text):
         if len(alert_text.strip()) == 0:
-            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+            messages.error(request, _("La raison du signalement ne peut pas être vide."))
         else:
-            alert = Alert(
-                author=user,
-                comment=post,
-                scope='FORUM',
-                text=alert_text,
-                pubdate=datetime.now())
+            alert = Alert(author=user, comment=post, scope="FORUM", text=alert_text, pubdate=datetime.now())
             alert.save()
 
             messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
@@ -181,9 +176,8 @@ class PostEditMixin:
 
         post.update_content(
             text,
-            on_error=lambda m: messages.error(
-                request,
-                _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
+            on_error=lambda m: messages.error(request, _("Erreur du serveur Markdown:\n{}").format("\n- ".join(m))),
+        )
         post.hat = get_hat_from_request(request, post.author)
         post.update = datetime.now()
         post.editor = user
@@ -197,15 +191,15 @@ class PostEditMixin:
         # the post was edited. If an open alert already exists for this reason, we update the
         # date of this alert to avoid lots of them stacking up.
         if original_text != text and post.is_potential_spam and post.editor == post.author:
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
-            alert_text = _('Ce message, soupçonné d\'être un spam, a été modifié.')
+            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
 
             try:
                 alert = post.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
                 alert.pubdate = datetime.now()
                 alert.save()
             except Alert.DoesNotExist:
-                Alert(author=bot, comment=post, scope='FORUM', text=alert_text, pubdate=datetime.now()).save()
+                Alert(author=bot, comment=post, scope="FORUM", text=alert_text, pubdate=datetime.now()).save()
 
         return post
 
@@ -215,7 +209,7 @@ class SinglePostObjectMixin(SingleObjectMixin):
 
     def get_object(self, queryset=None):
         try:
-            post_pk = int(self.request.GET.get('message'))
+            post_pk = int(self.request.GET.get("message"))
         except (KeyError, ValueError, TypeError):
             raise Http404
         return get_object_or_404(Post, pk=post_pk)

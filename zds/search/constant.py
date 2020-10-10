@@ -1,23 +1,23 @@
 from django.utils.translation import ugettext_lazy as _
 
-MODEL_TOPIC = 'sujets'
-MODEL_POST = 'messages'
-MODEL_ARTICLE = 'article'
-MODEL_TUTORIAL = 'tutorial'
-MODEL_OPINION = 'opinion'
-MODEL_PART = 'parts'
-MODEL_CHAPTER = 'chapters'
-MODEL_EXTRACT = 'extracts'
+MODEL_TOPIC = "sujets"
+MODEL_POST = "messages"
+MODEL_ARTICLE = "article"
+MODEL_TUTORIAL = "tutorial"
+MODEL_OPINION = "opinion"
+MODEL_PART = "parts"
+MODEL_CHAPTER = "chapters"
+MODEL_EXTRACT = "extracts"
 
 MODEL_NAMES = [
-    (MODEL_TOPIC, _('Sujets du forum')),
-    (MODEL_POST, _('Messages du forum')),
-    (MODEL_ARTICLE, _('Articles')),
-    (MODEL_TUTORIAL, _('Tutoriels')),
-    (MODEL_OPINION, _('Billets')),
-    (MODEL_PART, _('Parties des tutoriels')),
-    (MODEL_CHAPTER, _('Chapitres des tutoriels')),
-    (MODEL_EXTRACT, _('Sections des tutoriels'))
+    (MODEL_TOPIC, _("Sujets du forum")),
+    (MODEL_POST, _("Messages du forum")),
+    (MODEL_ARTICLE, _("Articles")),
+    (MODEL_TUTORIAL, _("Tutoriels")),
+    (MODEL_OPINION, _("Billets")),
+    (MODEL_PART, _("Parties des tutoriels")),
+    (MODEL_CHAPTER, _("Chapitres des tutoriels")),
+    (MODEL_EXTRACT, _("Sections des tutoriels")),
 ]
 
 

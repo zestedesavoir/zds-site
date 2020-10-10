@@ -22,18 +22,17 @@ class ItemMixin:
 
 def request_object(request):
     obj = {}
-    if 'forum' in request.GET:
-        obj['forum'] = request.GET['forum']
-    if 'tag' in request.GET:
-        obj['tag'] = request.GET['tag']
+    if "forum" in request.GET:
+        obj["forum"] = request.GET["forum"]
+    if "tag" in request.GET:
+        obj["tag"] = request.GET["tag"]
     return obj
 
 
 class LastPostsFeedRSS(Feed, ItemMixin):
-    title = 'Derniers messages sur {}'.format(settings.ZDS_APP['site']['literal_name'])
-    link = '/forums/'
-    description = ('Les derniers messages '
-                   'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name']))
+    title = "Derniers messages sur {}".format(settings.ZDS_APP["site"]["literal_name"])
+    link = "/forums/"
+    description = "Les derniers messages " "parus sur le forum de {}.".format(settings.ZDS_APP["site"]["literal_name"])
 
     def get_object(self, request):
         return request_object(request)
@@ -41,17 +40,17 @@ class LastPostsFeedRSS(Feed, ItemMixin):
     def items(self, obj):
         try:
             posts = Post.objects.filter(topic__forum__groups__isnull=True)
-            if 'forum' in obj:
-                posts = posts.filter(topic__forum__pk=int(obj['forum']))
-            if 'tag' in obj:
-                posts = posts.filter(topic__tags__pk__in=[obj['tag']])
-            posts = posts.order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            if "forum" in obj:
+                posts = posts.filter(topic__forum__pk=int(obj["forum"]))
+            if "tag" in obj:
+                posts = posts.filter(topic__tags__pk__in=[obj["tag"]])
+            posts = posts.order_by("-pubdate")[: settings.ZDS_APP["forum"]["posts_per_page"]]
         except (Post.DoesNotExist, ValueError):
             posts = []
         return posts
 
     def item_title(self, item):
-        return '{}, message #{}'.format(item.topic.title, item.pk)
+        return "{}, message #{}".format(item.topic.title, item.pk)
 
     def item_description(self, item):
         return item.text_html
@@ -63,9 +62,9 @@ class LastPostsFeedATOM(LastPostsFeedRSS):
 
 
 class LastTopicsFeedRSS(Feed, ItemMixin):
-    title = 'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['literal_name'])
-    link = '/forums/'
-    description = 'Les derniers sujets créés sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name'])
+    title = "Derniers sujets sur {}".format(settings.ZDS_APP["site"]["literal_name"])
+    link = "/forums/"
+    description = "Les derniers sujets créés sur le forum de {}.".format(settings.ZDS_APP["site"]["literal_name"])
 
     def get_object(self, request):
         return request_object(request)
@@ -73,17 +72,17 @@ class LastTopicsFeedRSS(Feed, ItemMixin):
     def items(self, obj):
         try:
             topics = Topic.objects.filter(forum__groups__isnull=True)
-            if 'forum' in obj:
-                topics = topics.filter(forum__pk=int(obj['forum']))
-            if 'tag' in obj:
-                topics = topics.filter(tags__pk__in=[obj['tag']])
-            topics = topics.order_by('-pubdate')[:settings.ZDS_APP['forum']['posts_per_page']]
+            if "forum" in obj:
+                topics = topics.filter(forum__pk=int(obj["forum"]))
+            if "tag" in obj:
+                topics = topics.filter(tags__pk__in=[obj["tag"]])
+            topics = topics.order_by("-pubdate")[: settings.ZDS_APP["forum"]["posts_per_page"]]
         except (Topic.DoesNotExist, ValueError):
             topics = []
         return topics
 
     def item_title(self, item):
-        return '{} dans {}'.format(item.title, item.forum.title)
+        return "{} dans {}".format(item.title, item.forum.title)
 
     def item_description(self, item):
         return item.subtitle

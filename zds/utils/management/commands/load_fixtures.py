@@ -22,8 +22,13 @@ from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, Su
 from zds.utils import slugify
 from django.conf import settings
 from django.db import transaction, IntegrityError
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, \
-    Validation as CValidation, ContentReactionFactory
+from zds.tutorialv2.factories import (
+    PublishableContentFactory,
+    ContainerFactory,
+    ExtractFactory,
+    Validation as CValidation,
+    ContentReactionFactory,
+)
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 
@@ -33,13 +38,15 @@ def load_member(cli, size, fake, root, *_):
     Load members
     """
     nb_users = size * 10
-    cli.stdout.write('Nombres de membres à créer : {}'.format(nb_users))
+    cli.stdout.write("Nombres de membres à créer : {}".format(nb_users))
     tps1 = time.time()
     cpt = 1
     # member in settings
-    users_set = ['admin',
-                 settings.ZDS_APP['member']['external_account'],
-                 settings.ZDS_APP['member']['anonymous_account']]
+    users_set = [
+        "admin",
+        settings.ZDS_APP["member"]["external_account"],
+        settings.ZDS_APP["member"]["anonymous_account"],
+    ]
     for default_user in users_set:
         current_user = Profile.objects.filter(user__username=default_user).first()
         if current_user is None:
@@ -47,7 +54,7 @@ def load_member(cli, size, fake, root, *_):
             profile.user.set_password(default_user)
             profile.user.first_name = default_user
             profile.user.email = fake.free_email()
-            if default_user == 'admin':
+            if default_user == "admin":
                 profile.user.is_superuser = True
                 profile.user.is_staff = True
             with contextlib.suppress(IntegrityError):
@@ -58,9 +65,9 @@ def load_member(cli, size, fake, root, *_):
                 profile.save()
 
     for i in range(0, nb_users):
-        while Profile.objects.filter(user__username='{}{}'.format(root, cpt)).count() > 0:
+        while Profile.objects.filter(user__username="{}{}".format(root, cpt)).count() > 0:
             cpt += 1
-        profile = ProfileFactory(user__username='{}{}'.format(root, cpt))
+        profile = ProfileFactory(user__username="{}{}".format(root, cpt))
         profile.user.set_password(profile.user.username)
         profile.user.first_name = fake.first_name()
         profile.user.last_name = fake.last_name()
@@ -71,10 +78,10 @@ def load_member(cli, size, fake, root, *_):
         profile.last_ip_address = fake.ipv4()
         profile.save()
         cpt += 1
-        sys.stdout.write(' User {}/{}  \r'.format(i + 1, nb_users))
+        sys.stdout.write(" User {}/{}  \r".format(i + 1, nb_users))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_staff(cli, size, fake, root, *_):
@@ -82,13 +89,13 @@ def load_staff(cli, size, fake, root, *_):
     Load staff
     """
     nb_staffs = size * 3
-    cli.stdout.write('Nombres de staffs à créer : {}'.format(nb_staffs))
+    cli.stdout.write("Nombres de staffs à créer : {}".format(nb_staffs))
     tps1 = time.time()
     cpt = 1
     for i in range(0, nb_staffs):
-        while Profile.objects.filter(user__username='{}staff{}'.format(root, cpt)).count() > 0:
+        while Profile.objects.filter(user__username="{}staff{}".format(root, cpt)).count() > 0:
             cpt += 1
-        profile = StaffProfileFactory(user__username='{}staff{}'.format(root, cpt))
+        profile = StaffProfileFactory(user__username="{}staff{}".format(root, cpt))
         profile.user.first_name = fake.first_name()
         profile.user.last_name = fake.last_name()
         profile.user.email = fake.free_email()
@@ -99,10 +106,10 @@ def load_staff(cli, size, fake, root, *_):
         profile.last_ip_address = fake.ipv6()
         profile.save()
         cpt += 1
-        sys.stdout.write(' Staff {}/{}  \r'.format(i + 1, nb_staffs))
+        sys.stdout.write(" Staff {}/{}  \r".format(i + 1, nb_staffs))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_gallery(cli, size, fake, *_, **__):
@@ -111,13 +118,14 @@ def load_gallery(cli, size, fake, *_, **__):
     """
     nb_galleries = size * 1
     nb_images = size * 3
-    cli.stdout.write('Nombres de galéries à créer par utilisateur: {}'.format(nb_galleries))
+    cli.stdout.write("Nombres de galéries à créer par utilisateur: {}".format(nb_galleries))
     cli.stdout.write("Nombres d'images à créer par gallerie: {}".format(nb_images))
     tps1 = time.time()
     nb_users = User.objects.count()
     if nb_users == 0:
-        cli.stdout.write("Il n'y a aucun membre actuellement. "
-                         'Vous devez rajouter les membres dans vos fixtures (member)')
+        cli.stdout.write(
+            "Il n'y a aucun membre actuellement. " "Vous devez rajouter les membres dans vos fixtures (member)"
+        )
         return
     profiles = list(Profile.objects.all())
     for user_index in range(0, nb_users):
@@ -126,14 +134,17 @@ def load_gallery(cli, size, fake, *_, **__):
             UserGalleryFactory(user=profiles[user_index].user, gallery=gal)
             __push_images_into_gallery(gal, user_index, gallery_index, nb_galleries, nb_images, nb_users)
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def __push_images_into_gallery(gal, i, j, nb_galleries, nb_images, nb_users):
     for k in range(0, nb_images):
         ImageFactory(gallery=gal)
-        sys.stdout.write(' User {}/{}  \tGallery {}/{}  \tImage {}/{}  \r'.
-                         format(i + 1, nb_users, j + 1, nb_galleries, k + 1, nb_images))
+        sys.stdout.write(
+            " User {}/{}  \tGallery {}/{}  \tImage {}/{}  \r".format(
+                i + 1, nb_users, j + 1, nb_galleries, k + 1, nb_images
+            )
+        )
         sys.stdout.flush()
 
 
@@ -142,16 +153,16 @@ def load_categories_forum(cli, size, fake, *_, **__):
     Load categories
     """
     nb_categories = size * 4
-    cli.stdout.write('Nombres de catégories de forum à créer : {}'.format(nb_categories))
+    cli.stdout.write("Nombres de catégories de forum à créer : {}".format(nb_categories))
     tps1 = time.time()
     for i in range(0, nb_categories):
         cat = ForumCategoryFactory(position=i + 1)
         cat.title = fake.word()
         cat.save()
-        sys.stdout.write(' Cat. {}/{}  \r'.format(i + 1, nb_categories))
+        sys.stdout.write(" Cat. {}/{}  \r".format(i + 1, nb_categories))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_forums(cli, size, fake, *_, **__):
@@ -159,25 +170,28 @@ def load_forums(cli, size, fake, *_, **__):
     Load forums
     """
     nb_forums = size * 8
-    cli.stdout.write('Nombres de Forums à créer : {}'.format(nb_forums))
+    cli.stdout.write("Nombres de Forums à créer : {}".format(nb_forums))
     tps1 = time.time()
     nb_categories = ForumCategory.objects.count()
     if nb_categories == 0:
-        cli.stdout.write("Il n'y a aucune catgorie actuellement. "
-                         'Vous devez rajouter les categories de forum dans vos fixtures (category_forum)')
+        cli.stdout.write(
+            "Il n'y a aucune catgorie actuellement. "
+            "Vous devez rajouter les categories de forum dans vos fixtures (category_forum)"
+        )
     else:
         categories = list(ForumCategory.objects.all())
         for i in range(0, nb_forums):
             with contextlib.suppress(IntegrityError):
-                forum = ForumFactory(category=categories[i % nb_categories],
-                                     position_in_category=(i / nb_categories) + 1)
+                forum = ForumFactory(
+                    category=categories[i % nb_categories], position_in_category=(i / nb_categories) + 1
+                )
                 forum.title = fake.word()
                 forum.subtitle = fake.sentence(nb_words=15, variable_nb_words=True)
                 forum.save()
-            sys.stdout.write(' Forum {}/{}  \r'.format(i + 1, nb_forums))
+            sys.stdout.write(" Forum {}/{}  \r".format(i + 1, nb_forums))
             sys.stdout.flush()
         tps2 = time.time()
-        cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+        cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_tags(cli, size, fake, *_, **__):
@@ -185,17 +199,17 @@ def load_tags(cli, size, fake, *_, **__):
     Load tags
     """
     nb_tags = size * 30
-    cli.stdout.write('Nombres de Tags de forum à créer : {}'.format(nb_tags))
+    cli.stdout.write("Nombres de Tags de forum à créer : {}".format(nb_tags))
     tps1 = time.time()
     for i in range(0, nb_tags):
         title = fake.word()
         with contextlib.suppress(IntegrityError):
             tag, created = Tag.objects.get_or_create(title=title.lower())
-            logging.getLogger(cli.__class__.__name__).debug('tag=%s is_new=%s', tag, created)
-        sys.stdout.write(' Tag {}/{}  \r'.format(i + 1, nb_tags))
+            logging.getLogger(cli.__class__.__name__).debug("tag=%s is_new=%s", tag, created)
+        sys.stdout.write(" Tag {}/{}  \r".format(i + 1, nb_tags))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_topics(cli, size, fake, *_, **__):
@@ -203,24 +217,25 @@ def load_topics(cli, size, fake, *_, **__):
     Load topics
     """
     nb_topics = size * 10
-    cli.stdout.write('Nombres de Topics à créer : {}'.format(nb_topics))
+    cli.stdout.write("Nombres de Topics à créer : {}".format(nb_topics))
     tps1 = time.time()
     nb_forums = Forum.objects.count()
     if nb_forums == 0:
-        cli.stdout.write("Il n'y a aucun forum actuellement. "
-                         'Vous devez rajouter les forums dans vos fixtures (forum)')
+        cli.stdout.write(
+            "Il n'y a aucun forum actuellement. " "Vous devez rajouter les forums dans vos fixtures (forum)"
+        )
         return
     forums = list(Forum.objects.all())
     nb_users = User.objects.count()
     if nb_users == 0:
-        cli.stdout.write("Il n'y a aucun membre actuellement. "
-                         'Vous devez rajouter les membres dans vos fixtures (member)')
+        cli.stdout.write(
+            "Il n'y a aucun membre actuellement. " "Vous devez rajouter les membres dans vos fixtures (member)"
+        )
         return
     profiles = list(Profile.objects.all())
     nb_tags = Tag.objects.count()
     if nb_tags == 0:
-        cli.stdout.write("Il n'y a aucun tag actuellement. "
-                         'Vous devez rajouter les tags dans vos fixtures (tag)')
+        cli.stdout.write("Il n'y a aucun tag actuellement. " "Vous devez rajouter les tags dans vos fixtures (tag)")
         return
     for i in range(0, nb_topics):
         with contextlib.suppress(IntegrityError):
@@ -234,10 +249,10 @@ def load_topics(cli, size, fake, *_, **__):
             topic.subtitle = fake.text(max_nb_chars=200)
             topic.save()
             PostFactory(topic=topic, author=topic.author, position=1)
-        sys.stdout.write(' Topic {}/{}  \r'.format(i + 1, nb_topics))
+        sys.stdout.write(" Topic {}/{}  \r".format(i + 1, nb_topics))
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def add_generated_tags_to_topic(nb_rand_tags, nb_tags, topic):
@@ -252,18 +267,20 @@ def load_posts(cli, size, fake, *_, **__):
     Load posts
     """
     nb_avg_posts_in_topic = size * 20
-    cli.stdout.write('Nombres de messages à poster en moyenne dans un sujet : {}'.format(nb_avg_posts_in_topic))
+    cli.stdout.write("Nombres de messages à poster en moyenne dans un sujet : {}".format(nb_avg_posts_in_topic))
     tps1 = time.time()
     nb_topics = Topic.objects.count()
     if nb_topics == 0:
-        cli.stdout.write("Il n'y a aucun topic actuellement. "
-                         'Vous devez rajouter les topics dans vos fixtures (topic)')
+        cli.stdout.write(
+            "Il n'y a aucun topic actuellement. " "Vous devez rajouter les topics dans vos fixtures (topic)"
+        )
         return
     topics = list(Topic.objects.all())
     nb_users = User.objects.count()
     if nb_users == 0:
-        cli.stdout.write("Il n'y a aucun membre actuellement. "
-                         'Vous devez rajouter les membres dans vos fixtures (member)')
+        cli.stdout.write(
+            "Il n'y a aucun membre actuellement. " "Vous devez rajouter les membres dans vos fixtures (member)"
+        )
         return
     __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_users, topics, tps1)
 
@@ -273,17 +290,19 @@ def __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_us
     for topic_index in range(0, nb_topics):
         nb_posts = randint(0, nb_avg_posts_in_topic * 2) + 1
         for post_index in range(1, nb_posts):
-            post = PostFactory(topic=topics[topic_index], author=profiles[post_index % nb_users].user,
-                               position=post_index + 1)
+            post = PostFactory(
+                topic=topics[topic_index], author=profiles[post_index % nb_users].user, position=post_index + 1
+            )
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.is_useful = int(nb_posts * 0.3) > 0 and post_index % int(nb_posts * 0.3) == 0
             post.save()
-            sys.stdout.write(' Topic {}/{}  \tPost {}/{}  \r'.format(topic_index + 1,
-                                                                     nb_topics, post_index + 1, nb_posts))
+            sys.stdout.write(
+                " Topic {}/{}  \tPost {}/{}  \r".format(topic_index + 1, nb_topics, post_index + 1, nb_posts)
+            )
             sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_categories_content(cli, size, fake, *_, **__):
@@ -292,51 +311,49 @@ def load_categories_content(cli, size, fake, *_, **__):
     """
 
     # Load a few licenses, while avoiding creating duplicates of what may have been loaded before
-    lics = ['Tous droits réservés', 'CC BY']
+    lics = ["Tous droits réservés", "CC BY"]
     for lic in lics:
         if Licence.objects.filter(code=lic).count() == 0:
-            licence = Licence(code=lic, title=lic, description='')
+            licence = Licence(code=lic, title=lic, description="")
             licence.save()
-            cli.stdout.write('Note : ajout de la licence `{}`'.format(lic))
+            cli.stdout.write("Note : ajout de la licence `{}`".format(lic))
     categories = []
     sub_categories = []
     nb_categories = size * 5
     nb_sub_categories = size * 10
-    cli.stdout.write('Nombres de catégories de contenus à créer : {}'.format(nb_categories))
-    cli.stdout.write('Nombres de sous-catégories de contenus à créer : {}'.format(nb_sub_categories))
+    cli.stdout.write("Nombres de catégories de contenus à créer : {}".format(nb_categories))
+    cli.stdout.write("Nombres de sous-catégories de contenus à créer : {}".format(nb_sub_categories))
     tps1 = time.time()
     for i in range(0, nb_categories):
-        ttl = str(i) + ' ' + fake.job()
-        cat = TCategory(title=ttl,
-                        description=fake.sentence(nb_words=15, variable_nb_words=True),
-                        slug=slugify(ttl))
+        ttl = str(i) + " " + fake.job()
+        cat = TCategory(title=ttl, description=fake.sentence(nb_words=15, variable_nb_words=True), slug=slugify(ttl))
         cat.save()
         categories.append(cat)
-        sys.stdout.write(' Cat. {}/{}  \r'.format(i + 1, nb_categories))
+        sys.stdout.write(" Cat. {}/{}  \r".format(i + 1, nb_categories))
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
         with contextlib.suppress(IntegrityError):
-            ttl = str(i * 10) + str(i) + ' ' + fake.word()
-            subcat = SubCategory(title=ttl,
-                                 subtitle=fake.sentence(nb_words=5, variable_nb_words=True),
-                                 slug=slugify(ttl))
+            ttl = str(i * 10) + str(i) + " " + fake.word()
+            subcat = SubCategory(
+                title=ttl, subtitle=fake.sentence(nb_words=5, variable_nb_words=True), slug=slugify(ttl)
+            )
             subcat.save()
             sub_categories.append(subcat)
-        sys.stdout.write(' SubCat. {}/{}  \r'.format(i + 1, nb_sub_categories))
+        sys.stdout.write(" SubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
         with contextlib.suppress(IntegrityError):
-            catsubcat = CategorySubCategory(category=categories[i % nb_categories],
-                                            subcategory=sub_categories[i],
-                                            is_main=True)
+            catsubcat = CategorySubCategory(
+                category=categories[i % nb_categories], subcategory=sub_categories[i], is_main=True
+            )
             catsubcat.save()
-        sys.stdout.write(' CatSubCat. {}/{}  \r'.format(i + 1, nb_sub_categories))
+        sys.stdout.write(" CatSubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
         sys.stdout.flush()
 
     tps2 = time.time()
-    cli.stdout.write('\nFait en {} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
 
 
 def load_comment_content(cli, size, fake, *_, **__):
@@ -344,7 +361,7 @@ def load_comment_content(cli, size, fake, *_, **__):
     Load content's comments
     """
     nb_avg_posts = size * 20
-    cli.stdout.write('Nombres de messages à poster en moyenne : {}'.format(nb_avg_posts))
+    cli.stdout.write("Nombres de messages à poster en moyenne : {}".format(nb_avg_posts))
     tps1 = time.time()
     contents = list(PublishableContent.objects.filter(sha_public__isnull=False))
     nb_contents = len(contents)
@@ -355,16 +372,17 @@ def load_comment_content(cli, size, fake, *_, **__):
         post = None
         for j in range(0, nb_posts):
             post = ContentReactionFactory(
-                related_content=contents[i], author=profiles[j % nb_users].user, position=j + 1)
+                related_content=contents[i], author=profiles[j % nb_users].user, position=j + 1
+            )
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
-            sys.stdout.write('Contenu {}/{}  \tCommentaire {}/{}  \r'. format(i + 1, nb_contents, j + 1, nb_posts))
+            sys.stdout.write("Contenu {}/{}  \tCommentaire {}/{}  \r".format(i + 1, nb_contents, j + 1, nb_posts))
             sys.stdout.flush()
         contents[i].last_note = post
         contents[i].save()
     tps2 = time.time()
-    cli.stdout.write('\nFait en {:.3f} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {:.3f} sec".format(tps2 - tps1))
 
 
 def load_contents(cli, size, fake, _type, *_, **__):
@@ -380,40 +398,49 @@ def load_contents(cli, size, fake, _type, *_, **__):
     nb_avg_containers_in_content = size
     nb_avg_extracts_in_content = size
 
-    is_articles = _type == 'ARTICLE'
-    is_tutorials = _type == 'TUTORIAL'
-    is_opinion = _type == 'OPINION'
+    is_articles = _type == "ARTICLE"
+    is_tutorials = _type == "TUTORIAL"
+    is_opinion = _type == "OPINION"
 
-    textual_type = 'article'
+    textual_type = "article"
     if is_tutorials:
-        textual_type = 'tutoriel'
+        textual_type = "tutoriel"
     elif is_opinion:
-        textual_type = 'billet'
+        textual_type = "billet"
 
     # small introduction
-    cli.stdout.write('À créer: {:d} {}s'.format(nb_contents, textual_type), ending='')
+    cli.stdout.write("À créer: {:d} {}s".format(nb_contents, textual_type), ending="")
 
     if is_tutorials:
-        cli.stdout.write(' ({:g} petits, {:g} moyens et {:g} grands)'
-                         .format(nb_contents * percent_mini, nb_contents * percent_medium, nb_contents * percent_big))
+        cli.stdout.write(
+            " ({:g} petits, {:g} moyens et {:g} grands)".format(
+                nb_contents * percent_mini, nb_contents * percent_medium, nb_contents * percent_big
+            )
+        )
     else:
-        cli.stdout.write('')
+        cli.stdout.write("")
 
     cli.stdout.write(
-        ' - {:g} en brouillon'.format(
-            nb_contents *
-            (1 - percent_contents_public - percent_contents_in_validation - percent_contents_with_validator)))
+        " - {:g} en brouillon".format(
+            nb_contents
+            * (1 - percent_contents_public - percent_contents_in_validation - percent_contents_with_validator)
+        )
+    )
     if is_opinion:
         cli.stdout.write(
             " - {:g} publiés et {:g} approuvés en page d'accueil".format(
                 nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
-                nb_contents * percent_contents_with_validator))
+                nb_contents * percent_contents_with_validator,
+            )
+        )
     else:
         cli.stdout.write(
-            ' - {:g} en validation (dont {:g} réservés)'
-            .format(nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
-                    nb_contents * percent_contents_with_validator))
-    cli.stdout.write(' - {:g} publiés'.format(nb_contents * percent_contents_public))
+            " - {:g} en validation (dont {:g} réservés)".format(
+                nb_contents * (percent_contents_in_validation + percent_contents_with_validator),
+                nb_contents * percent_contents_with_validator,
+            )
+        )
+    cli.stdout.write(" - {:g} publiés".format(nb_contents * percent_contents_public))
 
     tps1 = time.time()
 
@@ -449,53 +476,65 @@ def load_contents(cli, size, fake, _type, *_, **__):
     sub_categories = list(SubCategory.objects.all())
     nb_sub_categories = len(sub_categories)
     if nb_users == 0:
-        cli.stdout.write("Il n'y a aucun membre actuellement. "
-                         'Vous devez rajouter les membre dans vos fixtures (member)')
+        cli.stdout.write(
+            "Il n'y a aucun membre actuellement. " "Vous devez rajouter les membre dans vos fixtures (member)"
+        )
         return
 
     if nb_sub_categories == 0:
-        cli.stdout.write("Il n'y a aucune catégories actuellement."
-                         'Vous devez rajouter les catégories dans vos fixtures (category_content)')
+        cli.stdout.write(
+            "Il n'y a aucune catégories actuellement."
+            "Vous devez rajouter les catégories dans vos fixtures (category_content)"
+        )
         return
 
-    perms = list(Permission.objects.filter(codename__startswith='change_').all())
+    perms = list(Permission.objects.filter(codename__startswith="change_").all())
     staffs = list(User.objects.filter(groups__permissions__in=perms).all())
     nb_staffs = len(staffs)
 
     if nb_staffs == 0:
-        cli.stdout.write("Il n'y a aucun staff actuellement."
-                         'Vous devez rajouter les staffs dans vos fixtures (staff)')
+        cli.stdout.write(
+            "Il n'y a aucun staff actuellement." "Vous devez rajouter les staffs dans vos fixtures (staff)"
+        )
         return
 
     licenses = list(Licence.objects.all())
     nb_licenses = len(licenses)
 
     if nb_licenses == 0:
-        cli.stdout.write("Il n'y a aucune licence actuellement."
-                         'Vous devez rajouter les licences dans vos fixtures (category_content)')
+        cli.stdout.write(
+            "Il n'y a aucune licence actuellement."
+            "Vous devez rajouter les licences dans vos fixtures (category_content)"
+        )
         return
 
     # create and so all:
     for created_content_index in range(nb_contents):
-        sys.stdout.write('Création {} : {}/{}  \r'.format(textual_type, created_content_index + 1, nb_contents))
+        sys.stdout.write("Création {} : {}/{}  \r".format(textual_type, created_content_index + 1, nb_contents))
 
         current_size = content_sizes[created_content_index]
         action_flag = what_to_do[created_content_index]
 
         # creation:
         content = PublishableContentFactory(
-            type=_type,
-            title=fake.text(max_nb_chars=60),
-            description=fake.sentence(nb_words=15, variable_nb_words=True))
+            type=_type, title=fake.text(max_nb_chars=60), description=fake.sentence(nb_words=15, variable_nb_words=True)
+        )
 
         versioned = content.load_version()
 
-        generate_text_for_content(current_size, fake, is_articles, is_opinion, nb_avg_containers_in_content,
-                                  nb_avg_extracts_in_content, versioned)
+        generate_text_for_content(
+            current_size,
+            fake,
+            is_articles,
+            is_opinion,
+            nb_avg_containers_in_content,
+            nb_avg_extracts_in_content,
+            versioned,
+        )
         # add some informations:
         author = users[random.randint(0, nb_users - 1)].user
         content.authors.add(author)
-        UserGalleryFactory(gallery=content.gallery, mode='W', user=author)
+        UserGalleryFactory(gallery=content.gallery, mode="W", user=author)
         content.licence = licenses[random.randint(0, nb_licenses - 1)]
         content.sha_draft = versioned.sha_draft
         content.subcategory.add(sub_categories[random.randint(0, nb_sub_categories - 1)])
@@ -511,21 +550,20 @@ def load_contents(cli, size, fake, _type, *_, **__):
         sys.stdout.flush()
 
     tps2 = time.time()
-    cli.stdout.write('\nFait en {:.3f} sec'.format(tps2 - tps1))
+    cli.stdout.write("\nFait en {:.3f} sec".format(tps2 - tps1))
 
 
 def validate_edited_content(content, fake, nb_staffs, staffs, to_do, versioned):
-    valid = CValidation(
-        content=content, version=content.sha_draft, date_proposition=datetime.now(), status='PENDING')
+    valid = CValidation(content=content, version=content.sha_draft, date_proposition=datetime.now(), status="PENDING")
     valid.comment_validator = fake.text(max_nb_chars=200)
     content.sha_validation = content.sha_draft
     if to_do > 1:  # reserve validation
         valid.date_reserve = datetime.now()
         valid.validator = staffs[random.randint(0, nb_staffs - 1)]
-        valid.status = 'PENDING_V'
+        valid.status = "PENDING_V"
     if to_do > 2:  # publish content
         valid.comment_validator = fake.text(max_nb_chars=80)
-        valid.status = 'ACCEPT'
+        valid.status = "ACCEPT"
         valid.date_validation = datetime.now()
         content.sha_public = content.sha_draft
 
@@ -535,8 +573,9 @@ def validate_edited_content(content, fake, nb_staffs, staffs, to_do, versioned):
     content.save()
 
 
-def generate_text_for_content(current_size, fake, is_articles, is_opinion, nb_avg_containers_in_content,
-                              nb_avg_extracts_in_content, versioned):
+def generate_text_for_content(
+    current_size, fake, is_articles, is_opinion, nb_avg_containers_in_content, nb_avg_extracts_in_content, versioned
+):
     if current_size == 0 or is_articles or is_opinion:
         for _ in range(random.randint(1, nb_avg_extracts_in_content * 2)):
             ExtractFactory(container=versioned, title=fake.text(max_nb_chars=60), light=False)
@@ -544,8 +583,9 @@ def generate_text_for_content(current_size, fake, is_articles, is_opinion, nb_av
         for _ in range(random.randint(1, nb_avg_containers_in_content * 2)):
             container = ContainerFactory(parent=versioned, title=fake.text(max_nb_chars=60))
 
-            handle_content_with_chapter_and_parts(container, current_size, fake, nb_avg_containers_in_content,
-                                                  nb_avg_extracts_in_content)
+            handle_content_with_chapter_and_parts(
+                container, current_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content
+            )
 
 
 def publish_opinion(content, action_flag, versioned):
@@ -558,8 +598,9 @@ def publish_opinion(content, action_flag, versioned):
     content.save()
 
 
-def handle_content_with_chapter_and_parts(container, current_size, fake, nb_avg_containers_in_content,
-                                          nb_avg_extracts_in_content):
+def handle_content_with_chapter_and_parts(
+    container, current_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content
+):
     if current_size == 1:  # medium size tutorial
         for k in range(random.randint(1, nb_avg_extracts_in_content * 2)):
             ExtractFactory(container=container, title=fake.text(max_nb_chars=60), light=False)
@@ -571,44 +612,66 @@ def handle_content_with_chapter_and_parts(container, current_size, fake, nb_avg_
                 ExtractFactory(container=subcontainer, title=fake.text(max_nb_chars=60), light=False)
 
 
-ZDSResource = collections.namedtuple('zdsresource', ['name', 'description', 'callback', 'extra_args'])
+ZDSResource = collections.namedtuple("zdsresource", ["name", "description", "callback", "extra_args"])
 
 
 @transaction.atomic
 class Command(BaseCommand):
 
     zds_resource_config = [
-        ZDSResource('member', 'basic users', load_member, tuple()),
-        ZDSResource('staff', 'privileged users', load_staff, tuple()),
-        ZDSResource('category_forum', 'categories for forums', load_categories_forum, tuple()),
-        ZDSResource('category_content', 'categories for contents', load_categories_content, tuple()),
-        ZDSResource('forum', 'forums', load_forums, tuple()),
-        ZDSResource('tag', 'tags for forum topics', load_tags, tuple()),
-        ZDSResource('topic', 'forum topics', load_topics, tuple()),
-        ZDSResource('post', 'forum message', load_posts, tuple()),
-        ZDSResource('gallery', 'image gallery for each member', load_gallery, tuple()),
-        ZDSResource('article', 'article-typed publications, in draft, in validation and published',
-                    load_contents, ('ARTICLE',)),
-        ZDSResource('tutorial', 'tutorial-typed publications, in draft, in validation and published',
-                    load_contents, ('TUTORIAL',)),
-        ZDSResource('opinion', 'opinion-typed publications, in draft and published',
-                    load_contents, ('OPINION',)),
-        ZDSResource('comment', 'publication reactions.', load_comment_content, tuple()),
+        ZDSResource("member", "basic users", load_member, tuple()),
+        ZDSResource("staff", "privileged users", load_staff, tuple()),
+        ZDSResource("category_forum", "categories for forums", load_categories_forum, tuple()),
+        ZDSResource("category_content", "categories for contents", load_categories_content, tuple()),
+        ZDSResource("forum", "forums", load_forums, tuple()),
+        ZDSResource("tag", "tags for forum topics", load_tags, tuple()),
+        ZDSResource("topic", "forum topics", load_topics, tuple()),
+        ZDSResource("post", "forum message", load_posts, tuple()),
+        ZDSResource("gallery", "image gallery for each member", load_gallery, tuple()),
+        ZDSResource(
+            "article", "article-typed publications, in draft, in validation and published", load_contents, ("ARTICLE",)
+        ),
+        ZDSResource(
+            "tutorial",
+            "tutorial-typed publications, in draft, in validation and published",
+            load_contents,
+            ("TUTORIAL",),
+        ),
+        ZDSResource("opinion", "opinion-typed publications, in draft and published", load_contents, ("OPINION",)),
+        ZDSResource("comment", "publication reactions.", load_comment_content, tuple()),
     ]
 
     def add_arguments(self, parser):
-        parser.add_argument('--racine', action='store', default='user', type=str, dest='user_prefix',
-                            help='The prefix for users. Default: user.')
-        parser.add_argument('--size', action='store', default='low', dest='size', choices=['low', 'medium', 'high'],
-                            type=str, help='Size level: low (x1), medium (x2) or high (x3). Default: low.')
+        parser.add_argument(
+            "--racine",
+            action="store",
+            default="user",
+            type=str,
+            dest="user_prefix",
+            help="The prefix for users. Default: user.",
+        )
+        parser.add_argument(
+            "--size",
+            action="store",
+            default="low",
+            dest="size",
+            choices=["low", "medium", "high"],
+            type=str,
+            help="Size level: low (x1), medium (x2) or high (x3). Default: low.",
+        )
         all_vs_one_per_one_switch = parser.add_mutually_exclusive_group()
-        all_vs_one_per_one_switch.add_argument_group('all').add_argument('--all', dest='modules', action='store_const',
-                                                                         const=self.__class__.zds_resource_config)
-        group = all_vs_one_per_one_switch.add_argument_group('one_per_one')
+        all_vs_one_per_one_switch.add_argument_group("all").add_argument(
+            "--all", dest="modules", action="store_const", const=self.__class__.zds_resource_config
+        )
+        group = all_vs_one_per_one_switch.add_argument_group("one_per_one")
         for zds_module in self.__class__.zds_resource_config:
-            group.add_argument('--{}'.format(zds_module.name.replace('_', '-')), dest='modules',
-                               help='add new {}.'.format(zds_module.description), action='append_const',
-                               const=zds_module)
+            group.add_argument(
+                "--{}".format(zds_module.name.replace("_", "-")),
+                dest="modules",
+                help="add new {}.".format(zds_module.description),
+                action="append_const",
+                const=zds_module,
+            )
 
     help = """
         Load fixtures for ZdS
@@ -623,14 +686,27 @@ class Command(BaseCommand):
     """
 
     def handle(self, *args, **options):
-        size_map = {'low': 1, 'medium': 2, 'high': 3}
-        size = size_map.get(options['size'], 1)
-        default_root = options['user_prefix']
-        populated_modules = options['modules']
+        size_map = {"low": 1, "medium": 2, "high": 3}
+        size = size_map.get(options["size"], 1)
+        default_root = options["user_prefix"]
+        populated_modules = options["modules"]
 
-        fake = Factory.create(locale='fr_FR')
-        module_order = ('member', 'staff', 'gallery', 'category_forum', 'forum', 'tag', 'topic', 'post',
-                        'category_content', 'tutorial', 'article', 'opinion', 'comment')
+        fake = Factory.create(locale="fr_FR")
+        module_order = (
+            "member",
+            "staff",
+            "gallery",
+            "category_forum",
+            "forum",
+            "tag",
+            "topic",
+            "post",
+            "category_content",
+            "tutorial",
+            "article",
+            "opinion",
+            "comment",
+        )
         populated_modules.sort(key=lambda zds_module: module_order.index(zds_module.name))
         for zds_module in populated_modules:
             zds_module.callback(self, size, fake, *zds_module.extra_args, root=default_root)

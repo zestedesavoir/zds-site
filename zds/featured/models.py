@@ -20,19 +20,15 @@ class FeaturedResource(models.Model):
     """
 
     class Meta:
-        verbose_name = _('Une')
-        verbose_name_plural = _('Unes')
+        verbose_name = _("Une")
+        verbose_name_plural = _("Unes")
 
-    title = models.CharField(_('Titre'), max_length=80)
-    type = models.CharField(_('Type'), max_length=80)
-    authors = models.CharField(_('Auteurs'), max_length=100, blank=True, default='')
-    image_url = models.CharField(
-        _('URL de l\'image à la une'), max_length=2000, null=False, blank=False
-    )
-    url = models.CharField(
-        _('URL de la une'), max_length=2000, null=False, blank=False
-    )
-    pubdate = models.DateTimeField(_('Date de publication'), blank=False, null=False, db_index=True)
+    title = models.CharField(_("Titre"), max_length=80)
+    type = models.CharField(_("Type"), max_length=80)
+    authors = models.CharField(_("Auteurs"), max_length=100, blank=True, default="")
+    image_url = models.CharField(_("URL de l'image à la une"), max_length=2000, null=False, blank=False)
+    url = models.CharField(_("URL de la une"), max_length=2000, null=False, blank=False)
+    pubdate = models.DateTimeField(_("Date de publication"), blank=False, null=False, db_index=True)
 
     objects = FeaturedResourceManager()
 
@@ -41,14 +37,14 @@ class FeaturedResource(models.Model):
         return self.title
 
 
-FEATUREABLES_TYPES = ['content', 'topic']  # keep order!
+FEATUREABLES_TYPES = ["content", "topic"]  # keep order!
 
 FEATUREABLES = {
-    'content': {'name': 'CONTENT', 'verbose_name': _('Contenu')},
-    'topic': {'name': 'TOPIC', 'verbose_name': _('Sujet')},
+    "content": {"name": "CONTENT", "verbose_name": _("Contenu")},
+    "topic": {"name": "TOPIC", "verbose_name": _("Sujet")},
 }
 
-FEATUREABLE_TYPE_CHOICES = [(FEATUREABLES[a]['name'], FEATUREABLES[a]['verbose_name']) for a in FEATUREABLES_TYPES]
+FEATUREABLE_TYPE_CHOICES = [(FEATUREABLES[a]["name"], FEATUREABLES[a]["verbose_name"]) for a in FEATUREABLES_TYPES]
 
 
 class FeaturedRequested(models.Model):
@@ -57,24 +53,25 @@ class FeaturedRequested(models.Model):
     """
 
     class Meta:
-        verbose_name = _('Mise en avant souhaitée')
-        verbose_name_plural = _('Mises en avant souhaitées')
+        verbose_name = _("Mise en avant souhaitée")
+        verbose_name_plural = _("Mises en avant souhaitées")
 
-    content_type = models.ForeignKey(ContentType, verbose_name=_('Type de l\'objet'), on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(db_index=True, verbose_name=_('Id de l\'objet'))
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_type = models.ForeignKey(ContentType, verbose_name=_("Type de l'objet"), on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(db_index=True, verbose_name=_("Id de l'objet"))
+    content_object = GenericForeignKey("content_type", "object_id")
 
-    users_voted = models.ManyToManyField(
-        User, verbose_name=_('Auteur(s)'), db_index=True, blank=True)
+    users_voted = models.ManyToManyField(User, verbose_name=_("Auteur(s)"), db_index=True, blank=True)
 
     type = models.CharField(
-        max_length=10, choices=FEATUREABLE_TYPE_CHOICES, verbose_name=_('Type de l\'objet'), db_index=True)
+        max_length=10, choices=FEATUREABLE_TYPE_CHOICES, verbose_name=_("Type de l'objet"), db_index=True
+    )
 
-    rejected = models.BooleanField(default=False, verbose_name=_('Est rejeté'))
-    rejected_for_good = models.BooleanField(default=False, verbose_name=_('Est rejeté pour de bon'))
+    rejected = models.BooleanField(default=False, verbose_name=_("Est rejeté"))
+    rejected_for_good = models.BooleanField(default=False, verbose_name=_("Est rejeté pour de bon"))
 
     featured = models.ForeignKey(
-        FeaturedResource, verbose_name=_('Une'), blank=True, null=True, on_delete=models.SET_NULL)
+        FeaturedResource, verbose_name=_("Une"), blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     objects = FeaturedRequestedManager()
 
@@ -120,12 +117,12 @@ class FeaturedMessage(models.Model):
     """
 
     class Meta:
-        verbose_name = _('Message')
-        verbose_name_plural = _('Messages')
+        verbose_name = _("Message")
+        verbose_name_plural = _("Messages")
 
-    hook = models.CharField(_('Accroche'), max_length=100, blank=True, null=True)
-    message = models.CharField(_('Message'), max_length=255, blank=True, null=True)
-    url = models.CharField(_('URL du message'), max_length=2000, blank=True, null=True)
+    hook = models.CharField(_("Accroche"), max_length=100, blank=True, null=True)
+    message = models.CharField(_("Message"), max_length=255, blank=True, null=True)
+    url = models.CharField(_("URL du message"), max_length=2000, blank=True, null=True)
 
     objects = FeaturedMessageManager()
 

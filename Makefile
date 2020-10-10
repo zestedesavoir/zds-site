@@ -27,6 +27,7 @@ clean: clean-back clean-front ## Clean everything (`clean-back` & `clean-front`)
 
 install-back: ## Install the Python packages for the backend
 	pip install --upgrade -r requirements-dev.txt
+	pre-commit install
 
 install-back-with-prod:
 	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
@@ -38,7 +39,10 @@ run-back-fast: zmd-check ## Run the backend server in fast mode (no debug toolba
 	python manage.py runserver --settings zds.settings.dev_fast
 
 lint-back: ## Lint Python code
-	flake8 zds
+	black . --check
+
+format-back: ## Format Python code
+	black .
 
 test-back: clean-back zmd-start ## Run backend unit tests
 	python manage.py test --settings zds.settings.test --exclude-tag=front

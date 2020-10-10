@@ -20,7 +20,7 @@ class FeatureableMixin(ContextMixin, View):
         """
 
         if not self.featured_request_allowed():
-            raise PermissionDenied('request not allowed on this object')
+            raise PermissionDenied("request not allowed on this object")
 
         try:
             return FeaturedRequested.objects.toogle_request(self.object, user)
@@ -28,17 +28,20 @@ class FeatureableMixin(ContextMixin, View):
             raise PermissionDenied(e)
 
     def get_context_data(self, **kwargs):
-        """ Adds variables to template:
+        """Adds variables to template:
 
         - ``show_featured_requested``: show vote ?
         - ``is_requesting``: is current user requesting something?
         - ``featured_request_count``: number of votes ?
         """
         context = super().get_context_data(**kwargs)
-        context['show_featured_requested'], context['is_requesting'], context['featured_request_count'] = \
-            FeaturedRequested.objects.requested_and_count(self.object, self.request.user)
+        (
+            context["show_featured_requested"],
+            context["is_requesting"],
+            context["featured_request_count"],
+        ) = FeaturedRequested.objects.requested_and_count(self.object, self.request.user)
 
-        context['show_featured_requested'] &= self.featured_request_allowed()
+        context["show_featured_requested"] &= self.featured_request_allowed()
 
         return context
 

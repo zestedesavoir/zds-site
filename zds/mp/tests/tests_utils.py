@@ -8,7 +8,6 @@ from zds.mp.models import PrivateTopic
 
 
 class MpUtilTest(TestCase):
-
     def setUp(self):
         self.user1 = ProfileFactory().user
         self.user1.profile.email_for_answer = True
@@ -36,39 +35,36 @@ class MpUtilTest(TestCase):
         self.user5.profile.save()
 
         # Login as profile1
-        login_check = self.client.login(
-            username=self.user1.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=self.user1.username, password="hostel77")
         self.assertTrue(login_check)
 
         # Save bot group
-        bot = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
         bot.save()
 
     def test_new_mp_email(self):
         response = self.client.post(
-            reverse('mp-new'),
+            reverse("mp-new"),
             {
-                'participants':
-                    self.user2.username + ', ' +
-                    self.user3.username + ', ' +
-                    self.user4.username + ', ' +
-                    self.user5.username,
-                'title': 'title',
-                'subtitle': 'subtitle',
-                'text': 'text'
+                "participants": self.user2.username
+                + ", "
+                + self.user3.username
+                + ", "
+                + self.user4.username
+                + ", "
+                + self.user5.username,
+                "title": "title",
+                "subtitle": "subtitle",
+                "text": "text",
             },
-            follow=True
+            follow=True,
         )
 
         # Assert MP have been sent
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, PrivateTopic.objects.all().count())
 
-        should_receive_response = [self.user2.email,
-                                   self.user3.email,
-                                   self.user5.email]
+        should_receive_response = [self.user2.email, self.user3.email, self.user5.email]
 
         # Check everyone receive a MP, except op
         self.assertEqual(len(mail.outbox), len(should_receive_response))
@@ -83,37 +79,33 @@ class MpUtilTest(TestCase):
 
         # Create a MP
         self.client.post(
-            reverse('mp-new'),
+            reverse("mp-new"),
             {
-                'participants':
-                    self.user2.username + ', ' +
-                    self.user3.username + ', ' +
-                    self.user4.username + ', ' +
-                    self.user5.username,
-                'title': 'title',
-                'subtitle': 'subtitle',
-                'text': 'text'
+                "participants": self.user2.username
+                + ", "
+                + self.user3.username
+                + ", "
+                + self.user4.username
+                + ", "
+                + self.user5.username,
+                "title": "title",
+                "subtitle": "subtitle",
+                "text": "text",
             },
-            follow=True
+            follow=True,
         )
 
         mail.outbox = []
         self.client.logout()
-        login_check = self.client.login(
-            username=self.user2.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=self.user2.username, password="hostel77")
         self.assertTrue(login_check)
 
         # Add an answer
         topic1 = PrivateTopic.objects.get()
         self.client.post(
-            reverse('private-posts-new', args=[topic1.pk, topic1.slug]),
-            {
-                'text': 'answer',
-                'last_post': topic1.last_message.pk
-            },
-            follow=True
+            reverse("private-posts-new", args=[topic1.pk, topic1.slug]),
+            {"text": "answer", "last_post": topic1.last_message.pk},
+            follow=True,
         )
 
         # Check user1 receive mails
@@ -131,8 +123,5 @@ class MpUtilTest(TestCase):
         PrivateTopic.objects.all().delete()
 
         self.client.logout()
-        login_check = self.client.login(
-            username=self.user1.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=self.user1.username, password="hostel77")
         self.assertTrue(login_check)

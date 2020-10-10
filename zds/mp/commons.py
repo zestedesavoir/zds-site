@@ -22,7 +22,7 @@ class LeavePrivateTopic:
             topic.save()
 
     def get_current_user(self):
-        raise NotImplementedError('`get_current_user()` must be implemented.')
+        raise NotImplementedError("`get_current_user()` must be implemented.")
 
 
 class UpdatePrivatePost:
@@ -32,8 +32,8 @@ class UpdatePrivatePost:
 
     def perform_update(self, instance, data, hat=None):
         instance.hat = hat
-        instance.text = data.get('text')
-        instance.text_html = emarkdown(data.get('text'))
+        instance.text = data.get("text")
+        instance.text_html = emarkdown(data.get("text"))
         instance.update = datetime.now()
         instance.save()
         return instance
@@ -45,8 +45,9 @@ class UpdatePrivatePost:
         """
         # mark the previous post as read
         try:
-            previous_post = PrivatePost.objects.get(privatetopic=post.privatetopic,
-                                                    position_in_topic=post.position_in_topic - 1)
+            previous_post = PrivatePost.objects.get(
+                privatetopic=post.privatetopic, position_in_topic=post.position_in_topic - 1
+            )
             # update the record, if it exists
             try:
                 topic = PrivateTopicRead.objects.get(privatetopic=post.privatetopic, user=user)
@@ -71,7 +72,7 @@ class SinglePrivatePostObjectMixin(SingleObjectMixin):
 
     def get_object(self, queryset=None):
         try:
-            post_pk = int(self.request.GET.get('message'))
+            post_pk = int(self.request.GET.get("message"))
         except (KeyError, ValueError, TypeError):
             raise Http404
         return get_object_or_404(PrivatePost, pk=post_pk)

@@ -6,7 +6,8 @@ except ImportError:
     except ImportError:
         import json as json_handler
 import logging
-logging.debug('json is loaded, module is %s', json_handler.__name__)  # this allows to know which one we loaded
+
+logging.debug("json is loaded, module is %s", json_handler.__name__)  # this allows to know which one we loaded
 # and avoid pep8 warning.
 
 # Try to load the version information from `zds/_version.py` and fallback to
@@ -20,5 +21,5 @@ logging.debug('json is loaded, module is %s', json_handler.__name__)  # this all
 try:
     from ._version import __version__, git_version
 except ImportError:
-    __version__ = 'dev'
+    __version__ = "dev"
     git_version = None

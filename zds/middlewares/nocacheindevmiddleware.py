@@ -14,8 +14,8 @@ class NoCacheInDevMiddleware:
         and CSS files.
         """
         if request.path.startswith(settings.STATIC_URL) and (
-            request.path.endswith('.js') or request.path.endswith('.css')
+            request.path.endswith(".js") or request.path.endswith(".css")
         ):
-            response['Cache-Control'] = 'must-revalidate, no-cache'
-            response['Last-Modified'] = ''
+            response["Cache-Control"] = "must-revalidate, no-cache"
+            response["Last-Modified"] = ""
         return response
