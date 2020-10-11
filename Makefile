@@ -62,7 +62,10 @@ build-front: ## Build the frontend assets (CSS, JS, images)
 watch-front: ## Build the frontend assets when they are modified
 	yarn run watch --speed
 
-lint-front: ## Lint the frontend's Javascript
+format-front: ## Format the Javascript code
+	yarn run lint --fix
+
+lint-front: ## Lint the Javascript code
 	yarn run lint
 
 clean-front: ## Clean the frontend builds

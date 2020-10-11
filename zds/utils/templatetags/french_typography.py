@@ -13,6 +13,9 @@ def french_typography(str):
     before or after some symbols, according to French typography.
 
     This filter is naive and should not be used on Markdown content.
+
+
+    Any change here should also be made in assets/js/featured-resource-preview.js
     """
     return mark_safe(
         # Narrow non-breaking space: &#8239;
