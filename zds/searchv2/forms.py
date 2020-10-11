@@ -19,7 +19,7 @@ class SearchForm(forms.Form):
             attrs={
                 'type': 'search',
                 'required': 'required',
-                'id': "search-home"
+                'id': 'search-home'
             }
         )
     )
