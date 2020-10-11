@@ -18,7 +18,8 @@ class SearchForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'type': 'search',
-                'required': 'required'
+                'required': 'required',
+                'id': "search-home"
             }
         )
     )
