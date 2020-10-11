@@ -57,7 +57,7 @@ class ForumCategoryForumsDetailView(DetailView):
         return context
 
 
-class LastTopicsViewTests(ListView):
+class LastTopicsListView(ListView):
 
     context_object_name = 'topics'
     template_name = 'forum/last_topics.html'
@@ -74,6 +74,15 @@ class LastTopicsViewTests(ListView):
             .filter(forum__in=user_readable_forums(self.request.user)) \
             .order_by(query_order)[:settings.ZDS_APP['forum']['topics_per_page']]
         return topics
+
+    def get_context_data(self, **kwargs):
+        context = super(LastTopicsListView, self).get_context_data(**kwargs)
+
+        context.update({
+            'topic_read': TopicRead.objects.list_read_topic_pk(self.request.user, context['topics'])
+        })
+
+        return context
 
 
 class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, UpdateView, SingleObjectMixin):

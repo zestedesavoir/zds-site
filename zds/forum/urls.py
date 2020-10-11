@@ -3,7 +3,7 @@ from django.urls import re_path
 from zds.forum import feeds
 from zds.forum.views import CategoriesForumsListView, ForumCategoryForumsDetailView, ForumTopicsListView, \
     TopicPostsListView, TopicNew, TopicEdit, FindTopic, FindTopicByTag, PostNew, PostEdit, PostSignal, \
-    PostPotentialSpam, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsViewTests, \
+    PostPotentialSpam, PostUseful, PostUnread, FindPost, solve_alert, ManageGitHubIssue, LastTopicsListView, \
     FindFollowedTopic
 
 urlpatterns = [
@@ -57,7 +57,7 @@ urlpatterns = [
 
     # Last subjects.
     re_path(r'^derniers-sujets/$',
-            LastTopicsViewTests.as_view(), name='last-subjects'),
+            LastTopicsListView.as_view(), name='last-subjects'),
 
     # Categories and forums list.
     re_path(r'^$', CategoriesForumsListView.as_view(), name='cats-forums-list'),
