@@ -102,7 +102,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
             img.save()
             self.content.image = img
 
-        self.content.save()
+        self.content.save(force_slug_update=False)
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
