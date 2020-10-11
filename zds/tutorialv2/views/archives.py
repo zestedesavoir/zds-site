@@ -352,11 +352,12 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     )
 
                 # first, update DB object (in order to get a new slug if needed)
+                title_is_changed = self.object.title != new_version.title
                 self.object.title = new_version.title
                 self.object.description = new_version.description
                 self.object.licence = new_version.licence
                 self.object.type = new_version.type  # change of type is then allowed !!
-                self.object.save()
+                self.object.save(force_slug_update=title_is_changed)
 
                 new_version.slug = self.object.slug  # new slug if any !!
 
