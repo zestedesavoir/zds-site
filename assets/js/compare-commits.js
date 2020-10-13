@@ -2,41 +2,66 @@
  * Allow the user to compare two commits
  */
 
-(function($) {
-  'use strict'
+(function() {
+  function prevAll(element) {
+    const result = []
+    while (element) {
+      result.push(element)
+      element = element.previousElementSibling
+    }
+    return result
+  }
 
-  function toogleRadioInput($radioInput) {
-    var $row = $radioInput.parent().parent()
+  function nextAll(element) {
+    const result = []
+    while (element) {
+      result.push(element)
+      element = element.nextElementSibling
+    }
+    return result
+  }
 
-    if ($radioInput.attr('name') === 'compare-from') {
-      $row.prevAll().find("[name='compare-to']").prop('disabled', false)
-      $row.nextAll().find("[name='compare-to']").prop('disabled', true)
-      $row.find("[name='compare-to']").prop('disabled', true)
+  function toogleRadioInput(radioInput) {
+    const row = radioInput.parentNode.parentNode
+
+    if (radioInput.getAttribute('name') === 'compare-from') {
+      prevAll(row).forEach(
+        r => Array.from(r.querySelectorAll('[name="compare-to"]')).forEach(item => item.removeAttribute('disabled'))
+      )
+      nextAll(row).forEach(
+        r => Array.from(r.querySelectorAll('[name="compare-to"]')).forEach(item => item.setAttribute('disabled', true))
+      )
+      Array.from(row.querySelectorAll('[name="compare-to"]')).forEach(item => item.setAttribute('disabled', true))
     } else {
-      $row.prevAll().find("[name='compare-from']").prop('disabled', true)
-      $row.nextAll().find("[name='compare-from']").prop('disabled', false)
-      $row.find("[name='compare-from']").prop('disabled', true)
+      prevAll(row).forEach(
+        r => Array.from(r.querySelectorAll('[name="compare-from"]')).forEach(item => item.setAttribute('disabled', true))
+      )
+      nextAll(row).forEach(
+        r => Array.from(r.querySelectorAll('[name="compare-from"]')).forEach(item => item.removeAttribute('disabled'))
+      )
+      Array.from(row.querySelectorAll('[name="compare-from"]')).forEach(item => item.setAttribute('disabled', true))
     }
   }
 
-  $(".commits-list input[name^='compare']").on('change', function() {
-    toogleRadioInput($(this))
-  })
+  window.addEventListener('DOMContentLoaded', () => {
+    Array.from(document.querySelectorAll('.commits-list input[name^="compare"]:checked')).forEach(radioElement => toogleRadioInput(radioElement))
 
-  $(document).ready(function() {
-    $(".commits-list input[name^='compare']:checked").each(function() {
-      toogleRadioInput($(this))
+    Array.from(document.querySelectorAll('.commits-list input[name^="compare"]')).forEach((el) => {
+      el.addEventListener('change', function() {
+        toogleRadioInput(this)
+      })
+    })
+
+    Array.from(document.querySelectorAll('.commits-compare-form')).forEach((el) => {
+      el.addEventListener('submit', function(e) {
+        const fromInput = this.querySelector("input[name='from']")
+        const toInput = this.querySelector("input[name='to']")
+        const compareFrom = document.querySelector(".commits-list input[name='compare-from']:checked").value
+        const compareTo = document.querySelector(".commits-list input[name='compare-to']:checked").value
+
+        fromInput.value = compareFrom
+        toInput.value = compareTo
+      })
     })
   })
-
-  $('.commits-compare-form').on('submit', function() {
-    var $form = $(this)
-    var $fromInput = $form.find("input[name='from']")
-    var $toInput = $form.find("input[name='to']")
-    var compareFrom = $(".commits-list input[name='compare-from']:checked").val()
-    var compareTo = $(".commits-list input[name='compare-to']:checked").val()
-
-    $fromInput.val(compareFrom)
-    $toInput.val(compareTo)
-  })
-})(jQuery)
+})()
