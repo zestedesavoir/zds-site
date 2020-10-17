@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 
 from zds.mp.models import PrivateTopicRead, PrivatePost
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.notification import signals
+from zds.mp import signals
 
 
 class LeavePrivateTopic(object):
@@ -63,7 +63,7 @@ class UpdatePrivatePost(object):
             except PrivateTopicRead.DoesNotExist:  # record already removed, nothing to do
                 pass
 
-        signals.answer_unread.send(sender=post.privatetopic.__class__, instance=post, user=user)
+        signals.message_unread.send(sender=post.privatetopic.__class__, instance=post, user=user)
 
 
 class SinglePrivatePostObjectMixin(SingleObjectMixin):
