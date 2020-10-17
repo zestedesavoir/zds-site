@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.contrib.auth.models import Group
 
 from zds.member.factories import ProfileFactory, UserFactory
-from zds.mp import signals
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost, PrivateTopicRead, mark_read
 from zds.utils.models import Hat
@@ -1177,7 +1176,6 @@ class PrivatePostUnreadTest(TestCase):
             privatetopic=self.topic1,
             author=self.participant.user,
             position_in_topic=2)
-
 
     def test_denies_anonymous(self):
         """Test the case of an unauthenticated user trying to unread a private post."""
