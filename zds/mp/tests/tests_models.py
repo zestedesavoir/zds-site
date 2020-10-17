@@ -1,4 +1,5 @@
 from math import ceil
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
@@ -307,7 +308,8 @@ class FunctionTest(TestCase):
         mark_read(self.topic1, self.profile1.user)
         self.assertFalse(is_privatetopic_unread(self.topic1, self.profile1.user))
 
-    def test_mark_read(self):
+    @patch('zds.mp.signals.topic_read')
+    def test_mark_read(self, topic_read):
         self.assertTrue(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
@@ -315,6 +317,7 @@ class FunctionTest(TestCase):
         # post2 - user2 - read
         mark_read(self.topic1, self.profile1.user)
         self.assertFalse(self.topic1.is_unread(self.profile1.user))
+        self.assertEqual(topic_read.send.call_count, 1)
 
         # scenario - topic1 :
         # post1 - user1 - read
