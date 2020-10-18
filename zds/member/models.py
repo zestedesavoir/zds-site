@@ -665,7 +665,7 @@ class KarmaNote(models.Model):
     user = models.ForeignKey(User, related_name='karmanote_user', db_index=True, on_delete=models.CASCADE)
     moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True, on_delete=models.SET_NULL,
                                   null=True)
-    note = models.CharField('Commentaire', max_length=150)
+    note = models.TextField('Commentaire')
     karma = models.IntegerField('Valeur')
     pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
 
