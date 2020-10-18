@@ -242,23 +242,15 @@ def edit_topic_event(sender, *, topic, **kwargs):
     _handle_private_forum_moving(topic, topic_content_type, ContentType.objects.get_for_model(topic.last_message))
 
 
-@receiver(notification_signals.edit_content, sender=Topic)
-def edit_topic_event(sender, *, instance, **kwargs):
-    """
-    :param kwargs: contains
-        - instance: the topic edited.
-    """
-    topic = instance
+@receiver(forum_signals.topic_edited, sender=Topic)
+def edit_topic_event(sender, *, topic, **kwargs):
     topic_content_type = ContentType.objects.get_for_model(topic)
 
-    if action == 'edit_tags_and_title':
-        topic = instance
+    # Update notification as dead if it was triggered by a deleted tag
+    tag_content_type = _handle_deleted_tags(topic, topic_content_type)
 
-        # Update notification as dead if it was triggered by a deleted tag
-        tag_content_type = _handle_deleted_tags(topic, topic_content_type)
-
-        # Add notification of new topic for the subscription on the new tags
-        _handle_added_tags(tag_content_type, topic)
+    # Add notification of new topic for the subscription on the new tags
+    _handle_added_tags(tag_content_type, topic)
 
 
 def _handle_added_tags(tag_content_type, topic):
