@@ -41,7 +41,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
-            query = Match(_type='topic') \
+            query = Match(type='topic') \
                 & Terms(forum_pk=self.authorized_forums) \
                 & MultiMatch(query=self.search_query, fields=['title', 'subtitle', 'tags'])
 
@@ -92,8 +92,8 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
             search_queryset = Search()
             if len(excluded_content_ids) > 0 and excluded_content_ids != ['']:
                 search_queryset = search_queryset.exclude('terms', content_pk=excluded_content_ids)
-            query = Match(_type='publishedcontent') & MultiMatch(query=self.search_query,
-                                                                 fields=['title', 'description'])
+            query = Match(type='publishedcontent') & MultiMatch(query=self.search_query,
+                                                                fields=['title', 'description'])
 
             functions_score = [
                 {
@@ -210,7 +210,7 @@ class SearchView(ZdSPagingListView):
             weight_functions = []
             for _type, weights in list(settings.ZDS_APP['search']['boosts'].items()):
                 if _type in models:
-                    weight_functions.append({'filter': Match(_type=_type), 'weight': weights['global']})
+                    weight_functions.append({'filter': Match(type=_type), 'weight': weights['global']})
 
             scored_queryset = FunctionScore(query=queryset, boost_mode='multiply', functions=weight_functions)
             search_queryset = search_queryset.query(scored_queryset)
@@ -272,7 +272,7 @@ class SearchView(ZdSPagingListView):
     def get_queryset_chapters(self):
         """Search in content chapters."""
 
-        query = Match(_type='chapter') \
+        query = Match(type='chapter') \
             & MultiMatch(query=self.search_query, fields=['title', 'text'])
 
         if self.content_category:
@@ -293,7 +293,7 @@ class SearchView(ZdSPagingListView):
         + topic is locked.
         """
 
-        query = Match(_type='topic') \
+        query = Match(type='topic') \
             & Terms(forum_pk=self.authorized_forums) \
             & MultiMatch(query=self.search_query, fields=['title', 'subtitle', 'tags'])
 
@@ -317,7 +317,7 @@ class SearchView(ZdSPagingListView):
         + post has a like/dislike ratio above (has more likes than dislikes) or below (the other way around) 1.0.
         """
 
-        query = Match(_type='post') \
+        query = Match(type='post') \
             & Terms(forum_pk=self.authorized_forums) \
             & Term(is_visible=True) \
             & MultiMatch(query=self.search_query, fields=['text_html'])

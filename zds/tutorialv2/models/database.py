@@ -924,7 +924,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     @classmethod
     def get_es_mapping(cls):
-        mapping = Mapping(cls.get_es_document_type())
+        mapping = Mapping()
 
         mapping.field('content_pk', 'integer')
         mapping.field('publication_date', Date())
@@ -1128,7 +1128,7 @@ class FakeChapter(AbstractESIndexable):
         """Define mapping and parenting
         """
 
-        mapping = Mapping(cls.get_es_document_type())
+        mapping = Mapping()
         mapping.meta('parent', type='publishedcontent')
 
         mapping.field('title', Text(boost=1.5))

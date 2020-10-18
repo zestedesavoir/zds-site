@@ -41,7 +41,7 @@ class AbstractESIndexable(object):
 
     @classmethod
     def get_es_document_type(cls):
-        """value of the ``_type`` field in the index"""
+        """value of the ``type`` field in the index"""
         content_type = cls.__name__.lower()
 
         # fetch parents
@@ -68,8 +68,7 @@ class AbstractESIndexable(object):
         :rtype: elasticsearch_dsl.Mapping
         """
 
-        es_mapping = Mapping(self.get_es_document_type())
-        return es_mapping
+        return Mapping()
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False):
@@ -113,6 +112,8 @@ class AbstractESIndexable(object):
 
             data[field] = v
 
+        data['type'] = cls.get_es_document_type()
+
         return data
 
     def get_es_document_as_bulk_action(self, index, action='index'):
@@ -133,8 +134,7 @@ class AbstractESIndexable(object):
 
         document = {
             '_op_type': action,
-            '_index': index,
-            '_type': self.get_es_document_type()
+            '_index': index
         }
 
         if action == 'index':
@@ -329,6 +329,16 @@ class ESIndexManager(object):
         for model in models:
             mapping = model.get_es_mapping()
             mappings_def.update(mapping.to_dict())
+
+        import pprint
+
+        pprint.pprint({
+            'settings': {
+                'number_of_shards': self.number_of_shards,
+                'number_of_replicas': self.number_of_replicas
+            },
+            'mappings': mappings_def
+        })
 
         self.es.indices.create(
             self.index,
