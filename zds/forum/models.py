@@ -295,7 +295,7 @@ class Topic(AbstractESDjangoIndexable):
                 logging.getLogger(__name__).warning(e)
 
         self.save()
-        signals.topic_edited.send(sender=self.__class__, instance=self)
+        signals.topic_edited.send(sender=self.__class__, topic=self)
 
     def last_read_post(self):
         """
@@ -624,4 +624,4 @@ def mark_read(topic, user=None):
         else:
             current_topic_read.post = topic.last_message
         current_topic_read.save()
-        signals.topic_read.send(sender=topic.__class__, topic=topic, user=user)
+        signals.topic_read.send(sender=topic.__class__, instance=topic, user=user)
