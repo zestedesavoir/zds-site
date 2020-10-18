@@ -85,18 +85,16 @@ def disable_for_loaddata(signal_handler):
     return wrapper
 
 
-@receiver(notification_signals.answer_unread, sender=Topic)
-def unread_topic_event(sender, *, user, instance, **__):
+@receiver(forum_signals.post_unread, sender=Post)
+def unread_topic_event(sender, *, user, post, **__):
     """
-    Sends a notification to the user, without sending an email
-
-    :param instance: the answer being marked as unread
-    :param user: user marking the answer as unread
-
+    Send a notification to the user, without sending an email.
+    :param post: the post being marked as unread
+    :param user: the user marking the post as unread
     """
-    subscription = TopicAnswerSubscription.objects.get_existing(user, instance.topic, is_active=True)
+    subscription = TopicAnswerSubscription.objects.get_existing(user, post.topic, is_active=True)
     if subscription:
-        subscription.send_notification(content=instance, sender=instance.author, send_email=False)
+        subscription.send_notification(content=post, sender=post.author, send_email=False)
 
 
 @receiver(forum_signals.topic_read, sender=Topic)

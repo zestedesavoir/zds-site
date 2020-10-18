@@ -162,7 +162,7 @@ class PostEditMixin:
             elif topic_read:
                 topic_read.delete()
 
-        signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
+        signals.post_unread.send(sender=post.__class__, post=post, user=user)
 
     @staticmethod
     def perform_edit_post(request, post, user, text):
