@@ -72,7 +72,7 @@ class CommonLayoutVersionEditor(Layout):
         )
 
 
-class TagValidator(object):
+class TagValidator:
     """
     validate tags
     """
