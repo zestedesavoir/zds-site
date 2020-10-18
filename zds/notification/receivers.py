@@ -13,6 +13,7 @@ from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
 
 from zds.forum.models import Topic, Post, Forum
+import zds.forum.signals as forum_signals
 from zds.mp.models import PrivateTopic, PrivatePost
 import zds.mp.signals as mp_signals
 from zds.notification.models import (
@@ -235,21 +236,22 @@ def mark_comment_read(sender, *, instance, user, **__):
         subscription.mark_notification_read(comment)
 
 
+@receiver(forum_signals.topic_moved, sender=Topic)
+def edit_topic_event(sender, *, topic, **kwargs):
+    topic_content_type = ContentType.objects.get_for_model(topic)
+    _handle_private_forum_moving(topic, topic_content_type, ContentType.objects.get_for_model(topic.last_message))
+
+
 @receiver(notification_signals.edit_content, sender=Topic)
-def edit_topic_event(sender, *, action, instance, **kwargs):
+def edit_topic_event(sender, *, instance, **kwargs):
     """
     :param kwargs: contains
         - instance: the topic edited.
-        - action: action of the edit.
     """
     topic = instance
     topic_content_type = ContentType.objects.get_for_model(topic)
 
-    if action == "move":
-
-        _handle_private_forum_moving(topic, topic_content_type, ContentType.objects.get_for_model(topic.last_message))
-
-    elif action == "edit_tags_and_title":
+    if action == 'edit_tags_and_title':
         topic = instance
 
         # Update notification as dead if it was triggered by a deleted tag
