@@ -99,7 +99,7 @@ def unread_topic_event(sender, *, user, instance, **__):
         subscription.send_notification(content=instance, sender=instance.author, send_email=False)
 
 
-@receiver(notification_signals.content_read, sender=Topic)
+@receiver(forum_signals.topic_read, sender=Topic)
 def mark_topic_notifications_read(sender, *, instance, user, **__):
     """
     Marks as read the notifications of the NewTopicSubscriptions and
@@ -227,7 +227,7 @@ def clean_subscriptions(sender, *, topic, **__):
 
 
 @receiver(notification_signals.content_read, sender=ContentReaction)
-@receiver(notification_signals.content_read, sender=Post)
+@receiver(forum_signals.post_read, sender=Post)
 def mark_comment_read(sender, *, instance, user, **__):
     comment = instance
 

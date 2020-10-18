@@ -624,4 +624,4 @@ def mark_read(topic, user=None):
         else:
             current_topic_read.post = topic.last_message
         current_topic_read.save()
-        signals.content_read.send(sender=topic.__class__, instance=topic, user=user)
+        signals.topic_read.send(sender=topic.__class__, instance=topic, user=user)
