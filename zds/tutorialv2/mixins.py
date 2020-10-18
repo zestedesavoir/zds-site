@@ -14,7 +14,7 @@ from zds.tutorialv2.utils import mark_read
 from zds.utils.models import HelpWriting
 
 
-class SingleContentViewMixin(object):
+class SingleContentViewMixin:
     """
     Base mixin to get only one content, and its corresponding versioned content
 
@@ -283,7 +283,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         return context
 
 
-class ContentTypeMixin(object):
+class ContentTypeMixin:
     """This class deals with the type of contents and fill context according to that"""
 
     current_content_type = None

@@ -16,7 +16,7 @@ from zds.notification.models import TopicAnswerSubscription, Notification, NewTo
 from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 
-class ForumEditMixin(object):
+class ForumEditMixin:
     @staticmethod
     def perform_follow(forum_or_tag, user):
         return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user).is_active
@@ -26,7 +26,7 @@ class ForumEditMixin(object):
         return NewTopicSubscription.objects.toggle_follow(forum_or_tag, user, True).is_active
 
 
-class TopicEditMixin(object):
+class TopicEditMixin:
     @staticmethod
     def perform_follow(topic, user):
         return TopicAnswerSubscription.objects.toggle_follow(topic, user)
@@ -97,7 +97,7 @@ class TopicEditMixin(object):
         return topic
 
 
-class PostEditMixin(object):
+class PostEditMixin:
     @staticmethod
     def perform_hide_message(request, post, user, data):
         is_staff = user.has_perm('forum.change_post')

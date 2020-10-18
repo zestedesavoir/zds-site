@@ -1,4 +1,4 @@
-class Validator(object):
+class Validator:
     """
     Super class must be extend by classes which wants validate a model field.
     """

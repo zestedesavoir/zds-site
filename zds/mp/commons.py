@@ -9,7 +9,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 from zds.mp import signals
 
 
-class LeavePrivateTopic(object):
+class LeavePrivateTopic:
     """
     Leave a private topic.
     """
@@ -25,7 +25,7 @@ class LeavePrivateTopic(object):
         raise NotImplementedError('`get_current_user()` must be implemented.')
 
 
-class UpdatePrivatePost(object):
+class UpdatePrivatePost:
     """
     Updates a private topic.
     """
