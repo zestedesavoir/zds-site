@@ -235,7 +235,7 @@ def mark_comment_read(sender, *, instance, user, **__):
 
 
 @receiver(forum_signals.topic_moved, sender=Topic)
-def edit_topic_event(sender, *, topic, **kwargs):
+def moved_topic_event(sender, *, topic, **kwargs):
     topic_content_type = ContentType.objects.get_for_model(topic)
     _handle_private_forum_moving(topic, topic_content_type, ContentType.objects.get_for_model(topic.last_message))
 
