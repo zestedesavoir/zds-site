@@ -381,6 +381,17 @@
                                                 </p>
                                             </a>
                                         {% endif %}
+                                        {% if content_reactions_count > 0 %}
+                                            <a href="{% url "content:list-content-reactions" usr.pk %}" class="tail">
+                                                <p>
+                                                    {% blocktrans count content_reactions_count=content_reactions_count %}
+                                                        <span class="bold">{{ content_reactions_count }}</span> commentaire publié
+                                                    {% plural %}
+                                                        <span class="bold">{{ content_reactions_count }}</span> commentaires publiés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
                                     </div>
                                 {% endif %}
                                 {% if contribution_tutorials_count > 0 or contribution_articles_count > 0 %}

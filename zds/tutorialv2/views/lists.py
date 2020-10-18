@@ -15,7 +15,7 @@ from zds.forum.models import Forum
 from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2.mixins import ContentTypeMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
-from zds.tutorialv2.models.database import PublishedContent, PublishableContent
+from zds.tutorialv2.models.database import PublishedContent, PublishableContent, ContentReaction
 from zds.utils.models import Tag, Category, SubCategory, CategorySubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import topbar_publication_categories
@@ -408,27 +408,26 @@ class ContentOfAuthor(ZdSPagingListView):
 
 class ListContentReactions(ZdSPagingListView):
 
-    context_object_name = 'content_reaction'
+    context_object_name = 'content_reactions'
     template_name = 'tutorialv2/comment/list.html'
     paginate_by = settings.ZDS_APP['forum']['posts_per_page']
     model = ContentReaction
     user = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, username=self.kwargs['username'])
+        self.user = get_object_or_404(User, pk=self.kwargs['pk'])
         return super(ListContentReactions, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return ContentReaction.objects.get_all_messages_of_a_user(self.request.user, self.object)
+        return ContentReaction.objects.get_all_messages_of_a_user(self.user)
 
     def get_context_data(self, **kwargs):
         context = super(ListContentReactions, self).get_context_data(**kwargs)
 
         context.update({
             'usr': self.user,
-            'hidden_reactions_count':
-                ContentReaction.objects.filter(author=self.object).distinct().count() - context['paginator'].count,
+            'hidden_content_reactions_count':
+                ContentReaction.objects.filter(author=self.user).distinct().count() - context['paginator'].count,
         })
 
         return context
-

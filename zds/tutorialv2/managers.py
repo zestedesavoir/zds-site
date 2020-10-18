@@ -4,6 +4,7 @@ from django.db.models import Count, F
 from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.models import Tag
+from model_utils.managers import InheritanceManager
 
 
 class PublishedContentManager(models.Manager):
@@ -271,3 +272,18 @@ class PublishableContentManager(models.Manager):
             content.public_version.content = content
             published.append(content.public_version)
         return published
+
+
+class ReactionManager(InheritanceManager):
+    """
+    Custom reaction manager.
+    """
+
+    def get_all_messages_of_a_user(self, target):
+        queryset = self.filter(author=target).distinct()
+
+        queryset = queryset\
+            .prefetch_related('author')\
+            .order_by('-pubdate')
+
+        return queryset

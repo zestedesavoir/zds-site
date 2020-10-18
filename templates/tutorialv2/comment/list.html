@@ -7,13 +7,13 @@
 
 
 {% block title %}
-    {% trans "Messages postés par" %} {{ usr.username }}
+    {% trans "Commentaires postés par" %} {{ usr.username }}
 {% endblock %}
 
 
 
 {% block headline %}
-    {% trans "Messages postés par" %} "{{ usr.username }}"
+    {% trans "Commentaires postés par" %} "{{ usr.username }}"
 {% endblock %}
 
 
@@ -22,7 +22,7 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url 'post-find' usr.pk %}">{% trans "Messages postés" %}</a></li>
+    <li><a href="{% url 'content:list-content-reactions' usr.pk %}">{% trans "Commentaires postés" %}</a></li>
     <li>{% trans "Recherche" %}</li>
 {% endblock %}
 
@@ -30,47 +30,47 @@
 
 {% block content %}
 
-    {% if hidden_posts_count %}
+    {% if hidden_content_reactions_count %}
         <p class="alert-box info">
-            {% blocktrans count counter=hidden_posts_count %}
-                {{ counter }} message est invisible car dans un sujet inaccessible.
+            {% blocktrans count counter=hidden_content_reactions_count %}
+                {{ counter }} commentaire est invisible car dans une publication inaccessible.
             {% plural %}
-                {{ counter }} messages sont invisibles car dans un sujet inaccessible.
+                {{ counter }} commentaires sont invisibles car dans une publication inaccessible.
             {% endblocktrans %}
         </p>
     {% endif %}
 
     {% include "misc/paginator.html" with position="top" %}
 
-    {% if posts %}
+    {% if content_reactions %}
         <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
-                        <th width="15%">{% trans "Sujet" %}</th>
+                        <th width="15%">{% trans "Publication" %}</th>
                         <th width="10%">{% trans "Date" %}</th>
                         <th width="30%">{% trans "Extrait" %}</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for post in posts %}
+                    {% for content_reaction in content_reactions %}
                         <tr>
                             <td>
-                                <div class="forum-entry-title {% if user.is_authenticated %} {% if topic.is_unread %} unread {% endif %} {% endif %}">
-                                    <a href="{{ post.get_absolute_url }}">{{ post.topic.title }} </a>
-                                    {% if post.topic.subtitle %} <p> {{ post.topic.subtitle }} </p> {% endif %}
+                                <div class="forum-entry-title">
+                                    <a href="{{ content_reaction.get_absolute_url }}">{{ content_reaction.related_content.title }} </a>
+                                    {% if content_reaction.related_content.description %} <p> {{ content_reaction.related_content.description }} </p> {% endif %}
                                 </div>
                             </td>
                             <td>
-                                {{ post.pubdate|format_date }}
+                                {{ content_reaction.pubdate|format_date }}
                             </td>
                             <td>
-                                {% if post.is_visible %}
-                                    {{ post.text|truncatechars:200 }}
+                                {% if content_reaction.is_visible %}
+                                    {{ content_reaction.text|truncatechars:200 }}
                                 {% else %}
-                                    {% if post.text_hidden %}
-                                        {% trans "Masqué par" %} {{ post.editor }}
-                                        : {{ post.text_hidden }}
+                                    {% if content_reaction.text_hidden %}
+                                        {% trans "Masqué par" %} {{ content_reaction.editor }}
+                                        : {{ content_reaction.text_hidden }}
                                     {% endif %}
                                 {% endif %}
                             </td>
@@ -81,7 +81,7 @@
         </div>
     {% else %}
         <p>
-            {% trans "Aucun message n’a été posté par" %} {{ usr.username }}.
+            {% trans "Aucun commentaire n’a été content_reactioné par" %} {{ usr.username }}.
         </p>
     {% endif %}
 

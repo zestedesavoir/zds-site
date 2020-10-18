@@ -39,7 +39,7 @@ urlpatterns = [
          ContentOfContributors.as_view(
              type='ALL', context_object_name='contribution_contents'),
          name='find-contribution-all'),
-    path('commentaires/<str:username>/', ListContentReactions.as_view(), name='list-content-reactions')
+    path('commentaires/<int:pk>/', ListContentReactions.as_view(), name='list-content-reactions'),
 
     path('tutoriels/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='TUTORIAL')),
     path('articles/<int:pk>/', RedirectOldContentOfAuthor.as_view(type='ARTICLE')),
