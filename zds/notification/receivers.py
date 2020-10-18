@@ -98,6 +98,7 @@ def unread_topic_event(sender, *, user, post, **__):
 
 
 @receiver(forum_signals.topic_read, sender=Topic)
+@receiver(notification_signals.content_read, sender=Topic)
 def mark_topic_notifications_read(sender, *, instance, user, **__):
     """
     Marks as read the notifications of the NewTopicSubscriptions and
