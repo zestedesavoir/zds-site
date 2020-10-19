@@ -325,7 +325,7 @@
         error = resp.responseJSON[0]
       } else if (resp.responseText !== undefined) {
         if (parseInt(resp.status) === 400) {
-          error = 'Quelque chose s\'est mal passé lors de l\'envoi. Votre image est peut-être trop lourde'
+          error = 'Quelque chose s\'est mal passé lors de l\'envoi. Votre image est peut-être trop lourde.'
         } else {
           error = 'Erreur ' + resp.status + ' ' + resp.statusText + ' : ' + "'" + resp.responseText.split('\n')[0] + "'"
         }
