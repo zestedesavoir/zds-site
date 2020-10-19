@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.db import models
 
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
-from zds import notification
 from zds.mp import signals
 from zds.utils import get_current_user, slugify
 
@@ -468,4 +467,4 @@ def mark_read(privatetopic, user=None):
         topic = PrivateTopicRead(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)
 
     topic.save()
-    notification.signals.content_read.send(sender=privatetopic.__class__, instance=privatetopic, user=user)
+    signals.topic_read.send(sender=privatetopic.__class__, instance=privatetopic, user=user)

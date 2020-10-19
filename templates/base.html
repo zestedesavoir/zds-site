@@ -171,7 +171,7 @@
                 <a href="#content" accesskey="s">{% trans "Aller au contenu" %}</a>
             </li>
             <li>
-                <a href="#{% block searchbox_id %}search{% endblock %}" accesskey="4">{% trans "Aller à la recherche" %}</a>
+                <a href="#{% block searchbox_id %}search-top{% endblock %}" accesskey="4">{% trans "Aller à la recherche" %}</a>
             </li>
         </ul>
 
@@ -201,7 +201,7 @@
                 </div>
                 <div class="search header-right" id="search">
                     <form action="{% url "search:query" %}">
-                        <input type="text" name="q" placeholder="{% trans "Rechercher" %}" title="{% trans "Contenu de la recherche" %}">
+                        <input id="search-top" type="text" name="q" placeholder="{% trans "Rechercher" %}" title="{% trans "Contenu de la recherche" %}">
                         <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
                     </form>
                     <a href="{% url "search:query" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>

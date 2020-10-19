@@ -20,7 +20,7 @@ def es_document_mapper(force_reindexing, index, obj):
     return obj.get_es_document_as_bulk_action(index, action)
 
 
-class AbstractESIndexable(object):
+class AbstractESIndexable:
     """Mixin for indexable objects.
 
     Define a number of different functions that can be overridden to tune the behavior of indexing into elasticsearch.
@@ -249,7 +249,7 @@ class NeedIndex(Exception):
     pass
 
 
-class ESIndexManager(object):
+class ESIndexManager:
     """Manage a given index with different taylor-made functions"""
 
     def __init__(self, name, shards=5, replicas=0, connection_alias='default'):

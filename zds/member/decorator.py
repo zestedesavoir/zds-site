@@ -27,7 +27,7 @@ def can_write_and_read_now(func):
     return _can_write_and_read_now
 
 
-class PermissionRequiredMixin(object):
+class PermissionRequiredMixin:
     """
     Represent the basic code that a Generic Class Based View has to use when one or more
     permissions are required simultaneously to execute the view
@@ -43,7 +43,7 @@ class PermissionRequiredMixin(object):
         return super(PermissionRequiredMixin, self).dispatch(*args, **kwargs)
 
 
-class LoginRequiredMixin(object):
+class LoginRequiredMixin:
     """
     Represent the basic code that a Generic Class Based View has to use when
     the required action needs the user to be logged in.

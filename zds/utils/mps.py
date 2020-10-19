@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 import logging
 
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
-from zds.notification import signals
+from zds.mp import signals
 from zds.utils.templatetags.emarkdown import emarkdown
 
 logger = logging.getLogger(__name__)
@@ -110,8 +110,8 @@ def send_message_mp(
     n_topic.save()
 
     if not direct:
-        signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail,
-                                 no_notification_for=no_notification_for)
+        signals.message_added.send(sender=post.__class__, instance=post, by_email=send_by_mail,
+                                   no_notification_for=no_notification_for)
 
     if send_by_mail and direct:
         subject = '{} : {}'.format(settings.ZDS_APP['site']['literal_name'], n_topic.title)
