@@ -1,4 +1,5 @@
 from math import ceil
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
@@ -184,43 +185,55 @@ class PrivateTopicTest(TestCase):
         self.assertTrue(self.topic1.is_participant(self.user2))
         self.assertFalse(self.topic1.is_participant(self.outsider))
 
-    def test_add_participant_unreachable_user(self):
+    @patch('zds.mp.signals.participant_added')
+    def test_add_participant_unreachable_user(self, participant_added):
         self.assertFalse(is_reachable(self.bot))
         with self.assertRaises(NotReachableError):
             self.topic1.add_participant(self.bot)
+        self.assertFalse(participant_added.send.called)
 
-    def test_add_participant_already_participating(self):
+    @patch('zds.mp.signals.participant_added')
+    def test_add_participant_already_participating(self, participant_added):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.add_participant(self.user2)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
+        self.assertFalse(participant_added.send.called)
 
-    def test_add_participant_normal(self):
+    @patch('zds.mp.signals.participant_added')
+    def test_add_participant_normal(self, participant_added):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.add_participant(self.outsider)
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2, self.outsider])
+        self.assertEqual(participant_added.send.call_count, 1)
 
-    def test_remove_participant_not_participating(self):
+    @patch('zds.mp.signals.participant_removed')
+    def test_remove_participant_not_participating(self, participant_removed):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.remove_participant(self.outsider)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
+        self.assertFalse(participant_removed.send.called)
 
-    def test_remove_participant_author(self):
+    @patch('zds.mp.signals.participant_removed')
+    def test_remove_participant_author(self, participant_removed):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.remove_participant(self.user1)
         self.assertEqual(self.topic1.author, self.user2)
         self.assertEqual(list(self.topic1.participants.all()), [])
+        self.assertEqual(participant_removed.send.call_count, 1)
 
-    def test_remove_participant_normal(self):
+    @patch('zds.mp.signals.participant_removed')
+    def test_remove_participant_normal(self, participant_removed):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.remove_participant(self.user2)
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [])
+        self.assertEqual(participant_removed.send.call_count, 1)
 
 
 class PrivatePostTest(TestCase):
@@ -307,7 +320,8 @@ class FunctionTest(TestCase):
         mark_read(self.topic1, self.profile1.user)
         self.assertFalse(is_privatetopic_unread(self.topic1, self.profile1.user))
 
-    def test_mark_read(self):
+    @patch('zds.mp.signals.topic_read')
+    def test_mark_read(self, topic_read):
         self.assertTrue(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
@@ -315,6 +329,7 @@ class FunctionTest(TestCase):
         # post2 - user2 - read
         mark_read(self.topic1, self.profile1.user)
         self.assertFalse(self.topic1.is_unread(self.profile1.user))
+        self.assertEqual(topic_read.send.call_count, 1)
 
         # scenario - topic1 :
         # post1 - user1 - read

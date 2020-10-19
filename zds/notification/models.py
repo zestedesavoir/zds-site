@@ -123,7 +123,7 @@ class Subscription(models.Model):
         return Subscription.has_read_permission(request) and self.user == request.user
 
 
-class SingleNotificationMixin(object):
+class SingleNotificationMixin:
     """
     Mixin for the subscription that can only have one active notification at a time
     """
@@ -180,7 +180,7 @@ class SingleNotificationMixin(object):
             Notification.objects.filter(pk=self.last_notification.pk).update(is_read=True)
 
 
-class MultipleNotificationsMixin(object):
+class MultipleNotificationsMixin:
 
     def send_notification(self, content=None, send_email=True, sender=None):
         """

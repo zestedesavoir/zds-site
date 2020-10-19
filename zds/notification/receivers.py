@@ -14,13 +14,13 @@ from django.dispatch import receiver
 
 from zds.forum.models import Topic, Post, Forum
 from zds.mp.models import PrivateTopic, PrivatePost
-from zds.mp.signals import participant_added, participant_removed
+import zds.mp.signals as mp_signals
 from zds.notification.models import TopicAnswerSubscription, ContentReactionAnswerSubscription, \
     PrivateTopicAnswerSubscription, Subscription, Notification, NewTopicSubscription, NewPublicationSubscription, \
     PingSubscription
-from zds.notification.signals import answer_unread, content_read, new_content, edit_content, unsubscribe
+import zds.notification.signals as notification_signals
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
-from zds.tutorialv2.signals import content_unpublished
+import zds.tutorialv2.signals as tuto_signals
 from zds.utils.models import Tag
 
 logger = logging.getLogger(__name__)
@@ -71,7 +71,7 @@ def disable_for_loaddata(signal_handler):
     return wrapper
 
 
-@receiver(answer_unread, sender=Topic)
+@receiver(notification_signals.answer_unread, sender=Topic)
 def unread_topic_event(sender, *, user, instance, **__):
     """
     Sends a notification to the user, without sending an email
@@ -85,7 +85,7 @@ def unread_topic_event(sender, *, user, instance, **__):
         subscription.send_notification(content=instance, sender=instance.author, send_email=False)
 
 
-@receiver(content_read, sender=Topic)
+@receiver(notification_signals.content_read, sender=Topic)
 def mark_topic_notifications_read(sender, *, instance, user, **__):
     """
     Marks as read the notifications of the NewTopicSubscriptions and
@@ -119,8 +119,8 @@ def mark_topic_notifications_read(sender, *, instance, user, **__):
         notification.save(update_fields=['is_read'])
 
 
-@receiver(content_read, sender=PublishableContent)
-@receiver(content_unpublished)
+@receiver(notification_signals.content_read, sender=PublishableContent)
+@receiver(tuto_signals.content_unpublished)
 def mark_content_reactions_read(sender, *, instance, user=None, target, **__):
     """
     Marks as read the notifications of the AnswerSubscription of the user to the publishable content.
@@ -151,7 +151,7 @@ def mark_content_reactions_read(sender, *, instance, user=None, target, **__):
                 subscription.mark_notification_read(content=instance)
 
 
-@receiver(content_read, sender=PrivateTopic)
+@receiver(mp_signals.topic_read, sender=PrivateTopic)
 def mark_pm_reactions_read(sender, *, user, instance, **__):
     """
     Marks as read the notifications of the AnswerSubscription of the user to the private message
@@ -166,7 +166,7 @@ def mark_pm_reactions_read(sender, *, user, instance, **__):
         subscription.mark_notification_read()
 
 
-@receiver(answer_unread, sender=PrivateTopic)
+@receiver(mp_signals.message_unread, sender=PrivateTopic)
 def unread_private_topic_event(sender, *, user, instance, **__):
     """
     Send a notification to the user, without sending an email, when a private post is marked as unread.
@@ -182,7 +182,7 @@ def unread_private_topic_event(sender, *, user, instance, **__):
         subscription.send_notification(content=private_post, sender=private_post.author, send_email=False)
 
 
-@receiver(participant_added, sender=PrivateTopic)
+@receiver(mp_signals.participant_added, sender=PrivateTopic)
 def notify_participants(sender, *, topic, **__):
     """
     Show a notification to all participants of a private topic except the author.
@@ -196,7 +196,7 @@ def notify_participants(sender, *, topic, **__):
             send_email=participant.profile.email_for_answer)
 
 
-@receiver(participant_removed, sender=PrivateTopic)
+@receiver(mp_signals.participant_removed, sender=PrivateTopic)
 def clean_subscriptions(sender, *, topic, **__):
     """
     Delete all subscriptions from users not participating in the private topic.
@@ -208,8 +208,8 @@ def clean_subscriptions(sender, *, topic, **__):
             subscription.deactivate()
 
 
-@receiver(content_read, sender=ContentReaction)
-@receiver(content_read, sender=Post)
+@receiver(notification_signals.content_read, sender=ContentReaction)
+@receiver(notification_signals.content_read, sender=Post)
 def mark_comment_read(sender, *, instance, user, **__):
     comment = instance
 
@@ -218,7 +218,7 @@ def mark_comment_read(sender, *, instance, user, **__):
         subscription.mark_notification_read(comment)
 
 
-@receiver(edit_content, sender=Topic)
+@receiver(notification_signals.edit_content, sender=Topic)
 def edit_topic_event(sender, *, action, instance, **kwargs):
     """
     :param kwargs: contains
@@ -360,7 +360,7 @@ def answer_content_reaction_event(sender, *, instance, created=True, **__):
         ContentReactionAnswerSubscription.objects.get_or_create_active(author, publishable_content)
 
 
-@receiver(new_content, sender=PublishableContent)
+@receiver(notification_signals.new_content, sender=PublishableContent)
 @disable_for_loaddata
 def content_published_event(*__, instance, by_email, **___):
     """
@@ -387,8 +387,8 @@ def content_published_event(*__, instance, by_email, **___):
             subscription.send_notification(content=content, sender=user, send_email=by_email)
 
 
-@receiver(new_content, sender=ContentReaction)
-@receiver(new_content, sender=Post)
+@receiver(notification_signals.new_content, sender=ContentReaction)
+@receiver(notification_signals.new_content, sender=Post)
 @disable_for_loaddata
 def answer_comment_event(sender, *, instance, user, **__):
     comment = instance
@@ -402,7 +402,7 @@ def answer_comment_event(sender, *, instance, user, **__):
     subscription.send_notification(content=comment, sender=comment.author, send_email=False)
 
 
-@receiver(new_content, sender=PrivatePost)
+@receiver(mp_signals.message_added, sender=PrivatePost)
 @disable_for_loaddata
 def answer_private_topic_event(sender, *, instance, by_email, no_notification_for=None, **__):
     """
@@ -460,8 +460,8 @@ def delete_notifications(sender, instance, **__):
     Notification.objects.filter(sender=instance).delete()
 
 
-@receiver(content_unpublished, sender=PublishableContent)
-@receiver(content_unpublished, sender=ContentReaction)
+@receiver(tuto_signals.content_unpublished, sender=PublishableContent)
+@receiver(tuto_signals.content_unpublished, sender=ContentReaction)
 def cleanup_notification_for_unpublished_content(sender, instance, **__):
     """
     Avoid persistant notification if a content is unpublished. A real talk has to be lead to avoid such cross module \
@@ -488,7 +488,7 @@ def cleanup_notification_for_unpublished_content(sender, instance, **__):
         logger.exception('Error while saving %s, %s', instance, e)
 
 
-@receiver(unsubscribe)
+@receiver(notification_signals.unsubscribe)
 def unsubscripte_unpinged_user(sender, instance, user, **_):
     if user:
         PingSubscription.objects.deactivate_subscriptions(user, instance)

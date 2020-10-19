@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -1213,7 +1215,8 @@ class PrivatePostUnreadTest(TestCase):
         result = self.client.get(reverse('private-post-unread') + '?message=' + str(self.post2.pk), follow=False)
         self.assertEqual(result.status_code, 403)
 
-    def test_unread_first_post(self):
+    @patch('zds.mp.signals.message_unread')
+    def test_unread_first_post(self, message_unread):
         self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
         result = self.client.get(
             reverse('private-post-unread') + '?message=' + str(self.post1.pk),
@@ -1221,8 +1224,10 @@ class PrivatePostUnreadTest(TestCase):
         self.assertRedirects(result, reverse('mp-list'))
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
             PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
+        self.assertEqual(message_unread.send.call_count, 1)
 
-    def test_unread_normal_post(self):
+    @patch('zds.mp.signals.message_unread')
+    def test_unread_normal_post(self, message_unread):
         self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
         self.client.get(
             reverse('private-post-unread') + '?message=' + str(self.post2.pk),
@@ -1231,8 +1236,10 @@ class PrivatePostUnreadTest(TestCase):
         self.assertEqual(topic_read.privatetopic, self.topic1)
         self.assertEqual(topic_read.user, self.participant.user)
         self.assertEqual(topic_read.privatepost, self.post1)
+        self.assertEqual(message_unread.send.call_count, 1)
 
-    def test_multiple_unread1(self):
+    @patch('zds.mp.signals.message_unread')
+    def test_multiple_unread1(self, message_unread):
         self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
         self.client.get(
             reverse('private-post-unread') + '?message=' + str(self.post1.pk),
@@ -1244,8 +1251,10 @@ class PrivatePostUnreadTest(TestCase):
         self.assertEqual(topic_read.privatetopic, self.topic1)
         self.assertEqual(topic_read.user, self.participant.user)
         self.assertEqual(topic_read.privatepost, self.post1)
+        self.assertEqual(message_unread.send.call_count, 2)
 
-    def test_multiple_unread2(self):
+    @patch('zds.mp.signals.message_unread')
+    def test_multiple_unread2(self, message_unread):
         self.assertTrue(self.client.login(username=self.participant.user.username, password='hostel77'))
         self.client.get(
             reverse('private-post-unread') + '?message=' + str(self.post1.pk),
@@ -1255,6 +1264,7 @@ class PrivatePostUnreadTest(TestCase):
             follow=True)
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
             PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
+        self.assertEqual(message_unread.send.call_count, 2)
 
     def test_no_interference(self):
         mark_read(self.topic1, self.author.user)

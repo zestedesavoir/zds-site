@@ -14,7 +14,7 @@ from zds.utils.models import get_hat_from_settings
 from zds.utils.mps import send_mp
 
 
-class ProfileCreate(object):
+class ProfileCreate:
     def create_profile(self, data):
         """
         Creates an inactive profile in the database.
@@ -47,7 +47,7 @@ class ProfileCreate(object):
         profile.user.save()
 
 
-class TokenGenerator(object):
+class TokenGenerator:
     def generate_token(self, user):
         """
         Generates a token for member registration.
@@ -91,7 +91,7 @@ class TokenGenerator(object):
         msg.send()
 
 
-class MemberSanctionState(object):
+class MemberSanctionState:
     """
     Super class of the enumeration to know which sanction it is.
     """
