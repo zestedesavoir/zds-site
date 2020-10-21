@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0019_auto_20180102_1659'),
+        ("utils", "0019_auto_20180102_1659"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='subcategory',
-            options={'verbose_name': 'Sous-categorie', 'verbose_name_plural': 'Sous-categories'},
+            name="subcategory",
+            options={"verbose_name": "Sous-categorie", "verbose_name_plural": "Sous-categories"},
         ),
     ]

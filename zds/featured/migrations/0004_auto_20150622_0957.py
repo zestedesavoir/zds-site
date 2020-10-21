@@ -4,13 +4,13 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('featured', '0003_remove_featuredresource_authors'),
+        ("featured", "0003_remove_featuredresource_authors"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='featuredresource',
-            old_name='source',
-            new_name='authors',
+            model_name="featuredresource",
+            old_name="source",
+            new_name="authors",
         ),
     ]

@@ -8,23 +8,40 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0017_profile_email_for_new_mp'),
+        ("member", "0017_profile_email_for_new_mp"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ban',
-            name='moderator',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='bans', to=settings.AUTH_USER_MODEL, verbose_name='Moderateur'),
+            model_name="ban",
+            name="moderator",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="bans",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Moderateur",
+            ),
         ),
         migrations.AlterField(
-            model_name='karmanote',
-            name='moderator',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='karmanote_staff', to=settings.AUTH_USER_MODEL),
+            model_name="karmanote",
+            name="moderator",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="karmanote_staff",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='licence',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='utils.Licence', verbose_name='Licence préférée'),
+            model_name="profile",
+            name="licence",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="utils.Licence",
+                verbose_name="Licence préférée",
+            ),
         ),
     ]

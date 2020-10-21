@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0010_publishedcontent_sizes'),
+        ("tutorialv2", "0010_publishedcontent_sizes"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publishablecontent',
-            name='subcategory',
-            field=models.ManyToManyField(blank=True, db_index=True, to='utils.SubCategory', verbose_name=b'Sous-Cat\xc3\xa9gorie'),
+            model_name="publishablecontent",
+            name="subcategory",
+            field=models.ManyToManyField(
+                blank=True, db_index=True, to="utils.SubCategory", verbose_name=b"Sous-Cat\xc3\xa9gorie"
+            ),
         ),
     ]

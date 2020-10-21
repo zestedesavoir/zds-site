@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forum', '0018_auto_20200315_1749'),
+        ("forum", "0018_auto_20200315_1749"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='is_potential_spam',
-            field=models.BooleanField(default=False, verbose_name='Est potentiellement du spam'),
+            model_name="post",
+            name="is_potential_spam",
+            field=models.BooleanField(default=False, verbose_name="Est potentiellement du spam"),
         ),
     ]
