@@ -112,35 +112,35 @@
 
         smilies: {
             0: {
-                smiley_sm: { title: ":)",         start: ":)",         end: "", image: "/static/smileys/smile.svg" },
-                smiley_he: { title: ":D",         start: ":D",         end: "", image: "/static/smileys/heureux.svg" },
-                smiley_cl: { title: ";)",         start: ";)",         end: "", image: "/static/smileys/clin.svg" },
-                smiley_la: { title: ":p",         start: ":p",         end: "", image: "/static/smileys/langue.svg" },
-                smiley_ri: { title: ":lol:",      start: ":lol:",      end: "", image: "/static/smileys/rire.gif" },
-                smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "/static/smileys/unsure.gif" },
-                smiley_tr: { title: ":(",         start: ":(",         end: "", image: "/static/smileys/triste.svg" },
-                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/huh.svg" },
-                smiley_ib: { title: ":B",         start: ":B",         end: "", image: "/static/smileys/b.svg" }
+                smiley_sm: { title: ":)",         start: ":)",         end: "", image: "/static/smileys/svg/smile.svg" },
+                smiley_he: { title: ":D",         start: ":D",         end: "", image: "/static/smileys/svg/heureux.svg" },
+                smiley_cl: { title: ";)",         start: ";)",         end: "", image: "/static/smileys/svg/clin.svg" },
+                smiley_la: { title: ":p",         start: ":p",         end: "", image: "/static/smileys/svg/langue.svg" },
+                smiley_ri: { title: ":lol:",      start: ":lol:",      end: "", image: "/static/smileys/svg/rire.svg" },
+                smiley_un: { title: ":euh:",      start: ":euh:",      end: "", image: "/static/smileys/svg/unsure.svg" },
+                smiley_tr: { title: ":(",         start: ":(",         end: "", image: "/static/smileys/svg/triste.svg" },
+                smiley_hu: { title: ":o",         start: ":o",         end: "", image: "/static/smileys/svg/huh.svg" },
+                smiley_ib: { title: ":B",         start: ":B",         end: "", image: "/static/smileys/svg/b.svg" }
             },
             1: {
-                smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "/static/smileys/mechant.svg" },
-                smiley_oo: { title: "o_O",        start: "o_O",        end: "", image: "/static/smileys/blink.gif" },
-                smiley_uu: { title: "^^",         start: "^^",         end: "", image: "/static/smileys/hihi.svg" },
-                smiley_si: { title: ":-°",        start: ":-°",        end: "", image: "/static/smileys/siffle.svg" },
-                smiley_an: { title: ":ange:",     start: ":ange:",     end: "", image: "/static/smileys/ange.svg" },
-                smiley_c2: { title: ":colere:",   start: ":colere:",   end: "", image: "/static/smileys/angry.gif" },
-                smiley_di: { title: ":diable:",   start: ":diable:",   end: "", image: "/static/smileys/diable.svg" },
-                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "/static/smileys/magicien.svg" }
+                smiley_c1: { title: ":colere2:",  start: ":colere2:",  end: "", image: "/static/smileys/svg/mechant.svg" },
+                smiley_oo: { title: "o_O",        start: "o_O",        end: "", image: "/static/smileys/svg/blink.svg" },
+                smiley_uu: { title: "^^",         start: "^^",         end: "", image: "/static/smileys/svg/hihi.svg" },
+                smiley_si: { title: ":-°",        start: ":-°",        end: "", image: "/static/smileys/svg/siffle.svg" },
+                smiley_an: { title: ":ange:",     start: ":ange:",     end: "", image: "/static/smileys/svg/ange.svg" },
+                smiley_c2: { title: ":colere:",   start: ":colere:",   end: "", image: "/static/smileys/svg/angry.svg" },
+                smiley_di: { title: ":diable:",   start: ":diable:",   end: "", image: "/static/smileys/svg/diable.svg" },
+                smiley_ma: { title: ":magicien:", start: ":magicien:", end: "", image: "/static/smileys/svg/magicien.svg" }
             },
             2: {
-                smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "/static/smileys/ninja.gif" },
-                smiley_gd: { title: "X/",         start: "X/",         end: "", image: "/static/smileys/pinch.svg" },
-                smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "/static/smileys/pirate.svg" },
-                smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "/static/smileys/pleure.svg" },
-                smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "/static/smileys/rouge.svg" },
-                smiley_so: { title: ":soleil:",   start: ":soleil:",   end: "", image: "/static/smileys/soleil.svg" },
-                smiley_ww: { title: ":waw:",      start: ":waw:",      end: "", image: "/static/smileys/waw.svg" },
-                smiley_zz: { title: ":zorro:",    start: ":zorro:",    end: "", image: "/static/smileys/zorro.svg" }
+                smiley_ni: { title: ":ninja:",    start: ":ninja:",    end: "", image: "/static/smileys/svg/ninja.svg" },
+                smiley_gd: { title: ">_<",         start: ">_<",       end: "", image: "/static/smileys/svg/pinch.svg" },
+                smiley_pi: { title: ":pirate:",   start: ":pirate:",   end: "", image: "/static/smileys/svg/pirate.svg" },
+                smiley_pl: { title: ":'(",        start: ":'(",        end: "", image: "/static/smileys/svg/pleure.svg" },
+                smiley_ro: { title: ":honte:",    start: ":honte:",    end: "", image: "/static/smileys/svg/rouge.svg" },
+                smiley_so: { title: ":soleil:",   start: ":soleil:",   end: "", image: "/static/smileys/svg/soleil.svg" },
+                smiley_ww: { title: ":waw:",      start: ":waw:",      end: "", image: "/static/smileys/svg/waw.svg" },
+                smiley_zz: { title: ":zorro:",    start: ":zorro:",    end: "", image: "/static/smileys/svg/zorro.svg" }
             }
         },
 
