@@ -215,8 +215,5 @@
 
   $(document).ready(function() {
     buildModals($('.modal'))
-    $('#content').on('DOMNodeInserted', '.modal', function(e) {
-      buildModals($(e.target))
-    })
   })
 })(jQuery)
