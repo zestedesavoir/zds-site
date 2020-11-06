@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 
-class TemplatableContentModelMixin(object):
+class TemplatableContentModelMixin:
     content_type_attribute = 'content_type'
 
     @property
@@ -72,7 +72,7 @@ class TemplatableContentModelMixin(object):
             return _('Le Contenu')
 
 
-class OnlineLinkableContentMixin(object):
+class OnlineLinkableContentMixin:
     content_type_attribute = 'content_type'
 
     def get_absolute_url_online(self):

@@ -6,7 +6,7 @@ from django.conf import settings
 from zds.utils.models import Comment
 
 
-class FilterMixin(object):
+class FilterMixin:
     """
     View mixin which provides filtering for ListView.
     """
@@ -41,7 +41,7 @@ class FilterMixin(object):
         return context
 
 
-class QuoteMixin(object):
+class QuoteMixin:
     model_quote = None
 
     def build_quote(self, post_pk, user):
