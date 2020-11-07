@@ -28,7 +28,7 @@ from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.mp.models import PrivateTopic
 from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
     ESIndexManager
-from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager
+from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
 from zds.tutorialv2.models.versioned import NotAPublicVersion
@@ -1166,6 +1166,8 @@ class ContentReaction(Comment):
     related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
                                         on_delete=models.CASCADE,
                                         related_name='related_content_note', db_index=True)
+
+    objects = ReactionManager()
 
     def __str__(self):
         return "<Réaction pour '{0}', #{1}>".format(self.related_content, self.pk)
