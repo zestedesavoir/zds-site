@@ -660,8 +660,8 @@
             }
             easyMDE.codemirror.refresh()
           },
-          className: 'fas fa-broom',
-          title: 'Passe au mode compatibilité'
+          className: 'fas fa-remove-format',
+          title: 'Zone de texte sans mise en forme'
         },
         '|',
         {
@@ -801,7 +801,7 @@ function mirroringEasyMDE(easyMDE, textarea) {
     }, 12) // <-- after default trigger (I mean after browser trigger)
   })
 
-  $(easyMDE.element.parentElement).children('.editor-statusbar').before($twin)
+  $(easyMDE.element.parentElement).find('.editor-statusbar').before($twin)
 
   return $twin
 }
