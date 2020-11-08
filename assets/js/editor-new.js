@@ -378,6 +378,7 @@
     var easyMDE = new EasyMDE({
       autoDownloadFontAwesome: false,
       element: this,
+      forceSync: true,
       autosave: {
         enabled: true,
         uniqueId: mdeUniqueKey,
