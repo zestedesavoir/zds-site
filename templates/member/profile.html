@@ -340,7 +340,7 @@
                                     </div>
                                 {% endif %}
 
-                                {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 %}
+                                {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or content_reactions_count > 0 %}
                                     <div class="linkbox-item primary">
                                         <div class="head">
                                             <h3>{% trans 'Contenus' %}</h3>
@@ -377,6 +377,17 @@
                                                         <span class="bold">{{ opinions_public_count }}</span> billet publié
                                                     {% plural %}
                                                         <span class="bold">{{ opinions_public_count }}</span> billets publiés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+                                        {% if content_reactions_count > 0 %}
+                                            <a href="{% url "content:list-content-reactions" usr.pk %}" class="tail">
+                                                <p>
+                                                    {% blocktrans count content_reactions_count=content_reactions_count %}
+                                                        <span class="bold">{{ content_reactions_count }}</span> commentaire publié
+                                                    {% plural %}
+                                                        <span class="bold">{{ content_reactions_count }}</span> commentaires publiés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>

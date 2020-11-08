@@ -42,7 +42,7 @@ from zds.mp.models import PrivatePost, PrivateTopic
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.pages.models import GroupContact
 from zds.tutorialv2.models import CONTENT_TYPES
-from zds.tutorialv2.models.database import PublishedContent, PickListOperation, ContentContribution
+from zds.tutorialv2.models.database import PublishedContent, PickListOperation, ContentContribution, ContentReaction
 from zds.utils.models import Comment, CommentVote, Alert, CommentEdit, Hat, HatRequest, get_hat_from_settings, \
     get_hat_to_add
 from zds.utils.mps import send_mp
@@ -191,6 +191,7 @@ class MemberDetail(DetailView):
             .values_list('content', flat=True)\
             .distinct()\
             .count()
+        context['content_reactions_count'] = ContentReaction.objects.filter(author=usr).count()
 
         if self.request.user.has_perm('member.change_profile'):
             sanctions = list(Ban.objects.filter(user=usr).select_related('moderator'))
