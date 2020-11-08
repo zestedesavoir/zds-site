@@ -800,7 +800,7 @@ function mirroringEasyMDE(easyMDE, textarea) {
     }, 12) // <-- after default trigger (I mean after browser trigger)
   })
 
-  $(easyMDE.element.parentElement).children('.editor-statusbar').before($twin)
+  $(easyMDE.element.parentElement).find('.editor-statusbar').before($twin)
 
   return $twin
 }
