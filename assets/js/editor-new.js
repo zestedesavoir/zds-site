@@ -659,8 +659,8 @@
             }
             easyMDE.codemirror.refresh()
           },
-          className: 'fas fa-broom',
-          title: 'Passe au mode compatibilité'
+          className: 'fas fa-remove-format',
+          title: 'Zone de texte sans mise en forme'
         },
         '|',
         {
