@@ -103,7 +103,11 @@ document.querySelectorAll('form.quizz').forEach(form => {
     }
     Object.keys(answers).forEach(name => {
       const element = document.querySelector(`.custom-block[data-name="${name}"]`)
-      const title = document.querySelector(`.custom-block[data-name="${name}"] .custom-block-heading`).textContent
+      let title = element.querySelector('.custom-block-heading').textContent
+      const correction = element.querySelector('.custom-block-heading+div')
+      if (correction) {
+        title = title.substr(0, title.indexOf(correction.textContent))
+      }
       statistics.result[title] = {
         evaluation: 'bad',
         labels: []
