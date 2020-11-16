@@ -20,7 +20,7 @@ homoglyphs==2.0.3
 lxml==4.5.2
 Pillow==7.2.0
 python-memcached==1.59
-requests==2.24.0
+requests==2.25.0
 toml==0.10.1
 
 # Api dependencies
