@@ -1,0 +1,409 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Mixins SCSS &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Interface utilisateur" href="interface-utilisateur.html" />
+    <link rel="prev" title="Helpers Javascript" href="helpers-js.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elements-specifiques-au-site.html">Eléments spécifiques au site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers-js.html">Helpers Javascript</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Mixins SCSS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#css-adaptatif-responsive">CSS adaptatif (responsive)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#variables">Variables</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mixins"><em>Mixins</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#si-vous-etiez-habituee-a-l-ancien-systeme">Si vous étiez habitué⋅e à l’ancien système…</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="interface-utilisateur.html">Interface utilisateur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure-du-site.html">Structure globale du site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template-tags.html">Elements de templates personnalisés</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../front-end.html">Le <em>front-end</em></a> &raquo;</li>
+        
+      <li>Mixins SCSS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/front-end/helpers-scss.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="mixins-scss">
+<h1>Mixins SCSS<a class="headerlink" href="#mixins-scss" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Des <em>mixins</em> SCSS sont disponibles pour faciliter le développement.</p>
+<div class="section" id="css-adaptatif-responsive">
+<h2>CSS adaptatif (responsive)<a class="headerlink" href="#css-adaptatif-responsive" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Une série de <em>mixins</em> existe pour faciliter l’insertion de <em>media-queries</em>
+afin d’adapter l’interface du site aux différents appareils du marché.</p>
+<div class="section" id="variables">
+<h3>Variables<a class="headerlink" href="#variables" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Tout d’abord, des variables SCSS définissent différents points d’arrêt entre
+plusieurs types d’écran :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$tablet</span></code> : largeur minimale des tablettes (769 pixels) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$desktop</span></code> : largeur minimale d’un écran d’ordinateur classique (1024 pixels) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$wide</span></code> : largeur minimale d’un écran large (1216 pixels) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">$extra-wide</span></code> : largeur minimale d’un écran full-HD (1408 pixels).</p></li>
+</ul>
+</div>
+<div class="section" id="mixins">
+<h3><em>Mixins</em><a class="headerlink" href="#mixins" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Mais concrètement, vous utiliserez surtout les <em>mixins</em> permettant d’inclure
+automatiquement les <em>media-queries</em> correspondantes à différentes catégories
+ou ensembles de catégories d’écran. Par exemple, pour écrire du SCSS qui ne sera
+que pris en compte pour les mobiles, écrivez :</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="k">@include</span><span class="nd"> mobile</span> <span class="p">{</span>
+  <span class="c1">// Votre code SCSS…</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>ou encore, en SASS :</p>
+<div class="highlight-sass notranslate"><div class="highlight"><pre><span></span><span class="nd">+mobile</span>
+  <span class="c1">// Votre code SASS…</span>
+</pre></div>
+</div>
+<p>Il est tout aussi possible d’utiliser ceci pour définir tous les CSS spécifiques
+à une catégorie d’écran d’un coup, ou au fur et à mesure en spécifiant propriété
+par propriété. Ainsi, ces deux façons de faire sont valides :</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.something</span> <span class="p">{</span>
+  <span class="nt">font-weight</span><span class="nd">:</span> <span class="nt">bold</span><span class="o">;</span>
+
+  <span class="o">@</span><span class="nt">include</span> <span class="nt">mobile</span> <span class="p">{</span>
+    <span class="nt">font-weight</span><span class="nd">:</span> <span class="nt">normal</span><span class="o">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// -- ou --</span>
+
+<span class="nc">.something</span> <span class="p">{</span>
+  <span class="nt">font-weight</span><span class="nd">:</span> <span class="nt">bold</span><span class="o">;</span>
+<span class="p">}</span>
+
+<span class="k">@include</span><span class="nd"> mobile</span> <span class="p">{</span>
+  <span class="nc">.something</span> <span class="p">{</span>
+    <span class="nt">font-weight</span><span class="nd">:</span> <span class="nt">normal</span><span class="o">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Voici les différentes <em>mixins</em> disponibles, avec la largeur de l’écran
+correspondante. Les noms des <em>mixins</em> reprennent ceux des points d’arrêt plus
+haut.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pour des raisons de cohérence, et sauf si vous avez une bonne raison de faire autrement (par exemple, en cas de besoin d’un point d’arrêt très spécifique), utilisez toujours ces <em>mixins</em> pour insérer un code CSS spécifique à une largeur d’écran.</p>
+</div>
+<ul>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">mobile</span></code> : les appareils mobiles.</div>
+<div class="line"><em>0 → 768 pixels</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">tablet</span></code> : les tablettes, et toutes les tailles au dessus.</div>
+<div class="line"><em>769 pixels → ∞</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">tablet-only</span></code> : les tablettes, uniquement.</div>
+<div class="line"><em>769 → 1023 pixels</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">until-desktop</span></code> : les mobiles et les tablettes.</div>
+<div class="line"><em>0 → 1023 pixels</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">desktop</span></code> : les ordinateurs, toutes tailles d’écran.</div>
+<div class="line"><em>1024 pixels → ∞</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">desktop-only</span></code> : les ordinateurs, mais pas ceux de grande taille.</div>
+<div class="line"><em>1024 → 1215 pixels</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">until-wide</span></code> : les mobiles, tablettes, et ordinateurs pas trop grands.</div>
+<div class="line"><em>0 → 1215 pixels</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">wide</span></code> : les ordinateurs, à partir de ceux ayant un grand écran.</div>
+<div class="line"><em>1216 pixels → ∞</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">wide-only</span></code> : les ordinateurs ayant un grand écran, mais pas <em>très</em> grand.</div>
+<div class="line"><em>1216 → 1407 pixels</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">until-extra-wide</span></code> : tous les appareils n’ayant pas un très grand écran.</div>
+<div class="line"><em>0 → 1407 pixels</em></div>
+</div>
+</li>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">extra-wide</span></code> : les ordinateurs ayant un écran très grand. Les téléviseurs, aussi.</div>
+<div class="line"><em>1408 pixels → ∞</em></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="si-vous-etiez-habituee-a-l-ancien-systeme">
+<h3>Si vous étiez habitué⋅e à l’ancien système…<a class="headerlink" href="#si-vous-etiez-habituee-a-l-ancien-systeme" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Auparavant, des variables existaient contenant la partie des <code class="docutils literal notranslate"><span class="pre">&#64;media</span></code>
+changeante en fonction des largeurs d’écran, et on écrivait les <em>media-queries</em>
+en entier à chaque fois. Les noms des variables n’étaient pas exactement les
+mêmes non plus.</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">Voici donc une correspondance.</span><a class="headerlink" href="#id1" title="Lien permanent vers ce tableau">¶</a></caption>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Ancienne variable</p></th>
+<th class="head"><p><em>Mixin</em> équivalente</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$media-mobile</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mobile</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$media-mobile-tablet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">until-desktop</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$media-tablet</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tablet</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$media-wide</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">desktop</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$media-under-extra-wide</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">until-wide</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">$media-extra-wide</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">wide</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">$media-mega-wide</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">extra-wide</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="interface-utilisateur.html" class="btn btn-neutral float-right" title="Interface utilisateur" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="helpers-js.html" class="btn btn-neutral float-left" title="Helpers Javascript" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

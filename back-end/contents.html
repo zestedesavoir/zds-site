@@ -1,0 +1,849 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Les tutoriels et articles &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Les fichiers de manifeste" href="contents_manifest.html" />
+    <link rel="prev" title="Le back-end" href="../back-end.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Les tutoriels et articles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#vocabulaire-et-definitions">Vocabulaire et définitions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#de-la-structure-generale-d-un-contenu">De la structure générale d’un contenu</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#des-extraits">Des extraits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#des-conteneurs">Des conteneurs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#un-contenu">Un contenu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#des-objets-en-general">Des objets en général</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cycle-de-vie-des-contenus">Cycle de vie des contenus</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#le-brouillon">Le brouillon</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#la-beta">La bêta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#la-validation">La validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#la-publication">La publication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#l-entraide">L’entraide</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#import-de-contenus">Import de contenus</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#import-d-image">Import d’image</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#regles">Règles</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#aspects-techniques-et-fonctionnels">Aspects techniques et fonctionnels</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#les-metadonnees">Les métadonnées</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#le-stockage-en-base-de-donnees">Le stockage en base de données</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#le-stockage-via-des-dossiers">Le stockage <em>via</em> des dossiers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#les-permissions">Les permissions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#processus-de-publication">Processus de publication</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#consultation-d-un-contenu-publie">Consultation d’un contenu publié</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#qu-en-est-il-des-images">Qu’en est-il des images ?</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#passage-des-tutos-v1-aux-tutos-v2">Passage des tutos v1 aux tutos v2</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#migrer-une-archive-v1-vers-une-archive-v2">Migrer une archive v1 vers une archive v2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#migrer-la-base-de-donnees">Migrer la base de données</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#recapitulatif-des-parametres-du-module">Récapitulatif des paramètres du module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#statistiques">Statistiques</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contents_manifest.html">Les fichiers de manifeste</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forum.html">Les forums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gallery.html">Les galeries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="member.html">Les membres</a></li>
+<li class="toctree-l2"><a class="reference internal" href="private-message.html">Les messages privés</a></li>
+<li class="toctree-l2"><a class="reference internal" href="searchv2.html">La recherche</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../back-end.html">Le <em>back-end</em></a> &raquo;</li>
+        
+      <li>Les tutoriels et articles</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/back-end/contents.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="les-tutoriels-et-articles">
+<h1>Les tutoriels et articles<a class="headerlink" href="#les-tutoriels-et-articles" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="section" id="vocabulaire-et-definitions">
+<h2>Vocabulaire et définitions<a class="headerlink" href="#vocabulaire-et-definitions" title="Lien permanent vers ce titre">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Contenu</strong> (<em>content</em>): désigne, de manière générale, tout ce qui peut être produit et édité sur Zeste de Savoir, c’est-à-dire, à l’heure actuelle, un article ou un tutoriel. Tout contenu est rattaché à un dossier qui lui est propre et dont l’organisation est explicitée plus bas. Ce dossier comporte des informations sur le contenu lui-même (<em>metadata</em> : un auteur, une description, une licence…) ainsi que des textes, agencés dans une arborescence bien précise.</p></li>
+<li><p><strong>Article</strong> : contenu, généralement court, visant à faire découvrir un sujet plus qu’à l’expliquer au lecteur (introduit sans rentrer dans les détails) ou à fournir un état des lieux sur un point donné de manière concise (rapports de <em>release</em>, actualité…).</p></li>
+<li><p><strong>Tutoriel</strong> : contenu, en général plus long, ayant pour objectif d’enseigner un savoir-faire au lecteur.</p></li>
+<li><p><strong>Tribune libre</strong> : ensemble de billets associés à un utilisateur.</p></li>
+<li><p><strong>Billet</strong> : contenu, généralement court dont l’objectif est de donner un retour d’expérience, de donner son opinion quant à une actualité, de donner un lien intéressant… La validation (ou modération) d’un billet se fait après publication, publication étant directement faite par l’auteur.</p></li>
+<li><p><strong>git</strong>: système de gestion de versions employé (entre autres) par ZdS. Il permet de faire coexister différentes versions d’un contenu de manière simple et transparente pour l’auteur.</p></li>
+<li><p><strong>Version</strong> : état du contenu à un moment donné. Toute mise à jour du contenu (ou d’une de ses composantes) génère une nouvelle version de ce dernier, laquelle est désignée par un <em>hash</em>, c’est-à-dire par une chaîne de 40 caractères de long (aussi appelée <em>sha</em>, en référence à l’algorithme employé pour les générer). Ce <em>hash</em> permet d’identifier de manière unique cette version parmi toutes celles du contenu. Certaines versions, en plus du <em>sha</em>, sont désignées par un nom. On distingue ainsi la version brouillon (<em>draft</em>), la version en bêta (<em>beta</em>), la version en validation (<em>validation</em>) et la version publiée (<em>public</em>). Pour ce faire, les <em>hash</em> correspondant à ces versions sont simplement mis de côté.</p></li>
+<li><p>Fichier <strong>manifest.json</strong> : fichier à la racine de tout contenu dont l’objectif est de décrire ce dernier. Un tel fichier comporte deux types d’informations : à propos du contenu en lui-même (les métadonnées mentionnées plus haut) et à propos de son arborescence. La spécification de ce fichier est détaillée plus loin. On retiendra qu’à chaque version correspond un fichier <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> et que le contenu de ce dernier peut fortement varier d’une version à l’autre.</p></li>
+<li><p><strong>Conteneur</strong> (<em>container</em>) : sous-structure d’un contenu. Explicité plus bas.</p></li>
+<li><p><strong>Extrait</strong> (<em>extract</em>) : base atomique (plus petite unité) d’un contenu. Explicité plus bas.</p></li>
+</ul>
+</div>
+<div class="section" id="de-la-structure-generale-d-un-contenu">
+<h2>De la structure générale d’un contenu<a class="headerlink" href="#de-la-structure-generale-d-un-contenu" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="des-extraits">
+<h3>Des extraits<a class="headerlink" href="#des-extraits" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un <strong>extrait</strong> est une unité de texte. Il possède un titre (<em>title</em>) et du
+texte (<em>text</em>). Dans l’interface d’édition d’un tutoriel, un extrait est
+désigné par le terme « section ».</p>
+</div>
+<div class="section" id="des-conteneurs">
+<h3>Des conteneurs<a class="headerlink" href="#des-conteneurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un conteneur est une boîte ayant pour rôle de regrouper des éléments
+sémantiquement proches. Il est caractérisé par son titre (<em>title</em>) et possède
+une introduction (<em>introduction</em>) ainsi qu’une conclusion (<em>conclusion</em>),
+possiblement vides.</p>
+<p>Les éléments regroupés, appelés « enfants » (<em>children</em>) peuvent être de deux
+types : conteneur ou extrait. La structure d’un conteneur obéit à certaines
+règles :</p>
+<ul class="simple">
+<li><p>Un conteneur ne peut comporter un conteneur composé lui-même d’un conteneur ;</p></li>
+<li><p>Un conteneur ne peut comporter d’enfants directs à la fois des conteneurs et des extraits.</p></li>
+</ul>
+<p>Au niveau de la terminologie, on désigne par « partie » tout conteneur de
+niveau 1, c’est-à-dire n’étant pas inclus dans un autre conteneur, et par
+« chapitre » tout conteneur enfant d’une partie.</p>
+</div>
+<div class="section" id="un-contenu">
+<h3>Un contenu<a class="headerlink" href="#un-contenu" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Un <strong>contenu</strong> est un agencement particulier de conteneurs et d’extraits. Il
+est décrit par des métadonnées (<em>metadata</em>), détaillées
+<a class="reference external" href="./contents_manifest.html">ici</a>. Une de ces métadonnées est le type : article
+ou tutoriel. Leur visée pédagogique diffère, mais aussi leur structure : un
+article ne peut comporter de conteneurs, seulement des extraits, ce qui n’est
+pas le cas d’un tutoriel.</p>
+<p>Les exemples suivants devraient éclairer ces notions.</p>
+<p>Communément appelé « mini-tutoriel » :</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+ Tutoriel
+    + Section
+    + Section
+    + Section
+</pre></div>
+</div>
+<p>Communément appelé « moyen-tutoriel » :</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+ Tutoriel
+    + Partie
+        + Section
+    + Partie
+        + Section
+        + Section
+</pre></div>
+</div>
+<p>Communément appelé « big-tutoriel » :</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+ Tutoriel
+    + Partie
+        + Chapitre
+            + Section
+            + Section
+        + Chapitre
+            + Section
+    + Partie
+        + Chapitre
+            + Section
+            + Section
+</pre></div>
+</div>
+<p>On peut aussi faire un mélange des conteneurs :</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+ Tutoriel
+    + Partie
+        + Section
+        + Section
+    + Partie
+        + Chapitre
+            + Section
+        + Chapitre
+            + Section
+</pre></div>
+</div>
+<p>Mais pas de conteneurs et d’extraits adjacents :</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>/!\ Invalide !
+
++ Tutoriel
+    + Partie
+        + Section
+    + Section /!\ Impossible !
+    + Partie
+        + Chapitre
+            + Section
+        + Section /!\ Impossible !
+</pre></div>
+</div>
+<p>Pour finir, un article. Même structure qu’un mini-tutoriel, mais vocation
+pédagogique différente :</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>+ Article
+    + Section
+    + Section
+</pre></div>
+</div>
+<p>D’autre part, tout contenu se voit attribuer un identifiant unique sous la
+forme d’un entier naturel (en anglais : <em>pk</em>, pour <em>primary key</em>). Cet
+identifiant apparaît dans les URL, qui sont de la forme
+<code class="docutils literal notranslate"><span class="pre">/contenus/{pk}/{slug}</span></code>. Il rend plus efficace la recherche en base de
+données. Le <em>slug</em>, quant à lui, a le mérite d’être compréhensible par un être
+humain et permet de gérer les cas de redirection 301 (voir plus bas).</p>
+</div>
+<div class="section" id="des-objets-en-general">
+<h3>Des objets en général<a class="headerlink" href="#des-objets-en-general" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Tous les textes (introductions, conclusions et extraits) sont formatés en
+Markdown (dans la version étendue de ZdS).</p>
+<p>Conteneurs et extraits sont des <strong>objets</strong> (<em>object</em>). Dès lors, ils possèdent
+tous deux un <em>slug</em> (littéralement, « limace ») : il s’agit d’une chaîne de
+caractères générée à partir du titre de l’objet et qui, tout en restant lisible
+par un être humain, le simplifie considérablement. Un <em>slug</em> est uniquement
+composé de caractères alphanumériques minuscules et non-accentués
+(<code class="docutils literal notranslate"><span class="pre">[a-z0-9]*</span></code>) ainsi que des caractères <code class="docutils literal notranslate"><span class="pre">-</span></code> (tiret) et <code class="docutils literal notranslate"><span class="pre">_</span></code> (<em>underscore</em>).
+Ce <em>slug</em> a deux utilités : il est employé dans l’URL permettant de consulter
+l’objet depuis le site Web et dans le nom des fichiers ou dossiers employés pour le
+stocker (détails plus bas). Dès lors, cette spécification <strong>impose</strong> que ce
+<em>slug</em> soit unique au sein du conteneur parent, et que le <em>slug</em> du contenu
+soit unique au sein de tous les contenus de ZdS.</p>
+<p>La taille des <em>slugs</em> ne peut dépasser une certaine limite, définie dans le code par
+<code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']['maximum_slug_size']</span></code> (par défaut 150). Cette limite est due à
+une contrainte sur la taille maximum d’un nom de fichier sur les différents systèmes
+(généralement 255 octets sur la plupart des systèmes de fichier modernes, voir à ce sujet
+<a class="reference external" href="https://en.wikipedia.org/wiki/Comparison_of_file_systems#Limits">l’article Wikipedia correspondant (en)</a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>À noter que l”<em>underscore</em> est conservé par compatibilité avec l’ancien
+système, les nouveaux <em>slugs</em> générés par le système d’édition de ZdS
+n’en contiendront pas.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Lors du déplacement d’un conteneur ou d’un extrait, les <em>slugs</em> sont modifiés
+de manière à ce qu’il n’y ait pas de collision.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>L’introduction et la conclusion d’un conteneur possèdent également un
+<em>slug</em>, pour des raisons de stockage (voir plus bas). Il ne faut pas
+oublier la contrainte d’unicité à l’intérieur d’un conteneur.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Suite à un changement majeur dans la librairie <code class="docutils literal notranslate"><span class="pre">python-slugify</span></code>, une différence peut apparaitre dans le <em>slug</em>
+généré à partir de titres contenant des espaces. Dès lors, pour des raisons de rétro-compatibilité, c’est la version
+1.1.4 de cette librairie qui est utilisée par ZdS. Par ailleurs, la commande <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">adjust_slugs</span></code> a été
+créée pour réparer les éventuels dommages, en détectant les titres posant potentielement des problèmes et en tentant
+de les faire correspondre à nouveau à leur contrepartie dans le système de fichier.</p>
+<p><a class="reference external" href="https://github.com/zestedesavoir/zds-site/issues/3383#issuecomment-187282828">Plus d’information ici</a>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="cycle-de-vie-des-contenus">
+<h2>Cycle de vie des contenus<a class="headerlink" href="#cycle-de-vie-des-contenus" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Quelque soit le type de contenu, le cycle de vie de celui-ci reste toujours le même.
+Un contenu peut être rédigé par un ou plusieurs auteurs. Chaque modification
+est conservée afin de pouvoir retrouver l’historique des modifications et éventuellement
+récupérer un morceau de texte perdu. Lorsqu’un contenu est créé il rentre dans
+sa première étape.</p>
+<div class="section" id="le-brouillon">
+<h3>Le brouillon<a class="headerlink" href="#le-brouillon" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Le brouillon est la première étape du cycle de vie d’un contenu. Il donne
+toujours l’état le plus récent d’un contenu vu par les auteurs. Chaque fois
+que le contenu est modifié, c’est la version brouillon qui est mise à jour.
+La version brouillon est accessible uniquement pour les auteurs et validateurs
+d’un tutoriel. Si on souhaite donner un accès en lecture seule à nos écrits,
+il faut passer par la méthode adéquate.</p>
+</div>
+<div class="section" id="la-beta">
+<h3>La bêta<a class="headerlink" href="#la-beta" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Lorsque les auteurs estiment que leur contenu a atteint un certain niveau de
+maturité, et qu’ils souhaitent recueillir des retours de la communauté, ils ont
+la possibilité de le mettre à la disposition de cette dernière le contenu en
+lecture seule. C’est le mode bêta.</p>
+<p>Lors de la mise en bêta d’un contenu, un sujet est automatiquement ouvert dans
+le sous-forum des contenus en cours de rédaction, contenant l’adresse de la bêta.
+Cette dernière est de la forme :
+<code class="docutils literal notranslate"><span class="pre">/contenus/beta/{pk}/{slug}/</span></code>.</p>
+<p>Il faut en outre noter que seule une version précise du contenu est mise en
+bêta. Au moment de la mise en bêta, les versions brouillon et bêta coïncident
+mais l’auteur peut tout à fait poursuivre son travail sans affecter la seconde.
+Seulement, la version brouillon ne sera plus identique à la version en bêta et
+il ne faudra pas oublier de mettre à jour cette dernière pour que la communauté
+puisse juger des dernières modifications.</p>
+</div>
+<div class="section" id="la-validation">
+<h3>La validation<a class="headerlink" href="#la-validation" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Une fois que l’auteur a eu assez de retours sur son contenu, et qu’il estime
+qu’il est prêt à être publié, il décide d’envoyer son contenu en validation.
+<em>Via</em> l’interface idoine, un validateur peut alors réserver le contenu et
+commencer à vérifier qu’il satisfait la politique éditoriale du site. Dans le
+cas contraire, le contenu est rejeté et un message est envoyé aux auteurs pour
+expliquer les raisons du refus.</p>
+<p>L’envoi en validation n’est pas définitif, dans le sens où vous pouvez à tout
+moment mettre à jour la version en cours de validation. Évitez d’en abuser tout
+de même, car, si un validateur commence à lire votre contenu, il devra
+recommencer son travail si vous faites une mise à jour dessus. Cela pourrait non
+seulement ralentir le processus de validation de votre contenu, mais aussi ceux
+autres contenus !</p>
+<p>Comme pour la bêta, la version brouillon du contenu peut continuer à être
+améliorée pendant que la version de validation reste figée. Auteurs et validateurs
+peuvent donc continuer à travailler chacun de leur côté.</p>
+</div>
+<div class="section" id="la-publication">
+<h3>La publication<a class="headerlink" href="#la-publication" title="Lien permanent vers ce titre">¶</a></h3>
+<p><strong>Le cas général</strong></p>
+<p>Une fois que le contenu est passé en validation et a satisfait les critères
+éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs afin
+de les informer de la publication, et de leur transmettre le message laissé
+par le validateur en charge du contenu. Il faut bien préciser que le processus
+de validation peut être assez long.
+De plus, un historique de validation est disponible pour les validateurs.</p>
+<p>La publication d’un contenu entraîne l’exportation du contenu en plusieurs formats :</p>
+<ul class="simple">
+<li><p>Markdown : disponible uniquement pour les membres du staff et les auteurs du contenu</p></li>
+<li><p>HTML</p></li>
+<li><p>PDF</p></li>
+<li><p>EPUB : format de lecture adapté aux liseuses</p></li>
+<li><p>Archive : un export de l’archive contenant la version publiée du contenu</p></li>
+</ul>
+<p>Pour différentes raisons, il se peut que l’export dans divers formats échoue.
+Dans ce cas, le lien de téléchargement n’est pas présenté. Un fichier de log
+sur le serveur enregistre les problèmes liés à l’export d’un format.</p>
+<p>Aujourd’hui, il existe des bugs dans la conversion en PDF (notamment les blocs spécifiques à ZdS),
+qui devraient être réglés plus tard avec la
+<a class="reference external" href="http://zestedesavoir.com/forums/sujet/676/zep-05-refonte-du-traitement-markdown-pour-lexport">ZEP-05</a>)</p>
+<p>Enfin, signalons qu’il est possible à tout moment pour un membre de l’équipe
+de dépublier un contenu. Le cas échéant, un message sera envoyé aux auteurs,
+indiquant les raisons de la dépublication.</p>
+<p><strong>Les politiques de génération</strong></p>
+<p>La manière dont l’application réagira à une publication dans le but de générer – ou non – des documents téléchargeables
+est configurable selon trois niveaux à affecter au paramètre <code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']['extra_content_generation_policy']</span></code>:</p>
+<ul class="simple">
+<li><p>NOTHING : ne génère aucun document téléchargeable autre que le fichier markdown et l’archive zip des sources</p></li>
+<li><p>SYNC : génère tous les documents téléchargeables que le système peut générer de manière synchrone à la publication. C’est à dire que la génération est élevée au rang de tâche bloquante</p></li>
+<li><p>WATCHDOG : seul un « marqueur de publication » est généré lors de la publication, c’est un observateur externe qui viendra publier le nouveau contenu. Le site fourni un observateur externe : <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">mangage.py</span> <span class="pre">publication_watchdog</span></code>.</p></li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Le mode <code class="docutils literal notranslate"><span class="pre">WATCHDOG</span></code> est soumis à l’utilisation d’un autre paramètre : <code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']['extra_content_watchdog_dir']</span></code> qui, par défaut, créera un dossier watchdog-build à la racine de l’application</p>
+</div>
+<p><strong>Ajouter un nouveau format d’export</strong></p>
+<p>Les fichiers téléchargeables générés le sont à partir d’un registre de créateur.
+Par défaut le registre contient les 3 formats pandoc HTML, PDF et EPUB.</p>
+<p>Vous pouvez définir votre propre formateur qui devra alors hériter de la classe <code class="docutils literal notranslate"><span class="pre">zds.tutorialv2.publication_utils.Publicator</span></code> et implémenter la méthode <code class="docutils literal notranslate"><span class="pre">publish</span></code>.
+Si vous désirez vous passer de pandoc, il vous suffira d’appeler <code class="docutils literal notranslate"><span class="pre">map(PublicatorRegistry.unregister,</span> <span class="pre">[&quot;pdf&quot;,</span> <span class="pre">&quot;epub&quot;,</span> <span class="pre">&quot;html&quot;])</span></code>.
+Vous pouvez aussi simplement surcharger chacun des <code class="docutils literal notranslate"><span class="pre">Publicator</span></code> par défaut en en enregistrant un nouveau sous le même nom.</p>
+</div>
+<div class="section" id="l-entraide">
+<h3>L’entraide<a class="headerlink" href="#l-entraide" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Afin d’aider les auteurs de contenus à rédiger ces derniers, des options lors
+de la création/édition de ce dernier sont disponibles. L’auteur peut ainsi
+faire aisément une demande d’aide pour les raisons suivantes
+(liste non exhaustive) :</p>
+<ul class="simple">
+<li><p>Besoin d’aide à l’écriture</p></li>
+<li><p>Besoin d’aide à la correction/relecture</p></li>
+<li><p>Besoin d’aide pour illustrer</p></li>
+<li><p>Désir d’abandonner le contenu et recherche d’un repreneur</p></li>
+</ul>
+<p>L’ensemble des contenus à la recherche d’aide est visible via la page
+<code class="docutils literal notranslate"><span class="pre">/contenus/aides/</span></code>. Cette page génère un tableau récapitulatif de toutes les
+demandes d’aides pour les différents contenus et des filtres peuvent être
+appliqués.</p>
+<p>Il est également possible <strong>pour tout membre qui n’est pas auteur du contenu consulté</strong>
+de signaler une erreur, en employant le bouton prévu à cet effet et situé en
+bas d’une page du contenu.</p>
+<blockquote>
+<div><div class="figure align-center" id="id1">
+<img alt="../_images/warn-typo-button.png" src="../_images/warn-typo-button.png" />
+<p class="caption"><span class="caption-text">Bouton permentant de signaler une erreur</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
+</div>
+</div></blockquote>
+<p>Ce bouton est disponible sur la version publiée ou en bêta d’un contenu. Cliquer sur celui-ci ouvre une boite de dialogue :</p>
+<blockquote>
+<div><div class="figure align-center" id="id2">
+<img alt="../_images/warn-typo-dial.png" src="../_images/warn-typo-dial.png" />
+<p class="caption"><span class="caption-text">Boite de dialogue permettant de signaler à l’auteur une erreur qu’il aurait commise</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
+</div>
+</div></blockquote>
+<p>Le message ne peut pas être vide, mais n’hésitez pas à être précis et à fournir
+des détails. Cliquer sur « Envoyer » enverra un message privé aux auteurs du
+contenu, reprenant votre message sous forme d’une citation. Vous participerez
+également à la conversation, afin que les auteurs puissent vous demander plus
+de détails si nécessaire.</p>
+</div>
+</div>
+<div class="section" id="import-de-contenus">
+<h2>Import de contenus<a class="headerlink" href="#import-de-contenus" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Zeste de Savoir permet d’importer des contenus provenant de sources
+extérieures.</p>
+<p>Ce système est utilisable pour créer de nouveaux contenus à partir de zéros,
+ou bien si vous avez téléchargé l’archive correspondante à votre contenu, modifiée et
+que vous souhaitez importer les modifications.</p>
+<p>Il suffit de faire une archive ZIP du répertoire
+dans lequel se trouvent les fichiers de votre contenu, puis de vous rendre soit sur
+« Importer un nouveau contenu », soit sur « Importer une nouvelle version » dans n’importe quel contenu
+et de renseigner les champs relatifs à l’import d’une archive, puis de cliquer sur « Importer ».</p>
+<blockquote>
+<div><div class="figure align-center" id="id3">
+<img alt="../_images/import-archive.png" src="../_images/import-archive.png" />
+<p class="caption"><span class="caption-text">Exemple de formulaire d’importation : mise à jour d’un contenu</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</div>
+</div></blockquote>
+<div class="section" id="import-d-image">
+<h3>Import d’image<a class="headerlink" href="#import-d-image" title="Lien permanent vers ce titre">¶</a></h3>
+<p>À noter que si vous souhaitez importer des images de manière à ce qu’elles soient
+directement intégrée à votre contenu, vous devez écrire les liens vers cette image sous la
+forme <code class="docutils literal notranslate"><span class="pre">![légende](archive:image.extension)</span></code>, puis créer une archive contenant toutes celles-ci.
+Le système se chargera alors d’importer les images dans la galerie correspondante, puis de remplacer
+les liens quand c’est nécessaire. Ainsi,</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Voici ma belle image : ![Mon image](archive:image.png)
+</pre></div>
+</div>
+<p>Sera remplacé en</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Voici ma belle image : ![Mon image](/media/galleries/xx/yyyyyy.png)
+</pre></div>
+</div>
+<p>À condition que <code class="docutils literal notranslate"><span class="pre">image.png</span></code> soit présent dans l’archive (à sa racine) et soit une image valide.</p>
+</div>
+<div class="section" id="regles">
+<h3>Règles<a class="headerlink" href="#regles" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Au maximum, le système d’importation tentera d’être compréhensif envers une arborescence qui
+différente de celle énoncée ci-dessus. Par contre
+<strong>l’importation réorganisera les fichiers importés de la manière décrite ci-dessus</strong>,
+afin de parer aux mauvaises surprises.</p>
+<p>Tout contenu qui ne correspond pas aux règles précisées ci-dessus ne sera pas
+ré-importable. Ne sera pas ré-importable non plus tout contenu dont les
+fichiers indiqués dans le <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> n’existent pas ou sont incorrects.
+Seront supprimés les fichiers qui seraient inutiles (images, qui actuellement
+doivent être importées séparément dans une galerie, autres fichiers
+supplémentaires) pour des raisons élémentaires de sécurité.</p>
+</div>
+</div>
+<div class="section" id="aspects-techniques-et-fonctionnels">
+<h2>Aspects techniques et fonctionnels<a class="headerlink" href="#aspects-techniques-et-fonctionnels" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="les-metadonnees">
+<h3>Les métadonnées<a class="headerlink" href="#les-metadonnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>On distingue actuellement deux types de métadonnées (<em>metadata</em>) : celles
+versionnées (et donc reprises dans le <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code>) et celles qui ne le
+sont pas. La liste exhaustive de ces dernières (à l’heure actuelle) est la
+suivante :</p>
+<ul class="simple">
+<li><p>Les <em>hash</em> des différentes versions du tutoriel (<code class="docutils literal notranslate"><span class="pre">sha_draft</span></code>, <code class="docutils literal notranslate"><span class="pre">sha_beta</span></code>, <code class="docutils literal notranslate"><span class="pre">sha_public</span></code> et <code class="docutils literal notranslate"><span class="pre">sha_validation</span></code>) ;</p></li>
+<li><p>Les auteurs du contenu ;</p></li>
+<li><p>Les catégories auxquelles appartient le contenu ;</p></li>
+<li><p>Les <em>tags</em> associés au contenu ;</p></li>
+<li><p>La miniature ;</p></li>
+<li><p>L’origine du contenu, s’il n’a pas été créé sur ZdS mais importé avec une licence compatible ;</p></li>
+<li><p>L’utilisation ou pas de JSFiddle dans le contenu ;</p></li>
+<li><p>Différentes informations temporelles : date de création (<code class="docutils literal notranslate"><span class="pre">creation_date</span></code>), de publication (<code class="docutils literal notranslate"><span class="pre">pubdate</span></code>) et de dernière modification (<code class="docutils literal notranslate"><span class="pre">update_date</span></code>)</p></li>
+<li><p>La galerie ;</p></li>
+<li><p>Le sujet de la bêta, s’il existe.</p></li>
+</ul>
+</div>
+<div class="section" id="le-stockage-en-base-de-donnees">
+<h3>Le stockage en base de données<a class="headerlink" href="#le-stockage-en-base-de-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les métadonnées non versionnées sont stockées dans la base de données, à l’aide
+du modèle <code class="docutils literal notranslate"><span class="pre">PublishableContent</span></code>. Pour des raisons de facilité, certaines des
+métadonnées versionnées sont également intégrées dans la base :</p>
+<ul class="simple">
+<li><p>Le titre</p></li>
+<li><p>Le type de contenu</p></li>
+<li><p>La licence</p></li>
+<li><p>La description</p></li>
+</ul>
+<p>En ce qui concerne cette dernière, celle stockée en base est <strong>toujours</strong>
+celle de <strong>la version brouillon</strong>. Il ne faut donc <strong>en aucun cas</strong> les
+employer pour résoudre une URL ou à travers une template correspondant
+à la version publiée.</p>
+<p>Les métadonnées versionnées sont stockées dans le fichier <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code>. Ce
+dernier est rattaché à une version du contenu par le truchement de git.</p>
+<p>À la publication du contenu, un objet <code class="docutils literal notranslate"><span class="pre">PublishedContent</span></code> est créé, reprenant
+les informations importantes de cette version. C’est alors cet objet qui est
+utilisé pour résoudre les URLs. C’est également lui qui se cache derrière le
+mécanisme de redirection si, entre deux versions, le <em>slug</em> du contenu change.</p>
+</div>
+<div class="section" id="le-stockage-via-des-dossiers">
+<h3>Le stockage <em>via</em> des dossiers<a class="headerlink" href="#le-stockage-via-des-dossiers" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Comme énoncé plus haut, chaque contenu possède un dossier qui lui est propre
+(dont le nom est le <em>slug</em> du contenu), stocké dans l’endroit défini par la
+variable <code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']['repo_path']</span></code>. Dans ce dossier se trouve le
+fichier <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code>.</p>
+<p>Pour chaque conteneur, un dossier est créé, contenant les éventuels fichiers
+correspondant aux introduction, conclusion et différents extraits, ainsi que
+des dossiers pour les éventuels conteneurs enfants. Il s’agit de la forme d’un
+contenu tel que généré par ZdS en utilisant l’éditeur en ligne.</p>
+<p>Il est demandé de se conformer au maximum à cette structure pour éviter les
+mauvaises surprises en cas d’édition externe (voir ci-dessous).</p>
+</div>
+<div class="section" id="les-permissions">
+<h3>Les permissions<a class="headerlink" href="#les-permissions" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Afin de gérer ce module, trois permissions peuvent être utilisées :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">tutorialv2.change_publishablecontent</span></code> : pour le droit d’accéder et de modifier les contenus même sans en être l’auteur ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tutorialv2.change_validation</span></code> : pour le droit à accéder à l’interface de validation, réserver, valider ou refuser des contenus ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tutorialv2.change_contentreaction</span></code> : pour le droit à modérer les commentaires sur les contenus une fois publiés (masquer, éditer, …).</p></li>
+</ul>
+<p>Ces permissions doivent être accordées aux administateurs/modérateurs/validateurs selon les besoins via l’interface d’administration de Django.</p>
+</div>
+<div class="section" id="processus-de-publication">
+<h3>Processus de publication<a class="headerlink" href="#processus-de-publication" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Apès avoir passé les étapes de validation, le contenu est près à être publié.
+Cette action est effectuée par un membre du Staff. Le but de la publication
+est double : permettre aux visiteurs de consulter le contenu, mais aussi
+d’effectuer certains traitements (détaillés ci-après) afin que celui-ci soit
+sous une forme qui soit plus rapidement affichable par ZdS. C’est pourquoi ces
+contenus ne sont pas stockés au même endroit (voir
+<code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']['repo_public_path']</span></code>) que les brouillons.</p>
+<p>La publication se passe comme suit :</p>
+<ol class="arabic simple">
+<li><p>Un dossier temporaire est créé, afin de ne pas affecter la version publique précédente, si elle existe. Ce dossier est nommé <code class="docutils literal notranslate"><span class="pre">{slug}__build</span></code>;</p></li>
+<li><dl class="simple">
+<dt>Le code <em>markdown</em> est converti en HTML afin de gagner du temps à l’affichage. Pour chaque conteneur, deux cas se présentent :</dt><dd><ul class="simple">
+<li><p>Si celui-ci contient des extraits, ils sont tous rassemblés dans un seul fichier HTML, avec l’introduction et la conclusion ;</p></li>
+<li><p>Dans le cas contraire, l’introduction et la conclusion sont placées dans des fichiers séparés, et les champs correspondants dans le <em>manifest</em> sont mis à jour.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>Le <em>manifest</em> correspondant à la version de validation est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ <code class="docutils literal notranslate"><span class="pre">text</span></code> des extraits, champs <code class="docutils literal notranslate"><span class="pre">introduction</span></code> et <code class="docutils literal notranslate"><span class="pre">conclusion</span></code> des conteneurs comportant des extraits), une fois encore pour gagner du temps ;</p></li>
+<li><p>L’exportation vers les autres formats est ensuite effectué (PDF, EPUB, …) en utilisant <a class="reference external" href="http://pandoc.org/">pandoc (en)</a>. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l’ensemble des images qu’utilise le contenu est récupéré et que si ce n’est pas possible, une image par défaut est employée à la place, afin d’éviter les erreurs ;</p></li>
+<li><p>Finalement, si toutes les étapes précédentes se sont bien déroulées, le dossier temporaire est déplacé à la place de celui de l’ancienne version publiée. Un objet <code class="docutils literal notranslate"><span class="pre">PublishedContent</span></code> est alors créé (ou mis à jour si le contenu avait déjà été publié par le passé), contenant les informations nécessaire à l’affichage dans la liste des contenus publiés. Le <code class="docutils literal notranslate"><span class="pre">sha_public</span></code> est mis à jour dans la base de données et l’objet <code class="docutils literal notranslate"><span class="pre">Validation</span></code> est également changé.</p></li>
+</ol>
+</div>
+<div class="section" id="consultation-d-un-contenu-publie">
+<h3>Consultation d’un contenu publié<a class="headerlink" href="#consultation-d-un-contenu-publie" title="Lien permanent vers ce titre">¶</a></h3>
+<p>On n’utilise pas git pour afficher la version publiée d’un contenu. Dès lors,
+deux cas se présentent :</p>
+<ul class="simple">
+<li><p>L’utilisateur consulte un conteneur dont les enfants sont eux-mêmes des conteneurs (c’est-à-dire le conteneur principal ou une partie d’un big-tutoriel) : le <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code> est employé pour générer le sommaire, comme c’est le cas actuellement. L’introduction et la conclusion sont également affichées.</p></li>
+<li><p>L’utilisateur consulte un conteneur dont les enfants sont des extraits : le fichier HTML généré durant la publication est employé tel quel par le gabarit correspondant, additionné de l’éventuelle possibilité de faire suivant/précédent (qui nécessite la lecture du <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code>).</p></li>
+</ul>
+</div>
+<div class="section" id="qu-en-est-il-des-images">
+<h3>Qu’en est-il des images ?<a class="headerlink" href="#qu-en-est-il-des-images" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Le versionnage des images d’un contenu (celles qui font partie de la galerie
+rattachée) continue à faire débat, et il a été décidé pour le moment de ne
+pas les versionner, pour des raisons simples :</p>
+<ul class="simple">
+<li><p>Versionner les images peut rendre très rapidement une archive lourde : si l’auteur change beaucoup d’images, il va se retrouver avec des images plus jamais utilisées qui traînent dans son archive ;</p></li>
+<li><p>Avoir besoin d’interroger le dépôt à chaque fois pour lire les images peut rapidement devenir lourd pour la lecture.</p></li>
+</ul>
+<p>Le parti a été pris de ne pas versionner les images qui sont stockées sur le
+serveur. Ce n’est pas critique et on peut très bien travailler ainsi. Par
+contre, il vaudra mieux y réfléchir pour une version 3 afin de proposer
+une rédaction totale en mode hors-ligne.</p>
+</div>
+</div>
+<div class="section" id="passage-des-tutos-v1-aux-tutos-v2">
+<h2>Passage des tutos v1 aux tutos v2<a class="headerlink" href="#passage-des-tutos-v1-aux-tutos-v2" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Le parseur v2 ne permettant qu’un support minimal des tutoriels à l’ancien
+format, il est nécessaire de mettre en place des procédures de migration.</p>
+<div class="section" id="migrer-une-archive-v1-vers-une-archive-v2">
+<h3>Migrer une archive v1 vers une archive v2<a class="headerlink" href="#migrer-une-archive-v1-vers-une-archive-v2" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Le premier cas qu’il est possible de rencontrer est la présence d’une
+archive <em>hors ligne</em> d’un tutoriel à la version 1.</p>
+<p>La migration de cette archive consistera alors à ne migrer que le <em>manifest</em>.
+En effet, la nouvelle architecture étant bien plus souple du
+point de vue des nomenclatures, il ne sera pas nécessaire de l’adapter.</p>
+<p>Un outil intégré au code de ZdS a été mis en place. Il vous faudra alors :</p>
+<ul class="simple">
+<li><p>Décompresser l’archive ;</p></li>
+<li><p>Exécuter <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">upgrade_manifest_to_v2</span> <span class="pre">/chemin/vers/archive/decompressee/manifest.json</span></code> ;</p></li>
+<li><p>Recompresser l’archive.</p></li>
+</ul>
+<p>Si vous souhaitez implémenter votre propre convertisseur, voici l’algorithme utilisé en Python :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json_handler</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">json_file</span><span class="p">)</span>
+<span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;TUTORIAL&quot;</span>
+<span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="n">_type</span> <span class="o">=</span> <span class="s2">&quot;ARTICLE&quot;</span>
+<span class="n">versioned</span> <span class="o">=</span> <span class="n">VersionedContent</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">_type</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span> <span class="n">slugify</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]))</span>
+<span class="n">versioned</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
+<span class="n">versioned</span><span class="o">.</span><span class="n">introduction</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;introduction&quot;</span><span class="p">]</span>
+<span class="n">versioned</span><span class="o">.</span><span class="n">conclusion</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;conclusion&quot;</span><span class="p">]</span>
+<span class="n">versioned</span><span class="o">.</span><span class="n">licence</span> <span class="o">=</span> <span class="n">Licence</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;licence&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+<span class="n">versioned</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;2.0&quot;</span>
+<span class="n">versioned</span><span class="o">.</span><span class="n">slug</span> <span class="o">=</span> <span class="n">slugify</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">])</span>
+<span class="k">if</span> <span class="s2">&quot;parts&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="c1"># if it is a big tutorial</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;parts&quot;</span><span class="p">]:</span>
+        <span class="n">current_part</span> <span class="o">=</span> <span class="n">Container</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">slugify</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]))</span>
+        <span class="n">current_part</span><span class="o">.</span><span class="n">introduction</span> <span class="o">=</span> <span class="n">part</span><span class="p">[</span><span class="s2">&quot;introduction&quot;</span><span class="p">]</span>
+        <span class="n">current_part</span><span class="o">.</span><span class="n">conclusion</span> <span class="o">=</span> <span class="n">part</span><span class="p">[</span><span class="s2">&quot;conclusion&quot;</span><span class="p">]</span>
+        <span class="n">versioned</span><span class="o">.</span><span class="n">add_container</span><span class="p">(</span><span class="n">current_part</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">chapter</span> <span class="ow">in</span> <span class="n">part</span><span class="p">[</span><span class="s2">&quot;chapters&quot;</span><span class="p">]:</span>
+            <span class="n">current_chapter</span> <span class="o">=</span> <span class="n">Container</span><span class="p">(</span><span class="n">chapter</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">slugify</span><span class="p">(</span><span class="n">chapter</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]))</span>
+            <span class="n">current_chapter</span><span class="o">.</span><span class="n">introduction</span> <span class="o">=</span> <span class="n">chapter</span><span class="p">[</span><span class="s2">&quot;introduction&quot;</span><span class="p">]</span>
+            <span class="n">current_chapter</span><span class="o">.</span><span class="n">conclusion</span> <span class="o">=</span> <span class="n">chapter</span><span class="p">[</span><span class="s2">&quot;conclusion&quot;</span><span class="p">]</span>
+            <span class="n">current_part</span><span class="o">.</span><span class="n">add_container</span><span class="p">(</span><span class="n">current_chapter</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">extract</span> <span class="ow">in</span> <span class="n">chapter</span><span class="p">[</span><span class="s2">&quot;extracts&quot;</span><span class="p">]:</span>
+                <span class="n">current_extract</span> <span class="o">=</span> <span class="n">Extract</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
+                    <span class="nb">str</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">slugify</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]))</span>
+                <span class="n">current_chapter</span><span class="o">.</span><span class="n">add_extract</span><span class="p">(</span><span class="n">current_extract</span><span class="p">)</span>
+                <span class="n">current_extract</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">current_extract</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">elif</span> <span class="s2">&quot;chapter&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+    <span class="c1"># if it is a mini tutorial</span>
+    <span class="k">for</span> <span class="n">extract</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">][</span><span class="s2">&quot;extracts&quot;</span><span class="p">]:</span>
+        <span class="n">current_extract</span> <span class="o">=</span> <span class="n">Extract</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s2">&quot;pk&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">slugify</span><span class="p">(</span><span class="n">extract</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]))</span>
+        <span class="n">current_extract</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">current_extract</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">versioned</span><span class="o">.</span><span class="n">add_extract</span><span class="p">(</span><span class="n">current_extract</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">versioned</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;ARTICLE&quot;</span><span class="p">:</span>
+    <span class="n">extract</span> <span class="o">=</span> <span class="n">Extract</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span> <span class="s2">&quot;text&quot;</span><span class="p">)</span>
+    <span class="n">versioned</span><span class="o">.</span><span class="n">add_extract</span><span class="p">(</span><span class="n">extract</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="migrer-la-base-de-donnees">
+<h3>Migrer la base de données<a class="headerlink" href="#migrer-la-base-de-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Si vous faites tourner une instance du code de Zeste de Savoir sous la version 1.x et que vous passez à la v2.x, vous allez
+devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécuter la commande <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">migrate_to_zep12.py</span></code>.</p>
+</div>
+</div>
+<div class="section" id="recapitulatif-des-parametres-du-module">
+<h2>Récapitulatif des paramètres du module<a class="headerlink" href="#recapitulatif-des-parametres-du-module" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP[“content”]</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">repo_private_path</span></code> : chemin vers le dossier qui contiend les contenus durant leur rédaction, par défaut le dossier sera contents-private à la racine de l’application</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">repo_public_path</span></code>: chemin vers le dossier qui contient les fichiers permettant l’affichage des contenus publiés ainsi que les fichiers téléchargeables, par défaut contents-public</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extra_contents_dirname</span></code>: nom du sous-dosssier qui contient les fichiers téléchargeables (pdf, epub…), par défaut extra_contents</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extra_content_generation_policy</span></code>: Contient la politique de génération des fichiers téléchargeable, “SYNC”, “WATCHDOG” ou “NOTHING”</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extra_content_watchdog_dir</span></code>: dossier qui permet à l’observateur (si <code class="docutils literal notranslate"><span class="pre">extra_content_generation_policy</span></code> vaut <code class="docutils literal notranslate"><span class="pre">&quot;WATCHDOG&quot;</span></code>) de savoir qu’un contenu a été publié</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_tree_depth</span></code>: Profondeur maximale de la hiérarchie des tutoriels : par défaut <code class="docutils literal notranslate"><span class="pre">3</span></code> pour partie/chapitre/extrait</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">default_licence_pk</span></code>: Clé primaire de la licence par défaut (« Tous droits réservés » en français), 7 si vous utilisez les fixtures</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">content_per_page</span></code>: Nombre de contenus dans les listing (articles, tutoriels, billets)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">notes_per_page</span></code>: Nombre de réactions nouvelles par page (donc sans compter la répétition de la dernière note de la page précédente)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">helps_per_page</span></code> : Nombre de contenus ayant besoin d’aide dans la page ZEP-03</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">feed_length</span></code>: Nombre de contenus affiché dans un flux RSS ou ATOM,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">user_page_number</span></code>:  Nombre de contenus de chaque type qu’on affiche sur le profil d’un utilisateur, 5 par défaut,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">default_image</span></code>: chemin vers l’image utilisée par défaut dans les icônes de contenu,</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">import_image_prefix</span></code>: préfixe mnémonique permettant d’indiquer que l’image se trouve dans l’archive jointe lors de l’import de contenu</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_pdf_when_published</span></code>: indique que la publication générera un PDF (quelque soit la politique, si <code class="docutils literal notranslate"><span class="pre">False</span></code>, les PDF ne seront pas générés, sauf à appeler la commande adéquate),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maximum_slug_size</span></code>: taille maximale du slug d’un contenu</p></li>
+</ul>
+</div>
+<div class="section" id="statistiques">
+<h2>Statistiques<a class="headerlink" href="#statistiques" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Pour permettre aux auteurs d’avoir des statistiques sur leurs contenus, il faut créer un fichier <code class="docutils literal notranslate"><span class="pre">api_analytics_secrets.json</span></code> contenant les identifiants nécessaires pour se connecter à l’API de Google Analytics. Voici un gabarit pour ce fichier :</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;service_account&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_id&quot;</span><span class="p">:</span> <span class="s2">&quot;fake-project_id&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;private_key_id&quot;</span><span class="p">:</span> <span class="s2">&quot;fake-private_key_id&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;private_key&quot;</span><span class="p">:</span> <span class="s2">&quot;fake_private_key&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;client_email&quot;</span><span class="p">:</span> <span class="s2">&quot;fake-client_email&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;client_id&quot;</span><span class="p">:</span> <span class="s2">&quot;fake-client_id&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;auth_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;https://accounts.google.com/o/oauth2/auth&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;token_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;https://accounts.google.com/o/oauth2/token&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;auth_provider_x509_cert_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.googleapis.com/oauth2/v1/certs&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;client_x509_cert_url&quot;</span><span class="p">:</span> <span class="s2">&quot;fake-client_x509_cert_url&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="contents_manifest.html" class="btn btn-neutral float-right" title="Les fichiers de manifeste" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../back-end.html" class="btn btn-neutral float-left" title="Le back-end" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

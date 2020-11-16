@@ -1,0 +1,309 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Le front-end &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+        <script src="_static/translations.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+    <link rel="next" title="Arborescence des dossiers" href="front-end/arborescence-des-fichiers.html" />
+    <link rel="prev" title="Les utilitaires (utils/)" href="back-end-code/utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Le <em>front-end</em></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/elements-specifiques-au-site.html">Eléments spécifiques au site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/helpers-js.html">Helpers Javascript</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/helpers-scss.html">Mixins SCSS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/interface-utilisateur.html">Interface utilisateur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/structure-du-site.html">Structure globale du site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html">Elements de templates personnalisés</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Le <em>front-end</em></li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/front-end.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="le-front-end">
+<h1>Le <em>front-end</em><a class="headerlink" href="#le-front-end" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Le terme <em>front-end</em> désigne la partie du code associée à l’affichage des données issues du <a class="reference external" href="back-end.html">back-end</a>.</p>
+<p>Il s’agit donc de la partie du code définissant le design et l’affichage, mais aussi de l’ergonomie, la réactivité et l’expérience utilisateur. Sa mise en place est basée sur trois langages :</p>
+<ul class="simple">
+<li><p>Le HTML, aidé du <a class="reference external" href="https://docs.djangoproject.com/fr/2.1/topics/templates/">langage de gabarit de Django</a> ;</p></li>
+<li><p><a class="reference external" href="http://sass-lang.com/">SASS (en)</a> pour les feuilles de style ;</p></li>
+<li><p>JavaScript pour les interactions.</p></li>
+</ul>
+<p><a class="reference external" href="https://nodejs.org/">Node.js (en)</a>, <a class="reference external" href="https://yarnpkg.com/en/">yarn (en)</a> (gestionnaire de paquet pour Node.js) et <a class="reference external" href="http://gulpjs.com/">Gulp (en)</a> sont utilisés pour générer le code final minifié et cohérent. Le développement du <em>front-end</em> requiert donc des outils spécifiques dont l’installation <a class="reference external" href="install/extra-install-frontend.html">est expliquée ici</a>.</p>
+<p><strong>Navigateurs supportés</strong> : Les dernières versions de Mozilla Firefox, Google Chrome, Safari et Microsoft Edge.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="front-end/arborescence-des-fichiers.html">Arborescence des dossiers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/arborescence-des-fichiers.html#assets"><code class="docutils literal notranslate"><span class="pre">assets/</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/arborescence-des-fichiers.html#dist"><code class="docutils literal notranslate"><span class="pre">dist/</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/arborescence-des-fichiers.html#templates"><code class="docutils literal notranslate"><span class="pre">templates/</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="front-end/elements-specifiques-au-site.html">Eléments spécifiques au site</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/elements-specifiques-au-site.html#les-boites-modales">Les boîtes modales</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/elements-specifiques-au-site.html#la-lecture-zen">La lecture zen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/elements-specifiques-au-site.html#les-items-representant-les-contenus-et-les-derniers-sujets">Les <em>items</em> représentant les contenus et les derniers sujets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/elements-specifiques-au-site.html#ajouter-un-design-temporaire">Ajouter un design temporaire</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="front-end/helpers-js.html">Helpers Javascript</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/helpers-js.html#tooltip">$().tooltip()</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/helpers-js.html#message-karma">$(message).karma()</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="front-end/helpers-scss.html">Mixins SCSS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/helpers-scss.html#css-adaptatif-responsive">CSS adaptatif (responsive)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="front-end/interface-utilisateur.html">Interface utilisateur</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/interface-utilisateur.html#icones">Icônes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/interface-utilisateur.html#boutons">Boutons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/interface-utilisateur.html#formulaires">Formulaires</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/interface-utilisateur.html#boites-modales">Boites modales</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/interface-utilisateur.html#messages-flash">Messages flash</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="front-end/structure-du-site.html">Structure globale du site</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/structure-du-site.html#l-en-tete">L’en-tête</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/structure-du-site.html#le-contenu-principal">Le contenu principal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/structure-du-site.html#la-barre-laterale">La barre latérale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/structure-du-site.html#le-bas-de-page">Le bas de page</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/structure-du-site.html#le-menu-pour-mobile">Le menu pour mobile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/structure-du-site.html#design-fluide-responsive-design">Design fluide (responsive design)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="front-end/template-tags.html">Elements de templates personnalisés</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#append-query-params">append_query_params</a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-trail">Le module <code class="docutils literal notranslate"><span class="pre">trail</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-captureas">Le module <code class="docutils literal notranslate"><span class="pre">captureas</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-date">Le module <code class="docutils literal notranslate"><span class="pre">date</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-email-obfuscator">Le module <code class="docutils literal notranslate"><span class="pre">email_obfuscator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-emarkdown">Le module <code class="docutils literal notranslate"><span class="pre">emarkdown</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-htmldiff">Le module <code class="docutils literal notranslate"><span class="pre">htmldiff</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-interventions">Le module <code class="docutils literal notranslate"><span class="pre">interventions</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-profiles">Le module <code class="docutils literal notranslate"><span class="pre">profiles</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-roman">Le module <code class="docutils literal notranslate"><span class="pre">roman</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-set">Le module <code class="docutils literal notranslate"><span class="pre">set</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-topbar">Le module <code class="docutils literal notranslate"><span class="pre">topbar</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-feminize">Le module <code class="docutils literal notranslate"><span class="pre">feminize</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-times">Le module <code class="docutils literal notranslate"><span class="pre">times</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-target-tree">Le module <code class="docutils literal notranslate"><span class="pre">target_tree</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-url-category">Le module <code class="docutils literal notranslate"><span class="pre">url_category</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-displayable-authors">Le module <code class="docutils literal notranslate"><span class="pre">displayable_authors</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-elasticsearch">Le module <code class="docutils literal notranslate"><span class="pre">elasticsearch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="front-end/template-tags.html#le-module-joinby">Le module <code class="docutils literal notranslate"><span class="pre">joinby</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="front-end/arborescence-des-fichiers.html" class="btn btn-neutral float-right" title="Arborescence des dossiers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="back-end-code/utils.html" class="btn btn-neutral float-left" title="Les utilitaires (utils/)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

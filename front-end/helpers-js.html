@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Helpers Javascript &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Mixins SCSS" href="helpers-scss.html" />
+    <link rel="prev" title="Eléments spécifiques au site" href="elements-specifiques-au-site.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elements-specifiques-au-site.html">Eléments spécifiques au site</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Helpers Javascript</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tooltip">$().tooltip()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#message-karma">$(message).karma()</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="helpers-scss.html">Mixins SCSS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interface-utilisateur.html">Interface utilisateur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure-du-site.html">Structure globale du site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template-tags.html">Elements de templates personnalisés</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../front-end.html">Le <em>front-end</em></a> &raquo;</li>
+        
+      <li>Helpers Javascript</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/front-end/helpers-js.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="helpers-javascript">
+<h1>Helpers Javascript<a class="headerlink" href="#helpers-javascript" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Quelques fonctions sont accessibles via jQuery pour manipuler les éléments du site.</p>
+<div class="section" id="tooltip">
+<h2>$().tooltip()<a class="headerlink" href="#tooltip" title="Lien permanent vers ce titre">¶</a></h2>
+<p>La fonction <code class="docutils literal notranslate"><span class="pre">$(element).tooltip(contenu)</span></code> va ajouter une tooltip au survol de <code class="docutils literal notranslate"><span class="pre">element</span></code> avec comme contenu <code class="docutils literal notranslate"><span class="pre">contenu</span></code>. Si la tooltip existe déjà sur l’élément, la fonction va juste modifier le contenu.</p>
+<div class="figure align-center" id="id1">
+<img alt="../_images/tooltip.png" src="../_images/tooltip.png" />
+<p class="caption"><span class="caption-text">Exemple de tooltip utilisé pour les votes</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<p>La tooltip sera par défaut au dessus de l’élément, mais ira automatiquement en dessous si le scroll de la fenêtre ne permet pas de l’afficher totalement au dessus.</p>
+<p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Tooltip</span></code> qui est définie dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/tooltips.js</span></code>, et qui est complètement documenté dans ce fichier.</p>
+</div>
+<div class="section" id="message-karma">
+<h2>$(message).karma()<a class="headerlink" href="#message-karma" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> qui permet de manipuler et mettre à jour les votes d’un message.</p>
+<p><code class="docutils literal notranslate"><span class="pre">$(&quot;#p42&quot;).karma().vote(&quot;like&quot;)</span></code> permet par exemple d’ajouter (ou de l’enlever si l’utilisateur a déjà voté) un +1 sur le post n°42 sur la page.</p>
+<p>L’API complète de l’objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> est documentée dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/karma.js</span></code>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="helpers-scss.html" class="btn btn-neutral float-right" title="Mixins SCSS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="elements-specifiques-au-site.html" class="btn btn-neutral float-left" title="Eléments spécifiques au site" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

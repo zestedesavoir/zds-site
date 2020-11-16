@@ -1,0 +1,411 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Les fichiers de manifeste &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Les forums" href="forum.html" />
+    <link rel="prev" title="Les tutoriels et articles" href="contents.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="contents.html">Les tutoriels et articles</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Les fichiers de manifeste</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#les-versions-du-manifeste">Les versions du manifeste</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#nomenclature">Nomenclature</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#version-2-1">Version 2.1</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#version-2-0">Version 2.0</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#version-1-0">Version 1.0</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="forum.html">Les forums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gallery.html">Les galeries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="member.html">Les membres</a></li>
+<li class="toctree-l2"><a class="reference internal" href="private-message.html">Les messages privés</a></li>
+<li class="toctree-l2"><a class="reference internal" href="searchv2.html">La recherche</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../back-end.html">Le <em>back-end</em></a> &raquo;</li>
+        
+      <li>Les fichiers de manifeste</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/back-end/contents_manifest.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="les-fichiers-de-manifeste">
+<h1>Les fichiers de manifeste<a class="headerlink" href="#les-fichiers-de-manifeste" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Chaque contenu publiable (tutoriel et article) est décrit par un fichier de manifeste écrit au format JSON.</p>
+<p>Ce fichier de manifeste a pour but d’exprimer, versionner et instancier les informations et méta-informations du contenu tout au long du workflow de publication.</p>
+<p>Les informations en question sont l’architecture, les titres, les liens vers les sources, les informations de license ainsi que la version du fichier de manifeste lui-même.</p>
+<p>Le fichier de manifeste est intrinsèquement lié à un interpréteur qui est inclus dans le module de contenu associé.</p>
+<div class="section" id="les-versions-du-manifeste">
+<h2>Les versions du manifeste<a class="headerlink" href="#les-versions-du-manifeste" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="nomenclature">
+<h3>Nomenclature<a class="headerlink" href="#nomenclature" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La version du manifeste (et de son interpréteur) suit une nomenclature du type « semantic version » (SemVer), c’est-à-dire que la version est séparée en trois parties selon le format v X.Y.Z</p>
+<ul class="simple">
+<li><p>X : numéro de version majeur</p></li>
+<li><p>Y : numéro de version à ajout fonctionnel mineur</p></li>
+<li><p>Z : numéro de version de correction de bug</p></li>
+</ul>
+<p>Plus précisément :</p>
+<ul class="simple">
+<li><p>L’incrémentation de X signifie que la nouvelle version est potentiellement incompatible avec la version X-1. Un outil de migration doit alors être créé.</p></li>
+<li><p>L’incrémentation de Y signifie que la nouvelle version possède une compatibilité descendante avec la version X.Y-1 mais que la compatibilité ascendante n’est pas assurée. C’est-à-dire que le nouvel interpréteur peut interpréter un manifeste de type X.Y-1
+mais l’ancien interpréteur ne peut pas interpréter un manifeste X.Y. Le cas typique d’incrémentation de Y est le passage d’obligatoire à optionnel d’un champ du manifeste.</p></li>
+<li><p>L’incrémentation de Z assure la compatibilité ascendante ET descendante, les cas typiques d’incrémentation de Z est l’ajout d’un champ optionnel au manifeste.</p></li>
+</ul>
+<p>Sauf cas exceptionnel, la numérotation de X commence à 1, la numérotation de Y commence à 0, la numérotation de Z commence à 0.</p>
+<p>La version du manifeste est donnée par le champ éponyme situé à la racine du manifeste ( <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">version:</span> <span class="pre">&quot;2.0.0&quot;}</span></code>).
+L’absence du champ version est interprétée comme <code class="docutils literal notranslate"><span class="pre">{version:</span> <span class="pre">&quot;1.0&quot;}</span></code>.
+Les 0 non significatifs sont optionnels ainsi <code class="docutils literal notranslate"><span class="pre">{version:</span> <span class="pre">&quot;1&quot;}</span></code> est strictement équivalent à <code class="docutils literal notranslate"><span class="pre">{version:</span> <span class="pre">&quot;1.0&quot;}</span></code> lui-même strictement équivalent à <code class="docutils literal notranslate"><span class="pre">{version:</span> <span class="pre">&quot;1.0.0&quot;}</span></code>.</p>
+</div>
+<div class="section" id="version-2-1">
+<h3>Version 2.1<a class="headerlink" href="#version-2-1" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La version 2.1 est la version actuellement utilisée.
+Le manifest voit l’arrivée d’un nouvel élément non obligatoire <code class="docutils literal notranslate"><span class="pre">ready_to_publish</span></code> qui sera utilisé sur tous les éléments de type <code class="docutils literal notranslate"><span class="pre">Container</span></code>.
+Cet élément permet de marquer qu’une partie ou un chapitre est prêt à être publié. Lorsque la valeur est à <code class="docutils literal notranslate"><span class="pre">False</span></code>, la partie ou le chapitre
+sont simplement ignorés du processus de publication.</p>
+<p>Lorsque l’attribut n’est pas renseigné, il est supposé <em>truthy</em>.</p>
+</div>
+<div class="section" id="version-2-0">
+<h3>Version 2.0<a class="headerlink" href="#version-2-0" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;object&quot;</span><span class="o">:</span> <span class="s2">&quot;container&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;slug&quot;</span><span class="o">:</span> <span class="s2">&quot;un-tutoriel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Un tutoriel&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;introduction&quot;</span><span class="o">:</span> <span class="s2">&quot;introduction.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;conclusion&quot;</span><span class="o">:</span> <span class="s2">&quot;conclusion.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;version&quot;</span><span class="o">:</span> <span class="mf">2</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;Une description&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;TUTORIAL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;licence&quot;</span><span class="o">:</span> <span class="s2">&quot;Beerware&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;children&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;object&quot;</span><span class="o">:</span> <span class="s2">&quot;container&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;slug&quot;</span><span class="o">:</span> <span class="s2">&quot;titre-de-mon-chapitre&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Titre de mon chapitre&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;introduction&quot;</span><span class="o">:</span> <span class="s2">&quot;titre-de-mon-chapitre/introduction.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;conclusion&quot;</span><span class="o">:</span> <span class="s2">&quot;titre-de-mon-chapitre/conclusion.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;children&quot;</span><span class="o">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;object&quot;</span><span class="o">:</span> <span class="s2">&quot;extract&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;slug&quot;</span><span class="o">:</span> <span class="s2">&quot;titre-de-mon-extrait&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Titre de mon extrait&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;text&quot;</span><span class="o">:</span> <span class="s2">&quot;titre-de-mon-chapitre/titre-de-mon-extrait.md&quot;</span>
+                <span class="p">},</span>
+                <span class="p">(...)</span>
+            <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="p">(...)</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">type</span></code> : Le type de contenu, vaut « TUTORIAL » ou « ARTICLE ». <em>Si ce champ est absent ou invalide, le type vaudra par défaut « TUTORIAL ».</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">description</span></code> : La description du contenu. Est affichée comme sous-titre dans la page finale. <strong>Obligatoire</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> : Le titre du contenu. <strong>Obligatoire</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slug</span></code> : slug du contenu qui permet de faire une url SEO-friendly. Pour rappel, <a class="reference external" href="contents.html#des-objets-en-general">certaines contraintes doivent être respectées dans le choix du slug</a>. <strong>Obligatoire</strong>.  ATENTION : si ce slug existe déjà dans notre base de données, il est possible qu’un nombre lui soit ajouté</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">introduction</span></code> : le nom du fichier Mardown qui possède l’introduction. Il doit pointer vers le dossier courant. <em>Optionnel mais conseillé</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conclusion</span></code> : le nom du fichier Mardown qui possède la conclusion. Il doit pointer vers le dossier courant. <em>Optionnel mais conseillé</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">licence</span></code> : nom complet de la license. <em>A priori</em> les licences « CC » et « Tous drois réservés » sont supportées. Le support de toute autre licence dépendra du site utilisant le code de ZdS (fork) que vous visez. <strong>Obligatoire</strong></p></li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">children</span></code><span class="classifier">tableau contenant l’architecture du contenu.</span></dt><dd><ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">object</span></code> : type d’enfant (<em>container</em> ou <em>extract</em>, selon qu’il s’agisse d’une section ou d’un texte). <strong>Obligatoire</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code> : le titre de l’enfant. <strong>Obligatoire</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">slug</span></code> : le slug de l’enfant pour créer une url SEO-friendly, doit être unique dans le contenu, le slug est utilisé pour trouver le chemin vers l’enfant dans le système de fichier si c’est une section. Attention, <a class="reference external" href="contents.html#des-objets-en-general">certaines contraintes doivent être respectées dans le choix du slug</a>. <strong>Obligatoire</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">introduction</span></code> : nom du fichier contenant l’introduction quand l’enfant est de type <em>container</em>. <em>Optionnel mais conseillé</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">conclusion</span></code> : nom du fichier contenant la conclusion quand l’enfant est de type <em>container</em>. <em>Optionnel mais conseillé</em></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">children</span></code> : tableau vers les enfants de niveau inférieur si l’enfant est de type <em>container</em>. <strong>Obligatoire</strong></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> : nom du fichier contenant le texte quand l’enfant est de type <em>extract</em>. Nous conseillons de garder la convention <code class="docutils literal notranslate"><span class="pre">nom</span> <span class="pre">de</span> <span class="pre">fichier</span> <span class="pre">=</span> <span class="pre">slug.md</span></code> mais rien n’est obligatoire à ce sujet. <strong>Obligatoire</strong></p></li>
+</ol>
+</dd>
+</dl>
+</li>
+</ol>
+</div>
+<div class="section" id="version-1-0">
+<h3>Version 1.0<a class="headerlink" href="#version-1-0" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>La version 1.0 est dépréciée, et il est conseillé d’employer la version 2.0. Il est ceci dit toujours possible
+<a class="reference external" href="contents.html#import-de-contenus">d’importer des contenus</a> dont le manifeste est toujours en version 1.0, mais à vos risques et périls.</p>
+</div>
+<p>La version 1.0 définit trois types de manifeste selon que nous faisons face à un article,  un mini tutoriel ou un big tutoriel.</p>
+<div class="section" id="mini-tuto">
+<h4>MINI TUTO<a class="headerlink" href="#mini-tuto" title="Lien permanent vers ce titre">¶</a></h4>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Mon Tutoriel No10&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;Description du Tutoriel No10&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;MINI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;introduction&quot;</span><span class="o">:</span> <span class="s2">&quot;introduction.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;conclusion&quot;</span><span class="o">:</span> <span class="s2">&quot;conclusion.md&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="big-tuto">
+<h4>BIG TUTO<a class="headerlink" href="#big-tuto" title="Lien permanent vers ce titre">¶</a></h4>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;3D temps réel avec Irrlicht&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;description&quot;</span><span class="o">:</span> <span class="s2">&quot;3D temps réel avec Irrlicht&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;type&quot;</span><span class="o">:</span> <span class="s2">&quot;BIG&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;licence&quot;</span><span class="o">:</span> <span class="s2">&quot;Tous droits réservés&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;introduction&quot;</span><span class="o">:</span> <span class="s2">&quot;introduction.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;conclusion&quot;</span><span class="o">:</span> <span class="s2">&quot;conclusion.md&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;parts&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;pk&quot;</span><span class="o">:</span> <span class="mf">7</span><span class="p">,</span>
+            <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Chapitres de base&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;introduction&quot;</span><span class="o">:</span> <span class="s2">&quot;7_chapitres-de-base/introduction.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;conclusion&quot;</span><span class="o">:</span> <span class="s2">&quot;7_chapitres-de-base/conclusion.md&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapters&quot;</span><span class="o">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;pk&quot;</span><span class="o">:</span> <span class="mf">25</span><span class="p">,</span>
+                    <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Introduction&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;introduction&quot;</span><span class="o">:</span> <span class="s2">&quot;7_chapitres-de-base/25_introduction/introduction.md&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;conclusion&quot;</span><span class="o">:</span> <span class="s2">&quot;7_chapitres-de-base/25_introduction/conclusion.md&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;extracts&quot;</span><span class="o">:</span> <span class="p">[</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;pk&quot;</span><span class="o">:</span> <span class="mf">87</span><span class="p">,</span>
+                            <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Ce qu&#39;est un moteur 3D&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;text&quot;</span><span class="o">:</span> <span class="s2">&quot;7_chapitres-de-base/25_introduction/87_ce-quest-un-moteur-3d.md&quot;</span>
+                        <span class="p">},</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;pk&quot;</span><span class="o">:</span> <span class="mf">88</span><span class="p">,</span>
+                            <span class="s2">&quot;title&quot;</span><span class="o">:</span> <span class="s2">&quot;Irrlicht&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;text&quot;</span><span class="o">:</span> <span class="s2">&quot;7_chapitres-de-base/25_introduction/88_irrlicht.md&quot;</span>
+                        <span class="p">}</span>
+                    <span class="p">]</span>
+                <span class="p">},(...)</span>
+            <span class="p">]</span>
+        <span class="p">},</span> <span class="p">(...)</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="article">
+<h4>Article<a class="headerlink" href="#article" title="Lien permanent vers ce titre">¶</a></h4>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Mon Article No5&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Description de l&#39;article No5&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;article&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;text.md&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="forum.html" class="btn btn-neutral float-right" title="Les forums" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="contents.html" class="btn btn-neutral float-left" title="Les tutoriels et articles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

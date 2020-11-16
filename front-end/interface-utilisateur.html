@@ -1,0 +1,487 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Interface utilisateur &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Structure globale du site" href="structure-du-site.html" />
+    <link rel="prev" title="Mixins SCSS" href="helpers-scss.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="elements-specifiques-au-site.html">Eléments spécifiques au site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers-js.html">Helpers Javascript</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers-scss.html">Mixins SCSS</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Interface utilisateur</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#icones">Icônes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#inserer-une-icone">Insérer une icône</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#boutons">Boutons</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#base">Base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#couleurs">Couleurs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#icone">Icône</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#icone-d-aide">Icône d’aide</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#bouton-de-modification">Bouton de modification</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#formulaires">Formulaires</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#assistant-d-edition-markdown">Assistant d’édition Markdown</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#boites-modales">Boites modales</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#les-bases">Les bases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tailles-des-modales">Tailles des modales</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#informations-supplementatires">Informations supplémentatires</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lecture-seule">Lecture seule</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#messages-flash">Messages flash</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#utilisation-de-base">Utilisation de base</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#modulation">Modulation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure-du-site.html">Structure globale du site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template-tags.html">Elements de templates personnalisés</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../front-end.html">Le <em>front-end</em></a> &raquo;</li>
+        
+      <li>Interface utilisateur</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/front-end/interface-utilisateur.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="interface-utilisateur">
+<h1>Interface utilisateur<a class="headerlink" href="#interface-utilisateur" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="section" id="icones">
+<h2>Icônes<a class="headerlink" href="#icones" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="inserer-une-icone">
+<h3>Insérer une icône<a class="headerlink" href="#inserer-une-icone" title="Lien permanent vers ce titre">¶</a></h3>
+<p>L’élément que vous souhaitez imager (un bouton, un lien de la barre latérale, etc.) avec les classes indiquées dans la liste ci-dessous vous permettront d’avoir une icône.
+Toutes les icônes nécessitent la présence de la classe <code class="docutils literal notranslate"><span class="pre">ico-after</span></code>.
+Elle sera mise en place de façon différente selon l’endroit où vous l’insérez.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">button</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;ico-after btn-cancel cross light&quot;</span><span class="p">&gt;</span>
+    Bouton de suppression
+<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>Ou :</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;ico-after beta blue&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="boutons">
+<h2>Boutons<a class="headerlink" href="#boutons" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="base">
+<h3>Base<a class="headerlink" href="#base" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les boutons peuvent être construits à partir de la balise <code class="docutils literal notranslate"><span class="pre">&lt;button&gt;</span></code> ou <code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> selon les besoins. Si le lien ne pointe vers aucune page, préférez utiliser button qui est sémantiquement plus correct.</p>
+<p>Les boutons sont alignés à droite car uniquement utilisés pour les formulaires ou assimilés. Il sont en flottant, ce qui permet de les « empiler » de côté, ce qu’on retrouve sous les formulaires de soumission avec « Aperçu » et « Envoyer ».</p>
+<p>Tous les boutons doivent avoir la classe btn associé à la couleur que l’on souhaite, ici on choisira gris donc <code class="docutils literal notranslate"><span class="pre">btn-grey</span></code>.</p>
+<p>Exemple :</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;btn btn-grey&quot;</span><span class="p">&gt;</span>Ceci est un lien<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">button</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;btn btn-grey&quot;</span><span class="p">&gt;</span>Ceci est un bouton<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="couleurs">
+<h3>Couleurs<a class="headerlink" href="#couleurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les couleurs disponibles sont :</p>
+<ul class="simple">
+<li><p>gris : <code class="docutils literal notranslate"><span class="pre">btn-grey</span></code></p></li>
+<li><p>rouge : <code class="docutils literal notranslate"><span class="pre">btn-cancel</span></code></p></li>
+<li><p>les boutons de type <code class="docutils literal notranslate"><span class="pre">submit</span></code> n’ont besoin d’aucune classe (pas même <code class="docutils literal notranslate"><span class="pre">btn</span></code>) et seront verts ; si une couleur est appliquée, elle sera prioritaire sur le vert</p></li>
+<li><p>les boutons <code class="docutils literal notranslate"><span class="pre">disabled</span></code> ont un fond et un texte plus clair.</p></li>
+</ul>
+<div class="figure align-center">
+<img alt="../_images/boutons.png" src="../_images/boutons.png" />
+</div>
+</div>
+<div class="section" id="icone">
+<h3>Icône<a class="headerlink" href="#icone" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Ajoutez une icône sur un bouton comme sur n’importe quel autre élément :</p>
+<div class="figure align-center">
+<img alt="../_images/boutons_icones.png" src="../_images/boutons_icones.png" />
+</div>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;ico-after arrow-right light&quot;</span><span class="p">&gt;</span>Submit<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;btn-cancel ico-after cross light&quot;</span><span class="p">&gt;</span>Supprimer<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>Le style général du site se veut épuré, on évitera les icônes sur les boutons de soumission de formulaire. On les utilisera pour illustrer les boutons d’action : déplacer, supprimer, renommer, éditer, etc.</p>
+</div>
+<div class="section" id="icone-d-aide">
+<h3>Icône d’aide<a class="headerlink" href="#icone-d-aide" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Il existe une classe, <code class="docutils literal notranslate"><span class="pre">help-question-mark</span></code>, à appliquer sur un lien, affichant
+un petit cercle coloré autour du texte du lien. Avec <code class="docutils literal notranslate"><span class="pre">?</span></code> comme texte de lien,
+cela permet d’afficher un petit point d’interrogation cerclé, idéal pour une
+petite icône ouvrant une aide.</p>
+<p>N’oubliez pas d’ajouter un attribut <code class="docutils literal notranslate"><span class="pre">title</span></code> (ou si l’infobulle gêne,
+<code class="docutils literal notranslate"><span class="pre">aria-label</span></code>), pour l’accessibilité du lien.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;help-question-mark&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;Titre du lien&quot;</span><span class="p">&gt;</span>?<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="bouton-de-modification">
+<h3>Bouton de modification<a class="headerlink" href="#bouton-de-modification" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour afficher un petit bouton permettant de modifier un élément, et <em>seulement si
+l’élément modifié est clairement identifié pour l’utilisateur</em>, il existe une
+classe <code class="docutils literal notranslate"><span class="pre">edit-button</span></code> à ajouter à un lien. Le texte de ce lien doit être masqué
+afin de ne pas briser son affichage. Le rendu sera un crayon bleu, virant au blanc
+sur fond bleu circulaire lorsque survolé.</p>
+<p>Il est important de tout de même spécifier <em>et</em> un texte dans le bouton (masqué),
+<em>et</em> une infobulle, afin d’être très clair sur le rôle du bouton tant pour un
+utilisateur normal (le bouton n’ayant pas de nom visuel, l’infobulle permet de
+confirmer ce qu’il fait) que pour un utilisateur usant d’un lecteur d’écran (le
+texte alternatif étant alors indispensable, l’icône crayon ne pouvant être vue).</p>
+<p>Aussi, si le lien ouvre une boîte modale, celle-ci sera sans titre si le lien est
+vide.</p>
+<p>Voici un exemple.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#modal&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;open-modal edit-button&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Modifier la licence&quot;</span> <span class="cp">%}</span><span class="s">&quot;</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;visuallyhidden&quot;</span><span class="p">&gt;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Modifier la licence&quot;</span> <span class="cp">%}</span><span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>Pour s’assurer que le bouton de modification et ce qu’il permet de modifier
+soient correctement alignés verticalement et espacés, il existe une seconde
+classe à appliquer à un conteneur des deux éléments : <code class="docutils literal notranslate"><span class="pre">editable-element</span></code>.</p>
+<p>Cet élément doit avoir deux enfants : l’un d’entre eux sera l’élément
+visuellement modifié, et l’autre le bouton de modification, avec la classe
+<code class="docutils literal notranslate"><span class="pre">edit-button</span></code>. S’il a plus de deux enfants, le bouton de modification prendra
+toujours le moins d’espace possible, et les autres se partageront équitablement
+la place disponible, tout en restant alignés verticalement.</p>
+<p>Le bouton peut être placé avant ou après l’élément : l’alignement et
+l’espacement seront correctement gérés.</p>
+<p>Si on prend l’exemple d’une licence d’un contenu à côté de laquelle on place un
+bouton de modification, l’on pourrait utiliser le code HTML suivant.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;editable-element&quot;</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span> <span class="nv">content.licence</span> <span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#edit-license&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;open-modal edit-button&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Modifier la licence&quot;</span> <span class="cp">%}</span><span class="s">&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;visuallyhidden&quot;</span><span class="p">&gt;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Modifier la licence&quot;</span> <span class="cp">%}</span><span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+  <span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="formulaires">
+<h2>Formulaires<a class="headerlink" href="#formulaires" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="assistant-d-edition-markdown">
+<h3>Assistant d’édition Markdown<a class="headerlink" href="#assistant-d-edition-markdown" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Sur n’importe quel <code class="docutils literal notranslate"><span class="pre">textarea</span></code>, ajoutez la classe <code class="docutils literal notranslate"><span class="pre">md-editor</span></code> et il se passera alors :</p>
+<ul class="simple">
+<li><p>transformation du champ en éditeur riche (boutons d’assistance à l’édition, …) ;</p></li>
+<li><p>ajout de l’aide Markdown en dessous du formulaire.</p></li>
+</ul>
+<p>Démonstration :</p>
+<div class="figure align-center">
+<img alt="../_images/assistant.png" src="../_images/assistant.png" />
+</div>
+</div>
+</div>
+<div class="section" id="boites-modales">
+<h2>Boites modales<a class="headerlink" href="#boites-modales" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="les-bases">
+<h3>Les bases<a class="headerlink" href="#les-bases" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les boîtes modales sont à utiliser pour les confirmations (formulaire), informations complémentaires (lecture seule) ou encore pour des actions secondaires (pagination, etc.).</p>
+<p>Un lien, généralement sous la forme d’un bouton, ayant comme <code class="docutils literal notranslate"><span class="pre">href</span></code> l”<code class="docutils literal notranslate"><span class="pre">id</span></code> de la modale associée. Le titre et l’icône de la modale sont issues du lien qui ouvre la modale, la dernière partie de cette page détail comment en changer.</p>
+<p>Une boite modale et son lien associés peuvent être n’importe où dans la page, le système se base sur un <code class="docutils literal notranslate"><span class="pre">id</span></code> qui est par définition unique.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#doc-modal&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;open-modal&quot;</span><span class="p">&gt;</span>Ce lien ouvre une boite modale<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">form</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;modal modal-small&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;doc-modal&quot;</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+        Voici le contenu de la modale.
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+        Le formulaire ne fonctionne pas ici, cliquez donc sur **Annuler** pour fermer.
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span><span class="p">&gt;</span>Envoyer<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tailles-des-modales">
+<h3>Tailles des modales<a class="headerlink" href="#tailles-des-modales" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Par défaut, la modale prendra toute la page.</p>
+<p>Il y a 3 classes pour 3 dimensions qui changent la hauteur de celle-ci :</p>
+<ul class="simple">
+<li><p>Sans rien, par défaut</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modal-small</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modal-medium</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">modal-big</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="informations-supplementatires">
+<h3>Informations supplémentatires<a class="headerlink" href="#informations-supplementatires" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Si le lien a une icône, la modale la rajoutera automatiquement.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#doc-modal-ico&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;open-modal btn btn-grey ico-after view blue&quot;</span><span class="p">&gt;</span>Exemple avec icône<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">form</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;modal modal-small&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;doc-modal-ico&quot;</span> <span class="na">action</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+        La modale a une icône devant le titre.
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">type</span><span class="o">=</span><span class="s">&quot;submit&quot;</span><span class="p">&gt;</span>Me désinscrire<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">form</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lecture-seule">
+<h3>Lecture seule<a class="headerlink" href="#lecture-seule" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Dans certains cas, les modales ne sont pas des formulaires mais simplement des boites d’affichage en lecture seule. Il est alors possible de préciser le texte du bouton de fermeture au travers de l’attribut <code class="docutils literal notranslate"><span class="pre">data-modal-close</span></code>.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#doc-modal-close&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;open-modal&quot;</span><span class="p">&gt;</span>Ce lien ouvre une boite modale<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;modal modal-small&quot;</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;doc-modal-close&quot;</span> <span class="na">data-modal-close</span><span class="o">=</span><span class="s">&quot;Fermer&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span>
+        Que du texte, rien à faire d&#39;autre.
+    <span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="messages-flash">
+<h2>Messages flash<a class="headerlink" href="#messages-flash" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Un message dit « flash » est un message d’information ou d’alerte qui est masquable selon la volonté de l’utilisateur et qui disparraîtra généralement à la page suivante (comportement selon le back-end).</p>
+<div class="section" id="utilisation-de-base">
+<h3>Utilisation de base<a class="headerlink" href="#utilisation-de-base" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Le texte placé dans le bouton de fermeture est présent pour des raisons d’accessibilité. Il n’est pas visible par défaut.</p>
+<p>Il y a trois couleurs :</p>
+<ul class="simple">
+<li><p>rouge, pour les erreurs <code class="docutils literal notranslate"><span class="pre">alert-box</span> <span class="pre">error</span></code></p></li>
+<li><p>orange, pour les alertes/avertissements <code class="docutils literal notranslate"><span class="pre">alert-box</span> <span class="pre">warning</span></code></p></li>
+<li><p>vert, pour les succès/confirmations <code class="docutils literal notranslate"><span class="pre">alert-box</span> <span class="pre">success</span></code></p></li>
+</ul>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="c">&lt;!-- Changez simplement la classe &quot;success&quot; pour une autre pour changer le fond --&gt;</span>
+<span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;alert-box success&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;alert-box-text&quot;</span><span class="p">&gt;</span>Votre message ici.<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;close-alert-box ico-after cross white&quot;</span><span class="p">&gt;</span>Masquer l&#39;alerte<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="modulation">
+<h3>Modulation<a class="headerlink" href="#modulation" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Il est possible de forcer l’affichage du texte à la place ou en plus de la croix en rajoutant la classe <code class="docutils literal notranslate"><span class="pre">close-alert-box-text</span></code> au bouton de fermeture.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;alert-box success&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;alert-box-text&quot;</span><span class="p">&gt;</span>Pas d&#39;icône, juste du texte.<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;close-alert-box close-alert-box-text&quot;</span><span class="p">&gt;</span>Masquer l&#39;alerte<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>Vous pouvez combiner icône et texte comme ceci :</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;alert-box success&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;alert-box-text&quot;</span><span class="p">&gt;</span>Croix + texte.<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">button</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;close-alert-box close-alert-box-text ico-after cross white&quot;</span><span class="p">&gt;</span>Masquer l&#39;alerte<span class="p">&lt;/</span><span class="nt">button</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="structure-du-site.html" class="btn btn-neutral float-right" title="Structure globale du site" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="helpers-scss.html" class="btn btn-neutral float-left" title="Mixins SCSS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,580 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>La recherche &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Documentation technique du back-end" href="../back-end-code.html" />
+    <link rel="prev" title="Les messages privés" href="private-message.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="contents.html">Les tutoriels et articles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contents_manifest.html">Les fichiers de manifeste</a></li>
+<li class="toctree-l2"><a class="reference internal" href="forum.html">Les forums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gallery.html">Les galeries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="member.html">Les membres</a></li>
+<li class="toctree-l2"><a class="reference internal" href="private-message.html">Les messages privés</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">La recherche</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#principe">Principe</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#comment-faire-une-recherche">Comment faire une recherche ?</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#quelques-mots-sur-elasticsearch">Quelques mots sur Elasticsearch</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#en-pratique">En pratique</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#indexer-les-donnees-de-zds">Indexer les données de ZdS</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#aspects-techniques">Aspects techniques</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#indexation-d-un-modele">Indexation d’un modèle</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#le-cas-particulier-des-contenus">Le cas particulier des contenus</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../back-end.html">Le <em>back-end</em></a> &raquo;</li>
+        
+      <li>La recherche</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/back-end/searchv2.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="la-recherche">
+<h1>La recherche<a class="headerlink" href="#la-recherche" title="Lien permanent vers ce titre">¶</a></h1>
+<div class="section" id="principe">
+<h2>Principe<a class="headerlink" href="#principe" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="comment-faire-une-recherche">
+<h3>Comment faire une recherche ?<a class="headerlink" href="#comment-faire-une-recherche" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La recherche se découpe en deux parties distinctes :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>L’indexation des données</p></li>
+<li><p>La recherche par l’utilisateur</p></li>
+</ul>
+</div></blockquote>
+<div class="section" id="l-indexation-des-donnees">
+<h4>L’indexation des données<a class="headerlink" href="#l-indexation-des-donnees" title="Lien permanent vers ce titre">¶</a></h4>
+<p><strong>L’indexation</strong> des données consiste à <strong>rassembler toutes les données</strong> dans lesquelles l’utilisateur va <strong>pouvoir rechercher</strong>. Elle est faite au préalable.
+Celle-ci est faite de telle façon qu’on puisse rechercher dans les éléments suivants :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Les contenus (article et tutoriels) ainsi que leurs chapitres (s’il s’agit d’un moyen ou <em>big</em>-tuto);</p></li>
+<li><p>Les sujets ;</p></li>
+<li><p>Les réponses aux sujets.</p></li>
+</ul>
+</div></blockquote>
+<p>Cette indexation est réalisée à intervalle régulier (et de manière à n’indexer que les données qui ont changées).</p>
+</div>
+<div class="section" id="id1">
+<h4>La recherche<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h4>
+<p>L’utilisateur peut utiliser la recherche, en utilisant la recherche de <a class="reference external" href="../front-end/structure-du-site.html#l-en-tete">l’en-tête</a>, ou par la page d’accueil, si elle est disponible.</p>
+<blockquote>
+<div><div class="figure align-center">
+<img alt="../_images/en-tete.png" src="../_images/en-tete.png" />
+</div>
+</div></blockquote>
+<p>Des critères de recherche peuvent être ajoutés sur la page de recherche.
+Le seul critère de recherche disponible actuellement est le type de résultat (contenu, sujet du forum ou message du forum).</p>
+<blockquote>
+<div><div class="figure align-center">
+<img alt="../_images/search-filters.png" src="../_images/search-filters.png" />
+</div>
+</div></blockquote>
+</div>
+</div>
+<div class="section" id="quelques-mots-sur-elasticsearch">
+<h3>Quelques mots sur Elasticsearch<a class="headerlink" href="#quelques-mots-sur-elasticsearch" title="Lien permanent vers ce titre">¶</a></h3>
+<p><a class="reference external" href="https://www.elastic.co/">Elasticsearch</a> (ES) est un serveur utilisant <a class="reference external" href="https://lucene.apache.org/">Lucene</a> (bibliothèque d’indexation et de recherche de texte) et permet d’indexer et de rechercher des données.
+Il est possible de l’interroger à travers une interface de type REST à laquelle on communique via des requêtes écrites en JSON.
+Ce projet propose également des API <a class="reference external" href="https://github.com/elastic/elasticsearch-py">bas</a> et <a class="reference external" href="https://github.com/elastic/elasticsearch-dsl-py">plus haut</a> niveau en python pour interagir avec le serveur, maintenues par l’équipe d’Elasticsearch.</p>
+<p>Précédemment, ZdS utilisait <a class="reference external" href="https://django-haystack.readthedocs.io/">Haystack</a> pour communiquer avec <a class="reference external" href="http://lucene.apache.org/solr/">Solr</a> (équivalent à Elasticsearch) mais ces solutions ont été abandonnées par manque d’activité sur le dépôt de Haystack.</p>
+<div class="section" id="phase-d-indexation">
+<h4>Phase d’indexation<a class="headerlink" href="#phase-d-indexation" title="Lien permanent vers ce titre">¶</a></h4>
+<p>ES classe ses données sous forme de documents, rassemblés dans un <em>index</em>. On peut avoir différent types de documents (<em>topics</em>, <em>posts</em>, contenus, chapitres dans ce cas-ci).</p>
+<p>Lorsque les documents sont indexés, ils sont analysés afin d’en extraire les termes importants et de les simplifier (par défaut, « table » et « tables » ne sont pas le même mot, mais il est possible de faire en sorte que si).
+Ce processus est effectué par l”<em>analyzer</em>, découpé en trois étapes:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Entrée &gt; character filter &gt; tokenizer &gt; token filter &gt; sortie
+</pre></div>
+</div>
+<p>On retrouve:</p>
+<ul class="simple">
+<li><p><em>character filter</em>: tâche de nettoyage basique, telle qu’enlever les tags HTML. Il y en a <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-charfilters.html">trois</a> qui sont disponibles par défaut ;</p></li>
+<li><p><em>tokenizer</em>: découpe le texte en différents <em>tokens</em>. <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenizers.html">Énormément</a> de <em>tokenizer</em> sont disponibles.</p></li>
+<li><p><em>token filter</em>: altère la liste de <em>tokens</em> obtenue pour les « normaliser » en modifiant, supprimant ou rajoutant des <em>tokens</em>. Typiquement: enlever certains mots (par exemple les <em>stopwords</em> « le », « la », « les » et autres en français), convertir le tout en minuscule, et ainsi de suite. Il en existe également <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-tokenfilters.html">une pléthore</a>.</p></li>
+</ul>
+<p>Ces différents filtres permettent d’éliminer le superflu afin de se concentrer sur l’essentiel : les <em>tokens</em> obtenus.
+Par la suite, ES construit une table (un <em>index inversé</em>) reliant ces <em>tokens</em> aux documents qui les contiennent, qu’il utilise pour la recherche.</p>
+<p>Sans entrer dans les détails, l”<em>analyzer</em> utilisé par ES pour ZdS :</p>
+<ul class="simple">
+<li><p>Enlève les tags HTML (en pratique, l’indexation du texte se fait systématiquement sur le contenu converti en HTML et non sur le texte en <em>markdown</em>) ;</p></li>
+<li><p>N’utilise par le <em>tokenizer</em> par défaut (découper en <em>token</em> après tout caractère non alpha-numérique, en gros) afin de conserver « c++ » intact, par exemple ;</p></li>
+<li><p>Utilise une série de <em>token filter*s orientés pour comprendre le français, parmi lesquels un *stopper</em> (pour enlever les prépositions, déterminants, …) et un <em>stemmer</em> (qui se charge, à partir d’un mot, d’en extraire la racine. Par exemple « programmation », « programmer » ou « programmes » seront tout les trois interprétés et indexés de la même manière car ils partagent la même racine).</p></li>
+</ul>
+<p>Les différents <em>tokens</em> qui resortent de cette phase d’analyse sont alors indexés, et c’est de ces <em>tokens</em> dont ES se servira ensuite pour la recherche, plutôt que de réaliser des recherches <em>full-text</em>.</p>
+<p>La phase d’indexation est réalisée à l’aide de la commande <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">es_manager</span></code> (voir ci-dessous).</p>
+</div>
+<div class="section" id="phase-de-recherche">
+<h4>Phase de recherche<a class="headerlink" href="#phase-de-recherche" title="Lien permanent vers ce titre">¶</a></h4>
+<p>Durant la phase de recherche, les documents sont classés par <strong>score</strong>, valeur que ES calcule comme étant le produit <code class="docutils literal notranslate"><span class="pre">TF</span> <span class="pre">*</span> <span class="pre">IDF</span></code>, où la partie TF (<em>term frequencies</em>) est le nombre de fois qu’un terme apparait dans un document et IDF (<em>inverse document frequencies</em>) est la fréquence à laquelle ce terme apparait dans l’ensemble des documents indexés.</p>
+<p>C’est en fonction de ce score que seront ensuite classés les résultats, du plus important au plus faible.
+Il est possible de manipuler ce score afin d’obtenir les résultats les plus pertinents possible :</p>
+<ul class="simple">
+<li><p><em>Booster</em> le champ (à priori) : si le terme recherché est contenu dans un champ donné (par exemple le titre, ou une note de bas de page), le score est multiplié par le facteur de <em>boost</em> du champ.</p></li>
+<li><p><em>Booster</em> le score (à postériori): si le document obtenu possède d’autres propriétés (par exemple, <em>booster</em> le score si le <em>post</em> trouvé à « aidé l’auteur du sujet »).</p></li>
+<li><p><em>Booster</em> un type de document par rapport à un autre : cas particulier du précédent.</p></li>
+</ul>
+<p>Ces facteurs de <em>boost</em> sont modifiables soit directement dans le code de ZdS pour ce qui concerne les facteurs de <em>boost</em> sur les champs (voir ci-dessous), soit dans le <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> en ce qui concerne les <em>boosts</em> à postériori (voir ci-dessous).</p>
+</div>
+</div>
+</div>
+<div class="section" id="en-pratique">
+<h2>En pratique<a class="headerlink" href="#en-pratique" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La configuration de la connexion et de l”<em>index</em> se fait dans le <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>, à l’aide des trois variables suivantes :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ES_ENABLED</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="n">ES_CONNECTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;hosts&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;localhost:9200&#39;</span><span class="p">],</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">ES_SEARCH_INDEX</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;zds_search&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;shards&#39;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s1">&#39;replicas&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>La première active Elasticsearch pour ZdS.
+La seconde permet de configurer la connexion à Elasticsearch. <code class="docutils literal notranslate"><span class="pre">default</span></code> est l”<em>alias</em> de la connexion, au cas où il serait nécessaire d’utiliser plusieurs <em>clusters</em>.
+La troisième est la configuration de l”<em>index</em> avec son nom, son nombre de <em>shards</em> et de <em>replicas</em>.</p>
+<p>Pour modifier les différents paramètres d’une recherche, c’est cette fois dans la variable <code class="docutils literal notranslate"><span class="pre">ZDS_APP</span></code> que ça se passe:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>  <span class="s1">&#39;search&#39;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;mark_keywords&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;javafx&#39;</span><span class="p">,</span> <span class="s1">&#39;haskell&#39;</span><span class="p">,</span> <span class="s1">&#39;groovy&#39;</span><span class="p">,</span> <span class="s1">&#39;powershell&#39;</span><span class="p">,</span> <span class="s1">&#39;latex&#39;</span><span class="p">,</span> <span class="s1">&#39;linux&#39;</span><span class="p">,</span> <span class="s1">&#39;windows&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;results_per_page&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="s1">&#39;search_groups&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;content&#39;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;Contenus publiés&#39;</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;publishedcontent&#39;</span><span class="p">,</span> <span class="s1">&#39;chapter&#39;</span><span class="p">]</span>
+        <span class="p">),</span>
+        <span class="s1">&#39;topic&#39;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;Sujets du forum&#39;</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;topic&#39;</span><span class="p">]</span>
+        <span class="p">),</span>
+        <span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">_</span><span class="p">(</span><span class="sa">u</span><span class="s1">&#39;Messages du forum&#39;</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;post&#39;</span><span class="p">]</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;boosts&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;publishedcontent&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;global&#39;</span><span class="p">:</span> <span class="mf">3.0</span><span class="p">,</span>
+            <span class="s1">&#39;if_article&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># s&#39;il s&#39;agit d&#39;un article</span>
+            <span class="s1">&#39;if_tutorial&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># … d&#39;un tuto</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;topic&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;global&#39;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+            <span class="s1">&#39;if_solved&#39;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span>  <span class="c1"># si le sujet est résolu</span>
+            <span class="s1">&#39;if_sticky&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>  <span class="c1"># si le sujet est en post-it</span>
+            <span class="s1">&#39;if_locked&#39;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>  <span class="c1"># si le sujet est fermé</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;chapter&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;global&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;post&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;global&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s1">&#39;if_first&#39;</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span>  <span class="c1"># si le post est le premier du topic</span>
+            <span class="s1">&#39;if_useful&#39;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">,</span>  <span class="c1"># si le post a été marqué comme étant utile</span>
+            <span class="s1">&#39;ld_ratio_above_1&#39;</span><span class="p">:</span> <span class="mf">1.05</span><span class="p">,</span>  <span class="c1"># si le ratio pouce vert/rouge est supérieur à 1</span>
+            <span class="s1">&#39;ld_ratio_below_1&#39;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span>  <span class="c1"># ... inférieur à 1.</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>où <code class="docutils literal notranslate"><span class="pre">'mark_keywords'</span></code> liste les mots qui ne doivent pas être découpés par le <em>stemmer</em> (souvent des noms propres),
+<code class="docutils literal notranslate"><span class="pre">'results_per_page'</span></code> est le nombre de résultats affichés,
+<code class="docutils literal notranslate"><span class="pre">'search_groups'</span></code> définit les différents types de documents indexé et la manière dont il sont groupés quand recherchés (sur le formulaire de recherche),
+et <code class="docutils literal notranslate"><span class="pre">'boosts'</span></code> les différents facteurs de <em>boost</em> appliqués aux différentes situations.</p>
+<p>Puisque la phase de <em>stemming</em> advient à la fin de l’analyse, tous les mots listés dans <code class="docutils literal notranslate"><span class="pre">'mark_keywords'</span></code>  doivent être en minuscule et sans éventuels déterminants.</p>
+<p>Dans <code class="docutils literal notranslate"><span class="pre">'boosts'</span></code>, on peut ensuite modifier le comportement de la recherche en choisissant différents facteurs de <em>boost</em>.
+Chacune des valeurs multiplie le score (donc l’agrandit si elle est supérieure à 1 et le diminue si elle est inférieure à 1).
+Un <em>boost global</em> (dans chacune des variables <code class="docutils literal notranslate"><span class="pre">'global'</span></code>) est tout d’abord présent et permet de mettre en avant un type de document par rapport à un autre.
+Ensuite, différentes situations peuvent modifier le score.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ces valeurs sont données à titre indicatif et doivent être adaptées à la situation.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Pour que les changements dans <code class="docutils literal notranslate"><span class="pre">'mark_keywords'</span></code> soient pris en compte, il est nécessaire de réindexer <strong>tout</strong> le contenu
+(grâce à <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">es_manager</span> <span class="pre">index_all</span></code>).</p>
+</div>
+</div>
+<div class="section" id="indexer-les-donnees-de-zds">
+<h3>Indexer les données de ZdS<a class="headerlink" href="#indexer-les-donnees-de-zds" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Une fois Elasticsearch <a class="reference external" href="../install/install-es.html">installé</a> puis configuré et lancé, la commande suivante est utilisée :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py es_manager &lt;action&gt;
+</pre></div>
+</div>
+<p>où <code class="docutils literal notranslate"><span class="pre">&lt;action&gt;</span></code> peut être</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">setup</span></code> : crée et configure l”<em>index</em> (y compris le <em>mapping</em> et l”<em>analyzer</em>) dans le <em>cluster</em> d’ES ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clear</span></code> : supprime l”<em>index</em> du <em>cluster</em> d’ES et marque toutes les données comme « à indexer » ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index_flagged</span></code> : indexe les données marquées comme « à indexer » ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">index_all</span></code> : invoque <code class="docutils literal notranslate"><span class="pre">setup</span></code> puis indexe toute les données (qu’elles soient marquées comme « à indexer » ou non).</p></li>
+</ul>
+<p>La commande <code class="docutils literal notranslate"><span class="pre">index_flagged</span></code> peut donc être lancée de manière régulière (via un <em>cron</em> ou un timer <em>systemd</em>) afin d’indexer les nouvelles données ou les données modifiées de manière régulière.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Le caractère « à indexer » est fonction des actions effectuées sur l’objet Django (par défaut, à chaque fois que la méthode <code class="docutils literal notranslate"><span class="pre">save()</span></code> du modèle est appelée, l’objet est marqué comme « à indexer »).
+Cette information est stockée dans la base de donnée MySQL.</p>
+</div>
+</div>
+</div>
+<div class="section" id="aspects-techniques">
+<h2>Aspects techniques<a class="headerlink" href="#aspects-techniques" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="indexation-d-un-modele">
+<h3>Indexation d’un modèle<a class="headerlink" href="#indexation-d-un-modele" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Afin d’être indexable, un modèle Django doit dériver de <code class="docutils literal notranslate"><span class="pre">AbstractESDjangoIndexable</span></code> (qui dérive de <code class="docutils literal notranslate"><span class="pre">models.Model</span></code> et de <code class="docutils literal notranslate"><span class="pre">AbstractESIndexable</span></code>). Par exemple,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Post</span><span class="p">(</span><span class="n">Comment</span><span class="p">,</span> <span class="n">AbstractESDjangoIndexable</span><span class="p">):</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Le code est écrit de telle manière à ce que l’id utilisé par ES (champ <code class="docutils literal notranslate"><span class="pre">_id</span></code>) corresponde à la <em>pk</em> du modèle (via la variable <code class="docutils literal notranslate"><span class="pre">es_id</span></code>).
+Il est donc facile de récupérer un objet dans ES si on en connait la <em>pk</em>, à l’aide de <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/&lt;nom</span> <span class="pre">de</span> <span class="pre">l'index&gt;/&lt;type</span> <span class="pre">de</span> <span class="pre">document&gt;/&lt;pk&gt;</span></code>.</p>
+</div>
+<p>Différentes méthodes d”<code class="docutils literal notranslate"><span class="pre">AbstractESDjangoIndexable</span></code> peuvent ou doivent ensuite être surchargées. Parmi ces dernières,</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_es_mapping()</span></code> permet de définir le <em>mapping</em> d’un document, c’est à dire quels champs seront indexés avec quels types. Par exemple,</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">get_es_mapping</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="n">es_mapping</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Post</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">get_es_mapping</span><span class="p">()</span>
+
+    <span class="n">es_mapping</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s1">&#39;text_html&#39;</span><span class="p">,</span> <span class="n">Text</span><span class="p">())</span>
+    <span class="n">es_mapping</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s1">&#39;is_useful&#39;</span><span class="p">,</span> <span class="n">Boolean</span><span class="p">())</span>
+    <span class="n">es_mapping</span><span class="o">.</span><span class="n">field</span><span class="p">(</span><span class="s1">&#39;position&#39;</span><span class="p">,</span> <span class="n">Integer</span><span class="p">())</span>
+    <span class="c1"># ...</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Mapping</span></code> est un type de donnée défini par <code class="docutils literal notranslate"><span class="pre">elasticsearch_dsl</span></code> (voir à ce sujet <a class="reference external" href="https://elasticsearch-dsl.readthedocs.io/en/latest/persistence.html#mappings">la documentation</a>). Si le champ a le même nom qu’une propriété de votre classe, sa valeur sera automatiquement récupérée et indexée. À noter que vous pouvez également marquer une variable comme « à ne pas analyser » avec la variable <code class="docutils literal notranslate"><span class="pre">index</span></code> (par exemple, <code class="docutils literal notranslate"><span class="pre">Text(index='not_analyzed')</span></code>) si vous voulez simplement stocker cette valeur mais ne pas l’utiliser pour effectuer une recherche dessus. On peut également indiquer la valeur du facteur de <em>boost</em> avec <code class="docutils literal notranslate"><span class="pre">boost</span></code> (par exemple, <code class="docutils literal notranslate"><span class="pre">Text(boost=2.0)</span></code>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Elasticsearch requiert que deux champs portant le même nom dans le même <em>index</em> (même si ils sont issus de types de document différents) aient le même <em>mapping</em>.
+Ainsi, tous les champs <code class="docutils literal notranslate"><span class="pre">title</span></code> doivent être de type <code class="docutils literal notranslate"><span class="pre">Text(boost=1.5)</span></code> et <code class="docutils literal notranslate"><span class="pre">tags</span></code> de type <code class="docutils literal notranslate"><span class="pre">Keyword(boost=2.0)</span></code>.</p>
+</div>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_es_django_indexable()</span></code> permet de définir quels objets doivent être récupérés et indexés. Cette fonction permet également d’utiliser <code class="docutils literal notranslate"><span class="pre">prefetch_related()</span></code> ou <code class="docutils literal notranslate"><span class="pre">select_related()</span></code> pour éviter les requêtes inutiles. Par exemple,</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">get_es_django_indexable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">force_reindexing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Post</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">get_es_django_indexable</span><span class="p">(</span><span class="n">force_reindexing</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;topic&#39;</span><span class="p">)</span>\
+        <span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span><span class="s1">&#39;topic__forum&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>où <code class="docutils literal notranslate"><span class="pre">q</span></code> est un <em>queryset</em> Django.</p>
+</div></blockquote>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_es_document_source()</span></code> permet de gérer des cas où le champ n’est pas directement une propriété de la classe, ou si cette propriété ne peut pas être indexée directement :</p>
+<blockquote>
+<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_es_document_source</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">excluded_fields</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+      <span class="n">excluded_fields</span> <span class="o">=</span> <span class="n">excluded_fields</span> <span class="ow">or</span> <span class="p">[]</span>
+      <span class="n">excluded_fields</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+          <span class="p">[</span><span class="s1">&#39;topic_title&#39;</span><span class="p">,</span> <span class="s1">&#39;forum_title&#39;</span><span class="p">,</span> <span class="s1">&#39;forum_pk&#39;</span><span class="p">,</span> <span class="s1">&#39;forum_get_absolute_url&#39;</span><span class="p">])</span>
+
+      <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">Post</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_es_document_source</span><span class="p">(</span><span class="n">excluded_fields</span><span class="o">=</span><span class="n">excluded_fields</span><span class="p">)</span>
+
+      <span class="n">data</span><span class="p">[</span><span class="s1">&#39;topic_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">title</span>
+      <span class="n">data</span><span class="p">[</span><span class="s1">&#39;forum_pk&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">forum</span><span class="o">.</span><span class="n">pk</span>
+      <span class="n">data</span><span class="p">[</span><span class="s1">&#39;forum_title&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">forum</span><span class="o">.</span><span class="n">title</span>
+      <span class="n">data</span><span class="p">[</span><span class="s1">&#39;forum_get_absolute_url&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">topic</span><span class="o">.</span><span class="n">forum</span><span class="o">.</span><span class="n">get_absolute_url</span><span class="p">()</span>
+
+      <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+</div>
+<p>Dans cet exemple (issu de la classe <code class="docutils literal notranslate"><span class="pre">Post</span></code>), on voit que certains champs ne peuvent être directement indexés car ils appartiennent au <em>topic</em> et au <em>forum</em> parent. Il sont donc exclus du mécanisme par défaut (via la variable <code class="docutils literal notranslate"><span class="pre">excluded_fields</span></code>), leur valeur est récupérée et définie par après.</p>
+</div></blockquote>
+</li>
+</ul>
+<p>Finalement, il est important <strong>pour chaque type de document</strong> d’attraper le signal de pré-suppression avec la fonction <code class="docutils literal notranslate"><span class="pre">delete_document_in_elasticsearch()</span></code>, afin qu’un document supprimé par Django soit également supprimé de Elasticsearch.
+Cela s’effectue comme suit (par exemple pour la classe <code class="docutils literal notranslate"><span class="pre">Post</span></code>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@receiver</span><span class="p">(</span><span class="n">pre_delete</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">Post</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">delete_post_in_elasticsearch</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">delete_document_in_elasticsearch</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Plus d’informations sur les méthodes qui peuvent être surchargées sont disponibles <a class="reference external" href="../back-end-code/searchv2.html">dans la documentation technique</a>.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>À chaque fois que vous modifiez le <em>mapping</em> d’un document dans <code class="docutils literal notranslate"><span class="pre">get_es_mapping()</span></code>, tout l”<em>index</em> <strong>doit</strong> être reconstruit <strong>et</strong> indexé.
+N’oubliez donc pas de mentionner cette action à lancer manuellement dans le <em>update.md</em>.</p>
+</div>
+</div>
+<div class="section" id="le-cas-particulier-des-contenus">
+<h3>Le cas particulier des contenus<a class="headerlink" href="#le-cas-particulier-des-contenus" title="Lien permanent vers ce titre">¶</a></h3>
+<p>La plupart des informations des contenus, en particulier les textes, <a class="reference external" href="contents.html#aspects-techniques-et-fonctionnels">ne sont pas indexés dans la base de donnée</a>.</p>
+<p>Il a été choisi de n’inclure dans Elasticsearch que les chapitres de ces contenus (anciennement, les introductions et conclusions des parties étaient également incluses).
+Ce sont les contenus HTML qui sont indexés et non leur version écrite en <em>markdown</em>, afin de rester cohérent avec ce qui se fait pour les <em>posts</em>.
+Les avantages de cette décision sont multiples :</p>
+<ul class="simple">
+<li><p>Le <em>parsing</em> est déjà effectué et n’a pas à être refait durant l’indexation ;</p></li>
+<li><p>Moins de fichiers à lire (pour rappel, les différentes parties d’un contenu <a class="reference external" href="contents.html#processus-de-publication">sont rassemblées en un seul fichier</a> à la publication) ;</p></li>
+<li><p>Pas besoin d’utiliser Git durant le processus d’indexation ;</p></li>
+</ul>
+<p>L’indexation des chapitres (représentés par la classe <code class="docutils literal notranslate"><span class="pre">FakeChapter</span></code>, <a class="reference external" href="../back-end-code/tutorialv2.html#zds.tutorialv2.models.database.FakeChapter">voir ici</a>) est effectuée en même temps que l’indexation des contenus publiés (<code class="docutils literal notranslate"><span class="pre">PublishedContent</span></code>).
+En particulier, c’est la méthode <code class="docutils literal notranslate"><span class="pre">get_es_indexable()</span></code> qui est surchargée, profitant du fait que cette méthode peut renvoyer n’importe quel type de document à indexer.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
+<span class="k">def</span> <span class="nf">get_es_indexable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">force_reindexing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Overridden to also include</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">index_manager</span> <span class="o">=</span> <span class="n">ESIndexManager</span><span class="p">(</span><span class="o">**</span><span class="n">settings</span><span class="o">.</span><span class="n">ES_SEARCH_INDEX</span><span class="p">)</span>
+    <span class="n">last_pk</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">objects_source</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PublishedContent</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">get_es_indexable</span><span class="p">(</span><span class="n">force_reindexing</span><span class="p">)</span>
+    <span class="n">objects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects_source</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk__gt</span><span class="o">=</span><span class="n">last_pk</span><span class="p">)[:</span><span class="n">PublishedContent</span><span class="o">.</span><span class="n">objects_per_batch</span><span class="p">])</span>
+    <span class="k">while</span> <span class="n">objects</span><span class="p">:</span>
+        <span class="n">chapters</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">objects</span><span class="p">:</span>
+            <span class="n">versioned</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">load_public_version</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="n">versioned</span><span class="o">.</span><span class="n">has_sub_containers</span><span class="p">():</span>  <span class="c1"># chapters are only indexed for middle and big tuto</span>
+
+                <span class="c1"># delete possible previous chapters</span>
+                <span class="k">if</span> <span class="n">content</span><span class="o">.</span><span class="n">es_already_indexed</span><span class="p">:</span>
+                    <span class="n">index_manager</span><span class="o">.</span><span class="n">delete_by_query</span><span class="p">(</span>
+                        <span class="n">FakeChapter</span><span class="o">.</span><span class="n">get_es_document_type</span><span class="p">(),</span> <span class="n">ES_Q</span><span class="p">(</span><span class="s1">&#39;match&#39;</span><span class="p">,</span> <span class="n">_routing</span><span class="o">=</span><span class="n">content</span><span class="o">.</span><span class="n">es_id</span><span class="p">))</span>
+
+                <span class="c1"># (re)index the new one(s)</span>
+                <span class="k">for</span> <span class="n">chapter</span> <span class="ow">in</span> <span class="n">versioned</span><span class="o">.</span><span class="n">get_list_of_chapters</span><span class="p">():</span>
+                    <span class="n">chapters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FakeChapter</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">versioned</span><span class="p">,</span> <span class="n">content</span><span class="o">.</span><span class="n">es_id</span><span class="p">))</span>
+        <span class="n">last_pk</span> <span class="o">=</span> <span class="n">objects</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">pk</span>
+        <span class="n">objects</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">objects_source</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">pk__gt</span><span class="o">=</span><span class="n">last_pk</span><span class="p">)[:</span><span class="n">PublishedContent</span><span class="o">.</span><span class="n">objects_per_batch</span><span class="p">])</span>
+        <span class="k">yield</span> <span class="n">chapters</span>
+        <span class="k">yield</span> <span class="n">objects</span>
+</pre></div>
+</div>
+<p>Le code tient aussi compte du fait que la classe <code class="docutils literal notranslate"><span class="pre">PublishedContent</span></code> <a class="reference external" href="contents.html#le-stockage-en-base-de-donnees">gère le changement de slug</a> afin de maintenir le SEO.
+Ainsi, la méthode <code class="docutils literal notranslate"><span class="pre">save()</span></code> est modifiée de manière à supprimer toute référence à elle même et aux chapitres correspondants si un objet correspondant au même contenu mais avec un nouveau slug est créé.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Dans ES, une relation de type parent-enfant (<a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/guide/2.x/parent-child.html">cf. documentation</a>) est définie entre les contenus et les chapitres correspondants.
+Cette relation est utilisée pour la suppression, mais il est possible de l’exploiter à d’autres fins.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../back-end-code.html" class="btn btn-neutral float-right" title="Documentation technique du back-end" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="private-message.html" class="btn btn-neutral float-left" title="Les messages privés" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
