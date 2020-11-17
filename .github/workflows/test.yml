@@ -1,0 +1,209 @@
+name: Tests zds-site
+
+on: ["push", "pull_request"]
+
+env:
+  NODE_VERSION: "12"
+  PYTHON_TEST_VERSION: "3.7"
+
+jobs:
+  lint-back:
+    name: Lint backend
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+      - name: Install python dependencies
+        run: pip install flake8
+      - name: Lint back end
+        run: make lint-back
+  build-doc:
+      name: Build sphinx documentation
+      runs-on: ubuntu-18.04
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-python@v2
+          with:
+            python-version: "${{ env.PYTHON_TEST_VERSION }}"
+        - name: Upgrade pip
+          run: pip install --upgrade pip
+        - name: Get pip cache dir
+          id: pip-cache
+          run: echo "::set-output name=dir::$(pip cache dir)"
+        - uses: actions/cache@v2
+          with:
+            path: ${{ steps.pip-cache.outputs.dir }}
+            key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
+            restore-keys: |
+              ${{ runner.os }}-pip-
+        - name: Install python dependencies
+          run: pip install -r requirements-dev.txt
+        - name: build documentation
+          run: make generate-doc
+        - name: Upload doc
+          uses: actions/upload-artifact@v2
+          with:
+            name: doc
+            path: doc/build/html
+            retention-days: 1
+
+  build-front:
+    name: Lint and build front end
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "${{ env.NODE_VERSION }}"
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install front
+        run: make install-front
+      - name: Lint front end
+        run: make lint-front
+      - name: Build front
+        run: make build-front
+      - name: Upload assets for test
+        uses: actions/upload-artifact@v2
+        with:
+          name: assets
+          path: dist
+          retention-days: 1
+  test:
+    name: Install and test zds-site
+    needs: build-front
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        module: [
+          "zds.tutorialv2",
+          "zds.member zds.gallery zds.searchv2 zds.middlewares zds.pages",
+          "zds.forum zds.featured zds.mp zds.notification zds.utils"
+        ]
+    services:
+      elasticsearch:
+        image: elasticsearch:5.5.2
+        ports:
+          - "9200:9200"
+        env:
+          "http.host": "0.0.0.0"
+          "transport.host": "127.0.0.1"
+          "xpack.security.enabled": false
+          "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
+        options: >-
+          -e="discovery.type=single-node"
+          --health-cmd="curl http://localhost:9200/_cluster/health"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+      memcached:
+        image: memcached:1.6
+        ports:
+          - "11211:11211"
+    steps:
+      - name: Shutdown Ubuntu MySQL
+        run: sudo service mysql stop
+      - uses: getong/mariadb-action@v1.1
+        with:
+          character set server: 'utf8mb4'
+          collation server: 'utf8mb4_unicode_ci'
+          mariadb version: '10.4.10'
+          mysql database: 'ci_db_name'
+          mysql root password: 'ci_root_password'
+      - uses: actions/checkout@v2
+      - name: Download assets
+        uses: actions/download-artifact@v2
+        with:
+          name: assets
+          path: dist
+      - name: prints alls files
+        run: |
+          ls -rtlh dist
+      - name: Upgrade pip
+        run: |
+          pip install --upgrade pip
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+      - uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('zmd/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "${{ env.NODE_VERSION }}"
+      - name: Install python dependencies
+        run: pip install -r requirements-ci.txt
+      - name: Build and start zmd
+        run: |
+          cd ./zmd && npm install pm2 && cd ..
+          make zmd-install
+          make zmd-start
+      - name: Run Tests
+        run: |
+          export PATH="$PATH:$GECKOWEBDRIVER"
+          coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
+
+      - name: Coveralls
+        uses: AndreMiras/coveralls-python-action@develop
+        with:
+          parallel: true
+  finish:
+    name: Push data to coveralls
+    needs: test
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Coveralls Finished
+      uses: AndreMiras/coveralls-python-action@develop
+      with:
+        parallel-finished: true
+  push_doc:
+    name: Push doc to github
+    needs: ["build-doc", "test"]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+      - name: Download doc
+        uses: actions/download-artifact@v2
+        with:
+          name: doc
+          path: doc/build/html
+      - name: Push documentation github
+        if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
+        run : |
+          echo -e "machine github.com login $BOT_LOGIN\n password $BOT_PASSWORD" > ~/.netrc \
+          && git config --global url."https://".insteadOf git:// \
+          && git config --global user.name "Build bot" \
+          && git config --global user.email "zestedesavoir@gmail.com" \
+          && git config --global push.default simple \
+          && ./scripts/push_doc.sh
+
+

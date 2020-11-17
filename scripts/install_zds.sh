@@ -47,14 +47,6 @@ LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
 source $LOCAL_DIR/define_function.sh
 
-
-# enable travis fold
-ZDS_SHOW_TRAVIS_FOLD=0
-if $(_in "--travis-output" $@); then
-    ZDS_SHOW_TRAVIS_FOLD=1
-    export DJANGO_SETTINGS_MODULE="zds.settings.travis_fixture"
-fi
-
 zds_fold_category "install"
 
 
@@ -156,6 +148,8 @@ fi
 
 
 # virtualenv
+echo "===> $@"
+
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "virtualenv" "* Create virtualenv"
 

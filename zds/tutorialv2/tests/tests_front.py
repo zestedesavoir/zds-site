@@ -1,14 +1,17 @@
+from copy import deepcopy
+from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from django.test import tag
 from django.urls import reverse
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.webdriver import WebDriver
-from django.test import tag
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver import Firefox
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.tutorialv2.factories import (
@@ -20,9 +23,6 @@ from zds.tutorialv2.factories import (
 )
 from zds.tutorialv2.models.database import PublishedContent, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
-from copy import deepcopy
-from django.conf import settings
-
 from zds.utils.factories import CategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -38,7 +38,9 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
     @classmethod
     def setUpClass(cls):
         super(PublicationFronttest, cls).setUpClass()
-        cls.selenium = WebDriver()
+        options = Options()
+        options.headless = True
+        cls.selenium = Firefox(options=options)
         cls.selenium.implicitly_wait(10)
 
     @classmethod
