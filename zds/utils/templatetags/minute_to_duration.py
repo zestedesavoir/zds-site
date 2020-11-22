@@ -24,7 +24,7 @@ def minute_to_duration(value):
     hours_in_day = 24
     min_in_day = min_in_hour * hours_in_day
 
-    if value < min_in_day & value % min_in_hour == 0:
+    if value < min_in_day and value % min_in_hour == 0:
         value /= min_in_hour
 
         if value == 1:
@@ -32,7 +32,7 @@ def minute_to_duration(value):
         else:
             return f"{value} heures"
     
-    if value < min_in_day & value % min_in_hour != 0:
+    if value < min_in_day and value % min_in_hour != 0:
         hours = value // min_in_hour
         minutes = value % min_in_hour
         
