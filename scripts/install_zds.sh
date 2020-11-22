@@ -148,7 +148,6 @@ fi
 
 
 # virtualenv
-echo "===> $@"
 
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "virtualenv" "* Create virtualenv"

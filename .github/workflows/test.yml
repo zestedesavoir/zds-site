@@ -1,4 +1,4 @@
-name: Tests zds-site
+name: CI
 
 on: ["push", "pull_request"]
 
@@ -127,9 +127,6 @@ jobs:
         with:
           name: assets
           path: dist
-      - name: prints alls files
-        run: |
-          ls -rtlh dist
       - name: Upgrade pip
         run: |
           pip install --upgrade pip
