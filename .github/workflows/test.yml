@@ -169,19 +169,32 @@ jobs:
           export PATH="$PATH:$GECKOWEBDRIVER"
           coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
 
-      - name: Coveralls
-        uses: AndreMiras/coveralls-python-action@develop
-        with:
-          parallel: true
+      - name: Coverage
+        shell: bash -l {0}
+        run: |
+          echo $COVERALLS_FLAG_NAME
+          python -m pip install coveralls
+          coveralls
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
+          COVERALLS_PARALLEL: true
+          COVERALLS_FLAG_NAME: "py${{ matrix.python-version }}: ${{ matrix.module }}"
+
   finish:
     name: Push data to coveralls
     needs: test
     runs-on: ubuntu-18.04
     steps:
-    - name: Coveralls Finished
-      uses: AndreMiras/coveralls-python-action@develop
-      with:
-        parallel-finished: true
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+      - name: Coveralls Finished
+        run: |
+          python -m pip install coveralls
+          coveralls --finish
+        env:
+          GITHUB_TOKEN: ${{ secrets.github_token }}
   push_doc:
     name: Push doc to github
     needs: ["build-doc", "test"]
