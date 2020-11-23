@@ -38,3 +38,7 @@ class TemplateTagsTest(TestCase):
             minute_to_duration(110),
             '1 heure et 45 minutes'
         )
+        self.assertEqual(
+            minute_to_duration(1440),
+            '24 heures'
+        )
