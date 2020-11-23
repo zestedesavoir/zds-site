@@ -256,18 +256,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
 
-  # If we're on the dev branch, push the built documentation to the gh-page branch.
+  # If we're on the dev branch (i.e. for merged pull requests), push the built
+  # documentation to the gh-page branch.
   push_doc:
     name: Push doc to github
     needs: ["build-doc", "test"]
     runs-on: ubuntu-18.04
+    if: github.ref == 'refs/heads/dev'
 
     steps:
-      - name: Extract current branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
-        id: extract_branch
-
       - name: Download previously built documentation
         uses: actions/download-artifact@v2
         with:
@@ -275,7 +272,6 @@ jobs:
           path: doc/build/html
 
       - name: Deploy to GitHub Pages
-        if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
