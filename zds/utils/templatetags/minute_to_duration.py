@@ -1,6 +1,6 @@
 from django import template
 from django.template import defaultfilters as filters
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ngettext
 import datetime
 
 register = template.Library()
@@ -24,29 +24,20 @@ def minute_to_duration(value):
     hours_in_day = 24
     min_in_day = min_in_hour * hours_in_day
 
+    if value < min_in_hour:
+        if value == 1:
+            return "1 minute"
+        if value != 1:
+            return f"{value} minutes"
+
     if value < min_in_day and value % min_in_hour == 0:
         value /= min_in_hour
-
-        if value == 1:
-            return "1 heure"
-        else:
-            return f"{value} heures"
+        return ngettext("%(count)d heure", "%(count)d heures", value) % {'count' : value}
     
     if value < min_in_day and value % min_in_hour != 0:
         hours = value // min_in_hour
         minutes = value % min_in_hour
-        
-        if hours == 1:
-            if minutes == 1:
-                return "1 heure et 1 minute"
-            else:
-                return f"1 heure et {minutes} minutes"
-        
-        else:
-            if minutes == 1:
-                return f"{hours} heures et 1 minute"
-            else:
-                return f"{hours} heures et {minutes} minutes"
+        return ngettext("%(hours)d heure et %(minutes)d minutes", "%(hours)d heures et %(minutes)d minutes", hours) % {'hours' : hours, 'minutes' : minutes}
 
     if value > min_in_day:
         value //= min_in_hour
