@@ -4,7 +4,10 @@ on: ["push", "pull_request"]
 
 env:
   NODE_VERSION: "12"
-  PYTHON_TEST_VERSION: "3.7"
+  PYTHON_VERSION: "3.7"
+  MARIADB_VERSION: "10.4.10"
+  ELASTICSEARCH_VERSION: "5.5.2"
+  MEMCACHED_VERSION: "1.6"
 
 jobs:
   # Lint the Python backend with flake8.
@@ -16,10 +19,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
-          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+          python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Install python dependencies
         run: pip install flake8
@@ -36,10 +39,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
-          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+          python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Upgrade pip
         run: pip install --upgrade pip
@@ -132,7 +135,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: elasticsearch:5.5.2
+        image: "elasticsearch:{{ env.ELASTICSEARCH_VERSION }}"
         ports:
           - "9200:9200"
         env:
@@ -148,7 +151,7 @@ jobs:
           --health-retries=10
 
       memcached:
-        image: memcached:1.6
+        image: "memcached:{{ env.MEMCACHED_VERSION }}"
         ports:
           - "11211:11211"
 
@@ -156,12 +159,12 @@ jobs:
       - name: Shutdown Ubuntu MySQL
         run: sudo service mysql stop
 
-      - name: Setup MariaDB
+      - name: Setup MariaDB {{ env.MARIADB_VERSION }}
         uses: getong/mariadb-action@v1.1
         with:
           character set server: "utf8mb4"
           collation server: "utf8mb4_unicode_ci"
-          mariadb version: "10.4.10"
+          mariadb version: "{{ env.MARIADB_VERSION }}"
           mysql database: "ci_db_name"
           mysql root password: "ci_root_password"
 
@@ -199,10 +202,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
-          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+          python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Setup NodeJS ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v1
@@ -241,10 +244,10 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-      - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
+      - name: Setup Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
-          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+          python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Upload coverage data
         run: |
