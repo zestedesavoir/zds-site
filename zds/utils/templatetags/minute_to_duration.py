@@ -24,19 +24,23 @@ def minute_to_duration(value):
 
     if value < min_in_hour:
         if value == 1:
-            return "1 minute"
+            return "1 minute"
         if value != 1:
-            return f"{value} minutes"
+            return f"{value} minutes"
 
     if value < min_in_day and value % min_in_hour == 0:
         value /= min_in_hour
-        return ngettext("%(count)d heure", "%(count)d heures", value) % {'count' : value}
+        return ngettext("%(count)d heure", "%(count)d heures", value) % {'count' : value}
     
     if value < min_in_day and value % min_in_hour != 0:
         hours = value // min_in_hour
         minutes = value % min_in_hour
-        return ngettext("%(hours)d heure et %(minutes)d minutes", "%(hours)d heures et %(minutes)d minutes", hours) % {'hours' : hours, 'minutes' : minutes}
+        return ngettext("%(hours)d heure et %(minutes)d minutes", "%(hours)d heures et %(minutes)d minutes", hours) % {'hours' : hours, 'minutes' : minutes}
 
     if value >= min_in_day:
         value //= min_in_hour
+<<<<<<< HEAD
         return f'{value} heures'
+=======
+        return f"{value} heures"
+>>>>>>> Modifie les test suite aux modifications du template
