@@ -7,87 +7,86 @@ env:
   PYTHON_TEST_VERSION: "3.7"
 
 jobs:
-
   # Lint the Python backend with flake8.
   lint-back:
     name: Lint backend
     runs-on: ubuntu-18.04
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ env.PYTHON_TEST_VERSION }}"
-      
+
       - name: Install python dependencies
         run: pip install flake8
-      
+
       - name: Lint back end
         run: make lint-back
 
   # Build the documentation and upload it as an artifact.
   build-doc:
-      name: Build Sphinx documentation
-      runs-on: ubuntu-18.04
-      
-      steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-        
-        - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
-          uses: actions/setup-python@v2
-          with:
-            python-version: "${{ env.PYTHON_TEST_VERSION }}"
-        
-        - name: Upgrade pip
-          run: pip install --upgrade pip
-        
-        - name: Retrieve pip cache directory
-          id: pip-cache
-          run: echo "::set-output name=dir::$(pip cache dir)"
-        
-        - name: Cache pip packages
-          uses: actions/cache@v2
-          with:
-            path: ${{ steps.pip-cache.outputs.dir }}
-            key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
-            restore-keys: |
-              ${{ runner.os }}-pip-
-        
-        - name: Install python dependencies
-          run: pip install -r requirements-dev.txt
-        
-        - name: Build documentation
-          run: make generate-doc
-        
-        - name: Upload documentation as an artifact
-          uses: actions/upload-artifact@v2
-          with:
-            name: doc
-            path: doc/build/html
-            retention-days: 1
+    name: Build Sphinx documentation
+    runs-on: ubuntu-18.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: "${{ env.PYTHON_TEST_VERSION }}"
+
+      - name: Upgrade pip
+        run: pip install --upgrade pip
+
+      - name: Retrieve pip cache directory
+        id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache pip packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install python dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Build documentation
+        run: make generate-doc
+
+      - name: Upload documentation as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: doc
+          path: doc/build/html
+          retention-days: 1
 
   # Build the website front-end and upload built assets as an artifact.
   build-front:
     name: Lint and build front-end
     runs-on: ubuntu-18.04
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      
+
       - name: Setup NodeJS ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v1
         with:
           node-version: "${{ env.NODE_VERSION }}"
-      
+
       - name: Retrieve yarn cache directory
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
-      
+
       - name: Cache Node modules
         uses: actions/cache@v2
         id: yarn-cache
@@ -96,16 +95,16 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
-      
+
       - name: Install front-end
         run: make install-front
-      
+
       - name: Lint front-end
         run: make lint-front
-      
+
       - name: Build front-end
         run: make build-front
-      
+
       - name: Upload font-end assets for subsequent tests
         uses: actions/upload-artifact@v2
         with:
@@ -115,21 +114,22 @@ jobs:
 
   # Test the zds-site project.
   # Install the project, using assets created during the previous job,
-  # and install elasticsearch & memcache as a service. Then, run the tests 
+  # and install elasticsearch & memcache as a service. Then, run the tests
   # in a matrix build to parallelize multiple components.
   test:
     name: Install and test zds-site
     needs: build-front
     runs-on: ubuntu-18.04
-    
+
     strategy:
       matrix:
-        module: [
-          "zds.tutorialv2",
-          "zds.member zds.gallery zds.searchv2 zds.middlewares zds.pages",
-          "zds.forum zds.featured zds.mp zds.notification zds.utils"
-        ]
-    
+        module:
+          [
+            "zds.tutorialv2",
+            "zds.member zds.gallery zds.searchv2 zds.middlewares zds.pages",
+            "zds.forum zds.featured zds.mp zds.notification zds.utils",
+          ]
+
     services:
       elasticsearch:
         image: elasticsearch:5.5.2
@@ -146,43 +146,43 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
-      
+
       memcached:
         image: memcached:1.6
         ports:
           - "11211:11211"
-    
+
     steps:
       - name: Shutdown Ubuntu MySQL
         run: sudo service mysql stop
-      
+
       - name: Setup MariaDB
         uses: getong/mariadb-action@v1.1
         with:
-          character set server: 'utf8mb4'
-          collation server: 'utf8mb4_unicode_ci'
-          mariadb version: '10.4.10'
-          mysql database: 'ci_db_name'
-          mysql root password: 'ci_root_password'
-      
+          character set server: "utf8mb4"
+          collation server: "utf8mb4_unicode_ci"
+          mariadb version: "10.4.10"
+          mysql database: "ci_db_name"
+          mysql root password: "ci_root_password"
+
       - name: Checkout
         uses: actions/checkout@v2
-      
+
       - name: Download previously built assets
         uses: actions/download-artifact@v2
         with:
           name: assets
           path: dist
-      
+
       - name: Upgrade pip
         run: |
           pip install --upgrade pip
-      
+
       - name: Retrieve pip cache directory
         id: pip-cache
         run: |
           echo "::set-output name=dir::$(pip cache dir)"
-      
+
       - name: Cache pip packages
         uses: actions/cache@v2
         with:
@@ -190,7 +190,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      
+
       - name: Cache Node modules
         uses: actions/cache@v2
         with:
@@ -198,26 +198,26 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('zmd/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      
+
       - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ env.PYTHON_TEST_VERSION }}"
-      
+
       - name: Setup NodeJS ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v1
         with:
           node-version: "${{ env.NODE_VERSION }}"
-      
+
       - name: Install Python dependencies
         run: pip install -r requirements-ci.txt
-      
+
       - name: Build and start zmarkdown
         run: |
           cd ./zmd && npm install pm2 && cd ..
           make zmd-install
           make zmd-start
-      
+
       - name: Run tests for ${{ matrix.module }}
         run: |
           export PATH="$PATH:$GECKOWEBDRIVER"
@@ -239,38 +239,38 @@ jobs:
     name: Push coverage to Coveralls
     needs: test
     runs-on: ubuntu-18.04
-    
+
     steps:
       - name: Setup Python ${{ env.PYTHON_TEST_VERSION }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ env.PYTHON_TEST_VERSION }}"
-    
-    - name: Upload coverage data
+
+      - name: Upload coverage data
         run: |
           python -m pip install coveralls
           coveralls --finish
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
-  
+
   # If we're on the dev branch, push the built documentation to the gh-page branch.
   push_doc:
     name: Push doc to github
     needs: ["build-doc", "test"]
     runs-on: ubuntu-18.04
-    
+
     steps:
       - name: Extract current branch name
         shell: bash
         run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
         id: extract_branch
-      
+
       - name: Download previously built documentation
         uses: actions/download-artifact@v2
         with:
           name: doc
           path: doc/build/html
-      
+
       - name: Deploy to GitHub Pages
         if: ${{ steps.extract_branch.outputs.branch == 'dev' }}
         uses: JamesIves/github-pages-deploy-action@3.7.1
