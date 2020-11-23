@@ -135,7 +135,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "elasticsearch:{{ env.ELASTICSEARCH_VERSION }}"
+        image: "elasticsearch:${{ env.ELASTICSEARCH_VERSION }}"
         ports:
           - "9200:9200"
         env:
@@ -151,7 +151,7 @@ jobs:
           --health-retries=10
 
       memcached:
-        image: "memcached:{{ env.MEMCACHED_VERSION }}"
+        image: "memcached:${{ env.MEMCACHED_VERSION }}"
         ports:
           - "11211:11211"
 
@@ -159,12 +159,12 @@ jobs:
       - name: Shutdown Ubuntu MySQL
         run: sudo service mysql stop
 
-      - name: Set up MariaDB {{ env.MARIADB_VERSION }}
+      - name: Set up MariaDB ${{ env.MARIADB_VERSION }}
         uses: getong/mariadb-action@v1.1
         with:
           character set server: "utf8mb4"
           collation server: "utf8mb4_unicode_ci"
-          mariadb version: "{{ env.MARIADB_VERSION }}"
+          mariadb version: "${{ env.MARIADB_VERSION }}"
           mysql database: "ci_db_name"
           mysql root password: "ci_root_password"
 
