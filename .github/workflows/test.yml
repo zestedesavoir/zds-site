@@ -10,16 +10,16 @@ env:
   MEMCACHED_VERSION: "1.6"
 
 jobs:
-  # Lint the Python backend with flake8.
+  # Lint the Python back-end with flake8.
   lint-back:
-    name: Lint backend
+    name: Lint back-end
     runs-on: ubuntu-18.04
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Python ${{ env.PYTHON_VERSION }}
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
@@ -39,7 +39,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Python ${{ env.PYTHON_VERSION }}
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
@@ -81,7 +81,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup NodeJS ${{ env.NODE_VERSION }}
+      - name: Set up NodeJS ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v1
         with:
           node-version: "${{ env.NODE_VERSION }}"
@@ -159,7 +159,7 @@ jobs:
       - name: Shutdown Ubuntu MySQL
         run: sudo service mysql stop
 
-      - name: Setup MariaDB {{ env.MARIADB_VERSION }}
+      - name: Set up MariaDB {{ env.MARIADB_VERSION }}
         uses: getong/mariadb-action@v1.1
         with:
           character set server: "utf8mb4"
@@ -202,12 +202,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Setup Python ${{ env.PYTHON_VERSION }}
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - name: Setup NodeJS ${{ env.NODE_VERSION }}
+      - name: Set up NodeJS ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v1
         with:
           node-version: "${{ env.NODE_VERSION }}"
@@ -244,7 +244,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-      - name: Setup Python ${{ env.PYTHON_VERSION }}
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
