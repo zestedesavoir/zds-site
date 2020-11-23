@@ -33,7 +33,7 @@ jobs:
       - name: Install python dependencies
         run: pip install flake8
 
-      - name: Lint back end
+      - name: Lint back-end
         run: make lint-back
 
   # Build the documentation and upload it as an artifact.
@@ -260,7 +260,7 @@ jobs:
           python -m pip install coveralls
           coveralls --finish
         env:
-          GITHUB_TOKEN: ${{ secrets.github_token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # If we're on the dev branch (i.e. for merged pull requests), push the built
   # documentation to the gh-page branch.
