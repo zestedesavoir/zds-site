@@ -7,8 +7,6 @@ env:
   PYTHON_TEST_VERSION: "3.7"
 
 jobs:
-
-  # Lint the Python backend with flake8.
   lint-back:
     name: Lint backend
     runs-on: ubuntu-18.04
@@ -28,7 +26,6 @@ jobs:
       - name: Lint back end
         run: make lint-back
 
-  # Build the documentation and upload it as an artifact.
   build-doc:
       name: Build Sphinx documentation
       runs-on: ubuntu-18.04
@@ -70,7 +67,6 @@ jobs:
             path: doc/build/html
             retention-days: 1
 
-  # Build the website front-end and upload built assets as an artifact.
   build-front:
     name: Lint and build front-end
     runs-on: ubuntu-18.04
@@ -113,10 +109,6 @@ jobs:
           path: dist
           retention-days: 1
 
-  # Test the zds-site project.
-  # Install the project, using assets created during the previous job,
-  # and install elasticsearch & memcache as a service. Then, run the tests 
-  # in a matrix build to parallelize multiple components.
   test:
     name: Install and test zds-site
     needs: build-front
@@ -234,7 +226,6 @@ jobs:
           COVERALLS_PARALLEL: true
           COVERALLS_FLAG_NAME: "${{ matrix.module }}"
 
-  # Push coverage data to Coveralls.
   coverage:
     name: Push coverage to Coveralls
     needs: test
@@ -253,7 +244,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
   
-  # If we're on the dev branch, push the built documentation to the gh-page branch.
   push_doc:
     name: Push doc to github
     needs: ["build-doc", "test"]
