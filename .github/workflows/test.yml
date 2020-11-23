@@ -6,6 +6,12 @@ env:
   NODE_VERSION: "12"
   PYTHON_VERSION: "3.7"
   MARIADB_VERSION: "10.4.10"
+
+  # As GitHub Action does not allow environment variables
+  # to be used in services definitions, these are only for
+  # reference. If you update these versions, you HAVE TO
+  # update the versions in the services definitions of the
+  # test job.
   ELASTICSEARCH_VERSION: "5.5.2"
   MEMCACHED_VERSION: "1.6"
 
@@ -135,7 +141,7 @@ jobs:
 
     services:
       elasticsearch:
-        image: "elasticsearch:${{ env.ELASTICSEARCH_VERSION }}"
+        image: "elasticsearch:5.5.2"
         ports:
           - "9200:9200"
         env:
@@ -151,7 +157,7 @@ jobs:
           --health-retries=10
 
       memcached:
-        image: "memcached:${{ env.MEMCACHED_VERSION }}"
+        image: "memcached:1.6"
         ports:
           - "11211:11211"
 
@@ -262,7 +268,7 @@ jobs:
     name: Push doc to github
     needs: ["build-doc", "test"]
     runs-on: ubuntu-18.04
-    if: github.ref == 'refs/heads/dev'
+    if: "github.ref == 'refs/heads/dev'"
 
     steps:
       - name: Download previously built documentation
