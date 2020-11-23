@@ -265,7 +265,7 @@ jobs:
   # If we're on the dev branch (i.e. for merged pull requests), push the built
   # documentation to the gh-page branch.
   push_doc:
-    name: Push doc to github
+    name: Push documentation to GitHub Pages
     needs: ["build-doc", "test"]
     runs-on: ubuntu-18.04
     if: "github.ref == 'refs/heads/dev'"
