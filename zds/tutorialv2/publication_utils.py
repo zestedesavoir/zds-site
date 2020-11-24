@@ -310,27 +310,6 @@ class ZipPublicator(Publicator):
         except (IOError, ValueError) as e:
             raise FailureDuringPublication('Zip could not be created', e)
 
-
-@PublicatorRegistry.register('html')
-class ZmarkdownHtmlPublicator(Publicator):
-
-    def publish(self, md_file_path, base_name, **kwargs):
-        md_flat_content = _read_flat_markdown(md_file_path)
-        published_content_entity = self.get_published_content_entity(md_file_path)
-        html_flat_content, *_ = render_markdown(md_flat_content, disable_ping=True,
-                                                disable_js=True)
-        html_file_path = path.splitext(md_file_path)[0] + '.html'
-        if str(MD_PARSING_ERROR) in html_flat_content:
-            logging.getLogger(self.__class__.__name__).error('HTML could not be rendered')
-            return
-
-        with open(html_file_path, mode='w', encoding='utf-8') as final_file:
-            final_file.write(html_flat_content)
-        shutil.move(html_file_path, str(
-            Path(published_content_entity.get_extra_contents_directory(),
-                 published_content_entity.content_public_slug + '.html')))
-
-
 @PublicatorRegistry.register('pdf')
 class ZMarkdownRebberLatexPublicator(Publicator):
     """

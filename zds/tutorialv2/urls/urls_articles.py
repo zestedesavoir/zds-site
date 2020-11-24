@@ -19,8 +19,6 @@ urlpatterns = [
     # Downloads
     re_path(r'^md/(?P<pk>\d+)/(?P<slug>.+)\.md$',
             DownloadOnlineArticle.as_view(requested_file='md'), name='download-md'),
-    re_path(r'^html/(?P<pk>\d+)/(?P<slug>.+)\.html$', DownloadOnlineArticle.as_view(requested_file='html'),
-            name='download-html'),
     re_path(r'^pdf/(?P<pk>\d+)/(?P<slug>.+)\.pdf$', DownloadOnlineArticle.as_view(requested_file='pdf'),
             name='download-pdf'),
     re_path(r'^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$', DownloadOnlineArticle.as_view(requested_file='tex'),
