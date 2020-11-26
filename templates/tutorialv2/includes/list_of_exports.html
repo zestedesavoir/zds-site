@@ -16,18 +16,6 @@
                 </li>
             {% endif %}
         {% endif %}
-        {% if public_object.has_html %}
-            <li>
-                <a href="{{ public_object.get_absolute_url_html }}" class="ico-after download blue">
-                    {% trans "HTML" %}
-                    {% with size=public_object.get_size_html %}
-                        {% if size %}
-                            ({{ size|filesizeformat }})
-                        {% endif %}
-                    {% endwith %}
-                </a>
-            </li>
-        {% endif %}
         {% if public_object.has_pdf %}
             <li>
                 <a href="{{ public_object.get_absolute_url_pdf }}" class="ico-after download blue">

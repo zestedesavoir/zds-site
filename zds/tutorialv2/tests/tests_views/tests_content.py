@@ -3689,7 +3689,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(os.path.exists(published.get_extra_contents_directory()))
         self.assertTrue(os.path.exists(os.path.join(published.get_extra_contents_directory(), 'images')))
 
-        avail_extra = ['md', 'html', 'pdf', 'epub', 'zip']
+        avail_extra = ['md', 'pdf', 'epub', 'zip']
 
         # test existence and access for admin
         for extra in avail_extra:

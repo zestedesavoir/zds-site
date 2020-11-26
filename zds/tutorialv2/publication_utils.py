@@ -310,6 +310,7 @@ class ZipPublicator(Publicator):
         except (IOError, ValueError) as e:
             raise FailureDuringPublication('Zip could not be created', e)
 
+
 @PublicatorRegistry.register('pdf')
 class ZMarkdownRebberLatexPublicator(Publicator):
     """
