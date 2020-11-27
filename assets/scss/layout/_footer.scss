@@ -1,7 +1,10 @@
 .page-footer {
-    background: $color-primary;
+    margin-top: $length-32;
+
     height: $length-38;
+
     border-top: $length-4 solid $color-secondary;
+    background: $color-primary;
     font-size: $size-10;
 
     .wrapper {
