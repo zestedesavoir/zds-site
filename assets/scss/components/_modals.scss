@@ -72,7 +72,11 @@
         color: $white;
         text-shadow: rgba($black, 0.75) 0 0 $length-4;
 
+        user-select: none;
+
         &.ico-after {
+            padding-left: $length-24;
+
             &:after {
                 margin: $length-16 0 0 $length-14;
             }
