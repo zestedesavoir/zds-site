@@ -19,9 +19,9 @@ Display a list of content_item.part.html. This template is fully customizable by
         <div class="content-item-list">
             {% for public_content in public_contents %}
                 {% if public_content.content_type == 'ARTICLE' or public_content.content_type == 'OPINION' %}
-                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True %}
+                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True show_reactions=True ignore_categories=ignore_categories %}
                 {% else %}
-                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True %}
+                    {% include "tutorialv2/includes/content_item.part.html" with public_content=public_content show_description=True ignore_categories=ignore_categories %}
                 {% endif %}
             {% endfor %}
         {% for i in col_number|times %}
