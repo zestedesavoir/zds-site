@@ -1,6 +1,6 @@
 $content-border-color: $grey-200;
 $content-item-height: $length-96;
-$content-reaction-offset: -14px; // -30px to not offset the meta
+$content-reaction-offset: -$length-24; // -30px to not offset the meta
 
 .content-item {
     display: flex;
@@ -69,10 +69,9 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
         padding: $length-4 $length-14;
 
         min-width: 100px;
-        height: $content-item-height - 2rem;
 
         header {
-            flex: 1;
+            flex: 2;
 
             &:hover {
                 text-decoration: none;
@@ -101,9 +100,7 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             }
 
             .content-description {
-                margin: 0;
-                margin-top: -$length-4;
-
+                margin: -#{$length-4} 0 0;
                 padding: 0;
 
                 &, a {
@@ -122,92 +119,98 @@ $content-reaction-offset: -14px; // -30px to not offset the meta
             }
         }
 
-        .content-meta {
-            color: $accent-800;
+        footer {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
 
-            font-size: $size-10;
-            line-height: $size-9;
+            padding-bottom: $length-4;
 
-            &:not(.inline) > * {
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-
-                display: block;
+            &.has-reactions {
+                margin-left: $content-reaction-offset;
             }
 
-            a {
+            .content-meta {
+                flex: 2;
                 color: $accent-800;
 
-                &:hover, &:focus {
-                    text-decoration: underline;
+                font-size: $size-10;
+                line-height: $size-9;
+
+                &:not(.inline) > * {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
+                    display: block;
+                }
+
+                a {
+                    color: $accent-800;
+
+                    &:hover, &:focus {
+                        text-decoration: underline;
+                    }
                 }
             }
-        }
 
-        .content-reactions {
-            position: absolute;
-            z-index: 0;
-            bottom: -6px;
-
-            left: $content-reaction-offset;
-            height: $length-32;
-            width: $length-32;
-            padding-left: $length-1;
-
-            background-color: $white;
-            @include shadow-1;
-
-            border-radius: 100%;
-
-            font-size: $size-10;
-            font-weight: bold;
-            line-height: 2.2;
-
-            color: $accent-800;
-            text-align: center;
-
-            transition: background-color $transition-duration ease-in-out;
-
-            span {
+            .content-reactions {
                 position: relative;
-                z-index: 2;
-            }
 
-            // The bubble tip
-            &:before {
-            	content: '';
-            	position: absolute;
+                height: $length-32;
+                width: $length-32;
+                margin-right: $length-6;
 
-            	width: 0;
-            	height: 0;
+                background-color: $white;
+                @include shadow-1;
 
-                bottom: -2%;
-                left: -13%;
+                border-radius: 100%;
 
-                border: .85rem solid transparent;
-            	border-top: none;
-            	border-bottom-color: $white;
+                font-size: $size-10;
+                font-weight: bold;
+                line-height: 2.2;
 
-            	filter: drop-shadow(0 -1px 3px rgba($black, .1));
-                transform: rotate(-133deg) scaleY(1.8);
+                color: $accent-800;
+                text-align: center;
 
-                transition: border-bottom-color $transition-duration ease-in-out;
-            }
+                transition: background-color $transition-duration ease-in-out;
 
-            &:focus, &:hover {
-                color: $true-white;
-                background-color: $accent-800;
+                span {
+                    position: relative;
+                    z-index: 2;
+                }
 
+                // The bubble tip
                 &:before {
-              	  border-bottom-color: $accent-800;
+                    content: '';
+                    position: absolute;
+
+                    width: 0;
+                    height: 0;
+
+                    bottom: -2%;
+                    left: -13%;
+
+                    border: .85rem solid transparent;
+                    border-top: none;
+                    border-bottom-color: $white;
+
+                    filter: drop-shadow(0 -1px 3px rgba($black, .1));
+                    transform: rotate(-133deg) scaleY(1.8);
+
+                    transition: border-bottom-color $transition-duration ease-in-out;
+                }
+
+                &:focus, &:hover {
+                    color: $true-white;
+                    background-color: $accent-800;
+
+                    &:before {
+                        border-bottom-color: $accent-800;
+                    }
                 }
             }
         }
-    }
-
-    &.has-reactions .content-meta {
-        padding-left: 32px - 14px + $content-reaction-offset + 10px; // bubble width - container padding + bubble offset + spacing
     }
 
     .content-tags {

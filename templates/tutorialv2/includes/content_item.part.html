@@ -53,14 +53,16 @@
 
 {# Categories (in X, Y and Z) #}
 {% captureas categories_text %}
-    {% for cat in content.subcategory.all %}
-        {% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
-        {% if content.is_opinion %}
-            <a href="{% url 'opinion:list' %}?category={{ cat.slug }}">{{ cat.title }}</a>
-        {% else %}
-            <a href="{% url 'publication:list' %}?subcategory={{ cat.slug }}">{{ cat.title }}</a>
-        {% endif %}
-    {% endfor %}
+    {%  if not ignore_categories %}
+        {% for cat in content.subcategory.all %}
+            {% if forloop.first %}{% trans "dans" %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
+            {% if content.is_opinion %}
+                <a href="{% url 'opinion:list' %}?category={{ cat.slug }}">{{ cat.title }}</a>
+            {% else %}
+                <a href="{% url 'publication:list' %}?subcategory={{ cat.slug }}">{{ cat.title }}</a>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 {% endcaptureas %}
 
 <article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }}">
@@ -88,53 +90,54 @@
             </p>
         </header>
 
-        <div class="content-meta">
-            {% if content.subcategory %}
-                <p class="content-categories">
-                    {{ categories_text }}
-                </p>
+        <footer{% if online and show_reactions %} class="has-reactions"{% endif %}>
+            <div class="content-meta">
+                {% if content.subcategory and not ignore_categories %}
+                    <p class="content-categories">
+                        {{ categories_text }}
+                    </p>
+                {% endif %}
+
+                {% if content.sha_public %}
+                    <p class="content-authors">
+                        {% if content.public_version %}
+                            {% set content.public_version.publication_date as pubdate %}
+                        {% else %}
+                            {% set content.pubdate as pubdate %}
+                        {% endif %}
+                        {% if pubdate and not ignore_date %}
+                            <span class="long content-pubdate">{{ pubdate|format_date|capfirst }}</span>
+                            <span class="short content-pubdate">{{ pubdate|format_date:True|capfirst }}</span>
+                        {% endif %}
+                        {{ authors_text }}
+                    </p>
+                {% elif content.sha_validation %}
+                    <p class="content-state">
+                        {% trans "En validation" %}
+                    </p>
+                {% else %}
+                    <p class="content-state">
+                        {% trans "Brouillon" %}
+                    </p>
+                {% endif %}
+            </div>
+
+            {% if online and show_reactions %}
+                {% with note_count=content.get_note_count %}
+                    <a class="content-reactions" href="
+                        {% if content.last_note %}
+                            {{ content.last_read_note.get_absolute_url }}
+                        {% else %}
+                            {{ link }}#comments
+                        {% endif %}"
+                        title="{% if note_count == 0 %}{% trans "Aucune réaction" %}{% else %}{{ note_count }} {% trans "réaction" %}{{ note_count|pluralize }}{% endif %}"
+                    >
+                        <span>{{ note_count }}</span>
+                    </a>
+                {% endwith %}
+
             {% endif %}
-
-
-            {% if content.sha_public %}
-                <p class="content-authors">
-                    {% if content.public_version %}
-                        {% set content.public_version.publication_date as pubdate %}
-                    {% else %}
-                        {% set content.pubdate as pubdate %}
-                    {% endif %}
-                    {% if pubdate and not ignore_date %}
-                        <span class="long content-pubdate">{{ pubdate|format_date|capfirst }}</span>
-                        <span class="short content-pubdate">{{ pubdate|format_date:True|capfirst }}</span>
-                    {% endif %}
-                    {{ authors_text }}
-                </p>
-            {% elif content.sha_validation %}
-                <p class="content-state">
-                    {% trans "En validation" %}
-                </p>
-            {% else %}
-                <p class="content-state">
-                    {% trans "Brouillon" %}
-                </p>
-            {% endif %}
-        </div>
-
-        {% if online and show_reactions %}
-            {% with note_count=content.get_note_count %}
-                <a class="content-reactions" href="
-                    {% if content.last_note %}
-                        {{ content.last_read_note.get_absolute_url }}
-                    {% else %}
-                        {{ link }}#comments
-                    {% endif %}"
-                    title="{% if note_count == 0 %}{% trans "Aucune réaction" %}{% else %}{{ note_count }} {% trans "réaction" %}{{ note_count|pluralize }}{% endif %}"
-                >
-                    <span>{{ note_count }}</span>
-                </a>
-            {% endwith %}
-
-        {% endif %}
+        </footer>
     </div>
 
     {% if content.tags.all %}
