@@ -38,8 +38,6 @@
             padding-left: $length-48;
 
             &:after {
-                top: $length-4;
-
                 @include sprite-width($articles);
                 @include sprite-height($articles);
             }
