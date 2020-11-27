@@ -39,6 +39,7 @@ def minute_to_duration(value):
         value //= min_in_hour
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         return f'{value} heures'
 =======
         return f"{value} heures"
@@ -49,3 +50,6 @@ def minute_to_duration(value):
         return f'{value} heures'
 >>>>>>> Retire les imports inutiles + code plus propre
 >>>>>>> Retire les imports inutiles + code plus propre
+=======
+        return f'{value} heures'
+>>>>>>> Diminue la longueur de ligne + corrige erreur d'import
