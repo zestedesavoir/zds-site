@@ -38,8 +38,8 @@ $content-width: 1145px;
 
     .flexpage-column {
         display: flex;
-        flex: 1;
         margin-left: -$length-20;
+        margin-bottom: $length-24;
 
         section {
             flex: 0 0 auto;
