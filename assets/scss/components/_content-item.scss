@@ -175,11 +175,6 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
 
                 transition: background-color $transition-duration ease-in-out;
 
-                span {
-                    position: relative;
-                    z-index: 2;
-                }
-
                 // The bubble tip
                 &:before {
                     content: '';
