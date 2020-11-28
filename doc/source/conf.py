@@ -6,8 +6,8 @@
 # full list see the documentation:
 # http://www.sphinx-doc.org/en/master/config
 
-import datetime
-now = datetime.datetime.now()
+from django.utils import timezone
+now = timezone.now()
 
 import sphinx_rtd_theme
 

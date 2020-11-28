@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django import template
 from django.utils.translation import ugettext_lazy as _
@@ -10,6 +10,7 @@ from zds.notification.models import TopicAnswerSubscription, ContentReactionAnsw
     NewTopicSubscription, NewPublicationSubscription
 from zds.tutorialv2.models.database import PublishableContent, PickListOperation
 from zds.utils import get_current_user
+from django.utils import timezone
 from zds.utils.models import HatRequest
 from django.conf import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
@@ -106,7 +107,7 @@ def followed_topics(user):
     for topic in topics_followed:
         for period in periods:
             if topic.last_message.pubdate.date() >= \
-                    (datetime.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
+                    (timezone.now() - timedelta(days=int(period[1]), hours=0, minutes=0, seconds=0)).date():
                 if period[0] in topics:
                     topics[period[0]].append(topic)
                 else:

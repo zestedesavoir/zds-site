@@ -6,6 +6,7 @@ from unittest import mock
 from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase
+from django.utils import timezone
 from django.test.utils import override_settings
 
 from zds.gallery.factories import UserGalleryFactory

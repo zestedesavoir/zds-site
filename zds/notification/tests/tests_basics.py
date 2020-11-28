@@ -1,10 +1,11 @@
 import copy
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.urls import reverse
 from django.test import TestCase
+from django.utils import timezone
 from django.db import IntegrityError
 
 from django.conf import settings
@@ -259,7 +260,7 @@ class NotificationForumTest(TestCase):
         post = PostFactory(topic=topic, author=self.user2, position=2)
 
         old_notification = Notification.objects.get(subscription__user=self.user1, object_id=post.pk, is_read=False)
-        old_notification.pubdate = datetime.now() - timedelta(days=1)
+        old_notification.pubdate = timezone.now() - timedelta(days=1)
         old_notification.save()
         self.assertEqual(old_notification.object_id, post.pk)
         self.assertEqual(old_notification.subscription.object_id, topic.pk)

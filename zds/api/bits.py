@@ -48,6 +48,6 @@ class UpdatedAtKeyBit(KeyBitBase):
     def get_data(self, **kwargs):
         value = cache.get(self.update_key)
         if value is None:
-            value = datetime.datetime.utcnow()
+            value = timezone.now()
             cache.set(self.update_key, value=value)
         return force_text(value)

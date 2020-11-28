@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,6 +9,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView, ListView
 
@@ -178,7 +178,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
             PickListOperation.objects.filter(content=self.object).update(is_effective=False,
                                                                          canceler_user=self.request.user)
             PickListOperation.objects.create(content=self.object, operation=form.cleaned_data['operation'],
-                                             staff_user=self.request.user, operation_date=datetime.now(),
+                                             staff_user=self.request.user, operation_date=timezone.now(),
                                              version=db_object.sha_public)
             if form.cleaned_data['operation'] == 'REMOVE_PUB':
                 unpublish_content(self.object, moderator=self.request.user)
@@ -273,14 +273,14 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
         self.success_url = versioned.get_absolute_url_online()
 
         db_object.sha_picked = form.cleaned_data['version']
-        db_object.picked_date = datetime.now()
+        db_object.picked_date = timezone.now()
         db_object.save()
 
         # mark to reindex to boost correctly in the search
         self.public_content_object.es_flagged = True
         self.public_content_object.save()
         PickListOperation.objects.create(content=self.object, operation='PICK',
-                                         staff_user=self.request.user, operation_date=datetime.now(),
+                                         staff_user=self.request.user, operation_date=timezone.now(),
                                          version=db_object.sha_picked)
         msg = render_to_string(
             'tutorialv2/messages/validation_opinion.md',
@@ -433,7 +433,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
         tags = db_object.tags.all()
         article = PublishableContent(title=db_object.title,
                                      type='ARTICLE',
-                                     creation_date=datetime.now(),
+                                     creation_date=timezone.now(),
                                      sha_public=db_object.sha_public,
                                      public_version=None,
                                      licence=db_object.licence,
@@ -470,7 +470,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
         # ask for validation
         validation = Validation()
         validation.content = article
-        validation.date_proposition = datetime.now()
+        validation.date_proposition = timezone.now()
         validation.comment_authors = _('Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).'.format(
             article.title,
             article.get_absolute_url_online(),
@@ -483,7 +483,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
         gal = Gallery()
         gal.title = db_object.gallery.title
         gal.slug = db_object.gallery.slug
-        gal.pubdate = datetime.now()
+        gal.pubdate = timezone.now()
         gal.save()
         article.gallery = gal
         # save updates

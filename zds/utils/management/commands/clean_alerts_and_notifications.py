@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 from django.db import transaction
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from zds.utils.models import Alert
 
@@ -26,7 +27,7 @@ class Command(BaseCommand):
         Alert.objects.first(content__isnull=False, content__public_version__isnull=True).update(
             moderator=moderator,
             solved=True,
-            solved_date=datetime.datetime.now(),
+            solved_date=timezone.now(),
             resolve_reason=_('Résolution automatique.')
         )
         Alert.objects.filter(scope='CONTENT', comment__related_content__isnull=False,
@@ -34,5 +35,5 @@ class Command(BaseCommand):
             .update(
                 moderator=moderator,
                 solved=True,
-                solved_date=datetime.datetime.now(),
+                solved_date=timezone.now(),
                 resolve_reason=_('Résolution automatique.'))

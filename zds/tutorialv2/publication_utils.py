@@ -5,13 +5,13 @@ import os
 import shutil
 import subprocess
 import zipfile
-from datetime import datetime
 from os import makedirs, path
 from pathlib import Path
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
@@ -65,7 +65,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     from zds.tutorialv2.models.database import PublishedContent
 
     if is_major_update:
-        versioned.pubdate = datetime.now()
+        versioned.pubdate = timezone.now()
 
     # First write the files to a temporary directory: if anything goes wrong,
     # the last published version is not impacted !
@@ -86,7 +86,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     # 1. markdown file (base for the others) :
     # If we come from a command line, we need to activate i18n, to have the date in the french language.
     cur_language = translation.get_language()
-    altered_version.pubdate = datetime.now()
+    altered_version.pubdate = timezone.now()
 
     md_file_path = base_name + '.md'
     with contextlib.suppress(OSError):
@@ -110,9 +110,9 @@ def publish_content(db_object, versioned, is_major_update=True):
     PublicatorRegistry.get('md').publish(md_file_path, base_name, versioned=versioned, cur_language=cur_language)
     public_version.char_count = public_version.get_char_count(md_file_path)
     if is_major_update or not is_update:
-        public_version.publication_date = datetime.now()
+        public_version.publication_date = timezone.now()
     elif is_update:
-        public_version.update_date = datetime.now()
+        public_version.update_date = timezone.now()
     public_version.sha_public = versioned.current_version
     public_version.save()
     with contextlib.suppress(OSError):
@@ -653,7 +653,7 @@ def save_validation_state(db_object, is_update, published: PublishedContent, val
     db_object.sha_validation = None
     db_object.public_version = published
     if is_major or not is_update or db_object.pubdate is None:
-        db_object.pubdate = datetime.now()
+        db_object.pubdate = timezone.now()
         db_object.is_obsolete = False
 
     # close beta if is an article
@@ -662,5 +662,5 @@ def save_validation_state(db_object, is_update, published: PublishedContent, val
     # save validation object
     validation.comment_validator = comment
     validation.status = 'ACCEPT'
-    validation.date_validation = datetime.now()
+    validation.date_validation = timezone.now()
     validation.save()

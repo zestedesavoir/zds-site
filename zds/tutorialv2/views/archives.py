@@ -4,12 +4,12 @@ import shutil
 import tempfile
 import time
 import zipfile
-from datetime import datetime
 
 from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
 from easy_thumbnails.files import get_thumbnailer
@@ -257,7 +257,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             pic.title = image_basename
             pic.slug = slugify(image_basename)
             pic.physical = get_thumbnailer(open(temp_image_path, 'rb'), relative_name=temp_image_path)
-            pic.pubdate = datetime.now()
+            pic.pubdate = timezone.now()
             pic.save()
 
             translation_dic[image_path] = settings.ZDS_APP['site']['url'] + pic.physical.url
@@ -405,7 +405,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
                 # of course, need to update sha
                 self.object.sha_draft = sha
-                self.object.update_date = datetime.now()
+                self.object.update_date = timezone.now()
                 self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])
@@ -453,7 +453,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 self.object.description = new_content.description
                 self.object.licence = new_content.licence
                 self.object.type = new_content.type  # change of type is then allowed !!
-                self.object.creation_date = datetime.now()
+                self.object.creation_date = timezone.now()
 
                 self.object.save()
 
@@ -463,7 +463,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 gal = Gallery()
                 gal.title = new_content.title
                 gal.slug = slugify(new_content.title)
-                gal.pubdate = datetime.now()
+                gal.pubdate = timezone.now()
                 gal.save()
 
                 # Attach user to gallery
@@ -527,7 +527,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # of course, need to update sha
                 self.object.sha_draft = sha
-                self.object.update_date = datetime.now()
+                self.object.update_date = timezone.now()
                 self.object.save(force_slug_update=False)
 
                 self.success_url = reverse('content:view', args=[versioned.pk, versioned.slug])

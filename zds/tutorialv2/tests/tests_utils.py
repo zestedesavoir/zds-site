@@ -6,6 +6,7 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, LicenceFactory, ExtractFactory, \
@@ -520,9 +521,9 @@ class UtilsTests(TutorialTestMixin, TestCase):
         """related to #4860"""
         published = PublishedContentFactory(type='OPINION', author_list=[self.user_author])
         reaction = ContentReactionFactory(related_content=published, author=ProfileFactory().user, position=1,
-                                          pubdate=datetime.datetime.now())
+                                          pubdate=timezone.now())
         Alert.objects.create(scope='CONTENT', comment=reaction, text='a text', author=ProfileFactory().user,
-                             pubdate=datetime.datetime.now(), content=published)
+                             pubdate=timezone.now(), content=published)
         staff = StaffProfileFactory().user
         self.assertEqual(1, get_header_notifications(staff)['alerts']['total'])
         unpublish_content(published, staff)

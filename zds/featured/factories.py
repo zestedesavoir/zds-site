@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 import factory
 
@@ -10,7 +10,7 @@ class FeaturedResourceFactory(factory.DjangoModelFactory):
         model = FeaturedResource
 
     title = factory.Sequence('Ma featured No{0}'.format)
-    pubdate = datetime.now()
+    pubdate = timezone.now()
 
 
 class FeaturedMessageFactory(factory.DjangoModelFactory):

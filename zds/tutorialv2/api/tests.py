@@ -5,6 +5,7 @@ import shutil
 from django.conf import settings
 from django.core.cache import caches
 from django.urls import reverse
+from django.utils import timezone
 
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -29,7 +30,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
     def test_failure_reaction_karma_with_client_unauthenticated(self):
         author = ProfileFactory()
         reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content,
-                                          pubdate=datetime.datetime.now())
+                                          pubdate=timezone.now())
 
         response = self.client.put(reverse('api:content:reaction-karma', args=(reaction.pk,)))
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

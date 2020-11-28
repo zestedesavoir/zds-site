@@ -1,11 +1,10 @@
-from datetime import datetime
-
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
@@ -38,7 +37,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
                 content=content,
                 scope='CONTENT',
                 text=request.POST['signal_text'],
-                pubdate=datetime.now())
+                pubdate=timezone.now())
             alert.save()
 
             human_content_type = TYPE_CHOICES_DICT[content.type].lower()

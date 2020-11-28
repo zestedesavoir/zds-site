@@ -9,6 +9,7 @@ from PIL import Image as ImagePIL
 from easy_thumbnails.files import get_thumbnailer
 
 from django.conf import settings
+from django.utils import timezone
 
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
 from zds.tutorialv2.models.database import PublishableContent
@@ -78,7 +79,7 @@ class GalleryCreateMixin(GalleryMixin):
         gallery = Gallery(title=title)
         gallery.subtitle = subtitle
         gallery.slug = slugify(title)
-        gallery.pubdate = datetime.datetime.now()
+        gallery.pubdate = timezone.now()
         gallery.save()
 
         user_gallery = UserGallery(gallery=gallery, user=user, mode=GALLERY_WRITE)
@@ -252,7 +253,7 @@ class ImageCreateMixin(ImageMixin):
 
         image.physical = physical
         image.slug = slugify(title)
-        image.pubdate = datetime.datetime.now()
+        image.pubdate = timezone.now()
         image.save()
 
         self.image = image

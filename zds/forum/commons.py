@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.views.generic.detail import SingleObjectMixin
 from django.contrib.auth.decorators import permission_required
@@ -130,7 +129,7 @@ class PostEditMixin:
                 comment=post,
                 scope='FORUM',
                 text=alert_text,
-                pubdate=datetime.now())
+                pubdate=timezone.now())
             alert.save()
 
             messages.success(request, _("Une alerte a été envoyée à l'équipe concernant ce message."))
@@ -185,7 +184,7 @@ class PostEditMixin:
                 request,
                 _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
         post.hat = get_hat_from_request(request, post.author)
-        post.update = datetime.now()
+        post.update = timezone.now()
         post.editor = user
         post.save()
 
@@ -202,10 +201,10 @@ class PostEditMixin:
 
             try:
                 alert = post.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
-                alert.pubdate = datetime.now()
+                alert.pubdate = timezone.now()
                 alert.save()
             except Alert.DoesNotExist:
-                Alert(author=bot, comment=post, scope='FORUM', text=alert_text, pubdate=datetime.now()).save()
+                Alert(author=bot, comment=post, scope='FORUM', text=alert_text, pubdate=timezone.now()).save()
 
         return post
 

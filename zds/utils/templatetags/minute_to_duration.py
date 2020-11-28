@@ -1,5 +1,6 @@
 from django import template
 from django.template import defaultfilters as filters
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 import datetime
 
@@ -12,7 +13,7 @@ def minute_to_duration(value):
     Display a human-readable reading-time (or any other duration)
     from a duration in minutes, with a granularity of 15 minutes.
     """
-    now = datetime.datetime.now()
+    now = timezone.now()
     if value <= 0:
         return ''
     # Rounds value to avoid "1 hour, 2 minutes".

@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from rest_framework import filters
@@ -26,7 +27,7 @@ class PagingSearchListKeyConstructor(DefaultKeyConstructor):
 
 
 def change_api_tag_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_tag', datetime.datetime.utcnow())
+    cache.set('api_updated_tag', timezone.now())
 
 
 post_save.connect(receiver=change_api_tag_updated_at, sender=Tag)

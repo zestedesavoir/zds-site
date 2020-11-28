@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 
 from zds.forum.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
+from django.utils import timezone
 from zds.utils.context_processor import header_notifications as notifications_processor
 from zds.utils.models import Alert
 
@@ -25,7 +26,7 @@ class AlertsTest(TestCase):
                           comment=self.post,
                           scope='FORUM',
                           text='pouet-{}'.format(i),
-                          pubdate=(datetime.now() + timedelta(minutes=i)))
+                          pubdate=(timezone.now() + timedelta(minutes=i)))
             alert.save()
             self.alerts.append(alert)
 

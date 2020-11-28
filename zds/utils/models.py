@@ -1,4 +1,3 @@
-from datetime import datetime
 import os
 import string
 import uuid
@@ -12,6 +11,7 @@ from django.urls import reverse
 from django.utils.encoding import smart_text
 from django.db import models
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.dispatch import receiver
 from django.template.loader import render_to_string
@@ -253,7 +253,7 @@ class HatRequest(models.Model):
         self.is_granted = is_granted
         self.moderator = moderator
         self.comment = comment[:1000]
-        self.solved_at = datetime.now()
+        self.solved_at = timezone.now()
         self.save()
         self.notify_member()
 
@@ -592,7 +592,7 @@ class Alert(models.Model):
 
         self.solved = True
         self.moderator = moderator
-        self.solved_date = datetime.now()
+        self.solved_date = timezone.now()
         self.save()
 
     def get_comment(self):

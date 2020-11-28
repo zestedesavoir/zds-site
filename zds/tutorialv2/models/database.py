@@ -2,7 +2,6 @@ import contextlib
 import logging
 import os
 import shutil
-from datetime import datetime
 from math import ceil
 from pathlib import Path
 
@@ -14,6 +13,7 @@ from django.db.models.signals import pre_delete, post_delete, pre_save
 from django.dispatch import receiver
 from django.http import Http404
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from elasticsearch_dsl import Mapping, Q as ES_Q
@@ -167,7 +167,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
         if update_date:
-            self.update_date = datetime.now()
+            self.update_date = timezone.now()
         super(PublishableContent, self).save(*args, **kwargs)
 
     def get_absolute_url_beta(self):
@@ -535,7 +535,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
             if last_user_notes and last_user_notes[0] == self.last_note:
                 last_user_note = last_user_notes[0]
-                t = datetime.now() - last_user_note.pubdate
+                t = timezone.now() - last_user_note.pubdate
                 if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                     return True
 

@@ -4,6 +4,7 @@ import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
@@ -155,13 +156,13 @@ class ContentTests(TutorialTestMixin, TestCase):
         # send in validation
         for content in all_contents:
             v = ValidationFactory(content=content, status='PENDING')
-            v.date_proposition = datetime.datetime.now()
+            v.date_proposition = timezone.now()
             v.version = content.sha_draft
             v.comment_authors = text
 
             if content in reserved_contents:
                 v.validator = self.user_staff
-                v.date_reserve = datetime.datetime.now()
+                v.date_reserve = timezone.now()
                 v.status = 'PENDING_V'
 
             v.save()

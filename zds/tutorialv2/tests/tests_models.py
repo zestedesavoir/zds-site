@@ -1,7 +1,8 @@
 import unittest
 
 from django.urls import reverse
-from datetime import datetime, timedelta
+from django.utils import timezone
+from datetime import timedelta
 import os
 
 from django.conf import settings
@@ -431,7 +432,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             self.assertEqual(child.slug, chapter.children[index].slug)  # slug remains for extract as well!
 
     def test_publication_and_attributes_consistency(self):
-        pubdate = datetime.now() - timedelta(days=1)
+        pubdate = timezone.now() - timedelta(days=1)
         article = PublishedContentFactory(type='ARTICLE', author_list=[self.user_author])
         public_version = article.public_version
         public_version.publication_date = pubdate
@@ -524,14 +525,14 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         - The username of the author is, by default "Firmxxx" where "xxx" depends on the tests before ;
         - The titles (!) also contains a number that also depends on the number of tests before ;
-        - The date is ``datetime.now()`` and contains the months, which is never a fixed number of letters.
+        - The date is ``timezone.now()`` and contains the months, which is never a fixed number of letters.
         """
 
         author = ProfileFactory().user
         author.username = 'NotAFirm1Clone'
         author.save()
 
-        len_date_now = len(date(datetime.now(), 'd F Y'))
+        len_date_now = len(date(timezone.now(), 'd F Y'))
 
         article = PublishedContentFactory(type='ARTICLE', author_list=[author], title='Un titre')
         published = PublishedContent.objects.filter(content=article).first()

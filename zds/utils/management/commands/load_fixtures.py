@@ -5,7 +5,7 @@ import random
 import sys
 import time
 
-from datetime import datetime
+from django.utils import timezone
 
 from django.core.management.base import BaseCommand
 from random import randint
@@ -516,17 +516,17 @@ def load_contents(cli, size, fake, _type, *_, **__):
 
 def validate_edited_content(content, fake, nb_staffs, staffs, to_do, versioned):
     valid = CValidation(
-        content=content, version=content.sha_draft, date_proposition=datetime.now(), status='PENDING')
+        content=content, version=content.sha_draft, date_proposition=timezone.now(), status='PENDING')
     valid.comment_validator = fake.text(max_nb_chars=200)
     content.sha_validation = content.sha_draft
     if to_do > 1:  # reserve validation
-        valid.date_reserve = datetime.now()
+        valid.date_reserve = timezone.now()
         valid.validator = staffs[random.randint(0, nb_staffs - 1)]
         valid.status = 'PENDING_V'
     if to_do > 2:  # publish content
         valid.comment_validator = fake.text(max_nb_chars=80)
         valid.status = 'ACCEPT'
-        valid.date_validation = datetime.now()
+        valid.date_validation = timezone.now()
         content.sha_public = content.sha_draft
 
         published = publish_content(content, versioned)

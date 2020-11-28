@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -8,6 +6,7 @@ from django.http import Http404, StreamingHttpResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
@@ -133,13 +132,13 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             edit.original_text = self.reaction.text
             edit.save()
 
-            self.reaction.update = datetime.now()
+            self.reaction.update = timezone.now()
             self.reaction.editor = self.request.user
             self.reaction.hat = get_hat_from_request(self.request, self.reaction.author)
 
         else:
             self.reaction = ContentReaction()
-            self.reaction.pubdate = datetime.now()
+            self.reaction.pubdate = timezone.now()
             self.reaction.author = self.request.user
             self.reaction.position = self.object.get_note_count() + 1
             self.reaction.related_content = self.object
@@ -302,7 +301,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
                 comment=reaction,
                 scope=reaction.related_content.type,
                 text=request.POST['signal_text'],
-                pubdate=datetime.now())
+                pubdate=timezone.now())
             alert.save()
 
             messages.success(self.request, _('Ce commentaire a bien été signalé aux modérateurs.'))

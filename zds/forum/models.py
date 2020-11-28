@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 from math import ceil
 
 from django.conf import settings
@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
+from django.utils import timezone
 
 from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
@@ -403,7 +404,7 @@ class Topic(AbstractESDjangoIndexable):
             .last()
 
         if last_user_post and last_user_post == self.get_last_post():
-            duration = datetime.now() - last_user_post.pubdate
+            duration = timezone.now() - last_user_post.pubdate
             if duration.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
                 return True
 

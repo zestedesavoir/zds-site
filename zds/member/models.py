@@ -1,4 +1,3 @@
-from datetime import datetime
 from geoip2.errors import AddressNotFoundError
 from hashlib import md5
 
@@ -8,6 +7,7 @@ from django.contrib.gis.geoip2 import GeoIP2
 from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.models import Post, Topic
@@ -363,14 +363,14 @@ class Profile(models.Model):
         if self.user.is_authenticated:
             if self.user.is_active:
                 if self.end_ban_read:
-                    return self.can_read or (self.end_ban_read < datetime.now())
+                    return self.can_read or (self.end_ban_read < timezone.now())
                 return self.can_read
             return False
 
     def can_write_now(self):
         if self.user.is_active:
             if self.end_ban_write:
-                return self.can_write or (self.end_ban_write < datetime.now())
+                return self.can_write or (self.end_ban_write < timezone.now())
             return self.can_write
         return False
 

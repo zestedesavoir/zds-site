@@ -1,6 +1,5 @@
 import json
 import logging
-from datetime import datetime
 
 from django.contrib import messages
 from django.http import HttpResponse, StreamingHttpResponse
@@ -10,6 +9,7 @@ from django.views.generic.detail import SingleObjectMixin
 from django.utils.translation import gettext as _
 from zds.forum.models import Topic, Post
 from zds.member.views import get_client_ip
+from django.utils import timezone
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.mixins import QuoteMixin
 from zds.utils.models import CommentVote, get_hat_from_request
@@ -80,7 +80,7 @@ def create_topic(
     n_topic.forum = forum
     n_topic.title = title
     n_topic.subtitle = subtitle
-    n_topic.pubdate = datetime.now()
+    n_topic.pubdate = timezone.now()
     n_topic.author = author
 
     n_topic.save()
@@ -101,7 +101,7 @@ def send_post(request, topic, author, text,):
     post = Post()
     post.topic = topic
     post.author = author
-    post.pubdate = datetime.now()
+    post.pubdate = timezone.now()
     if topic.last_message is not None:
         post.position = topic.last_message.position + 1
     else:

@@ -1,10 +1,9 @@
-from datetime import datetime
-
 from django.contrib import messages
 from django.db.models import Count
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 from django.views.generic import CreateView, RedirectView, UpdateView, FormView, DeleteView
 from django.views.generic.list import MultipleObjectMixin
@@ -118,7 +117,7 @@ class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
         featured_resource.url = form.cleaned_data.get('url')
 
         if form.cleaned_data.get('major_update', False):
-            featured_resource.pubdate = datetime.now()
+            featured_resource.pubdate = timezone.now()
         else:
             featured_resource.pubdate = form.cleaned_data.get('pubdate')
 
@@ -170,7 +169,7 @@ class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
         self.object.image_url = form.cleaned_data.get('image_url')
         self.object.url = form.cleaned_data.get('url')
         if form.cleaned_data.get('major_update', False):
-            self.object.pubdate = datetime.now()
+            self.object.pubdate = timezone.now()
         else:
             self.object.pubdate = form.cleaned_data.get('pubdate')
 

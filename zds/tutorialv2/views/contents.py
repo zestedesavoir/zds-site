@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,6 +7,7 @@ from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
@@ -62,13 +62,13 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.type = form.cleaned_data['type']
         self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
         self.content.source = form.cleaned_data['source']
-        self.content.creation_date = datetime.now()
+        self.content.creation_date = timezone.now()
 
         # Creating the gallery
         gal = Gallery()
         gal.title = form.cleaned_data['title']
         gal.slug = slugify(form.cleaned_data['title'])
-        gal.pubdate = datetime.now()
+        gal.pubdate = timezone.now()
         gal.save()
 
         self.content.gallery = gal
@@ -80,7 +80,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
             img.gallery = gal
             img.title = self.request.FILES['image']
             img.slug = slugify(self.request.FILES['image'].name)
-            img.pubdate = datetime.now()
+            img.pubdate = timezone.now()
             img.save()
             self.content.image = img
 
@@ -239,13 +239,13 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         publishable.description = form.cleaned_data['description']
         publishable.source = form.cleaned_data['source']
 
-        publishable.update_date = datetime.now()
+        publishable.update_date = timezone.now()
 
         # update gallery and image:
         gal = Gallery.objects.filter(pk=publishable.gallery.pk)
         gal.update(title=publishable.title)
         gal.update(slug=slugify(publishable.title))
-        gal.update(update=datetime.now())
+        gal.update(update=timezone.now())
 
         if 'image' in self.request.FILES:
             img = Image()
@@ -253,7 +253,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             img.gallery = publishable.gallery
             img.title = self.request.FILES['image']
             img.slug = slugify(self.request.FILES['image'].name)
-            img.pubdate = datetime.now()
+            img.pubdate = timezone.now()
             img.save()
             publishable.image = img
 
@@ -298,7 +298,7 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
 
         # Update license in database
         publishable.licence = form.cleaned_data['license']
-        publishable.update_date = datetime.now()
+        publishable.update_date = timezone.now()
         publishable.save(force_slug_update=False)
 
         # Update license in repository

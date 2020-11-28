@@ -7,6 +7,7 @@ from elasticsearch_dsl.query import MatchAll
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from django.contrib.auth.models import Group
 from zds.forum.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
@@ -325,7 +326,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         opinion_picked = PublishedContentFactory(type='OPINION', title=text)
         opinion_picked.sha_picked = opinion_picked.sha_draft
-        opinion_picked.date_picked = datetime.datetime.now()
+        opinion_picked.date_picked = timezone.now()
         opinion_picked.save()
 
         published_opinion_picked = PublishedContent.objects.get(content_pk=opinion_picked.pk)

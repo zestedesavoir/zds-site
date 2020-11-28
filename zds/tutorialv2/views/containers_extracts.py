@@ -1,11 +1,11 @@
 import logging
-from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView, FormView
 
@@ -51,7 +51,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
 
         # then save:
         self.object.sha_draft = sha
-        self.object.update_date = datetime.now()
+        self.object.update_date = timezone.now()
         self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
@@ -170,7 +170,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
         # then save
         self.object.sha_draft = sha
-        self.object.update_date = datetime.now()
+        self.object.update_date = timezone.now()
         self.object.save(force_slug_update=False)
 
         self.success_url = container.get_absolute_url()
@@ -208,7 +208,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
         # then save
         self.object.sha_draft = sha
-        self.object.update_date = datetime.now()
+        self.object.update_date = timezone.now()
         self.object.save(force_slug_update=False)
 
         self.success_url = parent.children[-1].get_absolute_url()
@@ -261,7 +261,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                                   form.cleaned_data['msg_commit'])
 
         # then save
-        self.object.update(sha_draft=sha, update_date=datetime.now())
+        self.object.update(sha_draft=sha, update_date=timezone.now())
 
         self.success_url = extract.get_absolute_url()
         if self.request.is_ajax():
@@ -294,7 +294,7 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
         sha = to_delete.repo_delete()
 
         # then save
-        self.object.update(sha_draft=sha, update_date=datetime.now())
+        self.object.update(sha_draft=sha, update_date=timezone.now())
 
         return redirect(parent.get_absolute_url())
 

@@ -1,10 +1,10 @@
 import random
-from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, DetailView
@@ -176,7 +176,7 @@ def restore_edit(request, edit_pk):
     new_edit.original_text = comment.text
     new_edit.save()
 
-    comment.update = datetime.now()
+    comment.update = timezone.now()
     comment.editor = request.user
     comment.update_content(edit.original_text, lambda m: messages.error(request,
                                                                         _('Erreurs dans le markdown: {}').format(
@@ -201,7 +201,7 @@ def delete_edit_content(request, edit_pk):
 
     edit.original_text = ''
     edit.deleted_by = request.user
-    edit.deleted_at = datetime.now()
+    edit.deleted_at = timezone.now()
     edit.save()
 
     return redirect('comment-edits-history', comment_pk=edit.comment.pk)

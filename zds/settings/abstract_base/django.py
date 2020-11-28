@@ -43,8 +43,8 @@ LOCALE_PATHS = (
 # calendars according to the current locale.
 USE_L10N = False
 
-# If you set this to False, Django will not use timezone-aware datetimes.
-USE_TZ = False
+# If you set this to True, Django will use timezone-aware datetimes.
+USE_TZ = True
 
 LANGUAGES = (
     ('fr', _('Français')),

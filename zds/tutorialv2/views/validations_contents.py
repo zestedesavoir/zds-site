@@ -1,5 +1,4 @@
 import logging
-from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,6 +9,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import ListView, FormView
 
@@ -125,7 +125,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         if old_validation:  # if an old validation exists, cancel it!
             old_validator = old_validation.validator
             old_validation.status = 'CANCEL'
-            old_validation.date_validation = datetime.now()
+            old_validation.date_validation = timezone.now()
             old_validation.save()
         else:
             old_validator = None
@@ -133,7 +133,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         # create a 'validation' object
         validation = Validation()
         validation.content = self.object
-        validation.date_proposition = datetime.now()
+        validation.date_proposition = timezone.now()
         validation.comment_authors = form.cleaned_data['text']
         validation.version = form.cleaned_data['version']
         if old_validator:
@@ -220,7 +220,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         validation.status = 'CANCEL'
         validation.comment_authors = _('\n\nLa validation a été **annulée** pour la raison suivante :\n\n{}')\
             .format(quote)
-        validation.date_validation = datetime.now()
+        validation.date_validation = timezone.now()
         validation.save()
 
         validation.content.sha_validation = None
@@ -278,7 +278,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             return redirect(reverse('validation:list'))
         else:
             validation.validator = request.user
-            validation.date_reserve = datetime.now()
+            validation.date_reserve = timezone.now()
             validation.status = 'PENDING_V'
             validation.save()
 
@@ -371,7 +371,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         # reject validation:
         validation.comment_validator = form.cleaned_data['text']
         validation.status = 'REJECT'
-        validation.date_validation = datetime.now()
+        validation.date_validation = timezone.now()
         validation.save()
 
         validation.content.sha_validation = None

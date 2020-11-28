@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import Group
+from django.utils import timezone
 from hashlib import md5
 
 from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
@@ -254,7 +255,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertEqual(self.user1.get_active_alerts_count(), 0)
         # Post and Alert it !
         post = PostFactory(topic=self.forumtopic, author=self.user1.user, position=1)
-        Alert.objects.create(author=self.user1.user, comment=post, scope='FORUM', pubdate=datetime.now())
+        Alert.objects.create(author=self.user1.user, comment=post, scope='FORUM', pubdate=timezone.now())
         # Should be 1
         self.assertEqual(self.user1.get_active_alerts_count(), 1)
 
@@ -267,7 +268,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
 
         # Was banned in the past, ban no longer active
         profile = ProfileFactory()
-        profile.end_ban_read = datetime.now() - timedelta(days=1)
+        profile.end_ban_read = timezone.now() - timedelta(days=1)
         self.assertTrue(profile.can_read_now())
 
         profile = ProfileFactory()
@@ -279,7 +280,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         profile = ProfileFactory()
         profile.is_active = True
         profile.can_read = False
-        profile.end_ban_read = datetime.now() + timedelta(days=1)
+        profile.end_ban_read = timezone.now() + timedelta(days=1)
         self.assertFalse(profile.can_read_now())
 
         self.user1.user.is_active = False
@@ -294,7 +295,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         # Was banned in the past, ban no longer active
         profile = ProfileFactory()
         profile.can_write = True
-        profile.end_ban_read = datetime.now() - timedelta(days=1)
+        profile.end_ban_read = timezone.now() - timedelta(days=1)
         self.assertTrue(profile.can_write_now())
 
         profile = ProfileFactory()
@@ -305,7 +306,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         # Ban is active
         profile = ProfileFactory()
         profile.can_write = False
-        profile.end_ban_write = datetime.now() + timedelta(days=1)
+        profile.end_ban_write = timezone.now() + timedelta(days=1)
         self.assertFalse(profile.can_write_now())
 
         self.user1.user.is_active = False
@@ -376,19 +377,19 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         profile_ban_temp = ProfileFactory()
         profile_ban_temp.can_read = False
         profile_ban_temp.can_write = False
-        profile_ban_temp.end_ban_read = datetime.now() + timedelta(days=1)
+        profile_ban_temp.end_ban_read = timezone.now() + timedelta(days=1)
         profile_ban_temp.save()
         profile_unban = ProfileFactory()
         profile_unban.can_read = False
         profile_unban.can_write = False
-        profile_unban.end_ban_read = datetime.now() - timedelta(days=1)
+        profile_unban.end_ban_read = timezone.now() - timedelta(days=1)
         profile_unban.save()
         profile_ls_def = ProfileFactory()
         profile_ls_def.can_write = False
         profile_ls_def.save()
         profile_ls_temp = ProfileFactory()
         profile_ls_temp.can_write = False
-        profile_ls_temp.end_ban_write = datetime.now() + timedelta(days=1)
+        profile_ls_temp.end_ban_write = timezone.now() + timedelta(days=1)
         profile_ls_temp.save()
 
         # groups
@@ -436,7 +437,7 @@ class TestTokenForgotPassword(TestCase):
         self.user1 = ProfileFactory()
         self.token = TokenForgotPassword.objects.create(user=self.user1.user,
                                                         token='abcde',
-                                                        date_end=datetime.now())
+                                                        date_end=timezone.now())
 
     def test_get_absolute_url(self):
         self.assertEqual(self.token.get_absolute_url(), '/membres/new_password/?token={0}'.format(self.token.token))
@@ -448,7 +449,7 @@ class TestTokenRegister(TestCase):
         self.user1 = ProfileFactory()
         self.token = TokenRegister.objects.create(user=self.user1.user,
                                                   token='abcde',
-                                                  date_end=datetime.now())
+                                                  date_end=timezone.now())
 
     def test_get_absolute_url(self):
         self.assertEqual(self.token.get_absolute_url(), '/membres/activation/?token={0}'.format(self.token.token))

@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from oauth2_provider.models import AccessToken
 
@@ -17,6 +17,7 @@ from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.http import urlunquote
 from django.utils.text import format_lazy
@@ -1152,7 +1153,7 @@ def forgot_password(request):
 
             # Generate a valid token during one hour
             uuid_token = str(uuid.uuid4())
-            date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
+            date_end = timezone.now() + timedelta(days=0, hours=1, minutes=0,
                                                   seconds=0)
             token = TokenForgotPassword(user=usr, token=uuid_token,
                                         date_end=date_end)
@@ -1197,7 +1198,7 @@ def new_password(request):
             password = data['password']
             # User can't confirm his request if it is too late
 
-            if datetime.now() > token.date_end:
+            if timezone.now() > token.date_end:
                 return render(request, 'member/new_password/failed.html')
             token.user.set_password(password)
             token.user.save()
@@ -1223,7 +1224,7 @@ def activate_account(request):
         return render(request, 'member/register/token_already_used.html')
 
     # User can't confirm their request if it is too late
-    if datetime.now() > token.date_end:
+    if timezone.now() > token.date_end:
         return render(request, 'member/register/token_failed.html',
                       {'token': token})
     usr.is_active = True
@@ -1276,7 +1277,7 @@ def generate_token_account(request):
 
     # Push date
 
-    date_end = datetime.now() + timedelta(days=0, hours=1, minutes=0,
+    date_end = timezone.now() + timedelta(days=0, hours=1, minutes=0,
                                           seconds=0)
     token.date_end = date_end
     token.save()
@@ -1472,7 +1473,7 @@ class CreateProfileReportView(LoginRequiredMixin, View):
                 profile=profile,
                 scope='PROFILE',
                 text=reason,
-                pubdate=datetime.now())
+                pubdate=timezone.now())
             alert.save()
             messages.success(request, _('Votre signalement a été transmis à l\'équipe de modération. '
                                         'Merci de votre aide !'))

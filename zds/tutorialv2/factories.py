@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 import factory
 from zds.forum.factories import PostFactory, TopicFactory
@@ -40,8 +40,8 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     title = factory.Sequence('Mon contenu No{0}'.format)
     description = factory.Sequence('Description du contenu No{0}'.format)
     type = 'TUTORIAL'
-    creation_date = datetime.now()
-    pubdate = datetime.now()
+    creation_date = timezone.now()
+    pubdate = timezone.now()
 
     @classmethod
     def _prepare(cls, create, *, light=True, author_list=None, licence: Licence = None,
@@ -132,7 +132,7 @@ class ContentReactionFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         note = super(ContentReactionFactory, cls)._prepare(create, **kwargs)
-        note.pubdate = datetime.now()
+        note.pubdate = timezone.now()
         note.save()
         note.related_content.last_note = note
         note.related_content.save()

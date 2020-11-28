@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 from django.views.generic.detail import SingleObjectMixin
 from django.http import Http404
@@ -34,7 +34,7 @@ class UpdatePrivatePost:
         instance.hat = hat
         instance.text = data.get('text')
         instance.text_html = emarkdown(data.get('text'))
-        instance.update = datetime.now()
+        instance.update = timezone.now()
         instance.save()
         return instance
 

@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.test import TestCase
 from django.template import Context, Template
+from django.utils import timezone
 
 
 class DateFormatterTest(TestCase):
@@ -9,7 +10,7 @@ class DateFormatterTest(TestCase):
 
     def setUp(self):
 
-        now = datetime.now()
+        now = timezone.now()
         date_previous_in_day = now - timedelta(hours=1)
         date_previous_abs = datetime(2013, 9, 12, hour=11, minute=10, second=42, microsecond=10)
         date_future_in_day = now + timedelta(hours=1)
@@ -81,7 +82,7 @@ class DateFormatterTest(TestCase):
         # Default behaviour
 
         # Todo: Add test to step time less than one day with tooltip
-        # Todo: I don't know how to test this without hugly hack on datetime.now()
+        # Todo: I don't know how to test this without hugly hack on timezone.now()
 
         tr = Template('{% load date %}'
                       '{{ date_future_in_day | tooltip_date }}'

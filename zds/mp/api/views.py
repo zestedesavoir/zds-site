@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
@@ -53,15 +54,15 @@ class PrivatePostDetailKeyConstructor(DetailKeyConstructor):
 
 
 def change_api_private_topic_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_topic', datetime.datetime.utcnow())
+    cache.set('api_updated_topic', timezone.now())
 
 
 def change_api_private_post_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_post', datetime.datetime.utcnow())
+    cache.set('api_updated_post', timezone.now())
 
 
 def change_api_notification_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_notification', datetime.datetime.utcnow())
+    cache.set('api_updated_notification', timezone.now())
 
 
 for model, func in [(PrivateTopic, change_api_private_topic_updated_at),

@@ -6,6 +6,7 @@ from django.core import mail
 from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from zds.forum.factories import ForumFactory, ForumCategoryFactory
@@ -1464,7 +1465,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         article1 = PublishedContentFactory(type='ARTICLE')
 
         # force 'article1' to be the first one by setting a publication date equals to one hour before the test
-        article1.public_version.publication_date = datetime.datetime.now() - datetime.timedelta(0, 1)
+        article1.public_version.publication_date = timezone.now() - datetime.timedelta(0, 1)
         article1.public_version.save()
 
         article2 = PublishedContentFactory(type='ARTICLE')
@@ -1543,9 +1544,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             status='ACCEPT',
             comment_authors='bla',
             comment_validator='bla',
-            date_reserve=datetime.datetime.now(),
-            date_proposition=datetime.datetime.now(),
-            date_validation=datetime.datetime.now()
+            date_reserve=timezone.now(),
+            date_proposition=timezone.now(),
+            date_validation=timezone.now()
         )
         registered_validation.save()
         self.assertEqual(
@@ -1587,9 +1588,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             status='ACCEPT',
             comment_authors='bla',
             comment_validator='bla',
-            date_reserve=datetime.datetime.now(),
-            date_proposition=datetime.datetime.now(),
-            date_validation=datetime.datetime.now()
+            date_reserve=timezone.now(),
+            date_proposition=timezone.now(),
+            date_validation=timezone.now()
         )
         registered_validation.save()
         subscriber = ProfileFactory().user

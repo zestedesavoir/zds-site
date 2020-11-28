@@ -1,6 +1,7 @@
 import datetime
 from django.urls import reverse
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from zds.gallery.factories import UserGalleryFactory
@@ -635,7 +636,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 password='hostel77'),
             True)
         alerter = ProfileFactory().user
-        Alert.objects.create(author=alerter, scope='CONTENT', content=opinion, pubdate=datetime.datetime.now(),
+        Alert.objects.create(author=alerter, scope='CONTENT', content=opinion, pubdate=timezone.now(),
                              text="J'ai un probleme avec cette opinion : c'est pas la mienne.")
         # unpublish opinion
         result = self.client.post(

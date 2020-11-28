@@ -3,6 +3,7 @@ import logging
 
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
@@ -26,13 +27,13 @@ def cleanup_validation_alerts(sender, instance, *, moderator=None, **__):
         moderator = moderator or get_current_user()
         Alert.objects.filter(scope='CONTENT', content=instance).update(moderator=moderator,
                                                                        resolve_reason=_('Le billet a été dépublié.'),
-                                                                       solved_date=datetime.datetime.now(),
+                                                                       solved_date=timezone.now(),
                                                                        solved=True)
         reactions = ContentReaction.objects.filter(related_content=instance).values_list('pk', flat=True)
         Alert.objects.filter(comment__in=reactions).update(moderator=moderator,
                                                            resolve_reason=_('Le billet a'
                                                                             ' été dépublié.'),
-                                                           solved_date=datetime.datetime.now(),
+                                                           solved_date=timezone.now(),
                                                            solved=True)
 
 

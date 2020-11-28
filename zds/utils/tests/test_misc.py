@@ -2,6 +2,7 @@ import datetime
 from django.test import TestCase
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory
+from django.utils import timezone
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Alert
 from zds.utils.context_processor import get_header_notifications
@@ -25,7 +26,7 @@ class Misc(TestCase):
         alert.scope = 'CONTENT'
         alert.author = alerter.user
         alert.content = opinion
-        alert.pubdate = datetime.datetime.now()
+        alert.pubdate = timezone.now()
         alert.text = 'Something to say.'
         alert.save()
         filter_result = get_header_notifications(staff.user)['alerts']

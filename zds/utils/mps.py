@@ -1,4 +1,4 @@
-from datetime import datetime
+from django.utils import timezone
 
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -46,7 +46,7 @@ def send_mp(
     n_topic = PrivateTopic()
     n_topic.title = title[:limit]
     n_topic.subtitle = subtitle
-    n_topic.pubdate = datetime.now()
+    n_topic.pubdate = timezone.now()
     n_topic.author = author
     n_topic.save()
 
@@ -101,7 +101,7 @@ def send_message_mp(
     post.author = author
     post.text = text
     post.text_html = emarkdown(text)
-    post.pubdate = datetime.now()
+    post.pubdate = timezone.now()
     post.position_in_topic = pos
     post.hat = hat
     post.save()

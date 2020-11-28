@@ -1,7 +1,6 @@
-from datetime import datetime
-
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -16,7 +15,7 @@ class FeaturedResourceManager(models.Manager):
 
     def get_last_featured(self):
         return self.order_by('-pubdate') \
-            .exclude(pubdate__gt=datetime.now()) \
+            .exclude(pubdate__gt=timezone.now()) \
             .prefetch_related('authors__user')[:settings.ZDS_APP['featured_resource']['home_number']]
 
 

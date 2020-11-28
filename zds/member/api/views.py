@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
@@ -53,7 +54,7 @@ class MyDetailKeyConstructor(DefaultKeyConstructor):
 
 
 def change_api_profile_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_profile', datetime.datetime.utcnow())
+    cache.set('api_updated_profile', timezone.now())
 
 
 post_save.connect(receiver=change_api_profile_updated_at, sender=Profile)

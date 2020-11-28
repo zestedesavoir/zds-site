@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 import uuid
 
 from django.conf import settings
@@ -7,6 +7,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.template.defaultfilters import pluralize
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from zds.member.models import Profile, TokenRegister, Ban
@@ -58,7 +59,7 @@ class TokenGenerator:
         :rtype: Token object
         """
         uuid_token = str(uuid.uuid4())
-        date_end = datetime.now() + timedelta(hours=1)
+        date_end = timezone.now() + timedelta(hours=1)
         token = TokenRegister(user=user, token=uuid_token, date_end=date_end)
         token.save()
         return token
@@ -157,7 +158,7 @@ class MemberSanctionState:
         ban = Ban()
         ban.moderator = moderator
         ban.user = user
-        ban.pubdate = datetime.now()
+        ban.pubdate = timezone.now()
         ban.type = self.get_type()
         ban.note = self.get_text()
         return ban
@@ -255,7 +256,7 @@ class TemporaryReadingOnlySanction(MemberSanctionState):
 
     def apply_sanction(self, profile, ban):
         day = int(self.array_infos.get('ls-jrs'))
-        profile.end_ban_write = datetime.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
+        profile.end_ban_write = timezone.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
         profile.can_write = False
         profile.save()
         ban.save()
@@ -326,7 +327,7 @@ class TemporaryBanSanction(MemberSanctionState):
 
     def apply_sanction(self, profile, ban):
         day = int(self.array_infos.get('ban-jrs'))
-        profile.end_ban_read = datetime.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
+        profile.end_ban_read = timezone.now() + timedelta(days=day, hours=0, minutes=0, seconds=0)
         profile.can_read = False
         profile.save()
         ban.save()

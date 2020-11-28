@@ -1,8 +1,7 @@
-from datetime import datetime
-
 from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.urls import reverse
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.test import TestCase
 
@@ -1094,7 +1093,7 @@ class PostNewTest(TestCase):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
-        topic.last_message.pubdate = datetime.now()
+        topic.last_message.pubdate = timezone.now()
         topic.last_message.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))

@@ -1,5 +1,4 @@
 import os
-from datetime import datetime
 from smtplib import SMTPException
 
 from django.core.mail.backends.base import BaseEmailBackend
@@ -11,6 +10,7 @@ from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.urls import reverse
 from django.test import TestCase, override_settings
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from zds.notification.models import TopicAnswerSubscription
@@ -196,7 +196,7 @@ class MemberTests(TutorialTestMixin, TestCase):
             moderator=self.staff,
             type='Lecture Seule Temporaire',
             note='Test de LS',
-            pubdate=datetime.now(),
+            pubdate=timezone.now(),
         )
         ban.save()
 
@@ -205,7 +205,7 @@ class MemberTests(TutorialTestMixin, TestCase):
             moderator=self.staff,
             karma=5,
             note='Test de karma',
-            pubdate=datetime.now(),
+            pubdate=timezone.now(),
         )
         note.save()
 
@@ -579,7 +579,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         token.user = user.user
         token.token = 'r@d0m'
         token.application = api_application
-        token.expires = datetime.now()
+        token.expires = timezone.now()
         token.save()
         self.assertEqual(Application.objects.count(), 1)
         self.assertEqual(AccessToken.objects.count(), 1)

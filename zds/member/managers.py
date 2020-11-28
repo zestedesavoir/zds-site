@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from datetime import datetime
+from django.utils import timezone
 from django.contrib.auth.models import Group
 from django.db.models import Q
 
@@ -13,7 +13,7 @@ class ProfileManager(models.Manager):
         :return: All contactable members
         :rtype: QuerySet
         """
-        now = datetime.now()
+        now = timezone.now()
         excluded_groups = [Group.objects.filter(name=settings.ZDS_APP['member']['bot_group']).first()]
         qs = self.get_queryset() \
             .exclude(user__is_active=False) \

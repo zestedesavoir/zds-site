@@ -1,7 +1,8 @@
-from datetime import datetime, date
+from datetime import date
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import TestCase
+from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
@@ -95,7 +96,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         self.assertEqual(2, FeaturedResource.objects.all().count())
 
         featured = FeaturedResource.objects.last()
-        self.assertTrue((datetime.now() - featured.pubdate).total_seconds() < 10)
+        self.assertTrue((timezone.now() - featured.pubdate).total_seconds() < 10)
 
     def test_failure_create_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-create'))
@@ -248,14 +249,14 @@ class FeaturedResourceUpdateViewTest(TestCase):
                 self.assertEqual(value, featured.pubdate.strftime('%d/%m/%Y %H:%M:%S'))
 
         # now with major_update
-        self.assertFalse((datetime.now() - featured.pubdate).total_seconds() < 10)
+        self.assertFalse((timezone.now() - featured.pubdate).total_seconds() < 10)
 
         fields['major_update'] = 'on'
 
         response = self.client.post(reverse('featured-resource-update', args=[news.pk]), fields, follow=True)
         self.assertEqual(200, response.status_code)
         featured = FeaturedResource.objects.first()
-        self.assertTrue((datetime.now() - featured.pubdate).total_seconds() < 10)
+        self.assertTrue((timezone.now() - featured.pubdate).total_seconds() < 10)
 
     def test_failure_create_featured_with_unauthenticated_user(self):
         response = self.client.get(reverse('featured-resource-update', args=[42]))

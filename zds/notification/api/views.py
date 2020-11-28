@@ -1,4 +1,5 @@
 import datetime
+from django.utils import timezone
 from django.core.cache import cache
 from django.db.models.signals import post_delete
 from django.db.models.signals import post_save
@@ -26,7 +27,7 @@ class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
 
 
 def change_api_notification_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_notification', datetime.datetime.utcnow())
+    cache.set('api_updated_notification', timezone.now())
 
 
 post_save.connect(receiver=change_api_notification_updated_at, sender=Notification)

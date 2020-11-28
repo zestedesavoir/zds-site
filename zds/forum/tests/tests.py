@@ -1,10 +1,11 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
 from django.urls import reverse
 from django.test import TestCase
+from django.utils import timezone
 
 from zds.forum.commons import PostEditMixin
 from zds.forum.factories import ForumCategoryFactory, ForumFactory, \
@@ -1213,7 +1214,7 @@ class ForumGuestTests(TestCase):
 
         # Create a post published one day before old_post_limit_days
         old_post = PostFactory(topic=topic, author=self.user, position=2)
-        old_post.pubdate = datetime.now() - timedelta(days=(settings.ZDS_APP['forum']['old_post_limit_days'] + 1))
+        old_post.pubdate = timezone.now() - timedelta(days=(settings.ZDS_APP['forum']['old_post_limit_days'] + 1))
         old_post.save()
         self.assertEqual(topic.old_post_warning(), True)
 

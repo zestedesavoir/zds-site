@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from django.test.utils import override_settings
 from django.shortcuts import get_object_or_404
 
@@ -30,7 +31,7 @@ class SetLastVisitMiddlewareTest(TestCase):
             True)
 
         # set last login to a recent date
-        self.user.last_visit = datetime.now() - timedelta(seconds=10)
+        self.user.last_visit = timezone.now() - timedelta(seconds=10)
         self.user.save()
 
         # load a page
@@ -38,10 +39,10 @@ class SetLastVisitMiddlewareTest(TestCase):
 
         # the date of last visit should not have been updated
         profile = get_object_or_404(Profile, pk=profile_pk)
-        self.assertTrue(datetime.now() - profile.last_visit > timedelta(seconds=5))
+        self.assertTrue(timezone.now() - profile.last_visit > timedelta(seconds=5))
 
         # set last login to an old date
-        self.user.last_visit = datetime.now() - timedelta(seconds=45)
+        self.user.last_visit = timezone.now() - timedelta(seconds=45)
         self.user.save()
 
         # load a page
@@ -49,4 +50,4 @@ class SetLastVisitMiddlewareTest(TestCase):
 
         # the date of last visit should have been updated
         profile = get_object_or_404(Profile, pk=profile_pk)
-        self.assertTrue(datetime.now() - profile.last_visit < timedelta(seconds=5))
+        self.assertTrue(timezone.now() - profile.last_visit < timedelta(seconds=5))

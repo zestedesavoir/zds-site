@@ -1,5 +1,4 @@
-from datetime import datetime
-
+from django.utils import timezone
 from django.urls import reverse
 from django.template import Context, Template
 from django.test import TestCase
@@ -38,7 +37,7 @@ class InterventionsTest(TestCase):
             content=self.tuto,
             version=self.tuto.sha_draft,
             comment_authors='bla',
-            date_proposition=datetime.now(),
+            date_proposition=timezone.now(),
         )
         self.validation.save()
 
