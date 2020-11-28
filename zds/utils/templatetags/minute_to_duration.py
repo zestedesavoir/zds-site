@@ -30,13 +30,15 @@ def minute_to_duration(value):
 
     if value < min_in_day and value % min_in_hour == 0:
         value /= min_in_hour
-        return ngettext('%(count)d heure', '%(count)d heures', value) % {'count': value}
+        return (ngettext('%(count)d heure', '%(count)d heures', value) %
+                {'count': value})
 
     elif value < min_in_day and value % min_in_hour != 0:
         hours = value // min_in_hour
         minutes = value % min_in_hour
-        return (ngettext('%(hours)d heure et %(minutes)d minutes', '%(hours)d heures et %(minutes)d minutes', hours) %
-            {'hours': hours, 'minutes': minutes})
+        return (ngettext('%(hours)d heure et %(minutes)d minutes',
+                '%(hours)d heures et %(minutes)d minutes', hours) %
+                {'hours': hours, 'minutes': minutes})
 
     if value >= min_in_day:
         value //= min_in_hour
