@@ -223,7 +223,6 @@ jobs:
 
       - name: Build and start zmarkdown
         run: |
-          cd ./zmd && npm install pm2 && cd ..
           make zmd-install
           make zmd-start
 
