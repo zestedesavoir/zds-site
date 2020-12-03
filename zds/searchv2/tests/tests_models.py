@@ -313,7 +313,7 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         versioned = tuto.load_version(sha=tuto.sha_draft)
 
         tuto.title = "un titre complètement différent!"
-        tuto.save()
+        tuto.save(force_slug_update=True)
 
         versioned.repo_update_top_container(tuto.title, tuto.slug, "osef", "osef")
         second_publication = publish_content(tuto, versioned, True)
