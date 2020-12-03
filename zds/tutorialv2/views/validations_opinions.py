@@ -67,7 +67,7 @@ class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormVi
             db_object.source = db_object.source
             db_object.sha_validation = None
             db_object.public_version = published
-            db_object.save(force_slug_update=False)
+            db_object.save()
 
             # if only ignore, we remove it from history
             PickListOperation.objects.filter(content=db_object, operation__in=["NO_PICK", "PICK"]).update(
@@ -132,7 +132,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                     direct=False,
                     hat=get_hat_from_settings("moderation"),
                 )
-                self.object.save(force_slug_update=False)
+                self.object.save()
             else:
                 send_message_mp(
                     bot,
@@ -222,7 +222,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                         direct=False,
                         hat=get_hat_from_settings("moderation"),
                     )
-                    self.object.save(force_slug_update=False)
+                    self.object.save()
                 else:
                     send_message_mp(
                         bot,
@@ -294,7 +294,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
 
         db_object.sha_picked = form.cleaned_data["version"]
         db_object.picked_date = datetime.now()
-        db_object.save(force_slug_update=False)
+        db_object.save()
 
         # mark to reindex to boost correctly in the search
         self.public_content_object.es_flagged = True
@@ -326,7 +326,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
                 direct=False,
                 hat=get_hat_from_settings("moderation"),
             )
-            self.object.save(force_slug_update=False)
+            self.object.save()
         else:
             send_message_mp(
                 bot,
@@ -370,7 +370,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
             raise PermissionDenied("Impossible de retirer des billets choisis un billet pas choisi.")
 
         db_object.sha_picked = None
-        db_object.save(force_slug_update=False)
+        db_object.save()
         PickListOperation.objects.filter(operation="PICK", is_effective=True, content=self.object).first().cancel(
             self.request.user
         )
@@ -400,7 +400,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
                 direct=False,
                 hat=get_hat_from_settings("moderation"),
             )
-            self.object.save(force_slug_update=False)
+            self.object.save()
         else:
             send_message_mp(bot, self.object.validation_private_message, msg)
 
@@ -479,10 +479,10 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             article.subcategory.add(subcat)
         for tag in tags:
             article.tags.add(tag)
-        article.save(force_slug_update=False)
+        article.save()
         # add information about the conversion to the original opinion
         db_object.converted_to = article
-        db_object.save(force_slug_update=False)
+        db_object.save()
 
         # clone the repo
         clone_repo(old_git_path, article.get_repo_path())
@@ -493,7 +493,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             versionned_article.title, versionned_article.get_introduction(), versionned_article.get_conclusion()
         )
         article.sha_draft = article.sha_validation
-        article.save(force_slug_update=False)
+        article.save()
         # ask for validation
         validation = Validation()
         validation.content = article
@@ -516,7 +516,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
         gal.save()
         article.gallery = gal
         # save updates
-        article.save(force_slug_update=False)
+        article.save()
         article.ensure_author_gallery()
 
         # send message to user
@@ -540,7 +540,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             direct=False,
             hat=get_hat_from_settings("validation"),
         )
-        article.save(force_slug_update=False)
+        article.save()
 
         self.success_url = db_object.get_absolute_url()
 

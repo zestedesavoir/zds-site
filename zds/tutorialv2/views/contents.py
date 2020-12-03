@@ -102,18 +102,18 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
             img.save()
             self.content.image = img
 
-        self.content.save(force_slug_update=False)
+        self.content.save()
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
 
         self.content.ensure_author_gallery()
-        self.content.save(force_slug_update=False)
+        self.content.save()
         # Add subcategories on tutorial
         for subcat in form.cleaned_data["subcategory"]:
             self.content.subcategory.add(subcat)
 
-        self.content.save(force_slug_update=False)
+        self.content.save()
 
         # create a new repo :
         init_new_repo(
@@ -297,7 +297,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         for subcat in form.cleaned_data["subcategory"]:
             publishable.subcategory.add(subcat)
 
-        publishable.save(force_slug_update=False)
+        publishable.save()
 
         self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])
         return super().form_valid(form)
@@ -321,7 +321,7 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
         # Update license in database
         publishable.licence = form.cleaned_data["license"]
         publishable.update_date = datetime.now()
-        publishable.save(force_slug_update=False)
+        publishable.save()
 
         # Update license in repository
         self.versioned_object.licence = form.cleaned_data["license"]
@@ -335,7 +335,7 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
 
         # Update relationships in database
         publishable.sha_draft = sha
-        publishable.save(force_slug_update=False)
+        publishable.save()
 
         messages.success(self.request, EditContentLicense.success_message_license)
 
@@ -406,7 +406,7 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
                             hat=get_hat_from_settings("validation"),
                             automatically_read=validation.validator,
                         )
-                        validation.content.save(force_slug_update=False)
+                        validation.content.save()
                     else:
                         send_message_mp(
                             bot,

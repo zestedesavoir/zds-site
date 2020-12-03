@@ -182,7 +182,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         # update the content with the source and the version of the validation
         self.object.source = self.versioned_object.source
         self.object.sha_validation = validation.version
-        self.object.save(force_slug_update=False)
+        self.object.save()
 
         messages.success(self.request, _("Votre demande de validation a été transmise à l'équipe."))
 
@@ -237,7 +237,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         validation.save()
 
         validation.content.sha_validation = None
-        validation.content.save(force_slug_update=False)
+        validation.content.save()
 
         # warn the former validator that the whole thing has been cancelled
         if validation.validator:
@@ -262,7 +262,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                     send_by_mail=False,
                     hat=get_hat_from_settings("validation"),
                 )
-                validation.content.save(force_slug_update=False)
+                validation.content.save()
             else:
                 send_message_mp(bot, validation.content.validation_private_message, msg)
 
@@ -323,7 +323,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                         mark_as_read=True,
                         hat=get_hat_from_settings("validation"),
                     )
-                    validation.content.save(force_slug_update=False)
+                    validation.content.save()
                 else:
                     send_message_mp(validation.validator, validation.content.validation_private_message, msg)
                 mark_read(validation.content.validation_private_message, validation.validator)
@@ -391,7 +391,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         validation.save()
 
         validation.content.sha_validation = None
-        validation.content.save(force_slug_update=False)
+        validation.content.save()
 
         # send PM
         versioned = validation.content.load_version(sha=validation.version)
@@ -417,7 +417,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                 direct=False,
                 hat=get_hat_from_settings("validation"),
             )
-            validation.content.save(force_slug_update=False)
+            validation.content.save()
         else:
             send_message_mp(
                 bot, validation.content.validation_private_message, msg, no_notification_for=[self.request.user]
@@ -528,7 +528,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         self.object.sha_public = None
         self.object.sha_validation = validation.version
         self.object.pubdate = None
-        self.object.save(force_slug_update=False)
+        self.object.save()
 
         # send PM
         msg = render_to_string(
@@ -553,7 +553,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                 direct=False,
                 hat=get_hat_from_settings("validation"),
             )
-            self.object.save(force_slug_update=False)
+            self.object.save()
         else:
             send_message_mp(
                 bot, validation.content.validation_private_message, msg, no_notification_for=[self.request.user]
@@ -582,7 +582,7 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         else:
             content.is_obsolete = True
             messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
-        content.save(force_slug_update=False)
+        content.save()
         return redirect(content.get_absolute_url_online())
 
 

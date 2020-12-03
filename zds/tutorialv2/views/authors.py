@@ -66,7 +66,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                         hat=get_hat_from_settings("validation"),
                     )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
-        self.object.save(force_slug_update=False)
+        self.object.save()
         self.success_url = self.object.get_absolute_url()
 
         return super(AddAuthorToContent, self).form_valid(form)
@@ -130,7 +130,7 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
                 )
                 return redirect(self.object.get_absolute_url())
 
-        self.object.save(force_slug_update=False)
+        self.object.save()
 
         authors_list = ""
 
