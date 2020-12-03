@@ -423,7 +423,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save(force_slug_update=False)
+                self.object.save()
 
                 self.success_url = reverse("content:view", args=[versioned.pk, versioned.slug])
 
@@ -484,7 +484,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # Attach user to gallery
                 self.object.gallery = gal
-                self.object.save(force_slug_update=False)
+                self.object.save()
 
                 # Add subcategories on tutorial
                 for subcat in form.cleaned_data["subcategory"]:
@@ -492,7 +492,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 # We need to save the tutorial before changing its author list since it's a many-to-many relationship
                 self.object.authors.add(self.request.user)
-                self.object.save(force_slug_update=False)
+                self.object.save()
                 self.object.ensure_author_gallery()
                 # ok, now we can import
                 introduction = ""
@@ -547,7 +547,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 # of course, need to update sha
                 self.object.sha_draft = sha
                 self.object.update_date = datetime.now()
-                self.object.save(force_slug_update=False)
+                self.object.save()
 
                 self.success_url = reverse("content:view", args=[versioned.pk, versioned.slug])
 

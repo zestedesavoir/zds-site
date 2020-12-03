@@ -167,14 +167,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         self.refresh_from_db(fields=list(fields.keys()))
         return self
 
-    def save(self, *args, force_slug_update=True, update_date=True, **kwargs):
+    def save(self, *args, force_slug_update=False, update_date=True, **kwargs):
         """
         Rewrite the ``save()``  function to handle slug uniqueness
 
         :param update_date: if ``True`` will assign "update_date" property to now
-        :param force_slug_update: if set to ``False`` do not try to update the slug
+        :param force_slug_update: if ``True`` will try to update the slug
         """
-        if force_slug_update:
+        if self.slug == "" or force_slug_update:
             self.slug = uuslug(self.title, instance=self, max_length=80)
         if update_date:
             self.update_date = datetime.now()
@@ -593,7 +593,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             except ValueError as e:
                 logger.warning(e)
         logger.debug("Initial number of tags=%s, after filtering=%s", len(tag_collection), len(self.tags.all()))
-        self.save(force_slug_update=False)
+        self.save()
 
     def requires_validation(self):
         """

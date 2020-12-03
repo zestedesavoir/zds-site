@@ -64,7 +64,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
         # then save:
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save(force_slug_update=False)
+        self.object.save()
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -183,7 +183,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save(force_slug_update=False)
+        self.object.save()
 
         self.success_url = container.get_absolute_url()
 
@@ -221,7 +221,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         # then save
         self.object.sha_draft = sha
         self.object.update_date = datetime.now()
-        self.object.save(force_slug_update=False)
+        self.object.save()
 
         self.success_url = parent.children[-1].get_absolute_url()
 
@@ -400,8 +400,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                 update_slug=False,
             )
             content.sha_draft = versioned.sha_draft
-            content.save(force_slug_update=False)  # we do not want the save routine to update the slug in case
-            # of slug algorithm conflict (for pre-zep-12 or imported content)
+            content.save()
             messages.info(self.request, _("L'élément a bien été déplacé."))
         except TooDeepContainerError:
             messages.error(

@@ -548,7 +548,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
             "(/media/galleries/4410/c1016bf1-a1de-48a1-9ef1-144308e8725d.jpg)"
         )
         article.sha_draft = article.load_version().repo_update(article.title, image_string, "", update_slug=False)
-        article.save(force_slug_update=False)
+        article.save()
         publish_content(article, article.load_version())
         self.assertTrue(PublishedContent.objects.filter(content_id=article.pk).exists())
 

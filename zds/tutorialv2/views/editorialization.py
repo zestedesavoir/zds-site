@@ -114,6 +114,6 @@ class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     def form_valid(self, form):
         self.object.tags.clear()
         self.object.add_tags(form.cleaned_data["tags"].split(","))
-        self.object.save(force_slug_update=False)
+        self.object.save()
         messages.success(self.request, EditContentTags.success_message)
         return redirect(form.previous_page_url)

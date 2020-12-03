@@ -81,7 +81,7 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             self.object.helps.add(data["help_wanted"])
         else:
             self.object.helps.remove(data["help_wanted"])
-        self.object.save(force_slug_update=False)
+        self.object.save()
         if self.request.is_ajax():
             return HttpResponse(
                 json.dumps({"result": "ok", "help_wanted": data["activated"]}), content_type="application/json"
