@@ -140,7 +140,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             leave=True,
                             hat=get_hat_from_settings("validation"),
                         )
-                        self.object.save(force_slug_update=False)
+                        self.object.save()
                     else:
                         send_message_mp(
                             bot, self.object.validation_private_message, msg, hat=get_hat_from_settings("validation")
@@ -189,7 +189,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     topic.tags.add(tag)
                 topic.save()
 
-        self.object.save(force_slug_update=False)  # we should prefer .update but it needs a uge refactoring
+        self.object.save()  # we should prefer .update but it needs a huge refactoring
 
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
 

@@ -393,7 +393,7 @@ class ContentNotification(TestCase, TutorialTestMixin):
         content.sha_draft = versioned.repo_update(
             introduction="new intro", conclusion="new conclusion", title=versioned.title
         )
-        content.save(force_slug_update=False)
+        content.save()
         publish_content(content, content.load_version(), True)
         notify_update(content, True, False)
         notifs = get_header_notifications(self.user1)["general_notifications"]["list"]
@@ -407,7 +407,7 @@ class ContentNotification(TestCase, TutorialTestMixin):
         content.sha_draft = versioned.repo_update(
             introduction="new intro", conclusion="new conclusion", title=versioned.title
         )
-        content.save(force_slug_update=False)
+        content.save()
         publish_content(content, content.load_version(), True)
         notify_update(content, True, True)
         notifs = get_header_notifications(self.user1)["general_notifications"]["list"]
