@@ -26,8 +26,12 @@ from zds import json_handler
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.mp.models import PrivateTopic
-from zds.searchv2.models import AbstractESDjangoIndexable, AbstractESIndexable, delete_document_in_elasticsearch, \
-    ESIndexManager
+from zds.searchv2.models import (
+    AbstractESDjangoIndexable,
+    AbstractESIndexable,
+    delete_document_in_elasticsearch,
+    ESIndexManager,
+)
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
@@ -38,7 +42,7 @@ from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.tutorials import get_blob
 
-ALLOWED_TYPES = ['pdf', 'md', 'html', 'epub', 'zip', 'tex']
+ALLOWED_TYPES = ["pdf", "md", "html", "epub", "zip", "tex"]
 logger = logging.getLogger(__name__)
 
 
@@ -54,92 +58,98 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     - Comment support ;
     - Type, which is either ``'ARTICLE'``, ``'TUTORIAL'`` or ``'OPINION'``
     """
+
     class Meta:
-        verbose_name = 'Contenu'
-        verbose_name_plural = 'Contenus'
+        verbose_name = "Contenu"
+        verbose_name_plural = "Contenus"
 
-    content_type_attribute = 'type'
-    title = models.CharField('Titre', max_length=80)
-    slug = models.CharField('Slug', max_length=80)
-    description = models.CharField('Description', max_length=200)
-    source = models.URLField('Source', max_length=200, blank=True, null=True)
-    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
+    content_type_attribute = "type"
+    title = models.CharField("Titre", max_length=80)
+    slug = models.CharField("Slug", max_length=80)
+    description = models.CharField("Description", max_length=200)
+    source = models.URLField("Source", max_length=200, blank=True, null=True)
+    authors = models.ManyToManyField(User, verbose_name="Auteurs", db_index=True)
     old_pk = models.IntegerField(db_index=True, default=0)
-    subcategory = models.ManyToManyField(SubCategory,
-                                         verbose_name='Sous-Catégorie',
-                                         blank=True, db_index=True)
+    subcategory = models.ManyToManyField(SubCategory, verbose_name="Sous-Catégorie", blank=True, db_index=True)
 
-    tags = models.ManyToManyField(Tag, verbose_name='Tags du contenu', blank=True, db_index=True)
+    tags = models.ManyToManyField(Tag, verbose_name="Tags du contenu", blank=True, db_index=True)
     # store the thumbnail for tutorial or article
-    image = models.ForeignKey(Image,
-                              verbose_name='Image du tutoriel',
-                              blank=True, null=True,
-                              on_delete=models.SET_NULL)
+    image = models.ForeignKey(Image, verbose_name="Image du tutoriel", blank=True, null=True, on_delete=models.SET_NULL)
 
     # every publishable content has its own gallery to manage images
-    gallery = models.ForeignKey(Gallery,
-                                verbose_name="Galerie d'images",
-                                blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
+    gallery = models.ForeignKey(
+        Gallery, verbose_name="Galerie d'images", blank=True, null=True, db_index=True, on_delete=models.SET_NULL
+    )
 
-    creation_date = models.DateTimeField('Date de création')
-    pubdate = models.DateTimeField('Date de publication',
-                                   blank=True, null=True, db_index=True)
-    update_date = models.DateTimeField('Date de mise à jour',
-                                       blank=True, null=True)
+    creation_date = models.DateTimeField("Date de création")
+    pubdate = models.DateTimeField("Date de publication", blank=True, null=True, db_index=True)
+    update_date = models.DateTimeField("Date de mise à jour", blank=True, null=True)
 
-    picked_date = models.DateTimeField('Date de mise en avant', db_index=True, blank=True, null=True, default=None)
+    picked_date = models.DateTimeField("Date de mise en avant", db_index=True, blank=True, null=True, default=None)
 
-    sha_public = models.CharField('Sha1 de la version publique',
-                                  blank=True, null=True, max_length=80, db_index=True)
-    sha_beta = models.CharField('Sha1 de la version beta publique',
-                                blank=True, null=True, max_length=80, db_index=True)
-    sha_validation = models.CharField('Sha1 de la version en validation',
-                                      blank=True, null=True, max_length=80, db_index=True)
-    sha_draft = models.CharField('Sha1 de la version de rédaction',
-                                 blank=True, null=True, max_length=80, db_index=True)
-    sha_picked = models.CharField('Sha1 de la version choisie (contenus publiés sans validation)',
-                                  blank=True, null=True, max_length=80, db_index=True)
-    beta_topic = models.ForeignKey(Topic, verbose_name='Sujet beta associé', default=None, blank=True, null=True,
-                                   on_delete=models.SET_NULL)
-    validation_private_message = models.ForeignKey(PrivateTopic, verbose_name='Message de suivi staff',
-                                                   default=None, blank=True, null=True,
-                                                   on_delete=models.SET_NULL)
-    licence = models.ForeignKey(Licence,
-                                verbose_name='Licence',
-                                blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
+    sha_public = models.CharField("Sha1 de la version publique", blank=True, null=True, max_length=80, db_index=True)
+    sha_beta = models.CharField("Sha1 de la version beta publique", blank=True, null=True, max_length=80, db_index=True)
+    sha_validation = models.CharField(
+        "Sha1 de la version en validation", blank=True, null=True, max_length=80, db_index=True
+    )
+    sha_draft = models.CharField("Sha1 de la version de rédaction", blank=True, null=True, max_length=80, db_index=True)
+    sha_picked = models.CharField(
+        "Sha1 de la version choisie (contenus publiés sans validation)",
+        blank=True,
+        null=True,
+        max_length=80,
+        db_index=True,
+    )
+    beta_topic = models.ForeignKey(
+        Topic, verbose_name="Sujet beta associé", default=None, blank=True, null=True, on_delete=models.SET_NULL
+    )
+    validation_private_message = models.ForeignKey(
+        PrivateTopic,
+        verbose_name="Message de suivi staff",
+        default=None,
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    licence = models.ForeignKey(
+        Licence, verbose_name="Licence", blank=True, null=True, db_index=True, on_delete=models.SET_NULL
+    )
     # as of ZEP 12 this field is no longer the size but the type of content (article/tutorial/opinion)
     type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True)
     # zep03 field
-    helps = models.ManyToManyField(HelpWriting, verbose_name='Aides', blank=True, db_index=True)
+    helps = models.ManyToManyField(HelpWriting, verbose_name="Aides", blank=True, db_index=True)
 
-    relative_images_path = models.CharField(
-        'chemin relatif images',
+    relative_images_path = models.CharField("chemin relatif images", blank=True, null=True, max_length=200)
+
+    last_note = models.ForeignKey(
+        "ContentReaction",
         blank=True,
         null=True,
-        max_length=200)
+        related_name="last_note",
+        verbose_name="Derniere note",
+        on_delete=models.SET_NULL,
+    )
+    is_locked = models.BooleanField("Est verrouillé", default=False)
+    js_support = models.BooleanField("Support du Javascript", default=False)
 
-    last_note = models.ForeignKey('ContentReaction', blank=True, null=True,
-                                  related_name='last_note',
-                                  verbose_name='Derniere note', on_delete=models.SET_NULL)
-    is_locked = models.BooleanField('Est verrouillé', default=False)
-    js_support = models.BooleanField('Support du Javascript', default=False)
+    must_reindex = models.BooleanField("Si le contenu doit-être ré-indexé", default=True)
 
-    must_reindex = models.BooleanField('Si le contenu doit-être ré-indexé', default=True)
-
-    is_obsolete = models.BooleanField('Est obsolète', default=False)
+    is_obsolete = models.BooleanField("Est obsolète", default=False)
 
     public_version = models.ForeignKey(
-        'PublishedContent', verbose_name='Version publiée', blank=True, null=True, on_delete=models.SET_NULL)
+        "PublishedContent", verbose_name="Version publiée", blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     # FK to an opinion which has been converted to article. Useful to keep track of history and
     # to add a canonical link
     converted_to = models.ForeignKey(
-        'self',
-        verbose_name='Contenu promu',
+        "self",
+        verbose_name="Contenu promu",
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='converted_from')
+        related_name="converted_from",
+    )
 
     objects = PublishableContentManager()
 
@@ -177,7 +187,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :rtype: str
         """
 
-        return reverse('content:beta-view', kwargs={'pk': self.pk, 'slug': self.slug})
+        return reverse("content:beta-view", kwargs={"pk": self.pk, "slug": self.slug})
 
     def get_absolute_url_online(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
@@ -189,22 +199,22 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if self.public_version:
             return self.public_version.get_absolute_url_online()
 
-        return ''
+        return ""
 
-    def get_absolute_contact_url(self, title='Collaboration'):
-        """ Get url to send a new PM for collaboration
+    def get_absolute_contact_url(self, title="Collaboration"):
+        """Get url to send a new PM for collaboration
 
         :param title: what is going to be in the title of the PM before the name of the content
         :type title: str
         :return: url to the PM creation form
         :rtype: str
         """
-        get = '?' + urlencode({'title': '{} - {}'.format(title, self.title)})
+        get = "?" + urlencode({"title": "{} - {}".format(title, self.title)})
 
         for author in self.authors.all():
-            get += '&' + urlencode({'username': author.username})
+            get += "&" + urlencode({"username": author.username})
 
-        return reverse('mp-new') + get
+        return reverse("mp-new") + get
 
     def get_repo_path(self, relative=False):
         """Get the path to the tutorial repository
@@ -214,17 +224,18 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :rtype: str
         """
         if relative:
-            return ''
+            return ""
         else:
             # get the full path (with tutorial/article before it)
-            return os.path.join(settings.ZDS_APP['content']['repo_private_path'], self.slug)
+            return os.path.join(settings.ZDS_APP["content"]["repo_private_path"], self.slug)
 
     def ensure_author_gallery(self):
         """
         ensure all authors subscribe to gallery
         """
-        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery)\
-            .values_list('user__pk', flat=True)
+        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery).values_list(
+            "user__pk", flat=True
+        )
         for author in self.authors.all():
             if author.pk in author_set:
                 continue
@@ -241,7 +252,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: ``True`` if the tutorial is in beta, ``False`` otherwise
         :rtype: bool
         """
-        return (self.sha_beta is not None) and (self.sha_beta.strip() != '')
+        return (self.sha_beta is not None) and (self.sha_beta.strip() != "")
 
     def in_validation(self):
         """A tutorial is not in validation if sha_validation is ``None`` or empty
@@ -249,7 +260,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: ``True`` if the tutorial is in validation, ``False`` otherwise
         :rtype: bool
         """
-        return (self.sha_validation is not None) and (self.sha_validation.strip() != '')
+        return (self.sha_validation is not None) and (self.sha_validation.strip() != "")
 
     def in_drafting(self):
         """A tutorial is not in draft if sha_draft is ``None`` or empty
@@ -257,7 +268,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: ``True`` if the tutorial is in draft, ``False`` otherwise
         :rtype: bool
         """
-        return (self.sha_draft is not None) and (self.sha_draft.strip() != '')
+        return (self.sha_draft is not None) and (self.sha_draft.strip() != "")
 
     def in_public(self):
         """A tutorial is not in on line if sha_public is ``None`` or empty
@@ -265,7 +276,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: ``True`` if the tutorial is on line, ``False`` otherwise
         :rtype: bool
         """
-        return (self.sha_public is not None) and (self.sha_public.strip() != '')
+        return (self.sha_public is not None) and (self.sha_public.strip() != "")
 
     def is_beta(self, sha):
         """Is this version of the content the beta version ?
@@ -297,7 +308,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     def is_permanently_unpublished(self):
         """Is this content permanently unpublished by a moderator ?"""
 
-        return PickListOperation.objects.filter(content=self, operation='REMOVE_PUB', is_effective=True).exists()
+        return PickListOperation.objects.filter(content=self, operation="REMOVE_PUB", is_effective=True).exists()
 
     def load_version_or_404(self, sha=None, public=None):
         """Using git, load a specific version of the content. if `sha` is `None`, the draft/public version is used (if
@@ -314,8 +325,10 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             return self.load_version(sha, public)
         except (BadObject, BadName, OSError) as error:
             raise Http404(
-                'Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}'.format(
-                    type(error), str(error)))
+                "Le code sha existe mais la version demandée ne peut pas être trouvée à cause de {}:{}".format(
+                    type(error), str(error)
+                )
+            )
 
     @property
     def first_publication_date(self):
@@ -324,8 +337,11 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: the first publication date
         :rtype: datetime
         """
-        return Validation.objects.filter(content=self, status='ACCEPT').order_by('date_validation')\
-            .values_list('date_validation', flat=True)[0]
+        return (
+            Validation.objects.filter(content=self, status="ACCEPT")
+            .order_by("date_validation")
+            .values_list("date_validation", flat=True)[0]
+        )
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
@@ -351,7 +367,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 sha = self.sha_draft
             else:
                 sha = self.sha_public
-        max_title_length = PublishableContent._meta.get_field('title').max_length
+        max_title_length = PublishableContent._meta.get_field("title").max_length
         if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
             path = public.get_prod_path()
             slug = public.content_public_slug
@@ -362,7 +378,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             if sha != public.sha_public:
                 raise NotAPublicVersion
 
-            with open(os.path.join(path, 'manifest.json'), 'r', encoding='utf-8') as manifest:
+            with open(os.path.join(path, "manifest.json"), "r", encoding="utf-8") as manifest:
                 json = json_handler.loads(manifest.read())
                 versioned = get_content_from_json(
                     json,
@@ -380,13 +396,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 raise OSError(path)
 
             repo = Repo(path)
-            data = get_blob(repo.commit(sha).tree, 'manifest.json')
+            data = get_blob(repo.commit(sha).tree, "manifest.json")
             try:
                 json = json_handler.loads(data)
-                logger.debug('loaded json')
+                logger.debug("loaded json")
             except ValueError:
                 raise BadManifestError(
-                    _('Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?'))
+                    _("Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?")
+                )
 
             versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 
@@ -400,15 +417,25 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
 
         attrs = [
-            'pk', 'authors', 'subcategory', 'image', 'creation_date', 'pubdate', 'update_date', 'source',
-            'sha_draft', 'sha_beta', 'sha_validation', 'sha_public', 'tags', 'sha_picked', 'converted_to',
-            'type'
+            "pk",
+            "authors",
+            "subcategory",
+            "image",
+            "creation_date",
+            "pubdate",
+            "update_date",
+            "source",
+            "sha_draft",
+            "sha_beta",
+            "sha_validation",
+            "sha_public",
+            "tags",
+            "sha_picked",
+            "converted_to",
+            "type",
         ]
 
-        fns = [
-            'in_beta', 'in_validation', 'in_public',
-            'get_absolute_contact_url', 'get_note_count', 'antispam'
-        ]
+        fns = ["in_beta", "in_validation", "in_public", "get_absolute_contact_url", "get_note_count", "antispam"]
 
         # load functions and attributs in `versioned`
         for attr in attrs:
@@ -439,24 +466,27 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: the last answer in the thread, if any.
         :rtype: ContentReaction|None
         """
-        return ContentReaction.objects.all()\
-            .select_related('related_content')\
-            .select_related('related_content__public_version')\
-            .filter(related_content__pk=self.pk)\
-            .order_by('-pubdate')\
+        return (
+            ContentReaction.objects.all()
+            .select_related("related_content")
+            .select_related("related_content__public_version")
+            .filter(related_content__pk=self.pk)
+            .order_by("-pubdate")
             .first()
+        )
 
     def first_note(self):
         """
         :return: the first post of a topic, written by topic's author, if any.
         :rtype: ContentReaction
         """
-        return ContentReaction.objects\
-            .select_related('related_content')\
-            .select_related('related_content__public_version')\
-            .filter(related_content=self)\
-            .order_by('pubdate')\
+        return (
+            ContentReaction.objects.select_related("related_content")
+            .select_related("related_content__public_version")
+            .filter(related_content=self)
+            .order_by("pubdate")
             .first()
+        )
 
     def last_read_note(self):
         """
@@ -467,12 +497,13 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
         if user and user.is_authenticated:
             try:
-                read = ContentRead.objects\
-                    .select_related('note')\
-                    .select_related('note__related_content')\
-                    .select_related('note__related_content__public_version')\
-                    .filter(content=self, user__pk=user.pk)\
-                    .latest('note__pubdate')
+                read = (
+                    ContentRead.objects.select_related("note")
+                    .select_related("note__related_content")
+                    .select_related("note__related_content__public_version")
+                    .filter(content=self, user__pk=user.pk)
+                    .latest("note__pubdate")
+                )
                 if read is not None and read.note:  # one case can show a read without note : the author has just
                     # published his content and one comment has been posted by someone else.
                     return read.note
@@ -492,20 +523,18 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
         if user and user.is_authenticated:
             try:
-                read = ContentRead.objects\
-                    .filter(content=self, user__pk=user.pk)\
-                    .latest('note__pubdate')
+                read = ContentRead.objects.filter(content=self, user__pk=user.pk).latest("note__pubdate")
 
                 if read and read.note:
                     last_note = read.note
 
-                    next_note = ContentReaction.objects\
-                        .select_related('related_content')\
-                        .select_related('related_content__public_version')\
-                        .filter(
-                            related_content__pk=self.pk,
-                            pk__gt=last_note.pk)\
-                        .select_related('author').first()
+                    next_note = (
+                        ContentReaction.objects.select_related("related_content")
+                        .select_related("related_content__public_version")
+                        .filter(related_content__pk=self.pk, pk__gt=last_note.pk)
+                        .select_related("author")
+                        .first()
+                    )
 
                     if next_note:
                         return next_note
@@ -528,15 +557,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             user = get_current_user()
 
         if user and user.is_authenticated:
-            last_user_notes = ContentReaction.objects\
-                .filter(related_content=self)\
-                .filter(author=user.pk)\
-                .order_by('-position')
+            last_user_notes = (
+                ContentReaction.objects.filter(related_content=self).filter(author=user.pk).order_by("-position")
+            )
 
             if last_user_notes and last_user_notes[0] == self.last_note:
                 last_user_note = last_user_notes[0]
                 t = datetime.now() - last_user_note.pubdate
-                if t.total_seconds() < settings.ZDS_APP['forum']['spam_limit_seconds']:
+                if t.total_seconds() < settings.ZDS_APP["forum"]["spam_limit_seconds"]:
                     return True
 
     def repo_delete(self):
@@ -564,7 +592,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 self.tags.add(current_tag)
             except ValueError as e:
                 logger.warning(e)
-        logger.debug('Initial number of tags=%s, after filtering=%s', len(tag_collection), len(self.tags.all()))
+        logger.debug("Initial number of tags=%s, after filtering=%s", len(tag_collection), len(self.tags.all()))
         self.save(force_slug_update=False)
 
     def requires_validation(self):
@@ -602,30 +630,31 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     objects_per_batch = 25
 
     class Meta:
-        verbose_name = 'Contenu publié'
-        verbose_name_plural = 'Contenus publiés'
+        verbose_name = "Contenu publié"
+        verbose_name_plural = "Contenus publiés"
 
-    content = models.ForeignKey(PublishableContent, verbose_name='Contenu', on_delete=models.CASCADE)
+    content = models.ForeignKey(PublishableContent, verbose_name="Contenu", on_delete=models.CASCADE)
 
-    content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name='Type de contenu')
-    content_public_slug = models.CharField('Slug du contenu publié', max_length=80)
-    content_pk = models.IntegerField('Pk du contenu publié', db_index=True)
+    content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name="Type de contenu")
+    content_public_slug = models.CharField("Slug du contenu publié", max_length=80)
+    content_pk = models.IntegerField("Pk du contenu publié", db_index=True)
 
-    publication_date = models.DateTimeField('Date de publication', db_index=True, blank=True, null=True)
-    update_date = models.DateTimeField('Date de mise à jour', db_index=True, blank=True, null=True, default=None)
-    sha_public = models.CharField('Sha1 de la version publiée', blank=True, null=True, max_length=80, db_index=True)
-    char_count = models.IntegerField(default=None, null=True, verbose_name=b'Nombre de lettres du contenu', blank=True)
+    publication_date = models.DateTimeField("Date de publication", db_index=True, blank=True, null=True)
+    update_date = models.DateTimeField("Date de mise à jour", db_index=True, blank=True, null=True, default=None)
+    sha_public = models.CharField("Sha1 de la version publiée", blank=True, null=True, max_length=80, db_index=True)
+    char_count = models.IntegerField(default=None, null=True, verbose_name=b"Nombre de lettres du contenu", blank=True)
 
     must_redirect = models.BooleanField(
-        'Redirection vers  une version plus récente', blank=True, db_index=True, default=False)
+        "Redirection vers  une version plus récente", blank=True, db_index=True, default=False
+    )
 
-    authors = models.ManyToManyField(User, verbose_name='Auteurs', db_index=True)
+    authors = models.ManyToManyField(User, verbose_name="Auteurs", db_index=True)
 
     objects = PublishedContentManager()
     versioned_model = None
 
     # sizes contain a python dict (as a string in database) with all information about file sizes
-    sizes = models.CharField('Tailles des fichiers téléchargeables', max_length=512, default='{}')
+    sizes = models.CharField("Tailles des fichiers téléchargeables", max_length=512, default="{}")
     _meta_description = None
 
     @staticmethod
@@ -653,16 +682,16 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             return self._meta_description
         if not self.versioned_model:
             self.load_public_version()
-        self._meta_description = self.versioned_model.description or self.versioned_model.get_introduction() or ''
+        self._meta_description = self.versioned_model.description or self.versioned_model.get_introduction() or ""
         if self._meta_description:
-            self._meta_description = self._meta_description[:settings.ZDS_APP['forum']['description_size']]
+            self._meta_description = self._meta_description[: settings.ZDS_APP["forum"]["description_size"]]
         return self._meta_description
 
     def get_prod_path(self, relative=False):
         if not relative:
-            return str(Path(settings.ZDS_APP['content']['repo_public_path'], self.content_public_slug).absolute())
+            return str(Path(settings.ZDS_APP["content"]["repo_public_path"], self.content_public_slug).absolute())
         else:
-            return ''
+            return ""
 
     def load_public_version_or_404(self):
         """
@@ -692,7 +721,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: path to all the 'extra contents'
         :rtype: str
         """
-        return os.path.join(self.get_prod_path(), settings.ZDS_APP['content']['extra_contents_dirname'])
+        return os.path.join(self.get_prod_path(), settings.ZDS_APP["content"]["extra_contents_dirname"])
 
     def has_type(self, type_):
         """check if a given extra content exists
@@ -702,7 +731,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
 
         if type_ in ALLOWED_TYPES:
-            return Path(self.get_extra_contents_directory(), self.content_public_slug + '.' + type_).is_file()
+            return Path(self.get_extra_contents_directory(), self.content_public_slug + "." + type_).is_file()
 
         return False
 
@@ -718,7 +747,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.has_type('md')
+        return self.has_type("md")
 
     def has_html(self):
         """Check if the html version of the content is available
@@ -726,7 +755,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.has_type('html')
+        return self.has_type("html")
 
     def has_pdf(self):
         """Check if the pdf version of the content is available
@@ -734,7 +763,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.has_type('pdf')
+        return self.has_type("pdf")
 
     def has_epub(self):
         """Check if the standard epub version of the content is available
@@ -742,7 +771,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.has_type('epub')
+        return self.has_type("epub")
 
     def has_zip(self):
         """Check if the standard zip version of the content is available
@@ -750,7 +779,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.has_type('zip')
+        return self.has_type("zip")
 
     def has_tex(self):
         """Check if the latex version of the content is available
@@ -758,7 +787,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: ``True`` if available, ``False`` otherwise
         :rtype: bool
         """
-        return self.has_type('tex')
+        return self.has_type("tex")
 
     def get_size_file_type(self, type_):
         """
@@ -774,8 +803,9 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                 size = sizes[type_]
             except KeyError:
                 # if size is not in database we store it
-                sizes[type_] = os.path.getsize(os.path.join(
-                    self.get_extra_contents_directory(), self.content_public_slug + '.' + type_))
+                sizes[type_] = os.path.getsize(
+                    os.path.join(self.get_extra_contents_directory(), self.content_public_slug + "." + type_)
+                )
                 self.sizes = sizes
                 self.save()
                 size = sizes[type_]
@@ -788,7 +818,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: size of file
         :rtype: int
         """
-        return self.get_size_file_type('md')
+        return self.get_size_file_type("md")
 
     def get_size_html(self):
         """Get the size of html
@@ -796,7 +826,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: size of file
         :rtype: int
         """
-        return self.get_size_file_type('html')
+        return self.get_size_file_type("html")
 
     def get_size_pdf(self):
         """Get the size of pdf
@@ -804,7 +834,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: size of file
         :rtype: int
         """
-        return self.get_size_file_type('pdf')
+        return self.get_size_file_type("pdf")
 
     def get_size_tex(self):
         """Get the size of LaTeX file
@@ -812,7 +842,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: size of file
         :rtype: int
         """
-        return self.get_size_file_type('tex')
+        return self.get_size_file_type("tex")
 
     def get_size_epub(self):
         """Get the size of epub
@@ -820,7 +850,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: size of file
         :rtype: int
         """
-        return self.get_size_file_type('epub')
+        return self.get_size_file_type("epub")
 
     def get_size_zip(self):
         """Get the size of zip
@@ -828,7 +858,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :return: size of file
         :rtype: int
         """
-        return self.get_size_file_type('zip')
+        return self.get_size_file_type("zip")
 
     def get_absolute_url_to_extra_content(self, type_):
         """Get the url that point to the extra content the user may want to download
@@ -842,8 +872,9 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         if type_ in ALLOWED_TYPES:
             reversed_ = self.content_type.lower()
             return reverse(
-                reversed_ + ':download-' + type_, kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
-        return ''
+                reversed_ + ":download-" + type_, kwargs={"pk": self.content_pk, "slug": self.content_public_slug}
+            )
+        return ""
 
     def get_absolute_url_md(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('md')``
@@ -852,7 +883,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: str
         """
 
-        return self.get_absolute_url_to_extra_content('md')
+        return self.get_absolute_url_to_extra_content("md")
 
     def get_absolute_url_html(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('html')``
@@ -861,7 +892,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: str
         """
 
-        return self.get_absolute_url_to_extra_content('html')
+        return self.get_absolute_url_to_extra_content("html")
 
     def get_absolute_url_pdf(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('pdf')``
@@ -870,7 +901,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: str
         """
 
-        return self.get_absolute_url_to_extra_content('pdf')
+        return self.get_absolute_url_to_extra_content("pdf")
 
     def get_absolute_url_tex(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('tex')``
@@ -879,7 +910,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: str
         """
 
-        return self.get_absolute_url_to_extra_content('tex')
+        return self.get_absolute_url_to_extra_content("tex")
 
     def get_absolute_url_epub(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('epub')``
@@ -888,7 +919,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: str
         """
 
-        return self.get_absolute_url_to_extra_content('epub')
+        return self.get_absolute_url_to_extra_content("epub")
 
     def get_absolute_url_zip(self):
         """wrapper around ``self.get_absolute_url_to_extra_content('zip')``
@@ -897,10 +928,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: str
         """
 
-        return self.get_absolute_url_to_extra_content('zip')
+        return self.get_absolute_url_to_extra_content("zip")
 
     def get_char_count(self, md_file_path=None):
-        """ Compute the number of letters for a given content
+        """Compute the number of letters for a given content
 
         :param md_file_path: use another file to compute the number of letter rather than the default one.
         :type md_file_path: str
@@ -908,16 +939,16 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: int
         """
         if not md_file_path:
-            md_file_path = os.path.join(self.get_extra_contents_directory(), self.content_public_slug + '.md')
+            md_file_path = os.path.join(self.get_extra_contents_directory(), self.content_public_slug + ".md")
 
         try:
-            with open(md_file_path, encoding='utf-8') as md_file_handler:
+            with open(md_file_path, encoding="utf-8") as md_file_handler:
                 content = md_file_handler.read()
             current_content = PublishedContent.objects.filter(content_pk=self.content_pk, must_redirect=False).first()
             if current_content:
                 return render_markdown_stats(content)
         except OSError as e:
-            logger.warning('could not get file %s to compute nb letters (error=%s)', md_file_path, e)
+            logger.warning("could not get file %s to compute nb letters (error=%s)", md_file_path, e)
 
     @property
     def last_publication_date(self):
@@ -927,49 +958,49 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     def get_es_mapping(cls):
         mapping = Mapping(cls.get_es_document_type())
 
-        mapping.field('content_pk', 'integer')
-        mapping.field('publication_date', Date())
-        mapping.field('content_type', Keyword())
+        mapping.field("content_pk", "integer")
+        mapping.field("publication_date", Date())
+        mapping.field("content_type", Keyword())
 
         # not from PublishedContent directly:
-        mapping.field('title', Text(boost=1.5))
-        mapping.field('description', Text(boost=1.5))
-        mapping.field('tags', Text(boost=2.0))
-        mapping.field('categories', Keyword(boost=1.5))
-        mapping.field('subcategories', Keyword(boost=1.5))
-        mapping.field('text', Text())  # for article and mini-tuto, text is directly included into the main object
-        mapping.field('has_chapters', Boolean())  # ... otherwise, it is written
-        mapping.field('picked', Boolean())
+        mapping.field("title", Text(boost=1.5))
+        mapping.field("description", Text(boost=1.5))
+        mapping.field("tags", Text(boost=2.0))
+        mapping.field("categories", Keyword(boost=1.5))
+        mapping.field("subcategories", Keyword(boost=1.5))
+        mapping.field("text", Text())  # for article and mini-tuto, text is directly included into the main object
+        mapping.field("has_chapters", Boolean())  # ... otherwise, it is written
+        mapping.field("picked", Boolean())
 
         # not indexed:
-        mapping.field('get_absolute_url_online', Keyword(index=False))
-        mapping.field('thumbnail', Keyword(index=False))
+        mapping.field("get_absolute_url_online", Keyword(index=False))
+        mapping.field("thumbnail", Keyword(index=False))
 
         return mapping
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
-        """Overridden to remove must_redirect=True (and prefetch stuffs).
-        """
+        """Overridden to remove must_redirect=True (and prefetch stuffs)."""
 
         q = super(PublishedContent, cls).get_es_django_indexable(force_reindexing)
-        return q.prefetch_related('content')\
-            .prefetch_related('content__tags')\
-            .prefetch_related('content__subcategory')\
-            .select_related('content__image')\
+        return (
+            q.prefetch_related("content")
+            .prefetch_related("content__tags")
+            .prefetch_related("content__subcategory")
+            .select_related("content__image")
             .filter(must_redirect=False)
+        )
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False):
-        """Overridden to also include chapters
-        """
+        """Overridden to also include chapters"""
 
         index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
         # fetch initial batch
         last_pk = 0
         objects_source = super(PublishedContent, cls).get_es_indexable(force_reindexing)
-        objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+        objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
         while objects:
             chapters = []
@@ -983,7 +1014,8 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                     # delete possible previous chapters
                     if content.es_already_indexed:
                         index_manager.delete_by_query(
-                            FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
+                            FakeChapter.get_es_document_type(), ES_Q("match", _routing=content.es_id)
+                        )
 
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
@@ -993,33 +1025,32 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                 # since we want to return at most PublishedContent.objects_per_batch items
                 # we have to split further
                 while chapters:
-                    yield chapters[:PublishedContent.objects_per_batch]
-                    chapters = chapters[PublishedContent.objects_per_batch:]
+                    yield chapters[: PublishedContent.objects_per_batch]
+                    chapters = chapters[PublishedContent.objects_per_batch :]
             if objects:
                 yield objects
 
             # fetch next batch
             last_pk = objects[-1].pk
-            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
+            objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
     def get_es_document_source(self, excluded_fields=None):
-        """Overridden to handle the fact that most information are versioned
-        """
+        """Overridden to handle the fact that most information are versioned"""
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(['title', 'description', 'tags', 'categories', 'text', 'thumbnail', 'picked'])
+        excluded_fields.extend(["title", "description", "tags", "categories", "text", "thumbnail", "picked"])
 
         data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
 
         # fetch versioned information
         versioned = self.load_public_version()
 
-        data['title'] = versioned.title
-        data['description'] = versioned.description
-        data['tags'] = [tag.title for tag in versioned.tags.all()]
+        data["title"] = versioned.title
+        data["description"] = versioned.description
+        data["tags"] = [tag.title for tag in versioned.tags.all()]
 
         if self.content.image:
-            data['thumbnail'] = self.content.image.physical['content_thumb'].url
+            data["thumbnail"] = self.content.image.physical["content_thumb"].url
 
         categories = []
         subcategories = []
@@ -1030,19 +1061,19 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             if parent_category and parent_category.slug not in categories:
                 categories.append(parent_category.slug)
 
-        data['categories'] = categories
-        data['subcategories'] = subcategories
+        data["categories"] = categories
+        data["subcategories"] = subcategories
 
         if versioned.has_extracts():
-            data['text'] = versioned.get_content_online()
-            data['has_chapters'] = False
+            data["text"] = versioned.get_content_online()
+            data["has_chapters"] = False
         else:
-            data['has_chapters'] = True
+            data["has_chapters"] = True
 
-        data['picked'] = False
+        data["picked"] = False
 
-        if self.content_type == 'OPINION' and self.content.sha_picked is not None:
-            data['picked'] = True
+        if self.content_type == "OPINION" and self.content.sha_picked is not None:
+            data["picked"] = True
 
         return data
 
@@ -1056,7 +1087,7 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     if index_manager.index_exists:
-        index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q('match', _routing=instance.es_id))
+        index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q("match", _routing=instance.es_id))
 
     return delete_document_in_elasticsearch(instance)
 
@@ -1085,14 +1116,14 @@ class FakeChapter(AbstractESIndexable):
     """
 
     parent_model = PublishedContent
-    text = ''
-    title = ''
-    parent_id = ''
-    get_absolute_url_online = ''
-    parent_title = ''
-    parent_get_absolute_url_online = ''
-    parent_publication_date = ''
-    thumbnail = ''
+    text = ""
+    title = ""
+    parent_id = ""
+    get_absolute_url_online = ""
+    parent_title = ""
+    parent_get_absolute_url_online = ""
+    parent_publication_date = ""
+    thumbnail = ""
     categories = None
     subcategories = None
 
@@ -1102,14 +1133,14 @@ class FakeChapter(AbstractESIndexable):
         self.parent_id = parent_id
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
-        self.es_id = main_container.slug + '__' + chapter.slug  # both slugs are unique by design, so id remains unique
+        self.es_id = main_container.slug + "__" + chapter.slug  # both slugs are unique by design, so id remains unique
 
         self.parent_title = main_container.title
         self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
         self.parent_publication_date = main_container.pubdate
 
         if main_container.image:
-            self.thumbnail = main_container.image.physical['content_thumb'].url
+            self.thumbnail = main_container.image.physical["content_thumb"].url
 
         self.categories = []
         self.subcategories = []
@@ -1122,36 +1153,34 @@ class FakeChapter(AbstractESIndexable):
 
     @classmethod
     def get_es_document_type(cls):
-        return 'chapter'
+        return "chapter"
 
     @classmethod
     def get_es_mapping(self):
-        """Define mapping and parenting
-        """
+        """Define mapping and parenting"""
 
         mapping = Mapping(self.get_es_document_type())
-        mapping.meta('parent', type='publishedcontent')
+        mapping.meta("parent", type="publishedcontent")
 
-        mapping.field('title', Text(boost=1.5))
-        mapping.field('text', Text())
-        mapping.field('categories', Keyword(boost=1.5))
-        mapping.field('subcategories', Keyword(boost=1.5))
+        mapping.field("title", Text(boost=1.5))
+        mapping.field("text", Text())
+        mapping.field("categories", Keyword(boost=1.5))
+        mapping.field("subcategories", Keyword(boost=1.5))
 
         # not indexed:
-        mapping.field('get_absolute_url_online', Keyword(index=False))
-        mapping.field('parent_title', Text(index=False))
-        mapping.field('parent_get_absolute_url_online', Keyword(index=False))
-        mapping.field('parent_publication_date', Date(index=False))
-        mapping.field('thumbnail', Keyword(index=False))
+        mapping.field("get_absolute_url_online", Keyword(index=False))
+        mapping.field("parent_title", Text(index=False))
+        mapping.field("parent_get_absolute_url_online", Keyword(index=False))
+        mapping.field("parent_publication_date", Date(index=False))
+        mapping.field("thumbnail", Keyword(index=False))
 
         return mapping
 
-    def get_es_document_as_bulk_action(self, index, action='index'):
-        """Overridden to handle parenting between chapter and PublishedContent
-        """
+    def get_es_document_as_bulk_action(self, index, action="index"):
+        """Overridden to handle parenting between chapter and PublishedContent"""
 
         document = super(FakeChapter, self).get_es_document_as_bulk_action(index, action)
-        document['_parent'] = self.parent_id
+        document["_parent"] = self.parent_id
         return document
 
 
@@ -1159,13 +1188,18 @@ class ContentReaction(Comment):
     """
     A comment written by any user about a PublishableContent they just read.
     """
-    class Meta:
-        verbose_name = 'note sur un contenu'
-        verbose_name_plural = 'notes sur un contenu'
 
-    related_content = models.ForeignKey(PublishableContent, verbose_name='Contenu',
-                                        on_delete=models.CASCADE,
-                                        related_name='related_content_note', db_index=True)
+    class Meta:
+        verbose_name = "note sur un contenu"
+        verbose_name_plural = "notes sur un contenu"
+
+    related_content = models.ForeignKey(
+        PublishableContent,
+        verbose_name="Contenu",
+        on_delete=models.CASCADE,
+        related_name="related_content_note",
+        db_index=True,
+    )
 
     objects = ReactionManager()
 
@@ -1178,8 +1212,8 @@ class ContentReaction(Comment):
         :return: the url of the comment
         :rtype: str
         """
-        page = int(ceil(float(self.position) / settings.ZDS_APP['content']['notes_per_page']))
-        return '{0}?page={1}#p{2}'.format(self.related_content.get_absolute_url_online(), page, self.pk)
+        page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
+        return "{0}?page={1}#p{2}".format(self.related_content.get_absolute_url_online(), page, self.pk)
 
     def get_notification_title(self):
         return self.related_content.title
@@ -1191,13 +1225,14 @@ class ContentRead(models.Model):
 
     It remembers the PublishableContent they read and what was the last Note at that time.
     """
+
     class Meta:
-        verbose_name = 'Contenu lu'
-        verbose_name_plural = 'Contenus lus'
+        verbose_name = "Contenu lu"
+        verbose_name_plural = "Contenus lus"
 
     content = models.ForeignKey(PublishableContent, db_index=True, on_delete=models.CASCADE)
     note = models.ForeignKey(ContentReaction, db_index=True, null=True, on_delete=models.SET_NULL)
-    user = models.ForeignKey(User, related_name='content_notes_read', db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="content_notes_read", db_index=True, on_delete=models.CASCADE)
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """
@@ -1216,33 +1251,38 @@ class Validation(models.Model):
     """
     Content validation.
     """
-    class Meta:
-        verbose_name = 'Validation'
-        verbose_name_plural = 'Validations'
 
-    content = models.ForeignKey(PublishableContent, null=True, blank=True,
-                                verbose_name='Contenu proposé', db_index=True, on_delete=models.CASCADE)
-    version = models.CharField('Sha1 de la version',
-                               blank=True, null=True, max_length=80, db_index=True)
-    date_proposition = models.DateTimeField('Date de proposition', db_index=True, null=True, blank=True)
+    class Meta:
+        verbose_name = "Validation"
+        verbose_name_plural = "Validations"
+
+    content = models.ForeignKey(
+        PublishableContent,
+        null=True,
+        blank=True,
+        verbose_name="Contenu proposé",
+        db_index=True,
+        on_delete=models.CASCADE,
+    )
+    version = models.CharField("Sha1 de la version", blank=True, null=True, max_length=80, db_index=True)
+    date_proposition = models.DateTimeField("Date de proposition", db_index=True, null=True, blank=True)
     comment_authors = models.TextField("Commentaire de l'auteur", null=True, blank=True)
-    validator = models.ForeignKey(User,
-                                  verbose_name='Validateur',
-                                  related_name='author_content_validations',
-                                  blank=True, null=True, db_index=True, on_delete=models.SET_NULL)
-    date_reserve = models.DateTimeField('Date de réservation',
-                                        blank=True, null=True)
-    date_validation = models.DateTimeField('Date de validation',
-                                           blank=True, null=True)
-    comment_validator = models.TextField('Commentaire du validateur',
-                                         blank=True, null=True)
-    status = models.CharField(
-        max_length=10,
-        choices=STATUS_CHOICES,
-        default='PENDING')
+    validator = models.ForeignKey(
+        User,
+        verbose_name="Validateur",
+        related_name="author_content_validations",
+        blank=True,
+        null=True,
+        db_index=True,
+        on_delete=models.SET_NULL,
+    )
+    date_reserve = models.DateTimeField("Date de réservation", blank=True, null=True)
+    date_validation = models.DateTimeField("Date de validation", blank=True, null=True)
+    comment_validator = models.TextField("Commentaire du validateur", blank=True, null=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
 
     def __str__(self):
-        return _('Validation de « {} »').format(self.content.title)
+        return _("Validation de « {} »").format(self.content.title)
 
     def is_pending(self):
         """Check if the validation is pending
@@ -1250,7 +1290,7 @@ class Validation(models.Model):
         :return: ``True`` if status is pending, ``False`` otherwise
         :rtype: bool
         """
-        return self.status == 'PENDING'
+        return self.status == "PENDING"
 
     def is_pending_valid(self):
         """Check if the validation is pending (but there is a validator)
@@ -1258,7 +1298,7 @@ class Validation(models.Model):
         :return: ``True`` if status is pending/valid, ``False`` otherwise
         :rtype: bool
         """
-        return self.status == 'PENDING_V'
+        return self.status == "PENDING_V"
 
     def is_accept(self):
         """Check if the content is accepted
@@ -1266,7 +1306,7 @@ class Validation(models.Model):
         :return: ``True`` if status is accepted, ``False`` otherwise
         :rtype: bool
         """
-        return self.status == 'ACCEPT'
+        return self.status == "ACCEPT"
 
     def is_reject(self):
         """Check if the content is rejected
@@ -1274,7 +1314,7 @@ class Validation(models.Model):
         :return: ``True`` if status is rejected, ``False`` otherwise
         :rtype: bool
         """
-        return self.status == 'REJECT'
+        return self.status == "REJECT"
 
     def is_cancel(self):
         """Check if the content is canceled
@@ -1282,29 +1322,42 @@ class Validation(models.Model):
         :return: ``True`` if status is canceled, ``False`` otherwise
         :rtype: bool
         """
-        return self.status == 'CANCEL'
+        return self.status == "CANCEL"
 
 
 class PickListOperation(models.Model):
     class Meta:
         verbose_name = "Choix d'un billet"
-        verbose_name_plural = 'Choix des billets'
+        verbose_name_plural = "Choix des billets"
 
-    content = models.ForeignKey(PublishableContent, null=False, blank=False,
-                                verbose_name='Contenu proposé', db_index=True, on_delete=models.CASCADE)
-    operation = models.CharField(null=False, blank=False, db_index=True, max_length=len('REMOVE_PUB'),
-                                 choices=PICK_OPERATIONS)
+    content = models.ForeignKey(
+        PublishableContent,
+        null=False,
+        blank=False,
+        verbose_name="Contenu proposé",
+        db_index=True,
+        on_delete=models.CASCADE,
+    )
+    operation = models.CharField(
+        null=False, blank=False, db_index=True, max_length=len("REMOVE_PUB"), choices=PICK_OPERATIONS
+    )
     operation_date = models.DateTimeField(null=False, db_index=True, verbose_name="Date de l'opération")
-    version = models.CharField(null=False, blank=False, max_length=128, verbose_name='Version du billet concernée')
-    staff_user = models.ForeignKey(User, null=False, blank=False, on_delete=CASCADE,
-                                   verbose_name='Modérateur', related_name='pick_operations')
-    canceler_user = models.ForeignKey(User, null=True, blank=True, on_delete=CASCADE,
-                                      verbose_name='Modérateur qui a annulé la décision',
-                                      related_name='canceled_pick_operations')
-    is_effective = models.BooleanField(verbose_name='Choix actif', default=True)
+    version = models.CharField(null=False, blank=False, max_length=128, verbose_name="Version du billet concernée")
+    staff_user = models.ForeignKey(
+        User, null=False, blank=False, on_delete=CASCADE, verbose_name="Modérateur", related_name="pick_operations"
+    )
+    canceler_user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=CASCADE,
+        verbose_name="Modérateur qui a annulé la décision",
+        related_name="canceled_pick_operations",
+    )
+    is_effective = models.BooleanField(verbose_name="Choix actif", default=True)
 
     def __str__(self):
-        return '{} : {}'.format(self.get_operation_display(), self.content)
+        return "{} : {}".format(self.get_operation_display(), self.content)
 
     def cancel(self, canceler, autosave=True):
         """
@@ -1318,33 +1371,34 @@ class PickListOperation(models.Model):
             self.save()
 
     def save(self, **kwargs):
-        if self.content is not None and self.content.type == 'OPINION':
+        if self.content is not None and self.content.type == "OPINION":
             return super(PickListOperation, self).save(**kwargs)
-        raise ValueError('Content cannot be null or something else than opinion.', self.content)
+        raise ValueError("Content cannot be null or something else than opinion.", self.content)
 
 
 STATE_CHOICES = [
-    ('REQUESTED', _('Export demandé')),
-    ('RUNNING', _('Export en cours')),
-    ('SUCCESS', _('Export réalisé')),
-    ('FAILURE', _('Export échoué')),
+    ("REQUESTED", _("Export demandé")),
+    ("RUNNING", _("Export en cours")),
+    ("SUCCESS", _("Export réalisé")),
+    ("FAILURE", _("Export échoué")),
 ]
 
 
 class PublicationEvent(models.Model):
     class Meta:
-        verbose_name = _('Événement de publication')
-        verbose_name_plural = _('Événements de publication')
+        verbose_name = _("Événement de publication")
+        verbose_name_plural = _("Événements de publication")
 
-    published_object = models.ForeignKey(PublishedContent, null=False, on_delete=models.CASCADE,
-                                         verbose_name='contenu publié')
+    published_object = models.ForeignKey(
+        PublishedContent, null=False, on_delete=models.CASCADE, verbose_name="contenu publié"
+    )
     state_of_processing = models.CharField(choices=STATE_CHOICES, null=False, blank=False, max_length=20, db_index=True)
     # 25 for formats such as "printable.pdf", if tomorrow we want other "long" formats this will be ready
     format_requested = models.CharField(blank=False, null=False, max_length=25)
-    created = models.DateTimeField(verbose_name='date de création', name='date', auto_now_add=True)
+    created = models.DateTimeField(verbose_name="date de création", name="date", auto_now_add=True)
 
     def __str__(self):
-        return '{}: {} - {}'.format(self.published_object.title(), self.format_requested, self.state_of_processing)
+        return "{}: {} - {}".format(self.published_object.title(), self.format_requested, self.state_of_processing)
 
     def url(self):
         return self.published_object.get_absolute_url_to_extra_content(self.format_requested)
@@ -1354,9 +1408,10 @@ class ContentContributionRole(models.Model):
     """
     Contribution role of content
     """
+
     class Meta:
-        verbose_name = 'Role de la contribution au contenu'
-        verbose_name_plural = 'Roles de la contribution au contenu'
+        verbose_name = "Role de la contribution au contenu"
+        verbose_name_plural = "Roles de la contribution au contenu"
 
     title = models.CharField(null=False, blank=False, max_length=80)
     subtitle = models.CharField(null=True, blank=True, max_length=200)
@@ -1370,35 +1425,28 @@ class ContentContribution(models.Model):
     """
     Content contributions
     """
-    class Meta:
-        verbose_name = 'Contribution aux contenus'
-        verbose_name_plural = 'Contributions aux contenus'
 
-    contribution_role = models.ForeignKey(ContentContributionRole,
-                                          null=False,
-                                          verbose_name='role de la contribution',
-                                          db_index=True,
-                                          on_delete=models.CASCADE)
-    user = models.ForeignKey(User,
-                             null=False,
-                             verbose_name='Contributeur',
-                             db_index=True,
-                             on_delete=models.CASCADE)
-    content = models.ForeignKey(PublishableContent,
-                                null=False,
-                                verbose_name='Contenu',
-                                db_index=True,
-                                on_delete=models.CASCADE)
-    comment = models.CharField(verbose_name='Commentaire',
-                               null=True,
-                               blank=True,
-                               max_length=200)
+    class Meta:
+        verbose_name = "Contribution aux contenus"
+        verbose_name_plural = "Contributions aux contenus"
+
+    contribution_role = models.ForeignKey(
+        ContentContributionRole,
+        null=False,
+        verbose_name="role de la contribution",
+        db_index=True,
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(User, null=False, verbose_name="Contributeur", db_index=True, on_delete=models.CASCADE)
+    content = models.ForeignKey(
+        PublishableContent, null=False, verbose_name="Contenu", db_index=True, on_delete=models.CASCADE
+    )
+    comment = models.CharField(verbose_name="Commentaire", null=True, blank=True, max_length=200)
 
     def __str__(self):
-        return "<Contribution a '{0}' par {1} de type {2}, #{3}>".format(self.content.title,
-                                                                         self.user.username,
-                                                                         self.contribution_role.title,
-                                                                         self.pk)
+        return "<Contribution a '{0}' par {1} de type {2}, #{3}>".format(
+            self.content.title, self.user.username, self.contribution_role.title, self.pk
+        )
 
 
 class ContentSuggestion(models.Model):
@@ -1406,23 +1454,25 @@ class ContentSuggestion(models.Model):
     Content suggestion
     """
 
-    publication = models.ForeignKey(PublishableContent,
-                                    null=False,
-                                    verbose_name='Contenu',
-                                    db_index=True,
-                                    on_delete=models.CASCADE,
-                                    related_name='publication')
-    suggestion = models.ForeignKey(PublishableContent,
-                                   null=False,
-                                   verbose_name='Suggestion',
-                                   db_index=True,
-                                   on_delete=models.CASCADE,
-                                   related_name='suggestion')
+    publication = models.ForeignKey(
+        PublishableContent,
+        null=False,
+        verbose_name="Contenu",
+        db_index=True,
+        on_delete=models.CASCADE,
+        related_name="publication",
+    )
+    suggestion = models.ForeignKey(
+        PublishableContent,
+        null=False,
+        verbose_name="Suggestion",
+        db_index=True,
+        on_delete=models.CASCADE,
+        related_name="suggestion",
+    )
 
     def __str__(self):
-        return "<Suggest '{0}' for content {1}, #{2}>".format(self.suggestion.title,
-                                                              self.publication.title,
-                                                              self.pk)
+        return "<Suggest '{0}' for content {1}, #{2}>".format(self.suggestion.title, self.publication.title, self.pk)
 
 
 @receiver(models.signals.pre_delete, sender=User)
@@ -1430,7 +1480,7 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     """
     transfer paternity to external user on user deletion
     """
-    external = sender.objects.get(username=settings.ZDS_APP['member']['external_account'])
+    external = sender.objects.get(username=settings.ZDS_APP["member"]["external_account"])
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
 

@@ -295,8 +295,6 @@ class ReactionManager(InheritanceManager):
     def get_all_messages_of_a_user(self, target):
         queryset = self.filter(author=target).distinct()
 
-        queryset = queryset\
-            .prefetch_related('author')\
-            .order_by('-pubdate')
+        queryset = queryset.prefetch_related("author").order_by("-pubdate")
 
         return queryset

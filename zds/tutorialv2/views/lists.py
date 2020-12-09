@@ -426,14 +426,14 @@ class ContentOfAuthor(ZdSPagingListView):
 
 class ListContentReactions(ZdSPagingListView):
 
-    context_object_name = 'content_reactions'
-    template_name = 'tutorialv2/comment/list.html'
-    paginate_by = settings.ZDS_APP['forum']['posts_per_page']
+    context_object_name = "content_reactions"
+    template_name = "tutorialv2/comment/list.html"
+    paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]
     model = ContentReaction
     user = None
 
     def dispatch(self, request, *args, **kwargs):
-        self.user = get_object_or_404(User, pk=self.kwargs['pk'])
+        self.user = get_object_or_404(User, pk=self.kwargs["pk"])
         return super(ListContentReactions, self).dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -442,10 +442,12 @@ class ListContentReactions(ZdSPagingListView):
     def get_context_data(self, **kwargs):
         context = super(ListContentReactions, self).get_context_data(**kwargs)
 
-        context.update({
-            'usr': self.user,
-            'hidden_content_reactions_count':
-                ContentReaction.objects.filter(author=self.user).distinct().count() - context['paginator'].count,
-        })
+        context.update(
+            {
+                "usr": self.user,
+                "hidden_content_reactions_count": ContentReaction.objects.filter(author=self.user).distinct().count()
+                - context["paginator"].count,
+            }
+        )
 
         return context
