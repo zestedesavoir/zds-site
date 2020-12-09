@@ -1,17 +1,19 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.urls import reverse
 from django.test import tag
-from selenium.webdriver.firefox.webdriver import WebDriver
+from django.urls import reverse
+from selenium.webdriver import Firefox
+from selenium.webdriver.firefox.options import Options
 
 
-# NOTE In Django 1.11.4 there is a --selenium option for python manage.py test
 @tag('front')
 class MemberFrontTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         super(MemberFrontTests, cls).setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(10)
+        options = Options()
+        options.headless = True
+        cls.selenium = Firefox(options=options)
+        cls.selenium.implicitly_wait(30)
 
     @classmethod
     def tearDownClass(cls):
