@@ -8,13 +8,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gallery', '0004_python_3'),
+        ("gallery", "0004_python_3"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='usergallery',
-            name='mode',
-            field=models.CharField(choices=[('R', 'Affichage'), ('W', 'Affichage et modification')], default='R', max_length=1),
+            model_name="usergallery",
+            name="mode",
+            field=models.CharField(
+                choices=[("R", "Affichage"), ("W", "Affichage et modification")], default="R", max_length=1
+            ),
         ),
     ]

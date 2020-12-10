@@ -4,4 +4,4 @@ class Validator:
     """
 
     def throw_error(self, key=None, message=None):
-        raise NotImplementedError('`throw_error()` must be implemented.')
+        raise NotImplementedError("`throw_error()` must be implemented.")

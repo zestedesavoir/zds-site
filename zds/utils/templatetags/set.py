@@ -4,7 +4,6 @@ register = template.Library()
 
 
 class SetVarNode(template.Node):
-
     def __init__(self, var_name, var_value):
         self.var_name = var_name
         self.var_value = var_value
@@ -13,9 +12,9 @@ class SetVarNode(template.Node):
         try:
             value = template.Variable(self.var_value).resolve(context)
         except template.VariableDoesNotExist:
-            value = ''
+            value = ""
         context[self.var_name] = value
-        return ''
+        return ""
 
 
 @register.tag

@@ -28,15 +28,13 @@ def easy_tag(func):
             return func(*split_arg)
         except TypeError:
             import inspect
+
             args = inspect.getargspec(func).args[1:]
 
             err_msg = 'Bad arguments for tag "{0}".\nThe tag "{0}" take {1} arguments ({2}).\n {3} were provided ({4}).'
-            fstring = err_msg.format(split_arg[0],
-                                     len(args),
-                                     ', '.join(args),
-                                     len(split_arg),
-                                     ', '.join(split_arg))
+            fstring = err_msg.format(split_arg[0], len(args), ", ".join(args), len(split_arg), ", ".join(split_arg))
             raise template.TemplateSyntaxError(fstring)
+
     return inner
 
 
@@ -56,17 +54,17 @@ class AppendGetNode(template.Node):
         """
 
         self.__dict_pairs = {}
-        for pair in arg_list.split(','):
+        for pair in arg_list.split(","):
             if pair:
                 try:
-                    key, val = pair.split('=')
+                    key, val = pair.split("=")
                     if not val:
-                        raise template.TemplateSyntaxError(
-                            "Bad argument format. Empty value for key '{}".format(key))
+                        raise template.TemplateSyntaxError("Bad argument format. Empty value for key '{}".format(key))
                     self.__dict_pairs[key] = template.Variable(val)
                 except ValueError:
                     raise template.TemplateSyntaxError(
-                        "Bad argument format.\n'{}' must use the format 'key1=var1,key2=var2'".format(arg_list))
+                        "Bad argument format.\n'{}' must use the format 'key1=var1,key2=var2'".format(arg_list)
+                    )
 
     def render(self, context):
         """
@@ -76,19 +74,17 @@ class AppendGetNode(template.Node):
         :return: New URL with arguments appended.
         :rtype: str
         """
-        get = context['request'].GET.copy()
-        path = context['request'].META['PATH_INFO']
+        get = context["request"].GET.copy()
+        path = context["request"].META["PATH_INFO"]
 
         for key in self.__dict_pairs:
             get[key] = self.__dict_pairs[key].resolve(context)
 
         if len(get) > 0:
             list_arg = [
-                '{0}={1}'.format(key, urlquote(str(value)))
-                for key in list(get.keys())
-                for value in get.getlist(key)
+                "{0}={1}".format(key, urlquote(str(value))) for key in list(get.keys()) for value in get.getlist(key)
             ]
-            path += '?' + '&'.join(list_arg)
+            path += "?" + "&".join(list_arg)
 
         return path
 

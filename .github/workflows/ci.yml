@@ -31,7 +31,7 @@ jobs:
           python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Install python dependencies
-        run: pip install flake8
+        run: pip install black
 
       - name: Lint back-end
         run: make lint-back

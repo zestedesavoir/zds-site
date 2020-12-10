@@ -8,42 +8,45 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactor
 from zds.forum.factories import ForumFactory, ForumCategoryFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
-from zds.tutorialv2.factories import LicenceFactory, SubCategoryFactory, PublishableContentFactory, ContainerFactory, \
-    ExtractFactory
+from zds.tutorialv2.factories import (
+    LicenceFactory,
+    SubCategoryFactory,
+    PublishableContentFactory,
+    ContainerFactory,
+    ExtractFactory,
+)
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = settings.BASE_DIR / 'contents-private-test'
-overridden_zds_app['content']['repo_public_path'] = settings.BASE_DIR / 'contents-public-test'
+overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
+overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
 
 
-@override_settings(MEDIA_ROOT=settings.BASE_DIR / 'media-test')
+@override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
 class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
-
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
-        overridden_zds_app['content']['build_pdf_when_published'] = False
+        overridden_zds_app["content"]["build_pdf_when_published"] = False
 
         self.staff = StaffProfileFactory().user
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
-        overridden_zds_app['member']['bot_account'] = self.mas.username
+        overridden_zds_app["member"]["bot_account"] = self.mas.username
 
-        bot = Group(name=overridden_zds_app['member']['bot_group'])
+        bot = Group(name=overridden_zds_app["member"]["bot_group"])
         bot.save()
-        self.external = UserFactory(
-            username=overridden_zds_app['member']['external_account'],
-            password='anything')
+        self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
 
         self.beta_forum = ForumFactory(
-            pk=overridden_zds_app['forum']['beta_forum_id'],
+            pk=overridden_zds_app["forum"]["beta_forum_id"],
             category=ForumCategoryFactory(position=1),
-            position_in_category=1)  # ensure that the forum, for the beta versions, is created
+            position_in_category=1,
+        )  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
@@ -53,9 +56,9 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.user_guest = ProfileFactory().user
 
         # create a tutorial
-        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto = PublishableContentFactory(type="TUTORIAL")
         self.tuto.authors.add(self.user_author)
-        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode="W")
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
@@ -80,10 +83,10 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
     def test_is_well_setup(self):
         """ Test that base parameters are Ok """
 
-        self.assertEqual(self.tutofeed.link, '/tutoriels/')
-        reftitle = 'Tutoriels sur {}'.format(overridden_zds_app['site']['literal_name'])
+        self.assertEqual(self.tutofeed.link, "/tutoriels/")
+        reftitle = "Tutoriels sur {}".format(overridden_zds_app["site"]["literal_name"])
         self.assertEqual(self.tutofeed.title, reftitle)
-        refdescription = 'Les derniers tutoriels parus sur {}.'.format(overridden_zds_app['site']['literal_name'])
+        refdescription = "Les derniers tutoriels parus sur {}.".format(overridden_zds_app["site"]["literal_name"])
         self.assertEqual(self.tutofeed.description, refdescription)
 
         atom = LastTutorialsFeedATOM()
@@ -138,28 +141,26 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
 
 @override_settings(ZDS_APP=overridden_zds_app)
 class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
-
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
-        overridden_zds_app['content']['build_pdf_when_published'] = False
+        overridden_zds_app["content"]["build_pdf_when_published"] = False
 
         self.staff = StaffProfileFactory().user
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
-        overridden_zds_app['member']['bot_account'] = self.mas.username
+        overridden_zds_app["member"]["bot_account"] = self.mas.username
 
-        bot = Group(name=overridden_zds_app['member']['bot_group'])
+        bot = Group(name=overridden_zds_app["member"]["bot_group"])
         bot.save()
-        self.external = UserFactory(
-            username=overridden_zds_app['member']['external_account'],
-            password='anything')
+        self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
 
         self.beta_forum = ForumFactory(
-            pk=overridden_zds_app['forum']['beta_forum_id'],
+            pk=overridden_zds_app["forum"]["beta_forum_id"],
             category=ForumCategoryFactory(position=1),
-            position_in_category=1)  # ensure that the forum, for the beta versions, is created
+            position_in_category=1,
+        )  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
@@ -169,9 +170,9 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.user_guest = ProfileFactory().user
 
         # create an article
-        self.article = PublishableContentFactory(type='ARTICLE')
+        self.article = PublishableContentFactory(type="ARTICLE")
         self.article.authors.add(self.user_author)
-        UserGalleryFactory(gallery=self.article.gallery, user=self.user_author, mode='W')
+        UserGalleryFactory(gallery=self.article.gallery, user=self.user_author, mode="W")
         self.article.licence = self.licence
         self.article.subcategory.add(self.subcategory)
         self.article.save()
@@ -194,10 +195,10 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
     def test_is_well_setup(self):
         """ Test that base parameters are Ok """
 
-        self.assertEqual(self.articlefeed.link, '/articles/')
-        reftitle = 'Articles sur {}'.format(overridden_zds_app['site']['literal_name'])
+        self.assertEqual(self.articlefeed.link, "/articles/")
+        reftitle = "Articles sur {}".format(overridden_zds_app["site"]["literal_name"])
         self.assertEqual(self.articlefeed.title, reftitle)
-        refdescription = 'Les derniers articles parus sur {}.'.format(overridden_zds_app['site']['literal_name'])
+        refdescription = "Les derniers articles parus sur {}.".format(overridden_zds_app["site"]["literal_name"])
         self.assertEqual(self.articlefeed.description, refdescription)
 
         atom = LastArticlesFeedATOM()

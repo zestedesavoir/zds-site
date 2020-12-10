@@ -5,7 +5,6 @@ MAX_WRAP_TEXT = 50
 
 
 class SearchHighlighter(Highlighter):
-
     def render_html(self, highlight_locations=None, start_offset=None, end_offset=None):
 
         if start_offset is not None:
@@ -13,6 +12,6 @@ class SearchHighlighter(Highlighter):
         if end_offset is not None:
             end_offset = min([len(self.text_block), end_offset + MAX_WRAP_TEXT])
 
-        return super(SearchHighlighter, self).render_html(highlight_locations=highlight_locations,
-                                                          start_offset=start_offset,
-                                                          end_offset=end_offset)
+        return super(SearchHighlighter, self).render_html(
+            highlight_locations=highlight_locations, start_offset=start_offset, end_offset=end_offset
+        )

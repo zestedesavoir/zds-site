@@ -7,18 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0014_auto_20170905_2220'),
-        ('member', '0014_profile_use_old_smileys'),
+        ("utils", "0014_auto_20170905_2220"),
+        ("member", "0014_profile_use_old_smileys"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='profile',
-            name='show_staff_badge',
+            model_name="profile",
+            name="show_staff_badge",
         ),
         migrations.AddField(
-            model_name='profile',
-            name='hats',
-            field=models.ManyToManyField(blank=True, db_index=True, to='utils.Hat', verbose_name='Casquettes'),
+            model_name="profile",
+            name="hats",
+            field=models.ManyToManyField(blank=True, db_index=True, to="utils.Hat", verbose_name="Casquettes"),
         ),
     ]

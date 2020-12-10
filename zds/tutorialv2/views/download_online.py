@@ -6,18 +6,19 @@ from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, DownloadViewMixi
 
 
 class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
-    """ Views that allow users to download 'extra contents' of the public version
-    """
+    """Views that allow users to download 'extra contents' of the public version"""
 
     requested_file = None
-    allowed_types = ['md', 'html', 'pdf', 'epub', 'zip', 'tex']
+    allowed_types = ["md", "html", "pdf", "epub", "zip", "tex"]
 
-    mimetypes = {'html': 'text/html',
-                 'md': 'text/plain',
-                 'pdf': 'application/pdf',
-                 'epub': 'application/epub+zip',
-                 'zip': 'application/zip',
-                 'tex': 'application/x-latex'}
+    mimetypes = {
+        "html": "text/html",
+        "md": "text/plain",
+        "pdf": "application/pdf",
+        "epub": "application/epub+zip",
+        "zip": "application/zip",
+        "tex": "application/x-latex",
+    }
 
     def get_redirect_url(self, public_version):
         return public_version.content.public_version.get_absolute_url_to_extra_content(self.requested_file)
@@ -41,7 +42,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         if not self.public_content_object.has_type(self.requested_file):
             raise Http404("Le type n'existe pas.")
 
-        if self.requested_file == 'md' and not self.is_author and not self.is_staff:
+        if self.requested_file == "md" and not self.is_author and not self.is_staff:
             # download markdown is only for staff and author
             raise Http404("Seul le staff et l'auteur peuvent télécharger la version Markdown du contenu.")
 
@@ -49,18 +50,18 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         self.mimetype = self.mimetypes[self.requested_file]
 
         # set UTF-8 response for markdown
-        if self.requested_file == 'md':
-            self.mimetype += '; charset=utf-8'
+        if self.requested_file == "md":
+            self.mimetype += "; charset=utf-8"
 
         return super(DownloadOnlineContent, self).get(context, **response_kwargs)
 
     def get_filename(self):
-        return self.public_content_object.content_public_slug + '.' + self.requested_file
+        return self.public_content_object.content_public_slug + "." + self.requested_file
 
     def get_contents(self):
         path = os.path.join(self.public_content_object.get_extra_contents_directory(), self.get_filename())
         try:
-            response = open(path, 'rb').read()
+            response = open(path, "rb").read()
         except OSError:
             raise Http404("Le fichier n'existe pas.")
 
@@ -69,14 +70,14 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
 
 class DownloadOnlineArticle(DownloadOnlineContent):
 
-    current_content_type = 'ARTICLE'
+    current_content_type = "ARTICLE"
 
 
 class DownloadOnlineTutorial(DownloadOnlineContent):
 
-    current_content_type = 'TUTORIAL'
+    current_content_type = "TUTORIAL"
 
 
 class DownloadOnlineOpinion(DownloadOnlineContent):
 
-    current_content_type = 'OPINION'
+    current_content_type = "OPINION"
