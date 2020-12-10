@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Détection automatique des erreurs flake8 avec Git &mdash; Documentation Zeste de Savoir dev</title>
+  <title>Intégration du reformatage du code Python avec Git &mdash; Documentation Zeste de Savoir dev</title>
   
 
   
@@ -103,7 +103,7 @@
 <li class="toctree-l2"><a class="reference internal" href="captcha.html">Paramètrer le moteur de Captcha</a></li>
 <li class="toctree-l2"><a class="reference internal" href="fixture_loaders.html">Le chargement de jeux de données (fixtures)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="generate_pdf.html">Générer les PDFs des différents contenus</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Détection automatique des erreurs <em>flake8</em> avec Git</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Intégration du reformatage du code Python avec Git</a></li>
 <li class="toctree-l2"><a class="reference internal" href="nettoyage_alerts.html">Commande de nettoyage des alertes et notifications</a></li>
 <li class="toctree-l2"><a class="reference internal" href="opensearch.html">Installer un plugin de recherche à votre navigateur</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release_generator.html">Générer les rapports de release</a></li>
@@ -159,7 +159,7 @@
         
           <li><a href="../utils.html">Makefile et autres outils</a> &raquo;</li>
         
-      <li>Détection automatique des erreurs <em>flake8</em> avec Git</li>
+      <li>Intégration du reformatage du code Python avec Git</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -178,32 +178,25 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="detection-automatique-des-erreurs-flake8-avec-git">
-<h1>Détection automatique des erreurs <em>flake8</em> avec Git<a class="headerlink" href="#detection-automatique-des-erreurs-flake8-avec-git" title="Lien permanent vers ce titre">¶</a></h1>
-<p>Afin de s’assurer qu’aucune erreur de mise en forme ne passe les commits,
-il peut être utile de rajouter un hook de pre-commit à git. Un hook est un petit
-programme qui sera exécuté avant une action particulière de git. En l’occurence nous
-allons rajouter un hook qui s’executera juste avant la validation d’un commit.</p>
-<p>Pour cela, commencer par créer et éditer le fichier <cite>.git/hooks/pre-commit</cite></p>
-<p>Ensuite, il ne reste plus qu’à rajouter le contenu suivant dans ce fichier et dorénavant
-le controle flake (pour le respect PEP) sera exécuté avant la validation du message de commit.
-Ainsi, plus aucune erreur flake ne viendra vous embêter à posteriori et la base de code
-restera propre et lisible au cours du temps !</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/sh</span>
-
-flake8 zds
-
-<span class="c1"># Store tests result</span>
-<span class="nv">RESULT</span><span class="o">=</span><span class="nv">$?</span>
-
-<span class="o">[</span> <span class="nv">$RESULT</span> -ne <span class="m">0</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">exit</span> <span class="m">1</span>
-<span class="nb">exit</span> <span class="m">0</span>
-</pre></div>
-</div>
-<p>Enfin n’oubliez pas de le rendre executable via chmod</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>chmod +x .git/hooks/pre-commit
-</pre></div>
-</div>
+  <div class="section" id="integration-du-reformatage-du-code-python-avec-git">
+<h1>Intégration du reformatage du code Python avec Git<a class="headerlink" href="#integration-du-reformatage-du-code-python-avec-git" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Pour la mise en forme du code Python, le projet Zeste de Savoir
+utilise l’outil <cite>black</cite>. Cet outil permet de :</p>
+<ul class="simple">
+<li><p>formater le code Python selon certaines règles ;</p></li>
+<li><p>vérifier qu’un code Python est bien formaté selon ces mêmes règles.</p></li>
+</ul>
+<p>Pour éviter aux développeurs d’oublier de formater le code, un
+<em>pre-commit hook</em> qui exécute <cite>black</cite> avant chaque <em>commit</em> est
+installé avec le <em>backend</em>. Vous n’avez normalement
+rien à configurer pour en bénéficier.</p>
+<p>Si vous tentez de commiter du code mal formaté, le code sera
+reformaté automatiquement et le <em>commit</em> interrompu. Il vous suffira
+alors de recommencer en incluant ces modifications pour que tout se passe
+sans problème.</p>
+<p>Ce <em>hook</em> permet d’éviter de corriger <em>a posteriori</em> les erreurs
+de formatage relevées par les outils d’intégration continue, qui
+refusent tout code ne respectant pas ces règles.</p>
 </div>
 
 
