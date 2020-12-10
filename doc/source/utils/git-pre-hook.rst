@@ -1,34 +1,23 @@
-===================================================
-Détection automatique des erreurs *flake8* avec Git
-===================================================
+==================================================
+Intégration du reformatage du code Python avec Git
+==================================================
 
-Afin de s'assurer qu'aucune erreur de mise en forme ne passe les commits,
-il peut être utile de rajouter un hook de pre-commit à git. Un hook est un petit
-programme qui sera exécuté avant une action particulière de git. En l'occurence nous
-allons rajouter un hook qui s'executera juste avant la validation d'un commit.
+Pour la mise en forme du code Python, le projet Zeste de Savoir
+utilise l'outil `black`. Cet outil permet de :
 
-Pour cela, commencer par créer et éditer le fichier `.git/hooks/pre-commit`
+- formater le code Python selon certaines règles ;
+- vérifier qu'un code Python est bien formaté selon ces mêmes règles.
 
-Ensuite, il ne reste plus qu'à rajouter le contenu suivant dans ce fichier et dorénavant
-le controle flake (pour le respect PEP) sera exécuté avant la validation du message de commit.
-Ainsi, plus aucune erreur flake ne viendra vous embêter à posteriori et la base de code
-restera propre et lisible au cours du temps !
+Pour éviter aux développeurs d'oublier de formater le code, un
+*pre-commit hook* qui exécute `black` avant chaque *commit* est
+installé avec le *backend*. Vous n'avez normalement
+rien à configurer pour en bénéficier.
 
-.. sourcecode:: bash
+Si vous tentez de commiter du code mal formaté, le code sera
+reformaté automatiquement et le *commit* interrompu. Il vous suffira
+alors de recommencer en incluant ces modifications pour que tout se passe
+sans problème.
 
-    #!/bin/sh
-
-    flake8 zds
-
-    # Store tests result
-    RESULT=$?
-
-    [ $RESULT -ne 0 ] && exit 1
-    exit 0
-
-
-Enfin n'oubliez pas de le rendre executable via chmod
-
-.. sourcecode:: bash
-
-    chmod +x .git/hooks/pre-commit
+Ce *hook* permet d'éviter de corriger *a posteriori* les erreurs
+de formatage relevées par les outils d'intégration continue, qui
+refusent tout code ne respectant pas ces règles.

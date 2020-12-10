@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0013_auto_20170807_1930'),
+        ("member", "0013_auto_20170807_1930"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='use_old_smileys',
-            field=models.BooleanField(default=False, verbose_name='Utilise les anciens smileys ?'),
+            model_name="profile",
+            name="use_old_smileys",
+            field=models.BooleanField(default=False, verbose_name="Utilise les anciens smileys ?"),
         ),
     ]

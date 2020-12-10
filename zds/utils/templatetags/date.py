@@ -14,13 +14,13 @@ Define a filter to format date.
 
 # Date formatting constants
 
-__DATE_FMT_FUTUR = _('Dans le futur')
-__ABS_DATE_FMT_SMALL = _(r'd/m/y à H\hi')       # Small format
-__ABS_DATE_FMT_NORMAL = _(r'l d F Y à H\hi')    # Normal format
-__ABS_HUMAN_TIME_FMT = _('%d %b %Y, %H:%M:%S')
+__DATE_FMT_FUTUR = _("Dans le futur")
+__ABS_DATE_FMT_SMALL = _(r"d/m/y à H\hi")  # Small format
+__ABS_DATE_FMT_NORMAL = _(r"l d F Y à H\hi")  # Normal format
+__ABS_HUMAN_TIME_FMT = _("%d %b %Y, %H:%M:%S")
 
 
-def date_formatter(value, tooltip, small, prefix='', ignore_future=False):
+def date_formatter(value, tooltip, small, prefix="", ignore_future=False):
     """
     Format a date to an human readable string.
 
@@ -32,7 +32,7 @@ def date_formatter(value, tooltip, small, prefix='', ignore_future=False):
     if not isinstance(value, datetime):
         return value
 
-    if getattr(value, 'tzinfo', None):
+    if getattr(value, "tzinfo", None):
         now = datetime.now(get_default_timezone())
     else:
         now = datetime.now()
@@ -65,7 +65,7 @@ def format_date_prefixed(value, small=False):
     Format a date to an human readable string.
     If ``value`` is in future it is replaced by "In the future".
     """
-    prefix = 'le ' if small else ''
+    prefix = "le " if small else ""
     return date_formatter(value, tooltip=False, small=small, prefix=prefix)
 
 
@@ -93,7 +93,7 @@ def humane_time(timestamp):
 @register.filter
 def from_elasticsearch_date(value):
     try:
-        date = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S.%f')
+        date = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%f")
     except ValueError:
-        date = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
+        date = datetime.strptime(value, "%Y-%m-%dT%H:%M:%S")
     return date

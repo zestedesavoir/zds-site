@@ -11,17 +11,27 @@ from django.views.generic import DeleteView, FormView
 
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.tutorialv2.forms import ContainerForm, WarnTypoForm, ExtractForm, MoveElementForm
-from zds.tutorialv2.mixins import SingleContentFormViewMixin, FormWithPreview, SingleContentDetailViewMixin, \
-    SingleContentViewMixin, SingleContentPostMixin
+from zds.tutorialv2.mixins import (
+    SingleContentFormViewMixin,
+    FormWithPreview,
+    SingleContentDetailViewMixin,
+    SingleContentViewMixin,
+    SingleContentPostMixin,
+)
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree, search_extract_or_404, \
-    try_adopt_new_child, TooDeepContainerError
+from zds.tutorialv2.utils import (
+    search_container_or_404,
+    get_target_tagged_tree,
+    search_extract_or_404,
+    try_adopt_new_child,
+    TooDeepContainerError,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
-    template_name = 'tutorialv2/create/container.html'
+    template_name = "tutorialv2/create/container.html"
     form_class = ContainerForm
     content = None
     authorized_for_staff = True  # former behaviour
@@ -29,14 +39,14 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
     def get_context_data(self, **kwargs):
         context = super(CreateContainer, self).get_context_data(**kwargs)
 
-        context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
-        context['gallery'] = self.object.gallery
+        context["container"] = search_container_or_404(self.versioned_object, self.kwargs)
+        context["gallery"] = self.object.gallery
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        parent = context['container']
+        parent = context["container"]
         if not parent.can_add_container():
-            messages.error(self.request, _('Vous ne pouvez plus ajouter de conteneur à « {} ».').format(parent.title))
+            messages.error(self.request, _("Vous ne pouvez plus ajouter de conteneur à « {} ».").format(parent.title))
             return redirect(parent.get_absolute_url())
 
         return super(CreateContainer, self).render_to_response(context, **response_kwargs)
@@ -44,10 +54,12 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
-        sha = parent.repo_add_container(form.cleaned_data['title'],
-                                        form.cleaned_data['introduction'],
-                                        form.cleaned_data['conclusion'],
-                                        form.cleaned_data['msg_commit'])
+        sha = parent.repo_add_container(
+            form.cleaned_data["title"],
+            form.cleaned_data["introduction"],
+            form.cleaned_data["conclusion"],
+            form.cleaned_data["msg_commit"],
+        )
 
         # then save:
         self.object.sha_draft = sha
@@ -63,7 +75,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
     """Base class that can show any content in any state"""
 
     model = PublishableContent
-    template_name = 'tutorialv2/view/container.html'
+    template_name = "tutorialv2/view/container.html"
     sha = None
     must_be_author = False  # beta state does not need the author
     only_draft_version = False
@@ -72,65 +84,63 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
         """Show the given tutorial if exists."""
         context = super(DisplayContainer, self).get_context_data(**kwargs)
         container = search_container_or_404(self.versioned_object, self.kwargs)
-        context['containers_target'] = get_target_tagged_tree(container, self.versioned_object)
+        context["containers_target"] = get_target_tagged_tree(container, self.versioned_object)
 
         if self.versioned_object.is_beta:
-            context['formWarnTypo'] = WarnTypoForm(
-                self.versioned_object,
-                container,
-                public=False,
-                initial={'target': container.get_path(relative=True)})
+            context["formWarnTypo"] = WarnTypoForm(
+                self.versioned_object, container, public=False, initial={"target": container.get_path(relative=True)}
+            )
 
-        context['container'] = container
+        context["container"] = container
 
         # pagination: search for `previous` and `next`, if available
-        if self.versioned_object.type != 'ARTICLE' and not self.versioned_object.has_extracts():
+        if self.versioned_object.type != "ARTICLE" and not self.versioned_object.has_extracts():
             chapters = self.versioned_object.get_list_of_chapters()
             try:
                 position = chapters.index(container)
             except ValueError:
                 pass  # this is not (yet?) a chapter
             else:
-                context['has_pagination'] = True
-                context['previous'] = None
-                context['next'] = None
+                context["has_pagination"] = True
+                context["previous"] = None
+                context["next"] = None
                 if position == 0:
-                    context['previous'] = container.parent
+                    context["previous"] = container.parent
                 if position > 0:
                     previous_chapter = chapters[position - 1]
                     if previous_chapter.parent == container.parent:
-                        context['previous'] = previous_chapter
+                        context["previous"] = previous_chapter
                     else:
-                        context['previous'] = container.parent
+                        context["previous"] = container.parent
                 if position < len(chapters) - 1:
                     next_chapter = chapters[position + 1]
                     if next_chapter.parent == container.parent:
-                        context['next'] = next_chapter
+                        context["next"] = next_chapter
                     else:
-                        context['next'] = next_chapter.parent
+                        context["next"] = next_chapter.parent
 
         # check whether this tuto support js fiddle
         if self.object.js_support:
-            is_js = 'js'
+            is_js = "js"
         else:
-            is_js = ''
-        context['is_js'] = is_js
+            is_js = ""
+        context["is_js"] = is_js
 
         return context
 
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
-    template_name = 'tutorialv2/edit/container.html'
+    template_name = "tutorialv2/edit/container.html"
     form_class = ContainerForm
     content = None
 
     def get_context_data(self, **kwargs):
         context = super(EditContainer, self).get_context_data(**kwargs)
 
-        if 'preview' not in self.request.POST:
+        if "preview" not in self.request.POST:
             container = search_container_or_404(self.versioned_object, self.kwargs)
-            context['container'] = container
-            context['gallery'] = self.object.gallery
+            context["container"] = container
+            context["gallery"] = self.object.gallery
 
         return context
 
@@ -139,12 +149,12 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         initial = super(EditContainer, self).get_initial()
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
-        initial['title'] = container.title
-        initial['introduction'] = container.get_introduction()
-        initial['conclusion'] = container.get_conclusion()
-        initial['container'] = container
+        initial["title"] = container.title
+        initial["introduction"] = container.get_introduction()
+        initial["conclusion"] = container.get_conclusion()
+        initial["container"] = container
 
-        initial['last_hash'] = container.compute_hash()
+        initial["last_hash"] = container.compute_hash()
 
         return initial
 
@@ -153,20 +163,22 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
         # check if content has changed:
         current_hash = container.compute_hash()
-        if current_hash != form.cleaned_data['last_hash']:
+        if current_hash != form.cleaned_data["last_hash"]:
             data = form.data.copy()
-            data['last_hash'] = current_hash
-            data['introduction'] = container.get_introduction()
-            data['conclusion'] = container.get_conclusion()
+            data["last_hash"] = current_hash
+            data["introduction"] = container.get_introduction()
+            data["conclusion"] = container.get_conclusion()
             form.data = data
-            messages.error(self.request, _('Une nouvelle version a été postée avant que vous ne validiez.'))
+            messages.error(self.request, _("Une nouvelle version a été postée avant que vous ne validiez."))
             return self.form_invalid(form)
 
-        sha = container.repo_update(form.cleaned_data['title'],
-                                    form.cleaned_data['introduction'],
-                                    form.cleaned_data['conclusion'],
-                                    form.cleaned_data['msg_commit'],
-                                    update_slug=self.object.public_version is None)
+        sha = container.repo_update(
+            form.cleaned_data["title"],
+            form.cleaned_data["introduction"],
+            form.cleaned_data["conclusion"],
+            form.cleaned_data["msg_commit"],
+            update_slug=self.object.public_version is None,
+        )
 
         # then save
         self.object.sha_draft = sha
@@ -179,22 +191,22 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
 
 class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
-    template_name = 'tutorialv2/create/extract.html'
+    template_name = "tutorialv2/create/extract.html"
     form_class = ExtractForm
     content = None
     authorized_for_staff = True
 
     def get_context_data(self, **kwargs):
         context = super(CreateExtract, self).get_context_data(**kwargs)
-        context['container'] = search_container_or_404(self.versioned_object, self.kwargs)
-        context['gallery'] = self.object.gallery
+        context["container"] = search_container_or_404(self.versioned_object, self.kwargs)
+        context["gallery"] = self.object.gallery
 
         return context
 
     def render_to_response(self, context, **response_kwargs):
-        parent = context['container']
+        parent = context["container"]
         if not parent.can_add_extract():
-            messages.error(self.request, _('Vous ne pouvez plus ajouter de section à « {} ».').format(parent.title))
+            messages.error(self.request, _("Vous ne pouvez plus ajouter de section à « {} ».").format(parent.title))
             return redirect(parent.get_absolute_url())
 
         return super(CreateExtract, self).render_to_response(context, **response_kwargs)
@@ -202,9 +214,9 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
-        sha = parent.repo_add_extract(form.cleaned_data['title'],
-                                      form.cleaned_data['text'],
-                                      form.cleaned_data['msg_commit'])
+        sha = parent.repo_add_extract(
+            form.cleaned_data["title"], form.cleaned_data["text"], form.cleaned_data["msg_commit"]
+        )
 
         # then save
         self.object.sha_draft = sha
@@ -217,16 +229,16 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
 
 class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
-    template_name = 'tutorialv2/edit/extract.html'
+    template_name = "tutorialv2/edit/extract.html"
     form_class = ExtractForm
     content = None
 
     def get_context_data(self, **kwargs):
         context = super(EditExtract, self).get_context_data(**kwargs)
-        context['gallery'] = self.object.gallery
+        context["gallery"] = self.object.gallery
 
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
-        context['extract'] = extract
+        context["extract"] = extract
 
         return context
 
@@ -235,11 +247,11 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial = super(EditExtract, self).get_initial()
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
 
-        initial['title'] = extract.title
-        initial['text'] = extract.get_text()
-        initial['extract'] = extract
+        initial["title"] = extract.title
+        initial["text"] = extract.get_text()
+        initial["extract"] = extract
 
-        initial['last_hash'] = extract.compute_hash()
+        initial["last_hash"] = extract.compute_hash()
 
         return initial
 
@@ -248,32 +260,33 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         # check if content has changed:
         current_hash = extract.compute_hash()
-        if current_hash != form.cleaned_data['last_hash']:
+        if current_hash != form.cleaned_data["last_hash"]:
             data = form.data.copy()
-            data['last_hash'] = current_hash
-            data['text'] = extract.get_text()
+            data["last_hash"] = current_hash
+            data["text"] = extract.get_text()
             form.data = data
-            messages.error(self.request, _('Une nouvelle version a été postée avant que vous ne validiez.'))
+            messages.error(self.request, _("Une nouvelle version a été postée avant que vous ne validiez."))
             return self.form_invalid(form)
 
-        sha = extract.repo_update(form.cleaned_data['title'],
-                                  form.cleaned_data['text'],
-                                  form.cleaned_data['msg_commit'])
+        sha = extract.repo_update(
+            form.cleaned_data["title"], form.cleaned_data["text"], form.cleaned_data["msg_commit"]
+        )
 
         # then save
         self.object.update(sha_draft=sha, update_date=datetime.now())
 
         self.success_url = extract.get_absolute_url()
         if self.request.is_ajax():
-            return JsonResponse({'result': 'ok', 'last_hash': extract.compute_hash(),
-                                 'new_url': extract.get_edit_url()})
+            return JsonResponse(
+                {"result": "ok", "last_hash": extract.compute_hash(), "new_url": extract.get_edit_url()}
+            )
         return super(EditExtract, self).form_valid(form)
 
 
 class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     template_name = None
-    http_method_names = ['delete', 'post']
+    http_method_names = ["delete", "post"]
     object = None
     versioned_object = None
 
@@ -285,11 +298,11 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
 
         # find something to delete and delete it
         to_delete = None
-        if 'object_slug' in self.kwargs:
+        if "object_slug" in self.kwargs:
             try:
-                to_delete = parent.children_dict[self.kwargs['object_slug']]
+                to_delete = parent.children_dict[self.kwargs["object_slug"]]
             except KeyError:
-                raise Http404('Impossible de récupérer le contenu pour le supprimer.')
+                raise Http404("Impossible de récupérer le contenu pour le supprimer.")
 
         sha = to_delete.repo_delete()
 
@@ -311,88 +324,98 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
     def form_valid(self, form):
         content = self.get_object()
         versioned = content.load_version()
-        base_container_slug = form.data['container_slug']
-        child_slug = form.data['child_slug']
+        base_container_slug = form.data["container_slug"]
+        child_slug = form.data["child_slug"]
 
         if not base_container_slug:
-            raise Http404('Le slug du container de base est vide.')
+            raise Http404("Le slug du container de base est vide.")
 
         if not child_slug:
-            raise Http404('Le slug du container enfant est vide.')
+            raise Http404("Le slug du container enfant est vide.")
 
         if base_container_slug == versioned.slug:
             parent = versioned
         else:
             search_params = {}
 
-            if 'first_level_slug' in form.data and form.data['first_level_slug']:
-                search_params['parent_container_slug'] = form.data['first_level_slug']
-                search_params['container_slug'] = base_container_slug
+            if "first_level_slug" in form.data and form.data["first_level_slug"]:
+                search_params["parent_container_slug"] = form.data["first_level_slug"]
+                search_params["container_slug"] = base_container_slug
             else:
-                search_params['container_slug'] = base_container_slug
+                search_params["container_slug"] = base_container_slug
             parent = search_container_or_404(versioned, search_params)
 
         try:
             child = parent.children_dict[child_slug]
-            if form.data['moving_method'] == MoveElementForm.MOVE_UP:
+            if form.data["moving_method"] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
-                logger.debug('{} was moved up in tutorial id:{}'.format(child_slug, content.pk))
-            elif form.data['moving_method'] == MoveElementForm.MOVE_DOWN:
+                logger.debug("{} was moved up in tutorial id:{}".format(child_slug, content.pk))
+            elif form.data["moving_method"] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
-                logger.debug('{} was moved down in tutorial id:{}'.format(child_slug, content.pk))
-            elif form.data['moving_method'][0:len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
-                target = form.data['moving_method'][len(MoveElementForm.MOVE_AFTER) + 1:]
+                logger.debug("{} was moved down in tutorial id:{}".format(child_slug, content.pk))
+            elif form.data["moving_method"][0 : len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
+                target = form.data["moving_method"][len(MoveElementForm.MOVE_AFTER) + 1 :]
                 if not parent.has_child_with_path(target):
-                    if '/' not in target:
+                    if "/" not in target:
                         target_parent = versioned
                     else:
-                        target_parent = search_container_or_404(versioned, '/'.join(target.split('/')[:-1]))
+                        target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
-                        if target.split('/')[-1] not in target_parent.children_dict:
+                        if target.split("/")[-1] not in target_parent.children_dict:
                             raise Http404("La cible n'est pas un enfant du parent.")
-                    child = target_parent.children_dict[target.split('/')[-1]]
+                    child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
                     # this one cost me so much of my hair
                     # and makes me think copy/past are killing kitty cat.
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
-                parent.move_child_after(child_slug, target.split('/')[-1])
-                logger.debug('{} was moved after {} in tutorial id:{}'.format(child_slug, target, content.pk))
-            elif form.data['moving_method'][0:len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
-                target = form.data['moving_method'][len(MoveElementForm.MOVE_BEFORE) + 1:]
+                parent.move_child_after(child_slug, target.split("/")[-1])
+                logger.debug("{} was moved after {} in tutorial id:{}".format(child_slug, target, content.pk))
+            elif form.data["moving_method"][0 : len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
+                target = form.data["moving_method"][len(MoveElementForm.MOVE_BEFORE) + 1 :]
                 if not parent.has_child_with_path(target):
-                    if '/' not in target:
+                    if "/" not in target:
                         target_parent = versioned
                     else:
-                        target_parent = search_container_or_404(versioned, '/'.join(target.split('/')[:-1]))
+                        target_parent = search_container_or_404(versioned, "/".join(target.split("/")[:-1]))
 
-                        if target.split('/')[-1] not in target_parent.children_dict:
+                        if target.split("/")[-1] not in target_parent.children_dict:
                             raise Http404("La cible n'est pas un enfant du parent.")
-                    child = target_parent.children_dict[target.split('/')[-1]]
+                    child = target_parent.children_dict[target.split("/")[-1]]
                     try_adopt_new_child(target_parent, parent.children_dict[child_slug])
                     # now, I will fix a bug that happens when the slug changes
                     # this one cost me so much of my hair
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
-                parent.move_child_before(child_slug, target.split('/')[-1])
-                logger.debug('{} was moved before {} in tutorial id:{}'.format(child_slug, target, content.pk))
+                parent.move_child_before(child_slug, target.split("/")[-1])
+                logger.debug("{} was moved before {} in tutorial id:{}".format(child_slug, target, content.pk))
             versioned.slug = content.slug  # we force not to change slug
             versioned.dump_json()
-            parent.repo_update(parent.title,
-                               parent.get_introduction(),
-                               parent.get_conclusion(),
-                               _('Déplacement de ') + child_slug, update_slug=False)
+            parent.repo_update(
+                parent.title,
+                parent.get_introduction(),
+                parent.get_conclusion(),
+                _("Déplacement de ") + child_slug,
+                update_slug=False,
+            )
             content.sha_draft = versioned.sha_draft
             content.save(force_slug_update=False)  # we do not want the save routine to update the slug in case
             # of slug algorithm conflict (for pre-zep-12 or imported content)
             messages.info(self.request, _("L'élément a bien été déplacé."))
         except TooDeepContainerError:
-            messages.error(self.request, _("Ce conteneur contient déjà trop d'enfants pour être"
-                                           ' inclus dans un autre conteneur.'))
+            messages.error(
+                self.request,
+                _("Ce conteneur contient déjà trop d'enfants pour être" " inclus dans un autre conteneur."),
+            )
         except KeyError:
-            messages.warning(self.request, _("Vous n'avez pas complètement rempli le formulaire,"
-                                             'ou bien il est impossible de déplacer cet élément.'))
+            messages.warning(
+                self.request,
+                _(
+                    "Vous n'avez pas complètement rempli le formulaire,"
+                    "ou bien il est impossible de déplacer cet élément."
+                ),
+            )
         except ValueError as e:
             raise Http404("L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:
@@ -401,6 +424,6 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
         except TypeError:
             messages.error(self.request, _("L'élément ne peut pas être déplacé à cet endroit."))
         if base_container_slug == versioned.slug:
-            return redirect(reverse('content:view', args=[content.pk, content.slug]))
+            return redirect(reverse("content:view", args=[content.pk, content.slug]))
         else:
             return redirect(child.get_absolute_url())

@@ -10,10 +10,7 @@ def get_authorized_forums(user):
     """
     forums_pub = Forum.objects.filter(groups__isnull=True).all()
     if user and user.is_authenticated:
-        forums_private = Forum \
-            .objects \
-            .filter(groups__isnull=False, groups__in=user.groups.all()) \
-            .all()
+        forums_private = Forum.objects.filter(groups__isnull=False, groups__in=user.groups.all()).all()
         list_forums = list(forums_pub | forums_private)
     else:
         list_forums = list(forums_pub)

@@ -15,7 +15,7 @@ def _get_content_gallery(content_pk, user):
         content_gallery = content.gallery
         for author in content.authors.all():
             UserGallery(user=author, gallery=content.gallery, mode=GALLERY_WRITE).save()
-    return {'auto_update_gallery': content_gallery}
+    return {"auto_update_gallery": content_gallery}
 
 
 def _get_default_gallery(user):
@@ -24,12 +24,12 @@ def _get_default_gallery(user):
 
     user_default_gallery = UserGallery.objects.filter(user=user, is_default=True).first()
     if not user_default_gallery:
-        gallery = Gallery(title=_('Galerie par défaut'), subtitle='', slug=_('galerie-par-default'))
+        gallery = Gallery(title=_("Galerie par défaut"), subtitle="", slug=_("galerie-par-default"))
         gallery.save()
         UserGallery(user=user, is_default=True, gallery=gallery, mode=GALLERY_WRITE).save()
     else:
         gallery = user_default_gallery.gallery
-    return {'auto_update_gallery': gallery}
+    return {"auto_update_gallery": gallery}
 
 
 def get_auto_upload_gallery(request: HttpRequest):
@@ -40,7 +40,7 @@ def get_auto_upload_gallery(request: HttpRequest):
     :param request: the http request to use
     :return: a dictionary with ``auto_update_gallery`` key
     """
-    is_url_of_content = request.resolver_match and request.resolver_match.namespace == 'content'
-    if request.user.is_authenticated and is_url_of_content and 'pk' in request.resolver_match.kwargs:
-        return _get_content_gallery(request.resolver_match.kwargs['pk'], request.user)
+    is_url_of_content = request.resolver_match and request.resolver_match.namespace == "content"
+    if request.user.is_authenticated and is_url_of_content and "pk" in request.resolver_match.kwargs:
+        return _get_content_gallery(request.resolver_match.kwargs["pk"], request.user)
     return _get_default_gallery(request.user)

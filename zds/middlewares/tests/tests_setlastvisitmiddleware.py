@@ -11,7 +11,7 @@ from django.conf import settings
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['member']['update_last_visit_interval'] = 30
+overridden_zds_app["member"]["update_last_visit_interval"] = 30
 
 
 @override_settings(ZDS_APP=overridden_zds_app)
@@ -23,18 +23,14 @@ class SetLastVisitMiddlewareTest(TestCase):
         profile_pk = self.user.pk
 
         # login
-        self.assertEqual(
-            self.client.login(
-                username=self.user.user.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user.user.username, password="hostel77"), True)
 
         # set last login to a recent date
         self.user.last_visit = datetime.now() - timedelta(seconds=10)
         self.user.save()
 
         # load a page
-        self.client.get(reverse('homepage'))
+        self.client.get(reverse("homepage"))
 
         # the date of last visit should not have been updated
         profile = get_object_or_404(Profile, pk=profile_pk)
@@ -45,7 +41,7 @@ class SetLastVisitMiddlewareTest(TestCase):
         self.user.save()
 
         # load a page
-        self.client.get(reverse('homepage'))
+        self.client.get(reverse("homepage"))
 
         # the date of last visit should have been updated
         profile = get_object_or_404(Profile, pk=profile_pk)

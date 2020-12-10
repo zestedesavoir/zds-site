@@ -6,25 +6,25 @@ class ZdSModelSerializer(serializers.ModelSerializer):
     def get_fields(self):
         fields = super(ZdSModelSerializer, self).get_fields()
 
-        request = self._context.get('request')
+        request = self._context.get("request")
         if request is None:
             return fields
 
-        expands = request.GET.getlist('expand')
+        expands = request.GET.getlist("expand")
         if expands:
             fields = self._update_expand_fields(fields, expands)
 
-        x_data_format = request.META.get('HTTP_X_DATA_FORMAT') or 'Markdown'
-        if hasattr(self.Meta, 'formats'):
+        x_data_format = request.META.get("HTTP_X_DATA_FORMAT") or "Markdown"
+        if hasattr(self.Meta, "formats"):
             fields = self._update_format_fields(fields, x_data_format)
 
         return fields
 
     def _update_expand_fields(self, fields, expands):
-        assert hasattr(self.Meta, 'serializers'), (
-            'Class {serializer_class} missing "Meta.serializers" attribute'.format(
-                serializer_class=self.__class__.__name__
-            )
+        assert hasattr(
+            self.Meta, "serializers"
+        ), 'Class {serializer_class} missing "Meta.serializers" attribute'.format(
+            serializer_class=self.__class__.__name__
         )
 
         dict_serializers = dict()
@@ -41,11 +41,11 @@ class ZdSModelSerializer(serializers.ModelSerializer):
                     current_serializer = dict_serializers[field.queryset.model]
                 elif isinstance(field, ManyRelatedField):
                     current_serializer = dict_serializers[field.child_relation.queryset.model]
-                    args = {'many': True}
+                    args = {"many": True}
 
-                assert current_serializer is not None, (
-                    'You cannot expand a field without a serializer of the same model.'
-                )
+                assert (
+                    current_serializer is not None
+                ), "You cannot expand a field without a serializer of the same model."
             except KeyError:
                 continue
 
@@ -53,11 +53,9 @@ class ZdSModelSerializer(serializers.ModelSerializer):
 
         return fields
 
-    def _update_format_fields(self, fields, x_data_format='Markdown'):
-        assert hasattr(self.Meta, 'formats'), (
-            'Class {serializer_class} missing "Meta.formats" attribute'.format(
-                serializer_class=self.__class__.__name__
-            )
+    def _update_format_fields(self, fields, x_data_format="Markdown"):
+        assert hasattr(self.Meta, "formats"), 'Class {serializer_class} missing "Meta.formats" attribute'.format(
+            serializer_class=self.__class__.__name__
         )
 
         for current in self.Meta.formats:

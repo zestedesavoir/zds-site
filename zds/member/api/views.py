@@ -7,8 +7,13 @@ from django.db.models.signals import post_save, post_delete
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
 from rest_framework import status
-from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateAPIView, \
-    RetrieveAPIView, get_object_or_404
+from rest_framework.generics import (
+    ListAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateAPIView,
+    RetrieveAPIView,
+    get_object_or_404,
+)
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -17,23 +22,34 @@ from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 
-from zds.member.api.serializers import ProfileListSerializer, ProfileCreateSerializer, \
-    ProfileDetailSerializer, ProfileValidatorSerializer
+from zds.member.api.serializers import (
+    ProfileListSerializer,
+    ProfileCreateSerializer,
+    ProfileDetailSerializer,
+    ProfileValidatorSerializer,
+)
 from zds.member.api.permissions import IsOwnerOrReadOnly
 from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
-from zds.member.commons import TemporaryReadingOnlySanction, ReadingOnlySanction, \
-    DeleteReadingOnlySanction, TemporaryBanSanction, BanSanction, DeleteBanSanction, \
-    ProfileCreate, TokenGenerator
+from zds.member.commons import (
+    TemporaryReadingOnlySanction,
+    ReadingOnlySanction,
+    DeleteReadingOnlySanction,
+    TemporaryBanSanction,
+    BanSanction,
+    DeleteBanSanction,
+    ProfileCreate,
+    TokenGenerator,
+)
 from zds.member.models import Profile
 
 
 class PagingSearchListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
-    search = bits.QueryParamsKeyBit(['search'])
+    search = bits.QueryParamsKeyBit(["search"])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_profile')
+    updated_at = UpdatedAtKeyBit("api_updated_profile")
 
 
 class DetailKeyConstructor(DefaultKeyConstructor):
@@ -42,18 +58,18 @@ class DetailKeyConstructor(DefaultKeyConstructor):
     retrieve_sql_query = bits.RetrieveSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_profile')
+    updated_at = UpdatedAtKeyBit("api_updated_profile")
 
 
 class MyDetailKeyConstructor(DefaultKeyConstructor):
     format = bits.FormatKeyBit()
     language = bits.LanguageKeyBit()
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_profile')
+    updated_at = UpdatedAtKeyBit("api_updated_profile")
 
 
 def change_api_profile_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_profile', datetime.datetime.utcnow())
+    cache.set("api_updated_profile", datetime.datetime.utcnow())
 
 
 post_save.connect(receiver=change_api_profile_updated_at, sender=Profile)
@@ -66,7 +82,7 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     """
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('user__username',)
+    search_fields = ("user__username",)
     list_key_func = PagingSearchListKeyConstructor()
 
     def get_queryset(self):
@@ -107,27 +123,29 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
             - code: 400
               message: Bad Request
         """
-        serializer = self.get_serializer_class()(data=request.data, context={'request': self.request})
+        serializer = self.get_serializer_class()(data=request.data, context={"request": self.request})
         serializer.is_valid(raise_exception=True)
         profile = serializer.save()
         token = self.generate_token(profile.user)
         try:
             self.send_email(token, profile.user)
         except Exception as e:
-            logging.getLogger(__name__).warning('Mail not sent', exc_info=e)
-            return Response({'error': _("Impossible d'envoyer l'email")}, status=status.HTTP_400_BAD_REQUEST)
+            logging.getLogger(__name__).warning("Mail not sent", exc_info=e)
+            return Response({"error": _("Impossible d'envoyer l'email")}, status=status.HTTP_400_BAD_REQUEST)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return ProfileListSerializer
-        elif self.request.method == 'POST':
+        elif self.request.method == "POST":
             return ProfileCreateSerializer
 
     def get_permissions(self):
-        permission_classes = [AllowAny, ]
-        if self.request.method == 'GET' or self.request.method == 'POST':
+        permission_classes = [
+            AllowAny,
+        ]
+        if self.request.method == "GET" or self.request.method == "POST":
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
@@ -138,7 +156,7 @@ class MemberExistsAPI(ListAPIView):
     """
 
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('=user__username',)
+    search_fields = ("=user__username",)
     list_key_func = PagingSearchListKeyConstructor()
     serializer_class = ProfileDetailSerializer
 
@@ -170,13 +188,15 @@ class MemberExistsAPI(ListAPIView):
               user doesn't exists.
         """
         r = self.list(request, *args, **kwargs)
-        if r.data['count'] == 0:
+        if r.data["count"] == 0:
             return Response(r.data, status=status.HTTP_404_NOT_FOUND)
         return r
 
     def get_permissions(self):
-        permission_classes = [AllowAny, ]
-        if self.request.method == 'GET':
+        permission_classes = [
+            AllowAny,
+        ]
+        if self.request.method == "GET":
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
@@ -185,6 +205,7 @@ class MemberMyDetailAPI(RetrieveAPIView):
     """
     Profile resource for member details.
     """
+
     obj_key_func = MyDetailKeyConstructor()
     serializer_class = ProfileDetailSerializer
 
@@ -205,17 +226,17 @@ class MemberMyDetailAPI(RetrieveAPIView):
               message: Not Authenticated
         """
         profile = self.get_object()
-        serializer = self.get_serializer(profile,
-                                         show_email=True,
-                                         is_authenticated=True)
+        serializer = self.get_serializer(profile, show_email=True, is_authenticated=True)
         return Response(serializer.data)
 
     def get_object(self):
         return get_object_or_404(Profile, user=self.request.user)
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, ]
-        if self.request.method == 'GET':
+        permission_classes = [
+            IsAuthenticated,
+        ]
+        if self.request.method == "GET":
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
@@ -226,7 +247,7 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
     """
 
     queryset = Profile.objects.all()
-    lookup_field = 'user__id'
+    lookup_field = "user__id"
     obj_key_func = DetailKeyConstructor()
 
     @etag(obj_key_func)
@@ -246,9 +267,9 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
               message: Not Found
         """
         profile = self.get_object()
-        serializer = self.get_serializer(profile,
-                                         show_email=profile.show_email,
-                                         is_authenticated=self.request.user.is_authenticated)
+        serializer = self.get_serializer(
+            profile, show_email=profile.show_email, is_authenticated=self.request.user.is_authenticated
+        )
         return Response(serializer.data)
 
     @etag(obj_key_func, rebuild_after_method_evaluation=True)
@@ -275,18 +296,18 @@ class MemberDetailAPI(RetrieveUpdateAPIView):
         return self.update(request, *args, **kwargs)
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return ProfileDetailSerializer
-        elif self.request.method == 'PUT':
+        elif self.request.method == "PUT":
             return ProfileValidatorSerializer
         else:  # used only for API documentation
             return ProfileDetailSerializer
 
     def get_permissions(self):
         permission_classes = []
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             permission_classes.append(DRYPermissions)
-        elif self.request.method == 'PUT':
+        elif self.request.method == "PUT":
             permission_classes.append(DRYPermissions)
             permission_classes.append(IsAuthenticatedOrReadOnly)
             permission_classes.append(IsOwnerOrReadOnly)
@@ -298,7 +319,7 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
     Profile resource to apply or remove read only sanction.
     """
 
-    lookup_field = 'user__id'
+    lookup_field = "user__id"
 
     def post(self, request, *args, **kwargs):
         """
@@ -351,14 +372,14 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
         return super(MemberDetailReadingOnly, self).delete(request, args, kwargs)
 
     def get_state_instance(self, request):
-        if request.method == 'POST':
-            if 'ls-jrs' in request.data:
+        if request.method == "POST":
+            if "ls-jrs" in request.data:
                 return TemporaryReadingOnlySanction(request.data)
             else:
                 return ReadingOnlySanction(request.data)
-        elif request.method == 'DELETE':
+        elif request.method == "DELETE":
             return DeleteReadingOnlySanction(request.data)
-        raise ValueError('Method {0} is not supported in this API route.'.format(request.method))
+        raise ValueError("Method {0} is not supported in this API route.".format(request.method))
 
 
 class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
@@ -366,7 +387,7 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
     Profile resource to apply or remove ban sanction.
     """
 
-    lookup_field = 'user__id'
+    lookup_field = "user__id"
 
     def post(self, request, *args, **kwargs):
         """
@@ -419,11 +440,11 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
         return super(MemberDetailBan, self).delete(request, args, kwargs)
 
     def get_state_instance(self, request):
-        if request.method == 'POST':
-            if 'ban-jrs' in request.data:
+        if request.method == "POST":
+            if "ban-jrs" in request.data:
                 return TemporaryBanSanction(request.data)
             else:
                 return BanSanction(request.POST)
-        elif request.method == 'DELETE':
+        elif request.method == "DELETE":
             return DeleteBanSanction(request.data)
-        raise ValueError('Method {0} is not supported in this API route.'.format(request.method))
+        raise ValueError("Method {0} is not supported in this API route.".format(request.method))

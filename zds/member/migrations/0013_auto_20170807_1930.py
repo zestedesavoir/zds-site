@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0012_profile_licence'),
+        ("member", "0012_profile_licence"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='profile',
-            name='is_hover_enabled',
-            field=models.BooleanField(default=False, verbose_name='D\xe9roulement au survol ?'),
+            model_name="profile",
+            name="is_hover_enabled",
+            field=models.BooleanField(default=False, verbose_name="D\xe9roulement au survol ?"),
         ),
     ]

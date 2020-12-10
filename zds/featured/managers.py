@@ -15,9 +15,11 @@ class FeaturedResourceManager(models.Manager):
     """
 
     def get_last_featured(self):
-        return self.order_by('-pubdate') \
-            .exclude(pubdate__gt=datetime.now()) \
-            .prefetch_related('authors__user')[:settings.ZDS_APP['featured_resource']['home_number']]
+        return (
+            self.order_by("-pubdate")
+            .exclude(pubdate__gt=datetime.now())
+            .prefetch_related("authors__user")[: settings.ZDS_APP["featured_resource"]["home_number"]]
+        )
 
 
 class FeaturedMessageManager(models.Manager):
@@ -34,8 +36,7 @@ class FeaturedRequestedException(Exception):
 
 
 class FeaturedRequestedManager(models.Manager):
-    """Custom manager
-    """
+    """Custom manager"""
 
     def get_existing(self, content_object):
         """Get existing object for ``content_object``
@@ -47,9 +48,11 @@ class FeaturedRequestedManager(models.Manager):
         content_type = ContentType.objects.get_for_model(content_object)
 
         try:
-            featured_request = self.filter(
-                object_id=content_object.pk,
-                content_type__pk=content_type.pk).prefetch_related('users_voted').last()
+            featured_request = (
+                self.filter(object_id=content_object.pk, content_type__pk=content_type.pk)
+                .prefetch_related("users_voted")
+                .last()
+            )
         except ObjectDoesNotExist:
             featured_request = None
 
@@ -65,8 +68,8 @@ class FeaturedRequestedManager(models.Manager):
         featured_request = self.get_existing(content_object)
         if featured_request is None:
             featured_request = self.model(
-                content_object=content_object,
-                type='TOPIC' if isinstance(content_object, Topic) else 'CONTENT')
+                content_object=content_object, type="TOPIC" if isinstance(content_object, Topic) else "CONTENT"
+            )
             featured_request.save()
 
         return featured_request
@@ -103,10 +106,10 @@ class FeaturedRequestedManager(models.Manager):
         if user is None:
             user = get_current_user()
         if user is None:
-            raise FeaturedRequestedException('cannot toggle without connected user')
+            raise FeaturedRequestedException("cannot toggle without connected user")
 
         featured_request = self.get_or_create(content_object)
         if featured_request.rejected_for_good:
-            raise FeaturedRequestedException('cannot toogle request rejected for good!')
+            raise FeaturedRequestedException("cannot toogle request rejected for good!")
 
         return featured_request.toggle(user)

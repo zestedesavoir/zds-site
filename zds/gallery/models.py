@@ -17,8 +17,8 @@ from django.utils.translation import ugettext_lazy as _
 from zds.gallery.managers import GalleryManager
 
 # Models settings
-GALLERY_WRITE = 'W'
-GALLERY_READ = 'R'
+GALLERY_WRITE = "W"
+GALLERY_READ = "R"
 
 
 def image_path(instance, filename):
@@ -32,26 +32,23 @@ def image_path(instance, filename):
     :return: local filesystem path of the uploaded image
     :rtype: unicode
     """
-    ext = filename.split('.')[-1].lower()
-    filename = '{0}.{1}'.format(str(uuid4()), ext)
+    ext = filename.split(".")[-1].lower()
+    filename = "{0}.{1}".format(str(uuid4()), ext)
 
-    return os.path.join('galleries', str(instance.gallery.pk), filename)
+    return os.path.join("galleries", str(instance.gallery.pk), filename)
 
 
 class UserGallery(models.Model):
     """A gallery of images created by a user."""
 
     class Meta:
-        verbose_name = _('Galeries de l\'utilisateur')
-        verbose_name_plural = _('Galeries de l\'utilisateur')
+        verbose_name = _("Galeries de l'utilisateur")
+        verbose_name_plural = _("Galeries de l'utilisateur")
 
-    MODE_CHOICES = (
-        (GALLERY_READ, _('Affichage')),
-        (GALLERY_WRITE, _('Affichage et modification'))
-    )
+    MODE_CHOICES = ((GALLERY_READ, _("Affichage")), (GALLERY_WRITE, _("Affichage et modification")))
 
-    user = models.ForeignKey(User, verbose_name=_('Membre'), db_index=True, on_delete=models.CASCADE)
-    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, verbose_name=_("Membre"), db_index=True, on_delete=models.CASCADE)
+    gallery = models.ForeignKey("Gallery", verbose_name=_("Galerie"), db_index=True, on_delete=models.CASCADE)
     mode = models.CharField(max_length=1, choices=MODE_CHOICES, default=GALLERY_READ)
     is_default = models.BooleanField(_("Galerie par défaut de l'utilisateur"), default=False, null=False)
 
@@ -61,7 +58,7 @@ class UserGallery(models.Model):
         :return: UserGalley description
         :rtype: unicode
         """
-        return _('Galerie « {0} » de {1}').format(self.gallery, self.user)
+        return _("Galerie « {0} » de {1}").format(self.gallery, self.user)
 
     def can_write(self):
         """Check if user can write in the gallery.
@@ -85,11 +82,11 @@ class UserGallery(models.Model):
         :return: all images in the gallery
         :rtype: QuerySet
         """
-        return Image.objects.filter(gallery=self.gallery).order_by('update').all()
+        return Image.objects.filter(gallery=self.gallery).order_by("update").all()
 
 
 def change_api_updated_user_gallery_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_user_gallery', datetime.datetime.utcnow())
+    cache.set("api_updated_user_gallery", datetime.datetime.utcnow())
 
 
 models.signals.post_save.connect(receiver=change_api_updated_user_gallery_at, sender=UserGallery)
@@ -100,16 +97,16 @@ class Image(models.Model):
     """Represent an image in database"""
 
     class Meta:
-        verbose_name = _('Image')
-        verbose_name_plural = _('Images')
+        verbose_name = _("Image")
+        verbose_name_plural = _("Images")
 
-    gallery = models.ForeignKey('Gallery', verbose_name=_('Galerie'), db_index=True, on_delete=models.CASCADE)
-    title = models.CharField(_('Titre'), max_length=80)
+    gallery = models.ForeignKey("Gallery", verbose_name=_("Galerie"), db_index=True, on_delete=models.CASCADE)
+    title = models.CharField(_("Titre"), max_length=80)
     slug = models.SlugField(max_length=80)
     physical = ThumbnailerImageField(upload_to=image_path, max_length=200)
-    legend = models.TextField(_('Légende'), null=True, blank=True)
-    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
-    update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
+    legend = models.TextField(_("Légende"), null=True, blank=True)
+    pubdate = models.DateTimeField(_("Date de création"), auto_now_add=True, db_index=True)
+    update = models.DateTimeField(_("Date de modification"), null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
         super(Image, self).__init__(*args, **kwargs)
@@ -128,10 +125,10 @@ class Image(models.Model):
         :return: Image object URL
         :rtype: str
         """
-        return '{0}/{1}'.format(settings.MEDIA_URL, self.physical).replace('//', '/')
+        return "{0}/{1}".format(settings.MEDIA_URL, self.physical).replace("//", "/")
 
     def get_thumbnail_url(self):
-        return self.physical['gallery'].url
+        return self.physical["gallery"].url
 
     def get_extension(self):
         """Get the extension of an image (used in tests).
@@ -153,7 +150,7 @@ class Image(models.Model):
         return request.user.is_authenticated
 
     def has_object_write_permission(self, request):
-        return UserGallery.objects.filter(gallery=self.gallery, user=request.user, mode='W').count() == 1
+        return UserGallery.objects.filter(gallery=self.gallery, user=request.user, mode="W").count() == 1
 
     def save(self, *args, **kwargs):
         self.update = datetime.datetime.now()
@@ -173,8 +170,8 @@ def auto_delete_file_on_delete(sender, instance, **kwargs):
 
 
 def change_api_updated_image_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_image', datetime.datetime.utcnow())
-    cache.set('api_updated_gallery', datetime.datetime.utcnow())
+    cache.set("api_updated_image", datetime.datetime.utcnow())
+    cache.set("api_updated_gallery", datetime.datetime.utcnow())
 
 
 models.signals.post_save.connect(receiver=change_api_updated_image_at, sender=Image)
@@ -182,16 +179,15 @@ models.signals.post_delete.connect(receiver=change_api_updated_image_at, sender=
 
 
 class Gallery(models.Model):
-
     class Meta:
-        verbose_name = _('Galerie')
-        verbose_name_plural = _('Galeries')
+        verbose_name = _("Galerie")
+        verbose_name_plural = _("Galeries")
 
-    title = models.CharField(_('Titre'), max_length=80)
-    subtitle = models.CharField(_('Sous titre'), max_length=200, blank=True)
+    title = models.CharField(_("Titre"), max_length=80)
+    subtitle = models.CharField(_("Sous titre"), max_length=200, blank=True)
     slug = models.SlugField(max_length=80)
-    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
-    update = models.DateTimeField(_('Date de modification'), null=True, blank=True)
+    pubdate = models.DateTimeField(_("Date de création"), auto_now_add=True, db_index=True)
+    update = models.DateTimeField(_("Date de modification"), null=True, blank=True)
 
     objects = GalleryManager()
 
@@ -214,7 +210,7 @@ class Gallery(models.Model):
         :return: Gallery object URL
         :rtype: str
         """
-        return reverse('gallery-details', args=[self.pk, self.slug])
+        return reverse("gallery-details", args=[self.pk, self.slug])
 
     def get_gallery_path(self):
         """Get the filesystem path to this gallery root.
@@ -222,7 +218,7 @@ class Gallery(models.Model):
         :return: filesystem path to this gallery root
         :rtype: unicode
         """
-        return settings.MEDIA_ROOT / 'galleries' / str(self.pk)
+        return settings.MEDIA_ROOT / "galleries" / str(self.pk)
 
     def get_linked_users(self):
         """Get all the linked users for this gallery whatever their rights
@@ -230,7 +226,7 @@ class Gallery(models.Model):
         :return: all the linked users for this gallery
         :rtype: QuerySet
         """
-        return UserGallery.objects.filter(gallery=self).prefetch_related('user').all()
+        return UserGallery.objects.filter(gallery=self).prefetch_related("user").all()
 
     def get_users_and_permissions(self):
         """Get all the linked users for this gallery, and their rights
@@ -242,9 +238,9 @@ class Gallery(models.Model):
         participants = {}
 
         for user_gallery in self.get_linked_users():
-            permissions = {'read': True, 'write': False}
+            permissions = {"read": True, "write": False}
             if user_gallery.mode == GALLERY_WRITE:
-                permissions['write'] = True
+                permissions["write"] = True
 
             participants[user_gallery.user.pk] = permissions
 
@@ -256,7 +252,7 @@ class Gallery(models.Model):
         :return: all images in the gallery
         :rtype: QuerySet
         """
-        return Image.objects.filter(gallery=self).order_by('pubdate').all()
+        return Image.objects.filter(gallery=self).order_by("pubdate").all()
 
     def get_last_image(self):
         """Get the last image added in the gallery.
@@ -282,9 +278,9 @@ class Gallery(models.Model):
 
     def has_object_write_permission(self, request):
         if self.user_mode is not None:
-            return self.user_mode == 'W'
+            return self.user_mode == "W"
         else:
-            return UserGallery.objects.filter(gallery=self, user=request.user, mode='W').count() == 1
+            return UserGallery.objects.filter(gallery=self, user=request.user, mode="W").count() == 1
 
     def save(self, *args, **kwargs):
         self.update = datetime.datetime.now()
@@ -307,7 +303,7 @@ def auto_delete_image_on_delete(sender, instance, **kwargs):
 
 
 def change_api_updated_gallery_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_gallery', datetime.datetime.utcnow())
+    cache.set("api_updated_gallery", datetime.datetime.utcnow())
 
 
 models.signals.post_save.connect(receiver=change_api_updated_gallery_at, sender=Gallery)

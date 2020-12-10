@@ -8,7 +8,7 @@ Define a tag allowing to capture template content as a variable.
 """
 
 
-@register.tag(name='captureas')
+@register.tag(name="captureas")
 def do_captureas(parser, token):
     """
     Define a tag allowing to capture template content as a variable.
@@ -23,7 +23,7 @@ def do_captureas(parser, token):
     except ValueError:
         raise template.TemplateSyntaxError("'captureas' node requires a variable name.")
 
-    nodelist = parser.parse(('endcaptureas',))
+    nodelist = parser.parse(("endcaptureas",))
     parser.delete_first_token()
 
     return CaptureasNode(nodelist, variable_name)
@@ -54,4 +54,4 @@ class CaptureasNode(template.Node):
         """
         output = self.__node_list.render(context)
         context[self.__variable_name] = mark_safe(output.strip())
-        return ''
+        return ""

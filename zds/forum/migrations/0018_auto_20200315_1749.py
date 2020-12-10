@@ -7,12 +7,12 @@ class Migration(migrations.Migration):
     atomic = False
 
     dependencies = [
-        ('forum', '0017_auto_20190114_1301'),
+        ("forum", "0017_auto_20190114_1301"),
     ]
 
     operations = [
         migrations.RenameModel(
-            old_name='Category',
-            new_name='ForumCategory',
+            old_name="Category",
+            new_name="ForumCategory",
         ),
     ]
