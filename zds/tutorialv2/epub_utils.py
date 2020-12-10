@@ -13,7 +13,7 @@ from django.template.loader import render_to_string
 from django.conf import settings
 
 from zds.tutorialv2.publish_container import publish_container
-from zds.utils import slugify
+from zds.utils import old_slugify
 
 
 def __build_mime_type_conf():
@@ -77,7 +77,7 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
     )
     for container_path, title in path_to_title_dict.items():
         # TODO: check if a function exists in the std lib to get rid of `root_dir + '/'`
-        yield container_path.replace(str(root_dir.absolute()) + "/", ""), "chapter-" + slugify(title), title
+        yield container_path.replace(str(root_dir.absolute()) + "/", ""), "chapter-" + old_slugify(title), title
 
 
 def build_toc_ncx(chapters, tutorial, working_dir):

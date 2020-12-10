@@ -6,15 +6,14 @@ from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
-from uuslug import slugify
 
 from django.conf import settings
 from zds.notification import signals
 from zds.tutorialv2 import VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
-from zds.utils import get_current_user
-from zds.utils import slugify as old_slugify
+from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Licence
+from zds.utils.uuslug_wrapper import slugify
 
 logger = logging.getLogger(__name__)
 

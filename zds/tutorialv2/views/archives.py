@@ -13,7 +13,6 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import FormView
 from easy_thumbnails.files import get_thumbnailer
-from uuslug import slugify
 
 from zds import json_handler
 from zds.gallery.models import Image, Gallery
@@ -30,6 +29,7 @@ from zds.tutorialv2.utils import (
     default_slug_pool,
     init_new_repo,
 )
+from zds.utils.uuslug_wrapper import slugify
 
 
 class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):

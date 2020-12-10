@@ -20,7 +20,6 @@ from elasticsearch_dsl import Mapping, Q as ES_Q
 from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from git import Repo, BadObject
 from gitdb.exc import BadName
-from uuslug import uuslug
 
 from zds import json_handler
 from zds.forum.models import Topic
@@ -41,6 +40,7 @@ from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.tutorials import get_blob
+from zds.utils.uuslug_wrapper import uuslug
 
 ALLOWED_TYPES = ["pdf", "md", "html", "epub", "zip", "tex"]
 logger = logging.getLogger(__name__)

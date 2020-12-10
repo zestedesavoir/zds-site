@@ -11,7 +11,6 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext_lazy as _
 from django.views.generic import DeleteView
-from uuslug import slugify
 
 from zds.gallery.models import Gallery, Image
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
@@ -43,6 +42,7 @@ from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
 from zds.utils.models import get_hat_from_settings
 from zds.utils.mps import send_mp, send_message_mp
+from zds.utils.uuslug_wrapper import slugify
 
 logger = logging.getLogger(__name__)
 
