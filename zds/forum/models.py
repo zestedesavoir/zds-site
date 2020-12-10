@@ -14,7 +14,7 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.notification import signals
 from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
-from zds.utils import get_current_user, slugify
+from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 
 
@@ -245,7 +245,7 @@ class Topic(AbstractESDjangoIndexable):
         return reverse("topic-posts-list", args=[self.pk, self.slug()])
 
     def slug(self):
-        return slugify(self.title)
+        return old_slugify(self.title)
 
     def get_post_count(self):
         """

@@ -1,5 +1,4 @@
 from collections import defaultdict, OrderedDict
-from uuslug import slugify
 
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -19,6 +18,7 @@ from zds.tutorialv2.models.database import PublishedContent, PublishableContent,
 from zds.utils.models import Tag, Category, SubCategory, CategorySubCategory
 from zds.utils.paginator import make_pagination, ZdSPagingListView
 from zds.utils.templatetags.topbar import topbar_publication_categories
+from zds.utils.uuslug_wrapper import slugify
 
 
 class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):

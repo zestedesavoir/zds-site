@@ -31,7 +31,7 @@ from zds.tutorialv2.factories import (
 )
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
-from zds.utils import slugify
+from zds.utils import old_slugify
 from zds.utils.mps import send_mp, send_message_mp
 
 
@@ -167,7 +167,7 @@ class NotificationForumTest(TestCase):
         self.client.logout()
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"), True)
 
-        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, slugify(topic1.title)]), follow=True)
+        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, old_slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
         notification = Notification.objects.get(subscription__user=self.user2)

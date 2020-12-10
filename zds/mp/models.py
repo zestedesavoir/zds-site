@@ -7,7 +7,7 @@ from django.db import models
 
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
 from zds.mp import signals
-from zds.utils import get_current_user, slugify
+from zds.utils import get_current_user, old_slugify
 
 
 class NotReachableError(Exception):
@@ -82,7 +82,7 @@ class PrivateTopic(models.Model):
         with older private topic, the slug is always re-calculated when we need one.
         :return: title slugify.
         """
-        return slugify(self.title)
+        return old_slugify(self.title)
 
     def get_post_count(self):
         """

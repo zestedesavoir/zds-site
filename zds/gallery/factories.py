@@ -3,7 +3,7 @@ import contextlib
 import factory
 
 from zds.gallery.models import Image, Gallery, UserGallery
-from zds.utils import slugify
+from zds.utils import old_slugify
 
 
 # Don't try to directly use UserFactory, this didn't create Profile then
@@ -13,7 +13,7 @@ class ImageFactory(factory.DjangoModelFactory):
         model = Image
 
     title = factory.Sequence("titre de l'image {0}".format)
-    slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: "{0}".format(old_slugify(o.title)))
     legend = factory.Sequence("legende de l'image {0}".format)
     physical = factory.django.ImageField(color="blue")
 
@@ -33,7 +33,7 @@ class GalleryFactory(factory.DjangoModelFactory):
 
     title = factory.Sequence("titre de la gallerie {0}".format)
     subtitle = factory.Sequence("Sous-titre de la gallerie {0}".format)
-    slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: "{0}".format(old_slugify(o.title)))
 
     @classmethod
     def _prepare(cls, create, **kwargs):

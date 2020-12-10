@@ -25,7 +25,7 @@ from zds.member.models import user_readable_forums
 from zds.notification import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.featured.mixins import FeatureableMixin
-from zds.utils import slugify
+from zds.utils import old_slugify
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
@@ -173,7 +173,7 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         self.object = self.get_object()
         if not self.object.forum.can_read(request.user):
             raise PermissionDenied
-        if not self.kwargs.get("topic_slug") == slugify(self.object.title):
+        if not self.kwargs.get("topic_slug") == old_slugify(self.object.title):
             return redirect(self.object.get_absolute_url())
         return super(TopicPostsListView, self).get(request, *args, **kwargs)
 

@@ -3,7 +3,6 @@ import os
 import shutil
 import tempfile
 import zipfile
-from uuslug import slugify
 
 from PIL import Image as ImagePIL
 from easy_thumbnails.files import get_thumbnailer
@@ -12,6 +11,7 @@ from django.conf import settings
 
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils.uuslug_wrapper import slugify
 
 
 class GalleryMixin:

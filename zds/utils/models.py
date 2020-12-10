@@ -3,7 +3,6 @@ import os
 import string
 import uuid
 import logging
-from uuslug import uuslug
 
 from django.conf import settings
 
@@ -22,9 +21,10 @@ from zds.notification import signals
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.utils.mps import send_mp
-from zds.utils import slugify
+from zds.utils import old_slugify
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.templatetags.emarkdown import render_markdown
+from zds.utils.uuslug_wrapper import uuslug
 
 from model_utils.managers import InheritanceManager
 
@@ -687,7 +687,7 @@ class Tag(models.Model):
 
     def save(self, *args, **kwargs):
         self.title = self.title.strip()
-        if not self.title or not slugify(self.title.replace("-", "")):
+        if not self.title or not old_slugify(self.title.replace("-", "")):
             raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
         self.slug = uuslug(self.title, instance=self, max_length=Tag._meta.get_field("slug").max_length)
@@ -724,5 +724,5 @@ class HelpWriting(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
+        self.slug = old_slugify(self.title)
         super(HelpWriting, self).save(*args, **kwargs)

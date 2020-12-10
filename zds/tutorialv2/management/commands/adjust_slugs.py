@@ -1,10 +1,10 @@
 import os
-from uuslug import slugify
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils.uuslug_wrapper import slugify
 
 
 class Command(BaseCommand):

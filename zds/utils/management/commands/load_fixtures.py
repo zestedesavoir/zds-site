@@ -19,7 +19,7 @@ from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, ForumCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
-from zds.utils import slugify
+from zds.utils import old_slugify
 from django.conf import settings
 from django.db import transaction, IntegrityError
 from zds.tutorialv2.factories import (
@@ -326,7 +326,9 @@ def load_categories_content(cli, size, fake, *_, **__):
     tps1 = time.time()
     for i in range(0, nb_categories):
         ttl = str(i) + " " + fake.job()
-        cat = TCategory(title=ttl, description=fake.sentence(nb_words=15, variable_nb_words=True), slug=slugify(ttl))
+        cat = TCategory(
+            title=ttl, description=fake.sentence(nb_words=15, variable_nb_words=True), slug=old_slugify(ttl)
+        )
         cat.save()
         categories.append(cat)
         sys.stdout.write(" Cat. {}/{}  \r".format(i + 1, nb_categories))
@@ -336,7 +338,7 @@ def load_categories_content(cli, size, fake, *_, **__):
         with contextlib.suppress(IntegrityError):
             ttl = str(i * 10) + str(i) + " " + fake.word()
             subcat = SubCategory(
-                title=ttl, subtitle=fake.sentence(nb_words=5, variable_nb_words=True), slug=slugify(ttl)
+                title=ttl, subtitle=fake.sentence(nb_words=5, variable_nb_words=True), slug=old_slugify(ttl)
             )
             subcat.save()
             sub_categories.append(subcat)

@@ -1,7 +1,7 @@
 from django.conf import settings
 
 from zds.utils.models import HelpWriting, Category
-from zds.utils import slugify
+from zds.utils import old_slugify
 from shutil import copyfile
 from os.path import basename, join
 
@@ -13,7 +13,7 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         model = HelpWriting
 
     title = factory.Sequence("titre de l'image {0}".format)
-    slug = factory.LazyAttribute(lambda o: "{0}".format(slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: "{0}".format(old_slugify(o.title)))
     tablelabel = factory.LazyAttribute(lambda n: "Besoin de " + n.title)
 
     @classmethod
