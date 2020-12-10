@@ -11,7 +11,7 @@ from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory
 from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
-from zds.utils import slugify
+from zds.utils import old_slugify
 from zds.utils.forums import get_tag_by_title
 from zds.utils.models import Alert, Tag
 
@@ -742,7 +742,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=self.user, position=3)
 
         # simple member can read public topic
-        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, slugify(topic1.title)]), follow=True)
+        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, old_slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
     def test_failing_unread_post(self):
@@ -992,7 +992,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=self.user, position=3)
 
         # guest can read public topic
-        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, slugify(topic1.title)]), follow=True)
+        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, old_slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
     def test_filter_topic(self):

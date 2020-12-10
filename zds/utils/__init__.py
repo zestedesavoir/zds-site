@@ -30,7 +30,7 @@ class ThreadLocals:
         _thread_locals.request = request
 
 
-def slugify(text):
+def old_slugify(text):
     if not defaultfilters.slugify(text).strip():
         return "--"
     else:
