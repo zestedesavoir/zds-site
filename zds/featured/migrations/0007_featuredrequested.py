@@ -10,27 +10,56 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('featured', '0006_python_3'),
+        ("featured", "0006_python_3"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FeaturedRequested',
+            name="FeaturedRequested",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('object_id', models.PositiveIntegerField(db_index=True, verbose_name="Id de l'objet")),
-                ('type', models.CharField(choices=[('CONTENT', 'Contenu'), ('TOPIC', 'Sujet')], db_index=True, max_length=10, verbose_name="Type de l'objet")),
-                ('rejected', models.BooleanField(default=False, verbose_name='Est rejeté')),
-                ('rejected_for_good', models.BooleanField(default=False, verbose_name='Est rejeté pour de bon')),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType', verbose_name="Type de l'objet")),
-                ('featured', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='featured.FeaturedResource', verbose_name='Une')),
-                ('users_voted', models.ManyToManyField(blank=True, db_index=True, to=settings.AUTH_USER_MODEL, verbose_name='Auteur(s)')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("object_id", models.PositiveIntegerField(db_index=True, verbose_name="Id de l'objet")),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[("CONTENT", "Contenu"), ("TOPIC", "Sujet")],
+                        db_index=True,
+                        max_length=10,
+                        verbose_name="Type de l'objet",
+                    ),
+                ),
+                ("rejected", models.BooleanField(default=False, verbose_name="Est rejeté")),
+                ("rejected_for_good", models.BooleanField(default=False, verbose_name="Est rejeté pour de bon")),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.ContentType",
+                        verbose_name="Type de l'objet",
+                    ),
+                ),
+                (
+                    "featured",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="featured.FeaturedResource",
+                        verbose_name="Une",
+                    ),
+                ),
+                (
+                    "users_voted",
+                    models.ManyToManyField(
+                        blank=True, db_index=True, to=settings.AUTH_USER_MODEL, verbose_name="Auteur(s)"
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Mise en avant souhaitée',
-                'verbose_name_plural': 'Mises en avant souhaitées',
+                "verbose_name": "Mise en avant souhaitée",
+                "verbose_name_plural": "Mises en avant souhaitées",
             },
         ),
     ]

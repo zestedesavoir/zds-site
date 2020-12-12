@@ -30,7 +30,7 @@ class SetLastVisitMiddleware:
                 profile.save()
             else:
                 duration = datetime.datetime.now() - profile.last_visit
-                if duration.seconds > settings.ZDS_APP['member']['update_last_visit_interval']:
+                if duration.seconds > settings.ZDS_APP["member"]["update_last_visit_interval"]:
                     profile.last_visit = datetime.datetime.now()
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()

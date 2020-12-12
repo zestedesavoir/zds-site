@@ -9,17 +9,17 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('pages', '0001_initial'),
+        ("pages", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='groupcontact',
-            name='person_in_charge',
+            model_name="groupcontact",
+            name="person_in_charge",
         ),
         migrations.AddField(
-            model_name='groupcontact',
-            name='persons_in_charge',
-            field=models.ManyToManyField(blank=True, to=settings.AUTH_USER_MODEL, verbose_name='Responsables'),
+            model_name="groupcontact",
+            name="persons_in_charge",
+            field=models.ManyToManyField(blank=True, to=settings.AUTH_USER_MODEL, verbose_name="Responsables"),
         ),
     ]

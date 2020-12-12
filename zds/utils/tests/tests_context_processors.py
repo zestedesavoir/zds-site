@@ -21,11 +21,13 @@ class AlertsTest(TestCase):
 
         self.alerts = []
         for i in range(20):
-            alert = Alert(author=self.dummy_author.user,
-                          comment=self.post,
-                          scope='FORUM',
-                          text='pouet-{}'.format(i),
-                          pubdate=(datetime.now() + timedelta(minutes=i)))
+            alert = Alert(
+                author=self.dummy_author.user,
+                comment=self.post,
+                scope="FORUM",
+                text="pouet-{}".format(i),
+                pubdate=(datetime.now() + timedelta(minutes=i)),
+            )
             alert.save()
             self.alerts.append(alert)
 
@@ -37,23 +39,24 @@ class AlertsTest(TestCase):
 
     def test_staff(self):
         alerts = AlertsTest.__alerts(self.staff.user)
-        self.assertEqual(20, alerts['total'])
-        self.assertEqual(10, len(alerts['list']))
-        self.assertEqual(self.alerts[-1].text, alerts['list'][0]['text'])
+        self.assertEqual(20, alerts["total"])
+        self.assertEqual(10, len(alerts["list"]))
+        self.assertEqual(self.alerts[-1].text, alerts["list"][0]["text"])
 
         self.alerts[5].delete()
         alerts = AlertsTest.__alerts(self.staff.user)
-        self.assertEqual(19, alerts['total'])
-        self.assertEqual(10, len(alerts['list']))
+        self.assertEqual(19, alerts["total"])
+        self.assertEqual(10, len(alerts["list"]))
 
     @staticmethod
     def __alerts(user):
-        return AlertsTest.__notifications(user)['header_alerts']
+        return AlertsTest.__notifications(user)["header_alerts"]
 
     @staticmethod
     def __notifications(user):
         class Request:
             pass
+
         r = Request()
         r.user = user
         return notifications_processor(r)

@@ -2,8 +2,8 @@ from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
 
-class TemplatableContentModelMixin(object):
-    content_type_attribute = 'content_type'
+class TemplatableContentModelMixin:
+    content_type_attribute = "content_type"
 
     @property
     def is_article(self):
@@ -11,7 +11,7 @@ class TemplatableContentModelMixin(object):
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
-        return getattr(self, self.content_type_attribute) == 'ARTICLE'
+        return getattr(self, self.content_type_attribute) == "ARTICLE"
 
     @property
     def is_tutorial(self):
@@ -19,7 +19,7 @@ class TemplatableContentModelMixin(object):
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
-        return getattr(self, self.content_type_attribute) == 'TUTORIAL'
+        return getattr(self, self.content_type_attribute) == "TUTORIAL"
 
     @property
     def is_opinion(self):
@@ -27,7 +27,7 @@ class TemplatableContentModelMixin(object):
         :return: ``True`` if it is an article, ``False`` otherwise.
         :rtype: bool
         """
-        return getattr(self, self.content_type_attribute) == 'OPINION'
+        return getattr(self, self.content_type_attribute) == "OPINION"
 
     def get_absolute_url(self, version=None):
         """
@@ -35,10 +35,10 @@ class TemplatableContentModelMixin(object):
         :return: the url to access the tutorial when offline
         :rtype: str
         """
-        url = reverse('content:view', args=[self.pk, self.slug])
+        url = reverse("content:view", args=[self.pk, self.slug])
 
         if version and version != self.sha_draft:
-            url += '?version=' + version
+            url += "?version=" + version
 
         return url
 
@@ -52,9 +52,9 @@ class TemplatableContentModelMixin(object):
         if self.is_article:
             return _("Suivi de l'article {}").format(self.title)
         if self.is_tutorial:
-            return _('Suivi du tutoriel {}').format(self.title)
+            return _("Suivi du tutoriel {}").format(self.title)
         if self.is_opinion:
-            return _('Suivi du billet {}').format(self.title)
+            return _("Suivi du billet {}").format(self.title)
 
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article
@@ -65,15 +65,15 @@ class TemplatableContentModelMixin(object):
         if self.is_article:
             return _("L'Article")
         elif self.is_tutorial:
-            return _('Le Tutoriel')
+            return _("Le Tutoriel")
         elif self.is_opinion:
-            return _('Le Billet')
+            return _("Le Billet")
         else:
-            return _('Le Contenu')
+            return _("Le Contenu")
 
 
-class OnlineLinkableContentMixin(object):
-    content_type_attribute = 'content_type'
+class OnlineLinkableContentMixin:
+    content_type_attribute = "content_type"
 
     def get_absolute_url_online(self):
         """
@@ -81,4 +81,4 @@ class OnlineLinkableContentMixin(object):
         :rtype: str
         """
         content_type = getattr(self, self.content_type_attribute).lower()
-        return reverse('{}:view'.format(content_type), kwargs={'pk': self.content_pk, 'slug': self.content_public_slug})
+        return reverse("{}:view".format(content_type), kwargs={"pk": self.content_pk, "slug": self.content_public_slug})

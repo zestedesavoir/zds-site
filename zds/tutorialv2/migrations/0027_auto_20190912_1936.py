@@ -6,13 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0026_publicationevent_date'),
+        ("tutorialv2", "0026_publicationevent_date"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publicationevent',
-            name='state_of_processing',
-            field=models.CharField(choices=[('REQUESTED', 'Export demandé'), ('RUNNING', 'Export en cours'), ('SUCCESS', 'Export réalisé'), ('FAILURE', 'Export échoué')], db_index=True, max_length=20),
+            model_name="publicationevent",
+            name="state_of_processing",
+            field=models.CharField(
+                choices=[
+                    ("REQUESTED", "Export demandé"),
+                    ("RUNNING", "Export en cours"),
+                    ("SUCCESS", "Export réalisé"),
+                    ("FAILURE", "Export échoué"),
+                ],
+                db_index=True,
+                max_length=20,
+            ),
         ),
     ]

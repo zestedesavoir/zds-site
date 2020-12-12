@@ -6,7 +6,7 @@ from zds.utils.models import SubCategory
 register = template.Library()
 
 
-@register.filter('order_categories')
+@register.filter("order_categories")
 def order_categories(choices):
     """
     This is a special templatetag used in "new content" page to diplay all categories in the right order.
@@ -22,10 +22,6 @@ def order_categories(choices):
         subcat = SubCategory.objects.get(pk=choice[0])
         parent = subcat.get_parent_category()
         if parent:
-            ch = {
-                'choice': choice,
-                'parent': parent.title,
-                'order': parent.pk
-            }
+            ch = {"choice": choice, "parent": parent.title, "order": parent.pk}
             new_choices.append(ch)
     return new_choices

@@ -18,16 +18,16 @@ class DJRF3xPaginationKeyBit(QueryParamsKeyBit):
     """
 
     def get_data(self, **kwargs):
-        kwargs['params'] = []
+        kwargs["params"] = []
 
-        if hasattr(kwargs['view_instance'], 'paginator'):
-            pqp = kwargs['view_instance'].paginator.page_query_param
-            rqp = kwargs['view_instance'].request.query_params
+        if hasattr(kwargs["view_instance"], "paginator"):
+            pqp = kwargs["view_instance"].paginator.page_query_param
+            rqp = kwargs["view_instance"].request.query_params
             # add the query param
-            kwargs['params'].append(pqp)
+            kwargs["params"].append(pqp)
             # get its value
             rqp_pv = rqp.get(pqp, 1)
-            kwargs['params'].append(rqp_pv)
+            kwargs["params"].append(rqp_pv)
 
         return super(DJRF3xPaginationKeyBit, self).get_data(**kwargs)
 
@@ -39,6 +39,7 @@ class UpdatedAtKeyBit(KeyBitBase):
     See official documentation to know more about the usage of this class:
     http://chibisov.github.io/drf-extensions/docs/#custom-key-bit
     """
+
     update_key = None
 
     def __init__(self, update_key, params=None):

@@ -28,51 +28,44 @@ class Profile(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Profil'
-        verbose_name_plural = 'Profils'
+        verbose_name = "Profil"
+        verbose_name_plural = "Profils"
         permissions = (
-            ('moderation', _('Modérer un membre')),
-            ('show_ip', _("Afficher les IP d'un membre")),
+            ("moderation", _("Modérer un membre")),
+            ("show_ip", _("Afficher les IP d'un membre")),
         )
 
     # Link with standard user is a simple one-to-one link, as recommended in official documentation.
     # See https://docs.djangoproject.com/en/1.6/topics/auth/customizing/#extending-the-existing-user-model
-    user = models.OneToOneField(
-        User,
-        verbose_name='Utilisateur',
-        related_name='profile', on_delete=models.CASCADE)
-    username_skeleton = models.CharField('Squelette du username', max_length=150, null=True, blank=True, db_index=True)
+    user = models.OneToOneField(User, verbose_name="Utilisateur", related_name="profile", on_delete=models.CASCADE)
+    username_skeleton = models.CharField("Squelette du username", max_length=150, null=True, blank=True, db_index=True)
 
-    last_ip_address = models.CharField(
-        'Adresse IP',
-        max_length=39,
-        blank=True,
-        null=True)
+    last_ip_address = models.CharField("Adresse IP", max_length=39, blank=True, null=True)
 
-    site = models.CharField('Site internet', max_length=2000, blank=True)
-    show_email = models.BooleanField('Afficher adresse mail publiquement', default=False)
-    avatar_url = models.CharField('URL de l\'avatar', max_length=2000, null=True, blank=True)
-    biography = models.TextField('Biographie', blank=True)
-    karma = models.IntegerField('Karma', default=0)
-    sign = models.TextField('Signature', max_length=500, blank=True)
-    licence = models.ForeignKey(Licence,
-                                verbose_name='Licence préférée',
-                                blank=True, null=True, on_delete=models.SET_NULL)
-    github_token = models.TextField('GitHub', blank=True)
-    show_sign = models.BooleanField('Voir les signatures', default=True)
+    site = models.CharField("Site internet", max_length=2000, blank=True)
+    show_email = models.BooleanField("Afficher adresse mail publiquement", default=False)
+    avatar_url = models.CharField("URL de l'avatar", max_length=2000, null=True, blank=True)
+    biography = models.TextField("Biographie", blank=True)
+    karma = models.IntegerField("Karma", default=0)
+    sign = models.TextField("Signature", max_length=500, blank=True)
+    licence = models.ForeignKey(
+        Licence, verbose_name="Licence préférée", blank=True, null=True, on_delete=models.SET_NULL
+    )
+    github_token = models.TextField("GitHub", blank=True)
+    show_sign = models.BooleanField("Voir les signatures", default=True)
     # do UI components open by hovering them, or is clicking on them required?
-    is_hover_enabled = models.BooleanField('Déroulement au survol ?', default=False)
-    allow_temp_visual_changes = models.BooleanField('Activer les changements visuels temporaires', default=True)
+    is_hover_enabled = models.BooleanField("Déroulement au survol ?", default=False)
+    allow_temp_visual_changes = models.BooleanField("Activer les changements visuels temporaires", default=True)
     show_markdown_help = models.BooleanField("Afficher l'aide Markdown dans l'éditeur", default=True)
-    email_for_answer = models.BooleanField('Envoyer pour les réponse MP', default=False)
-    email_for_new_mp = models.BooleanField('Envoyer pour les nouveaux MP', default=False)
-    hats = models.ManyToManyField(Hat, verbose_name='Casquettes', db_index=True, blank=True)
-    can_read = models.BooleanField('Possibilité de lire', default=True)
+    email_for_answer = models.BooleanField("Envoyer pour les réponse MP", default=False)
+    email_for_new_mp = models.BooleanField("Envoyer pour les nouveaux MP", default=False)
+    hats = models.ManyToManyField(Hat, verbose_name="Casquettes", db_index=True, blank=True)
+    can_read = models.BooleanField("Possibilité de lire", default=True)
     end_ban_read = models.DateTimeField("Fin d'interdiction de lecture", null=True, blank=True)
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
-    last_visit = models.DateTimeField('Date de dernière visite', null=True, blank=True)
-    use_old_smileys = models.BooleanField('Utilise les anciens smileys ?', default=False)
+    last_visit = models.DateTimeField("Date de dernière visite", null=True, blank=True)
+    use_old_smileys = models.BooleanField("Utilise les anciens smileys ?", default=False)
     _permissions = {}
     _groups = None
     _cached_city = None
@@ -86,11 +79,11 @@ class Profile(models.Model):
         """Can the user display their stats?"""
         user_groups = self.user.groups.all()
         user_group_names = [g.name for g in user_groups]
-        return settings.ZDS_APP['member']['bot_group'] in user_group_names
+        return settings.ZDS_APP["member"]["bot_group"] in user_group_names
 
     def get_absolute_url(self):
         """Absolute URL to the profile page."""
-        return reverse('member-detail', kwargs={'user_name': self.user.username})
+        return reverse("member-detail", kwargs={"user_name": self.user.username})
 
     def get_city(self):
         """
@@ -106,12 +99,12 @@ class Profile(models.Model):
         try:
             geo = GeoIP2().city(self.last_ip_address)
         except AddressNotFoundError:
-            self._cached_city = (self.last_ip_address, '')
-            return ''
+            self._cached_city = (self.last_ip_address, "")
+            return ""
 
-        city = geo['city']
-        country = geo['country_name']
-        geo_location = ', '.join(i for i in [city, country] if i)
+        city = geo["city"]
+        country = geo["country_name"]
+        geo_location = ", ".join(i for i in [city, country] if i)
 
         self._cached_city = (self.last_ip_address, geo_location)
         return geo_location
@@ -125,12 +118,13 @@ class Profile(models.Model):
         """
         if self.avatar_url:
             if self.avatar_url.startswith(settings.MEDIA_URL):
-                return '{}{}'.format(settings.ZDS_APP['site']['url'], self.avatar_url)
+                return "{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
             else:
                 return self.avatar_url
         else:
-            return 'https://secure.gravatar.com/avatar/{0}?d=identicon'.format(
-                md5(self.user.email.lower().encode('utf-8')).hexdigest())
+            return "https://secure.gravatar.com/avatar/{0}?d=identicon".format(
+                md5(self.user.email.lower().encode("utf-8")).hexdigest()
+            )
 
     def get_post_count(self):
         """
@@ -179,10 +173,7 @@ class Profile(models.Model):
         :return: Queryset of draft contents with this user as author.
         """
         return self.get_user_contents_queryset(_type).filter(
-            sha_draft__isnull=False,
-            sha_beta__isnull=True,
-            sha_validation__isnull=True,
-            sha_public__isnull=True
+            sha_draft__isnull=False, sha_beta__isnull=True, sha_validation__isnull=True, sha_public__isnull=True
         )
 
     def get_user_validate_contents_queryset(self, _type=None):
@@ -249,13 +240,13 @@ class Profile(models.Model):
         """
         :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
         """
-        return self.get_content_count(_type='TUTORIAL')
+        return self.get_content_count(_type="TUTORIAL")
 
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
         """
-        return self.get_contents(_type='TUTORIAL')
+        return self.get_contents(_type="TUTORIAL")
 
     def get_draft_tutos(self):
         """
@@ -263,49 +254,49 @@ class Profile(models.Model):
         A draft tutorial is a tutorial which is not published, in validation or in beta.
         :return: All draft tutorials with this user as author.
         """
-        return self.get_draft_contents(_type='TUTORIAL')
+        return self.get_draft_contents(_type="TUTORIAL")
 
     def get_public_tutos(self):
         """
         :return: All published tutorials with this user as author.
         """
-        return self.get_public_contents(_type='TUTORIAL')
+        return self.get_public_contents(_type="TUTORIAL")
 
     def get_validate_tutos(self):
         """
         :return: All tutorials in validation with this user as author.
         """
-        return self.get_validate_contents(_type='TUTORIAL')
+        return self.get_validate_contents(_type="TUTORIAL")
 
     def get_beta_tutos(self):
         """
         :return: All tutorials in beta with this user as author.
         """
-        return self.get_beta_contents(_type='TUTORIAL')
+        return self.get_beta_contents(_type="TUTORIAL")
 
     def get_article_count(self):
         """
         :return: the count of articles with this user as author. Count all articles, no only published one.
         """
-        return self.get_content_count(_type='ARTICLE')
+        return self.get_content_count(_type="ARTICLE")
 
     def get_articles(self):
         """
         :return: All articles with this user as author.
         """
-        return self.get_contents(_type='ARTICLE')
+        return self.get_contents(_type="ARTICLE")
 
     def get_public_articles(self):
         """
         :return: All published articles with this user as author.
         """
-        return self.get_public_contents(_type='ARTICLE')
+        return self.get_public_contents(_type="ARTICLE")
 
     def get_validate_articles(self):
         """
         :return: All articles in validation with this user as author.
         """
-        return self.get_validate_contents(_type='ARTICLE')
+        return self.get_validate_contents(_type="ARTICLE")
 
     def get_draft_articles(self):
         """
@@ -313,31 +304,31 @@ class Profile(models.Model):
         A draft article is a article which is not published or in validation.
         :return: All draft article with this user as author.
         """
-        return self.get_draft_contents(_type='ARTICLE')
+        return self.get_draft_contents(_type="ARTICLE")
 
     def get_beta_articles(self):
         """
         :return: All articles in beta with this user as author.
         """
-        return self.get_beta_contents(_type='ARTICLE')
+        return self.get_beta_contents(_type="ARTICLE")
 
     def get_opinion_count(self):
         """
         :return: the count of opinions with this user as author. Count all opinions, no only published one.
         """
-        return self.get_content_count(_type='OPINION')
+        return self.get_content_count(_type="OPINION")
 
     def get_opinions(self):
         """
         :return: All opinions with this user as author.
         """
-        return self.get_contents(_type='OPINION')
+        return self.get_contents(_type="OPINION")
 
     def get_public_opinions(self):
         """
         :return: All published opinions with this user as author.
         """
-        return self.get_public_contents(_type='OPINION')
+        return self.get_public_contents(_type="OPINION")
 
     def get_draft_opinions(self):
         """
@@ -345,7 +336,7 @@ class Profile(models.Model):
         A draft opinion is a opinion which is not published or in validation.
         :return: All draft opinion with this user as author.
         """
-        return self.get_draft_contents(_type='OPINION')
+        return self.get_draft_contents(_type="OPINION")
 
     def get_posts(self):
         return Post.objects.filter(author=self.user).all()
@@ -390,7 +381,7 @@ class Profile(models.Model):
         """
         Checks whether user is part of group `settings.ZDS_APP['member']['dev_group']`.
         """
-        return self.user.groups.filter(name=settings.ZDS_APP['member']['dev_group']).exists()
+        return self.user.groups.filter(name=settings.ZDS_APP["member"]["dev_group"]).exists()
 
     def has_hat(self):
         """
@@ -416,13 +407,13 @@ class Profile(models.Model):
         """
         Return all current hats requested by this user.
         """
-        return self.user.requested_hats.filter(is_granted__isnull=True).order_by('-date')
+        return self.user.requested_hats.filter(is_granted__isnull=True).order_by("-date")
 
     def get_solved_hat_requests(self):
         """
         Return old hats requested by this user.
         """
-        return self.user.requested_hats.filter(is_granted__isnull=False).order_by('-solved_at')
+        return self.user.requested_hats.filter(is_granted__isnull=False).order_by("-solved_at")
 
     @staticmethod
     def has_read_permission(request):
@@ -436,7 +427,7 @@ class Profile(models.Model):
         return True
 
     def has_object_write_permission(self, request):
-        return self.has_object_update_permission(request) or request.user.has_perm('member.change_profile')
+        return self.has_object_update_permission(request) or request.user.has_perm("member.change_profile")
 
     def has_object_update_permission(self, request):
         return request.user.is_authenticated and request.user == self.user
@@ -446,7 +437,7 @@ class Profile(models.Model):
         return True
 
     def has_object_ban_permission(self, request):
-        return request.user and request.user.has_perm('member.change_profile')
+        return request.user and request.user.has_perm("member.change_profile")
 
     @property
     def group_pks(self):
@@ -456,11 +447,11 @@ class Profile(models.Model):
 
     @staticmethod
     def find_username_skeleton(username):
-        skeleton = ''
+        skeleton = ""
         for ch in username:
-            homoglyph = hg.Homoglyphs(languages={'fr'}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
+            homoglyph = hg.Homoglyphs(languages={"fr"}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
             if len(homoglyph) > 0:
-                if homoglyph[0].strip() != '':
+                if homoglyph[0].strip() != "":
                     skeleton += homoglyph[0]
         return skeleton.lower()
 
@@ -482,7 +473,7 @@ def remove_token_github_on_removing_from_dev_group(sender, instance, **kwargs):
     try:
         profile = instance.profile
         if profile.github_token and not profile.is_dev():
-            profile.github_token = ''
+            profile.github_token = ""
             profile.save()
     except Profile.DoesNotExist:
         pass
@@ -506,7 +497,7 @@ def remove_old_smileys_cookie(response):
     :type: django.http.response.HttpResponse
     """
 
-    response.set_cookie(settings.ZDS_APP['member']['old_smileys_cookie_key'], '', expires=0)
+    response.set_cookie(settings.ZDS_APP["member"]["old_smileys_cookie_key"], "", expires=0)
 
 
 def set_old_smileys_cookie(response, profile):
@@ -518,10 +509,10 @@ def set_old_smileys_cookie(response, profile):
     :type profile: Profile
     """
 
-    if settings.ZDS_APP['member']['old_smileys_allowed']:
+    if settings.ZDS_APP["member"]["old_smileys_allowed"]:
         if profile.use_old_smileys:
             # TODO: set max_age, expires and so all (see https://stackoverflow.com/a/1623910)
-            response.set_cookie(settings.ZDS_APP['member']['old_smileys_cookie_key'], profile.use_old_smileys)
+            response.set_cookie(settings.ZDS_APP["member"]["old_smileys_cookie_key"], profile.use_old_smileys)
         else:
             remove_old_smileys_cookie(response)
 
@@ -532,22 +523,23 @@ class TokenForgotPassword(models.Model):
     If the user has the correct token, it can choose a new password on the dedicated page.
     This model stores the tokens for the users that have forgot their passwords, with an expiration date.
     """
-    class Meta:
-        verbose_name = 'Token de mot de passe oublié'
-        verbose_name_plural = 'Tokens de mots de passe oubliés'
 
-    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True, on_delete=models.CASCADE)
+    class Meta:
+        verbose_name = "Token de mot de passe oublié"
+        verbose_name_plural = "Tokens de mots de passe oubliés"
+
+    user = models.ForeignKey(User, verbose_name="Utilisateur", db_index=True, on_delete=models.CASCADE)
     token = models.CharField(max_length=100, db_index=True)
-    date_end = models.DateTimeField('Date de fin')
+    date_end = models.DateTimeField("Date de fin")
 
     def get_absolute_url(self):
         """
         :return: The absolute URL of the "New password" page, including the correct token.
         """
-        return reverse('member-new-password') + '?token={0}'.format(self.token)
+        return reverse("member-new-password") + "?token={0}".format(self.token)
 
     def __str__(self):
-        return '{0} - {1}'.format(self.user.username, self.date_end)
+        return "{0} - {1}".format(self.user.username, self.date_end)
 
 
 class TokenRegister(models.Model):
@@ -556,22 +548,23 @@ class TokenRegister(models.Model):
     account (and prove the email address is correct) and connect itself.
     This model stores the registration token for each user, with an expiration date.
     """
-    class Meta:
-        verbose_name = 'Token d\'inscription'
-        verbose_name_plural = 'Tokens  d\'inscription'
 
-    user = models.ForeignKey(User, verbose_name='Utilisateur', db_index=True, on_delete=models.CASCADE)
+    class Meta:
+        verbose_name = "Token d'inscription"
+        verbose_name_plural = "Tokens  d'inscription"
+
+    user = models.ForeignKey(User, verbose_name="Utilisateur", db_index=True, on_delete=models.CASCADE)
     token = models.CharField(max_length=100, db_index=True)
-    date_end = models.DateTimeField('Date de fin')
+    date_end = models.DateTimeField("Date de fin")
 
     def get_absolute_url(self):
         """
         :return: the absolute URL of the account validation page, including the token.
         """
-        return reverse('member-active-account') + '?token={0}'.format(self.token)
+        return reverse("member-active-account") + "?token={0}".format(self.token)
 
     def __str__(self):
-        return '{0} - {1}'.format(self.user.username, self.date_end)
+        return "{0} - {1}".format(self.user.username, self.date_end)
 
 
 # Used by SOCIAL_AUTH_PIPELINE to create a profile on first login via social auth
@@ -579,7 +572,7 @@ def save_profile(backend, user, response, *args, **kwargs):
     profile = Profile.objects.filter(user=user).first()
     if profile is None:
         profile = Profile(user=user)
-        profile.last_ip_address = '0.0.0.0'
+        profile.last_ip_address = "0.0.0.0"
         profile.save()
 
 
@@ -592,18 +585,18 @@ class NewEmailProvider(models.Model):
     """A new-used email provider which should be checked by a staff member."""
 
     class Meta:
-        verbose_name = 'Nouveau fournisseur'
-        verbose_name_plural = 'Nouveaux fournisseurs'
+        verbose_name = "Nouveau fournisseur"
+        verbose_name_plural = "Nouveaux fournisseurs"
 
-    provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
-    use = models.CharField('Utilisation', max_length=11, choices=NEW_PROVIDER_USES)
-    user = models.ForeignKey(User, verbose_name='Utilisateur concerné', on_delete=models.CASCADE,
-                             related_name='new_providers', db_index=True)
-    date = models.DateTimeField("Date de l'alerte", auto_now_add=True, db_index=True,
-                                db_column='alert_date')
+    provider = models.CharField("Fournisseur", max_length=253, unique=True, db_index=True)
+    use = models.CharField("Utilisation", max_length=11, choices=NEW_PROVIDER_USES)
+    user = models.ForeignKey(
+        User, verbose_name="Utilisateur concerné", on_delete=models.CASCADE, related_name="new_providers", db_index=True
+    )
+    date = models.DateTimeField("Date de l'alerte", auto_now_add=True, db_index=True, db_column="alert_date")
 
     def __str__(self):
-        return 'Alert about the new provider {}'.format(self.provider)
+        return "Alert about the new provider {}".format(self.provider)
 
 
 class BannedEmailProvider(models.Model):
@@ -613,17 +606,17 @@ class BannedEmailProvider(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Fournisseur banni'
-        verbose_name_plural = 'Fournisseurs bannis'
+        verbose_name = "Fournisseur banni"
+        verbose_name_plural = "Fournisseurs bannis"
 
-    provider = models.CharField('Fournisseur', max_length=253, unique=True, db_index=True)
-    moderator = models.ForeignKey(User, verbose_name='Modérateur', on_delete=models.CASCADE,
-                                  related_name='banned_providers', db_index=True)
-    date = models.DateTimeField('Date du bannissement', auto_now_add=True, db_index=True,
-                                db_column='ban_date')
+    provider = models.CharField("Fournisseur", max_length=253, unique=True, db_index=True)
+    moderator = models.ForeignKey(
+        User, verbose_name="Modérateur", on_delete=models.CASCADE, related_name="banned_providers", db_index=True
+    )
+    date = models.DateTimeField("Date du bannissement", auto_now_add=True, db_index=True, db_column="ban_date")
 
     def __str__(self):
-        return 'Ban of the {} provider'.format(self.provider)
+        return "Ban of the {} provider".format(self.provider)
 
 
 class Ban(models.Model):
@@ -634,18 +627,19 @@ class Ban(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Sanction'
-        verbose_name_plural = 'Sanctions'
+        verbose_name = "Sanction"
+        verbose_name_plural = "Sanctions"
 
-    user = models.ForeignKey(User, verbose_name='Sanctionné', db_index=True, on_delete=models.CASCADE)
-    moderator = models.ForeignKey(User, verbose_name='Moderateur', related_name='bans', db_index=True,
-                                  on_delete=models.SET_NULL, null=True)  # use default user?
-    type = models.CharField('Type', max_length=80, db_index=True)
-    note = models.TextField('Explication de la sanction')
-    pubdate = models.DateTimeField('Date de publication', blank=True, null=True, db_index=True)
+    user = models.ForeignKey(User, verbose_name="Sanctionné", db_index=True, on_delete=models.CASCADE)
+    moderator = models.ForeignKey(
+        User, verbose_name="Moderateur", related_name="bans", db_index=True, on_delete=models.SET_NULL, null=True
+    )  # use default user?
+    type = models.CharField("Type", max_length=80, db_index=True)
+    note = models.TextField("Explication de la sanction")
+    pubdate = models.DateTimeField("Date de publication", blank=True, null=True, db_index=True)
 
     def __str__(self):
-        return '{0} - ban : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
+        return "{0} - ban : {1} ({2}) ".format(self.user.username, self.note, self.pubdate)
 
 
 class KarmaNote(models.Model):
@@ -658,16 +652,18 @@ class KarmaNote(models.Model):
     - a textual note
     - some amount of karma, negative values being… negative
     """
-    class Meta:
-        verbose_name = 'Note de karma'
-        verbose_name_plural = 'Notes de karma'
 
-    user = models.ForeignKey(User, related_name='karmanote_user', db_index=True, on_delete=models.CASCADE)
-    moderator = models.ForeignKey(User, related_name='karmanote_staff', db_index=True, on_delete=models.SET_NULL,
-                                  null=True)
-    note = models.CharField('Commentaire', max_length=150)
-    karma = models.IntegerField('Valeur')
-    pubdate = models.DateTimeField('Date d\'ajout', auto_now_add=True)
+    class Meta:
+        verbose_name = "Note de karma"
+        verbose_name_plural = "Notes de karma"
+
+    user = models.ForeignKey(User, related_name="karmanote_user", db_index=True, on_delete=models.CASCADE)
+    moderator = models.ForeignKey(
+        User, related_name="karmanote_staff", db_index=True, on_delete=models.SET_NULL, null=True
+    )
+    note = models.TextField("Commentaire")
+    karma = models.IntegerField("Valeur")
+    pubdate = models.DateTimeField("Date d'ajout", auto_now_add=True)
 
     def __str__(self):
-        return '{0} - note : {1} ({2}) '.format(self.user.username, self.note, self.pubdate)
+        return "{0} - note : {1} ({2}) ".format(self.user.username, self.note, self.pubdate)

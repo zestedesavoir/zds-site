@@ -9,7 +9,6 @@ from django.conf import settings
 
 
 class UserGalleryTest(TestCase):
-
     def setUp(self):
         self.profile = ProfileFactory()
         self.gallery = GalleryFactory()
@@ -24,13 +23,13 @@ class UserGalleryTest(TestCase):
         self.gallery.delete()
 
     def test_can_write(self):
-        self.user_gallery.mode = 'W'
+        self.user_gallery.mode = "W"
 
         self.assertTrue(self.user_gallery.can_write())
         self.assertFalse(self.user_gallery.can_read())
 
     def test_can_read(self):
-        self.user_gallery.mode = 'R'
+        self.user_gallery.mode = "R"
 
         self.assertFalse(self.user_gallery.can_write())
         self.assertTrue(self.user_gallery.can_read())
@@ -43,7 +42,6 @@ class UserGalleryTest(TestCase):
 
 
 class ImageTest(TestCase):
-
     def setUp(self):
         self.gallery = GalleryFactory()
         self.image = ImageFactory(gallery=self.gallery)
@@ -53,12 +51,12 @@ class ImageTest(TestCase):
         self.gallery.delete()
 
     def test_get_absolute_url(self):
-        absolute_url = '{0}/{1}'.format(settings.MEDIA_URL, self.image.physical).replace('//', '/')
+        absolute_url = "{0}/{1}".format(settings.MEDIA_URL, self.image.physical).replace("//", "/")
 
         self.assertEqual(absolute_url, self.image.get_absolute_url())
 
     def test_get_extension(self):
-        self.assertEqual('jpg', self.image.get_extension())
+        self.assertEqual("jpg", self.image.get_extension())
 
     def test_save_and_delete_image(self):
         test_image = ImageFactory(gallery=self.gallery)
@@ -70,7 +68,6 @@ class ImageTest(TestCase):
 
 
 class GalleryTest(TestCase):
-
     def setUp(self):
         self.profile = ProfileFactory()
         self.gallery = GalleryFactory()
@@ -85,8 +82,7 @@ class GalleryTest(TestCase):
         self.gallery.delete()
 
     def test_get_absolute_url(self):
-        absolute_url = reverse('gallery-details',
-                               args=[self.gallery.pk, self.gallery.slug])
+        absolute_url = reverse("gallery-details", args=[self.gallery.pk, self.gallery.slug])
         self.assertEqual(absolute_url, self.gallery.get_absolute_url())
 
     def test_get_linked_users(self):

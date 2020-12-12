@@ -10,18 +10,30 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mp', '0004_python_3'),
+        ("mp", "0004_python_3"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='privatetopic',
-            name='author',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='author', to=settings.AUTH_USER_MODEL, verbose_name='Auteur'),
+            model_name="privatetopic",
+            name="author",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="author",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Auteur",
+            ),
         ),
         migrations.AlterField(
-            model_name='privatetopic',
-            name='last_message',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='last_message', to='mp.PrivatePost', verbose_name='Dernier message'),
+            model_name="privatetopic",
+            name="last_message",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="last_message",
+                to="mp.PrivatePost",
+                verbose_name="Dernier message",
+            ),
         ),
     ]

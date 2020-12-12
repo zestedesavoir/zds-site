@@ -299,7 +299,7 @@
   }
 
   var uploadImage = function(file, onSuccess, onError) {
-    var galleryUrl = '/api/galeries/' + document.body.getAttribute('data-gallery') + '/images/'
+    const galleryUrl = '/api/galeries/' + document.body.getAttribute('data-gallery') + '/images/'
 
     var formData = new FormData()
     formData.append('physical', file)
@@ -324,7 +324,11 @@
       } else if (resp.responseJSON !== undefined) {
         error = resp.responseJSON[0]
       } else if (resp.responseText !== undefined) {
-        error = 'Erreur ' + resp.status + ' ' + resp.statusText + ' : ' + "'" + resp.responseText.split('\n')[0] + "'"
+        if (parseInt(resp.status) === 400) {
+          error = 'Quelque chose s\'est mal passé lors de l\'envoi. Votre image est peut-être trop lourde.'
+        } else {
+          error = 'Erreur ' + resp.status + ' ' + resp.statusText + ' : ' + "'" + resp.responseText.split('\n')[0] + "'"
+        }
       } else if (resp.readyState === 0 && resp.statusText === 'error') {
         error = 'Oups ! Impossible de se connecter au serveur.'
       }
@@ -374,6 +378,7 @@
     var easyMDE = new EasyMDE({
       autoDownloadFontAwesome: false,
       element: this,
+      forceSync: true,
       autosave: {
         enabled: true,
         uniqueId: mdeUniqueKey,
@@ -655,8 +660,8 @@
             }
             easyMDE.codemirror.refresh()
           },
-          className: 'fas fa-broom',
-          title: 'Passe au mode compatibilité'
+          className: 'fas fa-remove-format',
+          title: 'Zone de texte sans mise en forme'
         },
         '|',
         {
@@ -796,7 +801,7 @@ function mirroringEasyMDE(easyMDE, textarea) {
     }, 12) // <-- after default trigger (I mean after browser trigger)
   })
 
-  $(easyMDE.element.parentElement).children('.editor-statusbar').before($twin)
+  $(easyMDE.element.parentElement).find('.editor-statusbar').before($twin)
 
   return $twin
 }

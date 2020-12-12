@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0030_contentsuggestion'),
+        ("tutorialv2", "0030_contentsuggestion"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publishablecontent',
-            name='source',
-            field=models.URLField(blank=True, null=True, verbose_name='Source'),
+            model_name="publishablecontent",
+            name="source",
+            field=models.URLField(blank=True, null=True, verbose_name="Source"),
         ),
     ]

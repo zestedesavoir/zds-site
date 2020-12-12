@@ -4,7 +4,6 @@ from django.db.models.functions import Coalesce
 
 
 class GalleryManager(models.Manager):
-
     def annotated_gallery(self):
         """Annotate gallery with
 
@@ -16,17 +15,18 @@ class GalleryManager(models.Manager):
         from zds.tutorialv2.models.database import PublishableContent
         from zds.gallery.models import Image
 
-        linked_content = PublishableContent.objects.filter(gallery__pk=OuterRef('pk')).values('pk')
+        linked_content = PublishableContent.objects.filter(gallery__pk=OuterRef("pk")).values("pk")
 
-        images = Image.objects\
-            .filter(gallery__pk=OuterRef('pk'))\
-            .values('gallery')\
-            .annotate(count=Count('pk'))\
-            .values('count')
+        images = (
+            Image.objects.filter(gallery__pk=OuterRef("pk"))
+            .values("gallery")
+            .annotate(count=Count("pk"))
+            .values("count")
+        )
 
-        return self\
-            .annotate(linked_content=Subquery(linked_content))\
-            .annotate(image_count=Coalesce(Subquery(images), 0))
+        return self.annotate(linked_content=Subquery(linked_content)).annotate(
+            image_count=Coalesce(Subquery(images), 0)
+        )
 
     def galleries_of_user(self, user):
         """Get galleries of user, and annotate with an extra field ``user_mode`` (which contains R or W)
@@ -38,8 +38,10 @@ class GalleryManager(models.Manager):
 
         from zds.gallery.models import UserGallery
 
-        user_galleries = UserGallery.objects.filter(user=user).prefetch_related('gallery').values('gallery__pk')
-        user_mode = UserGallery.objects.filter(user=user, gallery__pk=OuterRef('pk'))
-        return self.annotated_gallery()\
-            .filter(pk__in=user_galleries)\
-            .annotate(user_mode=Subquery(user_mode.values('mode')))
+        user_galleries = UserGallery.objects.filter(user=user).prefetch_related("gallery").values("gallery__pk")
+        user_mode = UserGallery.objects.filter(user=user, gallery__pk=OuterRef("pk"))
+        return (
+            self.annotated_gallery()
+            .filter(pk__in=user_galleries)
+            .annotate(user_mode=Subquery(user_mode.values("mode")))
+        )

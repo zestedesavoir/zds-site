@@ -14,25 +14,25 @@ class ZdSPagingListView(ListView):
         Get the context for this view. This method is surcharged to modify the paginator
         and information given at the template.
         """
-        queryset = kwargs.pop('object_list', self.object_list)
+        queryset = kwargs.pop("object_list", self.object_list)
         page_size = self.get_paginate_by(queryset)
         context_object_name = self.get_context_object_name(queryset)
         self.paginator, self.page, queryset, is_paginated = self.paginate_queryset(queryset, page_size)
         if page_size:
             context = {
-                'paginator': self.paginator,
-                'page_obj': self.page,
-                'is_paginated': is_paginated,
-                'object_list': queryset,
-                'pages': paginator_range(self.page.number, self.paginator.num_pages),
+                "paginator": self.paginator,
+                "page_obj": self.page,
+                "is_paginated": is_paginated,
+                "object_list": queryset,
+                "pages": paginator_range(self.page.number, self.paginator.num_pages),
             }
         else:
             context = {
-                'paginator': None,
-                'page_obj': None,
-                'is_paginated': False,
-                'object_list': queryset,
-                'pages': [],
+                "paginator": None,
+                "page_obj": None,
+                "is_paginated": False,
+                "object_list": queryset,
+                "pages": [],
             }
         if context_object_name is not None:
             context[context_object_name] = queryset
@@ -61,7 +61,7 @@ def paginator_range(current, stop, start=1):
     assert current <= stop
 
     # Basic case when no folding
-    if stop - start <= settings.ZDS_APP['paginator']['folding_limit']:
+    if stop - start <= settings.ZDS_APP["paginator"]["folding_limit"]:
         return list(range(start, stop + 1))
 
     # Complex case when folding
@@ -89,7 +89,8 @@ def paginator_range(current, stop, start=1):
 
 
 def make_pagination(
-        context, request, queryset_objs, page_size, context_list_name='object_list', with_previous_item=False):
+    context, request, queryset_objs, page_size, context_list_name="object_list", with_previous_item=False
+):
     """This function will fill the context to use it for the paginator template, usefull if you cannot use
     `ZdSPagingListView`.
 
@@ -110,9 +111,9 @@ def make_pagination(
     paginator = Paginator(queryset_objs, page_size)
 
     # retrieve page number
-    if 'page' in request.GET and request.GET['page'].isdigit():
-        page_number = int(request.GET['page'])
-    elif 'page' not in request.GET:
+    if "page" in request.GET and request.GET["page"].isdigit():
+        page_number = int(request.GET["page"])
+    elif "page" not in request.GET:
         page_number = 1
     else:
         raise Http404
@@ -133,7 +134,7 @@ def make_pagination(
         page_objects_list = new_list
 
     # fill context
-    context['paginator'] = paginator
-    context['page_obj'] = page_obj
-    context['pages'] = paginator_range(page_number, paginator.num_pages)
+    context["paginator"] = paginator
+    context["page_obj"] = page_obj
+    context["pages"] = paginator_range(page_number, paginator.num_pages)
     context[context_list_name] = page_objects_list

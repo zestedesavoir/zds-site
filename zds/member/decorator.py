@@ -12,6 +12,7 @@ def can_write_and_read_now(func):
     :param func: the decorated function
     :return: `True` if the current user can read and write, `False` otherwise.
     """
+
     def _can_write_and_read_now(request, *args, **kwargs):
         try:
             profile = request.user.profile
@@ -24,14 +25,16 @@ def can_write_and_read_now(func):
                 raise PermissionDenied
 
         return func(request, *args, **kwargs)
+
     return _can_write_and_read_now
 
 
-class PermissionRequiredMixin(object):
+class PermissionRequiredMixin:
     """
     Represent the basic code that a Generic Class Based View has to use when one or more
     permissions are required simultaneously to execute the view
     """
+
     permissions = []
 
     def check_permissions(self):
@@ -43,13 +46,14 @@ class PermissionRequiredMixin(object):
         return super(PermissionRequiredMixin, self).dispatch(*args, **kwargs)
 
 
-class LoginRequiredMixin(object):
+class LoginRequiredMixin:
     """
     Represent the basic code that a Generic Class Based View has to use when
     the required action needs the user to be logged in.
     If the user is not logged in, the user is redirected to the connection form and the former action
     is not executed.
     """
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
@@ -60,6 +64,7 @@ class LoggedWithReadWriteHability(LoginRequiredMixin):
     Represent the basic code that a Generic Class View has to use when a logged in user with
     read and write hability is required.
     """
+
     @method_decorator(can_write_and_read_now)
     def dispatch(self, *args, **kwargs):
         return super(LoggedWithReadWriteHability, self).dispatch(*args, **kwargs)

@@ -9,43 +9,56 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('tutorialv2', '0023_publishablecontent_validation_private_message'),
+        ("tutorialv2", "0023_publishablecontent_validation_private_message"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ContentContribution',
+            name="ContentContribution",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('comment', models.CharField(blank=True, max_length=200, null=True, verbose_name='Commentaire')),
-                ('content', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tutorialv2.PublishableContent', verbose_name='Contenu')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("comment", models.CharField(blank=True, max_length=200, null=True, verbose_name="Commentaire")),
+                (
+                    "content",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tutorialv2.PublishableContent",
+                        verbose_name="Contenu",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Contribution aux contenus',
-                'verbose_name_plural': 'Contributions aux contenus',
+                "verbose_name": "Contribution aux contenus",
+                "verbose_name_plural": "Contributions aux contenus",
             },
         ),
         migrations.CreateModel(
-            name='ContentContributionRole',
+            name="ContentContributionRole",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=20)),
-                ('subtitle', models.CharField(blank=True, max_length=200, null=True)),
-                ('position', models.IntegerField(default=0)),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("title", models.CharField(max_length=20)),
+                ("subtitle", models.CharField(blank=True, max_length=200, null=True)),
+                ("position", models.IntegerField(default=0)),
             ],
             options={
-                'verbose_name': 'Role de la contribution au contenu',
-                'verbose_name_plural': 'Roles de la contribution au contenu',
+                "verbose_name": "Role de la contribution au contenu",
+                "verbose_name_plural": "Roles de la contribution au contenu",
             },
         ),
         migrations.AddField(
-            model_name='contentcontribution',
-            name='contribution_role',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tutorialv2.ContentContributionRole', verbose_name='role de la contribution'),
+            model_name="contentcontribution",
+            name="contribution_role",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                to="tutorialv2.ContentContributionRole",
+                verbose_name="role de la contribution",
+            ),
         ),
         migrations.AddField(
-            model_name='contentcontribution',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Contributeur'),
+            model_name="contentcontribution",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name="Contributeur"
+            ),
         ),
     ]

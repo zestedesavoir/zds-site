@@ -7,23 +7,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0014_pingsubscription'),
+        ("notification", "0014_pingsubscription"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='notification',
-            name='title',
-            field=models.CharField(max_length=200, verbose_name='Titre'),
+            model_name="notification",
+            name="title",
+            field=models.CharField(max_length=200, verbose_name="Titre"),
         ),
         migrations.AlterField(
-            model_name='notification',
-            name='url',
-            field=models.CharField(max_length=255, verbose_name='URL'),
+            model_name="notification",
+            name="url",
+            field=models.CharField(max_length=255, verbose_name="URL"),
         ),
         migrations.AlterField(
-            model_name='topicfollowed',
-            name='email',
-            field=models.BooleanField(db_index=True, default=False, verbose_name='Notification par courriel'),
+            model_name="topicfollowed",
+            name="email",
+            field=models.BooleanField(db_index=True, default=False, verbose_name="Notification par courriel"),
         ),
     ]

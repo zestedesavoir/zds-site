@@ -14,10 +14,21 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
 from zds.notification import signals
-from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
-    SubCategoryFactory, PublishedContentFactory
+from zds.notification.models import (
+    Notification,
+    TopicAnswerSubscription,
+    ContentReactionAnswerSubscription,
+    PrivateTopicAnswerSubscription,
+    NewTopicSubscription,
+    NewPublicationSubscription,
+)
+from zds.tutorialv2.factories import (
+    PublishableContentFactory,
+    LicenceFactory,
+    ContentReactionFactory,
+    SubCategoryFactory,
+    PublishedContentFactory,
+)
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import slugify
@@ -33,32 +44,33 @@ class NotificationForumTest(TestCase):
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
 
-        self.tag1 = TagFactory(title='Linux')
-        self.tag2 = TagFactory(title='Windows')
+        self.tag1 = TagFactory(title="Linux")
+        self.tag2 = TagFactory(title="Windows")
 
-        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
 
     def test_creation_topic(self):
         """
         When we create a topic, the author follows it.
         """
         result = self.client.post(
-            reverse('topic-new') + '?forum={0}'.format(self.forum12.pk),
+            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
             {
-                'title': 'Super sujet',
-                'subtitle': 'Pour tester les notifs',
-                'text': 'En tout cas l\'un abonnement',
-                'tags': ''
+                "title": "Super sujet",
+                "subtitle": "Pour tester les notifs",
+                "text": "En tout cas l'un abonnement",
+                "tags": "",
             },
-            follow=False)
+            follow=False,
+        )
         self.assertEqual(result.status_code, 302)
 
-        topic = Topic.objects.filter(title='Super sujet').first()
+        topic = Topic.objects.filter(title="Super sujet").first()
         content_type = ContentType.objects.get_for_model(topic)
 
-        subscription = TopicAnswerSubscription.objects.get(object_id=topic.pk,
-                                                           content_type__pk=content_type.pk,
-                                                           user=self.user1)
+        subscription = TopicAnswerSubscription.objects.get(
+            object_id=topic.pk, content_type__pk=content_type.pk, user=self.user1
+        )
         self.assertEqual(subscription.is_active, True)
 
     def test_mark_read_a_topic_from_view_list_posts(self):
@@ -77,18 +89,24 @@ class NotificationForumTest(TestCase):
         # Creates a new post in the topic to generate a new notification.
         PostFactory(topic=topic, author=self.user2, position=1)
         content_notification_type = ContentType.objects.get_for_model(topic.last_message)
-        notification = Notification.objects.get(subscription=subscription,
-                                                content_type__pk=content_notification_type.pk,
-                                                object_id=topic.last_message.pk, is_read=False)
+        notification = Notification.objects.get(
+            subscription=subscription,
+            content_type__pk=content_notification_type.pk,
+            object_id=topic.last_message.pk,
+            is_read=False,
+        )
         self.assertIsNotNone(notification)
 
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(response.status_code, 200)
 
         # Checks that the notification is reading now.
-        notification = Notification.objects.get(subscription=subscription,
-                                                content_type__pk=content_notification_type.pk,
-                                                object_id=topic.last_message.pk, is_read=True)
+        notification = Notification.objects.get(
+            subscription=subscription,
+            content_type__pk=content_notification_type.pk,
+            object_id=topic.last_message.pk,
+            is_read=True,
+        )
         self.assertIsNotNone(notification)
 
     def test_answer_topic(self):
@@ -100,12 +118,13 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
+            reverse("post-new") + "?sujet={0}".format(topic1.pk),
             {
-                'last_post': topic1.last_message.pk,
-                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                "last_post": topic1.last_message.pk,
+                "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
             },
-            follow=False)
+            follow=False,
+        )
 
         self.assertEqual(result.status_code, 302)
 
@@ -118,9 +137,9 @@ class NotificationForumTest(TestCase):
         self.assertEqual(notification.subscription.object_id, topic1.pk)
 
         # check that answerer has subscribed to the topic
-        subscription = TopicAnswerSubscription.objects.get(object_id=topic1.pk,
-                                                           content_type__pk=subscription_content_type.pk,
-                                                           user=self.user1)
+        subscription = TopicAnswerSubscription.objects.get(
+            object_id=topic1.pk, content_type__pk=subscription_content_type.pk, user=self.user1
+        )
         self.assertTrue(subscription.is_active)
 
     def test_notification_read(self):
@@ -132,12 +151,13 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse('post-new') + '?sujet={0}'.format(topic1.pk),
+            reverse("post-new") + "?sujet={0}".format(topic1.pk),
             {
-                'last_post': topic1.last_message.pk,
-                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter '
+                "last_post": topic1.last_message.pk,
+                "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
             },
-            follow=False)
+            follow=False,
+        )
 
         self.assertEqual(result.status_code, 302)
 
@@ -145,9 +165,9 @@ class NotificationForumTest(TestCase):
         self.assertEqual(notification.is_read, False)
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'), True)
+        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"), True)
 
-        result = self.client.get(reverse('topic-posts-list', args=[topic1.pk, slugify(topic1.title)]), follow=True)
+        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
 
         notification = Notification.objects.get(subscription__user=self.user2)
@@ -168,15 +188,11 @@ class NotificationForumTest(TestCase):
         self.assertIsNotNone(Notification.objects.get(subscription__user=self.user1, is_read=False))
 
         forum_not_read = ForumFactory(category=self.category1, position_in_category=2)
-        forum_not_read.groups.add(Group.objects.create(name='DummyGroup_1'))
+        forum_not_read.groups.add(Group.objects.create(name="DummyGroup_1"))
 
-        self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password='hostel77'))
-        data = {
-            'move': '',
-            'forum': forum_not_read.pk,
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password="hostel77"))
+        data = {"move": "", "forum": forum_not_read.pk, "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user1, topic, is_active=False))
@@ -193,7 +209,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user1, position=2)
         post = PostFactory(topic=topic1, author=self.user2, position=3)
 
-        result = self.client.get(reverse('post-unread') + '?message={}'.format(post.pk), follow=False)
+        result = self.client.get(reverse("post-unread") + "?message={}".format(post.pk), follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -214,12 +230,11 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(notifications))
 
         # hide last post
-        data = {
-            'delete_message': ''
-        }
-        self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password='hostel77'))
+        data = {"delete_message": ""}
+        self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password="hostel77"))
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
@@ -307,7 +322,7 @@ class NotificationForumTest(TestCase):
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(response.status_code, 200)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
@@ -323,13 +338,9 @@ class NotificationForumTest(TestCase):
         # Move the topic to another forum.
         self.client.logout()
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'move': '',
-            'forum': self.forum12.pk,
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
 
         topic = Topic.objects.get(pk=topic.pk)
@@ -337,8 +348,8 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True).all()))
@@ -346,13 +357,15 @@ class NotificationForumTest(TestCase):
     def test_ping_on_tuto(self):
         """Error from #4904"""
         content = PublishedContentFactory(author_list=[self.user1])
-        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse('content:add-reaction') + '?pk={}'.format(content.pk),
+            reverse("content:add-reaction") + "?pk={}".format(content.pk),
             {
-                'text': '@{}'.format(self.user1.username),
-                'last_note': 0,
-            }, follow=True)
+                "text": "@{}".format(self.user1.username),
+                "last_note": 0,
+            },
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertEqual(1, len(Notification.objects.filter(is_read=False).all()))
 
@@ -367,13 +380,9 @@ class NotificationForumTest(TestCase):
         # Move the topic to another forum.
         self.client.logout()
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'move': '',
-            'forum': self.forum12.pk,
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
 
         topic = Topic.objects.get(pk=topic.pk)
@@ -381,8 +390,8 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=False).all()))
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=False).all()))
@@ -395,7 +404,7 @@ class NotificationForumTest(TestCase):
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
 
         topic1 = TopicFactory(forum=self.forum11, author=self.user2)
-        topic1.add_tags(['Linux'])
+        topic1.add_tags(["Linux"])
 
         notifications = Notification.objects.filter(object_id=topic1.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
@@ -404,7 +413,7 @@ class NotificationForumTest(TestCase):
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
 
         topic2 = TopicFactory(forum=self.forum11, author=self.user2)
-        topic2.add_tags(['Linux'])
+        topic2.add_tags(["Linux"])
         notifications = Notification.objects.filter(object_id=topic2.pk, is_read=False).all()
         self.assertEqual(0, len(notifications))
 
@@ -415,13 +424,13 @@ class NotificationForumTest(TestCase):
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user1)
 
         topic = TopicFactory(forum=self.forum11, author=self.user2)
-        topic.add_tags(['Linux'])
+        topic.add_tags(["Linux"])
 
         PostFactory(topic=topic, author=self.user2, position=1)
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(response.status_code, 200)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
@@ -429,7 +438,7 @@ class NotificationForumTest(TestCase):
 
     def test_add_subscribed_tag(self):
         """
-            When the topic is edited and a tag is added to which the user has subscribed
+        When the topic is edited and a tag is added to which the user has subscribed
         """
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user2)
 
@@ -437,39 +446,42 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic, author=self.user1, position=1)
 
         self.client.post(
-            reverse('topic-edit') + '?topic={0}'.format(topic.pk),
+            reverse("topic-edit") + "?topic={0}".format(topic.pk),
             {
-                'title': 'Un autre sujet',
-                'subtitle': 'Encore ces lombards en plein ete',
-                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-                'tags': 'Linux'
-            }, follow=False)
+                "title": "Un autre sujet",
+                "subtitle": "Encore ces lombards en plein ete",
+                "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
+                "tags": "Linux",
+            },
+            follow=False,
+        )
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
     def test_remove_subscribed_tag(self):
         """
-            When the topic is edited and a tag is added to which the user has subscribed
+        When the topic is edited and a tag is added to which the user has subscribed
         """
         NewTopicSubscription.objects.toggle_follow(self.tag1, self.user2)
 
         topic = TopicFactory(forum=self.forum11, author=self.user1)
-        topic.add_tags(['Linux'])
+        topic.add_tags(["Linux"])
         PostFactory(topic=topic, author=self.user1, position=1)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
         self.client.post(
-            reverse('topic-edit') + '?topic={0}'.format(topic.pk),
+            reverse("topic-edit") + "?topic={0}".format(topic.pk),
             {
-                'title': 'Un autre sujet',
-                'subtitle': 'Encore ces lombards en plein été',
-                'text': 'C\'est tout simplement l\'histoire de la ville de Paris que je voudrais vous conter ',
-                'tags': 'Windows'
+                "title": "Un autre sujet",
+                "subtitle": "Encore ces lombards en plein été",
+                "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
+                "tags": "Windows",
             },
-            follow=False)
+            follow=False,
+        )
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=True).all()))
 
@@ -480,9 +492,9 @@ class NotificationPublishableContentTest(TestCase):
         self.user2 = ProfileFactory().user
 
         # create a tutorial
-        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto = PublishableContentFactory(type="TUTORIAL")
         self.tuto.authors.add(self.user1)
-        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user1, mode='W')
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user1, mode="W")
         self.tuto.licence = LicenceFactory()
         self.tuto.subcategory.add(SubCategoryFactory())
         self.tuto.save()
@@ -497,7 +509,7 @@ class NotificationPublishableContentTest(TestCase):
         self.tuto.public_version = self.published
         self.tuto.save()
 
-        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
 
     def test_follow_content_at_publication(self):
         """
@@ -519,12 +531,12 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {'follow': 1})
+        result = self.client.post(reverse("content:follow-reactions", args=[self.tuto.pk]), {"follow": 1})
         self.assertEqual(result.status_code, 302)
 
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertTrue(subscription.is_active)
-        result = self.client.post(reverse('content:follow-reactions', args=[self.tuto.pk]), {'follow': 0})
+        result = self.client.post(reverse("content:follow-reactions", args=[self.tuto.pk]), {"follow": 0})
         self.assertEqual(result.status_code, 302)
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertFalse(subscription.is_active)
@@ -536,10 +548,11 @@ class NotificationPublishableContentTest(TestCase):
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertIsNone(subscription)
 
-        result = self.client.post(reverse('content:add-reaction') + '?pk={}'.format(self.tuto.pk), {
-            'text': 'message',
-            'last_note': '0'
-        }, follow=True)
+        result = self.client.post(
+            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            {"text": "message", "last_note": "0"},
+            follow=True,
+        )
         self.assertEqual(result.status_code, 200)
 
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
@@ -558,7 +571,7 @@ class NotificationPublishableContentTest(TestCase):
         notification = Notification.objects.get(subscription__user=self.user1)
         self.assertFalse(notification.is_read)
 
-        result = self.client.get(reverse('tutorial:view', args=[self.tuto.pk, self.tuto.slug]), follow=False)
+        result = self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug]), follow=False)
         self.assertEqual(result.status_code, 200)
 
         notification = Notification.objects.get(subscription__user=self.user1)
@@ -568,23 +581,29 @@ class NotificationPublishableContentTest(TestCase):
         """
         Any user may subscribe to new publications from a user.
         """
-        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), follow=False)
+        result = self.client.post(reverse("content:follow", args=[self.user1.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user2.username, password='hostel77'), True)
+        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"), True)
 
-        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), {
-            'follow': 1
-        }, follow=False, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        result = self.client.post(
+            reverse("content:follow", args=[self.user1.pk]),
+            {"follow": 1},
+            follow=False,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
         self.assertEqual(result.status_code, 200)
 
         subscription = NewPublicationSubscription.objects.get_existing(user=self.user2, content_object=self.user1)
         self.assertTrue(subscription.is_active)
 
-        result = self.client.post(reverse('content:follow', args=[self.user1.pk]), {
-            'email': 1
-        }, follow=False, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        result = self.client.post(
+            reverse("content:follow", args=[self.user1.pk]),
+            {"email": 1},
+            follow=False,
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
         self.assertEqual(result.status_code, 200)
 
         subscription = NewPublicationSubscription.objects.get_existing(user=self.user2, content_object=self.user1)
@@ -603,14 +622,16 @@ class NotificationPublishableContentTest(TestCase):
         notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
-        signals.content_read.send(sender=self.tuto.__class__, instance=self.tuto, user=self.user2,
-                                  target=ContentReaction)
+        signals.content_read.send(
+            sender=self.tuto.__class__, instance=self.tuto, user=self.user2, target=ContentReaction
+        )
 
         notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
-        signals.content_read.send(sender=self.tuto.__class__, instance=self.tuto, user=self.user2,
-                                  target=PublishableContent)
+        signals.content_read.send(
+            sender=self.tuto.__class__, instance=self.tuto, user=self.user2, target=PublishableContent
+        )
 
         notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
         self.assertEqual(0, len(notifications))
@@ -626,8 +647,7 @@ class NotificationPublishableContentTest(TestCase):
         subscription.mark_notification_read(self.tuto)
         subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()
         self.assertIsNone(subscription1)
-        self.assertEqual(1, Notification.objects.filter(subscription=subscription,
-                                                        is_read=True).count())
+        self.assertEqual(1, Notification.objects.filter(subscription=subscription, is_read=True).count())
 
 
 class NotificationPrivateTopicTest(TestCase):
@@ -642,13 +662,13 @@ class NotificationPrivateTopicTest(TestCase):
         self.user2.profile.save()
         self.user3.profile.save()
 
-        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
 
     def test_creation_private_topic(self):
         """
         When we create a topic, its author follows it.
         """
-        topic = send_mp(author=self.user1, users=[], title='Testing', subtitle='', text='', leave=False)
+        topic = send_mp(author=self.user1, users=[], title="Testing", subtitle="", text="", leave=False)
 
         subscriptions = PrivateTopicAnswerSubscription.objects.get_subscriptions(topic)
         self.assertEqual(1, len(subscriptions))
@@ -666,9 +686,9 @@ class NotificationPrivateTopicTest(TestCase):
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user3)
         self.assertEqual(0, len(subscriptions))
 
-        topic = send_mp(author=self.user1,
-                        users=[self.user2, self.user3],
-                        title='Testing', subtitle='', text='', leave=False)
+        topic = send_mp(
+            author=self.user1, users=[self.user2, self.user3], title="Testing", subtitle="", text="", leave=False
+        )
 
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)
         self.assertEqual(1, len(subscriptions))
@@ -690,9 +710,9 @@ class NotificationPrivateTopicTest(TestCase):
         """
         When we mark a private topic as read, we mark its notification as read.
         """
-        topic = send_mp(author=self.user1,
-                        users=[self.user2, self.user3],
-                        title='Testing', subtitle='', text='', leave=False)
+        topic = send_mp(
+            author=self.user1, users=[self.user2, self.user3], title="Testing", subtitle="", text="", leave=False
+        )
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -708,9 +728,9 @@ class NotificationPrivateTopicTest(TestCase):
         """
         When a user posts on a private topic, we generate a notification for all participants.
         """
-        topic = send_mp(author=self.user1,
-                        users=[self.user2, self.user3],
-                        title='Testing', subtitle='', text='', leave=False)
+        topic = send_mp(
+            author=self.user1, users=[self.user2, self.user3], title="Testing", subtitle="", text="", leave=False
+        )
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -722,7 +742,7 @@ class NotificationPrivateTopicTest(TestCase):
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(0, len(notifications))
 
-        send_message_mp(self.user3, topic, '')
+        send_message_mp(self.user3, topic, "")
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -734,9 +754,7 @@ class NotificationPrivateTopicTest(TestCase):
         When we add a user to a private topic, we generate a notification for this user
         at the last message.
         """
-        topic = send_mp(author=self.user1,
-                        users=[self.user2],
-                        title='Testing', subtitle='', text='', leave=False)
+        topic = send_mp(author=self.user1, users=[self.user2], title="Testing", subtitle="", text="", leave=False)
 
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user3)
         self.assertEqual(0, len(subscriptions))
@@ -757,9 +775,7 @@ class NotificationPrivateTopicTest(TestCase):
         When a user leaves a private topic, we mark the current notification as read
         if it exists.
         """
-        topic = send_mp(author=self.user1,
-                        users=[self.user2],
-                        title='Testing', subtitle='', text='', leave=False)
+        topic = send_mp(author=self.user1, users=[self.user2], title="Testing", subtitle="", text="", leave=False)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user2)
         self.assertEqual(1, len(notifications))
@@ -768,7 +784,7 @@ class NotificationPrivateTopicTest(TestCase):
 
         self.assertIsNotNone(PrivateTopicAnswerSubscription.objects.get_existing(self.user2, topic, is_active=True))
 
-        send_message_mp(self.user2, topic, 'Test')
+        send_message_mp(self.user2, topic, "Test")
         topic.remove_participant(self.user2)
         topic.save()
 
@@ -777,7 +793,7 @@ class NotificationPrivateTopicTest(TestCase):
 
         self.assertEqual(1, len(Notification.objects.get_unread_notifications_of(self.user1)))
 
-        response = self.client.post(reverse('mp-delete', args=[topic.pk, topic.slug]), follow=True)
+        response = self.client.post(reverse("mp-delete", args=[topic.pk, topic.slug]), follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
 
@@ -786,12 +802,18 @@ class NotificationPrivateTopicTest(TestCase):
         When the user asked to be notified via email, we actually send the email
         when a topic is created.
         """
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.assertEqual(0, len(mail.outbox))
 
-        topic = send_mp(author=self.user1, users=[self.user2, self.user3],
-                        title='Testing', subtitle='', text='',
-                        send_by_mail=True, leave=False)
+        topic = send_mp(
+            author=self.user1,
+            users=[self.user2, self.user3],
+            title="Testing",
+            subtitle="",
+            text="",
+            send_by_mail=True,
+            leave=False,
+        )
 
         self.assertEqual(1, len(mail.outbox))
 
@@ -802,7 +824,7 @@ class NotificationPrivateTopicTest(TestCase):
         self.user3.profile.email_for_answer = False
         self.user3.profile.save()
 
-        send_message_mp(self.user2, topic, '', send_by_mail=True)
+        send_message_mp(self.user2, topic, "", send_by_mail=True)
         subscriptions = PrivateTopicAnswerSubscription.objects.filter(user=self.user2)
         self.assertTrue(subscriptions.last().by_email)
 
@@ -811,7 +833,7 @@ class NotificationPrivateTopicTest(TestCase):
         self.user1.profile.email_for_answer = False
         self.user1.profile.save()
 
-        send_message_mp(self.user2, topic, '', send_by_mail=True)
+        send_message_mp(self.user2, topic, "", send_by_mail=True)
 
         self.assertEqual(2, len(mail.outbox))
 
@@ -821,14 +843,14 @@ class NotificationTest(TestCase):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
 
-        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
 
     def test_reuse_old_notification(self):
         """
         When there already is a read notification for a given content, we reuse it.
         """
-        topic = send_mp(author=self.user1, users=[self.user2], title='Testing', subtitle='', text='', leave=False)
-        send_message_mp(self.user2, topic, '', send_by_mail=True)
+        topic = send_mp(author=self.user1, users=[self.user2], title="Testing", subtitle="", text="", leave=False)
+        send_message_mp(self.user2, topic, "", send_by_mail=True)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(1, len(notifications))
@@ -837,7 +859,7 @@ class NotificationTest(TestCase):
 
         mark_read(topic, self.user1)
 
-        send_message_mp(self.user2, topic, '', send_by_mail=True)
+        send_message_mp(self.user2, topic, "", send_by_mail=True)
 
         notifications = Notification.objects.filter(subscription__user=self.user1)
         self.assertEqual(1, len(notifications))
@@ -894,16 +916,14 @@ class NotificationTest(TestCase):
         PostFactory(topic=topic, author=self.user1, position=1)
         PostFactory(topic=topic, author=self.user2, position=2)
 
-        self.assertTrue(self.client.login(username=self.user1.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
 
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(1, len(notifications))
 
         self.assertFalse(is_read(topic, self.user1))
 
-        result = self.client.post(
-            reverse('mark-notifications-as-read'),
-            follow=False)
+        result = self.client.post(reverse("mark-notifications-as-read"), follow=False)
         self.assertEqual(result.status_code, 302)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
