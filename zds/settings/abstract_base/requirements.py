@@ -12,7 +12,6 @@ social_auth_config = config.get("social_auth", {})
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
 SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
 
 SOCIAL_AUTH_PIPELINE = (
@@ -30,9 +29,6 @@ SOCIAL_AUTH_PIPELINE = (
 
 SOCIAL_AUTH_FACEBOOK_KEY = social_auth_config.get("facebook_key", "")
 SOCIAL_AUTH_FACEBOOK_SECRET = social_auth_config.get("facebook_secret", "")
-
-SOCIAL_AUTH_TWITTER_KEY = social_auth_config.get("twitter_key", "")
-SOCIAL_AUTH_TWITTER_SECRET = social_auth_config.get("twitter_secret", "")
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = social_auth_config.get(
     "google_oauth2_key",
