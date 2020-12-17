@@ -123,17 +123,17 @@ class EditContentCategories(LoggedWithReadWriteHability, SingleContentFormViewMi
     modal_form = True
     model = PublishableContent
     form_class = EditContentCategoriesForm
-    success_message = _('Les catégories ont bien été modifiées.')
+    success_message = _("Les catégories ont bien été modifiées.")
 
     def get_form_kwargs(self):
         kwargs = super(EditContentCategories, self).get_form_kwargs()
-        kwargs['versioned_content'] = self.versioned_object
-        kwargs['db_content'] = self.object
+        kwargs["versioned_content"] = self.versioned_object
+        kwargs["db_content"] = self.object
         return kwargs
 
     def form_valid(self, form):
         self.object.subcategory.clear()
-        for subcat in form.cleaned_data['subcategory']:
+        for subcat in form.cleaned_data["subcategory"]:
             self.object.subcategory.add(subcat)
         self.object.save(force_slug_update=False)
         messages.success(self.request, EditContentCategories.success_message)
