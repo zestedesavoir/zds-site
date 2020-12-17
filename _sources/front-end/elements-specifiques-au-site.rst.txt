@@ -308,6 +308,8 @@ Les changements visuels disponibles sont:
 
   - ``snow``: ajoute de la neige dans le header
   - ``clem-christmas``: ajoute un bonnet à la Clem de la page d'accueil
+  - ``clem-halloween``: remplace la Clem de la page d'accueil par une Clem qui fait peur
+  - ``valentine-snow``: ajoute des cœurs dans le header à la place de la neige
 
 Par exemple, pour activer les changements ``snow`` et ``clem-christmas``, il faut ajouter au ``settings_prod.py``:
 
