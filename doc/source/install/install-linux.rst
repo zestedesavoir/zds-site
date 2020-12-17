@@ -97,7 +97,7 @@ Installe ``nvm`` et l'utilise pour installer ``node``, puis ``yarn``.
 Ajoute ensuite un ``.nvmrc`` dans le dossier et ajoute ``node use`` au script d'activation du *virtualenv* (pour qu'il soit automatiquement utilisé au chargement).
 La version de node installée est controlée par la variable d'environement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut ``10.8.0``).
 
-Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
+Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur `la documentation dédiée au frontend <frontend-install.html>`_.
 
 Composant ``back``
 ==================
@@ -122,7 +122,7 @@ Strictement équivalent au commande suivantes:
     make install-front
     make build-front
 
-Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur `la documentation dédiée <frontend-install.html>`_.
+Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur `la documentation dédiée au frontend <frontend-install.html>`_.
 
 Composant ``zmd``
 =================
@@ -135,7 +135,7 @@ Strictement équivalent à la commande suivantes:
     make zmd-install
 
 Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer zmarkdown manuellement.
-Pour cela, rendez-vous sur `la documentation dédiée <extra-zmd.html>`_.
+Pour cela, rendez-vous sur `la documentation dédiée à zmarkdown <extra-zmd.html>`_.
 
 Composant ``data``
 ==================

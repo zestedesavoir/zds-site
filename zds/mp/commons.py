@@ -6,10 +6,10 @@ from django.shortcuts import get_object_or_404
 
 from zds.mp.models import PrivateTopicRead, PrivatePost
 from zds.utils.templatetags.emarkdown import emarkdown
-from zds.notification import signals
+from zds.mp import signals
 
 
-class LeavePrivateTopic(object):
+class LeavePrivateTopic:
     """
     Leave a private topic.
     """
@@ -22,18 +22,18 @@ class LeavePrivateTopic(object):
             topic.save()
 
     def get_current_user(self):
-        raise NotImplementedError('`get_current_user()` must be implemented.')
+        raise NotImplementedError("`get_current_user()` must be implemented.")
 
 
-class UpdatePrivatePost(object):
+class UpdatePrivatePost:
     """
     Updates a private topic.
     """
 
     def perform_update(self, instance, data, hat=None):
         instance.hat = hat
-        instance.text = data.get('text')
-        instance.text_html = emarkdown(data.get('text'))
+        instance.text = data.get("text")
+        instance.text_html = emarkdown(data.get("text"))
         instance.update = datetime.now()
         instance.save()
         return instance
@@ -45,8 +45,9 @@ class UpdatePrivatePost(object):
         """
         # mark the previous post as read
         try:
-            previous_post = PrivatePost.objects.get(privatetopic=post.privatetopic,
-                                                    position_in_topic=post.position_in_topic - 1)
+            previous_post = PrivatePost.objects.get(
+                privatetopic=post.privatetopic, position_in_topic=post.position_in_topic - 1
+            )
             # update the record, if it exists
             try:
                 topic = PrivateTopicRead.objects.get(privatetopic=post.privatetopic, user=user)
@@ -63,7 +64,7 @@ class UpdatePrivatePost(object):
             except PrivateTopicRead.DoesNotExist:  # record already removed, nothing to do
                 pass
 
-        signals.answer_unread.send(sender=post.privatetopic.__class__, instance=post, user=user)
+        signals.message_unread.send(sender=post.privatetopic.__class__, instance=post, user=user)
 
 
 class SinglePrivatePostObjectMixin(SingleObjectMixin):
@@ -71,7 +72,7 @@ class SinglePrivatePostObjectMixin(SingleObjectMixin):
 
     def get_object(self, queryset=None):
         try:
-            post_pk = int(self.request.GET.get('message'))
+            post_pk = int(self.request.GET.get("message"))
         except (KeyError, ValueError, TypeError):
             raise Http404
         return get_object_or_404(PrivatePost, pk=post_pk)

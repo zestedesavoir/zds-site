@@ -7,14 +7,16 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0025_auto_20190415_1302'),
+        ("tutorialv2", "0025_auto_20190415_1302"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='publicationevent',
-            name='date',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now, verbose_name='date de création'),
+            model_name="publicationevent",
+            name="date",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now, verbose_name="date de création"
+            ),
             preserve_default=False,
         ),
     ]

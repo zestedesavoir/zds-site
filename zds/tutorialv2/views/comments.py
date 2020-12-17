@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, StreamingHttpResponse, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
@@ -28,26 +28,26 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     form_class = NoteForm
     check_as = True
     reaction = None
-    template_name = 'tutorialv2/comment/new.html'
+    template_name = "tutorialv2/comment/new.html"
 
-    quoted_reaction_text = ''
+    quoted_reaction_text = ""
     new_note = False
 
     def get_form_kwargs(self):
         kwargs = super(SendNoteFormView, self).get_form_kwargs()
-        kwargs['content'] = self.object
-        kwargs['reaction'] = None
+        kwargs["content"] = self.object
+        kwargs["reaction"] = None
 
         # handle the case when another user have post something in between
-        if 'last_note' in self.request.POST and self.request.POST['last_note'].strip() != '':
+        if "last_note" in self.request.POST and self.request.POST["last_note"].strip() != "":
             try:
-                last_note = int(self.request.POST['last_note'])
+                last_note = int(self.request.POST["last_note"])
             except ValueError:
                 pass
             else:
                 if self.object.last_note and last_note != self.object.last_note.pk:
                     self.new_note = True
-                    kwargs['last_note'] = self.object.last_note.pk
+                    kwargs["last_note"] = self.object.last_note.pk
 
         return kwargs
 
@@ -55,7 +55,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         initial = super(SendNoteFormView, self).get_initial()
 
         if self.quoted_reaction_text:
-            initial['text'] = self.quoted_reaction_text
+            initial["text"] = self.quoted_reaction_text
 
         return initial
 
@@ -64,29 +64,30 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
         # handle the case were there is a new message in the discussion
         if self.new_note:
-            context['newnote'] = True
+            context["newnote"] = True
 
         # last few messages
-        context['notes'] = ContentReaction.objects\
-            .select_related('author') \
-            .select_related('author__profile') \
-            .select_related('hat') \
-            .select_related('editor') \
-            .prefetch_related('alerts_on_this_comment') \
-            .prefetch_related('alerts_on_this_comment__author') \
-            .filter(related_content=self.object) \
-            .order_by('-pubdate')[:settings.ZDS_APP['content']['notes_per_page']]
+        context["notes"] = (
+            ContentReaction.objects.select_related("author")
+            .select_related("author__profile")
+            .select_related("hat")
+            .select_related("editor")
+            .prefetch_related("alerts_on_this_comment")
+            .prefetch_related("alerts_on_this_comment__author")
+            .filter(related_content=self.object)
+            .order_by("-pubdate")[: settings.ZDS_APP["content"]["notes_per_page"]]
+        )
 
         return context
 
     def get(self, request, *args, **kwargs):
 
         # handle quoting case
-        if 'cite' in self.request.GET:
+        if "cite" in self.request.GET:
             try:
-                cited_pk = int(self.request.GET['cite'])
+                cited_pk = int(self.request.GET["cite"])
             except ValueError:
-                raise Http404('L\'argument `cite` doit être un entier.')
+                raise Http404("L'argument `cite` doit être un entier.")
 
             reaction = ContentReaction.objects.filter(pk=cited_pk).first()
 
@@ -94,11 +95,11 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                 if not reaction.is_visible:
                     raise PermissionDenied
 
-                text = '\n'.join('> ' + line for line in reaction.text.split('\n'))
-                text += '\nSource: [{}]({})'.format(reaction.author.username, reaction.get_absolute_url())
+                text = "\n".join("> " + line for line in reaction.text.split("\n"))
+                text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
 
                 if self.request.is_ajax():
-                    return StreamingHttpResponse(json_handler.dumps({'text': text}, ensure_ascii=False))
+                    return StreamingHttpResponse(json_handler.dumps({"text": text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
         try:
@@ -106,12 +107,13 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         except MustRedirect:
             # if someone changed the pk argument, and reached a 'must redirect' public object
             raise Http404(
-                "Aucun contenu public trouvé avec l'identifiant {}".format(str(self.request.GET.get('pk', 0))))
+                "Aucun contenu public trouvé avec l'identifiant {}".format(str(self.request.GET.get("pk", 0)))
+            )
 
     def post(self, request, *args, **kwargs):
 
-        if 'preview' in request.POST and request.is_ajax():
-            content = render_to_response('misc/preview.part.html', {'text': request.POST['text']})
+        if "preview" in request.POST and request.is_ajax():
+            content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
             return StreamingHttpResponse(content)
         else:
             return super(SendNoteFormView, self).post(request, *args, **kwargs)
@@ -121,7 +123,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
 
-        if 'preview' in self.request.POST:
+        if "preview" in self.request.POST:
             return self.form_invalid(form)
 
         is_new = False
@@ -151,14 +153,12 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         if self.request.user != self.reaction.author and not is_new:
             alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
             for alert in alerts:
-                alert.solve(self.request.user, _('Le message a été modéré.'))
+                alert.solve(self.request.user, _("Le message a été modéré."))
 
         self.reaction.update_content(
-            form.cleaned_data['text'],
-            on_error=lambda m: messages.error(
-                self.request,
-                _('Erreur du serveur Markdown: {}').format(
-                    '\n- '.join(m))))
+            form.cleaned_data["text"],
+            on_error=lambda m: messages.error(self.request, _("Erreur du serveur Markdown: {}").format("\n- ".join(m))),
+        )
         self.reaction.ip_address = get_client_ip(self.request)
         self.reaction.save()
 
@@ -172,22 +172,21 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
 
 class UpdateNoteView(SendNoteFormView):
     check_as = False
-    template_name = 'tutorialv2/comment/edit.html'
+    template_name = "tutorialv2/comment/edit.html"
     form_class = NoteEditForm
 
     def get_form_kwargs(self):
         kwargs = super(UpdateNoteView, self).get_form_kwargs()
-        if 'message' in self.request.GET and self.request.GET['message'].isdigit():
-            self.reaction = ContentReaction.objects\
-                .prefetch_related('author') \
-                .filter(pk=int(self.request.GET['message'])) \
-                .first()
+        if "message" in self.request.GET and self.request.GET["message"].isdigit():
+            self.reaction = (
+                ContentReaction.objects.prefetch_related("author").filter(pk=int(self.request.GET["message"])).first()
+            )
             if not self.reaction:
-                raise Http404('Aucun commentaire : ' + self.request.GET['message'])
+                raise Http404("Aucun commentaire : " + self.request.GET["message"])
             if self.reaction.author.pk != self.request.user.pk and not self.is_staff:
                 raise PermissionDenied()
 
-            kwargs['reaction'] = self.reaction
+            kwargs["reaction"] = self.reaction
         else:
             raise Http404("Le paramètre 'message' doit être un nombre entier positif.")
         return kwargs
@@ -196,47 +195,46 @@ class UpdateNoteView(SendNoteFormView):
         context = super(UpdateNoteView, self).get_context_data(**kwargs)
 
         if self.reaction:
-            context['reaction'] = self.reaction
+            context["reaction"] = self.reaction
 
             if self.reaction.author != self.request.user:
                 messages.add_message(
-                    self.request, messages.WARNING,
-                    _('Vous éditez ce message en tant que modérateur (auteur : {}).'
-                      ' Ne faites pas de bêtise !')
-                    .format(self.reaction.author.username))
+                    self.request,
+                    messages.WARNING,
+                    _(
+                        "Vous éditez ce message en tant que modérateur (auteur : {})." " Ne faites pas de bêtise !"
+                    ).format(self.reaction.author.username),
+                )
 
                 # show alert, if any
                 alerts = Alert.objects.filter(comment__pk=self.reaction.pk, solved=False)
                 if alerts.count():
-                    msg_alert = _('Attention, en éditant ce message vous résolvez également '
-                                  'les alertes suivantes : {}') \
-                        .format(', '.join(
-                            ['« {} » (signalé par {})'.format(a.text, a.author.username) for a in alerts]
-                        ))
+                    msg_alert = _(
+                        "Attention, en éditant ce message vous résolvez également " "les alertes suivantes : {}"
+                    ).format(", ".join(["« {} » (signalé par {})".format(a.text, a.author.username) for a in alerts]))
                     messages.warning(self.request, msg_alert)
 
         return context
 
     def form_valid(self, form):
-        if 'message' in self.request.GET and self.request.GET['message'].isdigit():
-            self.reaction = ContentReaction.objects\
-                .filter(pk=int(self.request.GET['message'])) \
-                .prefetch_related('author') \
-                .first()
+        if "message" in self.request.GET and self.request.GET["message"].isdigit():
+            self.reaction = (
+                ContentReaction.objects.filter(pk=int(self.request.GET["message"])).prefetch_related("author").first()
+            )
             if self.reaction is None:
                 raise Http404("Il n'y a aucun commentaire.")
             if self.reaction.author != self.request.user:
-                if not self.request.user.has_perm('tutorialv2.change_contentreaction'):
+                if not self.request.user.has_perm("tutorialv2.change_contentreaction"):
                     raise PermissionDenied
         else:
-            messages.error(self.request, _('Oh non ! Une erreur est survenue dans la requête !'))
+            messages.error(self.request, _("Oh non ! Une erreur est survenue dans la requête !"))
             return self.form_invalid(form)
 
         return super(UpdateNoteView, self).form_valid(form)
 
 
 class HideReaction(FormView, LoginRequiredMixin):
-    http_method_names = ['post']
+    http_method_names = ["post"]
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
@@ -244,24 +242,26 @@ class HideReaction(FormView, LoginRequiredMixin):
 
     def post(self, request, *args, **kwargs):
         try:
-            pk = int(self.kwargs['pk'])
-            text = ''
-            if 'text_hidden' in self.request.POST:
-                text = self.request.POST['text_hidden'][:80]  # TODO: Make it less static
+            pk = int(self.kwargs["pk"])
+            text = ""
+            if "text_hidden" in self.request.POST:
+                text = self.request.POST["text_hidden"][:80]  # TODO: Make it less static
             reaction = get_object_or_404(ContentReaction, pk=pk)
-            if not self.request.user.has_perm('tutorialv2.change_contentreaction') and \
-                    not self.request.user.pk == reaction.author.pk:
+            if (
+                not self.request.user.has_perm("tutorialv2.change_contentreaction")
+                and not self.request.user.pk == reaction.author.pk
+            ):
                 raise PermissionDenied
             reaction.hide_comment_by_user(self.request.user, text)
             return redirect(reaction.get_absolute_url())
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404('Vous ne pouvez pas cacher cette réaction.')
+            raise Http404("Vous ne pouvez pas cacher cette réaction.")
 
 
 class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixin):
 
-    permissions = ['tutorialv2.change_contentreaction']
-    http_method_names = ['post']
+    permissions = ["tutorialv2.change_contentreaction"]
+    http_method_names = ["post"]
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
@@ -269,7 +269,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
 
     def post(self, request, *args, **kwargs):
         try:
-            pk = int(self.kwargs['pk'])
+            pk = int(self.kwargs["pk"])
             reaction = get_object_or_404(ContentReaction, pk=pk)
             reaction.is_visible = True
             reaction.save()
@@ -277,11 +277,11 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             return redirect(reaction.get_absolute_url())
 
         except (IndexError, ValueError, MultiValueDictKeyError):
-            raise Http404('Aucune réaction trouvée.')
+            raise Http404("Aucune réaction trouvée.")
 
 
 class SendNoteAlert(FormView, LoginRequiredMixin):
-    http_method_names = ['post']
+    http_method_names = ["post"]
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
@@ -289,58 +289,60 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
 
     def post(self, request, *args, **kwargs):
         try:
-            reaction_pk = int(self.kwargs['pk'])
+            reaction_pk = int(self.kwargs["pk"])
         except (KeyError, ValueError):
             raise Http404("Impossible de convertir l'identifiant en entier.")
         reaction = get_object_or_404(ContentReaction, pk=reaction_pk)
 
-        if len(request.POST['signal_text'].strip()) == 0:
-            messages.error(request, _('La raison du signalement ne peut pas être vide.'))
+        if len(request.POST["signal_text"].strip()) == 0:
+            messages.error(request, _("La raison du signalement ne peut pas être vide."))
         else:
             alert = Alert(
                 author=request.user,
                 comment=reaction,
                 scope=reaction.related_content.type,
-                text=request.POST['signal_text'],
-                pubdate=datetime.now())
+                text=request.POST["signal_text"],
+                pubdate=datetime.now(),
+            )
             alert.save()
 
-            messages.success(self.request, _('Ce commentaire a bien été signalé aux modérateurs.'))
+            messages.success(self.request, _("Ce commentaire a bien été signalé aux modérateurs."))
 
         return redirect(reaction.get_absolute_url())
 
 
 class SolveNoteAlert(FormView, LoginRequiredMixin):
-
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        if not request.user.has_perm('tutorialv2.change_contentreaction'):
+        if not request.user.has_perm("tutorialv2.change_contentreaction"):
             raise PermissionDenied
         try:
-            alert = get_object_or_404(Alert, pk=int(request.POST['alert_pk']))
+            alert = get_object_or_404(Alert, pk=int(request.POST["alert_pk"]))
             note = ContentReaction.objects.get(pk=alert.comment.id)
         except (KeyError, ValueError):
             raise Http404("L'alerte n'existe pas.")
 
-        resolve_reason = ''
-        msg_title = ''
-        msg_content = ''
-        if 'text' in request.POST and request.POST['text']:
-            resolve_reason = request.POST['text']
+        resolve_reason = ""
+        msg_title = ""
+        msg_content = ""
+        if "text" in request.POST and request.POST["text"]:
+            resolve_reason = request.POST["text"]
             msg_title = _("Résolution d'alerte : {0}").format(note.related_content.title)
             msg_content = render_to_string(
-                'tutorialv2/messages/resolve_alert.md', {
-                    'content': note.related_content,
-                    'url': note.related_content.get_absolute_url_online(),
-                    'name': alert.author.username,
-                    'target_name': note.author.username,
-                    'modo_name': request.user.username,
-                    'message': '\n'.join(['> ' + line for line in resolve_reason.split('\n')]),
-                    'alert_text': '\n'.join(['> ' + line for line in alert.text.split('\n')])
-                })
+                "tutorialv2/messages/resolve_alert.md",
+                {
+                    "content": note.related_content,
+                    "url": note.related_content.get_absolute_url_online(),
+                    "name": alert.author.username,
+                    "target_name": note.author.username,
+                    "modo_name": request.user.username,
+                    "message": "\n".join(["> " + line for line in resolve_reason.split("\n")]),
+                    "alert_text": "\n".join(["> " + line for line in alert.text.split("\n")]),
+                },
+            )
         alert.solve(request.user, resolve_reason, msg_title, msg_content)
 
         messages.success(self.request, _("L'alerte a bien été résolue."))
@@ -353,14 +355,17 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
     def post(self, request, *args, **kwargs):
         response = {}
         self.public_content_object = self.get_public_object()
-        if 'follow' in request.POST:
-            response['follow'] = ContentReactionAnswerSubscription.objects\
-                .toggle_follow(self.get_object(), self.request.user).is_active
-            response['subscriberCount'] = ContentReactionAnswerSubscription\
-                .objects.get_subscriptions(self.get_object()).count()
-        elif 'email' in request.POST:
-            response['follow'] = ContentReactionAnswerSubscription.objects\
-                .toggle_follow(self.get_object(), self.request.user, True).is_active
+        if "follow" in request.POST:
+            response["follow"] = ContentReactionAnswerSubscription.objects.toggle_follow(
+                self.get_object(), self.request.user
+            ).is_active
+            response["subscriberCount"] = ContentReactionAnswerSubscription.objects.get_subscriptions(
+                self.get_object()
+            ).count()
+        elif "email" in request.POST:
+            response["follow"] = ContentReactionAnswerSubscription.objects.toggle_follow(
+                self.get_object(), self.request.user, True
+            ).is_active
         if self.request.is_ajax():
-            return HttpResponse(json_handler.dumps(response), content_type='application/json')
+            return HttpResponse(json_handler.dumps(response), content_type="application/json")
         return redirect(self.get_object().get_absolute_url())

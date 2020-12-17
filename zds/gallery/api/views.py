@@ -19,16 +19,16 @@ from .permissions import AccessToGallery, WriteAccessToGallery, NotLinkedToConte
 
 
 class PagingGalleryListKeyConstructor(PagingListKeyConstructor):
-    search = bits.QueryParamsKeyBit(['search', 'ordering'])
+    search = bits.QueryParamsKeyBit(["search", "ordering"])
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_gallery')
+    updated_at = UpdatedAtKeyBit("api_updated_gallery")
 
 
 class GalleryListView(ListCreateAPIView):
 
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('title',)
-    ordering_fields = ('title', 'update', 'pubdate')
+    search_fields = ("title",)
+    ordering_fields = ("title", "update", "pubdate")
     list_key_func = PagingGalleryListKeyConstructor()
 
     @etag(list_key_func)
@@ -96,12 +96,12 @@ class GalleryListView(ListCreateAPIView):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return Gallery.objects.galleries_of_user(self.get_current_user()).order_by('pk')
+        return Gallery.objects.galleries_of_user(self.get_current_user()).order_by("pk")
 
 
 class GalleryDetailKeyConstructor(DetailKeyConstructor):
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_gallery')
+    updated_at = UpdatedAtKeyBit("api_updated_gallery")
 
 
 class GalleryDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
@@ -196,22 +196,22 @@ class GalleryDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdate
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, DRYPermissions]
-        if self.request.method in ['PUT', 'DELETE']:
+        if self.request.method in ["PUT", "DELETE"]:
             permission_classes.append(NotLinkedToContent)
         return [permission() for permission in permission_classes]
 
 
 class PagingImageListKeyConstructor(PagingListKeyConstructor):
-    search = bits.QueryParamsKeyBit(['search', 'ordering'])
+    search = bits.QueryParamsKeyBit(["search", "ordering"])
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_image')
+    updated_at = UpdatedAtKeyBit("api_updated_image")
 
 
 class ImageListView(ListCreateAPIView):
 
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('title',)
-    ordering_fields = ('title', 'update', 'pubdate')
+    search_fields = ("title",)
+    ordering_fields = ("title", "update", "pubdate")
     list_key_func = PagingImageListKeyConstructor()
 
     @etag(list_key_func)
@@ -293,17 +293,17 @@ class ImageListView(ListCreateAPIView):
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, AccessToGallery]
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             permission_classes.append(WriteAccessToGallery)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return Image.objects.filter(gallery__pk=self.kwargs.get('pk_gallery'))
+        return Image.objects.filter(gallery__pk=self.kwargs.get("pk_gallery"))
 
 
 class ImageDetailKeyConstructor(DetailKeyConstructor):
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_image')
+    updated_at = UpdatedAtKeyBit("api_updated_image")
 
 
 class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin):
@@ -407,15 +407,15 @@ class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDe
 
 
 class PagingParticipantListKeyConstructor(PagingListKeyConstructor):
-    search = bits.QueryParamsKeyBit(['ordering'])
+    search = bits.QueryParamsKeyBit(["ordering"])
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_user_gallery')
+    updated_at = UpdatedAtKeyBit("api_updated_user_gallery")
 
 
 class ParticipantListView(ListCreateAPIView):
 
-    filter_backends = (filters.OrderingFilter, )
-    ordering_fields = ('id', )
+    filter_backends = (filters.OrderingFilter,)
+    ordering_fields = ("id",)
     list_key_func = PagingParticipantListKeyConstructor()
 
     @etag(list_key_func)
@@ -480,25 +480,25 @@ class ParticipantListView(ListCreateAPIView):
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, AccessToGallery]
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             permission_classes.append(WriteAccessToGallery)
             permission_classes.append(NotLinkedToContent)
 
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return UserGallery.objects.filter(gallery__pk=self.kwargs.get('pk_gallery'))
+        return UserGallery.objects.filter(gallery__pk=self.kwargs.get("pk_gallery"))
 
 
 class ParticipantDetailKeyConstructor(DetailKeyConstructor):
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_user_gallery')
+    updated_at = UpdatedAtKeyBit("api_updated_user_gallery")
 
 
 class ParticipantDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
 
     list_key_func = ParticipantDetailKeyConstructor()
-    lookup_field = 'user__pk'
+    lookup_field = "user__pk"
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
@@ -575,8 +575,11 @@ class ParticipantDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUp
             self.perform_leave(instance.user)
         except NoMoreUserWithWriteIfLeave:
             raise exceptions.PermissionDenied(
-                detail=_('Vous ne pouvez pas quitter la galerie, '
-                         'car plus aucun autre participant n\'a les droits d\'écriture'))
+                detail=_(
+                    "Vous ne pouvez pas quitter la galerie, "
+                    "car plus aucun autre participant n'a les droits d'écriture"
+                )
+            )
 
     def get_current_user(self):
         return self.request.user
@@ -586,11 +589,11 @@ class ParticipantDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUp
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated, AccessToGallery]
-        if self.request.method in ['PUT', 'DELETE']:
+        if self.request.method in ["PUT", "DELETE"]:
             permission_classes.append(WriteAccessToGallery)
             permission_classes.append(NotLinkedToContent)
 
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return UserGallery.objects.filter(gallery__pk=self.kwargs.get('pk_gallery'))
+        return UserGallery.objects.filter(gallery__pk=self.kwargs.get("pk_gallery"))

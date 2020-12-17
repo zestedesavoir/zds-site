@@ -12,9 +12,10 @@ class LastContentFeedRSS(Feed):
     """
     RSS feed for any type of content.
     """
-    title = _('Contenus sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _('Les derniers contenus parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
-    link = ''
+
+    title = _("Contenus sur {}").format(settings.ZDS_APP["site"]["literal_name"])
+    description = _("Les derniers contenus parus sur {}.").format(settings.ZDS_APP["site"]["literal_name"])
+    link = ""
     content_type = None
     query_params = {}
 
@@ -27,17 +28,16 @@ class LastContentFeedRSS(Feed):
         :return: The last (typically 5) contents (sorted by publication date).
         """
         subcategories = None
-        if 'category' in self.query_params:
-            category = get_object_or_404(Category, slug=self.query_params.get('category'))
+        if "category" in self.query_params:
+            category = get_object_or_404(Category, slug=self.query_params.get("category"))
             subcategories = category.get_subcategories()
-        if 'subcategory' in self.query_params:
-            subcategories = [get_object_or_404(SubCategory, slug=self.query_params.get('subcategory'))]
+        if "subcategory" in self.query_params:
+            subcategories = [get_object_or_404(SubCategory, slug=self.query_params.get("subcategory"))]
 
-        feed_length = settings.ZDS_APP['content']['feed_length']
+        feed_length = settings.ZDS_APP["content"]["feed_length"]
 
         contents = PublishedContent.objects.last_contents(
-            content_type=[self.content_type],
-            subcategories=subcategories
+            content_type=[self.content_type], subcategories=subcategories
         )[:feed_length]
 
         return contents
@@ -56,7 +56,7 @@ class LastContentFeedRSS(Feed):
         authors = []
         for authors_obj in authors_list:
             authors.append(authors_obj.username)
-        authors = ', '.join(authors)
+        authors = ", ".join(authors)
         return authors
 
     def item_link(self, item):
@@ -72,10 +72,11 @@ class LastTutorialsFeedRSS(LastContentFeedRSS):
     """
     Redefinition of `LastContentFeedRSS` for tutorials only
     """
-    content_type = 'TUTORIAL'
-    link = '/tutoriels/'
-    title = _('Tutoriels sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _('Les derniers tutoriels parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
+
+    content_type = "TUTORIAL"
+    link = "/tutoriels/"
+    title = _("Tutoriels sur {}").format(settings.ZDS_APP["site"]["literal_name"])
+    description = _("Les derniers tutoriels parus sur {}.").format(settings.ZDS_APP["site"]["literal_name"])
 
 
 class LastTutorialsFeedATOM(LastTutorialsFeedRSS):
@@ -87,10 +88,11 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
     """
     Redefinition of `LastContentFeedRSS` for articles only
     """
-    content_type = 'ARTICLE'
-    link = '/articles/'
-    title = _('Articles sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _('Les derniers articles parus sur {}.').format(settings.ZDS_APP['site']['literal_name'])
+
+    content_type = "ARTICLE"
+    link = "/articles/"
+    title = _("Articles sur {}").format(settings.ZDS_APP["site"]["literal_name"])
+    description = _("Les derniers articles parus sur {}.").format(settings.ZDS_APP["site"]["literal_name"])
 
 
 class LastArticlesFeedATOM(LastArticlesFeedRSS):
@@ -102,11 +104,11 @@ class LastOpinionsFeedRSS(LastContentFeedRSS):
     """
     Redefinition of `LastContentFeedRSS` for opinions only
     """
-    content_type = 'OPINION'
-    link = '/tribunes/'
-    title = _('Tribunes sur {}').format(settings.ZDS_APP['site']['literal_name'])
-    description = _('Les derniers billets des tribunes parus sur {}.').format(
-        settings.ZDS_APP['site']['literal_name'])
+
+    content_type = "OPINION"
+    link = "/tribunes/"
+    title = _("Tribunes sur {}").format(settings.ZDS_APP["site"]["literal_name"])
+    description = _("Les derniers billets des tribunes parus sur {}.").format(settings.ZDS_APP["site"]["literal_name"])
 
 
 class LastOpinionsFeedATOM(LastOpinionsFeedRSS):

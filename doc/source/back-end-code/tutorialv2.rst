@@ -28,26 +28,10 @@ Les managers (``managers.py``)
 .. automodule:: zds.tutorialv2.managers
     :members:
 
-Vues (``views/``)
-=================
+Les vues (``views/``)
+=====================
 
-Contenus (``views/views_contents.py``)
---------------------------------------
-
-.. automodule:: zds.tutorialv2.views.contents
-    :members:
-
-
-Validations (``views/views_validations.py``)
---------------------------------------------
-
-.. automodule:: zds.tutorialv2.views.validations
-    :members:
-
-Contenus publiés (``views/views_published.py``)
------------------------------------------------
-
-.. automodule:: zds.tutorialv2.views.published
+.. automodule:: zds.tutorialv2.views
     :members:
 
 Mixins (``mixins.py``)

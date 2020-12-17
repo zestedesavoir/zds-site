@@ -39,11 +39,15 @@ Il suffit tout simplement d'écrire :
 
 .. sourcecode:: bash
 
-   make run-back
+   make run
 
 Ensuite, ouvrez votre navigateur et aller au choix sur http://localhost:8000 ou http://127.0.0.1:8000.
 
-Vous pouvez vous connecter avec le membre ``user``, le membre ``staff`` ou n'importe quel autre membre présent sur http://localhost:8000/membres/, le mot de passe est identique au pseudo.
+Vous pouvez vous connecter avec le membre ``user``, le membre ``staff`` ou n'importe quel autre membre présent sur http://localhost:8000/membres/ ; le mot de passe est toujours identique au pseudo.
+
+.. note::
+
+	Par défaut, le serveur de développement met en cache dans le navigateur tous les fichiers statiques, sauf les ``.js`` et les ``.css``. Si vous voulez accélérer votre instance locale en mettant le plus de choses possible en cache et en désactivant les outils de développement un peu lourds (à savoir, la *debug toolbar*), vous pouvez utiliser ``make run-fast``. Attention qu'alors, pour avoir la dernière version des fichiers CSS et JS, il vous faudra actualiser de force (``Ctrl+F5`` ou similaire).
 
 S'amuser
 ========

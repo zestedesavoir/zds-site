@@ -6,24 +6,25 @@ from django.template.loader import render_to_string
 import logging
 
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
-from zds.notification import signals
+from zds.mp import signals
 from zds.utils.templatetags.emarkdown import emarkdown
 
 logger = logging.getLogger(__name__)
 
 
 def send_mp(
-        author,
-        users,
-        title,
-        subtitle,
-        text,
-        send_by_mail=True,
-        leave=True,
-        direct=False,
-        mark_as_read=False,
-        hat=None,
-        automatically_read=None):
+    author,
+    users,
+    title,
+    subtitle,
+    text,
+    send_by_mail=True,
+    leave=True,
+    direct=False,
+    mark_as_read=False,
+    hat=None,
+    automatically_read=None,
+):
     """
     Send a private message in a new private topic.
 
@@ -42,7 +43,7 @@ def send_mp(
     """
 
     # Creating the thread
-    limit = PrivateTopic._meta.get_field('title').max_length
+    limit = PrivateTopic._meta.get_field("title").max_length
     n_topic = PrivateTopic()
     n_topic.title = title[:limit]
     n_topic.subtitle = subtitle
@@ -69,14 +70,7 @@ def send_mp(
     return topic
 
 
-def send_message_mp(
-        author,
-        n_topic,
-        text,
-        send_by_mail=True,
-        direct=False,
-        hat=None,
-        no_notification_for=None):
+def send_message_mp(author, n_topic, text, send_by_mail=True, direct=False, hat=None, no_notification_for=None):
     """
     Send a post in an MP.
 
@@ -110,23 +104,25 @@ def send_message_mp(
     n_topic.save()
 
     if not direct:
-        signals.new_content.send(sender=post.__class__, instance=post, by_email=send_by_mail,
-                                 no_notification_for=no_notification_for)
+        signals.message_added.send(
+            sender=post.__class__, instance=post, by_email=send_by_mail, no_notification_for=no_notification_for
+        )
 
     if send_by_mail and direct:
-        subject = '{} : {}'.format(settings.ZDS_APP['site']['literal_name'], n_topic.title)
-        from_email = '{} <{}>'.format(settings.ZDS_APP['site']['literal_name'],
-                                      settings.ZDS_APP['site']['email_noreply'])
-        for recipient in n_topic.participants.values_list('email', flat=True):
-            message_html = render_to_string('email/direct.html', {'msg': emarkdown(text)})
-            message_txt = render_to_string('email/direct.txt', {'msg': text})
+        subject = "{} : {}".format(settings.ZDS_APP["site"]["literal_name"], n_topic.title)
+        from_email = "{} <{}>".format(
+            settings.ZDS_APP["site"]["literal_name"], settings.ZDS_APP["site"]["email_noreply"]
+        )
+        for recipient in n_topic.participants.values_list("email", flat=True):
+            message_html = render_to_string("email/direct.html", {"msg": emarkdown(text)})
+            message_txt = render_to_string("email/direct.txt", {"msg": text})
 
             msg = EmailMultiAlternatives(subject, message_txt, from_email, [recipient])
-            msg.attach_alternative(message_html, 'text/html')
+            msg.attach_alternative(message_html, "text/html")
             try:
                 msg.send()
             except Exception as e:
-                logger.exception('Message was not sent to %s due to %s', recipient, e)
+                logger.exception("Message was not sent to %s due to %s", recipient, e)
     if no_notification_for:
         if not isinstance(no_notification_for, list):
             no_notification_for = [no_notification_for]

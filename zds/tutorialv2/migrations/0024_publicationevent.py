@@ -7,21 +7,39 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0023_auto_20190114_1301'),
+        ("tutorialv2", "0023_auto_20190114_1301"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PublicationEvent',
+            name="PublicationEvent",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('state_of_processing', models.CharField(choices=[('REQUESTED', 'Export demandé'), ('RUNNING', 'Export en cours'), ('SUCCESS', 'Export réalisé'), ('FAILURE', 'Export échoué')], max_length=20)),
-                ('format_requested', models.CharField(max_length=25)),
-                ('published_object', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tutorialv2.PublishedContent', verbose_name='contenu publié')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "state_of_processing",
+                    models.CharField(
+                        choices=[
+                            ("REQUESTED", "Export demandé"),
+                            ("RUNNING", "Export en cours"),
+                            ("SUCCESS", "Export réalisé"),
+                            ("FAILURE", "Export échoué"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("format_requested", models.CharField(max_length=25)),
+                (
+                    "published_object",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tutorialv2.PublishedContent",
+                        verbose_name="contenu publié",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Événement de publication',
-                'verbose_name_plural': 'Événements de publication',
+                "verbose_name": "Événement de publication",
+                "verbose_name_plural": "Événements de publication",
             },
         ),
     ]

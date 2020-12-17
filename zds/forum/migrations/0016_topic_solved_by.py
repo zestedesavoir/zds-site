@@ -7,7 +7,7 @@ import django.db.models.deletion
 
 
 def forward(apps, schema_editor):
-    Topic = apps.get_model('forum', 'Topic')
+    Topic = apps.get_model("forum", "Topic")
     solved_topics = Topic.objects.filter(is_solved=True)
     for topic in solved_topics:
         topic.solved_by = topic.author
@@ -18,19 +18,24 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('forum', '0015_python_3'),
+        ("forum", "0015_python_3"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='topic',
-            name='solved_by',
-            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='Utilisateur ayant noté le sujet comme résolu'),
+            model_name="topic",
+            name="solved_by",
+            field=models.ForeignKey(
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Utilisateur ayant noté le sujet comme résolu",
+            ),
         ),
         migrations.RunPython(forward, migrations.RunPython.noop),
         migrations.RemoveField(
-            model_name='topic',
-            name='is_solved',
+            model_name="topic",
+            name="is_solved",
         ),
     ]
-

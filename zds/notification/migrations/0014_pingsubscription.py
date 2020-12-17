@@ -5,15 +5,25 @@ import zds.notification.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('notification', '0013_clean_notifications'),
+        ("notification", "0013_clean_notifications"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PingSubscription',
+            name="PingSubscription",
             fields=[
-                ('answersubscription_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False, to='notification.AnswerSubscription', on_delete=models.CASCADE)),
+                (
+                    "answersubscription_ptr",
+                    models.OneToOneField(
+                        parent_link=True,
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="notification.AnswerSubscription",
+                        on_delete=models.CASCADE,
+                    ),
+                ),
             ],
-            bases=('notification.answersubscription', zds.notification.models.MultipleNotificationsMixin),
+            bases=("notification.answersubscription", zds.notification.models.MultipleNotificationsMixin),
         ),
     ]

@@ -4,7 +4,7 @@ from django import template
 
 register = template.Library()
 
-html_tag = re.compile(r'<.*?>')
+html_tag = re.compile(r"<.*?>")
 
 
 def format_highlight(highlighted_fragments):
@@ -20,9 +20,10 @@ def format_highlight(highlighted_fragments):
     for fragment in highlighted_fragments:
         if fragment:
             fragments.append(
-                html_tag.sub('', fragment).replace('[hl]', '<mark class="highlighted">').replace('[/hl]', '</mark>'))
+                html_tag.sub("", fragment).replace("[hl]", '<mark class="highlighted">').replace("[/hl]", "</mark>")
+            )
 
-    return ' &hellip; '.join(fragments)
+    return " &hellip; ".join(fragments)
 
 
 class HighlightNode(template.Node):
@@ -47,14 +48,14 @@ class HighlightNode(template.Node):
             field = template.Variable(self.field).resolve(context)
 
         if field not in search_result:
-            raise template.VariableDoesNotExist('field {} is not a member of the search result'.format(field))
+            raise template.VariableDoesNotExist("field {} is not a member of the search result".format(field))
 
-        text = ''
+        text = ""
 
         if search_result[field]:
-            text = html_tag.sub('', search_result[field])
+            text = html_tag.sub("", search_result[field])
 
-        if 'highlight' in search_result.meta:
+        if "highlight" in search_result.meta:
             if field in search_result.meta.highlight:
                 text = format_highlight(search_result.meta.highlight[field])
 
@@ -68,6 +69,7 @@ def highlight(parser, token):
 
     if len(part) != 3:
         raise template.TemplateSyntaxError(
-            "'highlight' tag must be of the form:  {% highlight <search_result> <field> %}")
+            "'highlight' tag must be of the form:  {% highlight <search_result> <field> %}"
+        )
 
     return HighlightNode(part[1], part[2])

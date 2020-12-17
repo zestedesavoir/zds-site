@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('featured', '0005_auto_20160114_1604'),
+        ("featured", "0005_auto_20160114_1604"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='featuredresource',
-            name='authors',
-            field=models.CharField(blank=True, default='', max_length=100, verbose_name='Auteurs'),
+            model_name="featuredresource",
+            name="authors",
+            field=models.CharField(blank=True, default="", max_length=100, verbose_name="Auteurs"),
         ),
     ]

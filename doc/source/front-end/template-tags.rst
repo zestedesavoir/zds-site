@@ -14,14 +14,14 @@ append_query_params
 L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
 ``module/toto``, le code de template suivant :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load append_query_params %}
     <a href="{% append_query_params key1=var1,key2=var2 %}">Mon lien</a>
 
 produira le code suivant :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     <a href="module/toto?key1=1&key2=2">Mon lien</a>
 
@@ -32,7 +32,7 @@ Le module ``trail``
 
 Ce module définit l'élément ``trail`` qui permet de retirer tous les sauts de ligne et les espaces dans le bloc de gabarit entre les balises HTML ainsi qu'à la fin et au début des lignes. Le code suivant :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load trail %}
     {% trail %}
@@ -44,7 +44,7 @@ Ce module définit l'élément ``trail`` qui permet de retirer tous les sauts de
 
 Produira le code suivant :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     <h3> Hello        world! <a href="example.com">   Un exemple</a></h3>
 
@@ -54,7 +54,7 @@ Le module ``captureas``
 Ce module définit l'élément ``captureas``, qui permet de demander d'effectuer le rendu d'un bloc de gabarit et de stocker son contenu dans
 une variable. Ainsi le code suivant :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load captureas %}
     {% captureas var2 %}
@@ -76,7 +76,7 @@ Plusieurs filtres sont disponibles dans ce module.
 
 Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur le site :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load date %}
     {{ date|format_date }}
@@ -91,14 +91,14 @@ Ce filtre effectue la même chose que ``format_date`` mais à destination des ``
 
 Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisible. Ainsi :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load date %}
     {{ date_epoch|humane_time }}
 
 sera rendu :
 
-.. sourcecode:: html
+.. sourcecode:: text
 
     jeudi 01 janvier 1970 à 00h00
 
@@ -123,7 +123,7 @@ Ces filtres sont principalement fondés sur https://github.com/morninj/django-em
 L'adresse de courriel va être encodée avec des caractères ASCII pour la protéger des robots :
 
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load email_obfuscator %}
     {{ 'your@email.com'|obfuscate }}
@@ -135,14 +135,14 @@ L'adresse de courriel va être encodée avec des caractères ASCII pour la prot�
 Ce *templatetag* ajoute en plus un ``mailto``. Il prend un paramètre optionnel qui permet d'avoir un texte personnalisé dans
 la balise ``<a>`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load email_obfuscator %}
     {{ 'your@email.com'|obfuscate_mailto:"my custom text" }}
 
 Ce qui donnera :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#121;&#111;&#117;&#114;&#64;&#101;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;">my custom text</a>
 
@@ -157,14 +157,14 @@ Il est utilisé sur la page « Contact ».
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load email_obfuscator %}
     {{ 'association@zestedesavoir.com'|obfuscate_mailto_top_subject:"Contact communication" }}
 
 Ce qui sera rendu de la manière suivante:
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#115;&#115;&#111;&#99;&#105;&#97;&#116;&#105;&#111;&#110;&#64;&#122;&#101;&#115;&#116;&#101;&#100;&#101;&#115;&#97;&#118;&#111;&#105;&#114;&#46;&#99;&#111;&#109;&#63;&#83;&#117;&#98;&#106;&#101;&#99;&#116;&#61;&#67;&#111;&#110;&#116;&#97;&#99;&#116;&#32;&#99;&#111;&#109;&#109;&#117;&#110;&#105;&#99;&#97;&#116;&#105;&#111;&#110;" target="_top">&#97;&#115;&#115;&#111;&#99;&#105;&#97;&#116;&#105;&#111;&#110;&#64;&#122;&#101;&#115;&#116;&#101;&#100;&#101;&#115;&#97;&#118;&#111;&#105;&#114;&#46;&#99;&#111;&#109;</a>
 
@@ -200,7 +200,7 @@ Le module ``htmldiff``
 
 Ce module définit le tag ``htmldiff`` qui affiche la différence entre deux chaînes de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Le code généré est un tableau HTML à l'intérieur d'une div. Il est employé pour afficher le *diff* des tutoriels et des articles.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load htmldiff %}
     {% htmldiff "Hello world!" "Hello world!!!" %}
@@ -216,7 +216,7 @@ Les filtres de ce module sont utilisés pour récupérer et traiter la liste des
 
 Employé sur un *topic*, renvoit si l'utilisateur courant a lu ou non le topic considéré. Par exemple, le code suivant mettra la classe "unread" si le *topic* n'as pas été lu par l'utilisateur :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     <span class="{% if not topic|is_read %}unread{% endif %}">{{ topic.title}}</span>
@@ -228,7 +228,7 @@ Employé sur un *topic*, renvoit si l'utilisateur courant a lu ou non le topic c
 
 Ce filtre renvoit le texte correspondant à une période donnée, si utilisé comme suis :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     {{ period|humane_delta }}
@@ -247,7 +247,7 @@ En fonction de la valeur de ``period``, les chaines de caractères suivantes ser
 
 Ce filtre renvoit la liste des *topics* suivis par l'utilisateur, sous la forme d'un dictionaire :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     {% with followedtopics=user|followed_topics %}
@@ -263,7 +263,7 @@ où ``period`` est un nombre au format attendu par ``humane_delta`` (entre 1 et 
 
 Ce filtre récupère la liste des notifications non lues sur des modèles notifiables excluant les messages privés:
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     {% with unread_posts=user|interventions_topics %}
@@ -285,7 +285,7 @@ Dans ce cas, la variable ``unread`` est un dictionnaire contentant 4 champs:
 
 Ce filtre récupère la liste des MPs non-lus :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     {% with unread_posts=user|interventions_privatetopics %}
@@ -301,7 +301,7 @@ Dans ce cas, ``topic`` est un objet de type ``PrivateTopic`` (`voir son impléme
 
 Récupère la liste des alertes (si l'utilisateur possède les droits pour le faire) :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     {% with alerts_list=user|alerts_list %}
@@ -328,7 +328,7 @@ Récupère la liste des alertes (si l'utilisateur possède les droits pour le fa
 
 Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'ayant pas été réservés par un validateur.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count %}
@@ -342,7 +342,7 @@ Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tu
 
 Permet d'afficher une période en lettres. Fait le lien entre le label d'un jour et sa clé.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load interventions %}
     {% for period, topics in followedtopics.items %}
@@ -359,7 +359,7 @@ Pour un objet de type ``Profile`` (`voir son implémentation <../back-end-code/m
 
 Par exemple, le code suivant affichera le nom de l'utilisateur :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load profiles %}
     {% with user=profile|user %}
@@ -373,7 +373,7 @@ Fait l'opération inverse du filtre ``user`` : récupère un objet ``Profile`` �
 
 Par exemple, le code suivant affichera un lien vers le profil de l'utilisateur :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load profiles %}
     {% with profile=user|profile %}
@@ -386,7 +386,7 @@ Par exemple, le code suivant affichera un lien vers le profil de l'utilisateur :
 
 À partir d'un objet ``User``, ce filtre récupère "l'état" de l'utilisateur. Par exemple, il peut être employé comme décris ci-dessous:
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load profiles %}
     {% with user_state=user|state %}
@@ -408,7 +408,7 @@ Le module ``roman``
 
 définit le filtre ``roman``, qui transforme un nombre entier en chiffre romain, utilisé pour l'affichage du sommaire des tutoriels. Par exemple, le code suivant :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load roman %}
     {{ 453|roman }}
@@ -422,7 +422,7 @@ Ce module définit l'élément ``set``, permetant de définir de nouvelles varia
 
 Le code suivant permet de définir la variable ``var`` comme valant ``True`` :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load set %}
     {% set True as var %}
@@ -437,7 +437,7 @@ Bien entendu, il est possible d'assigner à une variable la valeur d'une autre. 
 
 Si on écrit le code suivant dans le gabarit :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load set %}
     {% set var.value as value %}
@@ -460,7 +460,7 @@ Ce module est utilisé pour récupéré les catégories dans le but de les affic
 
 Ce filtre récupère les forums, classés par catégorie.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% with top=user|topbar_forum_categories %}
         {% for title, forums in top.categories.items %}
@@ -484,7 +484,7 @@ Ce filtres renvoit une liste des catégories utilisées dans les articles/tutori
 
 Par exemple, pour les tutoriels, on retrouvera le code suivant:
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% with categories="TUTORIAL"|topbar_publication_categories %}
         {% for title, subcats in categories.items %}
@@ -505,7 +505,7 @@ féminin est le second qui associe un mot à un booléen qui indique s'il est f�
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
 
     {% load feminize %}
@@ -522,7 +522,7 @@ Permet de générer une liste de nombre pour itérer dessus, utile dans les bouc
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
     {% load times %}
     {% for i in 25|times %}
@@ -537,7 +537,7 @@ des déplacements possibles d'un élément. Il s'agit d'un wrapper autour de ``z
 
 Exemple :
 
-.. sourcecode:: guess
+.. sourcecode:: html+django
 
     {% load target_tree %}
     {% for element in child|target_tree %}
@@ -554,7 +554,7 @@ Ce module définit un *templatetag* permetant d'accéder à l'url des listes de 
 
 Exemple :
 
-.. sourcecode:: guess
+.. sourcecode:: html+django
 
     {% if content.subcategory.all|length > 0 %}
         <ul class="taglist" itemprop="keywords">
@@ -572,7 +572,7 @@ Par exemple, l'auteur principal du tuto peut avoir demandé de l'aide pour écri
 
 Exemple :
 
-.. sourcecode:: guess
+.. sourcecode:: html+django
 
     {% load displayable_authors %}
     {% for authors in content|displayable_authors:True %}
@@ -591,7 +591,7 @@ Permet de mettre en surbrillance les résultats d'une recherche.
 
 Exemple :
 
-.. sourcecode:: guess
+.. sourcecode:: html+django
 
     {% if search_result.text %}
         {% highlight search_result "text" %}
@@ -604,7 +604,7 @@ Ce module permet de lister le contenu d'un itérable en une seule ligne. C'est u
 
 Exemple :
 
-.. sourcecode:: guess
+.. sourcecode:: html+django
 
     {% joinby fruits %}
     {% joinby fruits ';' final_separator=';' %}
