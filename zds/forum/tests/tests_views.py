@@ -1,4 +1,5 @@
 from datetime import datetime
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User, Group
@@ -645,7 +646,8 @@ class TopicEditTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertFalse(Topic.objects.get(pk=topic.pk).is_sticky)
 
-    def test_failure_edit_topic_move_by_user(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_failure_edit_topic_move_by_user(self, topic_moved):
         profile = ProfileFactory()
 
         another_profile = ProfileFactory()
@@ -656,9 +658,11 @@ class TopicEditTest(TestCase):
         data = {"move": "", "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    def test_failure_edit_topic_move_with_wrong_forum_pk_by_staff(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_failure_edit_topic_move_with_wrong_forum_pk_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
@@ -669,9 +673,11 @@ class TopicEditTest(TestCase):
         data = {"move": "", "forum": "abc", "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_failure_edit_topic_move_with_a_forum_not_found_by_staff(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_failure_edit_topic_move_with_a_forum_not_found_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
@@ -682,9 +688,11 @@ class TopicEditTest(TestCase):
         data = {"move": "", "forum": 99999, "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_success_edit_topic_move_by_staff(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_success_edit_topic_move_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
@@ -697,6 +705,7 @@ class TopicEditTest(TestCase):
         data = {"move": "", "forum": another_forum.pk, "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 1)
         self.assertEqual(302, response.status_code)
 
     def test_failure_edit_topic_not_author_and_not_staff(self):
@@ -1903,17 +1912,20 @@ class MessageActionTest(TestCase):
 
 
 class PostUnreadTest(TestCase):
-    def test_failure_post_unread_require_method_get(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_require_method_get(self, post_unread):
         response = self.client.post(reverse("post-unread"), follow=False)
-
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(405, response.status_code)
 
-    def test_failure_post_unread_with_client_unauthenticated(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_client_unauthenticated(self, post_unread):
         response = self.client.get(reverse("post-unread"), follow=False)
-
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(302, response.status_code)
 
-    def test_failure_post_unread_with_sanctioned_user(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_sanctioned_user(self, post_unread):
         profile = ProfileFactory()
         profile.can_read = False
         profile.can_write = False
@@ -1922,25 +1934,31 @@ class PostUnreadTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.get(reverse("post-unread"))
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    def test_failure_post_unread_with_wrong_topic_pk(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_wrong_topic_pk(self, post_unread):
         profile = ProfileFactory()
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.get(reverse("post-unread") + "?message=abc", follow=False)
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_failure_post_unread_with_a_topic_not_found(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_a_topic_not_found(self, post_unread):
         profile = ProfileFactory()
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.get(reverse("post-unread") + "?message=99999", follow=False)
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_failure_post_unread_of_a_forum_we_cannot_read(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_of_a_forum_we_cannot_read(self, post_unread):
         group = Group.objects.create(name="DummyGroup_1")
 
         profile = ProfileFactory()
@@ -1950,9 +1968,11 @@ class PostUnreadTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.get(reverse("post-unread") + "?message={}".format(topic.last_message.pk))
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    def test_success_post_unread(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_success_post_unread(self, post_unread):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
@@ -1962,6 +1982,7 @@ class PostUnreadTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.get(reverse("post-unread") + "?message={}".format(post.pk), follow=False)
 
+        self.assertEqual(post_unread.send.call_count, 1)
         self.assertEqual(302, response.status_code)
 
 

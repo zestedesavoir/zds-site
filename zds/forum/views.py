@@ -22,7 +22,7 @@ from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
 from zds.forum.models import ForumCategory, Forum, Topic, Post, is_read, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
-from zds.notification import signals
+from zds.forum import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.featured.mixins import FeatureableMixin
 from zds.utils import slugify
@@ -214,7 +214,7 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
 
         if self.request.user.is_authenticated:
             for post in posts:
-                signals.content_read.send(sender=post.__class__, instance=post, user=self.request.user)
+                signals.post_read.send(sender=post.__class__, instance=post, user=self.request.user)
             if not is_read(self.object):
                 mark_read(self.object)
         return context
