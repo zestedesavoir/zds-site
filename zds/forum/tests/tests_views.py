@@ -646,7 +646,7 @@ class TopicEditTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertFalse(Topic.objects.get(pk=topic.pk).is_sticky)
 
-    @patch('zds.forum.signals.topic_moved')
+    @patch("zds.forum.signals.topic_moved")
     def test_failure_edit_topic_move_by_user(self, topic_moved):
         profile = ProfileFactory()
 
@@ -661,7 +661,7 @@ class TopicEditTest(TestCase):
         self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    @patch('zds.forum.signals.topic_moved')
+    @patch("zds.forum.signals.topic_moved")
     def test_failure_edit_topic_move_with_wrong_forum_pk_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
@@ -676,7 +676,7 @@ class TopicEditTest(TestCase):
         self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    @patch('zds.forum.signals.topic_moved')
+    @patch("zds.forum.signals.topic_moved")
     def test_failure_edit_topic_move_with_a_forum_not_found_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
@@ -691,7 +691,7 @@ class TopicEditTest(TestCase):
         self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    @patch('zds.forum.signals.topic_moved')
+    @patch("zds.forum.signals.topic_moved")
     def test_success_edit_topic_move_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
@@ -1912,19 +1912,19 @@ class MessageActionTest(TestCase):
 
 
 class PostUnreadTest(TestCase):
-    @patch('zds.forum.signals.post_unread')
+    @patch("zds.forum.signals.post_unread")
     def test_failure_post_unread_require_method_get(self, post_unread):
-        response = self.client.post(reverse('post-unread'), follow=False)
+        response = self.client.post(reverse("post-unread"), follow=False)
         self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(405, response.status_code)
 
-    @patch('zds.forum.signals.post_unread')
+    @patch("zds.forum.signals.post_unread")
     def test_failure_post_unread_with_client_unauthenticated(self, post_unread):
-        response = self.client.get(reverse('post-unread'), follow=False)
+        response = self.client.get(reverse("post-unread"), follow=False)
         self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(302, response.status_code)
 
-    @patch('zds.forum.signals.post_unread')
+    @patch("zds.forum.signals.post_unread")
     def test_failure_post_unread_with_sanctioned_user(self, post_unread):
         profile = ProfileFactory()
         profile.can_read = False
@@ -1937,7 +1937,7 @@ class PostUnreadTest(TestCase):
         self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    @patch('zds.forum.signals.post_unread')
+    @patch("zds.forum.signals.post_unread")
     def test_failure_post_unread_with_wrong_topic_pk(self, post_unread):
         profile = ProfileFactory()
 
@@ -1947,7 +1947,7 @@ class PostUnreadTest(TestCase):
         self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    @patch('zds.forum.signals.post_unread')
+    @patch("zds.forum.signals.post_unread")
     def test_failure_post_unread_with_a_topic_not_found(self, post_unread):
         profile = ProfileFactory()
 
@@ -1957,9 +1957,9 @@ class PostUnreadTest(TestCase):
         self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    @patch('zds.forum.signals.post_unread')
+    @patch("zds.forum.signals.post_unread")
     def test_failure_post_unread_of_a_forum_we_cannot_read(self, post_unread):
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
 
         profile = ProfileFactory()
         _, forum = create_category_and_forum(group)
@@ -1971,7 +1971,7 @@ class PostUnreadTest(TestCase):
         self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    @patch('zds.forum.signals.post_unread')
+    @patch("zds.forum.signals.post_unread")
     def test_success_post_unread(self, post_unread):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()

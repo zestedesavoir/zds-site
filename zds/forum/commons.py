@@ -76,7 +76,7 @@ class TopicEditMixin:
             self.object.save()
 
             signals.topic_moved.send(sender=self.object.__class__, topic=self.object)
-            message = _('Le sujet « {0} » a bien été déplacé dans « {1} ».').format(self.object.title, forum.title)
+            message = _("Le sujet « {0} » a bien été déplacé dans « {1} ».").format(self.object.title, forum.title)
             messages.success(self.request, message)
         else:
             raise PermissionDenied()
