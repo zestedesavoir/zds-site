@@ -12,7 +12,7 @@ from django.db.models.signals import pre_delete
 from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
-from zds.notification import signals
+from zds.forum import signals
 from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
 from zds.utils import get_current_user, slugify
 from zds.utils.models import Comment, Tag
@@ -295,7 +295,7 @@ class Topic(AbstractESDjangoIndexable):
                 logging.getLogger(__name__).warning(e)
 
         self.save()
-        signals.edit_content.send(sender=self.__class__, instance=self, action="edit_tags_and_title")
+        signals.topic_edited.send(sender=self.__class__, topic=self)
 
     def last_read_post(self):
         """
@@ -624,4 +624,4 @@ def mark_read(topic, user=None):
         else:
             current_topic_read.post = topic.last_message
         current_topic_read.save()
-        signals.content_read.send(sender=topic.__class__, instance=topic, user=user)
+        signals.topic_read.send(sender=topic.__class__, instance=topic, user=user)

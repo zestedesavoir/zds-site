@@ -13,6 +13,7 @@ from django.db.models.signals import post_save, m2m_changed, pre_delete
 from django.dispatch import receiver
 
 from zds.forum.models import Topic, Post, Forum
+import zds.forum.signals as forum_signals
 from zds.mp.models import PrivateTopic, PrivatePost
 import zds.mp.signals as mp_signals
 from zds.notification.models import (
@@ -84,20 +85,19 @@ def disable_for_loaddata(signal_handler):
     return wrapper
 
 
-@receiver(notification_signals.answer_unread, sender=Topic)
-def unread_topic_event(sender, *, user, instance, **__):
+@receiver(forum_signals.post_unread, sender=Post)
+def unread_topic_event(sender, *, user, post, **__):
     """
-    Sends a notification to the user, without sending an email
-
-    :param instance: the answer being marked as unread
-    :param user: user marking the answer as unread
-
+    Send a notification to the user, without sending an email.
+    :param post: the post being marked as unread
+    :param user: the user marking the post as unread
     """
-    subscription = TopicAnswerSubscription.objects.get_existing(user, instance.topic, is_active=True)
+    subscription = TopicAnswerSubscription.objects.get_existing(user, post.topic, is_active=True)
     if subscription:
-        subscription.send_notification(content=instance, sender=instance.author, send_email=False)
+        subscription.send_notification(content=post, sender=post.author, send_email=False)
 
 
+@receiver(forum_signals.topic_read, sender=Topic)
 @receiver(notification_signals.content_read, sender=Topic)
 def mark_topic_notifications_read(sender, *, instance, user, **__):
     """
@@ -226,7 +226,7 @@ def clean_subscriptions(sender, *, topic, **__):
 
 
 @receiver(notification_signals.content_read, sender=ContentReaction)
-@receiver(notification_signals.content_read, sender=Post)
+@receiver(forum_signals.post_read, sender=Post)
 def mark_comment_read(sender, *, instance, user, **__):
     comment = instance
 
@@ -235,28 +235,21 @@ def mark_comment_read(sender, *, instance, user, **__):
         subscription.mark_notification_read(comment)
 
 
-@receiver(notification_signals.edit_content, sender=Topic)
-def edit_topic_event(sender, *, action, instance, **kwargs):
-    """
-    :param kwargs: contains
-        - instance: the topic edited.
-        - action: action of the edit.
-    """
-    topic = instance
+@receiver(forum_signals.topic_moved, sender=Topic)
+def moved_topic_event(sender, *, topic, **kwargs):
+    topic_content_type = ContentType.objects.get_for_model(topic)
+    _handle_private_forum_moving(topic, topic_content_type, ContentType.objects.get_for_model(topic.last_message))
+
+
+@receiver(forum_signals.topic_edited, sender=Topic)
+def edit_topic_event(sender, *, topic, **kwargs):
     topic_content_type = ContentType.objects.get_for_model(topic)
 
-    if action == "move":
+    # Update notification as dead if it was triggered by a deleted tag
+    tag_content_type = _handle_deleted_tags(topic, topic_content_type)
 
-        _handle_private_forum_moving(topic, topic_content_type, ContentType.objects.get_for_model(topic.last_message))
-
-    elif action == "edit_tags_and_title":
-        topic = instance
-
-        # Update notification as dead if it was triggered by a deleted tag
-        tag_content_type = _handle_deleted_tags(topic, topic_content_type)
-
-        # Add notification of new topic for the subscription on the new tags
-        _handle_added_tags(tag_content_type, topic)
+    # Add notification of new topic for the subscription on the new tags
+    _handle_added_tags(tag_content_type, topic)
 
 
 def _handle_added_tags(tag_content_type, topic):

@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.models import User
 
 from zds.forum.models import Forum, Post, TopicRead
-from zds.notification import signals
+from zds.forum import signals
 from zds.notification.models import TopicAnswerSubscription, Notification, NewTopicSubscription
 from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
@@ -75,7 +75,7 @@ class TopicEditMixin:
             # Save topic to update update_index_date
             self.object.save()
 
-            signals.edit_content.send(sender=self.object.__class__, instance=self.object, action="move")
+            signals.topic_moved.send(sender=self.object.__class__, topic=self.object)
             message = _("Le sujet « {0} » a bien été déplacé dans « {1} ».").format(self.object.title, forum.title)
             messages.success(self.request, message)
         else:
@@ -110,7 +110,7 @@ class PostEditMixin:
 
             messages.success(request, _("Le message est désormais masqué."))
             for user in Notification.objects.get_users_for_unread_notification_on(post):
-                signals.content_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
+                signals.topic_read.send(sender=post.topic.__class__, instance=post.topic, user=user)
         else:
             raise PermissionDenied
 
@@ -162,7 +162,7 @@ class PostEditMixin:
             elif topic_read:
                 topic_read.delete()
 
-        signals.answer_unread.send(sender=post.topic.__class__, instance=post, user=user)
+        signals.post_unread.send(sender=post.__class__, post=post, user=user)
 
     @staticmethod
     def perform_edit_post(request, post, user, text):
