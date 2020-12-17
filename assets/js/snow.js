@@ -1,6 +1,8 @@
 
 (function() {
-  function LetItSnow(element) {
+  function LetItSnow(element, isValentine = false) {
+    this.isValentine = isValentine
+
     this._parent = element
 
     this._canvas = document.createElement('canvas')
@@ -29,7 +31,8 @@
   }
 
   LetItSnow.prototype = {
-    PARTICLES_COLOR: 'rgba(255, 255, 255, 0.8)', // Color
+    SNOW_COLOR: 'rgba(255, 255, 255, 0.8)', // Regular snow color
+    VALENTINE_SNOW_COLOR: 'rgba(255, 154, 133, 1)', // Valentine snow color
     MAX_PARTICLES: 25, // Particles limits
     SPAWN_RATE: 100, // time (ms) between two particles spawns
     PARTICLES_SPEED: 15, // Base speed
@@ -96,15 +99,28 @@
     draw: function() {
       this._ctx.clearRect(0, 0, this.W, this.H)
 
-      this._ctx.fillStyle = this.PARTICLES_COLOR
+      if (this.isValentine) {
+        this._ctx.fillStyle = this.VALENTINE_SNOW_COLOR
+      } else {
+        this._ctx.fillStyle = this.SNOW_COLOR
+      }
       this._ctx.beginPath()
 
       var p
       for (var i in this.particles) {
         p = this.particles[i]
-
         this._ctx.moveTo(p.x, p.y)
-        this._ctx.arc(p.x, p.y, p.d * this.PARTICLES_SIZE, 0, Math.PI * 2, true)
+
+        if (this.isValentine) {
+          this._ctx.bezierCurveTo(p.x, p.y - 0.3, p.x - 0.5, p.y - 1.5, p.x - 2.5, p.y - 1.5)
+          this._ctx.bezierCurveTo(p.x - 5.5, p.y - 1.5, p.x - 5.5, p.y + 2.25, p.x - 5.5, p.y + 2.25)
+          this._ctx.bezierCurveTo(p.x - 5.5, p.y + 4.0, p.x - 1.5, p.y + 4.2, p.x, p.y + 8.0)
+          this._ctx.bezierCurveTo(p.x + 3.5, p.y + 6.2, p.x + 5.5, p.y + 4.0, p.x + 5.5, p.y + 2.25)
+          this._ctx.bezierCurveTo(p.x + 5.5, p.y + 2.25, p.x + 5.5, p.y - 1.5, p.x + 2.5, p.y - 1.5)
+          this._ctx.bezierCurveTo(p.x + 1.0, p.y - 1.5, p.x, p.y - 0.3, p.x, p.y)
+        } else {
+          this._ctx.arc(p.x, p.y, p.d * this.PARTICLES_SIZE, 0, Math.PI * 2, true)
+        }
       }
 
       this._ctx.fill()
@@ -112,9 +128,12 @@
   }
 
   window.addEventListener('DOMContentLoaded', function() {
-    if (document.body.className.split(' ').indexOf('vc-snow') !== -1) { // No jQuery here
+    const isSnow = document.body.classList.contains('vc-snow') || false
+    const isValentine = document.body.classList.contains('vc-valentine-snow') || false
+
+    if (isSnow || isValentine) {
       setTimeout(function() {
-        window.snow = new LetItSnow(document.querySelector('.header-container > header'))
+        window.snow = new LetItSnow(document.querySelector('.header-container > header'), isValentine)
       }, 1000) // to be sure to have the DOM completely ready
     }
   })
