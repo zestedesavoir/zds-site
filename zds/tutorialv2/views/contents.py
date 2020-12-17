@@ -16,12 +16,30 @@ from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery, Image
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.models import Profile
-from zds.tutorialv2.forms import ContentForm, JsFiddleActivationForm, AskValidationForm, AcceptValidationForm, \
-    RejectValidationForm, RevokeValidationForm, WarnTypoForm, CancelValidationForm, PublicationForm, \
-    UnpublicationForm, ContributionForm, SearchSuggestionForm, EditContentLicenseForm, EditContentTagsForm, \
-    EditContentTitleForm, EditContentSubtitleForm
-from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleContentFormViewMixin, SingleContentViewMixin, \
-    FormWithPreview
+from zds.tutorialv2.forms import (
+    ContentForm,
+    JsFiddleActivationForm,
+    AskValidationForm,
+    AcceptValidationForm,
+    RejectValidationForm,
+    RevokeValidationForm,
+    WarnTypoForm,
+    CancelValidationForm,
+    PublicationForm,
+    UnpublicationForm,
+    ContributionForm,
+    SearchSuggestionForm,
+    EditContentLicenseForm,
+    EditContentTagsForm,
+    EditContentTitleForm,
+    EditContentSubtitleForm,
+)
+from zds.tutorialv2.mixins import (
+    SingleContentDetailViewMixin,
+    SingleContentFormViewMixin,
+    SingleContentViewMixin,
+    FormWithPreview,
+)
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContribution, ContentSuggestion
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
@@ -69,8 +87,8 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         # create the object:
         self.content = PublishableContent()
-        self.content.title = form.cleaned_data['title']
-        self.content.type = form.cleaned_data['type']
+        self.content.title = form.cleaned_data["title"]
+        self.content.type = form.cleaned_data["type"]
         self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
         self.content.source = form.cleaned_data["source"]
         self.content.creation_date = datetime.now()
@@ -154,12 +172,12 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         if self.versioned_object.is_beta:
             context["formWarnTypo"] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
 
-        context['validation'] = validation
-        context['formJs'] = form_js
-        context['form_edit_license'] = EditContentLicenseForm(self.versioned_object)
-        context['form_edit_title'] = EditContentTitleForm(self.versioned_object)
-        context['form_edit_subtitle'] = EditContentSubtitleForm(self.versioned_object)
-        context['form_edit_tags'] = EditContentTagsForm(self.versioned_object, self.object)
+        context["validation"] = validation
+        context["formJs"] = form_js
+        context["form_edit_license"] = EditContentLicenseForm(self.versioned_object)
+        context["form_edit_title"] = EditContentTitleForm(self.versioned_object)
+        context["form_edit_subtitle"] = EditContentSubtitleForm(self.versioned_object)
+        context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
 
         if self.versioned_object.requires_validation:
             context["formPublication"] = PublicationForm(self.versioned_object, initial={"source": self.object.source})
@@ -205,13 +223,13 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         initial = super().get_initial()
         versioned = self.versioned_object
 
-        initial['title'] = versioned.title
-        initial['type'] = versioned.type
-        initial['introduction'] = versioned.get_introduction()
-        initial['conclusion'] = versioned.get_conclusion()
-        initial['source'] = versioned.source
-        initial['subcategory'] = self.object.subcategory.all()
-        initial['last_hash'] = versioned.compute_hash()
+        initial["title"] = versioned.title
+        initial["type"] = versioned.type
+        initial["introduction"] = versioned.get_introduction()
+        initial["conclusion"] = versioned.get_conclusion()
+        initial["source"] = versioned.source
+        initial["subcategory"] = self.object.subcategory.all()
+        initial["last_hash"] = versioned.compute_hash()
 
         return initial
 
@@ -245,9 +263,9 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)
-        title_is_changed = publishable.title != form.cleaned_data['title']
-        publishable.title = form.cleaned_data['title']
-        publishable.source = form.cleaned_data['source']
+        title_is_changed = publishable.title != form.cleaned_data["title"]
+        publishable.title = form.cleaned_data["title"]
+        publishable.source = form.cleaned_data["source"]
 
         publishable.update_date = datetime.now()
 
@@ -270,15 +288,17 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             publishable.image = img
 
         publishable.save(force_slug_update=title_is_changed)
-        logger.debug('content %s updated, slug is %s', publishable.pk, publishable.slug)
+        logger.debug("content %s updated, slug is %s", publishable.pk, publishable.slug)
 
         # now, update the versioned information
-        sha = versioned.repo_update_top_container(form.cleaned_data['title'],
-                                                  publishable.slug,
-                                                  form.cleaned_data['introduction'],
-                                                  form.cleaned_data['conclusion'],
-                                                  form.cleaned_data['msg_commit'])
-        logger.debug('slug consistency after repo update repo=%s db=%s', versioned.slug, publishable.slug)
+        sha = versioned.repo_update_top_container(
+            form.cleaned_data["title"],
+            publishable.slug,
+            form.cleaned_data["introduction"],
+            form.cleaned_data["conclusion"],
+            form.cleaned_data["msg_commit"],
+        )
+        logger.debug("slug consistency after repo update repo=%s db=%s", versioned.slug, publishable.slug)
         # update relationships :
         publishable.sha_draft = sha
 
@@ -342,16 +362,16 @@ class EditContentTitle(LoginRequiredMixin, SingleContentFormViewMixin):
     modal_form = True
     model = PublishableContent
     form_class = EditContentTitleForm
-    success_message = _('Le titre a bien été changé.')
+    success_message = _("Le titre a bien été changé.")
 
     def get_form_kwargs(self):
         kwargs = super(EditContentTitle, self).get_form_kwargs()
-        kwargs['versioned_content'] = self.versioned_object
+        kwargs["versioned_content"] = self.versioned_object
         return kwargs
 
     def form_valid(self, form):
         publishable = self.object
-        title = form.cleaned_data['title']
+        title = form.cleaned_data["title"]
 
         # Update title in database
         publishable.title = title
@@ -365,7 +385,7 @@ class EditContentTitle(LoginRequiredMixin, SingleContentFormViewMixin):
             publishable.slug,
             self.versioned_object.get_introduction(),
             self.versioned_object.get_conclusion(),
-            f'Changement du titre ({title})'
+            f"Changement du titre ({title})",
         )
 
         # Update relationships in database
@@ -381,16 +401,16 @@ class EditContentSubtitle(LoginRequiredMixin, SingleContentFormViewMixin):
     modal_form = True
     model = PublishableContent
     form_class = EditContentSubtitleForm
-    success_message = _('Le sous-titre a bien été changé.')
+    success_message = _("Le sous-titre a bien été changé.")
 
     def get_form_kwargs(self):
         kwargs = super(EditContentSubtitle, self).get_form_kwargs()
-        kwargs['versioned_content'] = self.versioned_object
+        kwargs["versioned_content"] = self.versioned_object
         return kwargs
 
     def form_valid(self, form):
         publishable = self.object
-        subtitle = form.cleaned_data['subtitle']
+        subtitle = form.cleaned_data["subtitle"]
 
         # Update subtitle in database
         publishable.description = subtitle
@@ -404,7 +424,7 @@ class EditContentSubtitle(LoginRequiredMixin, SingleContentFormViewMixin):
             publishable.slug,
             self.versioned_object.get_introduction(),
             self.versioned_object.get_conclusion(),
-            'Changement du sous-titre'
+            "Changement du sous-titre",
         )
 
         # Update relationships in database

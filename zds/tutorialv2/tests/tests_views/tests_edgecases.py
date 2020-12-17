@@ -38,14 +38,14 @@ class ContentTests(TutorialTestMixin, TestCase):
         result = self.client.post(
             reverse("content:edit", args=[opinion.pk, opinion.slug]),
             {
-                'title': 'new title',
-                'introduction': 'introduction',
-                'conclusion': 'conclusion',
-                'type': 'OPINION',
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': opinion.load_version().compute_hash(),
-                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
+                "title": "new title",
+                "introduction": "introduction",
+                "conclusion": "conclusion",
+                "type": "OPINION",
+                "licence": self.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": opinion.load_version().compute_hash(),
+                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
             },
             follow=False,
         )
@@ -57,14 +57,14 @@ class ContentTests(TutorialTestMixin, TestCase):
         result = self.client.post(
             reverse("content:edit", args=[article.pk, article.slug]),
             {
-                'title': 'title',
-                'introduction': 'introduction',
-                'conclusion': 'conclusion',
-                'type': 'ARTICLE',
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': article.load_version().compute_hash(),
-                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
+                "title": "title",
+                "introduction": "introduction",
+                "conclusion": "conclusion",
+                "type": "ARTICLE",
+                "licence": self.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": article.load_version().compute_hash(),
+                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
             },
             follow=True,
         )

@@ -1190,14 +1190,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         result = self.client.post(
             reverse("content:edit", args=[tuto.pk, tuto.slug]),
             {
-                'title': '{} ({})'.format(self.tuto.title, 'modified'),  # will change slug
-                'introduction': random,
-                'conclusion': random,
-                'type': 'TUTORIAL',
-                'licence': self.tuto.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': tuto.load_version().compute_hash(),
-                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
+                "title": "{} ({})".format(self.tuto.title, "modified"),  # will change slug
+                "introduction": random,
+                "conclusion": random,
+                "type": "TUTORIAL",
+                "licence": self.tuto.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": tuto.load_version().compute_hash(),
+                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
             },
             follow=False,
         )
@@ -1296,13 +1296,13 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.post(
             reverse("content:edit", args=[tuto.pk, tuto.slug]),
             {
-                'title': new_title,
-                'introduction': 'a',
-                'conclusion': 'b',
-                'type': 'TUTORIAL',
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': tuto.sha_draft,
+                "title": new_title,
+                "introduction": "a",
+                "conclusion": "b",
+                "type": "TUTORIAL",
+                "licence": self.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": tuto.sha_draft,
             },
             follow=False,
         )
@@ -1340,14 +1340,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.post(
             reverse("content:edit", args=[article.pk, article.slug]),
             {
-                'title': 'new title so that everything explode',
-                'introduction': article.load_version().get_introduction(),
-                'conclusion': article.load_version().get_conclusion(),
-                'type': 'ARTICLE',
-                'licence': article.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': article.load_version(article.sha_draft).compute_hash(),
-                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
+                "title": "new title so that everything explode",
+                "introduction": article.load_version().get_introduction(),
+                "conclusion": article.load_version().get_conclusion(),
+                "type": "ARTICLE",
+                "licence": article.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": article.load_version(article.sha_draft).compute_hash(),
+                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
             },
             follow=False,
         )
@@ -1396,13 +1396,13 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         result = self.client.post(
             reverse("content:edit", args=[published.pk, published.slug]),
             {
-                'title': published.title,
-                'introduction': 'crappy crap',
-                'conclusion': 'crappy crap',
-                'type': 'TUTORIAL',
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': published.load_version().compute_hash()  # good hash
+                "title": published.title,
+                "introduction": "crappy crap",
+                "conclusion": "crappy crap",
+                "type": "TUTORIAL",
+                "licence": self.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": published.load_version().compute_hash(),  # good hash
             },
             follow=True,
         )
@@ -1469,14 +1469,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         result = self.client.post(
             reverse("content:edit", args=[content_draft.pk, content_draft.slug]),
             {
-                'title': content_draft.title + '2',
-                'introduction': content_draft.introduction,
-                'conclusion': content_draft.conclusion,
-                'type': content_draft.type,
-                'licence': self.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': content_draft.compute_hash(),
-                'image': content_draft.image or 'None'
+                "title": content_draft.title + "2",
+                "introduction": content_draft.introduction,
+                "conclusion": content_draft.conclusion,
+                "type": content_draft.type,
+                "licence": self.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": content_draft.compute_hash(),
+                "image": content_draft.image or "None",
             },
             follow=False,
         )
@@ -1988,14 +1988,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.post(
             reverse("content:edit", args=[self.tuto.pk, self.tuto.slug]),
             {
-                'title': self.tuto.title,
-                'introduction': '',
-                'conclusion': '',
-                'type': 'TUTORIAL',
-                'licence': self.tuto.licence.pk,
-                'subcategory': self.subcategory.pk,
-                'last_hash': self.tuto.load_version().compute_hash(),
-                'image': (settings.BASE_DIR / 'fixtures' / 'logo.png').open('rb')
+                "title": self.tuto.title,
+                "introduction": "",
+                "conclusion": "",
+                "type": "TUTORIAL",
+                "licence": self.tuto.licence.pk,
+                "subcategory": self.subcategory.pk,
+                "last_hash": self.tuto.load_version().compute_hash(),
+                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
             },
             follow=True,
         )
