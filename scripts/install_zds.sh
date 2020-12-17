@@ -298,7 +298,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
         export ES_JAVA_OPTS="-Xms512m -Xmx512m"
 
         if [[ $(grep -c -i "export JAVA_HOME" $ZDS_ENV/bin/activate) == "0" ]]; then # add java to venv activate's
-            ACTIVATE_JAVA="export PATH=\"$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\""
+            ACTIVATE_JAVA="export PATH=\"\$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\""
 
             echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate
             echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate.csh
