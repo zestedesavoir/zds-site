@@ -10,11 +10,21 @@ from zds.forum.factories import ForumCategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.notification.models import NewTopicSubscription, Notification, NewPublicationSubscription, \
-    ContentReactionAnswerSubscription, PingSubscription
+from zds.notification.models import (
+    NewTopicSubscription,
+    Notification,
+    NewPublicationSubscription,
+    ContentReactionAnswerSubscription,
+    PingSubscription,
+)
 from zds.tutorialv2 import signals
-from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, SubCategoryFactory, \
-    PublishedContentFactory, ContentReactionFactory
+from zds.tutorialv2.factories import (
+    PublishableContentFactory,
+    LicenceFactory,
+    SubCategoryFactory,
+    PublishedContentFactory,
+    ContentReactionFactory,
+)
 from zds.tutorialv2.publication_utils import publish_content, notify_update
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.mps import send_mp, send_message_mp
@@ -356,6 +366,7 @@ class ContentNotification(TestCase, TutorialTestMixin):
 
     def test_no_persistant_notif_on_revoke(self):
         from zds.tutorialv2.publication_utils import unpublish_content
+
         NewPublicationSubscription.objects.get_or_create_active(self.user1, self.user2)
         content = PublishedContentFactory(author_list=[self.user2])
 

@@ -14,10 +14,21 @@ from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
 from zds.tutorialv2 import signals
-from zds.notification.models import Notification, TopicAnswerSubscription, ContentReactionAnswerSubscription, \
-    PrivateTopicAnswerSubscription, NewTopicSubscription, NewPublicationSubscription
-from zds.tutorialv2.factories import PublishableContentFactory, LicenceFactory, ContentReactionFactory, \
-    SubCategoryFactory, PublishedContentFactory
+from zds.notification.models import (
+    Notification,
+    TopicAnswerSubscription,
+    ContentReactionAnswerSubscription,
+    PrivateTopicAnswerSubscription,
+    NewTopicSubscription,
+    NewPublicationSubscription,
+)
+from zds.tutorialv2.factories import (
+    PublishableContentFactory,
+    LicenceFactory,
+    ContentReactionFactory,
+    SubCategoryFactory,
+    PublishedContentFactory,
+)
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import old_slugify
