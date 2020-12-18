@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
 
 from django.conf import settings
-from zds.notification import signals
+from zds.tutorialv2 import signals
 from zds.tutorialv2 import VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.utils import get_current_user, old_slugify
