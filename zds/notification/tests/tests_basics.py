@@ -13,7 +13,7 @@ from zds.forum.models import Topic, is_read
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
-from zds.notification import signals
+from zds.tutorialv2 import signals
 from zds.notification.models import (
     Notification,
     TopicAnswerSubscription,
@@ -519,7 +519,7 @@ class NotificationPublishableContentTest(TestCase):
         self.assertIsNone(subscription)
 
         # Signal call by the view at the publication.
-        signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
+        signals.content_published.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
 
         subscription = ContentReactionAnswerSubscription.objects.get_existing(user=self.user1, content_object=self.tuto)
         self.assertTrue(subscription.is_active)
@@ -617,7 +617,7 @@ class NotificationPublishableContentTest(TestCase):
         """
         subscription = NewPublicationSubscription.objects.toggle_follow(self.user1, self.user2)
 
-        signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
+        signals.content_published.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
 
         notifications = Notification.objects.filter(subscription=subscription, is_read=False).all()
         self.assertEqual(1, len(notifications))
@@ -639,7 +639,7 @@ class NotificationPublishableContentTest(TestCase):
     def test_no_error_on_multiple_subscription(self):
         subscription = NewPublicationSubscription.objects.toggle_follow(self.user1, self.user2)
 
-        signals.new_content.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
+        signals.content_published.send(sender=self.tuto.__class__, instance=self.tuto, by_email=False)
 
         subscription1 = Notification.objects.filter(subscription=subscription, is_read=False).first()
         subscription2 = copy.copy(subscription1)
@@ -903,7 +903,7 @@ class NotificationTest(TestCase):
         author2 = ProfileFactory()
         NewPublicationSubscription.objects.toggle_follow(author2.user, author1.user)
         content = PublishedContentFactory(author_list=[author1.user, author2.user])
-        signals.new_content.send(sender=content.__class__, instance=content, by_email=False)
+        signals.content_published.send(sender=content.__class__, instance=content, by_email=False)
         auto_user_1_sub = NewPublicationSubscription.objects.get_existing(author1.user, author1.user, False)
         self.assertIsNotNone(auto_user_1_sub)
         notifs = list(Notification.objects.get_notifications_of(author1.user))

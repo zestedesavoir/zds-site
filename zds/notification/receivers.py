@@ -135,7 +135,7 @@ def mark_topic_notifications_read(sender, *, instance, user, **__):
         notification.save(update_fields=["is_read"])
 
 
-@receiver(notification_signals.content_read, sender=PublishableContent)
+@receiver(tuto_signals.content_read, sender=PublishableContent)
 @receiver(tuto_signals.content_unpublished)
 def mark_content_reactions_read(sender, *, instance, user=None, target, **__):
     """
@@ -374,7 +374,7 @@ def answer_content_reaction_event(sender, *, instance, created=True, **__):
         ContentReactionAnswerSubscription.objects.get_or_create_active(author, publishable_content)
 
 
-@receiver(notification_signals.new_content, sender=PublishableContent)
+@receiver(tuto_signals.content_published, sender=PublishableContent)
 @disable_for_loaddata
 def content_published_event(*__, instance, by_email, **___):
     """

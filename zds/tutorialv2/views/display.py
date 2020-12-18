@@ -5,7 +5,7 @@ from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
 from zds.featured.mixins import FeatureableMixin
-from zds.notification import signals
+from zds.tutorialv2 import signals
 from zds.notification.models import ContentReactionAnswerSubscription
 from zds.tutorialv2.forms import (
     RevokeValidationForm,
