@@ -6,13 +6,13 @@ from zds.forum.models import Topic
 
 
 class Command(BaseCommand):
-    help = 'Fix all persistent notifications.'
+    help = "Fix all persistent notifications."
 
     def handle(self, *args, **options):
         content_type = ContentType.objects.get_for_model(Topic)
         notifications = Notification.objects.filter(content_type=content_type, is_read=False).all()
         count = 0
-        print('')
+        print("")
         for notification in notifications:
             if notification.subscription.content_object != notification.content_object.forum:
                 notification.is_read = True
@@ -20,4 +20,4 @@ class Command(BaseCommand):
                 notification.save()
                 print(notification)
                 count += 1
-        print('{} notifications have been fixed'.format(count))
+        print("{} notifications have been fixed".format(count))

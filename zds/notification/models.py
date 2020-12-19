@@ -12,8 +12,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
 from zds.forum.models import Topic, Post
-from zds.notification.managers import NotificationManager, SubscriptionManager, TopicFollowedManager, \
-    TopicAnswerSubscriptionManager, NewTopicSubscriptionManager
+from zds.notification.managers import (
+    NotificationManager,
+    SubscriptionManager,
+    TopicFollowedManager,
+    TopicAnswerSubscriptionManager,
+    NewTopicSubscriptionManager,
+)
 from zds.utils.misc import convert_camel_to_underscore
 
 
@@ -26,23 +31,25 @@ class Subscription(models.Model):
     """
 
     class Meta:
-        verbose_name = _('Abonnement')
-        verbose_name_plural = _('Abonnements')
-        unique_together = (('user', 'content_type', 'object_id'),)
+        verbose_name = _("Abonnement")
+        verbose_name_plural = _("Abonnements")
+        unique_together = (("user", "content_type", "object_id"),)
 
-    user = models.ForeignKey(User, related_name='subscriber', db_index=True, on_delete=models.CASCADE)
-    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
-    is_active = models.BooleanField(_('Actif'), default=True, db_index=True)
-    by_email = models.BooleanField(_('Recevoir un email'), default=False)
+    user = models.ForeignKey(User, related_name="subscriber", db_index=True, on_delete=models.CASCADE)
+    pubdate = models.DateTimeField(_("Date de création"), auto_now_add=True, db_index=True)
+    is_active = models.BooleanField(_("Actif"), default=True, db_index=True)
+    by_email = models.BooleanField(_("Recevoir un email"), default=False)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True)
-    content_object = GenericForeignKey('content_type', 'object_id')
-    last_notification = models.ForeignKey('Notification', related_name='last_notification', null=True, default=None,
-                                          on_delete=models.SET_NULL)
+    content_object = GenericForeignKey("content_type", "object_id")
+    last_notification = models.ForeignKey(
+        "Notification", related_name="last_notification", null=True, default=None, on_delete=models.SET_NULL
+    )
 
     def __str__(self):
-        return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>')\
-            .format(self.user.username, self.content_type, self.object_id)
+        return _('<Abonnement du membre "{0}" aux notifications pour le {1}, #{2}>').format(
+            self.user.username, self.content_type, self.object_id
+        )
 
     def activate(self):
         """
@@ -82,11 +89,12 @@ class Subscription(models.Model):
         Sends an email notification
         """
 
-        assert hasattr(self, 'module')
+        assert hasattr(self, "module")
 
-        subject = _('{} - {} : {}').format(settings.ZDS_APP['site']['literal_name'], self.module, notification.title)
-        from_email = _('{} <{}>').format(settings.ZDS_APP['site']['literal_name'],
-                                         settings.ZDS_APP['site']['email_noreply'])
+        subject = _("{} - {} : {}").format(settings.ZDS_APP["site"]["literal_name"], self.module, notification.title)
+        from_email = _("{} <{}>").format(
+            settings.ZDS_APP["site"]["literal_name"], settings.ZDS_APP["site"]["email_noreply"]
+        )
 
         receiver = self.user
 
@@ -97,23 +105,25 @@ class Subscription(models.Model):
             return
 
         context = {
-            'username': receiver.username,
-            'title': notification.title,
-            'url': settings.ZDS_APP['site']['url'] + notification.url,
-            'author': notification.sender.username,
-            'site_name': settings.ZDS_APP['site']['literal_name']
+            "username": receiver.username,
+            "title": notification.title,
+            "url": settings.ZDS_APP["site"]["url"] + notification.url,
+            "author": notification.sender.username,
+            "site_name": settings.ZDS_APP["site"]["literal_name"],
         }
         message_html = render_to_string(
-            'email/notification/' + convert_camel_to_underscore(self._meta.object_name) + '.html', context)
+            "email/notification/" + convert_camel_to_underscore(self._meta.object_name) + ".html", context
+        )
         message_txt = render_to_string(
-            'email/notification/' + convert_camel_to_underscore(self._meta.object_name) + '.txt', context)
+            "email/notification/" + convert_camel_to_underscore(self._meta.object_name) + ".txt", context
+        )
 
         msg = EmailMultiAlternatives(subject, message_txt, from_email, [receiver.email])
-        msg.attach_alternative(message_html, 'text/html')
+        msg.attach_alternative(message_html, "text/html")
         try:
             msg.send()
         except SMTPException:
-            LOG.error('Failed sending mail for %s', self, exc_info=True)
+            LOG.error("Failed sending mail for %s", self, exc_info=True)
 
     @staticmethod
     def has_read_permission(request):
@@ -123,10 +133,11 @@ class Subscription(models.Model):
         return Subscription.has_read_permission(request) and self.user == request.user
 
 
-class SingleNotificationMixin(object):
+class SingleNotificationMixin:
     """
     Mixin for the subscription that can only have one active notification at a time
     """
+
     def send_notification(self, content=None, send_email=True, sender=None):
         """
         Sends the notification about the given content
@@ -134,18 +145,18 @@ class SingleNotificationMixin(object):
         :param sender: the user whose action triggered the notification
         :param send_email : whether an email must be sent if the subscription by email is active
         """
-        assert hasattr(self, 'last_notification')
-        assert hasattr(self, 'get_notification_url')
-        assert hasattr(self, 'get_notification_title')
-        assert hasattr(self, 'send_email')
+        assert hasattr(self, "last_notification")
+        assert hasattr(self, "get_notification_url")
+        assert hasattr(self, "get_notification_title")
+        assert hasattr(self, "send_email")
 
         if self.last_notification is None or self.last_notification.is_read:
             with transaction.atomic():
                 notifications = list(Notification.objects.filter(subscription=self))
                 if len(notifications) > 1:
-                    LOG.error('Found %s notifications for %s', len(notifications), self, exc_info=True)
+                    LOG.error("Found %s notifications for %s", len(notifications), self, exc_info=True)
                     Notification.objects.filter(pk__in=[n.pk for n in notifications[1:]]).delete()
-                    LOG.info('Duplicates deleted.')
+                    LOG.info("Duplicates deleted.")
 
                 # If there isn't a notification yet or the last one is read, we generate a new one.
                 try:
@@ -180,8 +191,7 @@ class SingleNotificationMixin(object):
             Notification.objects.filter(pk=self.last_notification.pk).update(is_read=True)
 
 
-class MultipleNotificationsMixin(object):
-
+class MultipleNotificationsMixin:
     def send_notification(self, content=None, send_email=True, sender=None):
         """
         Sends the notification about the given content
@@ -190,9 +200,9 @@ class MultipleNotificationsMixin(object):
         :param send_email : whether an email must be sent if the subscription by email is active
         """
 
-        assert hasattr(self, 'get_notification_url')
-        assert hasattr(self, 'get_notification_title')
-        assert hasattr(self, 'send_email')
+        assert hasattr(self, "get_notification_url")
+        assert hasattr(self, "get_notification_title")
+        assert hasattr(self, "send_email")
         if self.last_notification and not self.last_notification.is_read:
             return
 
@@ -216,22 +226,27 @@ class MultipleNotificationsMixin(object):
         :param content : the content whose notification has been read
         """
         if content is None:
-            raise ValueError('Object content of notification must be defined')
+            raise ValueError("Object content of notification must be defined")
 
         try:
             with transaction.atomic():
                 content_notification_type = ContentType.objects.get_for_model(content)
-                notifications = list(Notification.objects.filter(subscription=self,
-                                                                 content_type__pk=content_notification_type.pk,
-                                                                 object_id=content.pk, is_read=False))
+                notifications = list(
+                    Notification.objects.filter(
+                        subscription=self,
+                        content_type__pk=content_notification_type.pk,
+                        object_id=content.pk,
+                        is_read=False,
+                    )
+                )
                 # handles cases where a same subscription lead to several notifications
                 if not notifications:
-                    LOG.debug('nothing to mark as read')
+                    LOG.debug("nothing to mark as read")
                     return
                 elif len(notifications) > 1:
-                    content_type = getattr(content, 'type', 'forum')
-                    content_title = getattr(content, 'title', 'message')
-                    LOG.warning('%s notifications found for %s/%s', len(notifications), content_type, content_title)
+                    content_type = getattr(content, "type", "forum")
+                    content_title = getattr(content, "title", "message")
+                    LOG.warning("%s notifications found for %s/%s", len(notifications), content_type, content_title)
                     for notif in notifications[1:]:
                         notif.delete()
 
@@ -241,7 +256,7 @@ class MultipleNotificationsMixin(object):
 
                 notification.save()
         except IntegrityError:
-            LOG.exception('Could not save %s', notification)
+            LOG.exception("Could not save %s", notification)
 
 
 class AnswerSubscription(Subscription):
@@ -249,9 +264,11 @@ class AnswerSubscription(Subscription):
     Subscription to new answer, either in a topic, a article or a tutorial
     NOT used directly, use one of its subtype
     """
+
     def __str__(self):
-        return _('<Abonnement du membre "{0}" aux réponses au {1} #{2}>')\
-            .format(self.user.username, self.content_type, self.object_id)
+        return _('<Abonnement du membre "{0}" aux réponses au {1} #{2}>').format(
+            self.user.username, self.content_type, self.object_id
+        )
 
     def get_notification_url(self, answer):
         return answer.get_absolute_url()
@@ -264,48 +281,52 @@ class TopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a topic
     """
-    module = _('Forum')
+
+    module = _("Forum")
     objects = TopicAnswerSubscriptionManager()
 
     def __str__(self):
-        return _('<Abonnement du membre "{0}" aux réponses au sujet #{1}>')\
-            .format(self.user.username, self.object_id)
+        return _('<Abonnement du membre "{0}" aux réponses au sujet #{1}>').format(self.user.username, self.object_id)
 
 
 class PrivateTopicAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a private topic.
     """
-    module = _('Message privé')
+
+    module = _("Message privé")
     objects = SubscriptionManager()
 
     def __str__(self):
-        return _('<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>')\
-            .format(self.user.username, self.object_id)
+        return _('<Abonnement du membre "{0}" aux réponses à la conversation privée #{1}>').format(
+            self.user.username, self.object_id
+        )
 
 
 class ContentReactionAnswerSubscription(AnswerSubscription, SingleNotificationMixin):
     """
     Subscription to new answer in a publishable content.
     """
-    module = _('Contenu')
+
+    module = _("Contenu")
     objects = SubscriptionManager()
 
     def __str__(self):
-        return _('<Abonnement du membre "{0}" aux réponses du contenu #{1}>')\
-            .format(self.user.username, self.object_id)
+        return _('<Abonnement du membre "{0}" aux réponses du contenu #{1}>').format(self.user.username, self.object_id)
 
 
 class NewTopicSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new topics in a forum or with a tag
     """
-    module = _('Forum')
+
+    module = _("Forum")
     objects = NewTopicSubscriptionManager()
 
     def __str__(self):
-        return _('<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>')\
-            .format(self.user.username, self.content_type, self.object_id)
+        return _('<Abonnement du membre "{0}" aux nouveaux sujets du {1} #{2}>').format(
+            self.user.username, self.content_type, self.object_id
+        )
 
     def get_notification_url(self, topic):
         return topic.get_absolute_url()
@@ -318,12 +339,14 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
     """
     Subscription to new publications from a user.
     """
-    module = _('Contenu')
+
+    module = _("Contenu")
     objects = SubscriptionManager()
 
     def __str__(self):
-        return _('<Abonnement du membre "{0}" aux nouvelles publications de l\'utilisateur #{1}>') \
-            .format(self.user.username, self.object_id)
+        return _('<Abonnement du membre "{0}" aux nouvelles publications de l\'utilisateur #{1}>').format(
+            self.user.username, self.object_id
+        )
 
     def get_notification_url(self, content):
         return content.get_absolute_url_online()
@@ -336,7 +359,8 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
     """
     Subscription to ping of a user
     """
-    module = _('Ping')
+
+    module = _("Ping")
     objects = SubscriptionManager()
 
     def __str__(self):
@@ -345,49 +369,60 @@ class PingSubscription(AnswerSubscription, MultipleNotificationsMixin):
     @staticmethod
     def mark_inaccessible_ping_as_read_for_topic(topic):
         for post in Post.objects.filter(topic=topic):
-            for notification in Notification.objects.filter(content_type__pk=ContentType.objects.get_for_model(post).pk,
-                                                            object_id=post.pk):
+            for notification in Notification.objects.filter(
+                content_type__pk=ContentType.objects.get_for_model(post).pk, object_id=post.pk
+            ):
                 if not topic.forum.can_read(notification.subscription.user):
                     notification.is_read = True
                     notification.is_dead = True
-                    notification.save(update_fields=['is_read'])
+                    notification.save(update_fields=["is_read"])
 
     def get_notification_title(self, answer):
-        assert hasattr(answer, 'author')
-        assert hasattr(answer, 'get_notification_title')
+        assert hasattr(answer, "author")
+        assert hasattr(answer, "get_notification_title")
 
-        return _('{0} vous a mentionné sur {1}.').format(answer.author, answer.get_notification_title())
+        return _("{0} vous a mentionné sur {1}.").format(answer.author, answer.get_notification_title())
 
 
 class Notification(models.Model):
     """
     A notification
     """
-    class Meta:
-        verbose_name = _('Notification')
-        verbose_name_plural = _('Notifications')
 
-    subscription = models.ForeignKey(Subscription, related_name='subscription', db_index=True, on_delete=models.CASCADE)
-    pubdate = models.DateTimeField(_('Date de création'), auto_now_add=True, db_index=True)
+    class Meta:
+        verbose_name = _("Notification")
+        verbose_name_plural = _("Notifications")
+
+    subscription = models.ForeignKey(Subscription, related_name="subscription", db_index=True, on_delete=models.CASCADE)
+    pubdate = models.DateTimeField(_("Date de création"), auto_now_add=True, db_index=True)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True)
-    content_object = GenericForeignKey('content_type', 'object_id')
-    is_read = models.BooleanField(_('Lue'), default=False, db_index=True)
-    is_dead = models.BooleanField(_('Morte'), default=False)
-    url = models.CharField('URL', max_length=255)
-    sender = models.ForeignKey(User, related_name='sender', db_index=True, on_delete=models.CASCADE)
-    title = models.CharField('Titre', max_length=200)
+    content_object = GenericForeignKey("content_type", "object_id")
+    is_read = models.BooleanField(_("Lue"), default=False, db_index=True)
+    is_dead = models.BooleanField(_("Morte"), default=False)
+    url = models.CharField("URL", max_length=255)
+    sender = models.ForeignKey(User, related_name="sender", db_index=True, on_delete=models.CASCADE)
+    title = models.CharField("Titre", max_length=200)
     objects = NotificationManager()
 
     def __str__(self):
-        return _('Notification du membre "{0}" à propos de : {1} #{2} ({3})')\
-            .format(self.subscription.user, self.content_type, self.content_object.pk, self.subscription)
+        return _('Notification du membre "{0}" à propos de : {1} #{2} ({3})').format(
+            self.subscription.user, self.content_type, self.content_object.pk, self.subscription
+        )
 
     def __copy__(self):
-        return Notification(subscription=self.subscription, pubdate=self.pubdate, content_type=self.content_type,
-                            object_id=self.object_id, content_object=self.content_object,
-                            is_read=self.is_read, is_dead=self.is_dead,
-                            url=self.url, sender=self.sender, title=self.title)
+        return Notification(
+            subscription=self.subscription,
+            pubdate=self.pubdate,
+            content_type=self.content_type,
+            object_id=self.object_id,
+            content_object=self.content_object,
+            is_read=self.is_read,
+            is_dead=self.is_dead,
+            url=self.url,
+            sender=self.sender,
+            title=self.title,
+        )
 
     @staticmethod
     def has_read_permission(request):
@@ -405,17 +440,17 @@ class TopicFollowed(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Sujet suivi'
-        verbose_name_plural = 'Sujets suivis'
+        verbose_name = "Sujet suivi"
+        verbose_name_plural = "Sujets suivis"
 
     topic = models.ForeignKey(Topic, db_index=True, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name='topics_followed', db_index=True, on_delete=models.CASCADE)
-    email = models.BooleanField('Notification par courriel', default=False, db_index=True)
+    user = models.ForeignKey(User, related_name="topics_followed", db_index=True, on_delete=models.CASCADE)
+    email = models.BooleanField("Notification par courriel", default=False, db_index=True)
     objects = TopicFollowedManager()
 
     def __str__(self):
-        return '<Sujet "{0}" suivi par {1}>'.format(self.topic.title,
-                                                    self.user.username)
+        return '<Sujet "{0}" suivi par {1}>'.format(self.topic.title, self.user.username)
+
 
 # used to fix Django 1.9 Warning
 # https://github.com/zestedesavoir/zds-site/issues/3451

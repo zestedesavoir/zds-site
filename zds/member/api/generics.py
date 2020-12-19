@@ -35,29 +35,28 @@ class CreateDestroyMemberSanctionAPIView(CreateAPIView, DestroyAPIView):
         ban = state.get_sanction(request.user, instance.user)
 
         if ban.user == ban.moderator:
-            return Response({'detail': 'Sanction can not be applied to yourself.'},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response({"detail": "Sanction can not be applied to yourself."}, status=status.HTTP_403_FORBIDDEN)
 
         try:
             state.apply_sanction(instance, ban)
         except ValueError:
-            return Response({'detail': 'Sanction could not be applied with received data.'},
-                            status=status.HTTP_400_BAD_REQUEST)
-        msg = state.get_message_sanction() \
-            .format(ban.user,
-                    ban.moderator,
-                    ban.type,
-                    state.get_detail(),
-                    ban.note,
-                    settings.ZDS_APP['site']['literal_name'])
+            return Response(
+                {"detail": "Sanction could not be applied with received data."}, status=status.HTTP_400_BAD_REQUEST
+            )
+        msg = state.get_message_sanction().format(
+            ban.user, ban.moderator, ban.type, state.get_detail(), ban.note, settings.ZDS_APP["site"]["literal_name"]
+        )
         state.notify_member(ban, msg)
         return Response(serializer.data)
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, IsStaffUser, ]
-        if self.request.method == 'POST' or self.request.method == 'DELETE':
+        permission_classes = [
+            IsAuthenticated,
+            IsStaffUser,
+        ]
+        if self.request.method == "POST" or self.request.method == "DELETE":
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
     def get_state_instance(self, request):
-        raise NotImplementedError('`get_state_instance()` must be implemented.')
+        raise NotImplementedError("`get_state_instance()` must be implemented.")

@@ -8,16 +8,21 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('auth', '0008_alter_user_username_max_length'),
-        ('utils', '0014_auto_20170905_2220'),
+        ("auth", "0008_alter_user_username_max_length"),
+        ("utils", "0014_auto_20170905_2220"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='hat',
-            name='group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL,
-                                    related_name='hats', to='auth.Group',
-                                    verbose_name='Groupe poss\xe9dant la casquette'),
+            model_name="hat",
+            name="group",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="hats",
+                to="auth.Group",
+                verbose_name="Groupe poss\xe9dant la casquette",
+            ),
         ),
     ]

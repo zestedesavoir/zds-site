@@ -3,7 +3,7 @@ import contextlib
 import factory
 
 from zds.gallery.models import Image, Gallery, UserGallery
-from zds.utils import slugify
+from zds.utils import old_slugify
 
 
 # Don't try to directly use UserFactory, this didn't create Profile then
@@ -13,13 +13,13 @@ class ImageFactory(factory.DjangoModelFactory):
         model = Image
 
     title = factory.Sequence("titre de l'image {0}".format)
-    slug = factory.LazyAttribute(lambda o: '{0}'.format(slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: "{0}".format(old_slugify(o.title)))
     legend = factory.Sequence("legende de l'image {0}".format)
-    physical = factory.django.ImageField(color='blue')
+    physical = factory.django.ImageField(color="blue")
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-        gallery = kwargs.pop('gallery', None)
+        gallery = kwargs.pop("gallery", None)
         if gallery is not None:
             image = super(ImageFactory, cls)._prepare(create, gallery=gallery, **kwargs)
         else:
@@ -31,9 +31,9 @@ class GalleryFactory(factory.DjangoModelFactory):
     class Meta:
         model = Gallery
 
-    title = factory.Sequence('titre de la gallerie {0}'.format)
-    subtitle = factory.Sequence('Sous-titre de la gallerie {0}'.format)
-    slug = factory.LazyAttribute(lambda o: '{0}'.format(slugify(o.title)))
+    title = factory.Sequence("titre de la gallerie {0}".format)
+    subtitle = factory.Sequence("Sous-titre de la gallerie {0}".format)
+    slug = factory.LazyAttribute(lambda o: "{0}".format(old_slugify(o.title)))
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -47,12 +47,12 @@ class UserGalleryFactory(factory.DjangoModelFactory):
     class Meta:
         model = UserGallery
 
-    mode = 'W'
+    mode = "W"
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-        user = kwargs.pop('user', None)
-        gallery = kwargs.pop('gallery', None)
+        user = kwargs.pop("user", None)
+        gallery = kwargs.pop("gallery", None)
         if user is not None and gallery is not None:
             user_gal = super(UserGalleryFactory, cls)._prepare(create, user=user, gallery=gallery, **kwargs)
         else:

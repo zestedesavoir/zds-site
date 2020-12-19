@@ -1,4 +1,5 @@
 from math import ceil
+from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
@@ -7,14 +8,12 @@ from django.conf import settings
 
 from zds.member.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import mark_read, is_privatetopic_unread, \
-    is_reachable, NotParticipatingError, NotReachableError
+from zds.mp.models import mark_read, is_privatetopic_unread, is_reachable, NotParticipatingError, NotReachableError
 
 # by moment, i wrote the scenario to be simpler
 
 
 class PrivateTopicTest(TestCase):
-
     def setUp(self):
         # scenario - topic1 :
         # post1 - user1 - unread
@@ -25,24 +24,18 @@ class PrivateTopicTest(TestCase):
 
         # Create the bot accound and add it to the bot group
         self.bot = ProfileFactory().user
-        bot_group = Group(name=settings.ZDS_APP['member']['bot_group'])
+        bot_group = Group(name=settings.ZDS_APP["member"]["bot_group"])
         bot_group.save()
         self.bot.groups.add(bot_group)
 
         self.topic1 = PrivateTopicFactory(author=self.user1)
         self.topic1.participants.add(self.user2)
-        self.post1 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.user1,
-            position_in_topic=1)
+        self.post1 = PrivatePostFactory(privatetopic=self.topic1, author=self.user1, position_in_topic=1)
 
-        self.post2 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.user2,
-            position_in_topic=2)
+        self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.user2, position_in_topic=2)
 
     def test_get_absolute_url(self):
-        url = reverse('private-posts-list', args=[self.topic1.pk, self.topic1.slug()])
+        url = reverse("private-posts-list", args=[self.topic1.pk, self.topic1.slug()])
 
         self.assertEqual(self.topic1.get_absolute_url(), url)
 
@@ -51,10 +44,7 @@ class PrivateTopicTest(TestCase):
 
     def test_get_last_answer(self):
         topic = PrivateTopicFactory(author=self.user2)
-        PrivatePostFactory(
-            privatetopic=topic,
-            author=self.user2,
-            position_in_topic=1)
+        PrivatePostFactory(privatetopic=topic, author=self.user2, position_in_topic=1)
 
         self.assertEqual(self.post2, self.topic1.get_last_answer())
         self.assertNotEqual(self.post1, self.topic1.get_last_answer())
@@ -70,51 +60,35 @@ class PrivateTopicTest(TestCase):
         # scenario - topic1 :
         # post1 - user1 - unread
         # post2 - user2 - unread
-        self.assertEqual(
-            self.post1,
-            self.topic1.last_read_post(self.user1))
+        self.assertEqual(self.post1, self.topic1.last_read_post(self.user1))
 
         # scenario - topic1 :
         # post1 - user1 - read
         # post2 - user2 - read
         mark_read(self.topic1, user=self.user1)
-        self.assertEqual(
-            self.post2,
-            self.topic1.last_read_post(self.user1))
+        self.assertEqual(self.post2, self.topic1.last_read_post(self.user1))
 
         # scenario - topic1 :
         # post1 - user1 - read
         # post2 - user2 - read
         # post3 - user2 - unread
-        PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.user2,
-            position_in_topic=3)
-        self.assertEqual(
-            self.post2,
-            self.topic1.last_read_post(self.user1))
+        PrivatePostFactory(privatetopic=self.topic1, author=self.user2, position_in_topic=3)
+        self.assertEqual(self.post2, self.topic1.last_read_post(self.user1))
 
     def test_first_unread_post(self):
         # scenario - topic1 :
         # post1 - user1 - unread
         # post2 - user2 - unread
-        self.assertEqual(
-            self.post1,
-            self.topic1.first_unread_post(self.user1))
+        self.assertEqual(self.post1, self.topic1.first_unread_post(self.user1))
 
         # scenario - topic1 :
         # post1 - user1 - read
         # post2 - user2 - read
         # post3 - user2 - unread
         mark_read(self.topic1, self.user1)
-        post3 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.user2,
-            position_in_topic=3)
+        post3 = PrivatePostFactory(privatetopic=self.topic1, author=self.user2, position_in_topic=3)
 
-        self.assertEqual(
-            post3,
-            self.topic1.first_unread_post(self.user1))
+        self.assertEqual(post3, self.topic1.first_unread_post(self.user1))
 
     def test_one_participant_remaining(self):
         topic2 = PrivateTopicFactory(author=self.user1)
@@ -137,16 +111,13 @@ class PrivateTopicTest(TestCase):
         # post1 - user1 - read
         # post2 - user2 - read
         # post3 - user2 - unread
-        PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.user2,
-            position_in_topic=3)
+        PrivatePostFactory(privatetopic=self.topic1, author=self.user2, position_in_topic=3)
 
         self.assertTrue(self.topic1.is_unread(self.user1))
 
     def test_topic_never_read_get_last_read(self):
-        """ Trying to read last message of a never read Private Topic
-        Should return the first message of the Topic """
+        """Trying to read last message of a never read Private Topic
+        Should return the first message of the Topic"""
 
         tester = ProfileFactory()
         self.topic1.participants.add(tester.user)
@@ -184,47 +155,58 @@ class PrivateTopicTest(TestCase):
         self.assertTrue(self.topic1.is_participant(self.user2))
         self.assertFalse(self.topic1.is_participant(self.outsider))
 
-    def test_add_participant_unreachable_user(self):
+    @patch("zds.mp.signals.participant_added")
+    def test_add_participant_unreachable_user(self, participant_added):
         self.assertFalse(is_reachable(self.bot))
         with self.assertRaises(NotReachableError):
             self.topic1.add_participant(self.bot)
+        self.assertFalse(participant_added.send.called)
 
-    def test_add_participant_already_participating(self):
+    @patch("zds.mp.signals.participant_added")
+    def test_add_participant_already_participating(self, participant_added):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.add_participant(self.user2)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
+        self.assertFalse(participant_added.send.called)
 
-    def test_add_participant_normal(self):
+    @patch("zds.mp.signals.participant_added")
+    def test_add_participant_normal(self, participant_added):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.add_participant(self.outsider)
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2, self.outsider])
+        self.assertEqual(participant_added.send.call_count, 1)
 
-    def test_remove_participant_not_participating(self):
+    @patch("zds.mp.signals.participant_removed")
+    def test_remove_participant_not_participating(self, participant_removed):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.remove_participant(self.outsider)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
+        self.assertFalse(participant_removed.send.called)
 
-    def test_remove_participant_author(self):
+    @patch("zds.mp.signals.participant_removed")
+    def test_remove_participant_author(self, participant_removed):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.remove_participant(self.user1)
         self.assertEqual(self.topic1.author, self.user2)
         self.assertEqual(list(self.topic1.participants.all()), [])
+        self.assertEqual(participant_removed.send.call_count, 1)
 
-    def test_remove_participant_normal(self):
+    @patch("zds.mp.signals.participant_removed")
+    def test_remove_participant_normal(self, participant_removed):
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [self.user2])
         self.topic1.remove_participant(self.user2)
         self.assertEqual(self.topic1.author, self.user1)
         self.assertEqual(list(self.topic1.participants.all()), [])
+        self.assertEqual(participant_removed.send.call_count, 1)
 
 
 class PrivatePostTest(TestCase):
-
     def setUp(self):
         # scenario - topic1 :
         # post1 - user1 - unread
@@ -234,33 +216,19 @@ class PrivatePostTest(TestCase):
         self.profile2 = ProfileFactory()
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
-        self.post1 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile1.user,
-            position_in_topic=1)
+        self.post1 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile1.user, position_in_topic=1)
 
-        self.post2 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile2.user,
-            position_in_topic=2)
+        self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
     def test_absolute_url(self):
-        page = int(
-            ceil(
-                float(
-                    self.post1.position_in_topic) /
-                settings.ZDS_APP['forum']['posts_per_page']))
+        page = int(ceil(float(self.post1.position_in_topic) / settings.ZDS_APP["forum"]["posts_per_page"]))
 
-        url = '{0}?page={1}#p{2}'.format(
-            self.post1.privatetopic.get_absolute_url(),
-            page,
-            self.post1.pk)
+        url = "{0}?page={1}#p{2}".format(self.post1.privatetopic.get_absolute_url(), page, self.post1.pk)
 
         self.assertEqual(url, self.post1.get_absolute_url())
 
 
 class PrivateTopicReadTest(TestCase):
-
     def setUp(self):
         # scenario - topic1 :
         # post1 - user1 - unread
@@ -270,19 +238,12 @@ class PrivateTopicReadTest(TestCase):
         self.profile2 = ProfileFactory()
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
-        self.post1 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile1.user,
-            position_in_topic=1)
+        self.post1 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile1.user, position_in_topic=1)
 
-        self.post2 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile2.user,
-            position_in_topic=2)
+        self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
 
 class FunctionTest(TestCase):
-
     def setUp(self):
         # scenario - topic1 :
         # post1 - user1 - unread
@@ -292,22 +253,17 @@ class FunctionTest(TestCase):
         self.profile2 = ProfileFactory()
         self.topic1 = PrivateTopicFactory(author=self.profile1.user)
         self.topic1.participants.add(self.profile2.user)
-        self.post1 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile1.user,
-            position_in_topic=1)
+        self.post1 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile1.user, position_in_topic=1)
 
-        self.post2 = PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile2.user,
-            position_in_topic=2)
+        self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
     def test_never_privateread(self):
         self.assertTrue(is_privatetopic_unread(self.topic1, self.profile1.user))
         mark_read(self.topic1, self.profile1.user)
         self.assertFalse(is_privatetopic_unread(self.topic1, self.profile1.user))
 
-    def test_mark_read(self):
+    @patch("zds.mp.signals.topic_read")
+    def test_mark_read(self, topic_read):
         self.assertTrue(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
@@ -315,13 +271,11 @@ class FunctionTest(TestCase):
         # post2 - user2 - read
         mark_read(self.topic1, self.profile1.user)
         self.assertFalse(self.topic1.is_unread(self.profile1.user))
+        self.assertEqual(topic_read.send.call_count, 1)
 
         # scenario - topic1 :
         # post1 - user1 - read
         # post2 - user2 - read
         # post3 - user2 - unread
-        PrivatePostFactory(
-            privatetopic=self.topic1,
-            author=self.profile2.user,
-            position_in_topic=3)
+        PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=3)
         self.assertTrue(self.topic1.is_unread(self.profile1.user))

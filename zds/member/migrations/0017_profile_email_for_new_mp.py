@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('member', '0016_python_3'),
+        ("member", "0016_python_3"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='email_for_new_mp',
-            field=models.BooleanField(default=False, verbose_name='Envoyer pour les nouveaux MP'),
+            model_name="profile",
+            name="email_for_new_mp",
+            field=models.BooleanField(default=False, verbose_name="Envoyer pour les nouveaux MP"),
         ),
     ]

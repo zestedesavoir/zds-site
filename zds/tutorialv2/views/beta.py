@@ -37,21 +37,23 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     def _create_beta_topic(self, msg, beta_version, _type, tags):
         topic_title = beta_version.title
-        _tags = '[beta][{}]'.format(_type)
+        _tags = "[beta][{}]".format(_type)
         i = 0
-        max_len = Topic._meta.get_field('title').max_length
+        max_len = Topic._meta.get_field("title").max_length
 
         while i < len(tags) and len(topic_title) + len(_tags) + len(tags[i].title) + 2 < max_len:
-            _tags += '[{}]'.format(tags[i])
+            _tags += "[{}]".format(tags[i])
             i += 1
-        forum = get_object_or_404(Forum, pk=settings.ZDS_APP['forum']['beta_forum_id'])
-        topic = create_topic(request=self.request,
-                             author=self.request.user,
-                             forum=forum,
-                             title=topic_title,
-                             subtitle='{}'.format(beta_version.description),
-                             text=msg,
-                             related_publishable_content=self.object)
+        forum = get_object_or_404(Forum, pk=settings.ZDS_APP["forum"]["beta_forum_id"])
+        topic = create_topic(
+            request=self.request,
+            author=self.request.user,
+            forum=forum,
+            title=topic_title,
+            subtitle="{}".format(beta_version.description),
+            text=msg,
+            related_publishable_content=self.object,
+        )
         topic.save()
         # make all authors follow the topic:
         for author in self.object.authors.all():
@@ -72,27 +74,27 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         topic = self.object.beta_topic
 
         if topic:
-            if topic.forum_id != settings.ZDS_APP['forum']['beta_forum_id']:
+            if topic.forum_id != settings.ZDS_APP["forum"]["beta_forum_id"]:
                 # if the topic is moved from the beta forum, then a new one is created instead
                 topic = None
 
         _type = self.object.type.lower()
-        if _type == 'tutorial':
-            _type = _('tutoriel')
-        elif _type == 'opinion':
+        if _type == "tutorial":
+            _type = _("tutoriel")
+        elif _type == "opinion":
             raise PermissionDenied
 
         # perform actions:
-        if self.action == 'inactive':
+        if self.action == "inactive":
             self.object.sha_beta = None
 
             msg_post = render_to_string(
-                'tutorialv2/messages/beta_desactivate.md', {'content': beta_version, 'type': _type}
+                "tutorialv2/messages/beta_desactivate.md", {"content": beta_version, "type": _type}
             )
             send_post(self.request, topic, self.request.user, msg_post)
             lock_topic(topic)
 
-        elif self.action == 'set':
+        elif self.action == "set":
             already_in_beta = self.object.in_beta()
             all_tags = []
 
@@ -102,12 +104,12 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                 self.versioned_object.sha_beta = sha_beta
 
                 msg = render_to_string(
-                    'tutorialv2/messages/beta_activate_topic.md',
+                    "tutorialv2/messages/beta_activate_topic.md",
                     {
-                        'content': beta_version,
-                        'type': _type,
-                        'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
-                    }
+                        "content": beta_version,
+                        "type": _type,
+                        "url": settings.ZDS_APP["site"]["url"] + self.versioned_object.get_absolute_url_beta(),
+                    },
                 )
 
                 if not topic:
@@ -117,15 +119,15 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     all_tags = self._get_all_tags()
                     topic = self._create_beta_topic(msg, beta_version, _type, all_tags)
 
-                    bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+                    bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
                     msg_pm = render_to_string(
-                        'tutorialv2/messages/beta_activate_pm.md',
+                        "tutorialv2/messages/beta_activate_pm.md",
                         {
-                            'content': beta_version,
-                            'type': _type,
-                            'url': settings.ZDS_APP['site']['url'] + topic.get_absolute_url(),
-                            'user': self.request.user
-                        }
+                            "content": beta_version,
+                            "type": _type,
+                            "url": settings.ZDS_APP["site"]["url"] + topic.get_absolute_url(),
+                            "user": self.request.user,
+                        },
                     )
                     if not self.object.validation_private_message:
                         self.object.validation_private_message = send_mp(
@@ -136,13 +138,13 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                             msg_pm,
                             send_by_mail=False,
                             leave=True,
-                            hat=get_hat_from_settings('validation'))
-                        self.object.save(force_slug_update=False)
+                            hat=get_hat_from_settings("validation"),
+                        )
+                        self.object.save()
                     else:
-                        send_message_mp(bot,
-                                        self.object.validation_private_message,
-                                        msg,
-                                        hat=get_hat_from_settings('validation'))
+                        send_message_mp(
+                            bot, self.object.validation_private_message, msg, hat=get_hat_from_settings("validation")
+                        )
 
                 # When the anti-spam triggers (because the author of the
                 # message posted themselves within the last 15 minutes),
@@ -156,22 +158,22 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     if not already_in_beta:
                         unlock_topic(topic)
                         msg_post = render_to_string(
-                            'tutorialv2/messages/beta_reactivate.md',
+                            "tutorialv2/messages/beta_reactivate.md",
                             {
-                                'content': beta_version,
-                                'type': _type,
-                                'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
-                            }
+                                "content": beta_version,
+                                "type": _type,
+                                "url": settings.ZDS_APP["site"]["url"] + self.versioned_object.get_absolute_url_beta(),
+                            },
                         )
                         topic = send_post(self.request, topic, self.request.user, msg_post)
                     elif not topic.antispam():
                         msg_post = render_to_string(
-                            'tutorialv2/messages/beta_update.md',
+                            "tutorialv2/messages/beta_update.md",
                             {
-                                'content': beta_version,
-                                'type': _type,
-                                'url': settings.ZDS_APP['site']['url'] + self.versioned_object.get_absolute_url_beta()
-                            }
+                                "content": beta_version,
+                                "type": _type,
+                                "url": settings.ZDS_APP["site"]["url"] + self.versioned_object.get_absolute_url_beta(),
+                            },
                         )
                         topic = send_post(self.request, topic, self.request.user, msg_post)
 
@@ -187,7 +189,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     topic.tags.add(tag)
                 topic.save()
 
-        self.object.save(force_slug_update=False)  # we should prefer .update but it needs a uge refactoring
+        self.object.save()  # we should prefer .update but it needs a huge refactoring
 
         self.success_url = self.versioned_object.get_absolute_url(version=sha_beta)
 

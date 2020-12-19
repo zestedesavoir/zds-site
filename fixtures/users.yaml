@@ -100,6 +100,16 @@
         is_superuser: False
         groups:
             - 3
+-   model: auth.user
+    pk: 9
+    fields:
+        first_name: Clem
+        last_name: Sanspépins
+        username: bot
+        password: pbkdf2_sha256$150000$bzWpLKZ2InfO$pmA3IQng4g+79tJ4p99GHKfEkGoztRnzDqa7Ny6jNu8=
+        is_superuser: False
+        groups:
+            - 2
 
 -   model: member.Profile
     pk: 1
@@ -140,6 +150,11 @@
     pk: 8
     fields:
         user: 8
+        last_ip_address: 192.168.0.1
+-   model: member.Profile
+    pk: 9
+    fields:
+        user: 9
         last_ip_address: 192.168.0.1
 
 -   model: utils.Hat

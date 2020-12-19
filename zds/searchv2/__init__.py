@@ -4,13 +4,13 @@ from elasticsearch_dsl.connections import connections
 from django.conf import settings
 
 DEFAULT_ES_CONNECTIONS = {
-    'default': {
-        'hosts': ['localhost:9200'],
+    "default": {
+        "hosts": ["localhost:9200"],
     }
 }
 
-CONNECTIONS = getattr(settings, 'ES_CONNECTIONS', DEFAULT_ES_CONNECTIONS)
-ENABLED = getattr(settings, 'ES_ENABLED', False)
+CONNECTIONS = getattr(settings, "ES_CONNECTIONS", DEFAULT_ES_CONNECTIONS)
+ENABLED = getattr(settings, "ES_ENABLED", False)
 
 
 def setup_es_connections():

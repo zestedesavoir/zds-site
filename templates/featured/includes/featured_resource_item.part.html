@@ -7,7 +7,7 @@
         <img src="{{ featured_resource.image_url|remove_url_scheme }}" alt="Illustration {{ featured_resource.title }}" class="featured-resource-illu">
         <div class="featured-resource-meta">
             <h2>{{ featured_resource.title|french_typography }}</h2>
-            <p class="featured-resource-description">{{ featured_resource.type }} {% if featured_resource.authors %} {% trans "par" %} <i>{{ featured_resource.authors }}</i>{% endif %}</p>
+            <p class="featured-resource-description">{{ featured_resource.type|french_typography }} {% if featured_resource.authors %} {% trans "par" %} <i>{{ featured_resource.authors }}</i>{% endif %}</p>
         </div>
     </a>
 </article>

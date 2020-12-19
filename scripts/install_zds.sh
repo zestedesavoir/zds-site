@@ -47,14 +47,6 @@ LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
 source $LOCAL_DIR/define_function.sh
 
-
-# enable travis fold
-ZDS_SHOW_TRAVIS_FOLD=0
-if $(_in "--travis-output" $@); then
-    ZDS_SHOW_TRAVIS_FOLD=1
-    export DJANGO_SETTINGS_MODULE="zds.settings.travis_fixture"
-fi
-
 zds_fold_category "install"
 
 
@@ -156,6 +148,7 @@ fi
 
 
 # virtualenv
+
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     zds_fold_start "virtualenv" "* Create virtualenv"
 
@@ -305,7 +298,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
         export ES_JAVA_OPTS="-Xms512m -Xmx512m"
 
         if [[ $(grep -c -i "export JAVA_HOME" $ZDS_ENV/bin/activate) == "0" ]]; then # add java to venv activate's
-            ACTIVATE_JAVA="export PATH=\"$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\""
+            ACTIVATE_JAVA="export PATH=\"\$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\""
 
             echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate
             echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate.csh

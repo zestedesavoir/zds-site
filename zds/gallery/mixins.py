@@ -3,7 +3,6 @@ import os
 import shutil
 import tempfile
 import zipfile
-from uuslug import slugify
 
 from PIL import Image as ImagePIL
 from easy_thumbnails.files import get_thumbnailer
@@ -12,6 +11,7 @@ from django.conf import settings
 
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils.uuslug_wrapper import slugify
 
 
 class GalleryMixin:
@@ -45,7 +45,7 @@ class GalleryMixin:
         :rtype: bool
         """
         if user.pk in self.users_and_permissions:
-            return True if not must_write else self.users_and_permissions[user.pk]['write']
+            return True if not must_write else self.users_and_permissions[user.pk]["write"]
         return False
 
     def linked_content(self):
@@ -63,8 +63,7 @@ class GalleryMixin:
 
 
 class GalleryCreateMixin(GalleryMixin):
-
-    def perform_create(self, title, user, subtitle=''):
+    def perform_create(self, title, user, subtitle=""):
         """Create gallery
 
         :param title: title
@@ -85,7 +84,7 @@ class GalleryCreateMixin(GalleryMixin):
         user_gallery.save()
 
         self.gallery = gallery
-        self.users_and_permissions = {user.pk: {'read': True, 'write': True}}
+        self.users_and_permissions = {user.pk: {"read": True, "write": True}}
 
         return self.gallery
 
@@ -110,11 +109,11 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
         :type data: dict
         :rtype: Gallery
         """
-        if 'title' in data:
-            self.gallery.title = data.get('title')
+        if "title" in data:
+            self.gallery.title = data.get("title")
             self.gallery.slug = slugify(self.gallery.title)
-        if 'subtitle' in data:
-            self.gallery.subtitle = data.get('subtitle')
+        if "subtitle" in data:
+            self.gallery.subtitle = data.get("subtitle")
 
         self.gallery.save()
         return self.gallery
@@ -130,10 +129,9 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
 
         mode = GALLERY_WRITE if can_write else GALLERY_READ
         if user.pk not in self.users_and_permissions:
-            user_gallery = UserGallery(
-                user=user, gallery=self.gallery, mode=mode)
+            user_gallery = UserGallery(user=user, gallery=self.gallery, mode=mode)
             user_gallery.save()
-            self.users_and_permissions[user.pk] = {'read': True, 'write': can_write}
+            self.users_and_permissions[user.pk] = {"read": True, "write": can_write}
             return user_gallery
         else:
             raise UserAlreadyInGallery()
@@ -156,13 +154,12 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
         if user_gallery.mode != mode:
             user_gallery.mode = mode
             user_gallery.save()
-            self.users_and_permissions[user.pk]['write'] = can_write
+            self.users_and_permissions[user.pk]["write"] = can_write
 
         return user_gallery
 
     def perform_delete(self):
-        """Delete gallery
-        """
+        """Delete gallery"""
         UserGallery.objects.filter(gallery=self.gallery).delete()
         self.gallery.delete()
 
@@ -178,7 +175,7 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
         for user_pk, user_perms in self.users_and_permissions.items():
             if user_pk == user.pk:
                 continue
-            if user_perms['write']:
+            if user_perms["write"]:
                 still_one_user_with_write = True
                 break
 
@@ -223,7 +220,7 @@ class NotAnImage(Exception):
 
 
 class ImageCreateMixin(ImageMixin):
-    def perform_create(self, title, physical, legend=''):
+    def perform_create(self, title, physical, legend=""):
         """Create a new image
 
         :param title: title
@@ -233,7 +230,7 @@ class ImageCreateMixin(ImageMixin):
         :param legend: legend (optional)
         :type legend: str
         """
-        if physical.size > settings.ZDS_APP['gallery']['image_max_size']:
+        if physical.size > settings.ZDS_APP["gallery"]["image_max_size"]:
             raise ImageTooLarge(title, physical.size)
 
         try:
@@ -266,27 +263,27 @@ class ImageCreateMixin(ImageMixin):
         :type archive: str
         """
         temp = tempfile.mkdtemp()
-        zfile = zipfile.ZipFile(archive, 'r')
+        zfile = zipfile.ZipFile(archive, "r")
 
         error_files = []
 
         for i in zfile.namelist():
             info = zfile.getinfo(i)
 
-            if info.filename[-1] == '/':  # .is_dir() in python 3.6
+            if info.filename[-1] == "/":  # .is_dir() in python 3.6
                 continue
 
             basename = os.path.basename(i)
             (name, ext) = os.path.splitext(basename)
 
-            if info.file_size > settings.ZDS_APP['gallery']['image_max_size']:
+            if info.file_size > settings.ZDS_APP["gallery"]["image_max_size"]:
                 error_files.append(i)
                 continue
 
             # create file for image
             ph_temp = os.path.abspath(os.path.join(temp, basename))
 
-            f_im = open(ph_temp, 'wb')
+            f_im = open(ph_temp, "wb")
             f_im.write(zfile.read(i))
             f_im.close()
 
@@ -298,7 +295,7 @@ class ImageCreateMixin(ImageMixin):
                 continue
 
             # create picture:
-            f_im = get_thumbnailer(open(ph_temp, 'rb'), relative_name=ph_temp)
+            f_im = get_thumbnailer(open(ph_temp, "rb"), relative_name=ph_temp)
             f_im.name = basename
             self.perform_create(name, f_im)
             f_im.close()
@@ -322,9 +319,9 @@ class ImageUpdateOrDeleteMixin(ImageMixin):
         :type data: dict
         """
 
-        if 'physical' in data:
-            physical = data.get('physical')
-            if physical.size > settings.ZDS_APP['gallery']['image_max_size']:
+        if "physical" in data:
+            physical = data.get("physical")
+            if physical.size > settings.ZDS_APP["gallery"]["image_max_size"]:
                 raise ImageTooLarge(self.image.title, physical.size)
 
             try:
@@ -334,12 +331,12 @@ class ImageUpdateOrDeleteMixin(ImageMixin):
 
             self.image.physical = physical
 
-        if 'title' in data:
-            self.image.title = data.get('title')
+        if "title" in data:
+            self.image.title = data.get("title")
             self.image.slug = slugify(self.image.title)
 
-        if 'legend' in data:
-            self.image.legend = data.get('legend')
+        if "legend" in data:
+            self.image.legend = data.get("legend")
 
         self.image.save()
 

@@ -1,0 +1,89 @@
+{% extends "forum/base.html" %}
+{% load date %}
+{% load profile %}
+{% load emarkdown %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Commentaires postés par" %} {{ usr.username }}
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Commentaires postés par" %} "{{ usr.username }}"
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% with profile=usr|profile %}
+        <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
+    {% endwith %}
+    <li><a href="{% url 'content:list-content-reactions' usr.pk %}">{% trans "Commentaires postés" %}</a></li>
+    <li>{% trans "Recherche" %}</li>
+{% endblock %}
+
+
+
+{% block content %}
+
+    {% if hidden_content_reactions_count %}
+        <p class="alert-box info">
+            {% blocktrans count counter=hidden_content_reactions_count %}
+                {{ counter }} commentaire est invisible car dans une publication inaccessible.
+            {% plural %}
+                {{ counter }} commentaires sont invisibles car dans une publication inaccessible.
+            {% endblocktrans %}
+        </p>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if content_reactions %}
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th width="15%">{% trans "Publication" %}</th>
+                        <th width="10%">{% trans "Date" %}</th>
+                        <th width="30%">{% trans "Extrait" %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for content_reaction in content_reactions %}
+                        <tr>
+                            <td>
+                                <div class="forum-entry-title">
+                                    <a href="{{ content_reaction.get_absolute_url }}">{{ content_reaction.related_content.title }} </a>
+                                    {% if content_reaction.related_content.description %} <p> {{ content_reaction.related_content.description }} </p> {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                {{ content_reaction.pubdate|format_date }}
+                            </td>
+                            <td>
+                                {% if content_reaction.is_visible %}
+                                    {{ content_reaction.text|truncatechars:200 }}
+                                {% else %}
+                                    {% if content_reaction.text_hidden %}
+                                        {% trans "Masqué par" %} {{ content_reaction.editor }}
+                                        : {{ content_reaction.text_hidden }}
+                                    {% endif %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>
+            {% trans "Aucun commentaire n’a été posté par" %} {{ usr.username }}.
+        </p>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}

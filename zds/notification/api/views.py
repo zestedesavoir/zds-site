@@ -18,15 +18,15 @@ from zds.notification.models import Notification
 
 class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
-    search = bits.QueryParamsKeyBit(['search', 'ordering', 'type'])
+    search = bits.QueryParamsKeyBit(["search", "ordering", "type"])
     list_sql_query = bits.ListSqlQueryKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_notification')
+    updated_at = UpdatedAtKeyBit("api_updated_notification")
 
 
 def change_api_notification_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_notification', datetime.datetime.utcnow())
+    cache.set("api_updated_notification", datetime.datetime.utcnow())
 
 
 post_save.connect(receiver=change_api_notification_updated_at, sender=Notification)
@@ -39,11 +39,17 @@ class NotificationListAPI(ListAPIView):
     """
 
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('title',)
-    ordering_fields = ('pubdate', 'title',)
+    search_fields = ("title",)
+    ordering_fields = (
+        "pubdate",
+        "title",
+    )
     list_key_func = PagingNotificationListKeyConstructor()
     serializer_class = NotificationSerializer
-    permission_classes = (IsAuthenticated, DRYPermissions,)
+    permission_classes = (
+        IsAuthenticated,
+        DRYPermissions,
+    )
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)
@@ -92,10 +98,10 @@ class NotificationListAPI(ListAPIView):
 
     def get_queryset(self):
         queryset = Notification.objects.get_notifications_of(self.request.user)
-        subscription_type = self.request.query_params.get('subscription_type', None)
+        subscription_type = self.request.query_params.get("subscription_type", None)
         if subscription_type:
             queryset = queryset.filter(subscription__content_type__model=subscription_type)
-        _type = self.request.query_params.get('type', None)
+        _type = self.request.query_params.get("type", None)
         if _type:
             queryset = queryset.filter(content_type__model=_type)
         return queryset

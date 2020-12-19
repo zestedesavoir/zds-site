@@ -13,14 +13,13 @@ from zds.tutorialv2.models.database import PublishedContent, FakeChapter, Publis
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_for_contents(
-    ES_ENABLED=True, ES_SEARCH_INDEX={'name': 'zds_search_test', 'shards': 5, 'replicas': 0})
+@override_for_contents(ES_ENABLED=True, ES_SEARCH_INDEX={"name": "zds_search_test", "shards": 5, "replicas": 0})
 class ESIndexManagerTests(TutorialTestMixin, TestCase):
     def setUp(self):
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
-        settings.ZDS_APP['member']['bot_account'] = self.mas.username
+        settings.ZDS_APP["member"]["bot_account"] = self.mas.username
 
         self.category, self.forum = create_category_and_forum()
 
@@ -40,15 +39,15 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         if not self.manager.connected_to_es:
             return
 
-        custom_index = {'name': 'some_random_name', 'shards': 3, 'replicas': 1}
+        custom_index = {"name": "some_random_name", "shards": 3, "replicas": 1}
         manager = ESIndexManager(**custom_index)
 
         # in the beginning: the void:
         self.assertTrue(manager.index not in self.manager.es.cat.indices())
 
-        self.assertEqual(manager.index, custom_index['name'])
-        self.assertEqual(manager.number_of_shards, custom_index['shards'])
-        self.assertEqual(manager.number_of_replicas, custom_index['replicas'])
+        self.assertEqual(manager.index, custom_index["name"])
+        self.assertEqual(manager.number_of_shards, custom_index["shards"])
+        self.assertEqual(manager.number_of_replicas, custom_index["replicas"])
 
         # 1. Creation:
         models = [Topic, Post]
@@ -57,28 +56,28 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
 
         index_settings = manager.es.indices.get_settings(index=manager.index)
         self.assertTrue(manager.index in index_settings)
-        index_settings = index_settings[manager.index]['settings']['index']
+        index_settings = index_settings[manager.index]["settings"]["index"]
 
-        self.assertEqual(index_settings['provided_name'], manager.index)
-        self.assertEqual(index_settings['number_of_shards'], str(manager.number_of_shards))
-        self.assertEqual(index_settings['number_of_replicas'], str(manager.number_of_replicas))
+        self.assertEqual(index_settings["provided_name"], manager.index)
+        self.assertEqual(index_settings["number_of_shards"], str(manager.number_of_shards))
+        self.assertEqual(index_settings["number_of_replicas"], str(manager.number_of_replicas))
 
         # test mappings
         mappings = manager.es.indices.get_mapping(index=manager.index)
         self.assertTrue(manager.index in mappings)
-        mappings = mappings[manager.index]['mappings']
+        mappings = mappings[manager.index]["mappings"]
 
         for model in models:
             self.assertTrue(model.get_es_document_type() in mappings)
 
         # analyzer
-        self.assertTrue('analysis' not in index_settings)
+        self.assertTrue("analysis" not in index_settings)
         manager.setup_custom_analyzer()
 
         index_settings = manager.es.indices.get_settings(index=manager.index)
         self.assertTrue(manager.index in index_settings)
-        index_settings = index_settings[manager.index]['settings']['index']
-        self.assertTrue('analysis' in index_settings)
+        index_settings = index_settings[manager.index]["settings"]["index"]
+        self.assertTrue("analysis" in index_settings)
 
         # 3. Clearing
         manager.clear_es_index()
@@ -92,15 +91,15 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
 
         test_sentences = [
             # stemming:
-            ('programmation programmer programmateur programmes', ['program', 'program', 'program', 'program']),
+            ("programmation programmer programmateur programmes", ["program", "program", "program", "program"]),
             # keep "c" intact:
-            ('apprendre à programmer en C', ['aprendr', 'program', 'langage_c']),
+            ("apprendre à programmer en C", ["aprendr", "program", "langage_c"]),
             # remove HTML and some special characters:
-            ('<p>&laquo; test&#x202F;! &raquo;, en hurlant &hellip;</p>', ['test', 'hurlant']),
+            ("<p>&laquo; test&#x202F;! &raquo;, en hurlant &hellip;</p>", ["test", "hurlant"]),
             # keep "c++" and "linux" intact:
-            ('écrire un programme en C++ avec Linux', ['ecrir', 'program', 'c++', 'linux']),
+            ("écrire un programme en C++ avec Linux", ["ecrir", "program", "c++", "linux"]),
             # elision:
-            ("c'est de l'arnaque", ['arnaqu'])
+            ("c'est de l'arnaque", ["arnaqu"]),
         ]
 
         for sentence in test_sentences:
@@ -127,7 +126,7 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         self.assertTrue(post.es_flagged)
 
         # create a middle-tutorial and publish it
-        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto = PublishableContentFactory(type="TUTORIAL")
         tuto.authors.add(self.user)
         tuto.save()
 
@@ -169,12 +168,12 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         results = self.manager.setup_search(s).execute()
         self.assertEqual(len(results), 4)  # get 4 results, one of each type
 
-        must_contain = {'post': False, 'topic': False, 'publishedcontent': False, 'chapter': False}
+        must_contain = {"post": False, "topic": False, "publishedcontent": False, "chapter": False}
         id_must_be = {
-            'post': str(post.pk),
-            'topic': str(topic.pk),
-            'publishedcontent': str(published.pk),
-            'chapter': tuto.slug + '__' + chapter1.slug
+            "post": str(post.pk),
+            "topic": str(topic.pk),
+            "publishedcontent": str(published.pk),
+            "chapter": tuto.slug + "__" + chapter1.slug,
         }
 
         for hit in results:
@@ -281,7 +280,7 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
             return
 
         # 1. Create a middle-tutorial, publish it, then index it
-        tuto = PublishableContentFactory(type='TUTORIAL')
+        tuto = PublishableContentFactory(type="TUTORIAL")
         tuto.authors.add(self.user)
         tuto.save()
 
@@ -313,10 +312,10 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version(sha=tuto.sha_draft)
 
-        tuto.title = 'un titre complètement différent!'
-        tuto.save()
+        tuto.title = "un titre complètement différent!"
+        tuto.save(force_slug_update=True)
 
-        versioned.repo_update_top_container(tuto.title, tuto.slug, 'osef', 'osef')
+        versioned.repo_update_top_container(tuto.title, tuto.slug, "osef", "osef")
         second_publication = publish_content(tuto, versioned, True)
 
         tuto.sha_public = versioned.current_version

@@ -16,11 +16,11 @@ from django.db import transaction
 
 
 def es_document_mapper(force_reindexing, index, obj):
-    action = 'update' if obj.es_already_indexed and not force_reindexing else 'index'
+    action = "update" if obj.es_already_indexed and not force_reindexing else "index"
     return obj.get_es_document_as_bulk_action(index, action)
 
 
-class AbstractESIndexable(object):
+class AbstractESIndexable:
     """Mixin for indexable objects.
 
     Define a number of different functions that can be overridden to tune the behavior of indexing into elasticsearch.
@@ -35,7 +35,7 @@ class AbstractESIndexable(object):
     """
 
     es_already_indexed = False
-    es_id = ''
+    es_id = ""
 
     objects_per_batch = 100
 
@@ -47,7 +47,7 @@ class AbstractESIndexable(object):
         # fetch parents
         for base in cls.__bases__:
             if issubclass(base, AbstractESIndexable) and base != AbstractESDjangoIndexable:
-                content_type = base.__name__.lower() + '_' + content_type
+                content_type = base.__name__.lower() + "_" + content_type
 
         return content_type
 
@@ -115,7 +115,7 @@ class AbstractESIndexable(object):
 
         return data
 
-    def get_es_document_as_bulk_action(self, index, action='index'):
+    def get_es_document_as_bulk_action(self, index, action="index"):
         """Create a document formatted for a ``_bulk`` operation. Formatting is done based on action.
 
         See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
@@ -128,24 +128,20 @@ class AbstractESIndexable(object):
         :rtype: dict
         """
 
-        if action not in ['index', 'update', 'delete']:
-            raise ValueError('action must be `index`, `update` or `delete`')
+        if action not in ["index", "update", "delete"]:
+            raise ValueError("action must be `index`, `update` or `delete`")
 
-        document = {
-            '_op_type': action,
-            '_index': index,
-            '_type': self.get_es_document_type()
-        }
+        document = {"_op_type": action, "_index": index, "_type": self.get_es_document_type()}
 
-        if action == 'index':
+        if action == "index":
             if self.es_id:
-                document['_id'] = self.es_id
-            document['_source'] = self.get_es_document_source()
-        elif action == 'update':
-            document['_id'] = self.es_id
-            document['doc'] = self.get_es_document_source()
-        elif action == 'delete':
-            document['_id'] = self.es_id
+                document["_id"] = self.es_id
+            document["_source"] = self.get_es_document_source()
+        elif action == "update":
+            document["_id"] = self.es_id
+            document["doc"] = self.get_es_document_source()
+        elif action == "delete":
+            document["_id"] = self.es_id
 
         return document
 
@@ -164,8 +160,8 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
     class Meta:
         abstract = True
 
-    es_flagged = models.BooleanField('Doit être (ré)indexé par ES', default=True, db_index=True)
-    es_already_indexed = models.BooleanField('Déjà indexé par ES', default=False, db_index=True)
+    es_flagged = models.BooleanField("Doit être (ré)indexé par ES", default=True, db_index=True)
+    es_already_indexed = models.BooleanField("Déjà indexé par ES", default=False, db_index=True)
 
     def __init__(self, *args, **kwargs):
         """Override to match ES ``_id`` field and ``pk``"""
@@ -181,7 +177,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         """
 
         es_mapping = super(AbstractESDjangoIndexable, cls).get_es_mapping()
-        es_mapping.field('pk', 'integer')
+        es_mapping.field("pk", "integer")
         return es_mapping
 
     @classmethod
@@ -209,7 +205,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         :rtype: django.db.models.query.QuerySet
         """
 
-        return cls.get_es_django_indexable(force_reindexing).order_by('pk').all()
+        return cls.get_es_django_indexable(force_reindexing).order_by("pk").all()
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object if saved
@@ -219,7 +215,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
             Flagging can be prevented using ``save(es_flagged=False)``.
         """
 
-        self.es_flagged = kwargs.pop('es_flagged', True)
+        self.es_flagged = kwargs.pop("es_flagged", True)
 
         return super(AbstractESDjangoIndexable, self).save(*args, **kwargs)
 
@@ -246,13 +242,14 @@ def get_django_indexable_objects():
 
 class NeedIndex(Exception):
     """Raised when an action requires an index, but it is not created (yet)."""
+
     pass
 
 
-class ESIndexManager(object):
+class ESIndexManager:
     """Manage a given index with different taylor-made functions"""
 
-    def __init__(self, name, shards=5, replicas=0, connection_alias='default'):
+    def __init__(self, name, shards=5, replicas=0, connection_alias="default"):
         """Create a manager for a given index
 
         :param name: the index name
@@ -271,9 +268,7 @@ class ESIndexManager(object):
         self.number_of_shards = shards
         self.number_of_replicas = replicas
 
-        self.logger = logging.getLogger(
-            '{}.{}:{}'.format(__name__, self.__class__.__name__, self.index)
-        )
+        self.logger = logging.getLogger("{}.{}:{}".format(__name__, self.__class__.__name__, self.index))
 
         self.es = None
         self.connected_to_es = False
@@ -287,23 +282,22 @@ class ESIndexManager(object):
                 self.es.info()
             except ConnectionError:
                 self.connected_to_es = False
-                self.logger.warn('failed to connect to ES cluster')
+                self.logger.warn("failed to connect to ES cluster")
             else:
-                self.logger.info('connected to ES cluster')
+                self.logger.info("connected to ES cluster")
 
             if self.connected_to_es:
                 self.index_exists = self.es.indices.exists(self.index)
 
     def clear_es_index(self):
-        """Clear index
-        """
+        """Clear index"""
 
         if not self.connected_to_es:
             return
 
         if self.es.indices.exists(self.index):
             self.es.indices.delete(self.index)
-            self.logger.info('index cleared')
+            self.logger.info("index cleared")
 
             self.index_exists = False
 
@@ -333,17 +327,14 @@ class ESIndexManager(object):
         self.es.indices.create(
             self.index,
             body={
-                'settings': {
-                    'number_of_shards': self.number_of_shards,
-                    'number_of_replicas': self.number_of_replicas
-                },
-                'mappings': mappings_def
-            }
+                "settings": {"number_of_shards": self.number_of_shards, "number_of_replicas": self.number_of_replicas},
+                "mappings": mappings_def,
+            },
         )
 
         self.index_exists = True
 
-        self.logger.info('index created')
+        self.logger.info("index created")
 
     def setup_custom_analyzer(self):
         """Override the default analyzer.
@@ -373,64 +364,64 @@ class ESIndexManager(object):
         self.es.indices.close(self.index)
 
         document = {
-            'analysis': {
-                'filter': {
-                    'french_elision': {
-                        'type': 'elision',
-                        'articles_case': True,
-                        'articles': [
-                            'l', 'm', 't', 'qu', 'n', 's',
-                            'j', 'd', 'c', 'jusqu', 'quoiqu',
-                            'lorsqu', 'puisqu'
-                        ]
-                    },
-                    'protect_c_language': {
-                        'type': 'pattern_replace',
-                        'pattern': '^c$',
-                        'replacement': 'langage_c'
-                    },
-                    'french_stop': {
-                        'type': 'stop',
-                        'stopwords': '_french_'
-                    },
-                    'french_keywords': {
-                        'type': 'keyword_marker',
-                        'keywords': settings.ZDS_APP['search']['mark_keywords']
-                    },
-                    'french_stemmer': {
-                        'type': 'stemmer',
-                        'language': 'light_french'
-                    }
-                },
-                'tokenizer': {
-                    'custom_tokenizer': {
-                        'type': 'pattern',
-                        'pattern': '[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]'
-                    }
-                },
-                'analyzer': {
-                    'default': {
-                        'tokenizer': 'custom_tokenizer',
-                        'filter': [
-                            'lowercase',
-                            'protect_c_language',
-                            'french_elision',
-                            'french_stop',
-                            'french_keywords',
-                            'french_stemmer'
+            "analysis": {
+                "filter": {
+                    "french_elision": {
+                        "type": "elision",
+                        "articles_case": True,
+                        "articles": [
+                            "l",
+                            "m",
+                            "t",
+                            "qu",
+                            "n",
+                            "s",
+                            "j",
+                            "d",
+                            "c",
+                            "jusqu",
+                            "quoiqu",
+                            "lorsqu",
+                            "puisqu",
                         ],
-                        'char_filter': [
-                            'html_strip',
-                        ]
+                    },
+                    "protect_c_language": {"type": "pattern_replace", "pattern": "^c$", "replacement": "langage_c"},
+                    "french_stop": {"type": "stop", "stopwords": "_french_"},
+                    "french_keywords": {
+                        "type": "keyword_marker",
+                        "keywords": settings.ZDS_APP["search"]["mark_keywords"],
+                    },
+                    "french_stemmer": {"type": "stemmer", "language": "light_french"},
+                },
+                "tokenizer": {
+                    "custom_tokenizer": {
+                        "type": "pattern",
+                        "pattern": "[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]",
                     }
-                }
+                },
+                "analyzer": {
+                    "default": {
+                        "tokenizer": "custom_tokenizer",
+                        "filter": [
+                            "lowercase",
+                            "protect_c_language",
+                            "french_elision",
+                            "french_stop",
+                            "french_keywords",
+                            "french_stemmer",
+                        ],
+                        "char_filter": [
+                            "html_strip",
+                        ],
+                    }
+                },
             }
         }
 
         self.es.indices.put_settings(index=self.index, body=document)
         self.es.indices.open(self.index)
 
-        self.logger.info('setup analyzer')
+        self.logger.info("setup analyzer")
 
     def clear_indexing_of_model(self, model):
         """Nullify the indexing of a given model by setting ``es_already_index=False`` to all objects.
@@ -449,7 +440,7 @@ class ESIndexManager(object):
                 for obj in objects:
                     obj.es_already_indexed = False
 
-        self.logger.info('unindex {}'.format(model.get_es_document_type()))
+        self.logger.info("unindex {}".format(model.get_es_document_type()))
 
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
         """Perform a bulk action on documents of a given model. Use the ``objects_per_batch`` property to index.
@@ -476,14 +467,14 @@ class ESIndexManager(object):
             raise NeedIndex()
 
         # better safe than sorry
-        if model.__name__ == 'FakeChapter':
-            self.logger.warn('Cannot index FakeChapter model. Please index its parent model.')
+        if model.__name__ == "FakeChapter":
+            self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
             return 0
 
         documents_formatter = partial(es_document_mapper, force_reindexing, self.index)
-        objects_per_batch = getattr(model, 'objects_per_batch', 100)
+        objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
-        if model.__name__ == 'PublishedContent':
+        if model.__name__ == "PublishedContent":
             generate = model.get_es_indexable(force_reindexing)
             while True:
                 with transaction.atomic():
@@ -494,7 +485,7 @@ class ESIndexManager(object):
                         break
                     if not objects:
                         break
-                    if hasattr(objects[0], 'parent_model'):
+                    if hasattr(objects[0], "parent_model"):
                         model_to_update = objects[0].parent_model
                         pks = [o.parent_id for o in objects]
                     else:
@@ -504,17 +495,13 @@ class ESIndexManager(object):
                     formatted_documents = list(map(documents_formatter, objects))
 
                     for _, hit in parallel_bulk(
-                        self.es,
-                        formatted_documents,
-                        chunk_size=objects_per_batch,
-                        request_timeout=30
+                        self.es, formatted_documents, chunk_size=objects_per_batch, request_timeout=30
                     ):
                         action = list(hit.keys())[0]
-                        self.logger.info('{} {} with id {}'.format(action, hit[action]['_type'], hit[action]['_id']))
+                        self.logger.info("{} {} with id {}".format(action, hit[action]["_type"], hit[action]["_id"]))
 
                     # mark all these objects as indexed at once
-                    model_to_update.objects.filter(pk__in=pks) \
-                                           .update(es_already_indexed=True, es_flagged=False)
+                    model_to_update.objects.filter(pk__in=pks).update(es_already_indexed=True, es_flagged=False)
                     indexed_counter += len(objects)
             return indexed_counter
         else:
@@ -533,19 +520,18 @@ class ESIndexManager(object):
                     formatted_documents = list(map(documents_formatter, objects))
 
                     for _, hit in parallel_bulk(
-                        self.es,
-                        formatted_documents,
-                        chunk_size=objects_per_batch,
-                        request_timeout=30
+                        self.es, formatted_documents, chunk_size=objects_per_batch, request_timeout=30
                     ):
                         if self.logger.getEffectiveLevel() <= logging.INFO:
                             action = list(hit.keys())[0]
-                            self.logger.info('{} {} with id {}'.format(
-                                action, hit[action]['_type'], hit[action]['_id']))
+                            self.logger.info(
+                                "{} {} with id {}".format(action, hit[action]["_type"], hit[action]["_id"])
+                            )
 
                     # mark all these objects as indexed at once
-                    model.objects.filter(pk__in=[o.pk for o in objects]) \
-                                 .update(es_already_indexed=True, es_flagged=False)
+                    model.objects.filter(pk__in=[o.pk for o in objects]).update(
+                        es_already_indexed=True, es_flagged=False
+                    )
                     indexed_counter += len(objects)
 
                     # basic estimation of indexed objects per second
@@ -554,8 +540,11 @@ class ESIndexManager(object):
                     then = now
                     obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
                     if force_reindexing:
-                        print('    {} so far ({} obj/s, batch size: {})'.format(
-                              indexed_counter, obj_per_sec, objects_per_batch))
+                        print(
+                            "    {} so far ({} obj/s, batch size: {})".format(
+                                indexed_counter, obj_per_sec, objects_per_batch
+                            )
+                        )
 
                     if prev_obj_per_sec is False:
                         prev_obj_per_sec = obj_per_sec
@@ -566,7 +555,7 @@ class ESIndexManager(object):
                         if abs(1 - ratio) > 0.1:
                             objects_per_batch = int(objects_per_batch * ratio)
                             if force_reindexing:
-                                print('     {}x, new batch size: {}'.format(round(ratio, 2), objects_per_batch))
+                                print("     {}x, new batch size: {}".format(round(ratio, 2), objects_per_batch))
                         prev_obj_per_sec = obj_per_sec
 
                     # fetch next batch
@@ -609,10 +598,10 @@ class ESIndexManager(object):
         if not self.index_exists:
             raise NeedIndex()
 
-        arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
+        arguments = {"index": self.index, "doc_type": document.get_es_document_type(), "id": document.es_id}
         if self.es.exists(**arguments):
-            self.es.update(body={'doc': doc}, **arguments)
-            self.logger.info('partial_update {} with id {}'.format(document.get_es_document_type(), document.es_id))
+            self.es.update(body={"doc": doc}, **arguments)
+            self.logger.info("partial_update {} with id {}".format(document.get_es_document_type(), document.es_id))
 
     def delete_document(self, document):
         """Delete a given document, based on its ``es_id``
@@ -627,12 +616,12 @@ class ESIndexManager(object):
         if not self.index_exists:
             raise NeedIndex()
 
-        arguments = {'index': self.index, 'doc_type': document.get_es_document_type(), 'id': document.es_id}
+        arguments = {"index": self.index, "doc_type": document.get_es_document_type(), "id": document.es_id}
         if self.es.exists(**arguments):
             self.es.delete(**arguments)
-            self.logger.info('delete {} with id {}'.format(document.get_es_document_type(), document.es_id))
+            self.logger.info("delete {} with id {}".format(document.get_es_document_type(), document.es_id))
 
-    def delete_by_query(self, doc_type='', query=MatchAll()):
+    def delete_by_query(self, doc_type="", query=MatchAll()):
         """Perform a deletion trough the ``_delete_by_query`` API.
 
         See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
@@ -652,9 +641,9 @@ class ESIndexManager(object):
         if not self.index_exists:
             raise NeedIndex()
 
-        response = self.es.delete_by_query(index=self.index, doc_type=doc_type, body={'query': query})
+        response = self.es.delete_by_query(index=self.index, doc_type=doc_type, body={"query": query})
 
-        self.logger.info('delete_by_query {}s ({})'.format(doc_type, response['deleted']))
+        self.logger.info("delete_by_query {}s ({})".format(doc_type, response["deleted"]))
 
     def analyze_sentence(self, request):
         """Use the anlyzer on a given sentence. Get back the list of tokens.
@@ -675,10 +664,10 @@ class ESIndexManager(object):
         if not self.index_exists:
             raise NeedIndex()
 
-        document = {'text': request}
+        document = {"text": request}
         tokens = []
-        for token in self.es.indices.analyze(index=self.index, body=document)['tokens']:
-            tokens.append(token['token'])
+        for token in self.es.indices.analyze(index=self.index, body=document)["tokens"]:
+            tokens.append(token["token"])
 
         return tokens
 

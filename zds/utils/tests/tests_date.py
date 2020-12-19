@@ -15,67 +15,51 @@ class DateFormatterTest(TestCase):
         date_future_in_day = now + timedelta(hours=1)
         yearlapse = now - timedelta(days=366)
 
-        self.context = Context({'date_previous_in_day': date_previous_in_day,
-                                'date_previous_abs': date_previous_abs,
-                                'date_future_in_day': date_future_in_day,
-                                'yearlapse': yearlapse,
-                                'date_epoch': 42,
-                                'NoneVal': None})
+        self.context = Context(
+            {
+                "date_previous_in_day": date_previous_in_day,
+                "date_previous_abs": date_previous_abs,
+                "date_future_in_day": date_future_in_day,
+                "yearlapse": yearlapse,
+                "date_epoch": 42,
+                "NoneVal": None,
+            }
+        )
 
     def test_format_date(self):
         # Default behaviour
-        tr = Template('{% load date %}'
-                      '{{ date_previous_in_day | format_date }}'
-                      ).render(self.context)
-        self.assertEqual('il y a une heure', tr)
+        tr = Template("{% load date %}" "{{ date_previous_in_day | format_date }}").render(self.context)
+        self.assertEqual("il y a une heure", tr)
 
-        tr = Template('{% load date %}'
-                      '{{ date_future_in_day | format_date }}'
-                      ).render(self.context)
-        self.assertEqual('Dans le futur', tr)
+        tr = Template("{% load date %}" "{{ date_future_in_day | format_date }}").render(self.context)
+        self.assertEqual("Dans le futur", tr)
 
-        tr = Template('{% load date %}'
-                      '{{ date_previous_abs | format_date }}'
-                      ).render(self.context)
-        self.assertEqual('jeudi 12 septembre 2013 à 11h10', tr)
+        tr = Template("{% load date %}" "{{ date_previous_abs | format_date }}").render(self.context)
+        self.assertEqual("jeudi 12 septembre 2013 à 11h10", tr)
 
         # small == False :=> Same behaviour
-        tr = Template('{% load date %}'
-                      '{{ date_previous_in_day | format_date:False }}'
-                      ).render(self.context)
-        self.assertEqual('il y a une heure', tr)
+        tr = Template("{% load date %}" "{{ date_previous_in_day | format_date:False }}").render(self.context)
+        self.assertEqual("il y a une heure", tr)
 
-        tr = Template('{% load date %}'
-                      '{{ date_future_in_day | format_date:False }}'
-                      ).render(self.context)
-        self.assertEqual('Dans le futur', tr)
+        tr = Template("{% load date %}" "{{ date_future_in_day | format_date:False }}").render(self.context)
+        self.assertEqual("Dans le futur", tr)
 
-        tr = Template('{% load date %}'
-                      '{{ date_previous_abs | format_date:False }}'
-                      ).render(self.context)
-        self.assertEqual('jeudi 12 septembre 2013 à 11h10', tr)
+        tr = Template("{% load date %}" "{{ date_previous_abs | format_date:False }}").render(self.context)
+        self.assertEqual("jeudi 12 septembre 2013 à 11h10", tr)
 
         # small == True :=> absolute date change
-        tr = Template('{% load date %}'
-                      '{{ date_previous_in_day | format_date:True }}'
-                      ).render(self.context)
-        self.assertEqual('il y a une heure', tr)
+        tr = Template("{% load date %}" "{{ date_previous_in_day | format_date:True }}").render(self.context)
+        self.assertEqual("il y a une heure", tr)
 
-        tr = Template('{% load date %}'
-                      '{{ date_future_in_day | format_date:True }}'
-                      ).render(self.context)
-        self.assertEqual('Dans le futur', tr)
+        tr = Template("{% load date %}" "{{ date_future_in_day | format_date:True }}").render(self.context)
+        self.assertEqual("Dans le futur", tr)
 
-        tr = Template('{% load date %}'
-                      '{{ date_previous_abs | format_date:True }}'
-                      ).render(self.context)
-        self.assertEqual('12/09/13 à 11h10', tr)
+        tr = Template("{% load date %}" "{{ date_previous_abs | format_date:True }}").render(self.context)
+        self.assertEqual("12/09/13 à 11h10", tr)
 
         # Bad format
-        tr = Template('{% load date %}'
-                      '{{ NoneVal | format_date }}'
-                      ).render(self.context)
-        self.assertEqual('None', tr)
+        tr = Template("{% load date %}" "{{ NoneVal | format_date }}").render(self.context)
+        self.assertEqual("None", tr)
 
     def test_tooltip_date(self):
         # Default behaviour
@@ -83,27 +67,19 @@ class DateFormatterTest(TestCase):
         # Todo: Add test to step time less than one day with tooltip
         # Todo: I don't know how to test this without hugly hack on datetime.now()
 
-        tr = Template('{% load date %}'
-                      '{{ date_future_in_day | tooltip_date }}'
-                      ).render(self.context)
-        self.assertEqual('Dans le futur', tr)
+        tr = Template("{% load date %}" "{{ date_future_in_day | tooltip_date }}").render(self.context)
+        self.assertEqual("Dans le futur", tr)
 
-        tr = Template('{% load date %}'
-                      '{{ yearlapse | tooltip_date }}'
-                      ).render(self.context)
-        self.assertEqual('il y a 1\xa0année', tr)
+        tr = Template("{% load date %}" "{{ yearlapse | tooltip_date }}").render(self.context)
+        self.assertEqual("il y a 1\xa0année", tr)
 
         # Bad format
-        tr = Template('{% load date %}'
-                      '{{ NoneVal | tooltip_date }}'
-                      ).render(self.context)
-        self.assertEqual('None', tr)
+        tr = Template("{% load date %}" "{{ NoneVal | tooltip_date }}").render(self.context)
+        self.assertEqual("None", tr)
 
     def test_humane_time(self):
 
         # Default behaviour
-        tr = Template('{% load date %}'
-                      '{{ date_epoch | humane_time }}'
-                      ).render(self.context)
+        tr = Template("{% load date %}" "{{ date_epoch | humane_time }}").render(self.context)
 
-        self.assertEqual(tr, 'jeudi 01 janvier 1970 à 01h00')
+        self.assertEqual(tr, "jeudi 01 janvier 1970 à 01h00")

@@ -6,12 +6,13 @@ from django.urls import reverse
 from django.db import models
 
 from zds.mp.managers import PrivateTopicManager, PrivatePostManager
-from zds.notification import signals
-from zds.utils import get_current_user, slugify
+from zds.mp import signals
+from zds.utils import get_current_user, old_slugify
 
 
 class NotReachableError(Exception):
     """Raised when a user cannot be reached using private messages (e.g. bots)."""
+
     pass
 
 
@@ -27,7 +28,7 @@ def is_reachable(user):
     :return: True if the user is reachable, False otherwise.
     """
     user_group_names = [g.name for g in user.groups.all()]
-    return settings.ZDS_APP['member']['bot_group'] not in user_group_names
+    return settings.ZDS_APP["member"]["bot_group"] not in user_group_names
 
 
 class PrivateTopic(models.Model):
@@ -42,18 +43,19 @@ class PrivateTopic(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Message privé'
-        verbose_name_plural = 'Messages privés'
+        verbose_name = "Message privé"
+        verbose_name_plural = "Messages privés"
 
-    title = models.CharField('Titre', max_length=130)
-    subtitle = models.CharField('Sous-titre', max_length=200, blank=True)
-    author = models.ForeignKey(User, verbose_name='Auteur', related_name='author', db_index=True,
-                               on_delete=models.SET_NULL, null=True)
-    participants = models.ManyToManyField(User, verbose_name='Participants', related_name='participants',
-                                          db_index=True)
-    last_message = models.ForeignKey('PrivatePost', null=True, related_name='last_message',
-                                     verbose_name='Dernier message', on_delete=models.SET_NULL)
-    pubdate = models.DateTimeField('Date de création', auto_now_add=True, db_index=True)
+    title = models.CharField("Titre", max_length=130)
+    subtitle = models.CharField("Sous-titre", max_length=200, blank=True)
+    author = models.ForeignKey(
+        User, verbose_name="Auteur", related_name="author", db_index=True, on_delete=models.SET_NULL, null=True
+    )
+    participants = models.ManyToManyField(User, verbose_name="Participants", related_name="participants", db_index=True)
+    last_message = models.ForeignKey(
+        "PrivatePost", null=True, related_name="last_message", verbose_name="Dernier message", on_delete=models.SET_NULL
+    )
+    pubdate = models.DateTimeField("Date de création", auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
 
     def __str__(self):
@@ -72,7 +74,7 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object URL
         :rtype: str
         """
-        return reverse('private-posts-list', args=[self.pk, self.slug()])
+        return reverse("private-posts-list", args=[self.pk, self.slug()])
 
     def slug(self):
         """
@@ -80,7 +82,7 @@ class PrivateTopic(models.Model):
         with older private topic, the slug is always re-calculated when we need one.
         :return: title slugify.
         """
-        return slugify(self.title)
+        return old_slugify(self.title)
 
     def get_post_count(self):
         """
@@ -98,10 +100,7 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object last answer (PrivatePost)
         :rtype: PrivatePost object or None
         """
-        last_post = PrivatePost.objects \
-            .filter(privatetopic__pk=self.pk) \
-            .order_by('-position_in_topic') \
-            .first()
+        last_post = PrivatePost.objects.filter(privatetopic__pk=self.pk).order_by("-position_in_topic").first()
 
         # If the last post is the first post, there is no answer in the topic (only initial post)
         if last_post == self.first_post():
@@ -116,10 +115,7 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object first answer (PrivatePost)
         :rtype: PrivatePost object or None
         """
-        return PrivatePost.objects \
-            .filter(privatetopic=self) \
-            .order_by('position_in_topic') \
-            .first()
+        return PrivatePost.objects.filter(privatetopic=self).order_by("position_in_topic").first()
 
     def last_read_post(self, user=None):
         """
@@ -135,12 +131,10 @@ class PrivateTopic(models.Model):
             user = get_current_user()
 
         try:
-            post = PrivateTopicRead.objects \
-                .select_related() \
-                .filter(privatetopic=self, user=user)
+            post = PrivateTopicRead.objects.select_related().filter(privatetopic=self, user=user)
             if len(post) == 0:
                 return self.first_post()
-            return post.latest('privatepost__position_in_topic').privatepost
+            return post.latest("privatepost__position_in_topic").privatepost
 
         except (PrivatePost.DoesNotExist, TypeError):
             return self.first_post()
@@ -159,14 +153,16 @@ class PrivateTopic(models.Model):
             user = get_current_user()
 
         try:
-            last_post = PrivateTopicRead.objects \
-                .select_related() \
-                .filter(privatetopic=self, user=user) \
-                .latest('privatepost__position_in_topic').privatepost
+            last_post = (
+                PrivateTopicRead.objects.select_related()
+                .filter(privatetopic=self, user=user)
+                .latest("privatepost__position_in_topic")
+                .privatepost
+            )
 
             next_post = PrivatePost.objects.filter(
-                privatetopic__pk=self.pk,
-                position_in_topic__gt=last_post.position_in_topic).first()
+                privatetopic__pk=self.pk, position_in_topic__gt=last_post.position_in_topic
+            ).first()
 
             return next_post
         except (PrivatePost.DoesNotExist, PrivateTopicRead.DoesNotExist):
@@ -184,9 +180,9 @@ class PrivateTopic(models.Model):
         try:
             pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
             page_nb = 1
-            if pos > settings.ZDS_APP['forum']['posts_per_page']:
-                page_nb += (pos - 1) // settings.ZDS_APP['forum']['posts_per_page']
-            return '{}?page={}#p{}'.format(self.get_absolute_url(), page_nb, pk)
+            if pos > settings.ZDS_APP["forum"]["posts_per_page"]:
+                page_nb += (pos - 1) // settings.ZDS_APP["forum"]["posts_per_page"]
+            return "{}?page={}#p{}".format(self.get_absolute_url(), page_nb, pk)
         except PrivateTopicRead.DoesNotExist:
             return self.first_unread_post().get_absolute_url()
 
@@ -198,17 +194,15 @@ class PrivateTopic(models.Model):
         :return: the primary key
         :rtype: int
         """
-        t_read = PrivateTopicRead.objects \
-            .select_related('privatepost') \
-            .filter(privatetopic__pk=self.pk, user__pk=user.pk) \
-            .latest('privatepost__position_in_topic')
+        t_read = (
+            PrivateTopicRead.objects.select_related("privatepost")
+            .filter(privatetopic__pk=self.pk, user__pk=user.pk)
+            .latest("privatepost__position_in_topic")
+        )
         if t_read:
             return t_read.privatepost.pk, t_read.privatepost.position_in_topic
         return list(
-            PrivatePost.objects
-            .filter(topic__pk=self.pk)
-            .order_by('position')
-            .values('pk', 'position').first().values()
+            PrivatePost.objects.filter(topic__pk=self.pk).order_by("position").values("pk", "position").first().values()
         )
 
     def one_participant_remaining(self):
@@ -273,6 +267,7 @@ class PrivateTopic(models.Model):
         """
         Add a participant to the private topic.
         If the user is already participating, do not add it again.
+        Send the `participant_added` signal if successful.
 
         :param user: the user to add to the private topic
         :raise NotReachableError: if the user cannot receive private messages (e.g. a bot)
@@ -281,12 +276,14 @@ class PrivateTopic(models.Model):
             raise NotReachableError
         if not self.is_participant(user):  # avoid adding the same participant twice
             self.participants.add(user)
+            signals.participant_added.send(sender=PrivateTopic, topic=self)
 
     def remove_participant(self, user):
         """
         Remove a participant from the private topic.
         If the removed participant is the author, set the first mere participant as the author.
         If the given user is not a participant, do nothing.
+        Send the `participant_removed` signal if successful.
 
         :param user: the user to remove from the private topic.
         """
@@ -294,6 +291,7 @@ class PrivateTopic(models.Model):
             if self.is_author(user):
                 self.set_as_author(self.participants.first())
             self.participants.remove(user)
+            signals.participant_removed.send(sender=PrivateTopic, topic=self)
 
     @staticmethod
     def has_read_permission(request):
@@ -317,20 +315,28 @@ class PrivatePost(models.Model):
     """A private post written by a user."""
 
     class Meta:
-        verbose_name = 'Réponse à un message privé'
-        verbose_name_plural = 'Réponses à un message privé'
+        verbose_name = "Réponse à un message privé"
+        verbose_name_plural = "Réponses à un message privé"
 
-    privatetopic = models.ForeignKey(PrivateTopic, verbose_name='Message privé', db_index=True,
-                                     on_delete=models.CASCADE)
-    author = models.ForeignKey(User, verbose_name='Auteur', related_name='privateposts', db_index=True, null=True,
-                               on_delete=models.SET_NULL)
-    text = models.TextField('Texte')
-    text_html = models.TextField('Texte en HTML')
-    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
-    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
-    position_in_topic = models.IntegerField('Position dans le sujet', db_index=True)
-    hat = models.ForeignKey('utils.Hat', on_delete=models.SET_NULL, verbose_name='Casquette',
-                            related_name='privateposts', blank=True, null=True)
+    privatetopic = models.ForeignKey(
+        PrivateTopic, verbose_name="Message privé", db_index=True, on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        User, verbose_name="Auteur", related_name="privateposts", db_index=True, null=True, on_delete=models.SET_NULL
+    )
+    text = models.TextField("Texte")
+    text_html = models.TextField("Texte en HTML")
+    pubdate = models.DateTimeField("Date de publication", auto_now_add=True, db_index=True)
+    update = models.DateTimeField("Date d'édition", null=True, blank=True)
+    position_in_topic = models.IntegerField("Position dans le sujet", db_index=True)
+    hat = models.ForeignKey(
+        "utils.Hat",
+        on_delete=models.SET_NULL,
+        verbose_name="Casquette",
+        related_name="privateposts",
+        blank=True,
+        null=True,
+    )
     objects = PrivatePostManager()
 
     def __str__(self):
@@ -340,7 +346,7 @@ class PrivatePost(models.Model):
         :return: PrivatePost description
         :rtype: unicode
         """
-        return '<Post pour « {0} », #{1}>'.format(self.privatetopic, self.pk)
+        return "<Post pour « {0} », #{1}>".format(self.privatetopic, self.pk)
 
     def get_absolute_url(self):
         """
@@ -349,9 +355,9 @@ class PrivatePost(models.Model):
         :return: PrivatePost object URL
         :rtype: str
         """
-        page = int(ceil(float(self.position_in_topic) / settings.ZDS_APP['forum']['posts_per_page']))
+        page = int(ceil(float(self.position_in_topic) / settings.ZDS_APP["forum"]["posts_per_page"]))
 
-        return '{0}?page={1}#p{2}'.format(self.privatetopic.get_absolute_url(), page, self.pk)
+        return "{0}?page={1}#p{2}".format(self.privatetopic.get_absolute_url(), page, self.pk)
 
     def is_author(self, user):
         """
@@ -401,12 +407,12 @@ class PrivateTopicRead(models.Model):
     """
 
     class Meta:
-        verbose_name = 'Message privé lu'
-        verbose_name_plural = 'Messages privés lus'
+        verbose_name = "Message privé lu"
+        verbose_name_plural = "Messages privés lus"
 
     privatetopic = models.ForeignKey(PrivateTopic, db_index=True, on_delete=models.CASCADE)
     privatepost = models.ForeignKey(PrivatePost, db_index=True, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, related_name='privatetopics_read', db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="privatetopics_read", db_index=True, on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -415,7 +421,7 @@ class PrivateTopicRead(models.Model):
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return '<Sujet « {0} » lu par {1}, #{2}>'.format(self.privatetopic, self.user, self.privatepost.pk)
+        return "<Sujet « {0} » lu par {1}, #{2}>".format(self.privatetopic, self.user, self.privatepost.pk)
 
 
 def is_privatetopic_unread(privatetopic, user=None):
@@ -433,9 +439,12 @@ def is_privatetopic_unread(privatetopic, user=None):
     if user is None:
         user = get_current_user()
 
-    return PrivateTopicRead.objects \
-        .filter(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user) \
-        .count() == 0
+    return (
+        PrivateTopicRead.objects.filter(
+            privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user
+        ).count()
+        == 0
+    )
 
 
 def mark_read(privatetopic, user=None):
@@ -463,4 +472,4 @@ def mark_read(privatetopic, user=None):
         topic = PrivateTopicRead(privatepost=privatetopic.last_message, privatetopic=privatetopic, user=user)
 
     topic.save()
-    signals.content_read.send(sender=privatetopic.__class__, instance=privatetopic, user=user)
+    signals.topic_read.send(sender=privatetopic.__class__, instance=privatetopic, user=user)

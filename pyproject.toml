@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 120
+exclude = '''
+(
+  /(
+      node_modules
+    | \.venv
+    | build
+    | dist
+    | doc
+  )/
+)
+'''

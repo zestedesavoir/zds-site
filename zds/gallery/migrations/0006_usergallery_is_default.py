@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('gallery', '0005_auto_20180816_2256'),
+        ("gallery", "0005_auto_20180816_2256"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='usergallery',
-            name='is_default',
+            model_name="usergallery",
+            name="is_default",
             field=models.BooleanField(default=False, verbose_name="Galerie par défaut de l'utilisateur"),
         ),
     ]
