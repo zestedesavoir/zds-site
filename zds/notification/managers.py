@@ -73,10 +73,14 @@ class SubscriptionManager(models.Manager):
         :return: subscription
         """
         content_type = ContentType.objects.get_for_model(content_object)
-        # the get_or_create boolean flag is kind of useless for us
-        subscription = self.get_or_create(object_id=content_object.pk, content_type__pk=content_type.pk, user=user)[0]
-        if not subscription.is_active:
-            subscription.activate()
+        try:
+            subscription = self.get(object_id=content_object.pk, content_type__pk=content_type.pk, user=user)
+            if not subscription.is_active:
+                subscription.activate()
+        except ObjectDoesNotExist:
+            subscription = self.model(user=user, content_object=content_object)
+            subscription.save()
+
         return subscription
 
     def get_subscriptions(self, content_object, is_active=True):
