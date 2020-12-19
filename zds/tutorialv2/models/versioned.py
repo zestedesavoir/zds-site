@@ -927,6 +927,7 @@ class Extract:
     container = None
     position_in_parent = 1
     text = None
+    is_quizz = False
 
     def __init__(self, title, slug="", container=None, position_in_parent=1):
         self.title = title

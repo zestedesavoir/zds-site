@@ -120,19 +120,31 @@ h6 {
         display: none;
     }
     &.quizz-bad {
-        background-color: $color-danger !important;
+        display: block;
+        & .custom-block-body {
+            background-color: $accent-500 ;
+        }
         .custom-block {
             display: block;
+            border: solid 1px $grey-600;
         }
     }
     &.quizz-good {
-         background:$color-success !important;
+        display: block;
+        & .custom-block-body{
+            background: $green-500;
+        }
         .custom-block {
             display: block;
+            border: solid 1px $grey-600;
+            .custom-block-body {
+                font-weight: normal;
+            }
         }
     }
 
 }
+
 
 .custom-block {
     margin: $length-24 0;
@@ -257,6 +269,15 @@ h6 {
         &:after {
             display: none;
         }
+
+        .custom-block {
+            display: none;
+            /* hide the correction while not answered */
+            &.quizz-good, &.quizz-bad, &.quizz-missing {
+                display: block;
+            }
+        }
+
     }
 }
 
@@ -635,12 +656,16 @@ li.task-list-item {
         background-color: $true-white !important;
     }
     &.quizz-forget {
+        font-weight: bolder;
+    }
+    &.quizz-forget {
             font-weight: bolder;
         }
     &.quizz-bad {
         color: $color-danger;
     }
 }
+
 
 .warn-typo {
     height: $length-20;

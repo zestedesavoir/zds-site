@@ -43,7 +43,16 @@ class FormWithTitle(forms.Form):
 
 
 class QuizzStatsForm(forms.Form):
-    url = forms.CharField(required=True)
+    url = forms.CharField(required=False)
+
+    def __init__(self, *args, json_dict=None, **kwargs):
+        super().__init__(data=json_dict, *args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        self.cleaned_data["result"] = self.data["result"]
+        self.cleaned_data["expected"] = self.data["expected"]
+        return self.cleaned_data
 
 
 class ReviewerTypeModelChoiceField(forms.ModelChoiceField):

@@ -20,7 +20,7 @@ def publish_use_manifest(db_object, base_dir, versionable_content: VersionedCont
     md, metadata, __ = render_markdown(
         base_content, disable_jsfiddle=not db_object.js_support, full_json=True, stats=True
     )
-    publish_container_new(db_object, base_dir, versionable_content, md)
+    publish_container_new(db_object, base_dir, versionable_content, md, content=db_object)
     return metadata.get("stats", {}).get("signs", 0)
 
 

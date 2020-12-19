@@ -53,7 +53,7 @@
             {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" report_key="nb_hits" y_label="Nombre de pages" %}
             {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps moyen lecture (en secondes)" canvas_id="visit-time-graph" report_key="avg_time_on_page" y_label="Secondes" %}
             {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs uniques" canvas_id="users-graph" report_key="nb_uniq_visitors" y_label="Nombre de visiteurs" %}
-            {% include "misc/graph.part.html" with tab_name="tab-quizz-content" graph_title="Réponses au quizz" canvas_id="quizz-graph" metric="quizz" %}
+            {% include "misc/quizz.graph.part.html" with tab_name="tab-quizz-content" graph_title="Réponses au quizz" canvas_id="quizz-graph" metric="quizz" %}
         {% endif %}
 
         {% if cumulative_stats %}

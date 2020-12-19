@@ -319,7 +319,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
 
-    if "version" in json and json["version"] in (2, 2.1):  # add newest version of manifest
+    if "version" in json and json["version"] in (2, 2.1, 2.2):  # add newest version of manifest
         if not all_is_string_appart_from_given_keys(json, ("children", "ready_to_publish", "version")):
             raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
         # create and fill the container
@@ -683,7 +683,7 @@ def export_content(content, with_text=False, ready_to_publish_only=False):
     dct = export_container(content, with_text, ready_to_publish_only)
 
     # append metadata :
-    dct["version"] = 2.1
+    dct["version"] = 2.2
     dct["description"] = content.description
     dct["type"] = content.type
     if content.licence:
