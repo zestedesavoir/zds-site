@@ -228,8 +228,6 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
                 margin: 0;
                 padding: $length-1 $length-10;
 
-                border-radius: $radius-2;
-
                 background-color: $grey-100;
                 color: $primary-800;
 
@@ -337,8 +335,6 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
     .btn-write-tutorial {
         padding: $length-4 $length-20;
         margin-right: $length-24;
-
-        border-radius: $radius-1;
 
         background-color: $grey-000;
         color: $primary-900;
