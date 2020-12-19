@@ -304,7 +304,7 @@ $logo-width: 24rem;
 
             list-style: none;
 
-            background-color: $primary-700;
+            background-color: $primary-600;
 
             li {
                 display: block;
@@ -338,6 +338,13 @@ $logo-width: 24rem;
                             color: $primary-000;
                         }
                     }
+                }
+
+                // :nth-child(n) for specificity to win against
+                // `&:nth-child(2n) form button` selector below.
+                form button:nth-child(n):hover,
+                form button:nth-child(n):focus {
+                    background-color: $primary-800;
                 }
 
                 header {
@@ -391,10 +398,10 @@ $logo-width: 24rem;
                     white-space: nowrap;
                 }
 
-                &:nth-child(2n+1) {
+                &:nth-child(2n) {
                     &,
                     form button {
-                        background-color: $color-primary;
+                        background-color: $primary-500;
                     }
                 }
             }
