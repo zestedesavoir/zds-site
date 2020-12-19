@@ -34,7 +34,7 @@
     })
 
     // Runs when the local storage is modified from another tab. So the banner
-    // will be removed from all tabs at once if removed definitly using ctrl
+    // will be removed from all tabs at once if removed permanently using ctrl
     // or shift, but not in other cases as it's then stored on the session
     // storage.
     window.addEventListener('storage', removeBannerIfNeeded)
