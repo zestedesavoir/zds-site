@@ -190,7 +190,7 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
                     border-top: none;
                     border-bottom-color: $white;
 
-                    filter: drop-shadow(0 -1px 3px rgba($black, .1));
+                    filter: drop-shadow(0 -1px 3px rgba($black, .11));
                     transform: rotate(-133deg) scaleY(1.8);
 
                     transition: border-bottom-color $transition-duration ease-in-out;
