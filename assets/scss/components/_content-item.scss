@@ -167,7 +167,6 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
                 margin-right: $length-6;
 
                 background-color: $white;
-                @include shadow-1;
 
                 border-radius: 100%;
 
@@ -177,6 +176,8 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
 
                 color: $accent-800;
                 text-align: center;
+
+                filter: drop-shadow(0 1px 2px hsla(0, 0%, 0%, .44));
 
                 transition: background-color $transition-duration ease-in-out;
 
@@ -195,7 +196,6 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
                     border-top: none;
                     border-bottom-color: $white;
 
-                    filter: drop-shadow(0 -1px 3px rgba($black, .11));
                     transform: rotate(-133deg) scaleY(1.8);
 
                     transition: border-bottom-color $transition-duration ease-in-out;
