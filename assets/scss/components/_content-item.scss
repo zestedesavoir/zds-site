@@ -131,7 +131,12 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
             }
 
             .content-meta {
-                flex: 2;
+                flex: 1;
+
+                // This width will not be respected but it will prevent the block
+                // to push against the other flex item (the comments bubble).
+                width: 10%;
+
                 color: $accent-800;
 
                 font-size: $size-10;
