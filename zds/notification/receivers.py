@@ -402,21 +402,6 @@ def content_published_event(*__, instance, by_email, **___):
             subscription.send_notification(content=content, sender=user, send_email=by_email)
 
 
-@receiver(utils_signals.ping, sender=ContentReaction)
-@receiver(utils_signals.ping, sender=Post)
-@disable_for_loaddata
-def answer_comment_event(sender, *, instance, user, **__):
-    comment = instance
-    user = user
-
-    assert comment is not None
-    assert user is not None
-    if sender == Post and not instance.topic.forum.can_read(user):
-        return
-    subscription = PingSubscription.objects.get_or_create_active(user, comment)
-    subscription.send_notification(content=comment, sender=comment.author, send_email=False)
-
-
 @receiver(mp_signals.message_added, sender=PrivatePost)
 @disable_for_loaddata
 def answer_private_topic_event(sender, *, instance, by_email, no_notification_for=None, **__):
@@ -505,7 +490,22 @@ def cleanup_notification_for_unpublished_content(sender, instance, **__):
         logger.exception("Error while saving %s, %s", instance, e)
 
 
+@receiver(utils_signals.ping, sender=ContentReaction)
+@receiver(utils_signals.ping, sender=Post)
+@disable_for_loaddata
+def ping_event(sender, *, instance, user, **__):
+    comment = instance
+    user = user
+
+    assert comment is not None
+    assert user is not None
+    if sender == Post and not instance.topic.forum.can_read(user):
+        return
+    subscription = PingSubscription.objects.get_or_create_active(user, comment)
+    subscription.send_notification(content=comment, sender=comment.author, send_email=False)
+
+
 @receiver(utils_signals.unping)
-def unsubscripte_unpinged_user(sender, instance, user, **_):
+def unping_event(sender, instance, user, **_):
     if user:
         PingSubscription.objects.deactivate_subscriptions(user, instance)
