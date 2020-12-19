@@ -1,9 +1,5 @@
 from django.dispatch import Signal
 
-
-# is sent whenever an answer is set as unread
-answer_unread = Signal(providing_args=["instance", "user"])
-
 # is sent whenever a resource is created.
 new_content = Signal(providing_args=["instance", "user", "by_email"])
 
