@@ -84,18 +84,18 @@ $grey-700: hsl(209, 18%, 30%);
 $grey-800: hsl(209, 20%, 25%);
 $grey-900: hsl(210, 24%, 16%);
 
-// These white and blacks are volontary off because these are better for
+// These white and blacks are voluntarily off because these are better for
 // the eye and seems, maybe paradoxically, more natural.
 // If you really need *true* blacks/whites, use the two true white/blacks
 // variables after.
 $white: hsl(0, 0%, 98%);
-$black: hsl(0, 0%, 6%);
+$black: hsl(0, 0%, 11%);
 
 $true-white: hsl(0, 0%, 100%);
 $true-black: hsl(0, 0%, 0%);
 
 // If you want to change this, you may want to do it also in templates/base.html.
-// Particulary in the meta tag named theme-color and msapplication-navbutton-color.
+// Particularly in the meta tag named theme-color and msapplication-navbutton-color.
 $color-primary: $primary-600;
 $color-secondary: $accent-500;
 
