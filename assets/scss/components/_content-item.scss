@@ -257,6 +257,7 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
 
             &:hover, &:focus {
                 text-decoration: underline;
+                background-color: transparent;
             }
         }
 
@@ -268,6 +269,14 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+
+            &, a {
+                color: $accent-800;
+            }
+
+            a:hover {
+                text-decoration: underline;
+            }
         }
     }
 }
@@ -332,7 +341,7 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
         border-radius: $radius-1;
 
         background-color: $grey-000;
-        color: $primary-800;
+        color: $primary-900;
 
         font-size: $size-8;
         line-height: 2.2;
@@ -342,10 +351,6 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
         transition: color $transition-duration ease-in-out,
                     background-color $transition-duration ease-in-out,
                     transform $transition-duration ease-in-out;
-
-        &:hover, &:focus {
-            color: $primary-900;
-        }
     }
 }
 
