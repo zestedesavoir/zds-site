@@ -17,7 +17,7 @@ from django.template.loader import render_to_string
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from zds.notification import signals
+from zds.utils import signals
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.utils.mps import send_mp
@@ -435,12 +435,12 @@ class Comment(models.Model):
         pinged_usernames = set(pinged_usernames_from_new_text) - set(pinged_usernames_from_old_text)
         pinged_users = User.objects.filter(username__in=pinged_usernames)
         for pinged_user in pinged_users:
-            signals.new_content.send(sender=self.__class__, instance=self, user=pinged_user)
+            signals.ping.send(sender=self.__class__, instance=self, user=pinged_user)
 
         unpinged_usernames = set(pinged_usernames_from_old_text) - set(pinged_usernames_from_new_text)
         unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
-            signals.unsubscribe.send(self.author, instance=self, user=unpinged_user)
+            signals.unping.send(self.author, instance=self, user=unpinged_user)
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
