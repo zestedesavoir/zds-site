@@ -73,7 +73,7 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
         header {
             flex: 2;
 
-            &:hover {
+            &:hover .content-title {
                 text-decoration: underline;
             }
 
