@@ -37,7 +37,7 @@
         &:hover,
         &:focus {
             padding-left: $length-12;
-            background-color: $primary-900;
+            background-color: $primary-700;
         }
     }
 
@@ -87,7 +87,7 @@
                         &:hover,
                         &:focus {
                             padding-left: $length-12;
-                            background-color: $primary-800
+                            background-color: $primary-700
                         }
                     }
 
@@ -117,7 +117,7 @@
         &:hover,
         &:focus {
             color: $primary-000;
-            background-color: $primary-800;
+            background-color: $primary-700;
             border-top: $length-1 solid $primary-700;
         }
     }
