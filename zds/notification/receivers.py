@@ -29,6 +29,7 @@ from zds.notification.models import (
 import zds.notification.signals as notification_signals
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
 import zds.tutorialv2.signals as tuto_signals
+import zds.utils.signals as utils_signals
 from zds.utils.models import Tag
 
 logger = logging.getLogger(__name__)
@@ -401,8 +402,8 @@ def content_published_event(*__, instance, by_email, **___):
             subscription.send_notification(content=content, sender=user, send_email=by_email)
 
 
-@receiver(notification_signals.new_content, sender=ContentReaction)
-@receiver(notification_signals.new_content, sender=Post)
+@receiver(utils_signals.ping, sender=ContentReaction)
+@receiver(utils_signals.ping, sender=Post)
 @disable_for_loaddata
 def answer_comment_event(sender, *, instance, user, **__):
     comment = instance
@@ -504,7 +505,7 @@ def cleanup_notification_for_unpublished_content(sender, instance, **__):
         logger.exception("Error while saving %s, %s", instance, e)
 
 
-@receiver(notification_signals.unsubscribe)
+@receiver(utils_signals.unping)
 def unsubscripte_unpinged_user(sender, instance, user, **_):
     if user:
         PingSubscription.objects.deactivate_subscriptions(user, instance)
