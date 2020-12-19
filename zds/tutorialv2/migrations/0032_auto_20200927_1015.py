@@ -7,42 +7,60 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0031_quizzstat'),
+        ("tutorialv2", "0031_quizzstat"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='QuizzAvailableAnswer',
+            name="QuizzAvailableAnswer",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('answer_label', models.TextField(verbose_name='Intitulé de la réponse')),
-                ('is_good', models.BooleanField(default=False, verbose_name='Est une réponse attendue')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("answer_label", models.TextField(verbose_name="Intitulé de la réponse")),
+                ("is_good", models.BooleanField(default=False, verbose_name="Est une réponse attendue")),
             ],
         ),
         migrations.CreateModel(
-            name='QuizzQuestion',
+            name="QuizzQuestion",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.TextField(verbose_name='url')),
-                ('question', models.TextField(verbose_name='question')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("url", models.TextField(verbose_name="url")),
+                ("question", models.TextField(verbose_name="question")),
             ],
         ),
         migrations.CreateModel(
-            name='QuizzUserAnswer',
+            name="QuizzUserAnswer",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('answer', models.TextField(verbose_name='anwser')),
-                ('date_answer', models.DateField(auto_now=True, verbose_name='Date of answer')),
-                ('related_content', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='tutorialv2.PublishableContent', verbose_name='Tutoriel lié')),
-                ('related_question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tutorialv2.QuizzQuestion', verbose_name='Question liée')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("answer", models.TextField(verbose_name="anwser")),
+                ("date_answer", models.DateField(auto_now=True, verbose_name="Date of answer")),
+                (
+                    "related_content",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tutorialv2.PublishableContent",
+                        verbose_name="Tutoriel lié",
+                    ),
+                ),
+                (
+                    "related_question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="tutorialv2.QuizzQuestion",
+                        verbose_name="Question liée",
+                    ),
+                ),
             ],
         ),
         migrations.DeleteModel(
-            name='QuizzStat',
+            name="QuizzStat",
         ),
         migrations.AddField(
-            model_name='quizzavailableanswer',
-            name='related_question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tutorialv2.QuizzQuestion', verbose_name='Question liée'),
+            model_name="quizzavailableanswer",
+            name="related_question",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="tutorialv2.QuizzQuestion", verbose_name="Question liée"
+            ),
         ),
     ]

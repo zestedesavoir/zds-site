@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0032_auto_20200927_1015'),
+        ("tutorialv2", "0032_auto_20200927_1015"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='quizzuseranswer',
-            name='full_answer_id',
-            field=models.CharField(default='id', max_length=64, verbose_name='Indentifiant de la réponse utilisateur'),
+            model_name="quizzuseranswer",
+            name="full_answer_id",
+            field=models.CharField(default="id", max_length=64, verbose_name="Indentifiant de la réponse utilisateur"),
         ),
     ]

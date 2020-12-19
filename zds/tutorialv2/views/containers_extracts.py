@@ -217,8 +217,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
         parent = search_container_or_404(self.versioned_object, self.kwargs)
 
         sha = parent.repo_add_extract(
-            form.cleaned_data["title"], form.cleaned_data["text"], form.cleaned_data["msg_commit"],
-            quizz=self.quizz
+            form.cleaned_data["title"], form.cleaned_data["text"], form.cleaned_data["msg_commit"], quizz=self.quizz
         )
 
         # then save
