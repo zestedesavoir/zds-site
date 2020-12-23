@@ -1,7 +1,7 @@
 from os.path import join
+from urllib.parse import quote
 
 from django.contrib.messages import constants as message_constants
-from django.utils.http import urlquote
 from django.utils.translation import gettext_lazy as _
 
 from .config import config
@@ -295,7 +295,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 LOGIN_URL = "member-login"
 LOGIN_REDIRECT_URL = "/"
 
-ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda u: "/membres/voir/{0}/".format(urlquote(u.username.encode("utf-8")))}
+ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda u: "/membres/voir/{0}/".format(quote(u.username.encode("utf-8")))}
 
 # Django fileserve settings (set to True for local dev version only)
 SERVE = False
