@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.urls import reverse
+from django.utils.html import escape
 from django.template import Context, Template
 from django.test import TestCase
 
@@ -103,7 +104,7 @@ class InterventionsTest(TestCase):
 
     def test_interventions_humane_delta(self):
         tr = Template("{% load interventions %}" "{{ date_today|humane_delta }}").render(self.context)
-        self.assertEqual("Aujourd&#39;hui", tr)
+        self.assertEqual(escape("Aujourd'hui"), tr)
 
         tr = Template("{% load interventions %}" "{{ date_yesterday|humane_delta }}").render(self.context)
         self.assertEqual("Hier", tr)
