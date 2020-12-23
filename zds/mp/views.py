@@ -9,7 +9,7 @@ from django.db import transaction
 from django.http import Http404, StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.utils.decorators import method_decorator
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin

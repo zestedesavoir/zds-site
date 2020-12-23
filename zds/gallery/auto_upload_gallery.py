@@ -1,5 +1,5 @@
 from django.http.request import HttpRequest
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE
 from zds.tutorialv2.models.database import PublishableContent
 

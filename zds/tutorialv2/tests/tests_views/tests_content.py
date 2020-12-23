@@ -13,7 +13,7 @@ from django.contrib.auth.models import Group
 from django.core import mail
 from django.urls import reverse
 from django.test import TestCase
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.forum.factories import ForumFactory, ForumCategoryFactory
 from zds.forum.models import Topic, Post, TopicRead

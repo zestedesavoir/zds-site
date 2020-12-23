@@ -13,7 +13,7 @@ import requests
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from zds.tutorialv2 import signals
 from zds.tutorialv2.epub_utils import build_ebook

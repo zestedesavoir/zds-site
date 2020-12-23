@@ -12,7 +12,7 @@ from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.utils.models import HelpWriting
 from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
 from zds.utils.forms import TagValidator, IncludeEasyMDE

@@ -15,7 +15,7 @@ from django.dispatch import receiver
 from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from elasticsearch_dsl import Mapping, Q as ES_Q
 from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from git import Repo, BadObject

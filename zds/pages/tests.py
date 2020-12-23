@@ -1,7 +1,7 @@
 from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.forum.models import Post
 from zds.forum.factories import create_category_and_forum, create_topic_in_forum

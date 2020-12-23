@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.forum.models import Post
 from zds.mp.models import PrivateTopic

@@ -8,7 +8,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.core.validators import validate_email, ValidationError
 from django.db import models, IntegrityError, transaction
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 
 from zds.forum.models import Topic, Post

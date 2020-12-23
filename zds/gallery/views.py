@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.http import Http404, HttpResponseRedirect
 from django.views.generic import DeleteView, FormView, View
 from django.shortcuts import redirect, get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from zds.gallery.forms import (

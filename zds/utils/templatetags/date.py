@@ -4,7 +4,7 @@ from django import template
 from django.contrib.humanize.templatetags.humanize import naturaltime
 from django.template.defaultfilters import date
 from django.utils.timezone import get_default_timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 

@@ -3,7 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.views.decorators.http import require_POST
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
 from django.urls import reverse
 

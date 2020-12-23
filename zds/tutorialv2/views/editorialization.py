@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import RemoveSuggestionForm, EditContentTagsForm
