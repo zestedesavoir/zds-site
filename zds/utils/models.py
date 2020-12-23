@@ -9,7 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.urls import reverse
-from django.utils.encoding import smart_text
+from django.utils.encoding import smart_str
 from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
@@ -782,7 +782,7 @@ class Tag(models.Model):
         self.title = self.title.strip()
         if not self.title or not old_slugify(self.title.replace("-", "")):
             raise ValueError('Tag "{}" is not correct'.format(self.title))
-        self.title = smart_text(self.title).lower()
+        self.title = smart_str(self.title).lower()
         self.slug = uuslug(self.title, instance=self, max_length=Tag._meta.get_field("slug").max_length)
         super(Tag, self).save(*args, **kwargs)
 
