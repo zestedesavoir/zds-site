@@ -7,7 +7,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.template.defaultfilters import pluralize
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.member.models import Profile, TokenRegister, Ban
 from zds.utils.models import get_hat_from_settings
@@ -108,7 +108,7 @@ class MemberSanctionState:
         Gets the type of a sanction.
 
         :return: type of the sanction.
-        :rtype: ugettext_lazy
+        :rtype: gettext_lazy
         """
         raise NotImplementedError("`get_type()` must be implemented.")
 
@@ -126,7 +126,7 @@ class MemberSanctionState:
         Gets detail of a sanction.
 
         :return: detail of the sanction.
-        :rtype: ugettext_lazy
+        :rtype: gettext_lazy
         """
         raise NotImplementedError("`get_detail()` must be implemented.")
 
@@ -168,7 +168,7 @@ class MemberSanctionState:
         Gets the message for an un-sanction.
 
         :return: message of the un-sanction.
-        :rtype: ugettext_lazy
+        :rtype: gettext_lazy
         """
         return _(
             "Bonjour **{0}**,\n\n"
@@ -184,7 +184,7 @@ class MemberSanctionState:
         Gets the message for a sanction.
 
         :return: message of the sanction.
-        :rtype: ugettext_lazy
+        :rtype: gettext_lazy
         """
         return _(
             "Bonjour **{0}**,\n\n"

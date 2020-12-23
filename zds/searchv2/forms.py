@@ -2,7 +2,7 @@ import random
 
 from django import forms
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper

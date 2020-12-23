@@ -4,7 +4,7 @@ import logging
 from urllib.parse import urlsplit, urlunsplit, quote
 from django.contrib.auth.models import User
 from django.http import Http404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from git import Repo, Actor
 
 from django.conf import settings

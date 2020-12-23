@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, StreamingHttpResponse
 from django.template.loader import render_to_string
 from django.shortcuts import redirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, FormView
 from django.views.generic import View
 

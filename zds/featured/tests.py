@@ -2,7 +2,7 @@ from datetime import datetime, date
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import TestCase
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.factories import FeaturedResourceFactory

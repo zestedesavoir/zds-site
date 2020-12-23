@@ -5,7 +5,7 @@ from django.db.models import Count
 from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.generic import CreateView, RedirectView, UpdateView, FormView, DeleteView
 from django.views.generic.list import MultipleObjectMixin
 from django.http import HttpResponse

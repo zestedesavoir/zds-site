@@ -1,5 +1,5 @@
 from django import template
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 register = template.Library()
 articles = {_("le"): _("la"), _("un"): _("une"), _("Nouveau"): _("Nouvelle"), _("Ce"): _("Cette")}

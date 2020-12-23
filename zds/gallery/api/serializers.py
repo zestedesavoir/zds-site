@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 from dry_rest_permissions.generics import DRYPermissionsField
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.api.serializers import ZdSModelSerializer
 from zds.gallery.models import Gallery, Image, UserGallery

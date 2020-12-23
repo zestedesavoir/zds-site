@@ -3,7 +3,7 @@ import json
 from django.conf import settings
 from django.db.models import Count, Q
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import ToggleHelpForm
