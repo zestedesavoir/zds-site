@@ -1,6 +1,6 @@
 import datetime
 from django.core.cache import cache
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from rest_framework_extensions.key_constructor.bits import QueryParamsKeyBit, KeyBitBase
 
 
@@ -51,4 +51,4 @@ class UpdatedAtKeyBit(KeyBitBase):
         if value is None:
             value = datetime.datetime.utcnow()
             cache.set(self.update_key, value=value)
-        return force_text(value)
+        return force_str(value)

@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.translation import ugettext_lazy as _
 
 from zds.utils.misc import contains_utf8mb4
@@ -32,7 +32,7 @@ class ZdSEmailValidator(EmailValidator):
     message = _("Utilisez une adresse de courriel valide.")
 
     def __call__(self, value, check_username_available=True):
-        value = force_text(value)
+        value = force_str(value)
 
         if not value or "@" not in value:
             raise ValidationError(self.message, code=self.code)
