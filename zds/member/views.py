@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timedelta
+from urllib.parse import unquote
 
 from oauth2_provider.models import AccessToken
 
@@ -18,7 +19,6 @@ from django.http import Http404, HttpResponseBadRequest, StreamingHttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
-from django.utils.http import urlunquote
 from django.utils.text import format_lazy
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext as __
@@ -108,9 +108,9 @@ class MemberDetail(DetailView):
     template_name = "member/profile.html"
 
     def get_object(self, queryset=None):
-        # Use urlunquote to accept twicely quoted URLs (for instance in MPs
+        # Use unquote to accept twicely quoted URLs (for instance in MPs
         # sent through emarkdown parser).
-        return get_object_or_404(User, username=urlunquote(self.kwargs["user_name"]))
+        return get_object_or_404(User, username=unquote(self.kwargs["user_name"]))
 
     def get_summaries(self, profile):
         """
