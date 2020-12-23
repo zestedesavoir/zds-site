@@ -1,6 +1,7 @@
-from django import template
-from django.utils.http import urlquote
 from functools import wraps
+from urllib.parse import quote
+
+from django import template
 
 register = template.Library()
 
@@ -82,7 +83,7 @@ class AppendGetNode(template.Node):
 
         if len(get) > 0:
             list_arg = [
-                "{0}={1}".format(key, urlquote(str(value))) for key in list(get.keys()) for value in get.getlist(key)
+                "{0}={1}".format(key, quote(str(value))) for key in list(get.keys()) for value in get.getlist(key)
             ]
             path += "?" + "&".join(list_arg)
 
