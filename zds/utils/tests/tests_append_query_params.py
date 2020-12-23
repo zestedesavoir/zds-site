@@ -1,5 +1,6 @@
 from django.test import TestCase, RequestFactory
-from django.template.base import TemplateSyntaxError, Token, TokenType, Context, VariableDoesNotExist, Template
+from django.template import TemplateSyntaxError, Context, VariableDoesNotExist, Template
+from django.template.base import Token, TokenType
 
 from zds.utils.templatetags.append_query_params import easy_tag, AppendGetNode
 
