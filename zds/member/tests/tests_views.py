@@ -11,6 +11,7 @@ from django.contrib.auth.models import User, Group
 from django.core import mail
 from django.urls import reverse
 from django.test import TestCase, override_settings
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 
 from zds.notification.models import TopicAnswerSubscription
@@ -1709,4 +1710,4 @@ class RegisterTest(TestCase):
             follow=False,
         )
         self.assertEqual(result.status_code, 200)
-        self.assertIn("Impossible d&#39;envoyer l&#39;email.", result.content.decode("utf-8"))
+        self.assertIn(escape("Impossible d'envoyer l'email."), result.content.decode("utf-8"))
