@@ -2,7 +2,7 @@ import logging
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.template import defaultfilters
 from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4

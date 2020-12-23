@@ -8,7 +8,7 @@ from django.contrib.gis.geoip2 import GeoIP2
 from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.forum.models import Post, Topic
 from zds.notification.models import TopicAnswerSubscription

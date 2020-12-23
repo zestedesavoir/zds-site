@@ -3,7 +3,7 @@ from pathlib import Path
 
 from django.core.management import BaseCommand
 from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.models.versioned import NotAPublicVersion

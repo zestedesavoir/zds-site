@@ -20,8 +20,8 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.text import format_lazy
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext as __
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext as __
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView, CreateView, FormView, View
 

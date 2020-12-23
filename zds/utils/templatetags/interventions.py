@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from django import template
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db.models import F
 
 from zds.forum.models import is_read as topic_is_read

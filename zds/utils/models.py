@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.db import models
 from django.shortcuts import get_object_or_404
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 

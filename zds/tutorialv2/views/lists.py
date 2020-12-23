@@ -2,7 +2,7 @@ from collections import defaultdict, OrderedDict
 
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.db.models import Count
 from django.http import Http404

@@ -5,7 +5,7 @@ from django.db import transaction
 from django.http import HttpResponse, Http404
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
 from zds import json_handler

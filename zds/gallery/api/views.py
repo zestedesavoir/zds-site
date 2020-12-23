@@ -6,7 +6,7 @@ from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from dry_rest_permissions.generics import DRYPermissions
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from zds.api.bits import UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor

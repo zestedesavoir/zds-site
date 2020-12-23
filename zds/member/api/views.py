@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
 from dry_rest_permissions.generics import DRYPermissions

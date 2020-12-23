@@ -1,6 +1,6 @@
 from django import template
 from django.template import defaultfilters as filters
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 import datetime
 
 register = template.Library()
