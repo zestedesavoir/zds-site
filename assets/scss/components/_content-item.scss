@@ -1,6 +1,8 @@
 $content-border-color: $grey-200;
 $content-item-height: $length-96;
 $content-reaction-offset: -$length-24; // -30px to not offset the meta
+$content-item-padding-horizontal: $length-4;
+$content-item-padding-vertical: $length-14;
 
 .content-item {
     display: flex;
@@ -66,7 +68,7 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
         position: relative;
         flex: 1;
 
-        padding: $length-4 $length-14;
+        padding: $content-item-padding-horizontal $content-item-padding-vertical;
 
         min-width: 100px;
 
@@ -124,7 +126,7 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
             flex-direction: row-reverse;
             align-items: center;
 
-            padding-bottom: $length-4;
+            padding-bottom: $content-item-padding-horizontal;
 
             &.has-reactions {
                 margin-left: $content-reaction-offset;
@@ -224,7 +226,7 @@ $content-reaction-offset: -$length-24; // -30px to not offset the meta
         li {
             display: block;
 
-            margin-bottom: $length-4;
+            margin-bottom: $content-item-padding-horizontal;
             padding: 0;
 
             a {
