@@ -15,6 +15,7 @@ ol:not(.summary-part) {
 h2,
 h3 {
     margin-top: $length-48;
+    line-height: 1.4;
 
     &,
     a {
@@ -41,7 +42,6 @@ h2 {
 
     font-weight: 400;
     font-size: $size-6;
-    line-height: 2;
 
     a {
         flex: 2;
