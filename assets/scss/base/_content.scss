@@ -2,6 +2,15 @@
  * Base styling for content.
  * This is included in layout/_content.scss and zmd.scss
  */
+p,
+> a,
+p a,
+th,
+td,
+ul:not(.pagination),
+ol:not(.summary-part) {
+    line-height: 1.6;
+}
 
 h2,
 h3 {
