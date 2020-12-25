@@ -158,7 +158,7 @@
 
 @include extra-wide {
     .main .content-container {
-        .content-wrapper {
+        > .content-wrapper {
             max-width: 960px;
             margin: 0 auto !important;
         }
