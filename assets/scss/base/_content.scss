@@ -130,7 +130,7 @@ h6 {
     font-weight: bold;
 }
 .custom-block-information {
-    background: $blue-000;
+    background: $blue-100;
 
     .custom-block-heading {
         color: $white;
@@ -285,7 +285,7 @@ h6 {
         }
     }
     &.information {
-        background: $blue-000;
+        background: $blue-100;
 
         &.ico-after:after {
             @include sprite-position($information);
@@ -458,31 +458,28 @@ td {
     code:not(.hljs) {
         --code-inline-color: #{$primary-900};
         --code-inline-background: #{$grey-100};
-        --code-inline-border: #{$primary-100};
 
         color: var(--code-inline-color);
         background: var(--code-inline-background);
-        border: $length-1 solid var(--code-inline-border);
         border-radius: $radius-1;
         padding: 0 $length-6;
     }
 }
 
 // Code inline with colors adapted for the custom blocks
-@mixin custom_block_code($block, $color, $background, $border) {
+@mixin custom_block_code($block, $color, $background) {
     .custom-block-#{$block}, .#{$block}:not(.alert-box) {
         code:not(.hljs) {
             --code-inline-color: #{$color};
             --code-inline-background: #{$background};
-            --code-inline-border: #{$border};
         }
     }
 }
 
-@include custom_block_code("information", $blue-800, $grey-100, $blue-300);
-@include custom_block_code("question", $purple-800, $grey-100, $purple-300);
-@include custom_block_code("warning", $accent-900, $accent-000, $accent-500);
-@include custom_block_code("error", $red-700, $red-000, $red-300);
+@include custom_block_code("information", $blue-800, $blue-000);
+@include custom_block_code("question", $purple-800, $purple-000);
+@include custom_block_code("warning", $accent-900, $accent-000);
+@include custom_block_code("error", $red-700, $red-000);
 
 // @ping
 .ping {
