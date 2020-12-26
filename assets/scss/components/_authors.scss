@@ -51,6 +51,18 @@
             padding: 0 $length-2;
         }
     }
+
+    &.is-link {
+        display: inline;
+        padding: 0;
+
+        vertical-align: unset;
+
+        &:hover, &:active {
+            background-color: transparent;
+            text-decoration: underline;
+        }
+    }
 }
 
 .authors {

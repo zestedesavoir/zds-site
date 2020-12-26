@@ -5,7 +5,7 @@
 {% with profile=member|profile %}
     {% spaceless %}
         <a href="{{ profile.get_absolute_url }}"
-           class="member-item{% if inline %} is-inline{% endif %}"
+           class="member-item{% if inline %} is-inline{% endif %}{% if link %} is-link{% endif %}"
            itemscope
            itemtype="http://schema.org/Person"
            {% if author %}
