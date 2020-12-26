@@ -10,43 +10,49 @@
 </a>
 
 <div class="content-info">
-    <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+    <header>
         <h3 class="content-title" itemprop="itemListElement">
-            {{ search_result.title }}
+            <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+                {{ search_result.title }}
+            </a>
         </h3>
-    </a>
 
-    <p class="content-description" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
-        {% if search_result.text %}
-            {% highlight search_result "text" %}
-        {% else %}
-            {{ search_result.description }}
-        {% endif %}
-    </p>
-
-    <div class="content-meta inline" title="{% trans "Contenu publié" %}">
-        <p>
-            {% if search_result.content_type == 'ARTICLE' %}
-                {% trans "Article publié" %}
-            {% elif search_result.content_type == 'TUTORIAL' %}
-                {% trans "Tutoriel publié" %}
-            {% elif search_result.content_type == 'OPINION' %}
-                {% trans "Billet" %}
-                {% if search_result.picked %}
-                    {% trans "mis en avant" %}
+        <p class="content-description" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
+            <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+                {% if search_result.text %}
+                    {% highlight search_result "text" %}
+                {% else %}
+                    {{ search_result.description }}
                 {% endif %}
-            {% else %}
-                {% trans "Contenu publié" %}
-            {% endif %}
-
-            &bullet;
-
-            <time class="content-pubdate" pubdate="{{ search_result.publication_date|from_elasticsearch_date }}">
-                <span class="long">{{ search_result.publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
-                <span class="short">{{ search_result.publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
-            </time>
+            </a>
         </p>
-    </div>
+    </header>
+
+    <footer>
+        <div class="content-meta inline" title="{% trans "Contenu publié" %}">
+            <p>
+                {% if search_result.content_type == 'ARTICLE' %}
+                    {% trans "Article publié" %}
+                {% elif search_result.content_type == 'TUTORIAL' %}
+                    {% trans "Tutoriel publié" %}
+                {% elif search_result.content_type == 'OPINION' %}
+                    {% trans "Billet" %}
+                    {% if search_result.picked %}
+                        {% trans "mis en avant" %}
+                    {% endif %}
+                {% else %}
+                    {% trans "Contenu publié" %}
+                {% endif %}
+
+                &bullet;
+
+                <time class="content-pubdate" pubdate="{{ search_result.publication_date|from_elasticsearch_date }}">
+                    <span class="long">{{ search_result.publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
+                </time>
+            </p>
+        </div>
+    </footer>
 </div>
 
 {% if search_result.tags %}
