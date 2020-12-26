@@ -108,9 +108,19 @@ $content-item-padding-vertical: $length-14;
                 &, a {
                     font-size: $size-9;
                     color: $grey-600;
+
+                    &:hover {
+                        text-decoration: none;
+                    }
                 }
 
-                a {
+                &.is-long {
+                    &, a {
+                        font-size: $size-10;
+                    }
+                }
+
+                a, &.is-one-line {
                     display: block;
                     width: 100%;
 
