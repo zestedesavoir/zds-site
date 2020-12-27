@@ -542,7 +542,7 @@ $logo-width: 24rem;
             }
 
             .dropdown {
-                top: $length-48 + $length-2; // Content height + border
+                top: $length-48 - $length-1;
             }
 
             .notifs-links .ico-link,
