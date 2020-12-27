@@ -909,28 +909,7 @@
             {% if perms.member.change_profile and alerts %}
                 <section id="alerts">
                     <h2 itemprop="name">{% trans "Signalements du profil" %}</h2>
-                    {% for alert in alerts %}
-                        <div class="alert-box{% if not alert.solved %} error{% endif %}">
-                            <span>
-                                {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                                {% include "misc/member_item.part.html" with member=alert.author %} :
-                                <em>{{ alert.text }}</em>
-                            </span>
-                            {% if alert.solved %}
-                                <span class="view-alert-box close-alert-box-text">
-                                    {% trans "Résolu par" %}
-                                    {% include "misc/member_item.part.html" with member=alert.moderator %}
-                                </span>
-                            {% else %}
-                                <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
-                                <form id="solve-alert-{{ alert.pk }}" method="post" action="{% url 'solve-profile-alert' alert.pk %}" class="modal modal-flex">
-                                    <textarea name="text" class="input" placeholder="{% trans 'Message à envoyer au membre ayant lancé l’alerte' %}"></textarea>
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-submit button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+                    {% include "misc/alerts.part.html" with alerts=alerts solve_url='solve-profile-alert' %}
                 </section>
             {% endif %}
 

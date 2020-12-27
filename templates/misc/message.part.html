@@ -228,44 +228,7 @@
         </div>
 
         {% if perms_change %}
-            {% for alert in message.alerts_on_this_comment.all %}
-                <aside class="message-alert{% if alert.solved %} is-solved{% endif %}">
-                    <div class="message-alert-content">
-                        <p>{{ alert.text }}</p>
-                        <footer>
-                            <time datetime="{{ alert.pubdate | date:"c" }}">{{ alert.pubdate|format_date|capfirst }}</time>
-                            {% trans "par" %} {% include "misc/member_item.part.html" with member=alert.author inline=True link=True %}
-                        </footer>
-                    </div>
-                    <div class="message-alert-actions">
-                        {% if alert.solved %}
-                            {% trans "Résolu par" %}
-                            {% include "misc/member_item.part.html" with member=alert.moderator inline=True link=True %}
-                        {% else %}
-                            <a href="#solve-alert-{{ alert.pk }}" class="open-modal">{% trans "Résoudre" %}</a>
-                            <form id="solve-alert-{{ alert.pk }}" method="post" action="{{ alert_solve_link }}" class="modal modal-flex">
-                                {% if alert.is_automated %}
-                                    <p>{% trans "Confirmez-vous vouloir résoudre cette alerte ?" %}</p>
-                                    <p class="cannot-send-message-with-solved-alert">
-                                        {% blocktrans %}
-                                            Usuellement, vous pouvez joindre un message à la résolution d'une alerte, mais ce n'est pas possible
-                                            pour celle-ci car elle a été ouverte automatiquement.
-                                        {% endblocktrans %}
-                                    </p>
-                                    <input type="hidden" name="text" value="" />
-                                {% else %}
-                                    <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
-                                {% endif %}
-
-                                <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
-
-                                {% csrf_token %}
-                                <button type="submit" name="delete-post" class="btn btn-submit button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
-                            </form>
-                        {% endif %}
-                    </div>
-                </aside>
-            {% endfor %}
+            {% include "misc/alerts.part.html" with alerts=message.alerts_on_this_comment.all alert_solve_link=alert_solve_link %}
         {% endif %}
 
         {% if not message_is_hidden %}
