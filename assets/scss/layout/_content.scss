@@ -7,7 +7,7 @@
 .main .content-container {
     .content-wrapper {
         &.article-content,
-        &.authors {
+        &.members {
             padding-left: 2%;
             padding-right: 2%;
         }
@@ -184,7 +184,7 @@
             h4,
             h5,
             h6,
-            .authors,
+            .members,
             p,
             figure,
             blockquote {

@@ -8,7 +8,7 @@
 
 <aside class="meta">
     <div class="meta-column">
-        <div class="authors">
+        <div class="members">
             <span class="authors-label">
                 {% trans "Auteur" %}{{ publishablecontent|displayable_authors:online|pluralize }} :
             </span>
@@ -43,7 +43,7 @@
                     <a href="#view-contributions" class="open-modal">{{ count_contributions }} {% trans "contributeur" %}{{ count_contributions|pluralize }}</a>
 
                     <div class="modal modal-flex" id="view-contributions" data-modal-close="Fermer">
-                        <div class="authors is-fullwidth">
+                        <div class="members is-fullwidth">
                             <ul>
                                 {% for contribution in contributions %}
                                     <li>{% include "misc/member_item.part.html" with member=contribution.user info=contribution.contribution_role.title avatar=True fullwidth=True %}</li>

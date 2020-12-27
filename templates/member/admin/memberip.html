@@ -30,7 +30,7 @@
         {% endblocktrans %}
     </p>
 
-    <div class="authors">
+    <div class="members">
         <ul>
             {% for member in members %}
                 <li>{% include "misc/member_item.part.html" with member=member info=member.last_visit|format_date:True avatar=True %}</li>

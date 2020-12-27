@@ -328,11 +328,11 @@ Il arrive souvent que l'on ait à afficher non un seul membre, mais une liste de
 d'auteurs, ou de contributeurs, ou n'importe quoi en fait).
 
 La manière la plus simple de le faire est d'englober les éléments ``misc/member_item.part.html`` précédents dans un bloc
-avec la classe ``authors``, ce dernier contenant une liste qui elle contient les différents éléments à afficher.
+avec la classe ``members``, ce dernier contenant une liste qui elle contient les différents éléments à afficher.
 
 .. sourcecode:: html+django
 
-   <div class="authors">
+   <div class="members">
        <ul>
            {% for member in members %}
                <li>
@@ -349,7 +349,7 @@ On peut ajouter un élément légendant l'ensemble, ainsi qu'un bouton à la sui
 
 .. sourcecode:: html+django
 
-   <div class="authors">
+   <div class="members">
        <span class="authors-label">
            {% trans "Auteurs" %}
        </span>
@@ -378,7 +378,7 @@ pour ce cas d'usage (retirant les parenthèses autour du bloc info).
 
 .. sourcecode:: html+django
 
-   <div class="authors is-fullwidth">
+   <div class="members is-fullwidth">
        <ul>
            {% for member in members %}
                <li>
