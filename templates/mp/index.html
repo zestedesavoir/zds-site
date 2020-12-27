@@ -39,20 +39,24 @@
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
                         </a>
 
-                        <p class="topic-members">
-                            <span class="topic-members-label">
+                        <div class="topic-members authors">
+                            <span class="authors-label">
                                 {% blocktrans with plural=topic.participants.all|length|pluralize_fr %}
-                                    Participant{{ plural }} :
+                                    Participant{{ plural }} :
                                 {% endblocktrans %}
                             </span>
-                            <em>
-                                {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
-                            </em>
+                            <ul>
+                                <li>
+                                    <em>
+                                        {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
+                                    </em>
+                                </li>
 
-                            {% for member in topic.participants.all %}
-                                {% include "misc/member_item.part.html" with avatar=True %}
-                            {% endfor %}
-                        </p>
+                                {% for member in topic.participants.all %}
+                                    <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 {% endwith %}
                 {% with post_count=topic.get_post_count %}
