@@ -54,7 +54,7 @@
         {% with users=contact_group.group.user_set.all %}
             {% if users %}
                 <p>{% trans "Les membres sont les suivants." %}</p>
-                <div class="authors">
+                <div class="members">
                     <ul>
                         {% for member in users %}
                             <li>{% include "misc/member_item.part.html" with avatar=True %}</li>

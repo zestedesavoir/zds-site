@@ -39,7 +39,7 @@
 
     {% if users %}
         <p>{% trans "Les personnes possédant cette casquette sont :" %}</p>
-        <div class="authors">
+        <div class="members">
             <ul>
                 {% for member in users %}
                     <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
