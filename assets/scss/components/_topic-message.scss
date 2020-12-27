@@ -352,43 +352,6 @@ div.msg-are-hidden {
             }
         }
 
-        .message-alert {
-            display: flex;
-            align-items: center;
-
-            margin-bottom: $length-16;
-            padding: $length-8 $length-16;
-
-            background-color: $red-700;
-
-            &, a {
-                color: $white;
-            }
-
-            &.is-solved {
-                background-color: $grey-500;
-            }
-
-            .message-alert-content {
-                flex: 2;
-
-                p {
-                    margin: 0;
-                    font-size: $size-10;
-                }
-                footer {
-                    font-size: $size-11;
-                    a.member-item {
-
-                    }
-                }
-            }
-
-            .message-alert-actions {
-                margin-left: $length-16;
-            }
-        }
-
         .message-bottom {
             display: flex;
             align-items: flex-start;
