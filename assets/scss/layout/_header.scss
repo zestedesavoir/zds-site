@@ -527,6 +527,11 @@ $logo-width: 24rem;
             .header-menu {
                 display: none;
             }
+
+            > * {
+                margin-top: -$length-2;
+                align-self: center;
+            }
         }
         .logbox {
             display: flex;
@@ -560,7 +565,7 @@ $logo-width: 24rem;
                 font-size: $size-10;
 
                 a {
-                    margin: $length-10 $length-1 0 0;
+                    margin: 0 $length-1 0 0;
 
                     width: $length-96;
                     height: $length-32;
