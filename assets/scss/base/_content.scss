@@ -130,7 +130,7 @@ h6 {
     font-weight: bold;
 }
 .custom-block-information {
-    background: $blue-100;
+    background: $blue-000;
 
     .custom-block-heading {
         color: $white;
@@ -285,7 +285,7 @@ h6 {
         }
     }
     &.information {
-        background: $blue-100;
+        background: $blue-000;
 
         &.ico-after:after {
             @include sprite-position($information);
@@ -476,7 +476,7 @@ td {
     }
 }
 
-@include custom_block_code("information", $blue-800, $blue-000);
+@include custom_block_code("information", $blue-900, $blue-100);
 @include custom_block_code("question", $purple-800, $purple-000);
 @include custom_block_code("warning", $accent-900, $accent-000);
 @include custom_block_code("error", $red-700, $red-000);
