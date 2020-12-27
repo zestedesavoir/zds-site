@@ -15,7 +15,7 @@
             <ul>
                 {% for member in publishablecontent|displayable_authors:online %}
                     <li>
-                        {% include "misc/member_item.part.html" with avatar=True author=True %}
+                        {% include "misc/member_item.part.html" with avatar=True %}
                     </li>
                 {% endfor %}
 
@@ -43,10 +43,10 @@
                     <a href="#view-contributions" class="open-modal">{{ count_contributions }} {% trans "contributeur" %}{{ count_contributions|pluralize }}</a>
 
                     <div class="modal modal-flex" id="view-contributions" data-modal-close="Fermer">
-                        <div class="authors">
+                        <div class="authors is-fullwidth">
                             <ul>
                                 {% for contribution in contributions %}
-                                    <li>{% include "misc/member_item.part.html" with member=contribution.user info=contribution.contribution_role.title avatar=True %}</li>
+                                    <li>{% include "misc/member_item.part.html" with member=contribution.user info=contribution.contribution_role.title avatar=True fullwidth=True %}</li>
                                 {% endfor %}
                             </ul>
                         </div>
