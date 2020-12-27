@@ -56,7 +56,8 @@
     }
 
     .modal-title {
-        display: block;
+        display: flex;
+        align-items: center;
 
         margin-left: 0;
 
