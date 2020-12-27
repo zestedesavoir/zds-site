@@ -108,7 +108,7 @@
 {% block content %}
     {% if is_staff %}
         <div class="opinion-alerts">
-            {% include "misc/alerts.part.html" with alerts=alerts solve_url='content:resolve-content' %}
+            {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='content:resolve-content' %}
         </div>
     {% endif %}
 
