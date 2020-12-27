@@ -214,7 +214,7 @@
 
         .home-heading {
             .btn {
-                visibility: hidden;
+                display: none;
             }
         }
 
@@ -258,6 +258,11 @@
 
         .home-row {
             flex-direction: column;
+            margin-bottom: 0;
+
+            > section {
+                margin-top: $length-32;
+            }
         }
 
         .home-description {
@@ -278,7 +283,7 @@
             margin-right: -($gap/2);
             margin-left: -($gap/2);
 
-            & > section {
+            > section {
                 margin: 0 $gap/2;
                 flex: 1;
                 min-width: $length-384; // must be specified to have the elements correctely sized
