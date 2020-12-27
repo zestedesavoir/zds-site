@@ -278,6 +278,119 @@ Pour y remédier, il faut toujours mettre à la fin de votre liste d'articles tr
 
 (Pour l'explication technique, c'est dû à l'utilisation de *flexbox*.)
 
+
+Les membres et listes de membres
+================================
+
+Afficher un membre
+------------------
+
+Pour afficher un membre, utilisez le gabari ``misc/member_item.part.html``. Il dispose de plusieurs arguments :
+
+  - ``member`` : le membre à afficher (ce peut être un ``Profile`` ou un ``User``, peu importe) ;
+  - ``inline`` : si ``True``, l'élément sera stylisé pour une intégration au cœur d'un texte ;
+  - ``link`` : si ``True``, l'élément se comportera comme un simple lien au survol (et non une sorte de bouton, avec un
+    fond au survol) ;
+  - ``avatar`` : si ``True``, l'avatar du membre sera affiché ;
+  - ``info`` : si renseigné, le texte donné sera affiché après le pseudonyme du membre, afin de donner un détail sur ce
+    dernier (ce texte sera entre parenthèses, sauf si le mode “pleine largeur” est actif — voir plus bas) ;
+  - ``fullwidth`` : si ``True``, active le support du mode pleine largeur (ce qui concrètement écrit le texte de
+    ``info`` sans parenthèses).
+
+Ce qui peut donner ceci par exemple.
+
+.. sourcecode:: html+django
+
+   {% include "misc/member_item.part.html" with member=member avatar=True %}
+
+.. figure:: ../images/design/item-member.png
+   :align: center
+
+.. sourcecode:: html+django
+
+   {% include "misc/member_item.part.html" with member=member avatar=True info="Écriture" %}
+
+.. figure:: ../images/design/item-member-info.png
+   :align: center
+
+.. sourcecode:: html+django
+
+   <time datetime="{{ alert.pubdate | date:"c" }}">{{ alert.pubdate|format_date|capfirst }}</time>
+   {% trans "par" %} {% include "misc/member_item.part.html" with member=alert.author inline=True link=True %}
+
+.. figure:: ../images/design/item-member-link.png
+   :align: center
+
+Afficher une liste de membres
+-----------------------------
+
+Il arrive souvent que l'on ait à afficher non un seul membre, mais une liste de membres (par exemple une liste
+d'auteurs, ou de contributeurs, ou n'importe quoi en fait).
+
+La manière la plus simple de le faire est d'englober les éléments ``misc/member_item.part.html`` précédents dans un bloc
+avec la classe ``authors``, ce dernier contenant une liste qui elle contient les différents éléments à afficher.
+
+.. sourcecode:: html+django
+
+   <div class="authors">
+       <ul>
+           {% for member in members %}
+               <li>
+                   {% include "misc/member_item.part.html" with member=member avatar=True %}
+               </li>
+           {% endfor %}
+       </ul>
+   </div>
+
+.. figure:: ../images/design/item-member-list.png
+   :align: center
+
+On peut ajouter un élément légendant l'ensemble, ainsi qu'un bouton à la suite, si besoin.
+
+.. sourcecode:: html+django
+
+   <div class="authors">
+       <span class="authors-label">
+           {% trans "Auteurs" %}
+       </span>
+       <ul>
+           {% for member in members %}
+               <li>
+                   {% include "misc/member_item.part.html" with member=member avatar=True author=True %}
+               </li>
+           {% endfor %}
+
+           <li>
+               <a href="#add-author-content" class="btn btn-add ico-after more blue">
+                   Ajouter un auteur
+               </a>
+           </li>
+       </ul>
+   </div>
+
+.. figure:: ../images/design/item-member-list-label-button.png
+   :align: center
+
+Enfin, il est possible d'exploiter cette liste comme une liste en pleine largeur, ce qui peut très bien rendre avec un
+texte d'information ajouté. Pour ce faire, il faut ajouter la classe ``is-fullwidth`` à l'élément parent ``.authors``.
+On pourra également ajouter l'argument ``fullwidth=True`` à ``misc/member_item.part.html`` afin d'optimiser l'affichage
+pour ce cas d'usage (retirant les parenthèses autour du bloc info).
+
+.. sourcecode:: html+django
+
+   <div class="authors is-fullwidth">
+       <ul>
+           {% for member in members %}
+               <li>
+                   {% include "misc/member_item.part.html" with member=member avatar=True fullwidth=True %}
+               </li>
+           {% endfor %}
+       </ul>
+   </div>
+
+.. figure:: ../images/design/item-member-list-fullwidth.png
+   :align: center
+
 Ajouter un design temporaire
 ============================
 
