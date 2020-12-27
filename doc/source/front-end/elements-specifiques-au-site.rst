@@ -391,6 +391,36 @@ pour ce cas d'usage (retirant les parenthèses autour du bloc info).
 .. figure:: ../images/design/item-member-list-fullwidth.png
    :align: center
 
+
+Les alertes de modération
+=========================
+
+Pour afficher une liste d'alertes de modération, utilisez le gabari ``misc/alerts.part.html``. Il demande le paramètre
+``alerts``, qui doit être un itérable d'``Alert`` à afficher, ainsi que l'un ou l'autre de ces paramètres pour préciser
+vers quoi le formulaire de résolution d'alerte doit être envoyé :
+
+- ``alert_solve_url`` : un **nom** d'URL (qui doit accepter un unique paramètre ``pk`` qui sera celui de l'alerte à
+  résoudre et qui doit être appelable en ``POST``) ; ou
+- ``alert_solve_link`` : une URL qui sera utilisée telle quelle pour toutes les alertes, et qui doit être appelable en
+  ``POST`` également.
+
+Si aucun de ces paramètres n'est renseigné, le formulaire sera envoyé en ``POST`` vers la page courante.
+
+Le formulaire transmettra les champs suivants :
+
+- ``alert_pk`` : le ``pk`` de l'alerte à résoudre ;
+- ``text`` : le message à envoyer au membre ayant ouvert l'alerte (peut être vide, et sera toujours vide si l'alerte
+  a été ouverte automatiquement).
+
+.. sourcecode:: html+django
+
+   <h2>{% trans "Signalements du profil" %}</h2>
+   {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='solve-profile-alert' %}
+
+.. figure:: ../images/design/alerts.png
+   :align: center
+
+
 Ajouter un design temporaire
 ============================
 

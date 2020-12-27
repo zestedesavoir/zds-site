@@ -909,7 +909,7 @@
             {% if perms.member.change_profile and alerts %}
                 <section id="alerts">
                     <h2 itemprop="name">{% trans "Signalements du profil" %}</h2>
-                    {% include "misc/alerts.part.html" with alerts=alerts solve_url='solve-profile-alert' %}
+                    {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='solve-profile-alert' %}
                 </section>
             {% endif %}
 
