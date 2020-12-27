@@ -14,13 +14,15 @@
            {% endif %}>
 
             {% if avatar %}
-                <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar" itemprop="image">
+                <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar" itemprop="image" aria-hidden="true" />
             {% endif %}
 
-            <span itemprop="name">{% if member.username %}{{ member.username }}{% else %}{{ member.user.username }}{% endif %}</span>
+            <span itemprop="name">{{ profile.user.username }}</span>
 
             {% if info %}
-                <span class="info">({{ info }})</span>
+                <span class="info">
+                    {% if fullwidth %}{{ info }}{% else %}({{ info }}){% endif %}
+                </span>
             {% endif %}
         </a>
     {% endspaceless %}

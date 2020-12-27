@@ -94,6 +94,21 @@
         }
     }
 
+    &.is-fullwidth {
+        li {
+            width: 100%;
+
+            .member-item {
+                display: flex;
+                width: 100%;
+
+                span[itemprop="name"] {
+                    flex: 2;
+                }
+            }
+        }
+    }
+
     .btn-add {
         color: $grey-600;
 
