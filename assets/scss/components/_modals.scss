@@ -85,7 +85,7 @@
     }
 
     .modal-body {
-        padding: $length-20 $length-16 $length-6;
+        padding: $length-16;
         flex: 1;
 
         table {
@@ -98,6 +98,17 @@
         textarea {
             margin: 0 0 $length-16;
             width: 100%;
+        }
+
+        label:first-of-type,
+        input:not([type=checkbox]):not([type=radio]):first-of-type,
+        textarea:first-of-type {
+            margin-top: 0;
+        }
+
+        input:not([type=checkbox]):not([type=radio]):last-of-type,
+        textarea:last-of-type {
+            margin-bottom: 0;
         }
     }
 
