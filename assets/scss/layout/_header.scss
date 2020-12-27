@@ -18,7 +18,7 @@ $logo-width: 24rem;
         }
     }
 
-    header {
+    > header {
         background: $color-primary;
         border-bottom: $length-2 solid $color-secondary;
 
@@ -521,14 +521,13 @@ $logo-width: 24rem;
             background-image: url("../images/logo-mobile.png") !important;
         }
 
-        header {
+        > header {
             height: $length-48 + $length-2; // Content height + border
 
             .header-menu {
                 display: none;
             }
         }
-
         .logbox {
             display: flex;
 
@@ -537,10 +536,13 @@ $logo-width: 24rem;
                 width: 100%;
             }
 
+            .dropdown {
+                top: $length-48 + $length-2; // Content height + border
+            }
 
             .notifs-links .ico-link,
             #my-account,
-            #my-account .avatar{
+            #my-account .avatar {
                 height: $length-48;
                 width: $length-48;
             }
