@@ -118,7 +118,7 @@
     </div>
 
     {% if images %}
-        <header class="topics-list-header">
+        <aside class="topics-list-header">
             <button class="toggle-gallery-view btn btn-grey" type="button" title="Alterner entre les modes de vue grille et liste">
                 {% trans "Vue grille" %}
             </button>
@@ -134,7 +134,7 @@
                     <button type="submit" name="delete_multi" class="btn btn-submit">{% trans "Confirmer" %}</button>
                 </form>
             {% endif %}
-        </header>
+        </aside>
 
         <div class="gallery topic-list list-view clearfix navigable-list">
             {% for img in images %}
