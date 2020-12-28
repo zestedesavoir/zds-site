@@ -29,13 +29,18 @@ Tout développement graphique sur Zeste de Savoir **doit** respecter cette norme
 
 .. note::
    Toutes ces normes sont `récapitulées sur un site web compagnon à la conception
-   d'interfaces pour Zeste de Savoir <https://zestedesavoir.github.io/palette/>`_,
+   d'interfaces pour Zeste de Savoir <https://zestedesavoir.github.io/normes-graphiques/>`_,
    avec moyen de copier facilement les variables SCSS et d'estimer la couleur la
    plus proche de la palette automatiquement.
 
    **Vous travaillez sur ZdS sans accès à internet ?** Ce site web compagnon
    fonctionne même hors-ligne, à condition de l'avoir chargé une fois dans votre
    navigateur — retournez simplement sur le site même sans connexion.
+
+.. note::
+   Un `paquet npm <https://www.npmjs.com/package/zestedesavoir-standards>`_ est également
+   disponible si vous voulez réutiliser ces normes dans des projets affiliés à Zeste de
+   Savoir.
 
 Couleurs
 --------
@@ -47,7 +52,7 @@ une couleur pour quelque chose, vous devez piocher dedans.
    :align: center
 
 .. seealso::
-   Cette palette est également `disponible en version interactive <https://zestedesavoir.github.io/palette/#couleurs>`_.
+   Cette palette est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#couleurs>`_.
 
 La palette est rendue disponible dans le code SCSS du site sous la forme de
 variables prêtes à l'emploi. Les noms des variables sont indiquées sur
@@ -106,7 +111,7 @@ Concernant les **tailles** de texte, elles sont également normalisées. Vous po
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/palette/#polices>`_,
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#polices>`_,
    avec prévisualisation pour les trois familles de police utilisées.
 
 Longueurs
@@ -123,7 +128,7 @@ de la variable correspond à la longueur en pixels (ou en dixième de ``rem``).
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/palette/#longueurs>`_.
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#longueurs>`_.
 
 .. attention::
    Cette norme peut être ignorée s'il s'agit d'aligner des éléments au pixel près. Cela dit, un code
@@ -143,7 +148,7 @@ Si un élément doit recevoir une ombre, utilisez l'une des six ombres standardi
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/palette/#ombres>`_.
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#ombres>`_.
 
 Arrondis
 --------
@@ -156,7 +161,7 @@ circulaire, l'élément devra avoir des dimensions carrées).
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/palette/#arrondis>`_.
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#arrondis>`_.
 
 
 Recommandations pour un SCSS propre
