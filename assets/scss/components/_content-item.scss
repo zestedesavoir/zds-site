@@ -307,7 +307,7 @@ $content-item-padding-vertical: $length-14;
     min-width: 100%; // prevents some weird margin bug...
     margin: 0 -$length-10;
 
-    @include mobile {
+    @include until-desktop {
         margin: 0;
     }
 
