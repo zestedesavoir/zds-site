@@ -1,7 +1,7 @@
 {% load times %}
 {% with col_number=1 %}
 {% if content_suggestions %}
-    <h2> <i class="fa fa-hand-o-right"></i> Ces contenus pourraient vous intéresser</h2>
+    <h2>Ces contenus pourraient vous intéresser</h2>
     <div class="content-item-list">
         {% for content_suggestion in content_suggestions %}
             {% include "tutorialv2/includes/content_item.part.html" with public_content=content_suggestion.suggestion.public_version show_description=True show_reactions=True %}

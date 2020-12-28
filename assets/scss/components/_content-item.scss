@@ -12,6 +12,10 @@ $content-item-padding-vertical: $length-14;
 
     margin: $length-6 $length-10;
 
+    @include mobile {
+        margin: $length-6 0;
+    }
+
     overflow: hidden; // Temporary, until the items are completely styled
 
     background: $true-white;
@@ -302,6 +306,10 @@ $content-item-padding-vertical: $length-14;
     justify-content: space-between;
     min-width: 100%; // prevents some weird margin bug...
     margin: 0 -$length-10;
+
+    @include mobile {
+        margin: 0;
+    }
 
     .fill {
         flex: 1 1 400px;
