@@ -3,8 +3,8 @@ Charte de l'interface de Zeste de Savoir
 ========================================
 
 Les styles de Zeste de Savoir sont complexes, formés de l'empilement d'années
-de contributions par des personnes très différentes. Pour qu'il reste maintenable,
-ce document propose une norme et des recommandations.
+de contributions par des personnes très différentes. Pour qu'ils restent
+maintenable, ce document propose une norme et des recommandations.
 
 Normalisation des styles
 ========================
@@ -15,7 +15,7 @@ tel des boutons, des dialogues…, mais plutôt des éléments graphiques qui le
 composent : couleurs, polices, tailles, ombres…
 
 Tout développement graphique sur Zeste de Savoir **doit** respecter cette norme
-(avec quelque exceptions mentionnés ci-après).
+(avec quelque exceptions mentionnées ci-après).
 
 .. note::
    Pourquoi tant de normes ?
@@ -26,6 +26,10 @@ Tout développement graphique sur Zeste de Savoir **doit** respecter cette norme
    on ne passe plus deux heures à essayer toutes les valeurs possibles entre
    deux tailles ou deux couleurs ; on prend la plus proche qui rend bien et
    *voilà*. Aussi, ça évite de *deviner* quelle valeur choisir au hasard.
+
+   On peut enfin ajouter un troisième argument : ces normes ont été étudiées
+   dans une optique d'accessbilité — à supposer qu'elles soient correctement
+   utilisées (elles ne dispensent pas de vérifier les contrastes, par exemple).
 
 .. note::
    Toutes ces normes sont `récapitulées sur un site web compagnon à la conception
@@ -93,9 +97,9 @@ Mais plutôt :
 Polices
 -------
 
-Zeste de Savoir utilise trois polices de caractère sur le site :
+Zeste de Savoir utilise trois polices de caractères sur le site :
 
-- une police sans empattements (``$font-sans-serif``), pour les textes de l'interface (il s'agit
+- une police sans empattement (``$font-sans-serif``), pour les textes de l'interface (il s'agit
   de Source Sans Pro, par défaut) ;
 - une police avec empattements (``$font-serif``), pour les contenus (cours, articles et billets)
   (Merriweather) ;

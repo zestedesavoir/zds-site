@@ -109,8 +109,8 @@ Voici un exemple.
 
 .. sourcecode:: html+django
 
-  <a href="#modal" class="open-modal edit-button" title="Modifier la licence">
-    <span class="visuallyhidden">Modifier la licence</span>
+  <a href="#modal" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+    <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
   </a>
 
 Pour s'assurer que le bouton de modification et ce qu'il permet de modifier
