@@ -68,8 +68,14 @@ hr.clearfix {
 }
 
 // Hidden on mobile
-.screen,
+.desktop,
 .wide {
+    display: none;
+}
+
+// Hidden on desktop
+.until-desktop,
+.until-wide {
     display: none;
 }
 
@@ -83,7 +89,19 @@ hr.clearfix {
 }
 
 @include desktop {
-    .screen {
+    .desktop {
+        display: inline;
+    }
+}
+
+@include until-desktop {
+    .until-desktop {
+        display: inline;
+    }
+}
+
+@include until-wide {
+    .until-wide {
         display: inline;
     }
 }
