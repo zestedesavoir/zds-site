@@ -30,7 +30,7 @@
         ul:not(.pagination),
         ol:not(.summary-part) {
             font-family: $font-serif;
-            font-size: $size-10;
+            font-size: $font-size-10;
         }
     }
 
@@ -52,7 +52,7 @@
     }
 
     .article-content .summary-part {
-        font-size: $size-7;
+        font-size: $font-size-7;
         color: $accent-800;
 
         h3,
@@ -86,7 +86,7 @@
             list-style: none;
 
             h4 {
-                font-size: $size-10;
+                font-size: $font-size-10;
                 margin: $length-2 0;
             }
         }
@@ -114,7 +114,7 @@
 
         color: $color-primary;
 
-        font-size:$size-6;
+        font-size: $font-size-6;
         font-weight: normal;
     }
 }
@@ -163,7 +163,7 @@
             p,
             ol,
             ul:not(.pagination) {
-                font-size: $size-10;
+                font-size: $font-size-10;
             }
         }
 

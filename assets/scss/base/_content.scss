@@ -41,7 +41,7 @@ h2 {
     background: $true-white;
 
     font-weight: 400;
-    font-size: $size-6;
+    font-size: $font-size-6;
 
     a {
         flex: 2;
@@ -62,7 +62,7 @@ h2 {
             background-color: $grey-100;
             color: $grey-600;
 
-            font-size: $size-9;
+            font-size: $font-size-9;
             line-height: 2;
 
             z-index: 1;
@@ -86,7 +86,7 @@ h2 {
 
 h3 {
     margin-bottom: $length-14;
-    font-size: $size-7;
+    font-size: $font-size-7;
 
     &.not-ready a {
         color: $grey-500;
@@ -95,17 +95,17 @@ h3 {
 
 h4 {
     margin-bottom: $length-12;
-    font-size: $size-8;
+    font-size: $font-size-8;
 }
 
 h5 {
     margin-bottom: $length-10;
-    font-size: $size-9;
+    font-size: $font-size-9;
 }
 
 h6 {
     margin-bottom: $length-10;
-    font-size: $size-10;
+    font-size: $font-size-10;
 }
 
 
@@ -248,7 +248,7 @@ h6 {
     background: $grey-100;
     border-bottom: $length-1 solid $grey-200;
 
-    font-size: $size-10;
+    font-size: $font-size-10;
     color: $grey-700;
     text-decoration: none;
 
@@ -502,7 +502,7 @@ td {
 
     mathjax {
         font-size: $length-16;
-        font-size: $size-9;
+        font-size: $font-size-9;
     }
 }
 

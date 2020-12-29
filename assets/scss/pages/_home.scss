@@ -47,7 +47,7 @@
 
                 color: $white;
 
-                font-size: $size-6;
+                font-size: $font-size-6;
                 font-weight: 300; // Light
             }
         }
@@ -56,7 +56,7 @@
             margin: 0;
             padding: 0;
 
-            font-size: $size-5;
+            font-size: $font-size-5;
             font-weight: 300;
             line-height: 1.2;
 
@@ -102,13 +102,13 @@
 
             color: $white;
             text-align: center;
-            font-size: $size-7;
+            font-size: $font-size-7;
 
             .home-description-button {
                 margin-top: $length-12;
                 padding: 0 $length-10;
 
-                font-size: $size-10;
+                font-size: $font-size-10;
                 line-height: 2;
             }
 
@@ -126,7 +126,7 @@
 
         border: solid $length-1 $primary-100;
 
-        font-size: $size-11;
+        font-size: $font-size-11;
         line-height: 1.5;
 
         color: $white;
@@ -294,11 +294,11 @@
         .home-description {
             .column {
                 h2 {
-                    font-size: $size-6;
+                    font-size: $font-size-6;
                 }
 
                 p, ul {
-                    font-size: $size-9;
+                    font-size: $font-size-9;
                     line-height: 1.5;
                 }
             }
