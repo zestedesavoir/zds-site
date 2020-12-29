@@ -12,7 +12,6 @@
 1. External dependencies
 ------------------------*/
 @import "normalize.css/normalize";
-@import "highlight.js/styles/idea";
 
 /*------------------------
 2. Base
@@ -37,7 +36,12 @@
 @import "base/helpers";
 
 /*------------------------
-6. Header
+6. Syntax highlighting theme
+------------------------*/
+@import "highlight/zest-hljs";
+
+/*------------------------
+7. Header
 ------------------------*/
 @import "layout/header";
 @import "components/header-dropdown";
@@ -46,7 +50,7 @@
 @import "components/cookies-banner";
 
 /*------------------------
-7. Layout
+8. Layout
 ------------------------*/
 @import "layout/sidebar";
 @import "layout/main";
@@ -54,7 +58,7 @@
 @import "layout/footer";
 
 /*------------------------
-8. Components
+9. Components
 ------------------------*/
 @import "components/alert-box";
 @import "components/aside-meta";
@@ -85,7 +89,7 @@
 @import "components/more-link";
 
 /*------------------------
-9. Pages
+10. Pages
 ------------------------*/
 @import "pages/flexpage";
 @import "pages/home";
@@ -99,6 +103,6 @@
 @import "pages/content-exports";
 
 /*-------------------------
-10. High pixel ratio (retina)
+11. High pixel ratio (retina)
 -------------------------*/
 @import "base/high-pixel-ratio";
