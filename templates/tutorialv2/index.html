@@ -55,7 +55,7 @@
         {% endblock %}
 
         {% if tutorials %}
-            <section itemscope="" itemtype="http://schema.org/ItemList">
+            <section class="content-item-list-wrapper" itemscope="" itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials">
                     <span>{% trans "Tutoriels de" %} {{ usr.username }}</span>
                     {% if contents != None or filter != 'public' %}
@@ -80,7 +80,7 @@
             </section>
         {% endif %}
         {% if articles %}
-            <section itemscope="" itemtype="http://schema.org/ItemList">
+            <section class="content-item-list-wrapper" itemscope="" itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials">
                     <span>{% trans "Articles de" %} {{ usr.username }}</span>
                     {% if contents != None or filter != 'public' %}
@@ -105,7 +105,7 @@
             </section>
         {% endif %}
         {% if opinions %}
-            <section itemscope="" itemtype="http://schema.org/ItemList">
+            <section class="content-item-list-wrapper" itemscope="" itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials">
                     <span>{% trans "Tribune de" %} {{ usr.username }}</span>
                     {% if contents != None or filter != 'public' %}
