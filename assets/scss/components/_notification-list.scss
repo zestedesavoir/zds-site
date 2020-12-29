@@ -112,7 +112,7 @@
             display: block;
             margin: 0 !important;
             padding: 0;
-            font-size: $size-9;
+            font-size: $font-size-9;
             font-weight: normal;
         }
     }
@@ -140,7 +140,7 @@
                 text-align: right;
 
                 .notification-last-answer-short-date {
-                    font-size: $size-10;
+                    font-size: $font-size-10;
                 }
 
                 .notification-last-answer-long-date {

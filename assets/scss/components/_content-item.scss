@@ -94,7 +94,7 @@ $content-item-padding-vertical: $length-14;
 
                     width: 100%;
 
-                    font-size: $size-8;
+                    font-size: $font-size-8;
                     font-weight: normal;
 
                     color: $grey-800;
@@ -110,7 +110,7 @@ $content-item-padding-vertical: $length-14;
                 padding: 0;
 
                 &, a {
-                    font-size: $size-9;
+                    font-size: $font-size-9;
                     color: $grey-600;
 
                     &:hover {
@@ -120,7 +120,7 @@ $content-item-padding-vertical: $length-14;
 
                 &.is-long {
                     &, a {
-                        font-size: $size-10;
+                        font-size: $font-size-10;
                     }
                 }
 
@@ -155,8 +155,8 @@ $content-item-padding-vertical: $length-14;
 
                 color: $accent-800;
 
-                font-size: $size-10;
-                line-height: $size-9;
+                font-size: $font-size-10;
+                line-height: $font-size-9;
 
                 &:not(.inline) > * {
                     white-space: nowrap;
@@ -186,7 +186,7 @@ $content-item-padding-vertical: $length-14;
 
                 border-radius: 100%;
 
-                font-size: $size-10;
+                font-size: $font-size-10;
                 font-weight: bold;
                 line-height: 2.2;
 
@@ -266,7 +266,7 @@ $content-item-padding-vertical: $length-14;
 
     &.topic-item {
         header .content-title a {
-            font-size: $size-7;
+            font-size: $font-size-7;
             font-weight: normal;
             color: $primary-700;
         }
@@ -348,10 +348,10 @@ $content-item-padding-vertical: $length-14;
 
         p {
             margin: 0;
-            font-size: $size-9;
+            font-size: $font-size-9;
 
             &.lead {
-                font-size: $size-8;
+                font-size: $font-size-8;
                 font-weight: bold;
             }
         }
@@ -364,7 +364,7 @@ $content-item-padding-vertical: $length-14;
         background-color: $grey-000;
         color: $primary-900;
 
-        font-size: $size-8;
+        font-size: $font-size-8;
         line-height: 2.2;
 
         user-select: none;

@@ -49,13 +49,13 @@
 
         color: $grey-700;
         height: $length-32;
-        font-size: $size-10;
+        font-size: $font-size-10;
         line-height: 2;
 
         cursor: pointer;
 
         .asteriskField {
-            font-size: $size-9;
+            font-size: $font-size-9;
             color: $red-500;
             margin-left: $length-4;
             vertical-align: middle;
@@ -68,7 +68,7 @@
 
     .form-error {
         display: block;
-        font-size: $size-10;
+        font-size: $font-size-10;
         color: $red-500;
     }
 

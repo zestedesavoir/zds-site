@@ -24,7 +24,7 @@
 
         padding-left: 11.5%;
 
-        font-size: $size-9;
+        font-size: $font-size-9;
         line-height: 2.2;
 
         text-decoration: none;
@@ -73,7 +73,7 @@
 
         border-bottom: $length-1 solid $color-secondary;
 
-        font-size: $size-8;
+        font-size: $font-size-8;
         color: $color-primary;
 
         &:first-child {
@@ -85,7 +85,7 @@
 
     h4 {
         padding-top: $length-20;
-        font-size: $size-8;
+        font-size: $font-size-8;
 
         a {
             text-decoration: none;
@@ -185,7 +185,7 @@
                 text-decoration: none;
                 text-align: left;
 
-                font-size: $size-10;
+                font-size: $font-size-10;
                 line-height: 2;
 
                 overflow: hidden;

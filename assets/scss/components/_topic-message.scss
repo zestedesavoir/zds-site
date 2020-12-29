@@ -6,7 +6,7 @@ div.msg-are-hidden {
 
     a {
         color: $grey-400;
-        font-size: $size-11;
+        font-size: $font-size-11;
     }
 
     & ~ .topic-message.hidden + .topic-message:not(.hidden) {
@@ -197,7 +197,7 @@ div.msg-are-hidden {
             background: $true-white;
 
             color: $grey-500;
-            font-size: $size-11;
+            font-size: $font-size-11;
             line-height: 1.5;
 
             &:before,
@@ -227,7 +227,7 @@ div.msg-are-hidden {
             display: inline-block;
             margin-left: $length-6;
 
-            font-size: $size-10;
+            font-size: $font-size-10;
 
             a {
                 display: block;
@@ -256,7 +256,7 @@ div.msg-are-hidden {
 
             .username {
                 color: $grey-800;
-                font-size: $size-9;
+                font-size: $font-size-9;
                 margin-right: $length-4;
             }
 
@@ -369,7 +369,7 @@ div.msg-are-hidden {
 
                 border-top: $length-1 solid $grey-200;
 
-                font-size: $size-11;
+                font-size: $font-size-11;
                 color: $grey-500;
                 line-height: 1.9;
 
@@ -845,6 +845,6 @@ form.topic-message {
 
 // For alerts resolution modals
 .cannot-send-message-with-solved-alert {
-    font-size: $size-11;
+    font-size: $font-size-11;
     line-height: 1.4;
 }

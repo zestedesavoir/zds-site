@@ -59,7 +59,7 @@
                 background-color: $grey-800;
                 color: $grey-000;
 
-                font-size: $size-9;
+                font-size: $font-size-9;
 
                 &:hover,
                 &:focus {
@@ -129,7 +129,7 @@
                 padding-bottom: $length-4;
                 border-bottom: $length-2 solid $grey-400;
 
-                font-size: $size-10;
+                font-size: $font-size-10;
                 font-weight: bold;
                 text-transform: uppercase;
 
@@ -176,7 +176,7 @@
 
             background: none;
 
-            font-size: $size-9;
+            font-size: $font-size-9;
             line-height: 2.5;
 
             text-decoration: none;

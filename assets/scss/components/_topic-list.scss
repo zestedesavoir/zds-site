@@ -189,7 +189,7 @@
         .topic-title {
             display: inline-block;
 
-            font-size: $size-9;
+            font-size: $font-size-9;
             font-weight: normal;
         }
         .topic-subtitle {
@@ -338,7 +338,7 @@
                 text-align: right;
 
                 .topic-last-answer-short-date {
-                    font-size: $size-10;
+                    font-size: $font-size-10;
                 }
                 .topic-last-answer-long-date {
                     display: none;
@@ -363,7 +363,7 @@
         }
         .topic-last-answer {
             .topic-no-last-answer {
-                font-size: $size-10;
+                font-size: $font-size-10;
             }
         }
     }
