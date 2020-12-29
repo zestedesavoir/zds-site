@@ -93,6 +93,14 @@
         .mobile-menu-bloc {
             margin: $length-12 $length-16;
 
+            @at-root html.js body.has-top-banner .mobile-menu .mobile-menu-bloc:last-child {
+                // The very-top banner shifts the menu down, hiding the latest button.
+                // Add height of the banner so we can see the last button
+                // Added twice to account for frequent two-lines banner on
+                // mobile.
+                margin-bottom: $length-12 + $length-24 * 2;
+            }
+
             ul,
             li {
                 margin: 0;
