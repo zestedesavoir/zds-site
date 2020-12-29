@@ -317,8 +317,8 @@ $content-item-padding-vertical: $length-14;
     }
 }
 
-section:not(:last-child) > .content-item-list:not(:last-child) {
-    margin-bottom: $length-32;
+.content-item-list-wrapper:not(:last-child) {
+    margin-bottom: $length-24;
 }
 
 .write-tutorial {
