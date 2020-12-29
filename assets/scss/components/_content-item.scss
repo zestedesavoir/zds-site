@@ -317,6 +317,10 @@ $content-item-padding-vertical: $length-14;
     }
 }
 
+section:not(:last-child) > .content-item-list:not(:last-child) {
+    margin-bottom: $length-32;
+}
+
 .write-tutorial {
     display: flex;
     align-items: center;
