@@ -154,10 +154,11 @@ Pour avoir la lecture zen, il suffit d'inclure le bouton "Lecture zen" là où v
 
 Au clic du bouton, le Javascript se chargera de mettre ou d'enlever la classe ``zen-mode`` à ``.content-container``.
 
-Les *items* représentant les contenus et les derniers sujets
-============================================================
+Les boîtes représentant les contenus et les derniers sujets
+===========================================================
 
-Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d'accueil sont représentés dans des *items*.
+Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d'accueil sont représentés dans des boîtes
+les résumant.
 
 .. figure:: ../images/design/item-contenu.png
    :align: center
@@ -234,8 +235,8 @@ Sujet
 
 Vous devez passer en argument ``topic`` qui est un objet de type ``Topic``.
 
-Faire une liste d'*items*
--------------------------
+Faire une liste de contenus
+---------------------------
 
 Si vous voulez faire une liste de tutoriels, il faut les regrouper dans une ``<div class="content-item-list"></div>``.
 
@@ -278,6 +279,17 @@ Pour y remédier, il faut toujours mettre à la fin de votre liste d'articles tr
 
 (Pour l'explication technique, c'est dû à l'utilisation de *flexbox*.)
 
+Si vous voulez mettre plusieurs listes de contenus, avec des titres, vous pouvez grouper chaque titre + liste dans une
+``section.content-item-list-wrapper``, afin de gérer correctement l'espacement entre les blocs.
+
+.. sourcecode:: html+django
+
+   <section class="content-item-list-wrapper" itemscope="" itemtype="http://schema.org/ItemList">
+       <h2><span>{% trans "Les contenus" %}</span></h2>
+       <div class="content-item-list">
+           <!-- Mes contenus -->
+       </div>
+   </section>
 
 Les membres et listes de membres
 ================================
