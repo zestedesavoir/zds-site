@@ -48,6 +48,18 @@ $content-width: 1145px;
         }
     }
 
+    section > h2:not(.inline) {
+        display: flex;
+
+        span {
+            flex: 2;
+        }
+
+        .btn {
+            float: none;
+        }
+    }
+
     .flexpage-title-tool {
         display: flex;
         flex-direction: row;
