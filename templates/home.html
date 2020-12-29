@@ -94,7 +94,7 @@
     <div class="flexpage-wrapper">
         <section class="home-pinned-content">
             <h1 class="home-heading heading-white ico-after ico-news" itemprop="name">
-                {% trans "À la une" %}
+                <span>{% trans "À la une" %}</span>
 
                 {% if perms.featured.change_featuredresource %}
                     <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
@@ -112,7 +112,7 @@
         <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
-                    {% trans "Derniers tutoriels" %}
+                    <span>{% trans "Derniers tutoriels" %}</span>
                     <a href="{% url 'publication:list' %}?type=tutorial" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
                 </h2>
 
@@ -123,7 +123,7 @@
 
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-articles home-heading" itemprop="name">
-                    {% trans "Derniers articles" %}
+                    <span>{% trans "Derniers articles" %}</span>
                     <a href="{% url 'publication:list' %}?type=article" class="btn btn-grey">{% trans "Tous les articles" %}</a>
                 </h2>
 
@@ -151,7 +151,7 @@
         <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-opinions home-heading" itemprop="name">
-                    {% trans "Derniers billets choisis" %}
+                    <span>{% trans "Derniers billets choisis" %}</span>
                     <a href="{% url "opinion:list" %}" class="btn btn-grey">{% trans "Tous les billets" %}</a>
                 </h2>
 
@@ -168,7 +168,7 @@
 
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="home-heading ico-after ico-forum" itemprop="name">
-                    {% trans "Derniers sujets" %}
+                    <span>{% trans "Derniers sujets" %}</span>
                     <a href="{% url 'last-subjects' %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
                 </h2>
 

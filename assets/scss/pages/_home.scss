@@ -170,9 +170,21 @@
         }
     }
 
-    .home-heading.heading-white {
-        color: $white;
-        border-bottom-color: $white;
+    .home-heading {
+        display: flex;
+
+        &.heading-white {
+            color: $white;
+            border-bottom-color: $white;
+        }
+
+        span {
+            flex: 2;
+        }
+
+        a.btn {
+            float: none;
+        }
     }
 }
 
