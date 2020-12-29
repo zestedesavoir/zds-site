@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
     <link rel="next" title="Helpers Javascript" href="helpers-js.html" />
-    <link rel="prev" title="Arborescence des dossiers" href="arborescence-des-fichiers.html" /> 
+    <link rel="prev" title="Charte de l’interface de Zeste de Savoir" href="charte-interface.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -96,6 +96,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charte-interface.html">Charte de l’interface de Zeste de Savoir</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Eléments spécifiques au site</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#les-boites-modales">Les boîtes modales</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cas-courant-quand-c-est-un-formulaire">Cas courant : quand c’est un formulaire</a></li>
@@ -107,11 +108,17 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#la-lecture-zen">La lecture zen</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#les-items-representant-les-contenus-et-les-derniers-sujets">Les <em>items</em> représentant les contenus et les derniers sujets</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#les-boites-representant-les-contenus-et-les-derniers-sujets">Les boîtes représentant les contenus et les derniers sujets</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#importation-dans-un-gabarit">Importation dans un gabarit</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#faire-une-liste-d-items">Faire une liste d”<em>items</em></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#faire-une-liste-de-contenus">Faire une liste de contenus</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#les-membres-et-listes-de-membres">Les membres et listes de membres</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#afficher-un-membre">Afficher un membre</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#afficher-une-liste-de-membres">Afficher une liste de membres</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#les-alertes-de-moderation">Les alertes de modération</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#ajouter-un-design-temporaire">Ajouter un design temporaire</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#changements-visuels-disponibles">Changements visuels disponibles</a></li>
 </ul>
@@ -321,9 +328,10 @@ Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le 
 </div>
 <p>Au clic du bouton, le Javascript se chargera de mettre ou d’enlever la classe <code class="docutils literal notranslate"><span class="pre">zen-mode</span></code> à <code class="docutils literal notranslate"><span class="pre">.content-container</span></code>.</p>
 </div>
-<div class="section" id="les-items-representant-les-contenus-et-les-derniers-sujets">
-<h2>Les <em>items</em> représentant les contenus et les derniers sujets<a class="headerlink" href="#les-items-representant-les-contenus-et-les-derniers-sujets" title="Lien permanent vers ce titre">¶</a></h2>
-<p>Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d’accueil sont représentés dans des <em>items</em>.</p>
+<div class="section" id="les-boites-representant-les-contenus-et-les-derniers-sujets">
+<h2>Les boîtes représentant les contenus et les derniers sujets<a class="headerlink" href="#les-boites-representant-les-contenus-et-les-derniers-sujets" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d’accueil sont représentés dans des boîtes
+les résumant.</p>
 <div class="figure align-center" id="id4">
 <img alt="../_images/item-contenu.png" src="../_images/item-contenu.png" />
 <p class="caption"><span class="caption-text">En voici un exemple</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
@@ -383,8 +391,8 @@ Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le 
 <p>Vous devez passer en argument <code class="docutils literal notranslate"><span class="pre">topic</span></code> qui est un objet de type <code class="docutils literal notranslate"><span class="pre">Topic</span></code>.</p>
 </div>
 </div>
-<div class="section" id="faire-une-liste-d-items">
-<h3>Faire une liste d”<em>items</em><a class="headerlink" href="#faire-une-liste-d-items" title="Lien permanent vers ce titre">¶</a></h3>
+<div class="section" id="faire-une-liste-de-contenus">
+<h3>Faire une liste de contenus<a class="headerlink" href="#faire-une-liste-de-contenus" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Si vous voulez faire une liste de tutoriels, il faut les regrouper dans une <code class="docutils literal notranslate"><span class="pre">&lt;div</span> <span class="pre">class=&quot;content-item-list&quot;&gt;&lt;/div&gt;</span></code>.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;content-item-list&quot;</span><span class="p">&gt;</span>
     <span class="c">&lt;!-- Mes tutoriels --&gt;</span>
@@ -415,6 +423,145 @@ Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le 
 <p class="caption"><span class="caption-text">Voici trois tutoriels sur deux colonnes sans le problème</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
 </div>
 <p>(Pour l’explication technique, c’est dû à l’utilisation de <em>flexbox</em>.)</p>
+<p>Si vous voulez mettre plusieurs listes de contenus, avec des titres, vous pouvez grouper chaque titre + liste dans une
+<code class="docutils literal notranslate"><span class="pre">section.content-item-list-wrapper</span></code>, afin de gérer correctement l’espacement entre les blocs.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">section</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;content-item-list-wrapper&quot;</span> <span class="na">itemscope</span><span class="o">=</span><span class="s">&quot;&quot;</span> <span class="na">itemtype</span><span class="o">=</span><span class="s">&quot;http://schema.org/ItemList&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;&lt;</span><span class="nt">span</span><span class="p">&gt;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Les contenus&quot;</span> <span class="cp">%}</span><span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;content-item-list&quot;</span><span class="p">&gt;</span>
+        <span class="c">&lt;!-- Mes contenus --&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">section</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="les-membres-et-listes-de-membres">
+<h2>Les membres et listes de membres<a class="headerlink" href="#les-membres-et-listes-de-membres" title="Lien permanent vers ce titre">¶</a></h2>
+<div class="section" id="afficher-un-membre">
+<h3>Afficher un membre<a class="headerlink" href="#afficher-un-membre" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Pour afficher un membre, utilisez le gabari <code class="docutils literal notranslate"><span class="pre">misc/member_item.part.html</span></code>. Il dispose de plusieurs arguments :</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">member</span></code> : le membre à afficher (ce peut être un <code class="docutils literal notranslate"><span class="pre">Profile</span></code> ou un <code class="docutils literal notranslate"><span class="pre">User</span></code>, peu importe) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">inline</span></code> : si <code class="docutils literal notranslate"><span class="pre">True</span></code>, l’élément sera stylisé pour une intégration au cœur d’un texte ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">link</span></code> : si <code class="docutils literal notranslate"><span class="pre">True</span></code>, l’élément se comportera comme un simple lien au survol (et non une sorte de bouton, avec un
+fond au survol) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">avatar</span></code> : si <code class="docutils literal notranslate"><span class="pre">True</span></code>, l’avatar du membre sera affiché ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">info</span></code> : si renseigné, le texte donné sera affiché après le pseudonyme du membre, afin de donner un détail sur ce
+dernier (ce texte sera entre parenthèses, sauf si le mode “pleine largeur” est actif — voir plus bas) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fullwidth</span></code> : si <code class="docutils literal notranslate"><span class="pre">True</span></code>, active le support du mode pleine largeur (ce qui concrètement écrit le texte de
+<code class="docutils literal notranslate"><span class="pre">info</span></code> sans parenthèses).</p></li>
+</ul>
+</div></blockquote>
+<p>Ce qui peut donner ceci par exemple.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/member_item.part.html&quot;</span> <span class="k">with</span> <span class="nv">member</span><span class="o">=</span><span class="nv">member</span> <span class="nv">avatar</span><span class="o">=</span><span class="kp">True</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../_images/item-member.png" src="../_images/item-member.png" />
+</div>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/member_item.part.html&quot;</span> <span class="k">with</span> <span class="nv">member</span><span class="o">=</span><span class="nv">member</span> <span class="nv">avatar</span><span class="o">=</span><span class="kp">True</span> <span class="nv">info</span><span class="o">=</span><span class="s2">&quot;Écriture&quot;</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../_images/item-member-info.png" src="../_images/item-member-info.png" />
+</div>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">time</span> <span class="na">datetime</span><span class="o">=</span><span class="s">&quot;</span><span class="cp">{{</span> <span class="nv">alert.pubdate</span> <span class="o">|</span> <span class="nf">date</span><span class="s2">:&quot;c&quot;</span> <span class="cp">}}</span><span class="s">&quot;</span><span class="p">&gt;</span><span class="cp">{{</span> <span class="nv">alert.pubdate</span><span class="o">|</span><span class="nf">format_date</span><span class="o">|</span><span class="nf">capfirst</span> <span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">time</span><span class="p">&gt;</span>
+<span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;par&quot;</span> <span class="cp">%}</span> <span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/member_item.part.html&quot;</span> <span class="k">with</span> <span class="nv">member</span><span class="o">=</span><span class="nv">alert.author</span> <span class="nv">inline</span><span class="o">=</span><span class="kp">True</span> <span class="nv">link</span><span class="o">=</span><span class="kp">True</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../_images/item-member-link.png" src="../_images/item-member-link.png" />
+</div>
+</div>
+<div class="section" id="afficher-une-liste-de-membres">
+<h3>Afficher une liste de membres<a class="headerlink" href="#afficher-une-liste-de-membres" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Il arrive souvent que l’on ait à afficher non un seul membre, mais une liste de membres (par exemple une liste
+d’auteurs, ou de contributeurs, ou n’importe quoi en fait).</p>
+<p>La manière la plus simple de le faire est d’englober les éléments <code class="docutils literal notranslate"><span class="pre">misc/member_item.part.html</span></code> précédents dans un bloc
+avec la classe <code class="docutils literal notranslate"><span class="pre">members</span></code>, ce dernier contenant une liste qui elle contient les différents éléments à afficher.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;members&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+        <span class="cp">{%</span> <span class="k">for</span> <span class="nv">member</span> <span class="k">in</span> <span class="nv">members</span> <span class="cp">%}</span>
+            <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>
+                <span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/member_item.part.html&quot;</span> <span class="k">with</span> <span class="nv">member</span><span class="o">=</span><span class="nv">member</span> <span class="nv">avatar</span><span class="o">=</span><span class="kp">True</span> <span class="cp">%}</span>
+            <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../_images/item-member-list.png" src="../_images/item-member-list.png" />
+</div>
+<p>On peut ajouter un élément légendant l’ensemble, ainsi qu’un bouton à la suite, si besoin.</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;members&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;authors-label&quot;</span><span class="p">&gt;</span>
+        <span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Auteurs&quot;</span> <span class="cp">%}</span>
+    <span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+        <span class="cp">{%</span> <span class="k">for</span> <span class="nv">member</span> <span class="k">in</span> <span class="nv">members</span> <span class="cp">%}</span>
+            <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>
+                <span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/member_item.part.html&quot;</span> <span class="k">with</span> <span class="nv">member</span><span class="o">=</span><span class="nv">member</span> <span class="nv">avatar</span><span class="o">=</span><span class="kp">True</span> <span class="nv">author</span><span class="o">=</span><span class="kp">True</span> <span class="cp">%}</span>
+            <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#add-author-content&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;btn btn-add ico-after more blue&quot;</span><span class="p">&gt;</span>
+                Ajouter un auteur
+            <span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../_images/item-member-list-label-button.png" src="../_images/item-member-list-label-button.png" />
+</div>
+<p>Enfin, il est possible d’exploiter cette liste comme une liste en pleine largeur, ce qui peut très bien rendre avec un
+texte d’information ajouté. Pour ce faire, il faut ajouter la classe <code class="docutils literal notranslate"><span class="pre">is-fullwidth</span></code> à l’élément parent <code class="docutils literal notranslate"><span class="pre">.authors</span></code>.
+On pourra également ajouter l’argument <code class="docutils literal notranslate"><span class="pre">fullwidth=True</span></code> à <code class="docutils literal notranslate"><span class="pre">misc/member_item.part.html</span></code> afin d’optimiser l’affichage
+pour ce cas d’usage (retirant les parenthèses autour du bloc info).</p>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;members is-fullwidth&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+        <span class="cp">{%</span> <span class="k">for</span> <span class="nv">member</span> <span class="k">in</span> <span class="nv">members</span> <span class="cp">%}</span>
+            <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>
+                <span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/member_item.part.html&quot;</span> <span class="k">with</span> <span class="nv">member</span><span class="o">=</span><span class="nv">member</span> <span class="nv">avatar</span><span class="o">=</span><span class="kp">True</span> <span class="nv">fullwidth</span><span class="o">=</span><span class="kp">True</span> <span class="cp">%}</span>
+            <span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../_images/item-member-list-fullwidth.png" src="../_images/item-member-list-fullwidth.png" />
+</div>
+</div>
+</div>
+<div class="section" id="les-alertes-de-moderation">
+<h2>Les alertes de modération<a class="headerlink" href="#les-alertes-de-moderation" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Pour afficher une liste d’alertes de modération, utilisez le gabari <code class="docutils literal notranslate"><span class="pre">misc/alerts.part.html</span></code>. Il demande le paramètre
+<code class="docutils literal notranslate"><span class="pre">alerts</span></code>, qui doit être un itérable d”<code class="docutils literal notranslate"><span class="pre">Alert</span></code> à afficher, ainsi que l’un ou l’autre de ces paramètres pour préciser
+vers quoi le formulaire de résolution d’alerte doit être envoyé :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">alert_solve_url</span></code> : un <strong>nom</strong> d’URL (qui doit accepter un unique paramètre <code class="docutils literal notranslate"><span class="pre">pk</span></code> qui sera celui de l’alerte à
+résoudre et qui doit être appelable en <code class="docutils literal notranslate"><span class="pre">POST</span></code>) ; ou</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">alert_solve_link</span></code> : une URL qui sera utilisée telle quelle pour toutes les alertes, et qui doit être appelable en
+<code class="docutils literal notranslate"><span class="pre">POST</span></code> également.</p></li>
+</ul>
+<p>Si aucun de ces paramètres n’est renseigné, le formulaire sera envoyé en <code class="docutils literal notranslate"><span class="pre">POST</span></code> vers la page courante.</p>
+<p>Le formulaire transmettra les champs suivants :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">alert_pk</span></code> : le <code class="docutils literal notranslate"><span class="pre">pk</span></code> de l’alerte à résoudre ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text</span></code> : le message à envoyer au membre ayant ouvert l’alerte (peut être vide, et sera toujours vide si l’alerte
+a été ouverte automatiquement).</p></li>
+</ul>
+<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Signalements du profil&quot;</span> <span class="cp">%}</span><span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+<span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/alerts.part.html&quot;</span> <span class="k">with</span> <span class="nv">alerts</span><span class="o">=</span><span class="nv">alerts</span> <span class="nv">alert_solve_url</span><span class="o">=</span><span class="s1">&#39;solve-profile-alert&#39;</span> <span class="cp">%}</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="../_images/alerts.png" src="../_images/alerts.png" />
 </div>
 </div>
 <div class="section" id="ajouter-un-design-temporaire">
@@ -464,7 +611,7 @@ Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le 
         <a href="helpers-js.html" class="btn btn-neutral float-right" title="Helpers Javascript" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="arborescence-des-fichiers.html" class="btn btn-neutral float-left" title="Arborescence des dossiers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="charte-interface.html" class="btn btn-neutral float-left" title="Charte de l’interface de Zeste de Savoir" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

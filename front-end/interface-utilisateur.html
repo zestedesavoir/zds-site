@@ -96,6 +96,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charte-interface.html">Charte de l’interface de Zeste de Savoir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="elements-specifiques-au-site.html">Eléments spécifiques au site</a></li>
 <li class="toctree-l2"><a class="reference internal" href="helpers-js.html">Helpers Javascript</a></li>
 <li class="toctree-l2"><a class="reference internal" href="helpers-scss.html">Mixins SCSS</a></li>
@@ -308,8 +309,8 @@ l’espacement seront correctement gérés.</p>
 bouton de modification, l’on pourrait utiliser le code HTML suivant.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;editable-element&quot;</span><span class="p">&gt;</span>
   <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;</span><span class="cp">{{</span> <span class="nv">content.licence</span> <span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
-  <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#edit-license&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;open-modal edit-button&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Modifier la licence&quot;</span> <span class="cp">%}</span><span class="s">&quot;</span><span class="p">&gt;</span>
-    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;visuallyhidden&quot;</span><span class="p">&gt;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Modifier la licence&quot;</span> <span class="cp">%}</span><span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+  <span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;#edit-license&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;open-modal edit-button&quot;</span> <span class="na">title</span><span class="o">=</span><span class="s">&quot;Modifier la licence&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;visuallyhidden&quot;</span><span class="p">&gt;</span>Modifier la licence<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
   <span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </pre></div>
@@ -390,7 +391,7 @@ bouton de modification, l’on pourrait utiliser le code HTML suivant.</p>
 </div>
 <div class="section" id="messages-flash">
 <h2>Messages flash<a class="headerlink" href="#messages-flash" title="Lien permanent vers ce titre">¶</a></h2>
-<p>Un message dit « flash » est un message d’information ou d’alerte qui est masquable selon la volonté de l’utilisateur et qui disparraîtra généralement à la page suivante (comportement selon le back-end).</p>
+<p>Un message dit « flash » est un message d’information ou d’alerte qui est masquable selon la volonté de l’utilisateur et qui disparaîtra généralement à la page suivante (comportement selon le back-end).</p>
 <div class="section" id="utilisation-de-base">
 <h3>Utilisation de base<a class="headerlink" href="#utilisation-de-base" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Le texte placé dans le bouton de fermeture est présent pour des raisons d’accessibilité. Il n’est pas visible par défaut.</p>

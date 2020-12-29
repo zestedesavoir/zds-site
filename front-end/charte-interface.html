@@ -1,0 +1,485 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Charte de l’interface de Zeste de Savoir &mdash; Documentation Zeste de Savoir dev</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+        <script src="../_static/translations.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Eléments spécifiques au site" href="elements-specifiques-au-site.html" />
+    <link rel="prev" title="Arborescence des dossiers" href="arborescence-des-fichiers.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                dev
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Charte de l’interface de Zeste de Savoir</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#normalisation-des-styles">Normalisation des styles</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#couleurs">Couleurs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#polices">Polices</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#longueurs">Longueurs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ombres">Ombres</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#arrondis">Arrondis</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#recommandations-pour-un-scss-propre">Recommandations pour un SCSS propre</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#utilisez-flexbox-et-les-grilles">Utilisez <em>flexbox</em> et les grilles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#conteneurisez-le-css">Conteneurisez le CSS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#pensez-a-l-ordre-des-proprietes-css">Pensez à l’ordre des propriétés CSS</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="elements-specifiques-au-site.html">Eléments spécifiques au site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers-js.html">Helpers Javascript</a></li>
+<li class="toctree-l2"><a class="reference internal" href="helpers-scss.html">Mixins SCSS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="interface-utilisateur.html">Interface utilisateur</a></li>
+<li class="toctree-l2"><a class="reference internal" href="structure-du-site.html">Structure globale du site</a></li>
+<li class="toctree-l2"><a class="reference internal" href="template-tags.html">Elements de templates personnalisés</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../front-end.html">Le <em>front-end</em></a> &raquo;</li>
+        
+      <li>Charte de l’interface de Zeste de Savoir</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/front-end/charte-interface.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="charte-de-l-interface-de-zeste-de-savoir">
+<h1>Charte de l’interface de Zeste de Savoir<a class="headerlink" href="#charte-de-l-interface-de-zeste-de-savoir" title="Lien permanent vers ce titre">¶</a></h1>
+<p>Les styles de Zeste de Savoir sont complexes, formés de l’empilement d’années
+de contributions par des personnes très différentes. Pour qu’ils restent
+maintenables, ce document propose une norme et des recommandations.</p>
+<div class="section" id="normalisation-des-styles">
+<h2>Normalisation des styles<a class="headerlink" href="#normalisation-des-styles" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Afin de garantir une cohérence à l’interface de Zeste de Savoir, plusieurs
+éléments graphiques sont normés. On ne parle pas ici de composants graphiques
+tels des boutons, des dialogues…, mais plutôt des éléments graphiques qui les
+composent : couleurs, polices, tailles, ombres…</p>
+<p>Tout développement graphique sur Zeste de Savoir <strong>doit</strong> respecter cette norme
+(avec quelques exceptions mentionnées ci-après).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pourquoi tant de normes ?</p>
+<p>Le premier argument a déjà été cité : garantir une certaine cohérence à
+l’interface de Zeste de Savoir. Il y en a un second : ne pouvoir choisir
+que parmi une liste restreinte de possibilités permet de gagner du temps :
+on ne passe plus deux heures à essayer toutes les valeurs possibles entre
+deux tailles ou deux couleurs ; on prend la plus proche qui rend bien et
+<em>voilà</em>. Aussi, ça évite de <em>deviner</em> quelle valeur choisir au hasard.</p>
+<p>On peut enfin ajouter un troisième argument : ces normes ont été étudiées
+dans une optique d’accessibilité — à supposer qu’elles soient correctement
+utilisées (elles ne dispensent pas de vérifier les contrastes, par exemple).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Toutes ces normes sont <a class="reference external" href="https://zestedesavoir.github.io/normes-graphiques/">récapitulées sur un site web compagnon à la conception
+d’interfaces pour Zeste de Savoir</a>,
+avec moyen de copier facilement les variables SCSS et d’estimer la couleur la
+plus proche de la palette automatiquement.</p>
+<p><strong>Vous travaillez sur ZdS sans accès à internet ?</strong> Ce site web compagnon
+fonctionne même hors-ligne, à condition de l’avoir chargé une fois dans votre
+navigateur — retournez simplement sur le site même sans connexion.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Un <a class="reference external" href="https://www.npmjs.com/package/zestedesavoir-standards">paquet npm</a> est également
+disponible si vous voulez réutiliser ces normes dans des projets affiliés à Zeste de
+Savoir.</p>
+</div>
+<div class="section" id="couleurs">
+<h3>Couleurs<a class="headerlink" href="#couleurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Zeste de Savoir utilise une palette de couleurs limitée. Lorsque vous choisissez
+une couleur pour quelque chose, vous devez piocher dedans.</p>
+<div class="figure align-center">
+<img alt="../_images/colours.png" src="../_images/colours.png" />
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">Voir aussi</p>
+<p>Cette palette est également <a class="reference external" href="https://zestedesavoir.github.io/normes-graphiques/#couleurs">disponible en version interactive</a>,
+avec un outil pour déterminer la couleur la plus proche d’une couleur donnée
+dans la palette.</p>
+</div>
+<p>La palette est rendue disponible dans le code SCSS du site sous la forme de
+variables prêtes à l’emploi. Les noms des variables sont indiquées sur
+l’illustration plus haut, en combinant le nom indiqué sous le titre avec le
+numéro de la couleur (par exemple <code class="docutils literal notranslate"><span class="pre">$purple-400</span></code>), et peuvent être copiés au
+clic sur la version interactive.</p>
+<p>Ainsi, n’écrivez pas :</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.smoothie</span> <span class="p">{</span>
+    <span class="nt">color</span><span class="nd">:</span> <span class="nn">#F0B429</span><span class="o">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Mais plutôt :</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span>.smoothie {
+    color: $accent-400;
+}
+</pre></div>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Comme seules les couleurs de la palette doivent être utilisées, <strong>vous ne
+devez pas utiliser les fonctions de traitement de couleur de Sass</strong>
+(<code class="docutils literal notranslate"><span class="pre">lighten</span></code>, <code class="docutils literal notranslate"><span class="pre">darken</span></code>, <code class="docutils literal notranslate"><span class="pre">saturate</span></code>, <code class="docutils literal notranslate"><span class="pre">desaturate</span></code>…). Si une couleur de
+votre choix vous semble trop claire ou trop sombre, utilisez la couleur d’à
+côté dans la palette.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>La seule exception à cette règle est le cas de couleurs de marque (par exemple,
+la couleur du bouton de connexion via Google ou Facebook). S’il manque des couleurs,
+il est toujours possible de réfléchir à ajuster la palette, mais vue la diversité
+proposée c’est relativement peu probable.</p>
+</div>
+</div>
+<div class="section" id="polices">
+<h3>Polices<a class="headerlink" href="#polices" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Zeste de Savoir utilise trois polices de caractères sur le site :</p>
+<ul class="simple">
+<li><p>une police sans empattement (<code class="docutils literal notranslate"><span class="pre">$font-sans-serif</span></code>), pour les textes de l’interface (il s’agit
+de Source Sans Pro, par défaut) ;</p></li>
+<li><p>une police avec empattements (<code class="docutils literal notranslate"><span class="pre">$font-serif</span></code>), pour les contenus (cours, articles et billets)
+(Merriweather) ;</p></li>
+<li><p>une police à chasse fixe (<code class="docutils literal notranslate"><span class="pre">$font-monospace</span></code>), pour les codes sources notamment (Source Code Pro).</p></li>
+</ul>
+<p>Vous pouvez utiliser ces polices via les variables SCSS sus-citées, qui incluent aussi les
+polices alternatives.</p>
+<p>Concernant les <strong>tailles</strong> de texte, elles sont également normalisées. Vous pouvez utiliser ces tailles
+(avec ces variables SCSS).</p>
+<div class="figure align-center">
+<img alt="../_images/fonts.png" src="../_images/fonts.png" />
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">Voir aussi</p>
+<p>Cette liste est également <a class="reference external" href="https://zestedesavoir.github.io/normes-graphiques/#polices">disponible en version interactive</a>,
+avec prévisualisation pour les trois familles de police utilisées.</p>
+</div>
+</div>
+<div class="section" id="longueurs">
+<h3>Longueurs<a class="headerlink" href="#longueurs" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les longeurs des marges internes et externes, des tailles des blocs, des positionnements, …, sont
+également normalisées. Cela permet d’avoir une impression de cohérence globale à travers le site,
+en évitant d’utiliser toutes les longueurs existantes de façon aléatoire et chaotique.</p>
+<p>Vous pouvez utiliser ces longeurs (avec ces variables SCSS, si vous voulez). Le numéro dans le nom
+de la variable correspond à la longueur en pixels (ou en dixième de <code class="docutils literal notranslate"><span class="pre">rem</span></code>).</p>
+<div class="figure align-center">
+<img alt="../_images/lengths.png" src="../_images/lengths.png" />
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">Voir aussi</p>
+<p>Cette liste est également <a class="reference external" href="https://zestedesavoir.github.io/normes-graphiques/#longueurs">disponible en version interactive</a>.</p>
+</div>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Cette norme peut être ignorée s’il s’agit d’aligner des éléments au pixel près. Cela dit, un code
+CSS moderne ne devrait pas nécessiter ce genre de choses. Par contre, certains éléments plus anciens
+du code de Zeste de Savoir sont concernés, et cette norme ne doit pas être un frein s’il s’agit de les
+faire évoluer.</p>
+</div>
+</div>
+<div class="section" id="ombres">
+<h3>Ombres<a class="headerlink" href="#ombres" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Si un élément doit recevoir une ombre, utilisez l’une des six ombres standardisées ci-dessous. Plusieurs avantages :</p>
+<ul class="simple">
+<li><p>ce sont des mixins, donc vous n’aurez pas à vous embêter à écrire le <code class="docutils literal notranslate"><span class="pre">box-shadow</span></code> alambiqué, simplement <code class="docutils literal notranslate"><span class="pre">&#64;import</span> <span class="pre">shadow-1</span></code> ;</p></li>
+<li><p>ces ombres sont conçues pour être naturelles, correspondant à une réelle ombre portée par une source de lumière unique.</p></li>
+</ul>
+<div class="figure align-center">
+<img alt="../_images/shadows.png" src="../_images/shadows.png" />
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">Voir aussi</p>
+<p>Cette liste est également <a class="reference external" href="https://zestedesavoir.github.io/normes-graphiques/#ombres">disponible en version interactive</a>.</p>
+</div>
+</div>
+<div class="section" id="arrondis">
+<h3>Arrondis<a class="headerlink" href="#arrondis" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Si un élément doit avoir des coins arrondis, utilisez l’un de ces arrondis. Le dernier est configuré à une très
+grande valeur pour les cas où vous désirez avoir un élément circulaire (veuillez noter que pour qu’il soit effectivement
+circulaire, l’élément devra avoir des dimensions carrées).</p>
+<div class="figure align-center">
+<img alt="../_images/radius.png" src="../_images/radius.png" />
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">Voir aussi</p>
+<p>Cette liste est également <a class="reference external" href="https://zestedesavoir.github.io/normes-graphiques/#arrondis">disponible en version interactive</a>.</p>
+</div>
+</div>
+</div>
+<div class="section" id="recommandations-pour-un-scss-propre">
+<h2>Recommandations pour un SCSS propre<a class="headerlink" href="#recommandations-pour-un-scss-propre" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Ces recommandations ne sont pas <em>obligatoires</em>, mais elles permettent d’assurer une cohérence du code SCSS
+du site et une plus grande facilité à rentrer dedans lorsque l’on est extérieur au projet.</p>
+<div class="section" id="utilisez-flexbox-et-les-grilles">
+<h3>Utilisez <em>flexbox</em> et les grilles<a class="headerlink" href="#utilisez-flexbox-et-les-grilles" title="Lien permanent vers ce titre">¶</a></h3>
+<p>CSS dispose de beaucoup d’options pour positionner les éléments les uns par rapport aux autres, mais certaines
+sont plus maintenables que d’autres. Il est recommandé <strong>d’éviter au plus possible d’utiliser des positionnements
+absolus et des flottants</strong>, au profit des outils CSS modernes et largement supportés que sont les
+<a class="reference external" href="https://developer.mozilla.org/fr/docs/Apprendre/CSS/CSS_layout/Flexbox">*flexboxes*</a> et les
+<a class="reference external" href="https://developer.mozilla.org/fr/docs/Apprendre/CSS/CSS_layout/Grids">grilles CSS</a>.</p>
+</div>
+<div class="section" id="conteneurisez-le-css">
+<h3>Conteneurisez le CSS<a class="headerlink" href="#conteneurisez-le-css" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Non, chers <em>aficionados</em> de Docker, on ne parle pas de ça ici.</p>
+<p>Lorsque vous stylisez un élément en CSS, assurez-vous de ne styliser <em>que</em> ce que vous voulez. Évitez les règles
+avec une application beaucoup trop large qui affectent tout le site : ces règles ont tendance à être une horreur
+à maintenir, car elles font des effets de bord de partout, et la moindre modification peut casser une page
+totalement improbable à l’autre bout du site.</p>
+<p>Ainsi, préférez mettre tout le CSS stylisant un composant dans une classe parente unique dans le projet, par exemple :</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.your-component</span> <span class="p">{</span>
+   <span class="c1">// Tout le CSS de ce composant là dedans, rien en dehors</span>
+   <span class="c1">// Ainsi il ne pourra contaminer le reste du site</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Si vous avez un composant avec de légères variations ça et là en fonction de son usage, bien sûr, ne réinventez pas la roue.
+Vous pouvez par exemple utiliser le modèle de Bulma, assez effiace, de modificateurs :</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.your-component</span> <span class="p">{</span>
+   <span class="c1">// Tout le CSS de la version “de base”</span>
+
+   <span class="k">&amp;</span><span class="nc">.is-light</span> <span class="p">{</span>
+      <span class="c1">// CSS pour la version “light”</span>
+   <span class="p">}</span>
+
+   <span class="k">&amp;</span><span class="nc">.is-small</span> <span class="p">{</span>
+      <span class="c1">// CSS pour une petite version</span>
+   <span class="p">}</span>
+
+   <span class="k">&amp;</span><span class="nc">.has-dreams</span> <span class="p">{</span>
+      <span class="c1">// CSS pour la version qui a des rêves (?)</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>…ce qui permet de les appliquer facilement à l’usage (en plus, c’est plutôt lisible).</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;your-component is-small has-dreams&quot;</span><span class="p">&gt;</span>
+   <span class="c">&lt;!-- ... --&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="pensez-a-l-ordre-des-proprietes-css">
+<h3>Pensez à l’ordre des propriétés CSS<a class="headerlink" href="#pensez-a-l-ordre-des-proprietes-css" title="Lien permanent vers ce titre">¶</a></h3>
+<p>Les navigateurs n’ont cure de l’ordre de déclaration des propriétés CSS (tant que les mêmes ne sont pas déclarées
+plusieurs fois), mais les placer dans un ordre logique aide grandement à la lecture du code, permettant plus facilement
+de saisir en un coup d’œil ce qui est déclaré, les éléments similaires étant groupés ensemble.</p>
+<p>Chacun⋅e aura sa logique, mais en voici une à titre indicatif :</p>
+<ol class="arabic simple">
+<li><p>positionnements (<code class="docutils literal notranslate"><span class="pre">position</span></code>, <code class="docutils literal notranslate"><span class="pre">top</span></code>, <code class="docutils literal notranslate"><span class="pre">left</span></code>, <code class="docutils literal notranslate"><span class="pre">z-index</span></code>…) ;</p></li>
+<li><p>affichage et modèle de boîte (<code class="docutils literal notranslate"><span class="pre">display</span></code>, <code class="docutils literal notranslate"><span class="pre">overflow</span></code>, <code class="docutils literal notranslate"><span class="pre">box-sizing</span></code> ; <code class="docutils literal notranslate"><span class="pre">width</span></code>, <code class="docutils literal notranslate"><span class="pre">height</span></code>, <code class="docutils literal notranslate"><span class="pre">margin</span></code>,
+<code class="docutils literal notranslate"><span class="pre">padding</span></code> ; <code class="docutils literal notranslate"><span class="pre">border</span></code>, <code class="docutils literal notranslate"><span class="pre">border-radius</span></code>…) ;</p></li>
+<li><p>couleurs (<code class="docutils literal notranslate"><span class="pre">background</span></code>, <code class="docutils literal notranslate"><span class="pre">color</span></code>…) ;</p></li>
+<li><p>texte (<code class="docutils literal notranslate"><span class="pre">font-family</span></code>, <code class="docutils literal notranslate"><span class="pre">font-size</span></code>, <code class="docutils literal notranslate"><span class="pre">line-height</span></code>, <code class="docutils literal notranslate"><span class="pre">text-align</span></code>, <code class="docutils literal notranslate"><span class="pre">text-transform</span></code>…) ;</p></li>
+<li><p><em>les autres</em> (<code class="docutils literal notranslate"><span class="pre">cursor</span></code>…) ;</p></li>
+<li><p>transformations et transitions, à la toute fin (<code class="docutils literal notranslate"><span class="pre">animate</span></code>, <code class="docutils literal notranslate"><span class="pre">transition</span></code>, …).</p></li>
+</ol>
+<p>Et <a class="reference external" href="https://9elements.com/css-rule-order/">en voici une autre</a>. L’important reste que le code source soit clair et
+scannable facilement.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="elements-specifiques-au-site.html" class="btn btn-neutral float-right" title="Eléments spécifiques au site" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="arborescence-des-fichiers.html" class="btn btn-neutral float-left" title="Arborescence des dossiers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2014-2020, Zeste de Savoir
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

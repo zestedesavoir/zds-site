@@ -96,6 +96,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="arborescence-des-fichiers.html">Arborescence des dossiers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="charte-interface.html">Charte de l’interface de Zeste de Savoir</a></li>
 <li class="toctree-l2"><a class="reference internal" href="elements-specifiques-au-site.html">Eléments spécifiques au site</a></li>
 <li class="toctree-l2"><a class="reference internal" href="helpers-js.html">Helpers Javascript</a></li>
 <li class="toctree-l2"><a class="reference internal" href="helpers-scss.html">Mixins SCSS</a></li>
@@ -247,7 +248,7 @@ Python.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;module/toto?key1=1&amp;key2=2&quot;</span><span class="p">&gt;</span>Mon lien<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;</span>
 </pre></div>
 </div>
-<p>si le contenu de <code class="docutils literal notranslate"><span class="pre">var1</span></code> est <code class="docutils literal notranslate"><span class="pre">1</span></code> et le contenu de <code class="docutils literal notranslate"><span class="pre">var2</span></code> est <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
+<p>…si le contenu de <code class="docutils literal notranslate"><span class="pre">var1</span></code> est <code class="docutils literal notranslate"><span class="pre">1</span></code> et le contenu de <code class="docutils literal notranslate"><span class="pre">var2</span></code> est <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
 </div>
 <div class="section" id="le-module-trail">
 <h2>Le module <code class="docutils literal notranslate"><span class="pre">trail</span></code><a class="headerlink" href="#le-module-trail" title="Lien permanent vers ce titre">¶</a></h2>
@@ -278,7 +279,7 @@ une variable. Ainsi le code suivant :</p>
 <span class="cp">{%</span> <span class="k">endcaptureas</span> <span class="cp">%}</span>
 </pre></div>
 </div>
-<p>ne produit rien en sortie mais affecte le résultat du bloc entre les éléments <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">captureas</span> <span class="pre">var2</span> <span class="pre">%}</span></code> et
+<p>…ne produit rien en sortie mais affecte le résultat du bloc entre les éléments <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">captureas</span> <span class="pre">var2</span> <span class="pre">%}</span></code> et
 <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">endcaptureas</span> <span class="pre">%}</span></code>, soit <code class="docutils literal notranslate"><span class="pre">0123456789</span></code>, dans la variable de gabarit <code class="docutils literal notranslate"><span class="pre">var2</span></code></p>
 </div>
 <div class="section" id="le-module-date">
@@ -304,10 +305,11 @@ une variable. Ainsi le code suivant :</p>
 </pre></div>
 </div>
 <p>sera rendu :</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>jeudi 01 janvier 1970 à 00h00
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>   jeudi 01 janvier 1970 à 00h00
+
+…si le contenu de ``date_epoch`` était de ``42``.
 </pre></div>
 </div>
-<p>Si le contenu de <code class="docutils literal notranslate"><span class="pre">date_epoch</span></code> etait de <code class="docutils literal notranslate"><span class="pre">42</span></code>.</p>
 </div>
 <div class="section" id="from-elasticsearch-date">
 <h3><code class="docutils literal notranslate"><span class="pre">from_elasticsearch_date</span></code><a class="headerlink" href="#from-elasticsearch-date" title="Lien permanent vers ce titre">¶</a></h3>

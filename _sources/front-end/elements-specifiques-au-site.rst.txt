@@ -154,10 +154,11 @@ Pour avoir la lecture zen, il suffit d'inclure le bouton "Lecture zen" là où v
 
 Au clic du bouton, le Javascript se chargera de mettre ou d'enlever la classe ``zen-mode`` à ``.content-container``.
 
-Les *items* représentant les contenus et les derniers sujets
-============================================================
+Les boîtes représentant les contenus et les derniers sujets
+===========================================================
 
-Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d'accueil sont représentés dans des *items*.
+Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d'accueil sont représentés dans des boîtes
+les résumant.
 
 .. figure:: ../images/design/item-contenu.png
    :align: center
@@ -234,8 +235,8 @@ Sujet
 
 Vous devez passer en argument ``topic`` qui est un objet de type ``Topic``.
 
-Faire une liste d'*items*
--------------------------
+Faire une liste de contenus
+---------------------------
 
 Si vous voulez faire une liste de tutoriels, il faut les regrouper dans une ``<div class="content-item-list"></div>``.
 
@@ -277,6 +278,160 @@ Pour y remédier, il faut toujours mettre à la fin de votre liste d'articles tr
    Voici trois tutoriels sur deux colonnes sans le problème
 
 (Pour l'explication technique, c'est dû à l'utilisation de *flexbox*.)
+
+Si vous voulez mettre plusieurs listes de contenus, avec des titres, vous pouvez grouper chaque titre + liste dans une
+``section.content-item-list-wrapper``, afin de gérer correctement l'espacement entre les blocs.
+
+.. sourcecode:: html+django
+
+   <section class="content-item-list-wrapper" itemscope="" itemtype="http://schema.org/ItemList">
+       <h2><span>{% trans "Les contenus" %}</span></h2>
+       <div class="content-item-list">
+           <!-- Mes contenus -->
+       </div>
+   </section>
+
+Les membres et listes de membres
+================================
+
+Afficher un membre
+------------------
+
+Pour afficher un membre, utilisez le gabari ``misc/member_item.part.html``. Il dispose de plusieurs arguments :
+
+  - ``member`` : le membre à afficher (ce peut être un ``Profile`` ou un ``User``, peu importe) ;
+  - ``inline`` : si ``True``, l'élément sera stylisé pour une intégration au cœur d'un texte ;
+  - ``link`` : si ``True``, l'élément se comportera comme un simple lien au survol (et non une sorte de bouton, avec un
+    fond au survol) ;
+  - ``avatar`` : si ``True``, l'avatar du membre sera affiché ;
+  - ``info`` : si renseigné, le texte donné sera affiché après le pseudonyme du membre, afin de donner un détail sur ce
+    dernier (ce texte sera entre parenthèses, sauf si le mode “pleine largeur” est actif — voir plus bas) ;
+  - ``fullwidth`` : si ``True``, active le support du mode pleine largeur (ce qui concrètement écrit le texte de
+    ``info`` sans parenthèses).
+
+Ce qui peut donner ceci par exemple.
+
+.. sourcecode:: html+django
+
+   {% include "misc/member_item.part.html" with member=member avatar=True %}
+
+.. figure:: ../images/design/item-member.png
+   :align: center
+
+.. sourcecode:: html+django
+
+   {% include "misc/member_item.part.html" with member=member avatar=True info="Écriture" %}
+
+.. figure:: ../images/design/item-member-info.png
+   :align: center
+
+.. sourcecode:: html+django
+
+   <time datetime="{{ alert.pubdate | date:"c" }}">{{ alert.pubdate|format_date|capfirst }}</time>
+   {% trans "par" %} {% include "misc/member_item.part.html" with member=alert.author inline=True link=True %}
+
+.. figure:: ../images/design/item-member-link.png
+   :align: center
+
+Afficher une liste de membres
+-----------------------------
+
+Il arrive souvent que l'on ait à afficher non un seul membre, mais une liste de membres (par exemple une liste
+d'auteurs, ou de contributeurs, ou n'importe quoi en fait).
+
+La manière la plus simple de le faire est d'englober les éléments ``misc/member_item.part.html`` précédents dans un bloc
+avec la classe ``members``, ce dernier contenant une liste qui elle contient les différents éléments à afficher.
+
+.. sourcecode:: html+django
+
+   <div class="members">
+       <ul>
+           {% for member in members %}
+               <li>
+                   {% include "misc/member_item.part.html" with member=member avatar=True %}
+               </li>
+           {% endfor %}
+       </ul>
+   </div>
+
+.. figure:: ../images/design/item-member-list.png
+   :align: center
+
+On peut ajouter un élément légendant l'ensemble, ainsi qu'un bouton à la suite, si besoin.
+
+.. sourcecode:: html+django
+
+   <div class="members">
+       <span class="authors-label">
+           {% trans "Auteurs" %}
+       </span>
+       <ul>
+           {% for member in members %}
+               <li>
+                   {% include "misc/member_item.part.html" with member=member avatar=True author=True %}
+               </li>
+           {% endfor %}
+
+           <li>
+               <a href="#add-author-content" class="btn btn-add ico-after more blue">
+                   Ajouter un auteur
+               </a>
+           </li>
+       </ul>
+   </div>
+
+.. figure:: ../images/design/item-member-list-label-button.png
+   :align: center
+
+Enfin, il est possible d'exploiter cette liste comme une liste en pleine largeur, ce qui peut très bien rendre avec un
+texte d'information ajouté. Pour ce faire, il faut ajouter la classe ``is-fullwidth`` à l'élément parent ``.authors``.
+On pourra également ajouter l'argument ``fullwidth=True`` à ``misc/member_item.part.html`` afin d'optimiser l'affichage
+pour ce cas d'usage (retirant les parenthèses autour du bloc info).
+
+.. sourcecode:: html+django
+
+   <div class="members is-fullwidth">
+       <ul>
+           {% for member in members %}
+               <li>
+                   {% include "misc/member_item.part.html" with member=member avatar=True fullwidth=True %}
+               </li>
+           {% endfor %}
+       </ul>
+   </div>
+
+.. figure:: ../images/design/item-member-list-fullwidth.png
+   :align: center
+
+
+Les alertes de modération
+=========================
+
+Pour afficher une liste d'alertes de modération, utilisez le gabari ``misc/alerts.part.html``. Il demande le paramètre
+``alerts``, qui doit être un itérable d'``Alert`` à afficher, ainsi que l'un ou l'autre de ces paramètres pour préciser
+vers quoi le formulaire de résolution d'alerte doit être envoyé :
+
+- ``alert_solve_url`` : un **nom** d'URL (qui doit accepter un unique paramètre ``pk`` qui sera celui de l'alerte à
+  résoudre et qui doit être appelable en ``POST``) ; ou
+- ``alert_solve_link`` : une URL qui sera utilisée telle quelle pour toutes les alertes, et qui doit être appelable en
+  ``POST`` également.
+
+Si aucun de ces paramètres n'est renseigné, le formulaire sera envoyé en ``POST`` vers la page courante.
+
+Le formulaire transmettra les champs suivants :
+
+- ``alert_pk`` : le ``pk`` de l'alerte à résoudre ;
+- ``text`` : le message à envoyer au membre ayant ouvert l'alerte (peut être vide, et sera toujours vide si l'alerte
+  a été ouverte automatiquement).
+
+.. sourcecode:: html+django
+
+   <h2>{% trans "Signalements du profil" %}</h2>
+   {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='solve-profile-alert' %}
+
+.. figure:: ../images/design/alerts.png
+   :align: center
+
 
 Ajouter un design temporaire
 ============================
