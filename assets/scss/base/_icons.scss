@@ -467,3 +467,10 @@ h6 {
         height: 16px;
     }
 }
+
+// As icons are not in the size grid, they are off-aligned for titles
+// because of the close line under them. This is not a problem for other
+// elements due to different layout.
+h2.ico-after:after {
+    top: -$length-2;
+}
