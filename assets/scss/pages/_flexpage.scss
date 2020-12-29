@@ -53,7 +53,7 @@ $content-width: 1145px;
         flex-direction: row;
 
         padding: $length-48 0;
-        font-size: $size-7;
+        font-size: $font-size-7;
         font-weight: 100;
 
         .picto {
@@ -142,7 +142,7 @@ $content-width: 1145px;
                 color: $white;
                 text-align: center;
                 text-transform: uppercase;
-                font-size: $size-10;
+                font-size: $font-size-10;
                 font-weight: 400;
 
                 #subscriber_count, #subscriber_count_combined {
@@ -185,7 +185,7 @@ $content-width: 1145px;
                         padding-top: $length-4;
 
                         &.statistic {
-                            font-size: $size-8;
+                            font-size: $font-size-8;
                         }
 
                         &:hover,
@@ -208,7 +208,7 @@ $content-width: 1145px;
 
             display: block;
             color: white;
-            font-size: $size-6;
+            font-size: $font-size-6;
 
             .line {
                 display: block;
@@ -236,7 +236,7 @@ $content-width: 1145px;
 
                 color: inherit;
 
-                font-size: $size-3;
+                font-size: $font-size-3;
                 line-height: 1;
 
                 @include mobile {
@@ -318,7 +318,7 @@ $content-width: 1145px;
                     margin: 0;
                     padding: 0 $length-16;
 
-                    font-size: $size-6;
+                    font-size: $font-size-6;
                     line-height: 2;
                 }
 
@@ -359,7 +359,7 @@ $content-width: 1145px;
             }
 
             .under-search {
-                font-size: $size-8;
+                font-size: $font-size-8;
 
                 p, ul {
                     margin: 0;

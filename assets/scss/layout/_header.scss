@@ -63,7 +63,7 @@ $logo-width: 24rem;
 
                 padding: 0 $length-24;
 
-                font-size: $size-9;
+                font-size: $font-size-9;
                 line-height: $header-height;
                 text-align: center;
 
@@ -151,7 +151,7 @@ $logo-width: 24rem;
 
         margin: 0 $length-6;
 
-        font-size: $size-8;
+        font-size: $font-size-8;
         line-height: 2.9;
 
         color: $white;
@@ -292,7 +292,7 @@ $logo-width: 24rem;
             background-color: $color-header-hover;
 
             line-height: $length-38;
-            font-size: $size-10;
+            font-size: $font-size-10;
 
             text-align: center;
         }
@@ -417,7 +417,7 @@ $logo-width: 24rem;
             h1 {
                 flex: 2;
                 margin: 0;
-                font-size: $size-10;
+                font-size: $font-size-10;
             }
 
             .pm-new.ico-after {
@@ -562,7 +562,7 @@ $logo-width: 24rem;
             }
 
             &.unlogged {
-                font-size: $size-10;
+                font-size: $font-size-10;
 
                 a {
                     margin: 0 $length-1 0 0;

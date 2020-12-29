@@ -49,7 +49,7 @@ body.userprofilepage {
 
         background-color: $primary-900;
 
-        font-size: $size-7;
+        font-size: $font-size-7;
         text-align: center;
         text-transform: none;
 
@@ -111,7 +111,7 @@ body.userprofilepage {
 
                 > h3 {
                     margin: 0 $length-4 0 0;
-                    font-size: $size-7;
+                    font-size: $font-size-7;
                     font-weight: 300;
 
                     @include mobile {
@@ -194,7 +194,7 @@ body.userprofilepage {
                         margin: $length-64 0;
                         text-align: center;
 
-                        font-size: $size-9;
+                        font-size: $font-size-9;
                         color: $grey-500;
 
                         a:not(:hover) {
@@ -220,7 +220,7 @@ body.userprofilepage {
                     .signature {
                         padding: $length-4 0 $length-4 $length-10;
                         margin: 0 $length-10 0 0;
-                        font-size: $size-11;
+                        font-size: $font-size-11;
                         color: $grey-500;
 
                         // FIXME duplicated from _topic_message.scss
@@ -311,7 +311,7 @@ html.js body.userprofilepage .user-bio-and-activity .bio-container {
                 padding-top: $biography-overflow-link-height * (3/4);
                 text-align: center;
 
-                font-size: $size-8;
+                font-size: $font-size-8;
                 letter-spacing: .06em;
             }
         }

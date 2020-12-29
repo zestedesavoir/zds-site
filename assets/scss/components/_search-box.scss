@@ -21,7 +21,7 @@
         margin-left: $length-48;
         padding: 0 $length-6;
 
-        font-size: $size-7;
+        font-size: $font-size-7;
         font-weight: 300;
 
         text-align: right;
@@ -35,7 +35,7 @@
         background: $white;
 
         font-weight: 300;
-        font-size: $size-7;
+        font-size: $font-size-7;
 
         // The field is required, but we don't want to display a red outline
         // if a user fills in the search field and then empties it.

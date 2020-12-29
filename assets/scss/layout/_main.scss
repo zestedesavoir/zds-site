@@ -16,7 +16,7 @@
 
         border-bottom: $length-1 solid $color-secondary;
 
-        font-size: $size-6;
+        font-size: $font-size-6;
         font-weight: normal;
         line-height: 1.4;
 
@@ -66,7 +66,7 @@
         }
 
         .btn {
-            font-size: $size-9;
+            font-size: $font-size-9;
             line-height: $length-38;
             height: $length-38;
         }
@@ -102,7 +102,7 @@
                 padding-bottom: $length-4; // hack font vertical-align between + and ABC (letters)
                 vertical-align: middle;
 
-                font-size: $size-7;
+                font-size: $font-size-7;
             }
 
         }
@@ -124,7 +124,7 @@
 
         color: $grey-600;
 
-        font-size: $size-8;
+        font-size: $font-size-8;
         font-weight: normal;
         line-height: 1.5;
     }
