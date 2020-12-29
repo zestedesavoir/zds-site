@@ -13,6 +13,18 @@
         }
     }
 
+    section > h2 {
+        display: flex;
+
+        span {
+            flex: 2;
+        }
+
+        .btn {
+            float: none;
+        }
+    }
+
     .article-content {
         .extract-wrapper {
             h3, h4, h5, h6 {
