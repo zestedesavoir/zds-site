@@ -4,18 +4,18 @@ Charte de l'interface de Zeste de Savoir
 
 Les styles de Zeste de Savoir sont complexes, formés de l'empilement d'années
 de contributions par des personnes très différentes. Pour qu'ils restent
-maintenable, ce document propose une norme et des recommandations.
+maintenables, ce document propose une norme et des recommandations.
 
 Normalisation des styles
 ========================
 
 Afin de garantir une cohérence à l'interface de Zeste de Savoir, plusieurs
 éléments graphiques sont normés. On ne parle pas ici de composants graphiques
-tel des boutons, des dialogues…, mais plutôt des éléments graphiques qui les
+tels des boutons, des dialogues…, mais plutôt des éléments graphiques qui les
 composent : couleurs, polices, tailles, ombres…
 
 Tout développement graphique sur Zeste de Savoir **doit** respecter cette norme
-(avec quelque exceptions mentionnées ci-après).
+(avec quelques exceptions mentionnées ci-après).
 
 .. note::
    Pourquoi tant de normes ?
@@ -28,7 +28,7 @@ Tout développement graphique sur Zeste de Savoir **doit** respecter cette norme
    *voilà*. Aussi, ça évite de *deviner* quelle valeur choisir au hasard.
 
    On peut enfin ajouter un troisième argument : ces normes ont été étudiées
-   dans une optique d'accessbilité — à supposer qu'elles soient correctement
+   dans une optique d’accessibilité — à supposer qu'elles soient correctement
    utilisées (elles ne dispensent pas de vérifier les contrastes, par exemple).
 
 .. note::
@@ -136,7 +136,7 @@ de la variable correspond à la longueur en pixels (ou en dixième de ``rem``).
 
 .. attention::
    Cette norme peut être ignorée s'il s'agit d'aligner des éléments au pixel près. Cela dit, un code
-   CSS moderne ne devrait pas nécessité ce genre de choses. Par contre, certains éléments plus anciens
+   CSS moderne ne devrait pas nécessiter ce genre de choses. Par contre, certains éléments plus anciens
    du code de Zeste de Savoir sont concernés, et cette norme ne doit pas être un frein s'il s'agit de les
    faire évoluer.
 
