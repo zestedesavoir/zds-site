@@ -521,7 +521,7 @@
                     {% if articles_and_tutorials %}
                         <section>
                             <h2 itemprop="name">
-                                {% trans 'Dernières publications' %}
+                                <span>{% trans 'Dernières publications' %}</span>
                                 <a href="{% url "content:find-all" usr.username %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                             </h2>
                             <div class="content-item-list">
@@ -538,7 +538,7 @@
                     {% if opinions %}
                         <section>
                             <h2 itemprop="name">
-                              {% trans 'Derniers billets' %}
+                                <span>{% trans 'Derniers billets' %}</span>
                                 <a href="{% url "opinion:find-opinion" usr.username %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                             </h2>
                             <div class="content-item-list">
@@ -557,7 +557,7 @@
             {% if topics %}
                 <section>
                     <h2 itemprop="name">
-                        {% trans 'Derniers sujets créés' %}
+                        <span>{% trans 'Derniers sujets créés' %}</span>
                         <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                     </h2>
 
