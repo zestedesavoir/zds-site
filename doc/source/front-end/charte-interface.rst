@@ -56,7 +56,9 @@ une couleur pour quelque chose, vous devez piocher dedans.
    :align: center
 
 .. seealso::
-   Cette palette est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#couleurs>`_.
+   Cette palette est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#couleurs>`_,
+   avec un outil pour déterminer la couleur la plus proche d'une couleur donnée
+   dans la palette.
 
 La palette est rendue disponible dans le code SCSS du site sous la forme de
 variables prêtes à l'emploi. Les noms des variables sont indiquées sur
