@@ -408,6 +408,7 @@
                                 <form action="{{ helpful_link }}" method="post">
                                     {% csrf_token %}
 
+                                    {% spaceless %}
                                     <button
                                         type="submit"
                                         class="tick ico-after {% if message.is_useful %}green{% endif %}"
@@ -431,6 +432,7 @@
                                             {% endif %}
                                         {% endif %}
                                     </button>
+                                    {% endspaceless %}
                                 </form>
                             {% endif %}
                         {% endif %}
