@@ -232,6 +232,25 @@ div.msg-are-hidden {
                             color: $grey-900;
                             font-weight: bold;
                         }
+
+                        &.date {
+                            @include until-wide {
+                                .short-date {
+                                    display: inline;
+                                }
+                                .long-date {
+                                    display: none;
+                                }
+                            }
+                            @include wide {
+                                .short-date {
+                                    display: none;
+                                }
+                                .long-date {
+                                    display: inline;
+                                }
+                            }
+                        }
                     }
 
                     div.hat {
@@ -408,6 +427,10 @@ div.msg-are-hidden {
         }
 
         .message-content {
+
+            > aside > *:first-child {
+                margin-top: 0;
+            }
 
             .message-hidden-content {
                 display: none;
