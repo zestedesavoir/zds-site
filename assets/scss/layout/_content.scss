@@ -135,16 +135,6 @@
     .full-content-wrapper .tutorial-list article {
         width: 29.3%;
     }
-
-    .main .content-container .topic-message .message .message-metadata .date {
-        .short-date {
-            display: none;
-        }
-
-        .long-date {
-            display: inline;
-        }
-    }
 }
 
 @include desktop {
