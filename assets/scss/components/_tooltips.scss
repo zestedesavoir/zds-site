@@ -1,6 +1,8 @@
 $tooltip-arrow-size: $length-6;
 $tooltip-background-color: $grey-900;
 
+// JS tooltips
+
 .tooltips-container {
     .tooltip-wrapper {
         position: absolute;
@@ -35,6 +37,173 @@ $tooltip-background-color: $grey-900;
 
             border-left: solid $tooltip-arrow-size transparent;
             border-right: solid $tooltip-arrow-size transparent;
+        }
+    }
+}
+
+// CSS tooltips (for simple single-line tooltips)
+// Inspiration from the Bulma-Tooltip project (MIT)
+
+$tooltip-max-width: $length-256;
+$tooltip-background-color: $grey-900;
+
+.has-tooltip {
+    position: relative;
+
+    &:hover,
+    &.is-tooltip-active {
+        &:not(.is-loading) {
+            &::after {
+                z-index: 99999;
+                position: absolute;
+                display: inline-block;
+                pointer-events: none;
+            }
+        }
+
+        &::before {
+            z-index: 99999;
+            position: absolute;
+            display: inline-block;
+            pointer-events: none;
+        }
+
+        &:not(.is-loading) {
+            &::after {
+                content: "";
+                border-style: solid;
+                border-width: $length-4;
+            }
+        }
+
+        &::before {
+            opacity: 0;
+            content: attr(aria-label);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: $font-size-10;
+            padding: $length-4 $length-8;
+            transform: translate(-50%, 1rem);
+            background: $tooltip-background-color;
+            color: $white;
+            max-width: $tooltip-max-width;
+        }
+    }
+
+    &:focus,
+    &:hover,
+    &.is-tooltip-active {
+        &:not(.is-loading) {
+            &::after {
+                top: 0;
+                bottom: auto;
+                left: 50%;
+                opacity: 1;
+                margin-left: -$length-4;
+                margin-top: -$length-4;
+                border-color: $tooltip-background-color transparent transparent transparent;
+            }
+        }
+
+        &::before {
+            top: auto;
+            bottom: 100%;
+            left: 50%;
+            opacity: 1;
+            transform: translate(-50%, -$length-4);
+        }
+    }
+
+    &.is-tooltip-right {
+        &::before {
+            top: auto;
+            bottom: 50%;
+            left: 100%;
+            right: auto;
+            transform: translate(-$length-10, 50%);
+        }
+
+        &:focus,
+        &:hover,
+        &.is-tooltip-active {
+            &:not(.is-loading) {
+                &::after {
+                    top: 50%;
+                    left: 100%;
+                    right: auto;
+                    border-color: transparent $tooltip-background-color transparent transparent;
+                }
+            }
+
+            &::before {
+                transform: translate($length-4, 50%);
+            }
+        }
+    }
+
+    &.is-tooltip-bottom {
+        &::before {
+            top: 100%;
+            bottom: auto;
+            left: 50%;
+            right: auto;
+            transform: translate(-50%, -$length-10);
+        }
+
+        &:focus,
+        &:hover,
+        &.is-tooltip-active {
+            &:not(.is-loading) {
+                &::after {
+                    top: 100%;
+                    bottom: auto;
+                    left: 50%;
+                    right: auto;
+                    border-color: transparent transparent $tooltip-background-color transparent;
+                }
+            }
+
+            &::before {
+                transform: translate(-50%, $length-4);
+            }
+        }
+    }
+
+    &.is-tooltip-left {
+        &::before {
+            top: auto;
+            bottom: 50%;
+            left: auto;
+            right: 100%;
+            transform: translate($length-10, 50%);
+        }
+
+        &:focus,
+        &:hover,
+        &.is-tooltip-active {
+            &:not(.is-loading) {
+                &::after {
+                    top: 50%;
+                    left: auto;
+                    right: calc(100% - #{$length-4});
+                    border-color: transparent transparent transparent $tooltip-background-color;
+                }
+            }
+
+            &::before {
+                transform: translate(-$length-4, 50%);
+            }
+        }
+    }
+
+    &.is-tooltip-multiline {
+        &::before {
+            min-width: $tooltip-max-width;
+            text-overflow: clip;
+            white-space: normal;
+            word-break: keep-all;
+            text-align: center;
         }
     }
 }
