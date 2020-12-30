@@ -253,6 +253,15 @@ div.msg-are-hidden {
                         }
                     }
 
+                    &.is-author {
+                        display: inline-flex;
+                        align-items: center;
+
+                        svg {
+                            height: $length-14;
+                        }
+                    }
+
                     div.hat {
                         height: auto;
 
