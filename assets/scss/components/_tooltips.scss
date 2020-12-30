@@ -89,6 +89,10 @@ $tooltip-background-color: $grey-900;
             color: $white;
             max-width: $tooltip-max-width;
         }
+
+        &[data-tooltip]::before {
+            content: attr(data-tooltip);
+        }
     }
 
     &:focus,
