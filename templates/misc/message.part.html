@@ -263,7 +263,7 @@
                     {% if not is_mp %}
                         <p class="message-helpful tick ico-after green {% if not message.is_useful or message_is_hidden %}hidden{% endif %}"
                         data-ajax-output="mark-message-as-useful">
-                            {% trans "Cette réponse a aidé l’auteur du sujet" %}
+                            {% trans "Cette réponse a été utile" %}
                         </p>
 
                         {% if perms_change and potential_spam_link and not message_is_hidden %}
@@ -352,21 +352,21 @@
                                         class="tick ico-after {% if message.is_useful %}green{% endif %}"
                                         data-ajax-input="mark-message-as-useful"
                                         data-content-on-click="{% if user == topic.author %}{% if message.is_useful %}
-                                                                   {% trans "Cette réponse m’a aidé" %}
+                                                                   {% trans "Cette réponse m’a été utile" %}
                                                                {% else %}
-                                                                   {% trans "Cette réponse ne m’a pas aidé" %}
+                                                                   {% trans "Cette réponse ne m’a pas été utile" %}
                                                                {% endif %}{% endif %}"
                                         title="{% spaceless %}{% if user != topic.author %}{% if message.is_useful %}
-                                                   {% trans "Marquer cette réponse comme n'ayant pas aidé" %}
+                                                   {% trans "Marquer cette réponse comme n'ayant pas été utile" %}
                                                {% else %}
-                                                   {% trans "Marquer cette réponse comme ayant aidé" %}
+                                                   {% trans "Marquer cette réponse comme ayant été utile" %}
                                                {% endif %}{% endif %}{% endspaceless %}">
 
                                         {% if user == topic.author %}
                                             {% if message.is_useful %}
-                                                {% trans "Cette réponse ne m’a pas aidé" %}
+                                                {% trans "Cette réponse ne m’a pas été utile" %}
                                             {% else %}
-                                                {% trans "Cette réponse m’a aidé" %}
+                                                {% trans "Cette réponse m’a été utile" %}
                                             {% endif %}
                                         {% endif %}
                                     </button>
