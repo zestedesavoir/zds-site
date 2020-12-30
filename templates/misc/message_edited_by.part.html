@@ -11,4 +11,4 @@
     {% endif %}
 {% endcaptureas %}
 
-<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}" title="{{ edited_by_text }} {{ message.update|format_date }}">{{ edited_by_text }}</time>
+<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}" class="has-tooltip is-tooltip-bottom is-tooltip-multiline" aria-label="{{ edited_by_text }} {{ message.update|format_date }}">{{ edited_by_text }}</time>
