@@ -226,7 +226,7 @@ def clean_subscriptions(sender, *, topic, **__):
             subscription.deactivate()
 
 
-@receiver(notification_signals.content_read, sender=ContentReaction)
+@receiver(tuto_signals.content_read, sender=ContentReaction)
 @receiver(forum_signals.post_read, sender=Post)
 def mark_comment_read(sender, *, instance, user, **__):
     comment = instance
