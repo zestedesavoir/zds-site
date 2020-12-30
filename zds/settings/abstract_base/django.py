@@ -115,9 +115,7 @@ WSGI_APPLICATION = "zds.wsgi.application"
 django_template_engine = {
     "BACKEND": "django.template.backends.django.DjangoTemplates",
     "APP_DIRS": True,
-    "DIRS": [
-        str(BASE_DIR / "templates"),
-    ],
+    "DIRS": [str(BASE_DIR / "templates"), str(BASE_DIR / "assets" / "images" / "inline-svg")],
     "OPTIONS": {
         "context_processors": [
             # Default context processors

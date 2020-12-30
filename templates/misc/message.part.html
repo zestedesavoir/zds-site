@@ -2,6 +2,7 @@
 {% load emarkdown %}
 {% load date %}
 {% load set %}
+{% load static %}
 {% load i18n %}
 {% load pluralize_fr %}
 {% load cache %}
@@ -79,14 +80,18 @@
                             {% endif %}
                         </li>
                     {% endif %}
-                    {% if is_author %}
-                        <li class="is-author">{% trans "Auteur du sujet" %}</li>
-                    {% endif %}
                     {% if message.hat %}
                         <li>
                             <div class="hat {% if message.hat.is_staff %}staff-hat{% endif %}" title="{% blocktrans with hat=message.hat.name %}Posté avec la casquette « {{ hat }} »{% endblocktrans %}">
                                 <a class="name" href="{{ message.hat.get_absolute_url }}">{{ message.hat.name }}</a>
                             </div>
+                        </li>
+                    {% endif %}
+                    {% if is_author %}
+                        <li class="is-author">
+                            <span class="has-tooltip is-tooltip-bottom" aria-label="{% trans "Auteur ou autrice du sujet" %}">
+                                {% include "feather.svg" %}
+                            </span>
                         </li>
                     {% endif %}
                 </ul>
