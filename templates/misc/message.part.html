@@ -412,16 +412,23 @@
                                         type="submit"
                                         class="tick ico-after {% if message.is_useful %}green{% endif %}"
                                         data-ajax-input="mark-message-as-useful"
-                                        data-content-on-click="{% if message.is_useful %}
+                                        data-content-on-click="{% if user == topic.author %}{% if message.is_useful %}
                                                                    {% trans "Cette réponse m’a aidé" %}
                                                                {% else %}
                                                                    {% trans "Cette réponse ne m’a pas aidé" %}
-                                                               {% endif %}">
+                                                               {% endif %}{% endif %}"
+                                        title="{% spaceless %}{% if user != topic.author %}{% if message.is_useful %}
+                                                   {% trans "Marquer cette réponse comme n'ayant pas aidé" %}
+                                               {% else %}
+                                                   {% trans "Marquer cette réponse comme ayant aidé" %}
+                                               {% endif %}{% endif %}{% endspaceless %}">
 
-                                        {% if message.is_useful %}
-                                            {% trans "Cette réponse ne m’a pas aidé" %}
-                                        {% else %}
-                                            {% trans "Cette réponse m’a aidé" %}
+                                        {% if user == topic.author %}
+                                            {% if message.is_useful %}
+                                                {% trans "Cette réponse ne m’a pas aidé" %}
+                                            {% else %}
+                                                {% trans "Cette réponse m’a aidé" %}
+                                            {% endif %}
                                         {% endif %}
                                     </button>
                                 </form>
