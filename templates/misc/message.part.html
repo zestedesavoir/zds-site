@@ -66,7 +66,7 @@
                         <a href="#p{{ message.pk }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
                             <time itemprop="dateCreated" datetime="{{ message.pubdate|date:"c" }}">
                                 <span class="long-date">{{ message.pubdate | format_date }}</span>
-                                <span class="short-date">{{ message.pubdate | format_date:True }}</span>
+                                <span class="short-date" aria-hidden="true">{{ message.pubdate | format_date:True }}</span>
                             </time>
                         </a>
                     </li>
