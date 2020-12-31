@@ -1,0 +1,26 @@
+// This mixin transforms an unstyled list to a horizontal, dot-separated list.
+// Lists with a single element will appear as a normal text.
+// This mixin resets some margins and paddings. If you want to adjust them, do it after.
+@mixin horizontal-list ($separator: "•", $gap: $length-16) {
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-left: 0;
+
+    list-style: none;
+
+    li {
+        display: inline-block;
+        vertical-align: middle;
+
+        &:not(:first-child) {
+            position: relative;
+            margin-left: $gap;
+
+            &::before {
+                content: $separator;
+                position: absolute;
+                left: -($gap / 2 + $length-2);
+            }
+        }
+    }
+}

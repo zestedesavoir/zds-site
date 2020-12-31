@@ -1,10 +1,18 @@
 // Breakpoints between each screen category
+$tiny: 419px;
 $tablet: 769px;
 $desktop: 1024px;
 $wide: 1216px;
 $extra-wide: 1408px;
 
 // Some inspiration for names & concepts from the Bulma CSS framework
+
+// Tiny screens
+@mixin tiny {
+  @media screen and (max-width: $tiny - 1px) {
+    @content;
+  }
+}
 
 // Mobile and below (well, mobile)
 @mixin mobile {

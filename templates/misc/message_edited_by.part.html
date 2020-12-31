@@ -4,11 +4,11 @@
 {% load captureas %}
 
 {% captureas edited_by_text %}
-    {% if message.editor and message.editor != message.author %}
+    {% if message.editor and message.editor != message.author and not short %}
         {% blocktrans with editor=message.editor %}Modifié par {{ editor }}{% endblocktrans %}
     {% else %}
         {% blocktrans %}Modifié{% endblocktrans %}
     {% endif %}
 {% endcaptureas %}
 
-<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}" class="has-tooltip is-tooltip-bottom" data-tooltip="{{ message.update|format_date|capfirst }}">{{ edited_by_text }}</time>
+<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}" {% if tooltip|default_if_none:True %}class="has-tooltip is-tooltip-bottom" data-tooltip="{{ message.update|format_date|capfirst }}"{% endif %}>{{ edited_by_text }}</time>
