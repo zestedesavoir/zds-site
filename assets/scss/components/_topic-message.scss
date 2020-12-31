@@ -28,6 +28,12 @@ div.msg-are-hidden {
 .topic-message {
     position: relative;
 
+    margin: $length-24 0;
+
+    &:first-child {
+        margin-top: $length-32;
+    }
+
     &.repeated {
         .message {
             &,
@@ -103,8 +109,42 @@ div.msg-are-hidden {
         }
     }
 
+    @include desktop {
+        .user,
+        .message {
+            &:after {
+                content: " ";
+
+                position: absolute;
+                top: $length-10;
+
+                display: block;
+                width: 0;
+                height: 0;
+
+                border: $length-20 solid transparent;
+                border-left: 0;
+            }
+        }
+    }
+
     .user {
         margin-top: $length-6;
+
+        @include desktop {
+            position: absolute;
+            top: 0;
+            left: 0;
+
+            padding-top: $length-48;
+
+            &:after {
+                top: $length-4;
+                left: $length-48;
+
+                border-right-color: $grey-200;
+            }
+        }
 
         .avatar-link {
             position: absolute;
@@ -187,6 +227,37 @@ div.msg-are-hidden {
 
         background-color: $true-white;
 
+        @include desktop {
+            // Avatar' size + arrow' size
+            margin-left: $length-48 + $length-20;
+
+            &:after {
+                // Arrow alignment, must be exact
+                top: 9px;
+                left: -19px;
+
+                border-right-color: $true-white;
+            }
+
+            .message-bottom .signature {
+                cursor: pointer;
+
+                p {
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
+                    img.smiley {
+                        max-height: $length-16;
+                    }
+                }
+
+                &.full p {
+                    white-space: normal;
+                }
+            }
+        }
+
         header {
             display: flex;
             align-items: flex-start;
@@ -194,31 +265,21 @@ div.msg-are-hidden {
             ul.message-metadata {
                 flex: 2;
 
-                margin: $length-8;
-                margin-top: $length-6;
+                @include horizontal-list;
 
+                margin: $length-6 $length-10 $length-10;
                 padding: 0;
 
-                list-style: none;
-
                 li {
-                    display: inline-block;
-                    vertical-align: middle;
-
-                    &:not(:first-child) {
-                        position: relative;
-                        margin-left: $length-16;
-
-                        &::before {
-                            content: "•";
-                            position: absolute;
-                            left: -$length-10;
-                        }
-                    }
-
                     &, a {
                         color: $grey-500;
                         font-size: $font-size-10;
+                    }
+
+                    .username-date-separator {
+                        @include mobile {
+                            display: none;
+                        }
                     }
 
                     a {
@@ -250,6 +311,16 @@ div.msg-are-hidden {
                                     display: inline;
                                 }
                             }
+
+                            @include mobile {
+                                display: none;
+                            }
+                        }
+                    }
+
+                    &.message-edited {
+                        @include mobile {
+                            display: none;
                         }
                     }
 
@@ -258,6 +329,9 @@ div.msg-are-hidden {
                         align-items: center;
 
                         svg {
+                            position: relative;
+                            top: $length-1;
+
                             height: $length-14;
                         }
                     }
@@ -295,7 +369,8 @@ div.msg-are-hidden {
                     padding: 0;
 
                     li {
-                        display: block;
+                        display: flex;
+                        align-items: center;
                         box-sizing: border-box;
 
                         min-width: $length-128;
@@ -305,6 +380,15 @@ div.msg-are-hidden {
 
                         transition: $transition-duration ease-in-out;
                         transition-property: min-width, width, box-shadow;
+
+                        @include tiny {
+                            width: 0;
+                            min-width: $length-64;
+
+                            span {
+                                display: none;
+                            }
+                        }
 
                         form {
                             margin: 0;
@@ -410,6 +494,12 @@ div.msg-are-hidden {
                         li {
                             min-width: $length-192;
 
+                            @include tiny {
+                                span {
+                                    display: inline;
+                                }
+                            }
+
                             &:first-child {
                                 padding-right: 0;
 
@@ -437,7 +527,23 @@ div.msg-are-hidden {
 
         .message-content {
 
-            > aside > *:first-child {
+            @include desktop {
+
+                margin: 0 $length-10;
+
+                > :first-child {
+                    margin-top: $length-6;
+                }
+                > figure:first-child {
+                    margin-top: $length-10;
+                }
+            }
+
+            > aside > :first-child {
+                margin-top: 0;
+            }
+
+            > aside + .message-text > :first-child {
                 margin-top: 0;
             }
 
@@ -507,6 +613,33 @@ div.msg-are-hidden {
 
             min-height: $length-32;
 
+            .date-mobile {
+                @include tablet {
+                    display: none;
+                }
+
+                @include mobile {
+                    flex: 1;
+                    align-self: center;
+
+                    margin: 0 0 0 $length-10;
+                    padding: 0;
+
+                    ul {
+                        @include horizontal-list;
+
+                        &, a {
+                            color: $grey-700;
+                            font-size: $font-size-11;
+
+                            &.mobile-permalink {
+                                text-decoration: none;
+                            }
+                        }
+                    }
+                }
+            }
+
             .signature {
                 flex: 1;
 
@@ -523,14 +656,27 @@ div.msg-are-hidden {
                 line-height: 1.9;
 
                 overflow: hidden;
+                cursor: pointer;
+
+                @include mobile {
+                    display: none;
+                }
 
                 p {
                     margin: 0;
                     padding: 0;
 
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+
                     img.smiley {
                         max-height: $length-16;
                     }
+                }
+
+                &.full p {
+                    white-space: normal;
                 }
 
                 a {
@@ -744,6 +890,17 @@ form.topic-message {
     margin-top: $length-48;
 }
 
+
+@include desktop {
+    .topic-message {
+
+        .message {
+
+        }
+    }
+}
+
+/*
 @include until-desktop {
     .topic-message {
         padding: $length-20 0;
@@ -818,90 +975,6 @@ form.topic-message {
     }
 }
 
-@include desktop {
-    .topic-message {
-        margin: $length-24 0;
-
-        &:first-child {
-            margin-top: $length-32;
-        }
-
-        .user,
-        .message {
-            &:after {
-                content: " ";
-
-                position: absolute;
-                top: $length-10;
-
-                display: block;
-                width: 0;
-                height: 0;
-
-                border: $length-20 solid transparent;
-                border-left: 0;
-            }
-        }
-
-        .user {
-            position: absolute;
-            top: 0;
-            left: 0;
-
-            padding-top: $length-48;
-
-            &:after {
-                top: $length-4;
-                left: $length-48;
-
-                border-right-color: $grey-200;
-            }
-        }
-
-        .message {
-            // Avatar' size + arrow' size
-            margin-left: $length-48 + $length-20;
-
-            &:after {
-                // Arrow alignment, must be exact
-                top: 9px;
-                left: -19px;
-
-                border-right-color: $true-white;
-            }
-
-            .message-content {
-                margin: 0 $length-10;
-
-                > :first-child {
-                    margin-top: $length-6;
-                }
-                > figure:first-child {
-                    margin-top: $length-10;
-                }
-            }
-
-            .message-bottom .signature {
-                cursor: pointer;
-
-                p {
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-
-                    img.smiley {
-                        max-height: $length-16;
-                    }
-                }
-
-                &.full p {
-                    white-space: normal;
-                }
-            }
-        }
-    }
-}
-
 @include mobile {
     .topic-message .message {
         .message-submit {
@@ -927,6 +1000,7 @@ form.topic-message {
         padding-top: 0 !important;
     }
 }
+*/
 
 // For alerts resolution modals
 .cannot-send-message-with-solved-alert {
