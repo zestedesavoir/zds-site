@@ -377,14 +377,16 @@ class Comment(models.Model):
         verbose_name = "Commentaire"
         verbose_name_plural = "Commentaires"
 
+        permissions = [("change_comment_potential_spam", "Can change the potential spam status of a comment")]
+
     objects = InheritanceManager()
 
     author = models.ForeignKey(
         User,
         verbose_name="Auteur",
-        # better on_delete with "set anonymous?"
         related_name="comments",
         db_index=True,
+        # better on_delete with "set anonymous?"
         on_delete=models.CASCADE,
     )
     editor = models.ForeignKey(
@@ -413,12 +415,41 @@ class Comment(models.Model):
         Hat, verbose_name="Casquette", on_delete=models.SET_NULL, related_name="comments", blank=True, null=True
     )
 
+    is_potential_spam = models.BooleanField("Est potentiellement du spam", default=False)
+
     def update_content(self, text, on_error=None):
+        """
+        Updates the content of this comment.
+
+        This method will render the new comment to HTML, store the rendered
+        version, analyze pings, and check for modifications if the comment is
+        flagged as potential spam.
+
+        :param text: The new comment content.
+        :param on_error: A callable called if zmd returns an error, provided
+                         with a single argument: a list of user-friendly errors.
+                         See render_markdown.
+        :return:
+        """
+        old_text = self.text
         _, old_metadata, _ = render_markdown(self.text)
-        html, metadata, messages = render_markdown(text, on_error=on_error)
+        html, metadata, _ = render_markdown(text, on_error=on_error)
+
         self.text = text
         self.text_html = html
         self.save()
+
+        self._on_update_send_ping_signals(old_metadata, metadata)
+        self._on_update_alert_potential_spam(old_text, text)
+
+    def _on_update_send_ping_signals(self, old_metadata, new_metadata):
+        """
+        Called when this comment is modified. Checks the message for added and
+        deleted pings, and sends signals accordingly.
+
+        :param old_metadata: zmd metadata from the old version of this message.
+        :param new_metadata: zmd metadata from the new version of this message.
+        """
 
         def filter_usernames(original_list):
             # removes duplicates and the message's author
@@ -429,7 +460,7 @@ class Comment(models.Model):
             return filtered_list
 
         max_pings_allowed = settings.ZDS_APP["comment"]["max_pings"]
-        pinged_usernames_from_new_text = filter_usernames(metadata.get("ping", []))[:max_pings_allowed]
+        pinged_usernames_from_new_text = filter_usernames(new_metadata.get("ping", []))[:max_pings_allowed]
         pinged_usernames_from_old_text = filter_usernames(old_metadata.get("ping", []))[:max_pings_allowed]
 
         pinged_usernames = set(pinged_usernames_from_new_text) - set(pinged_usernames_from_old_text)
@@ -441,6 +472,38 @@ class Comment(models.Model):
         unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
             signals.unping.send(self.author, instance=self, user=unpinged_user)
+
+    def _on_update_alert_potential_spam(self, old_text, new_text):
+        """
+        Called when this comment is modified. If this message is marked as
+        potential spam, sends an alert in the appropriate scope.
+
+        :param old_text: old version of this message.
+        :param new_text: new version of this message.
+        """
+        # Local import to avoid circular import as ContentReaction inherits from Comment.
+        from zds.tutorialv2.models.database import ContentReaction
+
+        # If this post is marked as potential spam, we open an alert to notify the staff that
+        # the post was edited. If an open alert already exists for this reason, we update the
+        # date of this alert to avoid lots of them stacking up.
+        if old_text != new_text and self.is_potential_spam and self.editor == self.author:
+            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
+
+            try:
+                alert = self.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
+                alert.pubdate = datetime.now()
+                alert.save()
+            except Alert.DoesNotExist:
+                # We first have to compute the correct scope
+                sub_class = Comment.objects.get_subclass(id=self.id)
+                if isinstance(sub_class, ContentReaction):
+                    scope = sub_class.related_content.type
+                else:
+                    scope = "FORUM"
+
+                Alert(author=bot, comment=self, scope=scope, text=alert_text, pubdate=datetime.now()).save()
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it

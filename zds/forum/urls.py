@@ -13,7 +13,6 @@ from zds.forum.views import (
     PostNew,
     PostEdit,
     PostSignal,
-    PostPotentialSpam,
     PostUseful,
     PostUnread,
     FindPost,
@@ -48,7 +47,6 @@ urlpatterns = [
     re_path(r"^message/editer/$", PostEdit.as_view(), name="post-edit"),
     re_path(r"^message/utile/$", PostUseful.as_view(), name="post-useful"),
     re_path(r"^message/signaler/$", PostSignal.as_view(), name="post-create-alert"),
-    re_path(r"^message/spam-potentiel/$", PostPotentialSpam.as_view(), name="post-potential-spam"),
     re_path(r"^message/nonlu/$", PostUnread.as_view(), name="post-unread"),
     re_path(r"^messages/(?P<user_pk>\d+)/$", FindPost.as_view(), name="post-find"),
     # Last subjects.

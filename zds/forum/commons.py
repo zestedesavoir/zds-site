@@ -136,11 +136,6 @@ class PostEditMixin:
         post.save()
 
     @staticmethod
-    def perform_potential_spam(post):
-        post.is_potential_spam = not post.is_potential_spam
-        post.save()
-
-    @staticmethod
     def perform_unread_message(post, user):
         """
         Marks a post unread so we create a notification between the user and the topic host of the post.
@@ -186,20 +181,6 @@ class PostEditMixin:
         # Save topic to update update_index_date
         if post.position == 1:
             post.topic.save()
-
-        # If this post is marked as potential spam, we open an alert to notify the staff that
-        # the post was edited. If an open alert already exists for this reason, we update the
-        # date of this alert to avoid lots of them stacking up.
-        if original_text != text and post.is_potential_spam and post.editor == post.author:
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-            alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
-
-            try:
-                alert = post.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
-                alert.pubdate = datetime.now()
-                alert.save()
-            except Alert.DoesNotExist:
-                Alert(author=bot, comment=post, scope="FORUM", text=alert_text, pubdate=datetime.now()).save()
 
         return post
 

@@ -7,6 +7,7 @@
 {% load cache %}
 
 
+{% url 'api:utils:update-comment-potential-spam' message.pk as potential_spam_link %}
 
 {% if topic.author == message.author and helpful_link %}
     {% set True as is_author %}
@@ -29,7 +30,7 @@
 <article
     class="topic-message
            {% if message.is_useful and not message_is_hidden %}helpful{% endif %}
-           {% if perms_change and message.is_potential_spam and not message_is_hidden %}potential-spam{% endif %}
+           {% if perms.utils.change_comment_potential_spam and message.is_potential_spam and not message_is_hidden %}potential-spam{% endif %}
            {% if is_repeated_message %}repeated{% endif %}
            {% if message_is_hidden %}hidden-by-someone{% endif %}"
 
@@ -259,20 +260,16 @@
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
-                        {% if user.is_authenticated and perms_change and potential_spam_link %}
-                              <form action="{{ potential_spam_link }}" method="post">
-                                  {% csrf_token %}
-
-                                  <button
-                                      type="submit"
-                                      class="alert ico-after {% if message.is_potential_spam %}green{% endif %}"
-                                      title="{% if not message.is_potential_spam %}{% trans "Marquer ce message comme spam potentiel, afin de recevoir une alerte de modération s'il est modifié." %}{% endif %}"
-                                      data-ajax-input="mark-message-as-potential-spam"
-                                      data-content-on-click="{% if not message.is_potential_spam %}
-                                                                 {% trans "Ce message n'est pas du spam" %}
-                                                             {% endif %}"
-                                      >{% if message.is_potential_spam %}{% trans "Ce message n'est pas du spam" %}{% endif %}</button>
-                              </form>
+                        {% if user.is_authenticated and perms.utils.change_comment_potential_spam and potential_spam_link %}
+                            <button
+                                class="alert ico-after potential-spam-handle"
+                                title="{% if not message.is_potential_spam %}{% trans "Marquer ce message comme spam potentiel, afin de recevoir une alerte de modération s'il est modifié." %}{% endif %}"
+                                data-potential-spam-api="{{ potential_spam_link }}"
+                                data-potential-spam-new-state="{% if message.is_potential_spam %}false{% else %}true{% endif %}"
+                                data-content-on-click="{% if not message.is_potential_spam %}
+                                {% trans "Ce message n'est pas du spam" %}
+                                {% endif %}"
+                                >{% if message.is_potential_spam %}{% trans "Ce message n'est pas du spam" %}{% endif %}</button>
                         {% endif %}
 
                         {% if user.is_authenticated and helpful_link %}

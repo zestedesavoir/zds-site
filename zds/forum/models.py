@@ -484,7 +484,6 @@ class Post(Comment, AbstractESDjangoIndexable):
     topic = models.ForeignKey(Topic, verbose_name="Sujet", db_index=True, on_delete=models.CASCADE)
 
     is_useful = models.BooleanField("Est utile", default=False)
-    is_potential_spam = models.BooleanField("Est potentiellement du spam", default=False)
     objects = PostManager()
 
     def __str__(self):
