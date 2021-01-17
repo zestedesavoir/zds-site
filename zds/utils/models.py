@@ -495,7 +495,7 @@ class Comment(models.Model):
                 alert.save()
             except Alert.DoesNotExist:
                 # We first have to compute the correct scope
-                sub_class = Comment.objects.get_subclass(id=self.id)
+                sub_class = self.get_comment_subclass()
                 if type(sub_class).__name__ == 'ContentReaction':
                     scope = sub_class.related_content.type
                 else:
