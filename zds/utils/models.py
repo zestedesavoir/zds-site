@@ -481,8 +481,6 @@ class Comment(models.Model):
         :param old_text: old version of this message.
         :param new_text: new version of this message.
         """
-        # Local import to avoid circular import as ContentReaction inherits from Comment.
-        from zds.tutorialv2.models.database import ContentReaction
 
         # If this post is marked as potential spam, we open an alert to notify the staff that
         # the post was edited. If an open alert already exists for this reason, we update the
@@ -498,7 +496,7 @@ class Comment(models.Model):
             except Alert.DoesNotExist:
                 # We first have to compute the correct scope
                 sub_class = Comment.objects.get_subclass(id=self.id)
-                if isinstance(sub_class, ContentReaction):
+                if type(sub_class).__name__ == 'ContentReaction':
                     scope = sub_class.related_content.type
                 else:
                     scope = "FORUM"
