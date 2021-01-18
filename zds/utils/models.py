@@ -7,6 +7,7 @@ import logging
 from django.conf import settings
 
 from django.contrib.auth.models import User, Group
+from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.encoding import smart_text
 from django.db import models
@@ -422,8 +423,9 @@ class Comment(models.Model):
         Updates the content of this comment.
 
         This method will render the new comment to HTML, store the rendered
-        version, analyze pings, and check for modifications if the comment is
-        flagged as potential spam.
+        version, and analyze pings.
+
+        This method updates fields and pings, but won't save the instance.
 
         :param text: The new comment content.
         :param on_error: A callable called if zmd returns an error, provided
@@ -431,16 +433,16 @@ class Comment(models.Model):
                          See render_markdown.
         :return:
         """
-        old_text = self.text
+        # This attribute will be used by the `post_save` signal (but not saved into the database).
+        self.old_text = self.text
+
         _, old_metadata, _ = render_markdown(self.text)
         html, metadata, _ = render_markdown(text, on_error=on_error)
 
         self.text = text
         self.text_html = html
-        self.save()
 
         self._on_update_send_ping_signals(old_metadata, metadata)
-        self._on_update_alert_potential_spam(old_text, text)
 
     def _on_update_send_ping_signals(self, old_metadata, new_metadata):
         """
@@ -472,36 +474,6 @@ class Comment(models.Model):
         unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
             signals.unping.send(self.author, instance=self, user=unpinged_user)
-
-    def _on_update_alert_potential_spam(self, old_text, new_text):
-        """
-        Called when this comment is modified. If this message is marked as
-        potential spam, sends an alert in the appropriate scope.
-
-        :param old_text: old version of this message.
-        :param new_text: new version of this message.
-        """
-
-        # If this post is marked as potential spam, we open an alert to notify the staff that
-        # the post was edited. If an open alert already exists for this reason, we update the
-        # date of this alert to avoid lots of them stacking up.
-        if old_text != new_text and self.is_potential_spam and self.editor == self.author:
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-            alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
-
-            try:
-                alert = self.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
-                alert.pubdate = datetime.now()
-                alert.save()
-            except Alert.DoesNotExist:
-                # We first have to compute the correct scope
-                sub_class = self.get_comment_subclass()
-                if type(sub_class).__name__ == "ContentReaction":
-                    scope = sub_class.related_content.type
-                else:
-                    scope = "FORUM"
-
-                Alert(author=bot, comment=self, scope=scope, text=alert_text, pubdate=datetime.now()).save()
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
@@ -559,6 +531,45 @@ class Comment(models.Model):
 
     def __str__(self):
         return "Comment by {}".format(self.author.username)
+
+
+@receiver(post_save)
+def on_comment_update_alert_potential_spam(sender, instance, created, **kwargs):
+    """
+    Called when this comment is modified. If this message is marked as
+    potential spam, sends an alert in the appropriate scope.
+    """
+    if sender is not Comment and not issubclass(sender, Comment):
+        return
+
+    # For new comments, this does not apply.
+    # If we edit a comment but the `old_text` attribute is not set, this means
+    # `Comment.update_content` was not called: the content was not updated.
+    if created or not hasattr(instance, "old_text"):
+        return
+
+    old_text = instance.old_text
+    new_text = instance.text
+
+    # If this post is marked as potential spam, we open an alert to notify the staff that
+    # the post was edited. If an open alert already exists for this reason, we update the
+    # date of this alert to avoid lots of them stacking up.
+    if old_text != new_text and instance.is_potential_spam and instance.editor == instance.author:
+        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
+
+        try:
+            alert = instance.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
+            alert.pubdate = datetime.now()
+            alert.save()
+        except Alert.DoesNotExist:
+            # We first have to compute the correct scope
+            if sender.__name__ == "ContentReaction":
+                scope = instance.related_content.type
+            else:
+                scope = "FORUM"
+
+            Alert(author=bot, comment=instance, scope=scope, text=alert_text, pubdate=datetime.now()).save()
 
 
 class CommentEdit(models.Model):
