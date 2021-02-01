@@ -5,7 +5,7 @@ elasticsearch==5.5.3
 elasticsearch-dsl==5.4.0
 
 # Explicit dependencies (references in code)
-Django==2.2.16
+Django==2.2.18
 django-crispy-forms==1.9.2
 django-model-utils==4.0.0
 django-munin==0.2.1
@@ -13,7 +13,7 @@ python-memcached==1.59
 lxml==4.5.2
 factory-boy==2.8.1
 geoip2==3.0.0
-Pillow==7.2.0
+Pillow==8.1.0
 GitPython==3.1.7
 easy-thumbnails==2.7
 beautifulsoup4==4.9.1
