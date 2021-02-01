@@ -6,6 +6,7 @@ env:
   NODE_VERSION: "12"
   PYTHON_VERSION: "3.7"
   MARIADB_VERSION: "10.4.10"
+  COVERALLS_VERSION: "2.2.0"
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
@@ -235,7 +236,7 @@ jobs:
         shell: bash -l {0}
         run: |
           echo $COVERALLS_FLAG_NAME
-          python -m pip install coveralls
+          python -m pip install coveralls==${{ env.COVERALLS_VERSION }}
           coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.github_token }}
@@ -256,7 +257,7 @@ jobs:
 
       - name: Upload coverage data
         run: |
-          python -m pip install coveralls
+          python -m pip install coveralls==${{ env.COVERALLS_VERSION }}
           coveralls --finish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
