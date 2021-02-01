@@ -10,7 +10,7 @@ django-crispy-forms==1.10.0
 django-model-utils==4.1.1
 django-munin==0.2.1
 django-recaptcha==2.0.6
-Django==2.2.17
+Django==2.2.18
 easy-thumbnails==2.7.1
 factory-boy==2.8.1
 geoip2==4.1.0
@@ -18,7 +18,7 @@ GitPython==3.1.11
 google-api-python-client==1.12.8
 homoglyphs==2.0.4
 lxml==4.6.2
-Pillow==8.0.1
+Pillow==8.1.0
 python-memcached==1.59
 requests==2.25.0
 toml==0.10.2
