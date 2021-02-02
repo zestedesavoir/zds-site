@@ -441,6 +441,9 @@ class Comment(models.Model):
         self.text = text
         self.text_html = html
 
+        # Required for pings analysis, even if it will frequently mean we double-save…
+        self.save()
+
         # Pings analysis
 
         def filter_usernames(original_list):
