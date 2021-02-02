@@ -431,27 +431,17 @@ class Comment(models.Model):
         :param on_error: A callable called if zmd returns an error, provided
                          with a single argument: a list of user-friendly errors.
                          See render_markdown.
-        :return:
         """
         # This attribute will be used by the `post_save` signal (but not saved into the database).
         self.old_text = self.text
 
         _, old_metadata, _ = render_markdown(self.text)
-        html, metadata, _ = render_markdown(text, on_error=on_error)
+        html, metadata, message = render_markdown(text, on_error=on_error)
 
         self.text = text
         self.text_html = html
 
-        self._on_update_send_ping_signals(old_metadata, metadata)
-
-    def _on_update_send_ping_signals(self, old_metadata, new_metadata):
-        """
-        Called when this comment is modified. Checks the message for added and
-        deleted pings, and sends signals accordingly.
-
-        :param old_metadata: zmd metadata from the old version of this message.
-        :param new_metadata: zmd metadata from the new version of this message.
-        """
+        # Pings analysis
 
         def filter_usernames(original_list):
             # removes duplicates and the message's author
@@ -462,7 +452,7 @@ class Comment(models.Model):
             return filtered_list
 
         max_pings_allowed = settings.ZDS_APP["comment"]["max_pings"]
-        pinged_usernames_from_new_text = filter_usernames(new_metadata.get("ping", []))[:max_pings_allowed]
+        pinged_usernames_from_new_text = filter_usernames(metadata.get("ping", []))[:max_pings_allowed]
         pinged_usernames_from_old_text = filter_usernames(old_metadata.get("ping", []))[:max_pings_allowed]
 
         pinged_usernames = set(pinged_usernames_from_new_text) - set(pinged_usernames_from_old_text)
