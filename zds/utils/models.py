@@ -436,7 +436,7 @@ class Comment(models.Model):
         self.old_text = self.text
 
         _, old_metadata, _ = render_markdown(self.text)
-        html, metadata, message = render_markdown(text, on_error=on_error)
+        html, metadata, messages = render_markdown(text, on_error=on_error)
 
         self.text = text
         self.text_html = html
