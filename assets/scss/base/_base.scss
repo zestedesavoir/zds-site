@@ -12,16 +12,6 @@ body {
     height: 100%;
 }
 
-@mixin set-selection {
-    &::selection {
-        @content;
-    }
-
-    &::-moz-selection {
-        @content;
-    }
-}
-
 @mixin normal-selection {
     color: $white;
     background: $color-primary;
@@ -32,23 +22,19 @@ body {
     background: $white;
 }
 
-@include set-selection {
+*::selection {
     @include normal-selection;
 }
 
 // Elements with a dark background
 .flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .modal-title, .taglist, .hat, .linkbox-item.primary {
-    &, * {
-        @include set-selection {
-            @include negative-selection;
-        }
+    &::selection, *::selection {
+        @include negative-selection;
     }
 
-    input {
+    input::selection {
         // We don't care about buttons and others, there aren't selectable
-        @include set-selection {
-            @include normal-selection;
-        }
+        @include normal-selection;
     }
 }
 
