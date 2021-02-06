@@ -1,117 +1,109 @@
-.search-form {
-    margin-bottom: 30px;
-}
-
 .search {
-    display: flex;
     position: relative;
+    display: flex;
+
+    height: 30px; // Must match the breadcrumbs' height.
+
+    &:before {
+        content: " ";
+        display: block;
+        position: absolute;
+        left: -$length-20;
+        height: 100%;
+        width: $length-20;
+        background: linear-gradient(to left, rgba($black, .03), transparent);
+    }
 
     form {
         input,
         button {
-            float: left;
             border: none;
-            background: rgba(255, 255, 255, .25);
-            height: 40px;
+            background: rgba($grey-000, .25);
+
             transition-property: background;
             transition-duration: $transition-duration;
 
             &:hover,
             &:focus {
-                background-color: #FFF;
+                background-color: $true-white;
             }
+
             &:focus {
                 outline-color: $color-secondary;
             }
         }
+
         input {
-            height: 30px;
-            padding: 5px 3%;
-            width: 70%;
+            width: $length-192;  // Align with the boxes above
+            height: 100%;
+            padding: $length-4 $length-8;
         }
+
         button {
-            width: 12%;
+            width: $length-32;
             text-indent: -9999px;
+
+            height: 100%;
+            line-height: 2;
+
+            cursor: pointer;
 
             &.disabled {
                 opacity: .5;
                 background: transparent;
+
                 cursor: default;
             }
 
             &:after {
-                display: block;
                 content: " ";
+
                 position: absolute;
-                top: 12px;
+                top: $length-6;
                 left: 50%;
-                margin-left: -8px;
+
+                display: block;
+
+                margin-left: -$length-8;
+
+                // Sprite size
                 height: 17px;
                 width: 17px;
+
                 @include sprite-position($search);
             }
         }
     }
+
     .search-more {
         display: block;
-        float: left;
-        height: 40px;
-        font-family: Arial, sans-serif;
-        line-height: 40px;
-        width: 12%;
-        text-align: center;
+
+        width: $length-32;
+        height: 100%;
+
+        background: $true-white;
+
+        font-size: $font-size-5;
         font-weight: bold;
+
+        text-align: center;
         text-decoration: none;
-        font-size: 24px;
-        background: #FFF;
+        line-height: .96;
+
         color: $color-primary;
+
         transition: background $transition-duration ease;
 
         &:hover,
         &:focus {
-            background: $color-secondary;
-            color: #FFF;
+            background: $accent-800;
+            color: $white;
+
             outline: none;
         }
+
         &:before {
             content: "+";
-        }
-    }
-}
-
-@media only screen and #{$media-wide} {
-    .search {
-        &:before {
-            content: " ";
-            display: block;
-            position: absolute;
-            left: -20px;
-            height: 30px;
-            width: 20px;
-            background: linear-gradient(to left, rgba(0, 0, 0, .03), rgba(0, 0, 0, 0));
-        }
-
-        form {
-            input {
-                padding: 6px 10px;
-                height: 30px;
-                width: 60px * 3;
-            }
-            button {
-                height: 30px;
-                line-height: 30px;
-                width: 30px;
-
-                &:after {
-                    top: 7px;
-                }
-            }
-        }
-
-        .search-more {
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
         }
     }
 }

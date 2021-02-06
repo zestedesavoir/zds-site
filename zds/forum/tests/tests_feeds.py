@@ -3,33 +3,23 @@ from django.urls import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, \
-    TopicFactory, PostFactory, TagFactory
-from zds.forum.feeds import LastPostsFeedRSS, LastPostsFeedATOM, \
-    LastTopicsFeedRSS, LastTopicsFeedATOM
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.feeds import LastPostsFeedRSS, LastPostsFeedATOM, LastTopicsFeedRSS, LastTopicsFeedATOM
 from zds.member.factories import ProfileFactory
 
 
 class LastTopicsFeedRSSTest(TestCase):
-
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
 
-        settings.EMAIL_BACKEND = \
-            'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
         self.category1 = ForumCategoryFactory(position=1)
-        self.forum = ForumFactory(
-            category=self.category1,
-            position_in_category=1)
-        self.forum2 = ForumFactory(
-            category=self.category1,
-            position_in_category=2)
+        self.forum = ForumFactory(category=self.category1, position_in_category=1)
+        self.forum2 = ForumFactory(category=self.category1, position_in_category=2)
 
         self.user = ProfileFactory().user
-        log = self.client.login(
-            username=self.user.username,
-            password='hostel77')
+        log = self.client.login(username=self.user.username, password="hostel77")
         self.assertEqual(log, True)
 
         self.tag = TagFactory()
@@ -43,11 +33,12 @@ class LastTopicsFeedRSSTest(TestCase):
     def test_is_well_setup(self):
         """ Test that base parameters are Ok """
 
-        self.assertEqual(self.topicfeed.link, '/forums/')
-        reftitle = 'Derniers sujets sur {}'.format(settings.ZDS_APP['site']['literal_name'])
+        self.assertEqual(self.topicfeed.link, "/forums/")
+        reftitle = "Derniers sujets sur {}".format(settings.ZDS_APP["site"]["literal_name"])
         self.assertEqual(self.topicfeed.title, reftitle)
-        refdescription = ('Les derniers sujets créés '
-                          'sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name']))
+        refdescription = "Les derniers sujets créés " "sur le forum de {}.".format(
+            settings.ZDS_APP["site"]["literal_name"]
+        )
         self.assertEqual(self.topicfeed.description, refdescription)
 
         atom = LastTopicsFeedATOM()
@@ -57,10 +48,10 @@ class LastTopicsFeedRSSTest(TestCase):
         """ Get object should return the given parameteres in an object """
 
         factory = RequestFactory()
-        request = factory.get(reverse('topic-feed-rss') + '?forum=fofo&tag=tatag')
+        request = factory.get(reverse("topic-feed-rss") + "?forum=fofo&tag=tatag")
         obj = self.topicfeed.get_object(request=request)
-        self.assertEqual(obj['forum'], 'fofo')
-        self.assertEqual(obj['tag'], 'tatag')
+        self.assertEqual(obj["forum"], "fofo")
+        self.assertEqual(obj["tag"], "tatag")
 
     def test_items_success(self):
         """ test that right items are sent back according to obj """
@@ -71,15 +62,15 @@ class LastTopicsFeedRSSTest(TestCase):
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 2)
         # test with a tag
-        obj = {'tag': self.tag.pk}
+        obj = {"tag": self.tag.pk}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 1)
         # test with a forum
-        obj = {'forum': self.topic1.forum.pk}
+        obj = {"forum": self.topic1.forum.pk}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 1)
         # test with a forum and a tag
-        obj = {'forum': self.topic1.forum.pk, 'tag': self.tag.pk}
+        obj = {"forum": self.topic1.forum.pk, "tag": self.tag.pk}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
 
@@ -87,17 +78,17 @@ class LastTopicsFeedRSSTest(TestCase):
         """ test that right items are sent back according to obj """
 
         # test empty values, return value shoulb be empty
-        obj = {'forum': -1, 'tag': -1}
+        obj = {"forum": -1, "tag": -1}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
-        obj = {'forum': -1}
+        obj = {"forum": -1}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
-        obj = {'tag': -1}
+        obj = {"tag": -1}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
         # with a weird object
-        obj = {'forum': 'lol'}
+        obj = {"forum": "lol"}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
 
@@ -105,15 +96,15 @@ class LastTopicsFeedRSSTest(TestCase):
         """ test the return value of pubdate """
 
         ref = self.topic2.pubdate
-        topics = self.topicfeed.items(obj={'tag': self.tag.pk})
+        topics = self.topicfeed.items(obj={"tag": self.tag.pk})
         ret = self.topicfeed.item_pubdate(item=topics[0])
         self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """
 
-        ref = '{} dans {}'.format(self.topic2.title, self.topic2.forum.title)
-        topics = self.topicfeed.items(obj={'tag': self.tag.pk})
+        ref = "{} dans {}".format(self.topic2.title, self.topic2.forum.title)
+        topics = self.topicfeed.items(obj={"tag": self.tag.pk})
         ret = self.topicfeed.item_title(item=topics[0])
         self.assertEqual(ret, ref)
 
@@ -121,7 +112,7 @@ class LastTopicsFeedRSSTest(TestCase):
         """ test the return value of description """
 
         ref = self.topic2.subtitle
-        topics = self.topicfeed.items(obj={'tag': self.tag.pk})
+        topics = self.topicfeed.items(obj={"tag": self.tag.pk})
         ret = self.topicfeed.item_description(item=topics[0])
         self.assertEqual(ret, ref)
 
@@ -129,7 +120,7 @@ class LastTopicsFeedRSSTest(TestCase):
         """ test the return value of author name """
 
         ref = self.topic2.author.username
-        topics = self.topicfeed.items(obj={'tag': self.tag.pk})
+        topics = self.topicfeed.items(obj={"tag": self.tag.pk})
         ret = self.topicfeed.item_author_name(item=topics[0])
         self.assertEqual(ret, ref)
 
@@ -137,7 +128,7 @@ class LastTopicsFeedRSSTest(TestCase):
         """ test the return value of author link """
 
         ref = self.topic2.author.get_absolute_url()
-        topics = self.topicfeed.items(obj={'tag': self.tag.pk})
+        topics = self.topicfeed.items(obj={"tag": self.tag.pk})
         ret = self.topicfeed.item_author_link(item=topics[0])
         self.assertEqual(ret, ref)
 
@@ -145,34 +136,24 @@ class LastTopicsFeedRSSTest(TestCase):
         """ test the return value of item link """
 
         ref = self.topic2.get_absolute_url()
-        topics = self.topicfeed.items(obj={'tag': self.tag.pk})
+        topics = self.topicfeed.items(obj={"tag": self.tag.pk})
         ret = self.topicfeed.item_link(item=topics[0])
         self.assertEqual(ret, ref)
 
 
 class LastPostFeedTest(TestCase):
-
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
 
-        settings.EMAIL_BACKEND = \
-            'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 
         self.category1 = ForumCategoryFactory(position=1)
-        self.forum = ForumFactory(
-            category=self.category1,
-            position_in_category=1)
-        self.forum2 = ForumFactory(
-            category=self.category1,
-            position_in_category=2)
-        self.forum3 = ForumFactory(
-            category=self.category1,
-            position_in_category=3)
+        self.forum = ForumFactory(category=self.category1, position_in_category=1)
+        self.forum2 = ForumFactory(category=self.category1, position_in_category=2)
+        self.forum3 = ForumFactory(category=self.category1, position_in_category=3)
 
         self.user = ProfileFactory().user
-        log = self.client.login(
-            username=self.user.username,
-            password='hostel77')
+        log = self.client.login(username=self.user.username, password="hostel77")
         self.assertEqual(log, True)
 
         self.tag = TagFactory()
@@ -199,11 +180,12 @@ class LastPostFeedTest(TestCase):
     def test_is_well_setup(self):
         """ Test that base parameters are Ok """
 
-        self.assertEqual(self.postfeed.link, '/forums/')
-        reftitle = 'Derniers messages sur {}'.format(settings.ZDS_APP['site']['literal_name'])
+        self.assertEqual(self.postfeed.link, "/forums/")
+        reftitle = "Derniers messages sur {}".format(settings.ZDS_APP["site"]["literal_name"])
         self.assertEqual(self.postfeed.title, reftitle)
-        refdescription = ('Les derniers messages '
-                          'parus sur le forum de {}.'.format(settings.ZDS_APP['site']['literal_name']))
+        refdescription = "Les derniers messages " "parus sur le forum de {}.".format(
+            settings.ZDS_APP["site"]["literal_name"]
+        )
         self.assertEqual(self.postfeed.description, refdescription)
 
         atom = LastPostsFeedATOM()
@@ -213,10 +195,10 @@ class LastPostFeedTest(TestCase):
         """ Get object should return the given parameteres in an object """
 
         factory = RequestFactory()
-        request = factory.get(reverse('post-feed-rss') + '?forum=fofo&tag=tatag')
+        request = factory.get(reverse("post-feed-rss") + "?forum=fofo&tag=tatag")
         obj = self.postfeed.get_object(request=request)
-        self.assertEqual(obj['forum'], 'fofo')
-        self.assertEqual(obj['tag'], 'tatag')
+        self.assertEqual(obj["forum"], "fofo")
+        self.assertEqual(obj["tag"], "tatag")
 
     def test_items_success(self):
         """ test that right items are sent back according to obj """
@@ -227,15 +209,15 @@ class LastPostFeedTest(TestCase):
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 5)
         # test with a tag
-        obj = {'tag': self.tag.pk}
+        obj = {"tag": self.tag.pk}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 2)
         # test with a forum
-        obj = {'forum': self.topic1.forum.pk}
+        obj = {"forum": self.topic1.forum.pk}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 2)
         # test with a forum and a tag
-        obj = {'forum': self.topic1.forum.pk, 'tag': self.tag.pk}
+        obj = {"forum": self.topic1.forum.pk, "tag": self.tag.pk}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
 
@@ -243,17 +225,17 @@ class LastPostFeedTest(TestCase):
         """ test that right items are sent back according to obj """
 
         # test empty values, return value shoulb be empty
-        obj = {'forum': -1, 'tag': -1}
+        obj = {"forum": -1, "tag": -1}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
-        obj = {'forum': -1}
+        obj = {"forum": -1}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
-        obj = {'tag': -1}
+        obj = {"tag": -1}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
         # with a weird object
-        obj = {'forum': 'lol'}
+        obj = {"forum": "lol"}
         topics = self.postfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
 
@@ -261,15 +243,15 @@ class LastPostFeedTest(TestCase):
         """ test the return value of pubdate """
 
         ref = self.post3.pubdate
-        posts = self.postfeed.items(obj={'tag': self.tag2.pk})
+        posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_pubdate(item=posts[0])
         self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
         """ test the return value of title """
 
-        ref = '{}, message #{}'.format(self.post3.topic.title, self.post3.pk)
-        posts = self.postfeed.items(obj={'tag': self.tag2.pk})
+        ref = "{}, message #{}".format(self.post3.topic.title, self.post3.pk)
+        posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_title(item=posts[0])
         self.assertEqual(ret, ref)
 
@@ -277,7 +259,7 @@ class LastPostFeedTest(TestCase):
         """ test the return value of description """
 
         ref = self.post3.text_html
-        posts = self.postfeed.items(obj={'tag': self.tag2.pk})
+        posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_description(item=posts[0])
         self.assertEqual(ret, ref)
 
@@ -285,7 +267,7 @@ class LastPostFeedTest(TestCase):
         """ test the return value of author name """
 
         ref = self.post3.author.username
-        posts = self.postfeed.items(obj={'tag': self.tag2.pk})
+        posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_author_name(item=posts[0])
         self.assertEqual(ret, ref)
 
@@ -293,7 +275,7 @@ class LastPostFeedTest(TestCase):
         """ test the return value of author link """
 
         ref = self.post3.author.get_absolute_url()
-        posts = self.postfeed.items(obj={'tag': self.tag2.pk})
+        posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_author_link(item=posts[0])
         self.assertEqual(ret, ref)
 
@@ -301,6 +283,6 @@ class LastPostFeedTest(TestCase):
         """ test the return value of item link """
 
         ref = self.post3.get_absolute_url()
-        posts = self.postfeed.items(obj={'tag': self.tag2.pk})
+        posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_link(item=posts[0])
         self.assertEqual(ret, ref)

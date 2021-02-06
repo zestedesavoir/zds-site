@@ -28,7 +28,7 @@
     <div class="topic-list navigable-list">
         {% for topic in privatetopics %}
             <div class="topic {% if topic.is_unread %}unread{% endif %} navigable-elem">
-                <div class="topic-infos">
+                <div class="topic-infos is-vertically-centered">
                     <input name="items" type="checkbox" value="{{ topic.pk }}" form="delete-conversations">
                 </div>
                 {% with profile=topic.author|profile %}
@@ -39,20 +39,24 @@
                             <span class="topic-subtitle">{{ topic.subtitle }}</span>
                         </a>
 
-                        <p class="topic-members">
-                            <span class="topic-members-label">
+                        <div class="topic-members members">
+                            <span class="authors-label">
                                 {% blocktrans with plural=topic.participants.all|length|pluralize_fr %}
-                                    Participant{{ plural }} :
+                                    Participant{{ plural }} :
                                 {% endblocktrans %}
                             </span>
-                            <em>
-                                {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
-                            </em>
+                            <ul>
+                                <li>
+                                    <em>
+                                        {% include "misc/member_item.part.html" with member=topic.author avatar=True %}
+                                    </em>
+                                </li>
 
-                            {% for member in topic.participants.all %}
-                                {% include "misc/member_item.part.html" with avatar=True %}
-                            {% endfor %}
-                        </p>
+                                {% for member in topic.participants.all %}
+                                    <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
                     </div>
                 {% endwith %}
                 {% with post_count=topic.get_post_count %}
@@ -109,7 +113,7 @@
                     </p>
 
                     {% csrf_token %}
-                    <button type="submit" name="delete" class="btn">{% trans "Confirmer" %}</button>
+                    <button type="submit" name="delete" class="btn btn-submit">{% trans "Confirmer" %}</button>
                 </form>
             </li>
         </ul>

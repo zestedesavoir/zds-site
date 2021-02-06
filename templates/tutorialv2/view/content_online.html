@@ -106,32 +106,11 @@
 
 
 {% block content %}
-    <div class="opinion-alerts">
-        {% if is_staff %}
-            {% for alert in alerts %}
-                <div class="alert-box{% if not alert.solved %} error{% endif %}">
-                    {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                    {% include "misc/member_item.part.html" with member=alert.author %} :
-                    <em class="alert-box-text">{{ alert.text }}</em>
-                    {% if alert.solved %}
-                        <span class="close-alert-box close-alert-box-text">
-                            {% trans "Résolu par" %}
-                            {% include "misc/member_item.part.html" with member=alert.moderator %}
-                        </span>
-                    {% else %}
-                        <a href="#solve-content-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
-                        <form id="solve-content-{{ alert.pk }}" method="post" action="{% url 'content:resolve-content' alert.pk %}" class="modal modal-flex">
-                            <textarea name="text" class="input" placeholder="{% trans "Message à envoyer au membre ayant lancé l’alerte" %}"></textarea>
-                            <input type="hidden" name="alert_pk" value="{{ alert.pk }}">
-
-                            {% csrf_token %}
-                            <button type="submit" name="delete-post" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
-                        </form>
-                    {% endif %}
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
+    {% if is_staff %}
+        <div class="opinion-alerts">
+            {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='content:resolve-content' %}
+        </div>
+    {% endif %}
 
     {% if content.is_opinion %}
         {% if content.converted_to %}
@@ -273,12 +252,7 @@
                     </a>
                 </li>
                 <li>
-                    <button data-export-button="{% url "api:content:generate_export" content.pk %}" class="ico-after gear blue"
-                    data-success-text="{% trans "Export en cours, veuillez attendre quelques minutes" %}"
-                    data-error-text="{% trans "La demande d'export a échoué" %}"
-                    data-base-text="{% trans "Exporter le contenu (epub, pdf, latex...)" %}">
-                        {% trans "Exporter le contenu (epub, pdf, latex...)" %}
-                    </button>
+                    {% include "tutorialv2/includes/exports.part.html" %}
                 </li>
                 {% if is_staff %}
                     {% if content.requires_validation %}
@@ -338,7 +312,7 @@
                                         Il sera dépublié et ne pourra pas être republié.
                                     {% endblocktrans %}
                                 </p>
-                                <button type="submit">
+                                <button type="submit" class="btn btn-submit">
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>
@@ -373,9 +347,9 @@
             </ul>
         </div>
     {% endif %}
-    {% if is_staff %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Editorialisation">
-        {%  include "tutorialv2/includes/editorialization.part.html"  %}
+    {% if is_staff or is_author %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
+            {%  include "tutorialv2/includes/editorialization.part.html"  %}
         </div>
     {% endif %}
     {% include "misc/social_buttons.part.html" with link=content.get_absolute_url_online text=content.title %}

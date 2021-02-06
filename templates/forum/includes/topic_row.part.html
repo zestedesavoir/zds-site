@@ -47,7 +47,7 @@
             <span class="topic-members">
                 <span class="topic-members-label">{% trans "Par" %}</span>
                 <em>
-                    {% include "misc/member_item.part.html" with member=topic.author %}
+                    {% include "misc/member_item.part.html" with member=topic.author inline=True link=True %}
                 </em>
                 <span class="topic-members-label">
                     -

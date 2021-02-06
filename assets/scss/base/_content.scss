@@ -2,15 +2,24 @@
  * Base styling for content.
  * This is included in layout/_content.scss and zmd.scss
  */
+p,
+> a,
+p a,
+th,
+td,
+ul:not(.pagination),
+ol:not(.summary-part) {
+    line-height: 1.6;
+}
 
 h2,
 h3 {
-    clear: both;
+    margin-top: $length-48;
+    line-height: 1.4;
 
     &,
     a {
-        color: darken($color-secondary, 11%);
-        margin-top: 40px;
+        color: $accent-700;
         text-decoration: none;
     }
 
@@ -21,76 +30,91 @@ h3 {
 }
 
 h2 {
-    font-size: 22px;
-    font-size: 2.2rem;
-    line-height: 50px;
-    margin-bottom: 20px;
-    background: #FFF;
-    border-top: 1px solid #e0e4e5;
-    padding-left: 1%;
+    display: flex;
+    align-items: center;
+
+    margin-bottom: $length-20;
+    padding: $length-6 $length-8;
+
+    border-top: $length-1 solid $grey-100;
+
+    background: $true-white;
+
     font-weight: 400;
+    font-size: $font-size-6;
+
+    a {
+        flex: 2;
+    }
 
     &.not-ready a {
-        color: $color-not-ready-content;
+        color: $grey-500;
+    }
+
+    .actions-title {
+        margin: 0 $length-10;
+
+        .btn {
+            height: $length-32;
+
+            margin-left: $length-4;
+
+            background-color: $grey-100;
+            color: $grey-600;
+
+            font-size: $font-size-9;
+            line-height: 2;
+
+            z-index: 1;
+
+            transition: color .1s ease-in-out,
+                        background-color .1s ease-in-out;
+
+            &.ico-after:after {
+                margin-top: $length-8;
+            }
+
+            &:hover,
+            &:focus {
+                color: $grey-800;
+                background-color: $grey-200;
+                text-decoration: none;
+            }
+        }
     }
 }
 
 h3 {
-    font-size: 20px;
-    font-size: 2.0rem;
-    margin-bottom: 14px;
+    margin-bottom: $length-14;
+    font-size: $font-size-7;
+
     &.not-ready a {
-        color: $color-not-ready-content;
+        color: $grey-500;
     }
 }
 
 h4 {
-    font-size: 18px;
-    font-size: 1.8rem;
-    margin-bottom: 12px;
+    margin-bottom: $length-12;
+    font-size: $font-size-8;
 }
 
 h5 {
-    font-size: 16px;
-    font-size: 1.6rem;
-    margin-bottom: 10px;
+    margin-bottom: $length-10;
+    font-size: $font-size-9;
 }
 
 h6 {
-    font-size: 15px;
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-}
-
-.actions-title {
-    float: right;
-    margin: -60px 10px 0 0;
-
-    .btn {
-        height: 30px;
-        line-height: 30px;
-        margin-left: 3px;
-        opacity: .7;
-        z-index: 1;
-
-        &.ico-after:after {
-            margin-top: 7px;
-        }
-
-        &:hover,
-        &:focus {
-            opacity: 1;
-        }
-    }
+    margin-bottom: $length-10;
+    font-size: $font-size-10;
 }
 
 
 
 .custom-block {
-    margin: 25px 0;
+    margin: $length-24 0;
 }
 .custom-block-body {
-    padding: 7px 15px 7px 45px;
+    padding: $length-8 $length-16 $length-8 $length-48;
 
     &:after{
         position: absolute;
@@ -102,67 +126,109 @@ h6 {
     }
 }
 .custom-block-heading {
-    padding: 3px 15px 3px 15px;
+    padding: $length-4 $length-16;
     font-weight: bold;
 }
 .custom-block-information {
-    background: #daeaee;
+    background: $blue-000;
 
     .custom-block-heading {
-        color: white;
-        background: lighten(#1C80B5, 20%);
+        color: $white;
+        background: $blue-400;
     }
 
-    .custom-block-body:after {
-        @include sprite-position($information);
+    .custom-block-body {
+        &:after {
+            @include sprite-position($information);
+        }
+
+        a {
+            color: $blue-500;
+
+            &:hover {
+                color: $blue-800;
+            }
+        }
     }
 }
 .custom-block-question {
-    background: #e2daee;
+    background: $purple-100;
 
     .custom-block-heading {
-        color: white;
-        background: lighten(#541BAC, 25%);
+        color: $white;
+        background: $purple-700;
     }
 
-    .custom-block-body:after {
-        @include sprite-position($question);
+    .custom-block-body {
+        &:after {
+            @include sprite-position($question);
+        }
+
+        a {
+            color: $purple-700;
+
+            &:hover {
+                color: $purple-900;
+            }
+        }
     }
 }
 .custom-block-error {
-    background: #eedada;
+    background: $red-100;
 
     .custom-block-heading {
-        color: white;
-        background: lighten(#B51C1C, 20%);
+        color: $white;
+        background: $red-500;
     }
 
-    .custom-block-body:after {
-        @include sprite-position($error);
+    .custom-block-body {
+        &:after {
+            @include sprite-position($error);
+        }
+
+        a {
+            color: $red-700;
+
+            &:hover {
+                color: $red-900;
+            }
+        }
     }
 }
 .custom-block-warning {
-    background: #eee7da;
+    background: $accent-100;
 
     .custom-block-heading {
-        color: white;
-        background: lighten(#E6A224, 10%);
+        color: $white;
+        background: $accent-800;
     }
 
-    .custom-block-body:after {
-        @include sprite-position($warning);
+    .custom-block-body {
+        &:after {
+            @include sprite-position($warning);
+        }
+
+        a {
+            color: $accent-900;
+
+            &:hover {
+                color: $accent-800;
+            }
+        }
     }
 }
 .custom-block-neutral,
 .custom-block-spoiler {
-    background: #EEE;
+    background: $grey-100;
 
     .custom-block-heading {
-        color: white;
-        background: darken(#EEE, 40%);
+        color: $white;
+        background: $grey-600;
     }
 
     .custom-block-body {
+        padding-left: $length-16;
+
         &:after {
             display: none;
         }
@@ -172,21 +238,26 @@ h6 {
 .js .spoiler, .custom-block-spoiler {
     display: none;
 }
+
 .spoiler-title {
     display: block;
-    background: #EEE;
-    margin: 15px 0;
-    padding: 3px 15px 3px 40px;
+
+    margin: $length-16 0 0;
+    padding: $length-4 $length-16 $length-4 $length-32;
+
+    background: $grey-100;
+    border-bottom: $length-1 solid $grey-200;
+
+    font-size: $font-size-10;
+    color: $grey-700;
     text-decoration: none;
-    border-bottom: 1px solid #DDD;
-    color: #555;
 
     &.ico-after:after {
-        margin: 8px 0 0 10px;
+        margin: $length-8 0 0 $length-10;
     }
 
     &:nth-last-child(2) {
-        margin-bottom: 15px;
+        margin-bottom: $length-16;
     }
 
     &:hover {
@@ -201,44 +272,76 @@ h6 {
     &.error,
     &.warning,
     &.spoiler {
-        margin: 25px 0;
-        padding: 7px 15px 7px 45px;
+        margin: $length-24 0;
+        padding: $length-8 $length-14 $length-8 $length-48;
 
         &.ico-after:after {
             position: absolute;
             top: 50%;
-            left: 23px;
-            margin: -11px 0 0 -11px;
+            left: $length-16;
+            margin: -$length-12 0 0 -$length-12;
             height: 22px;
             width: 22px;
         }
     }
     &.information {
-        background: #daeaee;
+        background: $blue-000;
 
         &.ico-after:after {
             @include sprite-position($information);
         }
+
+        a {
+            color: $blue-500;
+
+            &:hover {
+                color: $blue-800;
+            }
+        }
     }
     &.question {
-        background: #e2daee;
+        background: $purple-100;
 
         &.ico-after:after {
             @include sprite-position($question);
         }
+
+        a {
+            color: $purple-700;
+
+            &:hover {
+                color: $purple-900;
+            }
+        }
     }
     &.error {
-        background: #eedada;
+        background: $red-100;
 
         &.ico-after:after {
             @include sprite-position($error);
         }
+
+        a {
+            color: $red-700;
+
+            &:hover {
+                color: $red-900;
+            }
+        }
     }
     &.warning {
-        background: #eee7da;
+        background: $accent-100;
 
         &.ico-after:after {
             @include sprite-position($warning);
+        }
+
+        a {
+            color: $accent-900;
+
+            &:hover {
+                color: $accent-800;
+            }
         }
     }
 }
@@ -246,9 +349,8 @@ h6 {
 .spoiler,
 .custom-block-spoiler {
     margin-top: 0;
-    background: #EEE;
+    background: $grey-100;
 }
-
 
 
 img {
@@ -256,7 +358,7 @@ img {
 }
 
 figure {
-    margin: 30px 0;
+    margin: $length-32 0;
     text-align: center;
 }
 
@@ -286,17 +388,17 @@ figure > {
     }
 
     blockquote ~ figcaption {
-        padding: 0 0 1px 2%;
+        padding: 0 0 $length-1 2%;
         font-style: italic;
         text-align: left;
-        color: #999;
-        border-left: 5px solid #CCC;
+        color: $grey-600;
+        border-left: $length-6 solid $grey-200;
 
         p {
-            margin: 0 0 5px;
+            margin: 0 0 $length-6;
         }
 
-        p:before {
+        &:before {
             content: "— ";
         }
     }
@@ -304,24 +406,24 @@ figure > {
 
 blockquote {
     margin: 0;
-    color: #777;
-    padding: 1px 2%;
-    border-left: 5px solid #CCC;
+    color: $grey-700;
+    padding: $length-1 2%;
+    border-left: $length-6 solid $grey-200;
 
     & > p:first-child {
-        margin-top: 5px;
+        margin-top: $length-6;
     }
 
     & > p:last-child {
-        margin-bottom: 5px;
+        margin-bottom: $length-6;
     }
 
     figure {
-        margin: 15px 0;
+        margin: $length-16 0;
     }
 
     &:last-child {
-        margin-bottom: 15px;
+        margin-bottom: $length-16;
     }
 }
 
@@ -333,50 +435,20 @@ samp {
 }
 
 // code
-.hljs-code-div {
-  font-family: $font-monospace;
-  background-color: #fff;
-  margin: 0 auto;
-  padding: 0.5em;
-  border-radius: .25em;
-  display: flex;
-
-  line-height: 18px;
-  font-family: $font-monospace;
-  font-style: normal;
-  font-size: 14px;
-
-  .hljs-line-numbers {
-    counter-reset: line;
-    border-right: 1px solid #ddd;
-    margin: 0;
-    padding: .5em;
-    color: #888;
-    text-align: right;
-
-    span::before {
-      counter-increment: line;
-      content: counter(line);
-      display: block;
-    }
-  }
-  pre {
-    margin: 0;
-    width: 100%;
-    overflow-x: auto;
-  }
-}
-
+@import "base/source-code";
 
 // touche
 kbd {
-    background-color: $color-keyboard;
-    padding: 2px 6px;
-    border-radius: 3px;
-    border: solid 1px desaturate(darken($color-keyboard, 15%), 10%);
-    border-bottom-width: 3px;
-    text-shadow: 0 1px 0 #FFF;
-    color: darken($color-keyboard, 70%);
+    padding: $length-2 $length-6;
+
+    border: solid $length-1 $accent-200;
+    border-bottom-width: $length-4;
+    border-radius: $radius-1;
+
+    background-color: $accent-000;
+
+    color: $accent-900;
+    text-shadow: 0 $length-1 0 $white;
 }
 
 // Code inline
@@ -384,12 +456,30 @@ p,
 li,
 td {
     code:not(.hljs) {
-        color: #A00;
-        background: #EEE;
-        border: 1px solid #CCC;
-        padding: 0 5px;
+        --code-inline-color: #{$primary-900};
+        --code-inline-background: #{$grey-100};
+
+        color: var(--code-inline-color);
+        background: var(--code-inline-background);
+        border-radius: $radius-1;
+        padding: 0 $length-6;
     }
 }
+
+// Code inline with colors adapted for the custom blocks
+@mixin custom_block_code($block, $color, $background) {
+    .custom-block-#{$block}, .#{$block}:not(.alert-box) {
+        code:not(.hljs) {
+            --code-inline-color: #{$color};
+            --code-inline-background: #{$background};
+        }
+    }
+}
+
+@include custom_block_code("information", $blue-900, $blue-100);
+@include custom_block_code("question", $purple-800, $purple-000);
+@include custom_block_code("warning", $accent-900, $accent-000);
+@include custom_block_code("error", $red-700, $red-000);
 
 // @ping
 .ping {
@@ -400,6 +490,7 @@ td {
     &:focus {
         text-decoration: underline;
     }
+
     .ping-username {
       font-weight: bold;
     }
@@ -410,18 +501,24 @@ td {
     overflow: auto;
 
     mathjax {
-        font-size: 16px;
-        font-size: 1.6rem;
+        font-size: $length-16;
+        font-size: $font-size-9;
     }
 }
 
 .footnote, .footnotes{
-    opacity: .7;
+    opacity: .8;
 
     ol {
-        padding-left: 25px;
+        padding-left: $length-24;
+
         p {
             display: inline;
+        }
+
+        .footnote-backref {
+            margin-left: $length-4;
+            text-decoration: none;
         }
     }
 }
@@ -451,6 +548,7 @@ td {
 .katex-display > .katex {
     display: contents;  /* overrides katex.css that creates display:inline-block and generate bad box */
 }
+
 .inlineMathDouble .katex {
     max-width: 100%;
     overflow-x: auto;
@@ -470,16 +568,6 @@ div.align-left, figure pre code.hljs {
     text-align: left;
 }
 
-.language-console {
-    color: $color-console-text;
-    background-color: $color-console-bg;
-    font-family: Source Code Pro,monospace,serif;
-    display: block;
-    overflow-x: auto;
-    padding: .5em;
-
-}
-
 // checkbox menu
 
 ul li p {
@@ -491,12 +579,14 @@ li.task-list-item {
     position: relative;
 
     input[type=checkbox] {
-        top: 4px;
         position: absolute;
-        left: -20px;
+        top: $length-2;
+        left: -$length-24;
+
+        background-color: $true-white !important;
     }
 }
 
 .warn-typo {
-    height: 20px;
+    height: $length-20;
 }

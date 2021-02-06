@@ -1,9 +1,27 @@
 div.msg-are-hidden {
+    position: relative;
+    z-index: 1;
     text-align: center;
-    margin: -15px 0;
+    margin: 0;
+
     a {
-        color: #999;
-        font-size: 12px;
+        color: $grey-400;
+        font-size: $font-size-11;
+    }
+
+    & ~ .topic-message.hidden + .topic-message:not(.hidden) {
+        margin-top: 10px;
+
+        @include until-desktop {
+            margin-top: 0;
+            padding-top: 5px;
+        }
+    }
+    & + .topic-message.hidden + .pagination {
+        margin-top: 10px;
+    }
+    .topic-message + & {
+        margin-top: -15px;
     }
 }
 
@@ -14,15 +32,16 @@ div.msg-are-hidden {
         .message {
             &,
             .is-author {
-                background: #EEE;
+                background: $grey-000;
             }
 
             &:after {
-                border-right-color: #EEE;
+                border-right-color: $grey-000;
             }
         }
     }
-    &.helpful {
+
+    &.helpful:not(.potential-spam) {
         .message {
             &,
             .is-author {
@@ -37,11 +56,28 @@ div.msg-are-hidden {
             .message {
                 &,
                 .is-author {
-                    background: desaturate($color-helpful, 50%);
+                    background: rgba($color-helpful, .4);
                 }
+            }
+        }
+    }
 
-                &:after {
-                    border-right-color: desaturate($color-helpful, 50%);
+    &.potential-spam {
+        .message {
+            &,
+            .is-author {
+                background: $color-potential-spam;
+            }
+
+            &:after {
+                border-right-color: $color-potential-spam;
+            }
+        }
+        &.repeated {
+            .message {
+                &,
+                .is-author {
+                    background: rgba($color-potential-spam, .5);
                 }
             }
         }
@@ -51,73 +87,87 @@ div.msg-are-hidden {
         .message {
             &,
             .is-author {
-                background: #EEE;
+                background: $grey-100;
             }
             &:after {
-                border-right-color: #EEE;
+                border-right-color: $grey-100;
             }
         }
+
         .user .avatar-link img {
             opacity: 0.8;
         }
+
         & + .pagination, & + .alert-box {
-            margin-top: 25px;
+            margin-top: $length-24;
         }
     }
 
     .user {
+        margin-top: $length-6;
+
         .avatar-link {
-            display: block;
-            height: 58px;
-            width: 58px;
-            z-index: 0;
             position: absolute;
             top: 0;
-            border: 1px solid #DDD;
+
+            display: block;
+
+            width: $length-48;
+            height: $length-48;
+
+            border: $length-1 solid $white;
+
+            z-index: 0;
 
             &[href]:hover,
             &[href]:focus {
-                border-color: #FFF;
+                border-color: $true-white;
+                box-shadow: rgba($black, .3) 0 $length-1 $length-8;
+
                 overflow: hidden;
-                box-shadow: rgba(0, 0, 0, .3) 0 1px 7px;
             }
 
             img {
-                height: 58px;
-                width: 58px;
+                height: $length-48;
+                width: $length-48;
             }
         }
+
         .user-metadata {
-            width: 60px;
-            height: 25px;
+            width: $length-48;
+            height: $length-24;
 
             a {
                 display: block;
-                float: left;
-                border: 1px solid #D2D5D6;
+
+                width: 100%;
+                height: 100%;
+
+                border: $length-1 solid $grey-200;
                 border-top: 0;
-                text-align: center;
-                background-color: #edefef;
+
+                background-color: $grey-000;
+
+                color: $grey-500;
                 text-decoration: none;
-                color: #424242;
-                height: 25px;
-                line-height: 26px;
-                width: 58px;
-                color: #777;
+                text-align: center;
+                line-height: 1.6;
+
                 transition: border $transition-duration ease, background $transition-duration ease;
 
                 &:hover,
                 &:focus {
-                    border-bottom-width: 1px;
-                    border-bottom-color: #777;
-                    background: #FFF;
+                    border-bottom-width: $length-1;
+                    border-bottom-color: $primary-600;
+
+                    background: $true-white;
                 }
 
                 &.positive {
-                    color: #48a200;
+                    color: $green-700;
                 }
                 &.negative {
-                    color: #c0392b;
+                    color: $red-700;
                     font-weight: bold;
                 }
             }
@@ -126,33 +176,45 @@ div.msg-are-hidden {
 
     .message {
         position: relative;
-        background-color: #FDFDFD;
-        border: 1px solid #D2D5D6;
-        border-right-width: 2px;
-        border-bottom-width: 3px;
-        min-height: 75px;
+
+        min-height: $length-64;
+
+        border: 1px solid $grey-200;
+        border-right-width: $length-2;
+        border-bottom-width: $length-4;
+
+        background-color: $true-white;
 
         .is-author {
             position: absolute;
-            top: -16px;
-            left: 10px;
-            background: #FDFDFD;
-            padding: 0 5px;
-            font-size: 12px;
-            line-height: 20px;
-            color: #999;
-            border-top: 1px solid #D2D5D6;
+            top: -$length-16;
+            left: $length-10;
+
+            padding: 0 $length-6;
+
+            border-top: 1px solid $grey-200;
+
+            background: $true-white;
+
+            color: $grey-500;
+            font-size: $font-size-11;
+            line-height: 1.5;
 
             &:before,
             &:after {
                 content: " ";
-                display: block;
+
                 position: absolute;
                 top: 0;
-                height: 15px;
-                width: 1px;
-                background: #D2D5D6;
+
+                display: block;
+
+                width: $length-1;
+                height: $length-16 - $length-1; // Align perfectly (off-grid but this will be removed soon anyway).
+
+                background: $grey-200;
             }
+
             &:before {
                 left: 0;
             }
@@ -163,38 +225,43 @@ div.msg-are-hidden {
 
         .message-metadata {
             display: inline-block;
-            font-size: 14px;
-            font-size: 1.4rem;
-            margin-left: 5px;
+            margin-left: $length-6;
+
+            font-size: $font-size-10;
 
             a {
                 display: block;
+                height: $length-32;
+                padding: 0 $length-6;
+
                 float: left;
-                color: #999;
+
+                border-bottom: $length-1 solid $grey-200;
+
+                color: $grey-500;
                 text-decoration: none;
-                height: 30px;
-                line-height: 30px;
-                padding: 0 5px;
-                border-bottom: 1px solid #D2D5D6;
+                line-height: $length-32;
+
                 transition-property: color, outline, border;
                 transition-timing-function: ease;
                 transition-duration: $transition-duration;
 
                 &:hover,
                 &:focus {
-                    border-bottom: 1px solid lighten($color-primary, 15%);
-                    color: lighten($color-primary, 15%);
+                    border-bottom: $length-1 solid $color-link;
+                    color: $color-link;
                     outline: none;
                 }
             }
+
             .username {
-                color: #484848;
-                font-size: 16px;
-                font-size: 1.6rem;
-                margin-right: 3px;
+                color: $grey-800;
+                font-size: $font-size-9;
+                margin-right: $length-4;
             }
+
             .date {
-                line-height: 32px;
+                line-height: $length-32;
 
                 .long-date {
                     display: none;
@@ -203,12 +270,14 @@ div.msg-are-hidden {
         }
 
         .message-actions {
-            margin: 0;
-            padding: 0;
-            list-style: none;
             position: absolute;
             top: 0;
             right: 0;
+
+            margin: 0;
+            padding: 0;
+
+            list-style: none;
 
             li {
                 float: left;
@@ -217,14 +286,14 @@ div.msg-are-hidden {
 
         .message-content {
             clear: both;
-            padding-top: 1px;
+            padding-top: $length-1;
 
             & > div {
                 & > p:first-child {
-                    margin-top: 7px;
+                    margin-top: $length-8;
                 }
                 & > figure:first-child {
-                    margin-top: 8px;
+                    margin-top: $length-8;
                 }
             }
 
@@ -235,92 +304,115 @@ div.msg-are-hidden {
             .message-edited,
             .message-hidden,
             .message-helpful,
+            .message-potential-spam,
             .message-repeated {
-                padding-top: 3px 0 0;
+                padding-top: $length-4 0 0;
 
                 &.ico-after {
-                    text-indent: 20px;
+                    text-indent: $length-20;
 
                     &:after {
-                        margin: 4px 0;
+                        margin: $length-2 0;
                     }
                 }
             }
+
             .message-edited,
             .message-hidden,
             .message-repeated {
                 font-style: italic;
-                color: #999;
 
-                & > a {
-                    color: #999;
+                &, & > a {
+                    color: $grey-500;
                 }
 
                 &:after {
                     opacity: .5;
                 }
             }
+
             .message-hidden {
-                margin-top: 1px;
+                margin-top: $length-1;
             }
-            .message-helpful {
-                color: #48A200;
-                text-indent: 20px;
+
+            .message-helpful:not(.message-potential-spam) {
+                color: $green-800;
+                text-indent: $length-20;
+            }
+
+            .message-potential-spam {
+                color: $red-500;
+                text-indent: $length-20;
             }
 
             textarea {
-                margin: 10px 0 10px -1px;
+                margin: $length-10 0 $length-10 -#{$length-1};
                 background-color: transparent;
-                min-height: 150px;
+                min-height: $length-128;
             }
         }
 
         .message-bottom {
             display: flex;
             align-items: flex-start;
-            min-height: 30px;
+
+            min-height: $length-32;
 
             .signature {
-                border-top: 1px solid #D2D5D6;
-                padding: 3px 0 3px 10px;
-                margin: 0 10px 0 0;
-                font-size: 1.15rem;
-                color: #999;
                 flex: 1;
+
+                box-sizing: border-box;
+                height: $length-32;
+
+                margin: 0 $length-10 0 0;
+                padding: $length-4 0 $length-4 $length-10;
+
+                border-top: $length-1 solid $grey-200;
+
+                font-size: $font-size-11;
+                color: $grey-500;
+                line-height: 1.9;
+
                 overflow: hidden;
 
                 p {
                     margin: 0;
                     padding: 0;
+
                     img.smiley {
-                        max-height: 1.6rem;
+                        max-height: $length-16;
                     }
                 }
 
                 a {
-                    color: #999;
+                    color: $grey-500;
                     transition: color $transition-duration ease, text-decoration $transition-duration ease;
 
                     &:hover,
                     &:focus {
                         text-decoration: none;
-                        color: #555;
+                        color: $grey-600;
                     }
                 }
             }
 
             .message-karma {
                 margin-left: auto;
-                margin-bottom: -2px;
+                margin-bottom: -$length-4;
 
                 span,
                 button.ico-after {
                     box-sizing: border-box;
-                    border-bottom-width: 3px;
+                    height: $length-32 + $length-4;
+
+                    border-bottom-width: $length-4;
                     border-bottom-color: transparent;
+
                     background: none !important;
-                    height: 32px;
+
+                    line-height: 1.5;
                 }
+
                 span {
                     &.upvote,
                     &.downvote {
@@ -330,8 +422,9 @@ div.msg-are-hidden {
                         }
                     }
                 }
+
                 button {
-                    // Disable transition for text-indent
+                    // Disables transition for text-indent
                     transition-property: opacity, border;
 
                     &.voted:hover {
@@ -344,7 +437,7 @@ div.msg-are-hidden {
                 .upvote,
                 .downvote {
                     &:after {
-                        left: 10px;
+                        left: $length-10;
                     }
                     &.voted:after {
                         opacity: 1;
@@ -366,6 +459,7 @@ div.msg-are-hidden {
                         font-weight: bold;
                     }
                 }
+
                 .upvote {
                     color: $color-success;
 
@@ -373,6 +467,7 @@ div.msg-are-hidden {
                         border-bottom-color: $color-success;
                     }
                 }
+
                 .downvote {
                     color: $color-danger;
 
@@ -388,38 +483,46 @@ div.msg-are-hidden {
 
                     &:hover,
                     &:focus {
-                        color: #555;
+                        color: $grey-600;
                         border-bottom-color: $color-success;
                     }
                     &.active {
-                        color: #48a200;
+                        color: $green-800;
 
                         &:after {
                             opacity: 1;
                         }
                     }
                 }
+
+                .alert {
+                    &:hover,
+                    &:focus {
+                        border-bottom-color: $red-500;
+                    }
+                }
             }
         }
 
         .message-buttons {
-            margin: 0 0 0 10px;
+            margin: 0 0 0 $length-10;
             padding: 0;
-            list-style: none;
+
             border-bottom: none;
+            list-style: none;
 
             a {
                 text-indent: -9999px;
                 width: 0;
 
                 &:after {
-                    left: 12px !important;
+                    left: $length-12 !important;
                 }
             }
         }
 
         .message-submit {
-            margin: 0 10px 5px auto;
+            margin: 0 $length-10 $length-6 auto;
         }
 
         .message-actions,
@@ -438,39 +541,49 @@ div.msg-are-hidden {
             button {
                 display: block;
                 float: left;
-                margin-left: 3px;
+                margin-left: $length-4;
 
                 &.ico-after {
-                    padding-left: 30px !important;
+                    padding-left: $length-32 !important;
+                    line-height: 2.3;
                 }
 
                 &:after {
-                    top: 7px;
-                    left: 7px;
+                    top: $length-8;
+                    left: $length-8;
                     opacity: .5;
                     margin: 0;
                 }
             }
+
             a,
             .upvote,
             .downvote,
             button.ico-after {
-                border-bottom: 1px solid #D2D5D6;
+                height: $length-32;
+
+                padding: 0 $length-10;
+
+                border-bottom: $length-1 solid $grey-200;
+
+                color: $grey-500;
                 text-decoration: none;
-                color: #999;
-                height: 29px;
-                line-height: 30px;
-                padding: 0 10px;
+
+                &:empty {
+                  padding-right: 0;
+                }
             }
+
             a,
             button.ico-after {
                 cursor: pointer;
 
                 &:hover,
                 &:focus {
-                    border-bottom-color: lighten($color-primary, 15%);
-                    outline: none;
+                    border-bottom-color: $color-link;
                     background: none;
+                    outline: none;
+
                     transition-property: background, border, outline, opacity;
                     transition-timing-function: ease;
                     transition-duration: $transition-duration;
@@ -481,12 +594,13 @@ div.msg-are-hidden {
                 }
             }
         }
+
         .message-actions a,
         .message-buttons a,
         .message-karma button {
             &:hover,
             &:focus {
-                color: #555;
+                color: $grey-600;
                 text-decoration: none;
             }
         }
@@ -496,59 +610,67 @@ div.msg-are-hidden {
         }
     }
 }
+
 form.topic-message {
-    margin-top: 50px;
+    margin-top: $length-48;
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .topic-message {
-        padding: 20px 0;
+        padding: $length-20 0;
 
         .user {
             position: absolute;
-            top: 7px;
-            z-index: 10;
+            top: -.9rem; // Perfect align (temp anyway)
+            left: $length-128;
+
+            display: flex;
+
             width: 100%;
+            z-index: 10;
 
             .avatar-link {
-                float: left;
                 display: none;
             }
 
-            .push-badge {
-                margin-left: 105px;
-            }
-
             .user-metadata {
-                float: right;
-                width: 140px;
-                margin-right: 10px;
+                margin-left: $length-10;
 
                 a {
-                    float: left;
-                    height: 20px;
-                    line-height: 20px;
-                    border-bottom: none;
-                    width: 68px;
+                    box-sizing: border-box;
+
+                    width: $length-64;
+                    height: $length-24;
+
+                    border: $length-1 solid $grey-200;
+                    line-height: $length-20;
                 }
             }
+
+            .badge-sanction + .user-metadata {
+                margin-left: $length-10;
+            }
         }
+
         .message {
             border-right: 0;
             border-left: 0;
-            padding-top: 65px;
+
+            padding-top: $length-64;
 
             .message-metadata {
                 position: absolute;
                 top: 0;
                 left: 0;
-                right: 10px;
+                right: $length-10;
+
+                height: $length-32;
+                line-height: $length-32;
+
                 z-index: 15;
-                height: 30px;
-                line-height: 30px;
 
                 .username {
-                    margin-left: 5px;
+                    margin-left: $length-6;
                 }
 
                 .date {
@@ -557,7 +679,7 @@ form.topic-message {
             }
 
             .message-actions {
-                margin: 35px 10px 0 0;
+                margin: $length-32 $length-10 0 0;
             }
 
             .message-bottom {
@@ -566,23 +688,25 @@ form.topic-message {
                 .signature {
                     display: none;
                 }
+
                 .message-karma {
                     position: absolute;
-                    top: 35px;
-                    left: 7px;
+                    top: $length-32;
+                    left: $length-8;
 
-                    .tick {
+                    .tick,
+                    .alert {
+                        margin-right: $length-1;
                         text-indent: -9999px;
-                        margin-right: 1px;
 
                         &:after {
-                            left: 12px;
+                            left: $length-12;
                         }
                     }
 
                     .upvote,
                     .downvote {
-                        padding: 0 7px;
+                        padding: 0 $length-8;
                         text-align: center;
                     }
                 }
@@ -593,65 +717,76 @@ form.topic-message {
 
 .message-content .message-hat-choice {
     display: inline-block;
-    margin: 10px;
+    margin: $length-10;
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .topic-message {
-        margin: 25px 0;
+        margin: $length-24 0;
 
         &:first-child {
-            margin-top: 35px;
+            margin-top: $length-32;
         }
 
         .user,
         .message {
             &:after {
                 content: " ";
-                display: block;
+
                 position: absolute;
-                top: 10px;
-                height: 0;
+                top: $length-10;
+
+                display: block;
                 width: 0;
-                border: 20px solid transparent;
+                height: 0;
+
+                border: $length-20 solid transparent;
                 border-left: 0;
             }
         }
 
         .user {
             position: absolute;
-            padding-top: 60px;
             top: 0;
             left: 0;
 
-            &:after {
-                left: 60px;
-                border-right-color: #D2D4D6;
-            }
-        }
-        .message {
-            margin-left: 80px;
+            padding-top: $length-48;
 
             &:after {
+                top: $length-4;
+                left: $length-48;
+
+                border-right-color: $grey-200;
+            }
+        }
+
+        .message {
+            // Avatar' size + arrow' size
+            margin-left: $length-48 + $length-20;
+
+            &:after {
+                // Arrow alignment, must be exact
                 top: 9px;
                 left: -19px;
-                border-right-color: #FDFDFD;
+
+                border-right-color: $true-white;
             }
 
             .is-author {
-                left: 5px;
+                left: $length-6;
             }
 
             .message-content {
-                margin: 0 10px;
+                margin: 0 $length-10;
 
                 > :first-child {
-                    margin-top: 5px;
+                    margin-top: $length-6;
                 }
                 > figure:first-child {
-                    margin-top: 10px;
+                    margin-top: $length-10;
                 }
             }
+
             .message-bottom .signature {
                 cursor: pointer;
 
@@ -659,10 +794,12 @@ form.topic-message {
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+
                     img.smiley {
-                        max-height: 1.6rem;
+                        max-height: $length-16;
                     }
                 }
+
                 &.full p {
                     white-space: normal;
                 }
@@ -671,26 +808,28 @@ form.topic-message {
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .topic-message .message {
         .message-actions a {
-            width: 0px;
+            width: 0;
             text-indent: -9999px;
 
             &:after {
-                left: 12px !important;
+                left: $length-12 !important;
             }
         }
+
         .message-submit {
             display: block !important;
-            width: 100%;
             margin: 0;
+
+            width: 100%;
 
             button {
                 float: right;
                 display: block;
-                width: calc(50% - 2px);
-                margin-left: 1px !important;
+                width: calc(50% - #{$length-2});
+                margin-left: $length-1 !important;
 
                 &.btn-grey {
                     float: left;
@@ -702,4 +841,10 @@ form.topic-message {
     form .message {
         padding-top: 0 !important;
     }
+}
+
+// For alerts resolution modals
+.cannot-send-message-with-solved-alert {
+    font-size: $font-size-11;
+    line-height: 1.4;
 }

@@ -1,7 +1,7 @@
 {% load captureas %}
 {% load i18n %}
 {% load set %}
-{% load staticfiles %}
+{% load static %}
 {% load thumbnail %}
 {% load interventions %}
 {% load messages %}
@@ -96,9 +96,8 @@
     <link rel="stylesheet" href="{% static "css/idea.css" %}">
     <link rel="stylesheet" href="{% static "css/katex.min.css" %}">
     <link rel="stylesheet" href="{% static "css/main.css" %}">
-    {% if not debug %}
-        {% block canonical %}{% endblock %}
-    {% endif %}
+
+    {% block canonical %}{% endblock %}
 
     {# Webfont async loading #}
     <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700|Source+Code+Pro:400,700|Merriweather:400,700' rel='stylesheet' type='text/css'>
@@ -158,20 +157,12 @@
 
     {% include "old_browser_warning.html" %}
 
+    {# Must be at the very top (except old browser warning) so it does not overlap anything. #}
+    {% include "very_top_banner.html" %}
+
     <div class="mobile-menu" id="mobile-menu"></div>
 
-
     <div class="page-container">
-        {% with banner=app.very_top_banner %}
-            {% if banner %}
-                <div id="very-top-banner"
-                     style="background-color: {{ banner.background_color }}; color: {{ banner.color }}; border-color: {{ banner.border_color }};"
-                >
-                    <span>{{ banner.message }}</span>
-                    <a aria-hidden="true" href="javascript:document.querySelector('#very-top-banner').remove()">Masquer</a>
-                </div>
-            {% endif %}
-        {% endwith %}
 
         <ul id="accessibility">
             <li>
@@ -181,7 +172,7 @@
                 <a href="#content" accesskey="s">{% trans "Aller au contenu" %}</a>
             </li>
             <li>
-                <a href="#{% block searchbox_id %}search{% endblock %}" accesskey="4">{% trans "Aller à la recherche" %}</a>
+                <a href="#{% block searchbox_id %}search-top{% endblock %}" accesskey="4">{% trans "Aller à la recherche" %}</a>
             </li>
         </ul>
 
@@ -211,7 +202,7 @@
                 </div>
                 <div class="search header-right" id="search">
                     <form action="{% url "search:query" %}">
-                        <input type="text" name="q" placeholder="{% trans "Rechercher" %}" title="{% trans "Contenu de la recherche" %}">
+                        <input id="search-top" type="text" name="q" placeholder="{% trans "Rechercher" %}" title="{% trans "Contenu de la recherche" %}">
                         <button type="submit" class="ico-after search-submit" title="{% trans "Lancer la recherche" %}">{% trans "OK" %}</button>
                     </form>
                     <a href="{% url "search:query" %}" title="{% trans "Recherche avancée" %}" class="search-more"></a>
@@ -267,15 +258,15 @@
 
 
     {# Javascript stuff start #}
-    <script src="{% static "js/script.js" %}"></script>
-
+    <script src="{% static "js/jquery.min.js" %}"></script>
     {% block extra_js %}
     {% endblock %}
-
+    <script src="{% static "js/script.js" %}"></script>
 
 
     {# Google Analytics #}
     {% if debug or app.google_analytics_enabled %}
+    <script src="{% static "js/cookies-eu-banner.min.js" %}"></script>
     <script>
         new CookiesEuBanner(function(){
             {% if app.google_analytics_enabled %}

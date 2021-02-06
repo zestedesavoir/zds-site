@@ -1,19 +1,15 @@
 /* ===== Zeste de Savoir ====================================================
    Close alert-boxes
    ---------------------------------
-   Author: Alex-D / Alexandre Demode
+   Author: Alex-D / Alexandre Demode, firm1
    ========================================================================== */
 
-(function($) {
-  'use strict'
-
-  $('.main').on('click', '.close-alert-box:not(.open-modal)', function(e) {
-    $(this).parents('.alert-box:first').slideUp(150, function() {
-      $(this).remove()
+(function() {
+  window.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', e => {
+      if (!e.target.classList.contains('close-alert-box')) return
+      e.target.parentElement.remove()
+      e.preventDefault()
     })
-    $(this).parents('.markdown-help:first').slideUp(150, function() {
-      $(this).remove()
-    })
-    e.preventDefault()
   })
-})(jQuery)
+})()

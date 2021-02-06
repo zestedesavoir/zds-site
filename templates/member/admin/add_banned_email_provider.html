@@ -1,0 +1,52 @@
+{% extends "member/admin/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Bannir un fournisseur" %} &bull; {% trans "Gestion des fournisseurs bannis" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        <a href="{% url 'banned-email-providers' %}">
+            {% trans "Gestion des fournisseurs bannis" %}
+        </a>
+    </li>
+    <li>
+        {% trans "Bannir un fournisseur" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Bannir un fournisseur" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>{% trans "Vous pouvez utiliser :" %}</p>
+
+    <ul>
+        <li>{% trans "Un nom de domaine complet (« fournisseur.tld »)." %}</li>
+        <li>{% trans "Un nom de domaine sans extension (« fournisseur. »), auquel cas elle seront toutes concernées." %}</li>
+    </ul>
+
+    <div class="content-wrapper">
+        {% crispy form %}
+    </div>
+{% endblock %}
+
+{% block sidebar_actions %}
+    <div>
+        <a href="{% url "banned-email-providers" %}" class="new-btn ico-after arrow-left blue">
+            {% blocktrans %}
+                Retour <span class="wide">aux fournisseurs</span>
+            {% endblocktrans %}
+        </a>
+    </div>
+{% endblock %}

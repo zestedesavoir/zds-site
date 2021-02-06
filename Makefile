@@ -6,10 +6,15 @@ install-linux: ## Install the minimal components needed
 install-linux-full: ## Install all the components needed
 	./scripts/install_zds.sh +full
 
+update: install-back install-front zmd-install migrate-db build-front ## Update the environment (`install-back` & `install-front` & `zmd-install` & `migrate-db` & `build-front`)
+
 new-db: wipe-db migrate-db generate-fixtures ## Create a new full database (`wipe-db` & `migrate-db` & `generate-fixtures`)
 
 run: ## Run the backend server and watch the frontend (`watch-front` in parallel with `run-back`)
 	make -j2 watch-front run-back
+
+run-fast: ## Run the backend in fast mode (no debug toolbar & full cache) and watch the frontend (`watch-front` + `run-back-fast`)
+	make -j2 watch-front run-back-fast
 
 lint: lint-back lint-front ## Lint everything (`lint-back` & `lint-front`)
 
@@ -22,15 +27,22 @@ clean: clean-back clean-front ## Clean everything (`clean-back` & `clean-front`)
 
 install-back: ## Install the Python packages for the backend
 	pip install --upgrade -r requirements-dev.txt
+	pre-commit install
 
 install-back-with-prod:
 	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
 
 run-back: zmd-check ## Run the backend server
-	python manage.py runserver
+	python manage.py runserver --nostatic
+
+run-back-fast: zmd-check ## Run the backend server in fast mode (no debug toolbar & full browser cache)
+	python manage.py runserver --settings zds.settings.dev_fast
 
 lint-back: ## Lint Python code
-	flake8 zds
+	black . --check
+
+format-back: ## Format Python code
+	black .
 
 test-back: clean-back zmd-start ## Run backend unit tests
 	python manage.py test --settings zds.settings.test --exclude-tag=front
@@ -54,7 +66,10 @@ build-front: ## Build the frontend assets (CSS, JS, images)
 watch-front: ## Build the frontend assets when they are modified
 	yarn run watch --speed
 
-lint-front: ## Lint the frontend's Javascript
+format-front: ## Format the Javascript code
+	yarn run lint --fix
+
+lint-front: ## Lint the Javascript code
 	yarn run lint
 
 clean-front: ## Clean the frontend builds
@@ -101,7 +116,7 @@ generate-pdf: ## Generate PDFs of published contents
 migrate-db: ## Create or update database schema
 	python manage.py migrate
 
-generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics...)
+generate-fixtures: ## Generate fixtures (users, tutorials, articles, opinions, topics, licenses...)
 	@if curl -s $(ZMD_URL) > /dev/null; then \
 		python manage.py loaddata fixtures/*.yaml; \
 		python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml; \

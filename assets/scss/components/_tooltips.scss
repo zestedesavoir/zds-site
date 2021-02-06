@@ -1,5 +1,5 @@
-$tooltip-arrow-size: 6px;
-$tooltip-background-color: #333;
+$tooltip-arrow-size: $length-6;
+$tooltip-background-color: $grey-900;
 
 .tooltips-container {
     .tooltip-wrapper {
@@ -7,11 +7,12 @@ $tooltip-background-color: #333;
         z-index: 30;
 
         .tooltip {
-            font-size: 12px;
-            line-height: 16px;
-            color: white;
+            padding: $length-6 $length-8;
+
             background-color: $tooltip-background-color;
-            padding: 6px 8px;
+            color: $white;
+
+            font-size: $font-size-11;
         }
 
         &.top::after {
@@ -23,11 +24,15 @@ $tooltip-background-color: #333;
         }
 
         &.top::after, &.bottom::before {
-            margin: auto;
             content: '';
+
+            display: block;
+
+            margin: auto;
+
             height: 0;
             width: 0;
-            display: block;
+
             border-left: solid $tooltip-arrow-size transparent;
             border-right: solid $tooltip-arrow-size transparent;
         }

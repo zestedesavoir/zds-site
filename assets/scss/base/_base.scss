@@ -2,15 +2,12 @@ html {
     height: 100%;
     width: 100%;
     font-size: 62.5%;
-    overflow-x: hidden;
-    word-wrap: break-word;
 }
 
 body {
     background: $color-body-background;
-    font-size: 14px;
-    font-size: 1.4rem;
-    line-height: 1.7em;
+    font-size: $font-size-10;
+    line-height: 1.5;
     width: 100%;
     height: 100%;
 }
@@ -26,13 +23,13 @@ body {
 }
 
 @mixin normal-selection {
-    color: white;
+    color: $white;
     background: $color-primary;
 }
 
 @mixin negative-selection {
     color: $color-primary;
-    background: white;
+    background: $white;
 }
 
 @include set-selection {
@@ -40,7 +37,7 @@ body {
 }
 
 // Elements with a dark background
-.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .taglist {
+.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .modal-title, .taglist, .hat, .linkbox-item.primary {
     &, * {
         @include set-selection {
             @include negative-selection;
@@ -56,17 +53,19 @@ body {
 }
 
 .page-container {
-    min-height: 100%;
-
     display: flex;
     flex-direction: column;
 
+    min-height: 100%;
+
     .main-container {
-        background: $color-body-background;
+        display: flex;
+
         flex-grow: 1;
         flex-shrink: 0;
-        display: flex;
         flex-basis: auto;
+
+        background: $white;
     }
 
     .header-container, .page-footer, .cookies-eu-banner, #accessibility {
@@ -77,7 +76,7 @@ body {
 }
 
 .content-container {
-    margin-bottom: 50px;
+    margin-bottom: $length-48;
 }
 
 img {
@@ -95,25 +94,27 @@ textarea {
 }
 
 .old-browser-warning {
-    margin: 0;
-    background: #ddd;
-    color: #000;
-    padding: 0.2em 0;
-    text-align: center;
     position: fixed;
-    z-index: 9999;
-    width: 100%;
-}
 
-body.old-browser-warning-shown .page-container {
-    position: relative;
-    top: 3rem;
+    margin: 0;
+    padding: $length-2 0;
+
+    width: 100%;
+
+    background: $grey-200;
+    color: $black;
+
+    text-align: center;
+
+    z-index: 9999;
 }
 
 .a11y {
     display: block;
+
     width: 0;
     height: 0;
+
     text-indent: -9999px;
 }
 
@@ -130,17 +131,17 @@ nav {
 
     display: inline-block;
 
-    width: 18px;
-    height: 18px;
+    width: $length-18;
+    height: $length-18;
 
-    background-color: $color-question-marks;
-    border-radius: 426921px;
+    background-color: $primary-500;
+    border-radius: $radius-round;
 
     font-weight: bold;
-    font-size: .7em;
-    line-height: 17px;
+    font-size: $font-size-11;
+    line-height: 1.5;
 
-    color: white;
+    color: $white;
     text-decoration: none;
 
     text-align: center;
@@ -148,12 +149,12 @@ nav {
     user-select: none;
 
     &:hover {
-        color: white;
-        background-color: darken($color-question-marks, 10%);
+        color: $white;
+        background-color: $primary-700;
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     html,
     body {
         height: 100%;
@@ -165,9 +166,9 @@ nav {
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     body {
-        background: #222;
+        background: $black;
 
         &:not(.swipping) {
             .page-container,

@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('utils', '0016_python_3'),
+        ("utils", "0016_python_3"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='hat',
-            name='is_staff',
-            field=models.BooleanField(default=False, verbose_name='Casquette interne au site'),
+            model_name="hat",
+            name="is_staff",
+            field=models.BooleanField(default=False, verbose_name="Casquette interne au site"),
         ),
     ]

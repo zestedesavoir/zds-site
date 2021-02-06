@@ -1,15 +1,27 @@
 .small-content-wrapper {
     width: 90%;
-    max-width: 500px;
-    margin: 20px auto;
+    max-width: $length-512;
+    margin: $length-20 auto;
 }
 
 .main .content-container {
     .content-wrapper {
         &.article-content,
-        &.authors {
+        &.members {
             padding-left: 2%;
             padding-right: 2%;
+        }
+    }
+
+    section > h2 {
+        display: flex;
+
+        span {
+            flex: 2;
+        }
+
+        .btn {
+            float: none;
         }
     }
 
@@ -17,10 +29,11 @@
         .extract-wrapper {
             h3, h4, h5, h6 {
                 &:first-child {
-                    margin-top: 14px;
+                    margin-top: $length-14;
                 }
             }
         }
+
         p,
         > a,
         p a,
@@ -29,30 +42,35 @@
         ul:not(.pagination),
         ol:not(.summary-part) {
             font-family: $font-serif;
+            font-size: $font-size-10;
         }
     }
 
     .content-wrapper.comment-author,
     .comment-author {
-        background: #EEE;
-        padding: 7px 15px;
-        margin-bottom: 20px;
+        margin-bottom: $length-20;
+        padding: $length-8 $length-16;
+
+        background: $grey-100;
+
+        color: $grey-800;
 
         blockquote {
-            margin: 10px 0;
-            border-left: 5px solid  #CCC;
-            padding: 5px 0 5px 15px;
+            margin: $length-10 0;
+            padding: $length-6 0 $length-6 $length-16;
+
+            border-left: $length-6 solid$grey-200;
         }
     }
 
     .article-content .summary-part {
-        font-size: 20px;
-        color: darken($color-secondary, 11%);
+        font-size: $font-size-7;
+        color: $accent-800;
 
         h3,
         h4 {
-            font-weight: normal;
             width: 90%;
+            font-weight: normal;
 
             a {
                 text-decoration: none;
@@ -65,26 +83,31 @@
         }
 
         h3 {
-            font-size: 20px;
-            margin: 0 0 5px;
+            margin: 0 0 $length-6;
+            font-size: $length-20;
+
+            a {
+                color: $accent-800;
+            }
         }
 
         .summary-part {
-            list-style: none;
+            margin-bottom: $length-16;
             padding-left: 0;
-            margin-bottom: 15px;
+
+            list-style: none;
 
             h4 {
-                font-size: 14px;
-                margin: 2px 0;
+                font-size: $font-size-10;
+                margin: $length-2 0;
             }
         }
     }
 
     .article-content,
     .message-content {
-        margin-bottom: 20px;
-        color: #424242;
+        margin-bottom: $length-20;
+        color: $black;
 
         @import "base/content";
     }
@@ -92,23 +115,23 @@
     .message-content {
         h3, h4, h5, h6 {
             &:first-child {
-                margin-top: 14px;
+                margin-top: $length-14;
             }
         }
     }
 
     .comments-title {
-        margin: 50px 0 20px;
+        margin: $length-48 0 $length-20;
+        border-bottom: $length-1 solid $color-secondary;
+
         color: $color-primary;
-        border-bottom: 1px solid $color-secondary;
+
+        font-size: $font-size-6;
         font-weight: normal;
-        font-size: 22px;
-        font-size: 2.2rem;
-        line-height: 30px;
     }
 }
 
-@media only screen and #{$media-extra-wide} {
+@include wide {
     .full-content-wrapper .tutorial-list article {
         width: 29.3%;
     }
@@ -124,7 +147,7 @@
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .content-wrapper,
     .full-content-wrapper {
         margin: 0 0 0 4%;
@@ -140,20 +163,19 @@
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .main .content-container {
         .taglist,
         .pubdate {
-            margin-left: 10px;
-            margin-right: 10px;
+            margin-left: $length-10;
+            margin-right: $length-10;
         }
 
         .article-content {
             p,
             ol,
             ul:not(.pagination) {
-                font-size: 14px;
-                font-size: 1.4rem;
+                font-size: $font-size-10;
             }
         }
 
@@ -163,8 +185,8 @@
             h2:not(.ico-after),
             h3,
             .subtitle {
-                padding-left: 10px;
-                padding-right: 10px;
+                padding-left: $length-10;
+                padding-right: $length-10;
             }
 
             .illu img {
@@ -174,12 +196,12 @@
             h4,
             h5,
             h6,
-            .authors,
+            .members,
             p,
             figure,
             blockquote {
-                margin-left: 10px;
-                margin-right: 10px;
+                margin-left: $length-10;
+                margin-right: $length-10;
             }
 
             figure {
@@ -191,16 +213,13 @@
             }
 
             .license {
-                position: absolute;
-                margin-top: 0;
-                top: 62px;
-                right: 15px;
+                margin-right: $length-6;
             }
         }
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .main .content-container .article-content .btn {
         float: none;
         text-align: center;

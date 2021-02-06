@@ -1,26 +1,40 @@
 .main .sidebar {
-    padding: 0 0 10px;
-    background: $color-sidebar-background;
-    border-bottom: 1px solid #FFF;
-    color: #424242;
-    width: 105%;
     margin: 0 0 0 -2.7%;
+    padding: 0 0 $length-10;
+
+    width: 105%;
+
+    background: $color-sidebar-background;
+    color: $grey-800;
+
+    @include desktop {
+        width: 22.5%;
+        border-bottom: none;
+    }
+
+    @include until-desktop {
+        width: 102.5%;
+    }
 
     .new-btn {
-        display: block;
-        height: 40px;
-        padding-left: 11.5%;
-        text-decoration: none;
-        text-indent: 25px;
-        line-height: 40px;
-        font-size: 16px;
-        font-size: 1.6rem;
         position: relative;
-        color: lighten($color-primary, 20%);
+
+        display: block;
+        height: $length-38;
+
+        padding-left: 11.5%;
+
+        font-size: $font-size-9;
+        line-height: 2.2;
+
+        text-decoration: none;
+        text-indent: $length-24;
+        color: $color-link;
+
         transition: background-color $transition-duration ease;
 
         &:first-child {
-            margin-top: 31px;
+            margin-top: $length-32;
         }
 
         &:hover,
@@ -29,68 +43,102 @@
         }
 
         &:after {
-            top: 12px;
+            top: $length-10;
             left: 11.5%;
         }
     }
 
     h3,
     h4 {
-        font-weight: normal;
         margin: 0;
         padding: 0;
+
+        font-weight: normal;
+
+        @include desktop {
+            padding-left: 11.5%;
+        }
+
+        @include until-desktop {
+            padding-left: 5.5%;
+
+            a {
+                white-space: normal;
+            }
+        }
     }
+
     h3 {
-        font-size: 18px;
-        font-size: 1.8rem;
-        line-height: 38px;
-        line-height: 3.8rem;
+        margin-top: $length-32;
+
+        border-bottom: $length-1 solid $color-secondary;
+
+        font-size: $font-size-8;
         color: $color-primary;
-        border-bottom: 1px solid $color-secondary;
-        margin-top: 30px;
+
+        &:first-child {
+            @include desktop {
+                margin-top: $length-32;
+            }
+        }
     }
+
     h4 {
-        padding-top: 20px;
-        font-size: 17px;
-        font-size: 1.7rem;
+        padding-top: $length-20;
+        font-size: $font-size-8;
 
         a {
             text-decoration: none;
-            color: #424242;
+            color: $grey-800;
         }
     }
+
     &.accordeon h4 {
         cursor: pointer;
     }
+
     h4[data-num] {
         position: relative;
-        padding-left: calc(5% + 25px);
+        padding-left: calc(5% + #{$length-24});
 
         &:before {
             content: attr(data-num);
+
             position: absolute;
             left: 5%;
+
+            width: $length-48;
+            margin-left: -$length-32;
+
             text-align: right;
-            width: 50px;
-            margin-left: -35px;
+        }
+
+        @include desktop {
+            padding-left: calc(11% + #{$length-24});
+
+            &:before {
+                left: 11%;
+            }
         }
     }
 
     h3 + ul,
     h3 + ol {
-        margin: 7px 0;
+        margin: $length-8 0;
     }
 
     ul,
     ol {
         margin: 0;
         padding: 0;
-        list-style: none;
+
         width: 100%;
+        list-style: none;
 
         li {
             position: relative;
-            padding: 0 0 0 2.5%;
+            padding: 0;
+
             transition: background $transition-duration ease;
 
             &:not(.inactive):hover,
@@ -101,6 +149,7 @@
 
                 .ico-after.action-hover {
                     display: block;
+                    background: $color-sidebar-hover;
                 }
             }
 
@@ -109,44 +158,75 @@
             &.inactive > span,
             &.inactive > em {
                 display: block;
-                cursor: pointer;
-                padding-left: 25px;
-                padding-right: 10px;
+
+                height: $length-32;
+
+                padding-left: calc(2.5% + #{$length-24});
+                padding-right: $length-10;
+
+                @include desktop {
+                    padding-left: calc(11.5% + #{$length-24});
+                }
+
+                @include until-desktop {
+                    padding-left: calc(5.5% + #{$length-24});
+                }
+
+                border: 0;
+
+                background-color: $color-sidebar-background;
+
+                &:hover, &:focus {
+                    background: $color-sidebar-hover;
+                    outline: none;
+                }
+
+                color: $color-link;
                 text-decoration: none;
-                color: #0079b2;
+                text-align: left;
+
+                font-size: $font-size-10;
+                line-height: 2;
+
                 overflow: hidden;
-                height: 30px;
-                line-height: 30px;
-                font-size: 14px;
-                font-size: 1.4rem;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                border: 0;
-                text-align: left;
-                background: rgba(0, 0, 0, 0);
+
+                cursor: pointer;
+
+                transition: background $transition-duration ease;
 
                 &[data-num] {
                     position: relative;
 
                     &:after {
                         content: attr(data-num) ".";
+
                         position: absolute;
-                        left: 0;
-                        width: 18px;
+                        left: 2.5%;
+
+                        @include desktop {
+                            left: 11.5%;
+                        }
+
+                        @include until-desktop {
+                            left: 5.5%;
+                        }
+
+                        width: $length-18;
+
+                        color: $grey-600;
                         text-align: right;
-                        color: #424242;
                     }
                 }
 
-                /**
-                 * Sidebar link variations / icons
-                 */
+                // Sidebar link variations / icons
                 &.selected {
                     font-weight: bold;
                 }
 
                 img {
-                    border-right: 7px solid transparent;
+                    border-right: $length-8 solid transparent;
                 }
 
                 img,
@@ -154,24 +234,35 @@
                     vertical-align: middle;
                 }
 
+                // FIXME I was unable to find anything using that… — Amaury.
                 .icon {
-                    border-right: 7px solid transparent;
+                    border-right: $length-8 solid transparent;
                     display: inline-block;
-                    width: 16px;
-                    height: 16px;
-                    margin: 7px 5px;
-                    line-height:30px;
+                    width: $length-16;
+                    height: $length-16;
+                    margin: $length-8 $length-6;
                 }
 
                 &.ico-after {
                     &:after {
-                        top: 7px;
-                        left: 0;
+                        top: $length-6;
+                        left: 2.5%;
+
+                        @include desktop {
+                            left: 11.5%;
+                        }
+
+                        @include until-desktop {
+                            left: 5.5%;
+                        }
+
                         opacity: .7;
                     }
+
                     &.disabled:after {
                         opacity: .4 !important;
                     }
+
                     &:hover,
                     &:focus {
                         &:after {
@@ -181,38 +272,51 @@
 
                     &.action-hover {
                         position: absolute;
-                        display: none;
-                        overflow: visible;
                         top: 0;
                         left: 10%;
-                        padding: 0;
-                        z-index: 1;
-                        width: 30px;
-                        height: 30px;
-                        text-indent: -9999px;
+                        right: -$length-32;
 
-                        background: $color-sidebar-hover;
-                        right: -30px;
+                        display: none;
+
+                        padding: 0;
+
+                        width: $length-24;
+                        height: $length-24;
+
+                        background: $color-sidebar-background;
+
+                        text-indent: -9999px;
+                        overflow: visible;
+
+                        z-index: 1;
+
+                        transition: background $transition-duration ease;
 
                         &[data-title]:hover:before {
                             content: attr(data-title);
-                            display: block;
+
                             position: absolute;
-                            background: $color-sidebar-hover;
-                            color: #555;
-                            top: -27px;
+                            top: -$length-24;
                             left: 0;
-                            height: 27px;
-                            line-height: 27px;
-                            line-height: 2.7rem;
+
+                            display: block;
+                            height: $length-24;
+
+                            padding: 0 $length-16;
+
+                            background: $grey-000;
+
+                            color: $grey-600;
+                            line-height: 1.7;
                             text-indent: 0;
-                            padding: 0 15px;
-                            border: 1px solid #EEE;
-                            box-shadow: rgba(0, 0, 0, .15) 0 0 7px;
+
+                            border: $length-1 solid $grey-100;
+
+                            @include shadow-1;
                         }
 
                         &:after {
-                            left: 7px;
+                            left: $length-4;
                         }
                     }
                 }
@@ -220,57 +324,76 @@
 
             &.inactive > span,
             &.inactive > em {
-                color: #555;
+                color: $grey-600;
+                cursor: not-allowed;
             }
 
             .count {
-                display: block;
                 position: absolute;
-                top: 6px;
-                right: 20px;
-                padding: 1px 10px;
-                height: 16px;
-                line-height: 16px;
+                top: $length-6;
+                right: $length-20;
+
+                display: block;
+                padding: $length-1 $length-10;
+
+                height: $length-16;
+
+                background: $grey-300;
+
+                color: $white;
                 font-style: normal;
-                background: #AAA;
-                color: #FFF;
+
+                line-height: $length-16;
             }
 
             .last-answer {
-                display: block;
-                visibility: hidden;
                 position: absolute;
-                top: -13px;
+                top: -$length-14;
                 left: 102%;
-                width: 250px;
-                height: 40px;
-                background: #FFF;
-                padding: 7px 10px;
-                border: 1px solid #F0F0F0;
-                box-shadow: rgba(0, 0, 0, .1) 2px 2px 2px;
+
+                display: flex;
+                align-items: center;
+
+                visibility: hidden;
+
+                width: $length-256;
+                height: $length-38;
+
+                padding: $length-8 $length-10;
+                border: $length-1 solid $grey-100;
+
+                background: $true-white;
+
+                @include shadow-1;
+
                 opacity: 0;
-                transition: visibility 0s linear $transition-duration, opacity $transition-duration, left $transition-duration;
+
+                transition: visibility linear $transition-duration,
+                            opacity $transition-duration,
+                            left $transition-duration;
 
                 .avatar {
-                    height: 40px;
-                    width: 40px;
-                    float: left;
-                    border: 1px solid #F0F0F0;
+                    width: $length-38;
+                    height: $length-38;
+
+                    border: $length-1 solid $grey-000;
                 }
 
                 .topic-last-answer {
                     display: block;
-                    margin-left: 50px;
-                    line-height: 18px;
-                    padding: 3px 0;
-                    color: #555;
+
+                    margin-left: $length-8;
+                    padding: $length-4 0;
+
+                    color: $grey-800;
                 }
+
                 .topic-no-last-answer {
                     display: block;
-                    line-height: 40px;
                     width: 100%;
+
+                    color: $grey-500;
                     text-align: center;
-                    color: #999;
                 }
             }
 
@@ -278,10 +401,11 @@
                 &:hover,
                 &:focus {
                     & + .last-answer {
+                        left: calc(100% + #{$length-1}); // Fix #5020 : prevents tooltip flickering
+
                         visibility: visible;
-                        left: 100%;
-                        left: calc(100% + 1px); /*Fix #5020 : Prevent tooltip flickering */
                         opacity: 1;
+
                         transition: visibility 0s linear 0, opacity $transition-duration, left $transition-duration;
                     }
                 }
@@ -293,7 +417,6 @@
 
             button {
                 width: 100%;
-                line-height: 28px;
 
                 &.follow span,
                 &.requesting span {
@@ -314,9 +437,9 @@
 
                     &:hover,
                     &:focus {
-                        color: #0079B2;
+                        color: $color-link;
                         background: $color-sidebar-hover;
-                        margin-left: -11px;
+                        margin-left: -$length-12;
 
                         &:before {
                             content: "> ";
@@ -329,9 +452,11 @@
 
     &.summary {
         h4 {
-            border-bottom: 1px solid #d8dada;
-            padding-bottom: 5px;
-            padding-right: 15px;
+            padding-bottom: $length-6;
+            padding-right: $length-16;
+
+            border-bottom: $length-1 solid $grey-000;
+
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -339,41 +464,62 @@
             & + ul,
             & + ol {
                 & > li:first-child {
-                    margin-top: 5px;
+                    margin-top: $length-6;
                 }
             }
-            
+
             &.not-ready {
-                background: $color-not-ready-content;
+                background: $grey-200;
             }
         }
-        
+
         li {
             &.not-ready {
-                background: $color-not-ready-content;
-            }   
+                background: $grey-200;
+            }
         }
 
         ol li.current {
-            margin-top: 0 !important;
-            padding-top: 5px;
-            margin-bottom: 5px;
-            background-color: #FFF;
+            padding-top: $length-8;
+            background-color: $true-white;
 
-            & + a {
+            > a {
                 font-weight: bold;
+                background: none;
             }
 
             ol {
-                margin-top: 5px;
-                padding-top: 5px;
-                padding-bottom: 5px;
-                margin-left: -42px;
-                width: calc(105% + 25px);
-                background: linear-gradient(to bottom, rgba(0, 0, 0, .07), #F7F7F7 3px);
+                margin-top: $length-6;
+                margin-left: -$length-38;
+
+                padding: $length-6 0 $length-6 calc(2.5% + #{$length-20});
+
+                @include until-desktop {
+                    padding-left: calc(5.5% + #{$length-20});
+                }
+
+                width: 105%;
+                background: linear-gradient(to bottom, rgba($black, .07), $white $length-4);
 
                 a {
-                    padding-left: 50px;
+                    padding-left: $length-48;
+                    background-color: transparent;
+                }
+            }
+        }
+
+        ul li.current {
+            @include desktop {
+                ul,
+                ol {
+                    margin-left: calc(-11% - #{$length-10});
+
+                    width: calc(111% + #{$length-10});
+                    background: linear-gradient(to bottom, rgba($black, .07), transparent $length-4);
+
+                    a {
+                        padding-left: calc(11% + #{$length-32});
+                    }
                 }
             }
         }

@@ -4,6 +4,7 @@
 {% load append_query_params %}
 {% load datedelta_from_day %}
 {% load seconds_to_duration %}
+{% load static %}
 
 {% block title %}
     {% trans "Statistiques du contenu" %}
@@ -12,6 +13,13 @@
 {% block breadcrumb %}
     <li><a href="{% url "content:stats-content" content.pk content.slug %}">{% trans "Statistiques" %}</a></li>
     <li>{{ content.title }}</li>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'js/moment.min.js' %}"></script>
+    <script src="{% static 'js/fr.js' %}"></script>
+    <script src="{% static 'js/Chart.min.js' %}"></script>
 {% endblock %}
 
 {% block content_out %}
@@ -214,7 +222,7 @@
                             <label for="end_date">{% trans "au" %}</label>
                             <input type="date" value="{% now 'Y-m-d' %}" name="end_date" id="end_date" max="{% now 'Y-m-d' %}">
                         {% endif %}
-                        <button type="submit">
+                        <button type="submit" class="btn btn-submit">
                             {% trans "Actualiser" %}
                         </button>
                     </form>

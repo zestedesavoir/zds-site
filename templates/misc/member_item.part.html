@@ -5,22 +5,24 @@
 {% with profile=member|profile %}
     {% spaceless %}
         <a href="{{ profile.get_absolute_url }}"
-           class="member-item"
+           class="member-item{% if inline %} is-inline{% endif %}{% if link %} is-link{% endif %}"
            itemscope
            itemtype="http://schema.org/Person"
            {% if author %}
                itemprop="author"
-               rel="author" 
+               rel="author"
            {% endif %}>
 
             {% if avatar %}
-                <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar" itemprop="image">
+                <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar" itemprop="image" aria-hidden="true" />
             {% endif %}
 
-            <span itemprop="name">{% if member.username %}{{ member.username }}{% else %}{{ member.user.username }}{% endif %}</span>
+            <span itemprop="name">{{ profile.user.username }}</span>
 
             {% if info %}
-                <span class="info">({{ info }})</span>
+                <span class="info">
+                    {% if fullwidth %}{{ info }}{% else %}({{ info }}){% endif %}
+                </span>
             {% endif %}
         </a>
     {% endspaceless %}

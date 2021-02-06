@@ -9,8 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "zmarkdown": "^8.2.0",
-    "pm2": "^4.2.3"
+    "zmarkdown": "9.1.3"
   },
   "engines": {
     "node": ">=8.0.0"

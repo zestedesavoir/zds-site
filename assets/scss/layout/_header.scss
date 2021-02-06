@@ -1,5 +1,5 @@
-$logo-horizontal-margin: 10px;
-$logo-width: 240px;
+$logo-horizontal-margin: $length-10;
+$logo-width: 24rem;
 
 .header-container {
     * {
@@ -9,23 +9,24 @@ $logo-width: 240px;
     header, .sub-header {
         display: flex;
 
-        @media only screen and #{$media-wide} {
-            padding: 0 2rem;
+        @include desktop {
+            padding: 0 $length-20;
 
             .header-right .dropdown {
-                right: 2rem;
+                right: $length-20;
             }
         }
     }
 
-    header {
+    > header {
         background: $color-primary;
-        border-bottom: 3px solid $color-secondary;
+        border-bottom: $length-2 solid $color-secondary;
 
         a,
         button {
             text-decoration: none;
-            color: #FFF;
+            color: $white;
+
             transition-property: background;
             transition-duration: $transition-duration;
 
@@ -36,33 +37,38 @@ $logo-width: 240px;
     }
 
     .header-menu {
-        height: 60px;
+        height: $header-height;
         flex-basis: auto;
         display: flex;
     }
 
     .header-menu-list {
-        margin: 0;
-        padding: 0;
-        flex: 1;
         display: flex;
         justify-content: center;
+        flex: 1;
+
+        margin: 0;
+        padding: 0;
 
         & > li {
             display: block;
+
             flex-grow: 0;
             flex-shrink: 1;
             flex-basis: auto;
 
             & > a {
-                padding: 0 2.5rem;
-                display: block;
                 position: relative;
+                display: block;
+
+                padding: 0 $length-24;
+
+                font-size: $font-size-9;
+                line-height: $header-height;
                 text-align: center;
-                line-height: 60px;
-                font-size: 1.6rem;
+
                 text-transform: uppercase;
-                text-shadow: rgba(0, 0, 0, 0.75) 0 0 3px;
+                text-shadow: rgba($black, .75) 0 0 $length-4;
 
                 &:hover,
                 &:focus,
@@ -70,12 +76,12 @@ $logo-width: 240px;
                     background: $color-header-hover;
 
                     .arrow:after {
-                        border-top: 6px solid #FFF;
+                        border-top: $length-6 solid $white;
                     }
                 }
 
                 &.has-dropdown {
-                    padding-right: 1.5rem;
+                    padding-right: $length-16;
 
                     .arrow {
                         display: inline-block;
@@ -85,13 +91,17 @@ $logo-width: 240px;
                 &.current {
                     &:before {
                         content: " ";
-                        display: block;
+
                         position: absolute;
                         bottom: 0;
                         left: 0;
                         right: 0;
-                        height: 2px;
-                        border-radius: 2px 2px 0 0;
+
+                        display: block;
+
+                        height: $length-2;
+
+                        border-radius: $length-2 $length-2 0 0;
                         background-color: $color-secondary;
                     }
 
@@ -104,21 +114,26 @@ $logo-width: 240px;
     }
 
     .header-logo {
-        text-align: center;
         margin: 0;
         padding: 0;
+
+        text-align: center;
     }
 
     .header-logo-link {
         display: block;
+
         margin: 0;
-        text-indent: -9999px;
+
         width: $logo-width + $logo-horizontal-margin;
-        height: 60px;
+        height: $header-height;
+
         background: url("../images/logo.png") no-repeat center center;
         background-size: $logo-width auto;
 
-        @media only screen and #{$media-wide} {
+        text-indent: -9999px;
+
+        @include desktop {
             &:hover,
             &:focus {
                 background-color: $color-header-hover;
@@ -127,41 +142,49 @@ $logo-width: 240px;
     }
 
     .sub-header {
-        background: #EEE;
+        background: $grey-000;
     }
 
     .header-mobile-page-title {
         flex-grow: 1;
         flex-basis: 0;
 
-        color: white;
+        margin: 0 $length-6;
+
+        font-size: $font-size-8;
+        line-height: 2.9;
+
+        color: $white;
+
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        margin: 0 0.5em;
-        line-height: 50px;
-        font-size: 1.7rem;
-        @media only screen and #{$media-wide} {
+
+        @include desktop {
             display: none;
         }
     }
 
     .arrow {
-        display: none;
-        width: 20px;
-        height: 9px;
         position: relative;
+        display: none;
+
+        width: $length-20;
+        height: $length-8;
 
         &:after {
             content: "";
-            display: block;
+
             position: absolute;
             right: 0;
             height: 0;
             width: 0;
-            border: 6px solid transparent;
-            border-top: 6px solid rgba(255, 255, 255, 0.7);
-            border-left: 6px inset transparent;
+
+            display: block;
+
+            border: $length-6 solid transparent;
+            border-top: $length-6 solid $grey-100;
+            border-left: $length-6 inset transparent;
         }
     }
 }
@@ -169,43 +192,56 @@ $logo-width: 240px;
 .logbox {
     .notifs-links,
     & > a {
-        background: rgba(white, 0.05);
+        background: rgba($true-white, .05);
     }
 
     .notifs-links {
         display: flex;
 
         .ico-link {
-            flex: 0;
-            display: block;
             position: relative;
-            width: 60px;
-            height: 60px;
-            line-height: 60px;
+            display: block;
+
+            flex: 0;
+
+            width: $header-height;
+            height: $header-height;
+
+            line-height: $header-height;
 
             .notif-count {
-                display: block;
                 position: absolute;
-                z-index: 1;
                 top: 50%;
-                right: 50%;
-                margin: -20px -22px 0 0;
-                padding: 0 5px;
-                height: 16px;
-                line-height: 14px;
-                background: #c0392b;
-                border-radius: 16px;
+                right: 56%;
+
+                display: block;
+
+                margin: -#{$length-20} -$length-24 0 0;
+                padding: 0 $length-6;
+
+                height: $length-16;
+
+                border-radius: $radius-round;
+                background: $red-500;
+
+                line-height: 1;
+                z-index: 1;
             }
 
             .notif-text {
-                display: block;
                 position: absolute;
-                text-indent: -9999px;
-                height: 22px;
-                width: 22px;
                 top: 50%;
                 left: 50%;
-                margin: -11px 0 0 -11px;
+
+                display: block;
+
+                // Sprite size
+                height: 22px;
+                width: 22px;
+
+                margin: -$length-12 0 0 -#{$length-12};
+
+                text-indent: -9999px;
 
                 &.ico-messages {
                     @include sprite-position($messages);
@@ -235,33 +271,53 @@ $logo-width: 240px;
     .dropdown {
         overflow: hidden;
 
+        @include mobile {
+            top: $length-48;
+            height: calc(100vh - #{$length-48});
+
+            @at-root body.has-top-banner .logbox .dropdown {
+                height: calc(100vh - #{$length-48 + $length-24});
+            }
+        }
+
         .dropdown-title {
             display: block;
+            margin: 0;
+
             width: 100%;
-            height: 35px;
-            line-height: 37px;
-            text-align: center;
-            border-bottom: 1px solid #274a5a;
+            height: $length-38;
+
+            border-bottom: $length-1 solid $primary-600;
+
             background-color: $color-header-hover;
+
+            line-height: $length-38;
+            font-size: $font-size-10;
+
+            text-align: center;
         }
 
         &,
         .dropdown-list {
             margin: 0;
             padding: 0;
+
             list-style: none;
-            background-color: #19526c;
+
+            background-color: $primary-600;
 
             li {
                 display: block;
+
                 width: 100%;
-                height: 60px;
+                height: $header-height;
 
                 a {
-                    display: block;
-                    overflow: hidden;
                     position: relative;
+                    display: block;
+
                     height: 100%;
+                    overflow: hidden;
 
                     &,
                     &:hover,
@@ -272,79 +328,108 @@ $logo-width: 240px;
 
                     &:hover,
                     &:focus {
-                        background-color: $color-header-hover;
+                        background-color: $primary-800;
 
                         .username {
-                            text-shadow: rgba(0, 0, 0, 0.5) 0 0 5px;
+                            text-shadow: rgba($black, .5) 0 0 $length-6;
                         }
 
                         .date {
-                            color: #95D7F5;
+                            color: $primary-000;
                         }
                     }
                 }
 
-                .avatar {
-                    float: left;
-                    height: 30px;
-                    width: 30px;
+                // :nth-child(n) for specificity to win against
+                // `&:nth-child(2n) form button` selector below.
+                form button:nth-child(n):hover,
+                form button:nth-child(n):focus {
+                    background-color: $primary-800;
                 }
 
-                .username {
-                    display: block;
-                    float: left;
-                    margin: 4px 0 0 7px;
-                    color: #95D7F5;
-                    width: 50%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
+                header {
+                  display: flex;
+                  align-items: center;
 
-                .date {
-                    color: #5196b6;
-                    float: right;
-                    padding: 4px 10px 0 0;
-                    transition-property: color;
+                  padding: 0;
+                  border: none;
+                  background: transparent;
+
+                  .avatar {
+                      height: $length-32;
+                      width: $length-32;
+                  }
+
+                  .username {
+                      display: block;
+                      flex: 4;
+
+                      width: 50%;
+                      margin: $length-4 0 0 $length-8;
+
+                      overflow: hidden;
+                      text-overflow: ellipsis;
+                      white-space: nowrap;
+
+                      color: $primary-100;
+                  }
+
+                  .date {
+                      padding: $length-4 $length-10 0 0;
+                      color: $primary-200;
+
+                      transition-property: color;
+                  }
                 }
 
                 .topic {
-                    display: block;
                     position: absolute;
                     bottom: 0;
                     left: 0;
+
+                    display: block;
+                    padding: $length-4 $length-8 $length-2;
+
+                    width: calc(100% - #{$length-14});
+                    height: $length-32;
+
                     overflow: hidden;
-                    height: 31px;
-                    padding: 4px 7px 2px;
                     text-overflow: ellipsis;
                     white-space: nowrap;
-                    width: 95%;
-                    width: calc(100% - 14px);
                 }
 
-                &:nth-child(2n+1) {
+                &:nth-child(2n) {
                     &,
                     form button {
-                        background-color: $color-primary;
+                        background-color: $primary-500;
                     }
                 }
             }
         }
 
         .dropdown-pm {
-            text-align: left;
-            padding-left: 15px;
+            display: flex;
+            justify-content: space-between;
 
-            .ico-after {
-                float: right;
-                padding-right: 30px;
-                top: 9px;
+            text-align: left;
+            padding: 0 $length-16;
+
+            h1 {
+                flex: 2;
+                margin: 0;
+                font-size: $font-size-10;
             }
 
-            .pm-new {
+            .pm-new.ico-after {
+                display: block;
+                width: $length-16;
+
+                top: $length-10;
+
                 &.white:after {
                     @include sprite-position($pm-new-white);
 
+                    // Sprite size
                     width: 17px;
                     height: 16px;
                 }
@@ -354,38 +439,48 @@ $logo-width: 240px;
 
     #my-account {
         display: block;
-        height: 60px;
-        width: 60px;
-        float: right;
+
+        height: $header-height;
+        width: $header-height;
 
         .username {
             display: none;
         }
 
         .avatar {
+            width: $header-height;
+            height: $header-height;
+
             background: $color-header-hover;
-            width: 60px;
-            height: 60px;
         }
     }
 
     .dropdown.my-account-dropdown {
+        .dropdown-list {
+            max-height: unset;
+
+            overflow-x: unset;
+            overflow-y: unset;
+        }
+
         a,
         button {
-            padding-left: 10px;
+            padding-left: $length-10;
         }
 
         button {
             width: 100%;
-            height: 30px;
-            line-height: 28px;
+            height: $length-32;
+
             background: transparent;
-            text-align: left;
             border: 0;
+
+            text-align: left;
+            line-height: 2.2;
 
             &:hover,
             &:focus {
-                background: $color-header-hover;
+                background: $primary-800;
             }
         }
     }
@@ -393,11 +488,12 @@ $logo-width: 240px;
     &.unlogged {
         a {
             display: block;
-            width: 60px * 2;
+
+            width: $length-128;
+            height: $header-height;
+
             text-align: center;
-            float: left;
-            line-height: 60px;
-            height: 60px;
+            line-height: $header-height;
 
             &:hover,
             &:focus {
@@ -407,26 +503,36 @@ $logo-width: 240px;
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .header-container {
         .header-logo {
-            width: 40px;
-            min-width: 40px;
-            height: 50px;
-            margin-left: 50px;
+            width: $length-38;
+            min-width: $length-38;
+            height: $length-48;
+
+            margin-left: $length-48;
         }
 
         .header-logo-link {
-            background-image: url("../images/logo-mobile.png") !important;
-            background-size: 100%;
             width: 100%;
             height: 100%;
+
+            background-size: 100%;
+            background-image: url("../images/logo-mobile.png") !important;
         }
 
-        header .header-menu {
-            display: none;
-        }
+        > header {
+            height: $length-48 + $length-2; // Content height + border
 
+            .header-menu {
+                display: none;
+            }
+
+            > * {
+                margin-top: -$length-2;
+                align-self: center;
+            }
+        }
         .logbox {
             display: flex;
 
@@ -435,37 +541,36 @@ $logo-width: 240px;
                 width: 100%;
             }
 
-
-            .notifs-links .ico-link, 
-            #my-account, 
-            #my-account .avatar{
-                height: 50px;
-                width: 50px;
+            .dropdown {
+                top: $length-48 - $length-1;
             }
 
-            .dropdown {
-                top: 50px;
+            .notifs-links .ico-link,
+            #my-account,
+            #my-account .avatar {
+                height: $length-48;
+                width: $length-48;
             }
 
             .dropdown.my-account-dropdown .dropdown-list {
                 bottom: 0;
 
                 li {
-                    height: 45px;
-                    line-height: 45px;
+                    height: $length-48;
+                    line-height: $length-48;
                 }
             }
 
             &.unlogged {
-                font-size: 13px;
-                font-size: 1.3rem;
+                font-size: $font-size-10;
 
                 a {
-                    line-height: 30px;
-                    height: 30px;
-                    margin: 10px 0;
-                    width: 74px;
-                    margin-right: 1px;
+                    margin: 0 $length-1 0 0;
+
+                    width: $length-96;
+                    height: $length-32;
+
+                    line-height: 2.3;
                 }
             }
         }
@@ -475,37 +580,46 @@ $logo-width: 240px;
 @media only screen and (max-width: 339px) {
     .header-container {
         .header-mobile-page-title {
-            margin:0;
+            margin: 0;
         }
         .mobile-menu-btn,
         .logbox .notifs-links .ico-link {
-            width:40px !important;
+            width: $length-38 !important;
         }
         .mobile-menu-btn::after {
-            left:8px !important;
+            left: $length-8 !important;
         }
     }
 }
 
+// Just in case, you know, someone use a 200px-wide phone in 2020+
 @media only screen and (max-width: 239px) {
     .header-container .header-logo {
-        width: 20px;
-        min-width: 20px;
-        height: 20px;
         position: absolute;
-        left: 10px;
-        top: 32px;
+        top: $length-32;
+        left: $length-10;
+
+        width: $length-20;
+        min-width: $length-20;
+        height: $length-20;
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .header-container {
-        z-index: 1;
         position: relative;
-        box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+
+        box-shadow: 0 0 $length-4 rgba($black, 0.3);
+        z-index: 1;
 
         header {
-            background-image: linear-gradient(to right, transparent 20%, rgba(255, 255, 255, 0.07) 40%, rgba(255, 255, 255, 0.07) 60%, transparent 80%);
+            background-image: linear-gradient(
+                to right,
+                transparent 20%,
+                rgba($true-white, 0.07) 40%,
+                rgba($true-white, 0.07) 60%,
+                transparent 80%
+            );
         }
 
         .header-menu {
@@ -515,25 +629,21 @@ $logo-width: 240px;
     }
 
     .header-logo {
-        text-align: left;
         width: $logo-width + $logo-horizontal-margin;
+        text-align: left;
     }
 
     .dropdown {
-        top: 60px;
+        top: $header-height;
     }
 
     .logbox .dropdown.my-account-dropdown ul li {
-        height: 30px;
-        line-height: 30px;
+        height: $length-32;
+        line-height: $length-32;
 
         button {
             cursor: pointer;
         }
-    }
-
-    .lt-ie9 .dropdown {
-        top: 90px;
     }
 
     .header-logo, .header-right {
@@ -545,5 +655,9 @@ $logo-width: 240px;
         display: flex;
         flex-shrink: 0;
         justify-content: flex-end;
+
+        form {
+          display: flex;
+        }
     }
 }

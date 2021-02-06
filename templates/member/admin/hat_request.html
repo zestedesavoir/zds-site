@@ -1,0 +1,120 @@
+{% extends "member/admin/base.html" %}
+{% load date %}
+{% load i18n %}
+{% load emarkdown %}
+
+
+{% block title %}
+    {% trans "Demande de" %} « {{ hat_request.hat }} » &bull; {% trans "Demandes de casquettes" %} &bull; {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    {% if perms.utils.change_hat %}
+        <li>
+            <a href="{% url 'hats-list' %}">
+                {% trans "Casquettes" %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'requested-hats' %}">
+                {% trans "Demandes de casquettes" %}
+            </a>
+        </li>
+    {% endif %}
+    <li>
+        {% trans "Demande de" %} « {{ hat_request.hat }} »
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Demande de" %} « {{ hat_request.hat }} »
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% blocktrans with user_url=hat_request.user.profile.get_absolute_url username=hat_request.user.username hat=hat_request.hat date=hat_request.date|format_date %}
+            <a href="{{ user_url }}">{{ username }}</a> a demandé la casquette « {{ hat }} » {{ date }}.
+        {% endblocktrans %}
+    </p>
+
+    <div class="message-content">
+        <blockquote>
+            {{ hat_request.reason|emarkdown }}
+        </blockquote>
+    </div>
+
+    {% if hat_request.is_granted is not None %}
+        <p>
+            {% blocktrans with decision=hat_request.is_granted|yesno:_("acceptée,refusée") moderator_name=hat_request.moderator.username moderator_url=hat_request.moderator.profile.get_absolute_url date=hat_request.solved_at|format_date %}
+                La demande a été {{ decision }} par <a href="{{ moderator_url }}">{{ moderator_name }}</a> {{ date }}.
+            {% endblocktrans %}
+        </p>
+
+        {% if hat_request.comment %}
+            <div class="message-content">
+                <blockquote>
+                    {{ hat_request.comment|emarkdown }}
+                </blockquote>
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    <div>
+        {% if perms.utils.change_hat %}
+            {% if hat_request.is_granted is None %}
+                <a href="{% url "requested-hats" %}" class="new-btn ico-after arrow-left blue">
+                    {% blocktrans %}
+                        Retour <span class="wide">aux demandes</span>
+                    {% endblocktrans %}
+                </a>
+
+                <a href="#grant-hat" class="new-btn ico-after green tick open-modal">
+                    {% trans "Accorder" %}
+                </a>
+
+                <form id="grant-hat" class="modal modal-flex" method="post" action="{% url 'solve-hat-request' hat_request.pk %}">
+                    {% if hat_request.get_hat %}
+                        <p>{% trans "La casquette existe déjà et sera accordée à ce membre." %}</p>
+                    {% else %}
+                        <p>{% trans "La casquette n'existe pas et sera créée. Vous pouvez vérifier sa formulation et la modifier si nécessaire. Vous pouvez aussi saisir une casquette qui existe déjà pour l'utiliser." %}</p>
+                        <input name="hat" value="{{ hat_request.hat }}" required maxlength="40" />
+                    {% endif %}
+                    <textarea name="comment" placeholder="{% trans "Commentaire (facultatif)." %}" maxlength="1000"></textarea>
+                    {% csrf_token %}
+                    <button type="submit" name="grant" class="btn btn-submit">{% trans "Accorder" %}</button>
+                </form>
+
+                <a href="#deny-hat" class="new-btn ico-after red cross open-modal">
+                    {% trans "Refuser" %}
+                </a>
+
+                <form id="deny-hat" class="modal modal-flex" method="post" action="{% url 'solve-hat-request' hat_request.pk %}">
+                    <textarea name="comment" placeholder="{% trans "Commentaire de refus (facultatif)." %}" maxlength="1000"></textarea>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-submit">{% trans "Refuser" %}</button>
+                </form>
+            {% else %}
+                <a href="{% url "solved-hat-requests" %}" class="new-btn ico-after arrow-left blue">
+                    {% blocktrans %}
+                        Retour <span class="wide">aux demandes</span>
+                    {% endblocktrans %}
+                </a>
+            {% endif %}
+        {% else %}
+            <a href="{% url "hats-settings" %}" class="new-btn ico-after arrow-left blue">
+                {% blocktrans %}
+                    Retour <span class="wide">à mes paramètres</span>
+                {% endblocktrans %}
+            </a>
+        {% endif %}
+    </div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "member/admin/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Gestion des fournisseurs bannis" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Gestion des fournisseurs bannis" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Gestion des fournisseurs bannis" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% trans "Vous pouvez ici gérer les fournisseurs d’adresses e-mail bannis. Il n’est pas possible d’utiliser d’adresse e-mail venant de ces fournisseurs." %}
+    </p>
+
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if providers %}
+        <table class="fullwidth">
+            <thead>
+                <th>{% trans "Fournisseur" %}</th>
+                <th class="wide">{% trans "Modérateur" %}</th>
+                <th class="wide">{% trans "Date du bannissement" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </thead>
+            <tbody>
+                {% for provider in providers %}
+                    <tr>
+                        <td>{{ provider.provider }}</td>
+                        <td class="wide">{% include 'misc/member_item.part.html' with member=provider.moderator avatar=True %}</td>
+                        <td class="wide">{{ provider.date|format_date|capfirst }}</td>
+                        <td>
+                            <form method="post" action="{% url 'remove-banned-email-provider' provider.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-grey ico-after red cross">{% trans "Débannir" %}</button>
+                                <a href="{% url 'members-with-provider' provider.pk %}" class="btn btn-grey ico-after blue view">{% trans "Comptes correspondants" %}</a>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <em>{% trans "Aucun fournisseur n’est banni." %}</em>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <div>
+        <a href="{% url "add-banned-email-provider" %}" class="new-btn ico-after more blue">
+            {% blocktrans %}
+                Bannir <span class="wide">un fournisseur</span>
+            {% endblocktrans %}
+        </a>
+
+        <a href="{% url "new-email-providers" %}" class="new-btn ico-after history blue">
+            {% trans "Nouveaux fournisseurs" %}
+        </a>
+    </div>
+{% endblock %}

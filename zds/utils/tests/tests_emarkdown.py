@@ -8,13 +8,13 @@ from zds.utils.templatetags.emarkdown import shift_heading
 
 class EMarkdownTest(TestCase):
     def setUp(self):
-        content = '# Titre 1\n\n## Titre **2**\n\n### Titre 3\n\n> test'
-        self.context = Context({'content': content})
+        content = "# Titre 1\n\n## Titre **2**\n\n### Titre 3\n\n> test"
+        self.context = Context({"content": content})
 
     def test_emarkdown(self):
         # The goal is not to test zmarkdown but test that template tag correctly call it
 
-        tr = Template('{% load emarkdown %}{{ content | emarkdown}}').render(self.context)
+        tr = Template("{% load emarkdown %}{{ content | emarkdown}}").render(self.context)
 
         expected = (
             '<h3 id="titre-1">Titre 1<a aria-hidden="true" href="#titre-1">'
@@ -22,7 +22,7 @@ class EMarkdownTest(TestCase):
             'Titre <strong>2</strong><a aria-hidden="true" href="#titre-2"><span'
             ' class="icon icon-link"></span></a></h4>\n<h5 id="titre-3">Titre 3'
             '<a aria-hidden="true" href="#titre-3"><span class="icon icon-link">'
-            '</span></a></h5>\n<blockquote>\n<p>test</p>\n</blockquote>'
+            "</span></a></h5>\n<blockquote>\n<p>test</p>\n</blockquote>"
         )
         self.assertEqual(tr, expected)
 
@@ -31,73 +31,69 @@ class EMarkdownTest(TestCase):
     def test_emarkdown_inline(self):
         # The goal is not to test zmarkdown but test that template tag correctly call it
 
-        tr = Template('{% load emarkdown %}{{ content | emarkdown_inline}}').render(self.context)
+        tr = Template("{% load emarkdown %}{{ content | emarkdown_inline}}").render(self.context)
 
-        expected = ('<p># Titre 1\n\n'
-                    '## Titre <strong>2</strong>\n\n'
-                    '### Titre 3\n\n'
-                    '> test</p>')
+        expected = "<p># Titre 1\n\n" "## Titre <strong>2</strong>\n\n" "### Titre 3\n\n" "> test</p>"
 
         self.assertEqual(tr, expected)
 
     def test_emarkdown_inline_with_link(self):
         # The goal is not to test zmarkdown but test that template tag correctly call it
-        self.context['content'] = '[zds](zestedesavoir.com)'
-        tr = Template('{% load emarkdown %}{{ content | emarkdown_inline}}').render(self.context)
+        self.context["content"] = "[zds](zestedesavoir.com)"
+        tr = Template("{% load emarkdown %}{{ content | emarkdown_inline}}").render(self.context)
 
         expected = '<p><a rel="nofollow" href="zestedesavoir.com">zds</a></p>'
         self.assertEqual(tr, expected)
 
     def test_shift_heading(self):
-        tr = Template('{% load emarkdown %}{{ content | shift_heading_1}}').render(self.context)
-        self.assertEqual('## Titre 1\n\n'
-                         '### Titre **2**\n\n'
-                         '#### Titre 3\n\n'
-                         '&gt; test', tr)
+        tr = Template("{% load emarkdown %}{{ content | shift_heading_1}}").render(self.context)
+        self.assertEqual("## Titre 1\n\n" "### Titre **2**\n\n" "#### Titre 3\n\n" "&gt; test", tr)
 
-        tr = Template('{% load emarkdown %}{{ content | shift_heading_2}}').render(self.context)
-        self.assertEqual('### Titre 1\n\n'
-                         '#### Titre **2**\n\n'
-                         '##### Titre 3\n\n'
-                         '&gt; test', tr)
+        tr = Template("{% load emarkdown %}{{ content | shift_heading_2}}").render(self.context)
+        self.assertEqual("### Titre 1\n\n" "#### Titre **2**\n\n" "##### Titre 3\n\n" "&gt; test", tr)
 
-        tr = Template('{% load emarkdown %}{{ content | shift_heading_3}}').render(self.context)
-        self.assertEqual('#### Titre 1\n\n'
-                         '##### Titre **2**\n\n'
-                         '###### Titre 3\n\n'
-                         '&gt; test', tr)
+        tr = Template("{% load emarkdown %}{{ content | shift_heading_3}}").render(self.context)
+        self.assertEqual("#### Titre 1\n\n" "##### Titre **2**\n\n" "###### Titre 3\n\n" "&gt; test", tr)
 
     def test_special_shift_heading(self):
-        sharp_in_code = dedent("""
+        sharp_in_code = dedent(
+            """
         # title
         ```
         # comment
         ```
         # another title
-        """)
-        result_sharp_in_code = dedent("""
+        """
+        )
+        result_sharp_in_code = dedent(
+            """
         ## title
         ```
         # comment
         ```
         ## another title
-        """)
+        """
+        )
         self.assertEqual(shift_heading(sharp_in_code, 1), result_sharp_in_code)
 
-        sharp_in_code_with_antiquotes = dedent("""
+        sharp_in_code_with_antiquotes = dedent(
+            """
         # title
         ~~~
         ```
         # comment
         ~~~
         # another title
-        """)
-        result_sharp_in_code_with_antiquotes = dedent("""
+        """
+        )
+        result_sharp_in_code_with_antiquotes = dedent(
+            """
         ## title
         ~~~
         ```
         # comment
         ~~~
         ## another title
-        """)
+        """
+        )
         self.assertEqual(shift_heading(sharp_in_code_with_antiquotes, 1), result_sharp_in_code_with_antiquotes)

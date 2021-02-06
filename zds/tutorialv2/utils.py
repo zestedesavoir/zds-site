@@ -6,19 +6,19 @@ from django.contrib.auth.models import User
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 from git import Repo, Actor
-from uuslug import slugify
 
 from django.conf import settings
-from zds.notification import signals
+from zds.tutorialv2 import signals
 from zds.tutorialv2 import VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
-from zds.utils import get_current_user
-from zds.utils import slugify as old_slugify
+from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Licence
+from zds.utils.uuslug_wrapper import slugify
+
 logger = logging.getLogger(__name__)
 
 
-def all_is_string_appart_from_given_keys(dict_representation, keys=('children',)):
+def all_is_string_appart_from_given_keys(dict_representation, keys=("children",)):
     """check all keys are string appart from the children key
     :param dict_representation: the json decoded dictionary
     :param keys: keys that do not need to be string
@@ -43,36 +43,36 @@ def search_container_or_404(base_content, kwargs_array):
 
     if isinstance(kwargs_array, str):
         dic = {}
-        dic['parent_container_slug'] = kwargs_array.split('/')[0]
-        if len(kwargs_array.split('/')) >= 2:
-            dic['container_slug'] = kwargs_array.split('/')[1]
+        dic["parent_container_slug"] = kwargs_array.split("/")[0]
+        if len(kwargs_array.split("/")) >= 2:
+            dic["container_slug"] = kwargs_array.split("/")[1]
         kwargs_array = dic
 
-    if 'parent_container_slug' in kwargs_array:
+    if "parent_container_slug" in kwargs_array:
         try:
-            container = base_content.children_dict[kwargs_array['parent_container_slug']]
+            container = base_content.children_dict[kwargs_array["parent_container_slug"]]
         except KeyError:
-            raise Http404('Aucun conteneur trouvé.')
+            raise Http404("Aucun conteneur trouvé.")
         else:
             if not isinstance(container, Container):
-                raise Http404('Aucun conteneur trouvé.')
+                raise Http404("Aucun conteneur trouvé.")
     else:
         container = base_content
 
     # if extract is at depth 2 or 3 we get its direct parent container
-    if 'container_slug' in kwargs_array:
+    if "container_slug" in kwargs_array:
         try:
-            container = container.children_dict[kwargs_array['container_slug']]
+            container = container.children_dict[kwargs_array["container_slug"]]
         except KeyError:
-            raise Http404('Aucun conteneur trouvé.')
+            raise Http404("Aucun conteneur trouvé.")
         else:
             if not isinstance(container, Container):
-                raise Http404('Aucun conteneur trouvé.')
+                raise Http404("Aucun conteneur trouvé.")
     elif container == base_content:
         # if we have no subcontainer, there is neither 'container_slug' nor "parent_container_slug
         return base_content
     if container is None:
-        raise Http404('Aucun conteneur trouvé.')
+        raise Http404("Aucun conteneur trouvé.")
     return container
 
 
@@ -92,14 +92,14 @@ def search_extract_or_404(base_content, kwargs_array):
     container = search_container_or_404(base_content, kwargs_array)
 
     extract = None
-    if 'extract_slug' in kwargs_array:
+    if "extract_slug" in kwargs_array:
         try:
-            extract = container.children_dict[kwargs_array['extract_slug']]
+            extract = container.children_dict[kwargs_array["extract_slug"]]
         except KeyError:
-            raise Http404('Aucun extrait trouvé.')
+            raise Http404("Aucun extrait trouvé.")
         else:
             if not isinstance(extract, Extract):
-                raise Http404('Aucun extrait trouvé.')
+                raise Http404("Aucun extrait trouvé.")
     return extract
 
 
@@ -120,8 +120,10 @@ def never_read(content, user=None):
         user = get_current_user()
 
     if user and user.is_authenticated and content.last_note:
-        return ContentRead.objects.filter(
-            note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk).count() == 0
+        return (
+            ContentRead.objects.filter(note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk).count()
+            == 0
+        )
     elif not content.last_note:
         return False
     else:
@@ -130,13 +132,14 @@ def never_read(content, user=None):
 
 def last_participation_is_old(content, user):
     from zds.tutorialv2.models.database import ContentRead, ContentReaction
+
     if user is None or not user.is_authenticated:
         return False
     if ContentReaction.objects.filter(author__pk=user.pk, related_content__pk=content.pk).count() == 0:
         return False
-    return ContentRead.objects\
-                      .filter(note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk)\
-                      .count() == 0
+    return (
+        ContentRead.objects.filter(note__pk=content.last_note.pk, content__pk=content.pk, user__pk=user.pk).count() == 0
+    )
 
 
 def mark_read(content, user=None):
@@ -154,13 +157,8 @@ def mark_read(content, user=None):
 
     if user and user.is_authenticated:
         if content.last_note is not None:
-            ContentRead.objects.filter(
-                content__pk=content.pk,
-                user__pk=user.pk).delete()
-            a = ContentRead(
-                note=content.last_note,
-                content=content,
-                user=user)
+            ContentRead.objects.filter(content__pk=content.pk, user__pk=user.pk).delete()
+            a = ContentRead(note=content.last_note, content=content, user=user)
             a.save()
             signals.content_read.send(sender=content.__class__, instance=content, user=user, target=ContentReaction)
 
@@ -191,9 +189,9 @@ def try_adopt_new_child(adoptive_parent, child):
     if isinstance(child, Container):
         if not adoptive_parent.can_add_container():
             raise TypeError
-        if adoptive_parent.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP['content']['max_tree_depth']:
+        if adoptive_parent.get_tree_depth() + child.get_tree_level() > settings.ZDS_APP["content"]["max_tree_depth"]:
             raise TooDeepContainerError
-        if adoptive_parent.get_tree_depth() + child.get_tree_level() == settings.ZDS_APP['content']['max_tree_depth']:
+        if adoptive_parent.get_tree_depth() + child.get_tree_level() == settings.ZDS_APP["content"]["max_tree_depth"]:
             if child.can_add_container():  # if the child is a part with empty chapters
                 # that we move inside another part
                 raise TooDeepContainerError
@@ -233,8 +231,9 @@ def get_target_tagged_tree_for_extract(movable_child, root):
     target_tagged_tree = []
     for child in root.traverse(False):
         if isinstance(child, Extract):
-            target_tagged_tree.append((child.get_full_slug(),
-                                       child.title, child.get_tree_depth(), child != movable_child))
+            target_tagged_tree.append(
+                (child.get_full_slug(), child.title, child.get_tree_depth(), child != movable_child)
+            )
         else:
             target_tagged_tree.append((child.get_path(True), child.title, child.get_tree_depth(), False))
 
@@ -294,8 +293,8 @@ def normalize_unicode_url(unicode_url):
                     given as unicode string.
     """
     scheme, netloc, path, querystring, anchor = urlsplit(unicode_url)
-    path = quote(path, '/%')
-    querystring = quote(querystring, ':&=')
+    path = quote(path, "/%")
+    querystring = quote(querystring, ":&=")
     return urlunsplit((scheme, netloc, path, querystring, anchor))
 
 
@@ -321,48 +320,48 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
 
-    if 'version' in json and json['version'] in (2, 2.1):  # add newest version of manifest
-        if not all_is_string_appart_from_given_keys(json, ('children', 'ready_to_publish', 'version')):
+    if "version" in json and json["version"] in (2, 2.1):  # add newest version of manifest
+        if not all_is_string_appart_from_given_keys(json, ("children", "ready_to_publish", "version")):
             raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
         # create and fill the container
-        if len(json['title']) > max_title_len:
+        if len(json["title"]) > max_title_len:
             raise BadManifestError(
-                _('Le titre doit être une chaîne de caractères de moins de {} caractères.').format(max_title_len))
+                _("Le titre doit être une chaîne de caractères de moins de {} caractères.").format(max_title_len)
+            )
 
         # check that title gives correct slug
-        slugify_raise_on_invalid(json['title'])
+        slugify_raise_on_invalid(json["title"])
 
-        if not check_slug(json['slug']):
-            raise InvalidSlugError(json['slug'])
+        if not check_slug(json["slug"]):
+            raise InvalidSlugError(json["slug"])
         else:
-            json_slug = json['slug']
+            json_slug = json["slug"]
 
         if not public:
-            versioned = VersionedContent(sha, 'TUTORIAL', json['title'], json_slug, slug_last_draft)
+            versioned = VersionedContent(sha, "TUTORIAL", json["title"], json_slug, slug_last_draft)
         else:
-            versioned = PublicContent(sha, 'TUTORIAL', json['title'], json_slug)
+            versioned = PublicContent(sha, "TUTORIAL", json["title"], json_slug)
 
         # fill metadata :
-        if 'description' in json:
-            versioned.description = json['description']
+        if "description" in json:
+            versioned.description = json["description"]
 
-        if 'type' in json:
-            if json['type'] in CONTENT_TYPE_LIST:
-                versioned.type = json['type']
+        if "type" in json:
+            if json["type"] in CONTENT_TYPE_LIST:
+                versioned.type = json["type"]
 
-        if 'licence' in json:
-            if hint_licence is not None and hint_licence.code == json['licence']:
+        if "licence" in json:
+            if hint_licence is not None and hint_licence.code == json["licence"]:
                 versioned.licence = hint_licence
             else:
-                versioned.licence = Licence.objects.filter(code=json['licence']).first()
+                versioned.licence = Licence.objects.filter(code=json["licence"]).first()
+        # Note: There is no fallback to a default license in case of problems.
+        # The author will have to set it himself prior to publication.
 
-        if 'licence' not in json or not versioned.licence:
-            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
-
-        if 'introduction' in json:
-            versioned.introduction = json['introduction']
-        if 'conclusion' in json:
-            versioned.conclusion = json['conclusion']
+        if "introduction" in json:
+            versioned.introduction = json["introduction"]
+        if "conclusion" in json:
+            versioned.conclusion = json["conclusion"]
 
         # then, fill container with children
         fill_containers_from_json(json, versioned)
@@ -370,85 +369,89 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
         # minimal support for deprecated manifest version 1
         # supported content types are exclusively ARTICLE and TUTORIAL
 
-        if 'type' in json:
-            if json['type'] == 'article':
-                _type = 'ARTICLE'
+        if "type" in json:
+            if json["type"] == "article":
+                _type = "ARTICLE"
             else:
-                _type = 'TUTORIAL'
+                _type = "TUTORIAL"
         else:
-            _type = 'ARTICLE'
+            _type = "ARTICLE"
 
         if not public:
-            versioned = VersionedContent(sha, _type, json['title'], slug_last_draft)
+            versioned = VersionedContent(sha, _type, json["title"], slug_last_draft)
         else:
-            versioned = PublicContent(sha, _type, json['title'], slug_last_draft)
+            versioned = PublicContent(sha, _type, json["title"], slug_last_draft)
 
-        if 'description' in json:
-            versioned.description = json['description']
-        if 'introduction' in json:
-            versioned.introduction = json['introduction']
-        if 'conclusion' in json:
-            versioned.conclusion = json['conclusion']
-        if 'licence' in json:
-            versioned.licence = Licence.objects.filter(code=json['licence']).first()
+        if "description" in json:
+            versioned.description = json["description"]
+        if "introduction" in json:
+            versioned.introduction = json["introduction"]
+        if "conclusion" in json:
+            versioned.conclusion = json["conclusion"]
+        if "licence" in json:
+            versioned.licence = Licence.objects.filter(code=json["licence"]).first()
+        # Note: There is no fallback to a default license in case of problems.
+        # The author will have to set it himself prior to publication.
 
-        if 'licence' not in json or not versioned.licence:
-            versioned.licence = Licence.objects.filter(pk=settings.ZDS_APP['content']['default_licence_pk']).first()
         versioned.ready_to_publish = True  # the parent is always ready to publish
-        if _type == 'ARTICLE':
-            extract = Extract('text', '')
-            if 'text' in json:
-                extract.text = json['text']  # probably 'text.md' !
+        if _type == "ARTICLE":
+            extract = Extract("text", "")
+            if "text" in json:
+                extract.text = json["text"]  # probably 'text.md' !
             versioned.add_extract(extract, generate_slug=True)
 
         else:  # it's a tutorial
-            if json['type'] == 'MINI' and 'chapter' in json and 'extracts' in json['chapter']:
-                for extract in json['chapter']['extracts']:
+            if json["type"] == "MINI" and "chapter" in json and "extracts" in json["chapter"]:
+                for extract in json["chapter"]["extracts"]:
                     new_extract = Extract(
-                        extract['title'],
-                        '{}_{}'.format(extract['pk'], slugify_raise_on_invalid(extract['title'], True)))
-                    if 'text' in extract:
-                        new_extract.text = extract['text']
+                        extract["title"],
+                        "{}_{}".format(extract["pk"], slugify_raise_on_invalid(extract["title"], True)),
+                    )
+                    if "text" in extract:
+                        new_extract.text = extract["text"]
                     versioned.add_extract(new_extract, generate_slug=False)
 
-            elif json['type'] == 'BIG' and 'parts' in json:
-                for part in json['parts']:
+            elif json["type"] == "BIG" and "parts" in json:
+                for part in json["parts"]:
                     new_part = Container(
-                        part['title'], '{}_{}'.format(part['pk'], slugify_raise_on_invalid(part['title'], True)))
+                        part["title"], "{}_{}".format(part["pk"], slugify_raise_on_invalid(part["title"], True))
+                    )
 
-                    if 'introduction' in part:
-                        new_part.introduction = part['introduction']
-                    if 'conclusion' in part:
-                        new_part.conclusion = part['conclusion']
+                    if "introduction" in part:
+                        new_part.introduction = part["introduction"]
+                    if "conclusion" in part:
+                        new_part.conclusion = part["conclusion"]
                     versioned.add_container(new_part, generate_slug=False)
 
-                    if 'chapters' in part:
-                        for chapter in part['chapters']:
+                    if "chapters" in part:
+                        for chapter in part["chapters"]:
                             new_chapter = Container(
-                                chapter['title'],
-                                '{}_{}'.format(chapter['pk'], slugify_raise_on_invalid(chapter['title'], True)))
+                                chapter["title"],
+                                "{}_{}".format(chapter["pk"], slugify_raise_on_invalid(chapter["title"], True)),
+                            )
 
-                            if 'introduction' in chapter:
-                                new_chapter.introduction = chapter['introduction']
-                            if 'conclusion' in chapter:
-                                new_chapter.conclusion = chapter['conclusion']
+                            if "introduction" in chapter:
+                                new_chapter.introduction = chapter["introduction"]
+                            if "conclusion" in chapter:
+                                new_chapter.conclusion = chapter["conclusion"]
                             new_part.add_container(new_chapter, generate_slug=False)
 
-                            if 'extracts' in chapter:
-                                for extract in chapter['extracts']:
+                            if "extracts" in chapter:
+                                for extract in chapter["extracts"]:
                                     new_extract = Extract(
-                                        extract['title'],
-                                        '{}_{}'.format(extract['pk'], slugify_raise_on_invalid(extract['title'], True)))
+                                        extract["title"],
+                                        "{}_{}".format(extract["pk"], slugify_raise_on_invalid(extract["title"], True)),
+                                    )
 
-                                    if 'text' in extract:
-                                        new_extract.text = extract['text']
+                                    if "text" in extract:
+                                        new_extract.text = extract["text"]
                                     new_chapter.add_extract(new_extract, generate_slug=False)
 
     return versioned
 
 
 class InvalidSlugError(ValueError):
-    """ Error raised when a slug is invalid. Argument is the slug that cause the error.
+    """Error raised when a slug is invalid. Argument is the slug that cause the error.
 
     ``source`` can also be provided, being the sentence from witch the slug was generated, if any.
     ``had_source`` is set to ``True`` if the source is provided.
@@ -457,11 +460,11 @@ class InvalidSlugError(ValueError):
 
     def __init__(self, *args, **kwargs):
 
-        self.source = ''
+        self.source = ""
         self.had_source = False
 
-        if 'source' in kwargs:
-            self.source = kwargs.pop('source')
+        if "source" in kwargs:
+            self.source = kwargs.pop("source")
             self.had_source = True
 
         super(InvalidSlugError, self).__init__(*args, **kwargs)
@@ -480,10 +483,10 @@ def check_slug(slug):
     if not VALID_SLUG.match(slug):
         return False
 
-    if not slug.replace('-', '').replace('_', ''):
+    if not slug.replace("-", "").replace("_", ""):
         return False
 
-    if len(slug) > settings.ZDS_APP['content']['maximum_slug_size']:
+    if len(slug) > settings.ZDS_APP["content"]["maximum_slug_size"]:
         return False
 
     return True
@@ -505,7 +508,7 @@ def slugify_raise_on_invalid(title, use_old_slugify=False):
     """
 
     if not isinstance(title, str):
-        raise InvalidSlugError('', source=title)
+        raise InvalidSlugError("", source=title)
     if not use_old_slugify:
         slug = slugify(title)
     else:
@@ -528,53 +531,54 @@ def fill_containers_from_json(json_sub, parent):
 
     from zds.tutorialv2.models.versioned import Container, Extract
 
-    if 'children' in json_sub:
+    if "children" in json_sub:
 
-        for child in json_sub['children']:
-            if not all_is_string_appart_from_given_keys(child, ('children', 'ready_to_publish')):
+        for child in json_sub["children"]:
+            if not all_is_string_appart_from_given_keys(child, ("children", "ready_to_publish")):
                 raise BadManifestError(
-                    _("Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub['title'])))
-            if child['object'] == 'container':
-                slug = ''
+                    _("Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub["title"]))
+                )
+            if child["object"] == "container":
+                slug = ""
                 try:
-                    slug = child['slug']
+                    slug = child["slug"]
                     if not check_slug(slug):
                         raise InvalidSlugError(slug)
                 except KeyError:
                     pass
-                new_container = Container(child['title'], slug)
-                if 'introduction' in child:
-                    new_container.introduction = child['introduction']
-                if 'conclusion' in child:
-                    new_container.conclusion = child['conclusion']
+                new_container = Container(child["title"], slug)
+                if "introduction" in child:
+                    new_container.introduction = child["introduction"]
+                if "conclusion" in child:
+                    new_container.conclusion = child["conclusion"]
                 try:
-                    parent.add_container(new_container, generate_slug=(slug == ''))
+                    parent.add_container(new_container, generate_slug=(slug == ""))
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
-                new_container.ready_to_publish = child.get('ready_to_publish', True)
-                if 'children' in child:
+                new_container.ready_to_publish = child.get("ready_to_publish", True)
+                if "children" in child:
                     fill_containers_from_json(child, new_container)
-            elif child['object'] == 'extract':
-                slug = ''
+            elif child["object"] == "extract":
+                slug = ""
                 try:
-                    slug = child['slug']
+                    slug = child["slug"]
                     if not check_slug(slug):
-                        raise InvalidSlugError(child['slug'])
+                        raise InvalidSlugError(child["slug"])
                 except KeyError:
                     pass
-                new_extract = Extract(child['title'], slug)
+                new_extract = Extract(child["title"], slug)
 
-                if 'text' in child:
-                    new_extract.text = child['text']
+                if "text" in child:
+                    new_extract.text = child["text"]
                 try:
-                    parent.add_extract(new_extract, generate_slug=(slug == ''))
+                    parent.add_extract(new_extract, generate_slug=(slug == ""))
                 except InvalidOperationError as e:
                     raise BadManifestError(e.message)
             else:
-                raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child['object']))
+                raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child["object"]))
 
 
-def init_new_repo(db_object, introduction_text, conclusion_text, commit_message='', do_commit=True):
+def init_new_repo(db_object, introduction_text, conclusion_text, commit_message="", do_commit=True):
     """Create a new repository in ``settings.ZDS_APP['contents']['private_repo']``\
      to store the files for a new content. Note that ``db_object.sha_draft`` will be set to the good value
 
@@ -595,7 +599,7 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
         os.makedirs(path, mode=0o777)
 
     # init repo:
-    Repo.init(path, bare=False, template='')
+    Repo.init(path, bare=False, template="")
 
     # create object
     versioned_content = VersionedContent(None, db_object.type, db_object.title, db_object.slug)
@@ -606,10 +610,11 @@ def init_new_repo(db_object, introduction_text, conclusion_text, commit_message=
 
     # perform changes:
     if not commit_message:
-        commit_message = 'Création du contenu'
+        commit_message = "Création du contenu"
 
     sha = versioned_content.repo_update(
-        db_object.title, introduction_text, conclusion_text, commit_message=commit_message, do_commit=do_commit)
+        db_object.title, introduction_text, conclusion_text, commit_message=commit_message, do_commit=do_commit
+    )
 
     # update sha:
     if do_commit:
@@ -652,21 +657,21 @@ def get_commit_author():
         aut_user = str(user.pk)
         aut_email = None
 
-        if hasattr(user, 'email'):
+        if hasattr(user, "email"):
             aut_email = user.email
 
     else:
         try:
-            aut_user = str(User.objects.filter(username=settings.ZDS_APP['member']['bot_account']).first().pk)
+            aut_user = str(User.objects.filter(username=settings.ZDS_APP["member"]["bot_account"]).first().pk)
         except AttributeError:  # if nothing is found, `first` returns None, which does not have attribute pk
-            aut_user = '0'
+            aut_user = "0"
 
         aut_email = None
 
     if aut_email is None or not aut_email.strip():
-        aut_email = _('inconnu@{}').format(settings.ZDS_APP['site']['dns'])
+        aut_email = _("inconnu@{}").format(settings.ZDS_APP["site"]["dns"])
 
-    return {'author': Actor(aut_user, aut_email), 'committer': Actor(aut_user, aut_email)}
+    return {"author": Actor(aut_user, aut_email), "committer": Actor(aut_user, aut_email)}
 
 
 def export_extract(extract):
@@ -677,12 +682,12 @@ def export_extract(extract):
     :rtype: dict
     """
     dct = OrderedDict()
-    dct['object'] = 'extract'
-    dct['slug'] = extract.slug
-    dct['title'] = extract.title
+    dct["object"] = "extract"
+    dct["slug"] = extract.slug
+    dct["title"] = extract.title
 
     if extract.text:
-        dct['text'] = extract.text
+        dct["text"] = extract.text
 
     return dct
 
@@ -696,24 +701,24 @@ def export_container(container):
     :rtype: dict
     """
     dct = OrderedDict()
-    dct['object'] = 'container'
-    dct['slug'] = container.slug
-    dct['title'] = container.title
+    dct["object"] = "container"
+    dct["slug"] = container.slug
+    dct["title"] = container.title
 
     if container.introduction:
-        dct['introduction'] = str(container.introduction)
+        dct["introduction"] = str(container.introduction)
 
     if container.conclusion:
-        dct['conclusion'] = str(container.conclusion)
+        dct["conclusion"] = str(container.conclusion)
 
-    dct['children'] = []
-    dct['ready_to_publish'] = container.ready_to_publish
+    dct["children"] = []
+    dct["ready_to_publish"] = container.ready_to_publish
     if container.has_sub_containers():
         for child in container.children:
-            dct['children'].append(export_container(child))
+            dct["children"].append(export_container(child))
     elif container.has_extracts():
         for child in container.children:
-            dct['children'].append(export_extract(child))
+            dct["children"].append(export_extract(child))
 
     return dct
 
@@ -728,11 +733,11 @@ def export_content(content):
     dct = export_container(content)
 
     # append metadata :
-    dct['version'] = 2.1
-    dct['description'] = content.description
-    dct['type'] = content.type
+    dct["version"] = 2.1
+    dct["description"] = content.description
+    dct["type"] = content.type
     if content.licence:
-        dct['licence'] = content.licence.code
+        dct["licence"] = content.licence.code
 
     return dct
 
@@ -744,7 +749,7 @@ def default_slug_pool():
     :rtype: dict
     """
 
-    return {'introduction': 1, 'conclusion': 1}  # forbidden slugs
+    return {"introduction": 1, "conclusion": 1}  # forbidden slugs
 
 
 class InvalidOperationError(RuntimeError):
@@ -768,7 +773,7 @@ def get_blob(tree, path):
                 data = blob.data_stream.read().decode()
                 return data
         except OSError:  # in case of deleted files, or the system cannot get the lock, juste return ""
-            return ''
+            return ""
     # traverse directories when we are at root or in a part or chapter
     if len(tree.trees) > 0:
         for subtree in tree.trees:
@@ -782,10 +787,11 @@ def get_blob(tree, path):
 
 class BadArchiveError(Exception):
     """ The exception that is raised when a bad archive is sent """
-    message = ''
+
+    message = ""
 
     def __init__(self, reason):
         self.message = reason
 
 
-NamedUrl = namedtuple('NamedUrl', ['name', 'url', 'level'])
+NamedUrl = namedtuple("NamedUrl", ["name", "url", "level"])

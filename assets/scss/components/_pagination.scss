@@ -1,73 +1,89 @@
 .pagination {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid #d2d5d6;
-    border-bottom: 1px solid #d2d5d6;
-    background: #FBFBFB;
-    margin-bottom: 20px !important;
     display: flex;
     flex-wrap: wrap;
 
+    margin: $length-20 0;
+
+    padding: 0;
+
+    border-top: $length-1 solid $grey-200;
+    border-bottom: $length-1 solid $grey-200;
+
+    list-style: none;
+
+    background: $true-white;
+
     li {
-        margin-bottom: -1px;
+        margin-bottom: -$length-1;
 
         a {
             display: block;
+
+            min-width: $length-48;
+            height: $length-38;
+
+            padding-bottom: $length-4;
+
+            border-bottom: $length-4 solid transparent;
+
             text-align: center;
             text-decoration: none;
             color: $color-primary;
-            min-width: 45px;
-            height: 40px;
-            line-height: 40px;
+
+            line-height: 3.2;
+
             transition: background $transition-duration ease;
 
             &.current {
-                height: 38px;
-                color: #808080;
-                background: #F7F7F7;
                 margin-top: -1px;
-                border-left: 1px solid #d2d5d6;
-                border-bottom: 3px solid #d2d5d6;
-                border-right: 2px solid #d2d5d6;
+
+                border-left: $length-1 solid $grey-300;
+                border-right: $length-2 solid $grey-300;
+                border-bottom-color: $grey-300;
+
+                background: $white;
+                color: $grey-600;
             }
 
             &.ico-after:after {
-                margin-top: 12px;
+                margin-top: $length-14;
             }
 
             &[href]:hover,
             &[href]:focus {
-                background: #d2d5d6;
+                background: $grey-200;
             }
         }
 
         &.prev a,
         &.next a,
         &.summary-button a {
-            padding: 0 15px;
+            padding-left: $length-16;
+            padding-right: $length-16;
         }
 
         &.prev {
             .ico-after {
-                padding-left: 30px;
+                padding-left: $length-32;
 
                 &:after {
-                    margin-left: 8px;
+                    margin-left: $length-10;
                 }
             }
         }
+
         &.next {
             margin-left: auto;
             .ico-after {
-                padding-right: 30px;
+                padding-right: $length-32;
 
                 &:after {
-                    right: 8px;
+                    right: $length-10;
                     left: auto;
                 }
             }
         }
+
         &.summary-button {
             position: absolute;
             left: 47%;
@@ -76,13 +92,22 @@
     }
 
     &.pagination-top {
-        li a.current {
+        li a {
             margin-top: 0;
-            border-top: 3px solid #d2d5d6;
+            padding-bottom: $length-4;
+
+            border-top: $length-4 solid transparent;
             border-bottom: none;
-            height: 35px;
-            line-height: 35px;
-            padding-bottom: 3px;
+
+            line-height: 2.8;
+
+            &.ico-after:after {
+                margin-top: $length-12;
+            }
+
+            &.current {
+                border-top-color: $grey-300;
+            }
         }
     }
 
@@ -101,18 +126,19 @@
     }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .pagination {
-        border: 1px solid #d2d5d6;
+        border: $length-1 solid $grey-200;
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .pagination {
         li {
             &.prev a,
             &.next a {
-                min-width: 0px;
+                min-width: 0;
+
                 span {
                     display: none;
                 }
@@ -121,7 +147,7 @@
     }
 }
 
-@media only screen and #{$media-mobile-tablet} {
+@include until-desktop {
     .pagination {
         li {
             &.summary-button {

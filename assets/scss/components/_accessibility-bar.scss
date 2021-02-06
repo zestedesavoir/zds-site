@@ -2,7 +2,7 @@
     list-style: none;
     margin: 0;
     padding: 0 2.5%;
-    background: #062E41;
+    background: $primary-700;
     overflow: hidden;
     height: 0;
 
@@ -17,13 +17,13 @@
 
         a {
             display: inline-block;
-            padding: 0 7px;
-            color: #EEE;
+            padding: 0 $length-8;
+            color: $white;
 
             &:hover,
             &:focus {
-                color: $color-primary;
-                background-color: #fff;
+                color: $primary-700;
+                background-color: $white;
                 text-decoration: none;
             }
         }

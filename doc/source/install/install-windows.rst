@@ -5,7 +5,7 @@ Installation sous Windows
 Pour installer une version locale de ZdS sur Windows, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.
 
-Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les étapes suivantes et choisissez un répertoire pour le zds par exemple :
+Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les étapes suivantes, et de se placer dans un dossier pour ZdS, par exemple :
 
 .. sourcecode:: bat
 
@@ -14,14 +14,15 @@ Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les
 
 .. Attention::
 
-    Il est fortement recommandé (pour des raisons de compatibilité), que tous les programmes à installer soient en 32 bits ou en 64 bits. Il est conseillé de ne pas mélanger les deux.
+    Il est fortement recommandé (pour des raisons de compatibilité), d'installer tous les programmes ou en 32 bits, ou en 64 bits. Il est conseillé de ne pas mélanger les deux.
 
 
-Cas numéro 1 : windows 10 et sous-système linux
-===============================================
+Cas numéro 1 : Windows 10 et le sous-système Linux
+==================================================
 
-- Utilisez `le sous-système linux<https://docs.microsoft.com/en-us/windows/wsl/install-win10>`
-- (exemple pour le sous système ubuntu)
+Utilisez `le sous-système Linux <https://docs.microsoft.com/en-us/windows/wsl/install-win10>`_, et installez Zeste de Savoir comme si vous étiez sur la distribution choisie.
+
+- Exemple pour le sous système Ubuntu
     .. sourcecode:: bash
 
         sudo apt install build-essential git
@@ -29,13 +30,13 @@ Cas numéro 1 : windows 10 et sous-système linux
         cd zds-site
         ./scripts/install_zds.sh -packages ubuntu
 
-Cas numéro 2 : fonctionnement sur windows lui-même
-==================================================
+Cas numéro 2 : installation sous Windows lui-même
+=================================================
 
 Installation automatique
----------------------
+------------------------
 
-Commencez par télécharger et installer Python <https://www.python.org/>`. Installez PowerShell et autorisez l'exécution des scripts powershell en copîant cette ligne de code dans votre console : `powershell -Verb RunAs -ArgumentList "Set-ExecutionPolicy RemoteSigned" -WindowStyle Hidden -Wait`.
+Commencez par télécharger et installer `Python <https://www.python.org/>`_. Installez PowerShell et autorisez l'exécution des scripts powershell en copiant cette ligne de code dans votre console : ``powershell -Verb RunAs -ArgumentList "Set-ExecutionPolicy RemoteSigned" -WindowStyle Hidden -Wait``.
 
 Ensuite, ouvrez la console de Windows et faites :
 
@@ -45,7 +46,7 @@ Ensuite, ouvrez la console de Windows et faites :
     powershell .\scripts\win\install_zds.ps1 +full
 
 
-Une fois l'installation fini, utilisez la **console PowerShell** et chargez l'environnement virtuel de votre espace de développement avec :
+Une fois l'installation finie, utilisez la **console PowerShell** et chargez l'environnement virtuel de votre espace de développement avec :
 
 .. sourcecode:: powershell
 
@@ -57,10 +58,10 @@ Vous devriez obtenir :
 
     (zdsenv)PS C:\dev\zestedesavoir\
 
-Vous pouvez finalement lancer ZdS:
+Vous pouvez finalement lancer ZdS.
 
-- Démarrer ZMD : `pm2 start --name=zmarkdown -f zmd/node_modules/zmarkdown/server/index.js -i 1`
-- Démarrer Django : `python manage.py runserver`
+- Démarrer ZMD : ``pm2 start --name=zmarkdown -f zmd/node_modules/zmarkdown/server/index.js -i 1``
+- Démarrer Django : ``python manage.py runserver``
 
 
 Installation manuelle
@@ -75,7 +76,7 @@ Installation manuelle
 - Installez setuptools : Démarrez Powershell en mode administrateur et lancez la commande suivante : ``Set-ExecutionPolicy RemoteSigned``
 - Installez Virtualenv avec les commandes suivante :
     - ``pip install virtualenv``
-- Clonez le dépot git *via la console git** (ou bien avec powershell qui ne doit pas être exécuté en tant qu'administrateur): ``git clone https://github.com/zestedesavoir/zds-site.git``
+- Clonez le dépot git *via la console git* (ou bien avec powershell qui ne doit pas être exécuté en tant qu'administrateur): ``git clone https://github.com/zestedesavoir/zds-site.git``
 - Créez votre workspace dédié à ZdS (mode administrateur obligatoire).
     - se placer dans le dossier du dépôt cloné (``zds-site``)
     - tapez ``virtualenv zdsenv`` (il va alors créer l'environnement virtuel ``zdenv``)
@@ -83,7 +84,7 @@ Installation manuelle
 
 (?) Si vous avez ``(zdsenv)`` à gauche de la zone de saisie, c'est que vous êtes dans l'environnement *zdsenv*.
 
-Pour redémarrer virtualenv les fois suivantes : exécutez à nouveau le fichier ``zdsenv/Scripts/activate.ps1``.
+Pour redémarrer l’environnent virtuel les fois suivantes : exécutez à nouveau le fichier ``zdsenv/Scripts/activate.ps1``.
 
 .. sourcecode:: bat
 
@@ -96,18 +97,18 @@ Si l'erreur suivante apparaît :
 .. error::
     Unable to find vcvarsall.bat
 
-Installez le compilateur Visual C++ pour Python disponible `ici  <https://www.microsoft.com/en-us/download/confirmation.aspx?id=44266>`_.
+Installez le compilateur Visual C++ pour Python `disponible ici <https://www.microsoft.com/en-us/download/confirmation.aspx?id=44266>`_.
 
-Pour que la modification soit effective, relancer une nouvelle fenêtre powershell.
+Pour que la modification soit effective, relancez une nouvelle fenêtre powershell.
 
-Les virtualenvs et pycharm
+Les virtualenvs et PyCharm
 --------------------------
 
-Avec PyCharm (Pour avoir une license Pro contactez le directeur technique (DTC)) vous pouvez gérer les virtualenv de manière bien plus performante qu'avec la commande powershell de base.
+Avec PyCharm (pour avoir une license Pro contactez le directeur technique (DTC)) vous pouvez gérer les virtualenv de manière bien plus performante qu'avec la commande powershell de base.
 Bien que le wrapper doive être installé comme dit au dessus, PyCharm vous offre une interface plus maniable.
-Ouvrez le projet dans PyCharm, puis allez dans Fichier(File)->Settings
-Dans "Project interpreter" sélectionnez la version "Python 3.4" que vous avez installée. Cliquez alors sur la roue dentée puis "Create virtualenv". Vous pourrez alors sélectionner le dossier dans lequel
-se trouve le virtualenv et son accessibilité par PyCharm. PyCharm vous notifiera alors que vous n'avez pas toutes les dépendances et vous proposera de les installer.
+
+Ouvrez le projet dans PyCharm, puis allez dans Fichier(File) → Settings
+Dans *Project interpreter* sélectionnez la version “Python 3.x” que vous avez installé. Cliquez alors sur la roue dentée puis sur “Create virtualenv”. Vous pourrez alors sélectionner le dossier dans lequel se trouve le virtualenv et son accessibilité par PyCharm. PyCharm vous notifiera alors que vous n'avez pas toutes les dépendances et vous proposera de les installer.
 
 .. attention::
     Par défaut PyCharm ne va pas chercher les dépendances dans requirements-dev.txt.

@@ -1,18 +1,18 @@
 #cookies-eu-banner {
-    padding: 5px 25px;
-    background: #062e41;
+    padding: $length-6 $length-24;
+    background: $primary-700;
     display: none;
 
     p {
-        margin: 5px 0;
-        color: #eee;
+        margin: $length-6 0;
+        color: $white;
     }
 
     #cookies-eu-more,
     #cookies-eu-accept,
     #cookies-eu-reject {
-        padding: 6px 15px;
-        margin: 5px 0;
+        padding: $length-6 $length-16;
+        margin: $length-6 0;
 
         transition-property: background, color;
         transition-duration: $transition-duration;
@@ -21,13 +21,13 @@
     #cookies-eu-more {
         text-decoration: none;
 
-        color: #eee;
+        color: $white;
         background: $color-primary;
 
         &:hover,
         &:focus {
             color: $color-primary;
-            background: #eee;
+            background: $white;
         }
     }
 
@@ -35,14 +35,14 @@
     #cookies-eu-reject {
         border: none;
         line-height: 1.295;
-        margin-left: 5px;
+        margin-left: $length-6;
 
         color: $color-primary;
-        background: #eee;
+        background: $white;
 
         &:hover,
         &:focus {
-            color: #EEE;
+            color: $white;
             background: $color-primary;
         }
     }

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.http import HttpResponse, StreamingHttpResponse
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 from django.utils.translation import gettext as _
@@ -29,28 +29,28 @@ def get_tag_by_title(title):
     :return: A tuple: (the tag list, the title without the tags).
     """
     nb_bracket = 0
-    current_tag = ''
-    current_title = ''
+    current_tag = ""
+    current_title = ""
     tags = []
     continue_parsing_tags = True
     original_title = title
 
     for char in title:
-        if char == '[' and nb_bracket == 0 and continue_parsing_tags:
+        if char == "[" and nb_bracket == 0 and continue_parsing_tags:
             nb_bracket += 1
-        elif nb_bracket > 0 and char != ']' and continue_parsing_tags:
+        elif nb_bracket > 0 and char != "]" and continue_parsing_tags:
             current_tag = current_tag + char
-            if char == '[':
+            if char == "[":
                 nb_bracket += 1
-        elif char == ']' and nb_bracket > 0 and continue_parsing_tags:
+        elif char == "]" and nb_bracket > 0 and continue_parsing_tags:
             nb_bracket -= 1
-            if nb_bracket == 0 and current_tag.strip() != '':
+            if nb_bracket == 0 and current_tag.strip() != "":
                 tags.append(current_tag.strip())
-                current_tag = ''
-            elif current_tag.strip() != '' and nb_bracket > 0:
+                current_tag = ""
+            elif current_tag.strip() != "" and nb_bracket > 0:
                 current_tag = current_tag + char
 
-        elif (char != '[' and char.strip() != '') or not continue_parsing_tags:
+        elif (char != "[" and char.strip() != "") or not continue_parsing_tags:
             continue_parsing_tags = False
             current_title = current_title + char
 
@@ -64,15 +64,7 @@ def get_tag_by_title(title):
     return tags, title.strip()
 
 
-def create_topic(
-        request,
-        author,
-        forum,
-        title,
-        subtitle,
-        text,
-        tags='',
-        related_publishable_content=None):
+def create_topic(request, author, forum, title, subtitle, text, tags="", related_publishable_content=None):
     """create topic in forum"""
 
     # Creating the thread
@@ -88,7 +80,7 @@ def create_topic(
         related_publishable_content.beta_topic = n_topic
         related_publishable_content.save()
     if tags:
-        n_topic.add_tags(tags.split(','))
+        n_topic.add_tags(tags.split(","))
     n_topic.save()
 
     # Add the first message
@@ -97,7 +89,12 @@ def create_topic(
     return n_topic
 
 
-def send_post(request, topic, author, text,):
+def send_post(
+    request,
+    topic,
+    author,
+    text,
+):
     post = Post()
     post.topic = topic
     post.author = author
@@ -109,15 +106,12 @@ def send_post(request, topic, author, text,):
     if request:
         post.update_content(
             text,
-            on_error=lambda m: messages.error(
-                request,
-                _('Erreur du serveur Markdown:\n{}').format('\n- '.join(m))))
+            on_error=lambda m: messages.error(request, _("Erreur du serveur Markdown:\n{}").format("\n- ".join(m))),
+        )
         post.ip_address = get_client_ip(request)
         post.hat = get_hat_from_request(request)
     else:
-        post.update_content(
-            text,
-            on_error=lambda m: logging.getLogger(__name__).error('--'.join(m)))
+        post.update_content(text, on_error=lambda m: logging.getLogger(__name__).error("--".join(m)))
     post.save()
 
     topic.last_message = post
@@ -139,38 +133,39 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
     posts = None
 
     def get(self, request, *args, **kwargs):
-        assert self.posts is not None, ('Posts cannot be None.')
+        assert self.posts is not None, "Posts cannot be None."
 
-        text = ''
+        text = ""
 
         # Using the quote button
-        if 'cite' in request.GET:
-            text = self.build_quote(request.GET.get('cite'), request.user)
+        if "cite" in request.GET:
+            text = self.build_quote(request.GET.get("cite"), request.user)
 
             if request.is_ajax():
-                return HttpResponse(json.dumps({'text': text}), content_type='application/json')
+                return HttpResponse(json.dumps({"text": text}), content_type="application/json")
 
-        form = self.create_forum(self.form_class, **{'text': text})
+        form = self.create_forum(self.form_class, **{"text": text})
         context = {
-            'topic': self.object,
-            'posts': list(self.posts),
-            'last_post_pk': self.object.last_message.pk,
-            'form': form,
+            "topic": self.object,
+            "posts": list(self.posts),
+            "last_post_pk": self.object.last_message.pk,
+            "form": form,
         }
 
-        votes = CommentVote.objects.filter(user_id=self.request.user.pk,
-                                           comment_id__in=[p.pk for p in context['posts']]).all()
-        context['user_like'] = [vote.comment_id for vote in votes if vote.positive]
-        context['user_dislike'] = [vote.comment_id for vote in votes if not vote.positive]
-        context['is_staff'] = self.request.user.has_perm('forum.change_topic')
+        votes = CommentVote.objects.filter(
+            user_id=self.request.user.pk, comment_id__in=[p.pk for p in context["posts"]]
+        ).all()
+        context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
+        context["is_staff"] = self.request.user.has_perm("forum.change_topic")
 
-        if hasattr(self.object, 'antispam'):
-            context['is_antispam'] = self.object.antispam()
+        if hasattr(self.object, "antispam"):
+            context["is_antispam"] = self.object.antispam()
 
-        if self.request.user.has_perm('forum.change_topic'):
-            context['user_can_modify'] = [post.pk for post in context['posts']]
+        if self.request.user.has_perm("forum.change_topic"):
+            context["user_can_modify"] = [post.pk for post in context["posts"]]
         else:
-            context['user_can_modify'] = [post.pk for post in context['posts'] if post.author == self.request.user]
+            context["user_can_modify"] = [post.pk for post in context["posts"] if post.author == self.request.user]
 
         return render(request, self.template_name, context)
 
@@ -178,24 +173,28 @@ class CreatePostView(CreateView, SingleObjectMixin, QuoteMixin):
         form = self.get_form(self.form_class)
         new_post = None
         if not request.is_ajax():
-            new_post = self.object.last_message.pk != int(request.POST.get('last_post'))
+            new_post = self.object.last_message.pk != int(request.POST.get("last_post"))
 
-        if 'preview' in request.POST or new_post:
+        if "preview" in request.POST or new_post:
             if request.is_ajax():
-                content = render_to_response('misc/preview.part.html', {'text': request.POST.get('text')})
+                content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
                 return StreamingHttpResponse(content)
             else:
-                form = self.create_forum(self.form_class, **{'text': request.POST.get('text')})
+                form = self.create_forum(self.form_class, **{"text": request.POST.get("text")})
         elif form.is_valid():
             return self.form_valid(form)
 
-        return render(request, self.template_name, {
-            'topic': self.object,
-            'posts': self.posts,
-            'last_post_pk': self.object.last_message.pk,
-            'newpost': new_post,
-            'form': form,
-        })
+        return render(
+            request,
+            self.template_name,
+            {
+                "topic": self.object,
+                "posts": self.posts,
+                "last_post_pk": self.object.last_message.pk,
+                "newpost": new_post,
+                "form": form,
+            },
+        )
 
     def create_forum(self, form_class, **kwargs):
-        raise NotImplementedError('`create_forum()` must be implemented.')
+        raise NotImplementedError("`create_forum()` must be implemented.")

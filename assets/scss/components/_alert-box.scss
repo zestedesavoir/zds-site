@@ -1,13 +1,15 @@
 .alert-box {
     position: relative;
-    padding: 8px 30px 8px 15px;
-    margin: 0 0 15px 2%;
-    color: #FFF;
-    text-shadow: rgba(0, 0, 0, 0.2) 0 0 2px;
-    background: #777;
+
+    margin: 0 0 $length-16 2%;
+    padding: $length-8 $length-32 $length-8 $length-16;
+
+    background: $grey-500;
+    color: $white;
+    text-shadow: rgba($black, 0.2) 0 0 $length-2;
 
     &.alert-box-not-closable {
-        padding-right: 15px;
+        padding-right: $length-16;
     }
 
     .alert-box-text {
@@ -18,56 +20,58 @@
     .close-alert-box, .view-alert-box {
         display: block;
         position: absolute;
-        top: 8px;
-        right: 15px;
-        height: 20px;
-        width: 20px;
+        top: $length-8;
+        right: $length-16;
+        height: $length-20;
+        width: $length-20;
         text-indent: -9999px;
         text-decoration: none;
         background-color: transparent;
-        line-height: 22px;
-        color: #FFF;
+        line-height: 1.2;
+        color: $white;
 
         &.ico-after:after {
-            margin-top: 4px;
+            margin-top: $length-4;
         }
     }
+
     .close-alert-box-text {
         width: auto;
         text-indent: 0;
-        top: 8px;
+        top: $length-10;
     }
 
     .alert-box-title {
-        margin: 5px 0;
+        margin: $length-6 0;
         padding: 0;
-        font-size: 18px;
+
+        font-size: $font-size-8;
         font-weight: normal;
     }
 
     &.info, // TEMP PATCH WITH DJANGO ALERTS
     &.success {
-        background: #48A200;
+        background: $green-700;
     }
     &.error {
-        background: #C0392B;
+        background: $red-500;
     }
     &.alert, // TEMP PATCH WITH DJANGO ALERTS
     &.warning {
-        background: #e67e22;
+        background: $accent-800;
     }
     &.not-member {
-        background: #FDFDFD;
-        color: #333;
+        background: $true-white;
+        color: $grey-800;
         text-shadow: none;
-        border-bottom: 3px solid  #D2D5D6;
+        border-bottom: $length-4 solid $grey-200;
     }
 
     &.ico-after {
-        padding-left: 40px;
+        padding-left: $length-38;
 
         &:after {
-            margin: 12px 0 0 13px;
+            margin: $length-12 0 0 $length-12;
         }
     }
 
@@ -81,19 +85,20 @@
     }
 
     a {
-        color: #EEE;
+        color: $white;
     }
+
     .alert-box-btn {
         display: inline-block;
-        background: $color-primary;
+        background: $primary-600;
         text-decoration: none;
-        padding: 8px 15px;
-        margin: 5px 0;
-        color: #FFF !important;
+        padding: $length-8 $length-16;
+        margin: $length-6 0;
+        color: $white !important;
 
         &:hover,
         &:focus {
-            background: lighten($color-primary, 7%);
+            background: $primary-500;
         }
 
         &.alert-box-btn-right {
@@ -110,10 +115,10 @@
 }
 
 .content-wrapper .alert-box {
-    margin: 0 0 20px;
+    margin: 0 0 $length-20;
 
     & + .not-member {
-        margin-top: -20px;
+        margin-top: -$length-20;
     }
 }
 
@@ -123,16 +128,18 @@
     }
 }
 
-@media only screen and #{$media-tablet} {
+@include tablet {
     .alert-box .alert-box-text {
         display: inline;
     }
     .topic-message .alert-box {
-        padding: 8px 75px 8px 15px;
+        // dunno if this 75px is important, will leave it in doubt
+        // (the whole alerts CSS was rewritten in a future branch anyway)
+        padding: $length-8 75px $length-8 $length-16;
     }
 }
 
-@media only screen and #{$media-mobile} {
+@include mobile {
     .alert-box {
         .alert-box-btn {
             &,
@@ -140,7 +147,7 @@
                 position: relative;
                 float: none;
                 display: block;
-                margin: 5px 0 0;
+                margin: $length-6 0 0;
                 text-align: center;
             }
         }

@@ -6,8 +6,13 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory, \
-    SubCategoryFactory
+from zds.tutorialv2.factories import (
+    PublishableContentFactory,
+    ContainerFactory,
+    ExtractFactory,
+    LicenceFactory,
+    SubCategoryFactory,
+)
 from zds.tutorialv2.models.database import PublishableContent
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, ForumCategoryFactory
@@ -17,14 +22,13 @@ from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 @override_for_contents()
 class ContentMoveTests(TutorialTestMixin, TestCase):
-
     def setUp(self):
 
         self.staff = StaffProfileFactory().user
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
-        self.overridden_zds_app['member']['bot_account'] = self.mas.username
+        self.overridden_zds_app["member"]["bot_account"] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
@@ -33,47 +37,45 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
 
-        self.tuto = PublishableContentFactory(type='TUTORIAL')
+        self.tuto = PublishableContentFactory(type="TUTORIAL")
         self.tuto.authors.add(self.user_author)
-        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode='W')
+        UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode="W")
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
         self.tuto.save()
 
         self.beta_forum = ForumFactory(
-            pk=self.overridden_zds_app['forum']['beta_forum_id'],
+            pk=self.overridden_zds_app["forum"]["beta_forum_id"],
             category=ForumCategoryFactory(position=1),
-            position_in_category=1)  # ensure that the forum, for the beta versions, is created
+            position_in_category=1,
+        )  # ensure that the forum, for the beta versions, is created
 
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
 
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=self.overridden_zds_app['member']['bot_group'])
+        bot = Group(name=self.overridden_zds_app["member"]["bot_group"])
         bot.save()
 
     def test_move_up_extract(self):
         # login with author
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         old_sha = tuto.sha_draft
         # test moving up smoothly
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract2.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'up',
-                'pk': tuto.pk
+                "child_slug": self.extract2.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "up",
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -83,65 +85,61 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract2.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'up',
-                'pk': tuto.pk
+                "child_slug": self.extract2.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "up",
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
-        extract = versioned.children_dict[self.part1.slug]\
-            .children_dict[self.chapter1.slug].children_dict[self.extract2.slug]
+        extract = (
+            versioned.children_dict[self.part1.slug].children_dict[self.chapter1.slug].children_dict[self.extract2.slug]
+        )
         self.assertEqual(1, extract.position_in_parent)
 
         # test moving without permission
 
         self.client.logout()
-        self.assertEqual(
-            self.client.login(
-                username=self.user_guest.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract2.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'up',
-                'pk': tuto.pk
+                "child_slug": self.extract2.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "up",
+                "pk": tuto.pk,
             },
-            follow=False)
+            follow=False,
+        )
         self.assertEqual(result.status_code, 403)
 
     def test_move_extract_before(self):
         # test 1 : move extract after a sibling
         # login with author
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         self.extract3 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         old_sha = tuto.sha_draft
         # test moving smoothly
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'before:' + self.extract3.get_path(True)[:-3],
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "before:" + self.extract3.get_path(True)[:-3],
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -154,15 +152,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.extract4 = ExtractFactory(container=self.chapter2, db_object=self.tuto)
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'before:' + self.extract4.get_full_slug(),
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "before:" + self.extract4.get_full_slug(),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
 
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
@@ -180,15 +179,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         first_extract = ExtractFactory(container=first_container, db_object=midsize)
         second_extract = ExtractFactory(container=second_container, db_object=midsize)
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': first_extract.slug,
-                'container_slug': first_container.get_path(True),
-                'first_level_slug': '',
-                'moving_method': 'before:' + second_extract.get_full_slug(),
-                'pk': midsize.pk
+                "child_slug": first_extract.slug,
+                "container_slug": first_container.get_path(True),
+                "first_level_slug": "",
+                "moving_method": "before:" + second_extract.get_full_slug(),
+                "pk": midsize.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(result.status_code, 200)
         self.assertFalse(isfile(first_extract.get_path(True)))
         midsize = PublishableContent.objects.filter(pk=midsize.pk).first()
@@ -201,15 +201,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter2.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'before:' + self.chapter1.get_path(True),
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter2.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "before:" + self.chapter1.get_path(True),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -222,15 +223,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter2.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'before:' + self.chapter1.get_path(True) + '/un-mauvais-extrait',
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter2.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "before:" + self.chapter1.get_path(True) + "/un-mauvais-extrait",
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(404, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -242,11 +244,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
 
     def test_move_container_before(self):
         # login with author
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.chapter3 = ContainerFactory(parent=self.part1, db_object=self.tuto)
@@ -257,15 +255,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         old_sha = tuto.sha_draft
         # test changing parent for container (smoothly)
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.chapter3.slug,
-                'container_slug': self.part1.slug,
-                'first_level_slug': '',
-                'moving_method': 'before:' + self.chapter4.get_path(True),
-                'pk': tuto.pk
+                "child_slug": self.chapter3.slug,
+                "container_slug": self.part1.slug,
+                "first_level_slug": "",
+                "moving_method": "before:" + self.chapter4.get_path(True),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
 
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
@@ -284,15 +283,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.part1.slug,
-                'container_slug': self.tuto.slug,
-                'first_level_slug': '',
-                'moving_method': 'before:' + self.chapter4.get_path(True),
-                'pk': tuto.pk
+                "child_slug": self.part1.slug,
+                "container_slug": self.tuto.slug,
+                "first_level_slug": "",
+                "moving_method": "before:" + self.chapter4.get_path(True),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
 
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
@@ -307,15 +307,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.part1.slug,
-                'container_slug': self.tuto.slug,
-                'first_level_slug': '',
-                'moving_method': 'before:' + self.tuto.load_version().get_path(),
-                'pk': tuto.pk
+                "child_slug": self.part1.slug,
+                "container_slug": self.tuto.slug,
+                "first_level_slug": "",
+                "moving_method": "before:" + self.tuto.load_version().get_path(),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
 
         self.assertEqual(404, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
@@ -329,46 +330,40 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         # test moving without permission
 
         self.client.logout()
-        self.assertEqual(
-            self.client.login(
-                username=self.user_guest.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.chapter2.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'up',
-                'pk': tuto.pk
+                "child_slug": self.chapter2.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "up",
+                "pk": tuto.pk,
             },
-            follow=False)
+            follow=False,
+        )
         self.assertEqual(result.status_code, 403)
 
     def test_move_extract_after(self):
         # test 1 : move extract after a sibling
         # login with author
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         self.extract3 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         old_sha = tuto.sha_draft
         # test moving smoothly
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'after:' + self.extract3.get_path(True)[:-3],
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "after:" + self.extract3.get_path(True)[:-3],
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -383,15 +378,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.extract4 = ExtractFactory(container=self.chapter2, db_object=self.tuto)
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter1.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'after:' + self.extract4.get_path(True)[:-3],
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter1.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "after:" + self.extract4.get_path(True)[:-3],
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
 
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
@@ -405,15 +401,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter2.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'after:' + self.chapter1.get_path(True),
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter2.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "after:" + self.chapter1.get_path(True),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -426,15 +423,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.extract1.slug,
-                'container_slug': self.chapter2.slug,
-                'first_level_slug': self.part1.slug,
-                'moving_method': 'after:' + self.chapter1.get_path(True) + '/un-mauvais-extrait',
-                'pk': tuto.pk
+                "child_slug": self.extract1.slug,
+                "container_slug": self.chapter2.slug,
+                "first_level_slug": self.part1.slug,
+                "moving_method": "after:" + self.chapter1.get_path(True) + "/un-mauvais-extrait",
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(404, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
         versioned = PublishableContent.objects.get(pk=tuto.pk).load_version()
@@ -446,11 +444,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
 
     def test_move_container_after(self):
         # login with author
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
+        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.chapter3 = ContainerFactory(parent=self.part1, db_object=self.tuto)
@@ -461,15 +455,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         old_sha = tuto.sha_draft
         # test changing parent for container (smoothly)
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.chapter3.slug,
-                'container_slug': self.part1.slug,
-                'first_level_slug': '',
-                'moving_method': 'after:' + self.chapter4.get_path(True),
-                'pk': tuto.pk
+                "child_slug": self.chapter3.slug,
+                "container_slug": self.part1.slug,
+                "first_level_slug": "",
+                "moving_method": "after:" + self.chapter4.get_path(True),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
 
         self.assertEqual(200, result.status_code)
         self.assertNotEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
@@ -486,15 +481,16 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_sha = tuto.sha_draft
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': self.part1.slug,
-                'container_slug': self.tuto.slug,
-                'first_level_slug': '',
-                'moving_method': 'after:' + self.chapter4.get_path(True),
-                'pk': tuto.pk
+                "child_slug": self.part1.slug,
+                "container_slug": self.tuto.slug,
+                "first_level_slug": "",
+                "moving_method": "after:" + self.chapter4.get_path(True),
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
 
         self.assertEqual(200, result.status_code)
         self.assertEqual(old_sha, PublishableContent.objects.get(pk=tuto.pk).sha_draft)
@@ -511,20 +507,13 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         telling it is tricky is kind of euphemism.
         :return:
         """
-        LicenceFactory(code='CC BY')
-        self.assertEqual(
-            self.client.login(
-                username=self.user_author.username,
-                password='hostel77'),
-            True)
-        draft_zip_path = join(dirname(__file__), 'fake_lasynchrone-et-le-multithread-en-net.zip')
+        LicenceFactory(code="CC BY")
+        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        draft_zip_path = join(dirname(__file__), "fake_lasynchrone-et-le-multithread-en-net.zip")
         result = self.client.post(
-            reverse('content:import-new'),
-            {
-                'archive': open(draft_zip_path, 'rb'),
-                'subcategory': self.subcategory.pk
-            },
-            follow=False
+            reverse("content:import-new"),
+            {"archive": open(draft_zip_path, "rb"), "subcategory": self.subcategory.pk},
+            follow=False,
         )
         self.assertEqual(result.status_code, 302)
         tuto = PublishableContent.objects.last()
@@ -535,14 +524,15 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         extract1 = tuto.load_version().children[0]
         # test moving up smoothly
         result = self.client.post(
-            reverse('content:move-element'),
+            reverse("content:move-element"),
             {
-                'child_slug': extract1.slug,
-                'first_level_slug': '',
-                'container_slug': tuto.slug,
-                'moving_method': 'down',
-                'pk': tuto.pk
+                "child_slug": extract1.slug,
+                "first_level_slug": "",
+                "container_slug": tuto.slug,
+                "moving_method": "down",
+                "pk": tuto.pk,
             },
-            follow=True)
+            follow=True,
+        )
         self.assertEqual(200, result.status_code)
         self.assertTrue(isdir(tuto.get_repo_path()))

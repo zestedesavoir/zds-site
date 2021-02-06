@@ -13,68 +13,58 @@ from zds.tutorialv2.factories import PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-stringof2001chars = 'http://url.com/'
+stringof2001chars = "http://url.com/"
 for i in range(198):
-    stringof2001chars += '0123456789'
-stringof2001chars += '12.jpg'
+    stringof2001chars += "0123456789"
+stringof2001chars += "12.jpg"
 
 
 class FeaturedResourceListViewTest(TestCase):
     def test_success_list_of_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-list'))
+        response = self.client.get(reverse("featured-resource-list"))
 
         self.assertEqual(200, response.status_code)
 
     def test_failure_list_of_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-resource-list'))
+        response = self.client.get(reverse("featured-resource-list"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_list_of_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(
-            username=profile.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=profile.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-list'))
+        response = self.client.get(reverse("featured-resource-list"))
 
         self.assertEqual(403, response.status_code)
 
 
 @override_for_contents()
 class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
-
     def test_success_create_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
 
         self.assertTrue(login_check)
         self.assertEqual(0, FeaturedResource.objects.all().count())
 
-        pubdate = date(2016, 1, 1).strftime('%d/%m/%Y %H:%M:%S')
+        pubdate = date(2016, 1, 1).strftime("%d/%m/%Y %H:%M:%S")
 
         fields = {
-            'title': 'title',
-            'type': 'type',
-            'image_url': 'http://test.com/image.png',
-            'url': 'http://test.com',
-            'authors': staff.user.username,
-            'pubdate': pubdate
+            "title": "title",
+            "type": "type",
+            "image_url": "http://test.com/image.png",
+            "url": "http://test.com",
+            "authors": staff.user.username,
+            "pubdate": pubdate,
         }
 
-        response = self.client.post(reverse('featured-resource-create'), fields, follow=True)
+        response = self.client.post(reverse("featured-resource-create"), fields, follow=True)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, FeaturedResource.objects.all().count())
@@ -82,15 +72,15 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         featured = FeaturedResource.objects.first()
 
         for field, value in list(fields.items()):
-            if field != 'pubdate':
-                self.assertEqual(value, getattr(featured, field), msg='Error on {}'.format(field))
+            if field != "pubdate":
+                self.assertEqual(value, getattr(featured, field), msg="Error on {}".format(field))
             else:
-                self.assertEqual(value, featured.pubdate.strftime('%d/%m/%Y %H:%M:%S'))
+                self.assertEqual(value, featured.pubdate.strftime("%d/%m/%Y %H:%M:%S"))
 
         # now with major_update
-        fields['major_update'] = 'on'
+        fields["major_update"] = "on"
 
-        response = self.client.post(reverse('featured-resource-create'), fields, follow=True)
+        response = self.client.post(reverse("featured-resource-create"), fields, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(2, FeaturedResource.objects.all().count())
 
@@ -98,56 +88,50 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         self.assertTrue((datetime.now() - featured.pubdate).total_seconds() < 10)
 
     def test_failure_create_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-resource-create'))
+        response = self.client.get(reverse("featured-resource-create"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(
-            username=profile.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=profile.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-create'))
+        response = self.client.get(reverse("featured-resource-create"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_too_long_url(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         self.assertEqual(0, FeaturedResource.objects.all().count())
         response = self.client.post(
-            reverse('featured-resource-create'),
+            reverse("featured-resource-create"),
             {
-                'title': 'title',
-                'type': 'type',
-                'image_url': stringof2001chars,
-                'url': 'http://test.com',
-                'authors': staff.user.username
+                "title": "title",
+                "type": "type",
+                "image_url": stringof2001chars,
+                "url": "http://test.com",
+                "authors": staff.user.username,
             },
-            follow=True
+            follow=True,
         )
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, FeaturedResource.objects.all().count())
 
         response = self.client.post(
-            reverse('featured-resource-create'),
+            reverse("featured-resource-create"),
             {
-                'title': 'title',
-                'type': 'type',
-                'image_url': 'http://test.com/image.png',
-                'url': stringof2001chars,
-                'authors': staff.user.username
+                "title": "title",
+                "type": "type",
+                "image_url": "http://test.com/image.png",
+                "url": stringof2001chars,
+                "authors": staff.user.username,
             },
-            follow=True
+            follow=True,
         )
 
         self.assertEqual(200, response.status_code)
@@ -162,19 +146,19 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         tutorial.image = image
         tutorial.save()
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
-        response = self.client.get('{}{}'.format(reverse('featured-resource-create'),
-                                                 '?content_type=published_content&content_id={}'.format(tutorial.pk)))
-        initial_dict = response.context['form'].initial
-        self.assertEqual(initial_dict['title'], tutorial.title)
-        self.assertEqual(initial_dict['authors'], '{}, {}'.format(author, author2))
-        self.assertEqual(initial_dict['type'], _('Un tutoriel'))
-        self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(tutorial.get_absolute_url_online()))
-        self.assertEqual(initial_dict['image_url'], 'http://testserver{}'.format(image.physical['featured'].url))
+        response = self.client.get(
+            "{}{}".format(
+                reverse("featured-resource-create"), "?content_type=published_content&content_id={}".format(tutorial.pk)
+            )
+        )
+        initial_dict = response.context["form"].initial
+        self.assertEqual(initial_dict["title"], tutorial.title)
+        self.assertEqual(initial_dict["authors"], "{}, {}".format(author, author2))
+        self.assertEqual(initial_dict["type"], _("Un tutoriel"))
+        self.assertEqual(initial_dict["url"], "http://testserver{}".format(tutorial.get_absolute_url_online()))
+        self.assertEqual(initial_dict["image_url"], "http://testserver{}".format(image.physical["featured"].url))
 
     def test_success_initial_content_topic(self):
         author = ProfileFactory().user
@@ -182,38 +166,32 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=author)
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77')
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
-        response = self.client.get('{}?content_type=topic&content_id={}'
-                                   .format(reverse('featured-resource-create'), topic.id))
-        initial_dict = response.context['form'].initial
-        self.assertEqual(initial_dict['title'], topic.title)
-        self.assertEqual(initial_dict['authors'], str(author))
-        self.assertEqual(initial_dict['type'], _('Un sujet'))
-        self.assertEqual(initial_dict['url'], 'http://testserver{}'.format(topic.get_absolute_url()))
+        response = self.client.get(
+            "{}?content_type=topic&content_id={}".format(reverse("featured-resource-create"), topic.id)
+        )
+        initial_dict = response.context["form"].initial
+        self.assertEqual(initial_dict["title"], topic.title)
+        self.assertEqual(initial_dict["authors"], str(author))
+        self.assertEqual(initial_dict["type"], _("Un sujet"))
+        self.assertEqual(initial_dict["url"], "http://testserver{}".format(topic.get_absolute_url()))
 
     def test_failure_initial_content_not_found(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get('{}?content_type=published_content&content_id=42'
-                                   .format(reverse('featured-resource-create')))
-        self.assertContains(response, _('Le contenu est introuvable'))
+        response = self.client.get(
+            "{}?content_type=published_content&content_id=42".format(reverse("featured-resource-create"))
+        )
+        self.assertContains(response, _("Le contenu est introuvable"))
 
 
 class FeaturedResourceUpdateViewTest(TestCase):
     def test_success_update_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         news = FeaturedResourceFactory()
@@ -221,18 +199,18 @@ class FeaturedResourceUpdateViewTest(TestCase):
 
         old_featured = FeaturedResource.objects.first()
 
-        pubdate = date(2016, 1, 1).strftime('%d/%m/%Y %H:%M:%S')
+        pubdate = date(2016, 1, 1).strftime("%d/%m/%Y %H:%M:%S")
 
         fields = {
-            'title': 'title',
-            'type': 'type',
-            'image_url': 'http://test.com/image.png',
-            'url': 'http://test.com',
-            'authors': staff.user.username,
-            'pubdate': pubdate
+            "title": "title",
+            "type": "type",
+            "image_url": "http://test.com/image.png",
+            "url": "http://test.com",
+            "authors": staff.user.username,
+            "pubdate": pubdate,
         }
 
-        response = self.client.post(reverse('featured-resource-update', args=[news.pk]), fields, follow=True)
+        response = self.client.post(reverse("featured-resource-update", args=[news.pk]), fields, follow=True)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, FeaturedResource.objects.all().count())
@@ -242,35 +220,32 @@ class FeaturedResourceUpdateViewTest(TestCase):
         for field, value in list(fields.items()):
             self.assertNotEqual(getattr(featured, field), getattr(old_featured, field))
 
-            if field != 'pubdate':
-                self.assertEqual(value, getattr(featured, field), msg='Error on {}'.format(field))
+            if field != "pubdate":
+                self.assertEqual(value, getattr(featured, field), msg="Error on {}".format(field))
             else:
-                self.assertEqual(value, featured.pubdate.strftime('%d/%m/%Y %H:%M:%S'))
+                self.assertEqual(value, featured.pubdate.strftime("%d/%m/%Y %H:%M:%S"))
 
         # now with major_update
         self.assertFalse((datetime.now() - featured.pubdate).total_seconds() < 10)
 
-        fields['major_update'] = 'on'
+        fields["major_update"] = "on"
 
-        response = self.client.post(reverse('featured-resource-update', args=[news.pk]), fields, follow=True)
+        response = self.client.post(reverse("featured-resource-update", args=[news.pk]), fields, follow=True)
         self.assertEqual(200, response.status_code)
         featured = FeaturedResource.objects.first()
         self.assertTrue((datetime.now() - featured.pubdate).total_seconds() < 10)
 
     def test_failure_create_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-resource-update', args=[42]))
+        response = self.client.get(reverse("featured-resource-update", args=[42]))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(
-            username=profile.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=profile.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-update', args=[42]))
+        response = self.client.get(reverse("featured-resource-update", args=[42]))
 
         self.assertEqual(403, response.status_code)
 
@@ -278,38 +253,29 @@ class FeaturedResourceUpdateViewTest(TestCase):
 class FeaturedResourceDeleteViewTest(TestCase):
     def test_success_delete_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         news = FeaturedResourceFactory()
         self.assertEqual(1, FeaturedResource.objects.all().count())
-        response = self.client.post(
-            reverse('featured-resource-delete', args=[news.pk]),
-            follow=True
-        )
+        response = self.client.post(reverse("featured-resource-delete", args=[news.pk]), follow=True)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, FeaturedResource.objects.filter(pk=news.pk).count())
 
     def test_failure_delete_featured_with_unauthenticated_user(self):
         news = FeaturedResourceFactory()
-        response = self.client.get(reverse('featured-resource-delete', args=[news.pk]))
+        response = self.client.get(reverse("featured-resource-delete", args=[news.pk]))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(
-            username=profile.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=profile.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         news = FeaturedResourceFactory()
-        response = self.client.get(reverse('featured-resource-delete', args=[news.pk]))
+        response = self.client.get(reverse("featured-resource-delete", args=[news.pk]))
 
         self.assertEqual(403, response.status_code)
 
@@ -317,21 +283,14 @@ class FeaturedResourceDeleteViewTest(TestCase):
 class FeaturedResourceListDeleteViewTest(TestCase):
     def test_success_list_delete_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         news = FeaturedResourceFactory()
         news2 = FeaturedResourceFactory()
         self.assertEqual(2, FeaturedResource.objects.all().count())
         response = self.client.post(
-            reverse('featured-resource-list-delete'),
-            {
-                'items': [news.pk, news2.pk]
-            },
-            follow=True
+            reverse("featured-resource-list-delete"), {"items": [news.pk, news2.pk]}, follow=True
         )
 
         self.assertEqual(200, response.status_code)
@@ -339,19 +298,16 @@ class FeaturedResourceListDeleteViewTest(TestCase):
         self.assertEqual(0, FeaturedResource.objects.filter(pk=news2.pk).count())
 
     def test_failure_list_delete_featured_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-resource-list-delete'))
+        response = self.client.get(reverse("featured-resource-list-delete"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_list_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(
-            username=profile.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=profile.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-list-delete'))
+        response = self.client.get(reverse("featured-resource-list-delete"))
 
         self.assertEqual(403, response.status_code)
 
@@ -359,19 +315,16 @@ class FeaturedResourceListDeleteViewTest(TestCase):
 class FeaturedMessageCreateUpdateViewTest(TestCase):
     def test_success_list_create_message(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('featured-message-create'),
+            reverse("featured-message-create"),
             {
-                'message': 'message',
-                'url': 'http://test.com',
+                "message": "message",
+                "url": "http://test.com",
             },
-            follow=True
+            follow=True,
         )
 
         self.assertEqual(200, response.status_code)
@@ -379,31 +332,28 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
 
     def test_create_only_one_message_in_system(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('featured-message-create'),
+            reverse("featured-message-create"),
             {
-                'message': 'message',
-                'url': 'http://test.com',
+                "message": "message",
+                "url": "http://test.com",
             },
-            follow=True
+            follow=True,
         )
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, FeaturedMessage.objects.count())
 
         response = self.client.post(
-            reverse('featured-message-create'),
+            reverse("featured-message-create"),
             {
-                'message': 'message',
-                'url': 'http://test.com',
+                "message": "message",
+                "url": "http://test.com",
             },
-            follow=True
+            follow=True,
         )
 
         self.assertEqual(200, response.status_code)
@@ -414,30 +364,24 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
 class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
     def test_success_list(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-requests'))
+        response = self.client.get(reverse("featured-resource-requests"))
 
         self.assertEqual(200, response.status_code)
 
     def test_failure_list_with_unauthenticated_user(self):
-        response = self.client.get(reverse('featured-resource-requests'))
+        response = self.client.get(reverse("featured-resource-requests"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_list_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(
-            username=profile.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=profile.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-requests'))
+        response = self.client.get(reverse("featured-resource-requests"))
 
         self.assertEqual(403, response.status_code)
 
@@ -460,34 +404,31 @@ class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
 
         # without filter
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
-        response = self.client.get(reverse('featured-resource-requests'))
+        response = self.client.get(reverse("featured-resource-requests"))
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(len(response.context['featured_request_list']), 2)
-        self.assertTrue(any(r.content_object == topic for r in response.context['featured_request_list']))
-        self.assertTrue(any(r.content_object == tutorial for r in response.context['featured_request_list']))
+        self.assertEqual(len(response.context["featured_request_list"]), 2)
+        self.assertTrue(any(r.content_object == topic for r in response.context["featured_request_list"]))
+        self.assertTrue(any(r.content_object == tutorial for r in response.context["featured_request_list"]))
 
         # filter topic
-        response = self.client.get(reverse('featured-resource-requests') + '?type=topic')
+        response = self.client.get(reverse("featured-resource-requests") + "?type=topic")
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(len(response.context['featured_request_list']), 1)
-        self.assertTrue(any(r.content_object == topic for r in response.context['featured_request_list']))
-        self.assertFalse(any(r.content_object == tutorial for r in response.context['featured_request_list']))
+        self.assertEqual(len(response.context["featured_request_list"]), 1)
+        self.assertTrue(any(r.content_object == topic for r in response.context["featured_request_list"]))
+        self.assertFalse(any(r.content_object == tutorial for r in response.context["featured_request_list"]))
 
         # filter tuto
-        response = self.client.get(reverse('featured-resource-requests') + '?type=content')
+        response = self.client.get(reverse("featured-resource-requests") + "?type=content")
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(len(response.context['featured_request_list']), 1)
-        self.assertFalse(any(r.content_object == topic for r in response.context['featured_request_list']))
-        self.assertTrue(any(r.content_object == tutorial for r in response.context['featured_request_list']))
+        self.assertEqual(len(response.context["featured_request_list"]), 1)
+        self.assertFalse(any(r.content_object == topic for r in response.context["featured_request_list"]))
+        self.assertTrue(any(r.content_object == tutorial for r in response.context["featured_request_list"]))
 
         # reject topic
         content_type = ContentType.objects.get_for_model(topic)
@@ -495,37 +436,36 @@ class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
         q.rejected = True
         q.save()
 
-        response = self.client.get(reverse('featured-resource-requests') + '?type=topic')
+        response = self.client.get(reverse("featured-resource-requests") + "?type=topic")
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(len(response.context['featured_request_list']), 0)
+        self.assertEqual(len(response.context["featured_request_list"]), 0)
 
         # filter ignored
-        response = self.client.get(reverse('featured-resource-requests') + '?type=ignored')
+        response = self.client.get(reverse("featured-resource-requests") + "?type=ignored")
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(len(response.context['featured_request_list']), 1)
-        self.assertTrue(any(r.content_object == topic for r in response.context['featured_request_list']))
+        self.assertEqual(len(response.context["featured_request_list"]), 1)
+        self.assertTrue(any(r.content_object == topic for r in response.context["featured_request_list"]))
 
         # put back vote count to 0 for tutorial
         FeaturedRequested.objects.toogle_request(tutorial, author)
-        response = self.client.get(reverse('featured-resource-requests') + '?type=content')
+        response = self.client.get(reverse("featured-resource-requests") + "?type=content")
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(len(response.context['featured_request_list']), 0)  # does not appear with no votes
+        self.assertEqual(len(response.context["featured_request_list"]), 0)  # does not appear with no votes
 
         # upvote topic
         other = ProfileFactory().user
         FeaturedRequested.objects.toogle_request(topic, other)
 
-        response = self.client.get(reverse('featured-resource-requests') + '?type=topic')
+        response = self.client.get(reverse("featured-resource-requests") + "?type=topic")
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(len(response.context['featured_request_list']), 1)  # it is back!
+        self.assertEqual(len(response.context["featured_request_list"]), 1)  # it is back!
 
 
 class FeaturedRequestUpdateViewTest(TestCase):
-
     def test_update(self):
         # create topic and content and toggle request
         author = ProfileFactory().user
@@ -537,10 +477,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
 
         # ignore
         staff = StaffProfileFactory()
-        login_check = self.client.login(
-            username=staff.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=staff.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         content_type = ContentType.objects.get_for_model(topic)
@@ -548,11 +485,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
         self.assertFalse(q.rejected)
 
         response = self.client.post(
-            reverse('featured-resource-request-update', kwargs={'pk': q.pk}),
-            {
-                'operation': 'REJECT'
-            },
-            follow=False
+            reverse("featured-resource-request-update", kwargs={"pk": q.pk}), {"operation": "REJECT"}, follow=False
         )
         self.assertEqual(200, response.status_code)
 
@@ -561,11 +494,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
         self.assertFalse(q.rejected_for_good)
 
         response = self.client.post(
-            reverse('featured-resource-request-update', kwargs={'pk': q.pk}),
-            {
-                'operation': 'CONSIDER'
-            },
-            follow=False
+            reverse("featured-resource-request-update", kwargs={"pk": q.pk}), {"operation": "CONSIDER"}, follow=False
         )
         self.assertEqual(200, response.status_code)
 
@@ -573,11 +502,9 @@ class FeaturedRequestUpdateViewTest(TestCase):
         self.assertFalse(q.rejected)
 
         response = self.client.post(
-            reverse('featured-resource-request-update', kwargs={'pk': q.pk}),
-            {
-                'operation': 'REJECT_FOR_GOOD'
-            },
-            follow=False
+            reverse("featured-resource-request-update", kwargs={"pk": q.pk}),
+            {"operation": "REJECT_FOR_GOOD"},
+            follow=False,
         )
         self.assertEqual(200, response.status_code)
 
@@ -590,10 +517,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
 class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
     def test_toggle(self):
         author = ProfileFactory()
-        login_check = self.client.login(
-            username=author.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=author.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         # create topic and toggle request
@@ -602,11 +526,9 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic = TopicFactory(forum=forum, author=author.user)
 
         response = self.client.post(
-            reverse('topic-edit') + '?topic={}'.format(topic.pk),
-            {
-                'request_featured': 1
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            {"request_featured": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(200, response.status_code)
 
@@ -620,11 +542,9 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic.save()
 
         response = self.client.post(
-            reverse('topic-edit') + '?topic={}'.format(topic.pk),
-            {
-                'request_featured': 1
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            {"request_featured": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(403, response.status_code)
         self.assertEqual(FeaturedRequested.objects.count(), 1)
@@ -637,11 +557,9 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         tutorial.save()
 
         response = self.client.post(
-            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
-            {
-                'request_featured': 1
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("content:request-featured", kwargs={"pk": tutorial.pk}),
+            {"request_featured": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(200, response.status_code)
 
@@ -651,18 +569,16 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         self.assertIn(author.user, r.users_voted.all())
 
         # create opinion: cannot toggle request!
-        opinion = PublishedContentFactory(type='OPINION', author_list=[author.user])
+        opinion = PublishedContentFactory(type="OPINION", author_list=[author.user])
         gallery = GalleryFactory()
         image = ImageFactory(gallery=gallery)
         opinion.image = image
         opinion.save()
 
         response = self.client.post(
-            reverse('content:request-featured', kwargs={'pk': opinion.pk}),
-            {
-                'request_featured': 1
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("content:request-featured", kwargs={"pk": opinion.pk}),
+            {"request_featured": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(403, response.status_code)
         self.assertEqual(FeaturedRequested.objects.count(), 2)
@@ -672,11 +588,9 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         tutorial.save()
 
         response = self.client.post(
-            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
-            {
-                'request_featured': 1
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("content:request-featured", kwargs={"pk": tutorial.pk}),
+            {"request_featured": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(403, response.status_code)
 
@@ -694,18 +608,13 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
 
         # upvote with other user
         other = ProfileFactory()
-        login_check = self.client.login(
-            username=other.user.username,
-            password='hostel77'
-        )
+        login_check = self.client.login(username=other.user.username, password="hostel77")
         self.assertTrue(login_check)
 
         response = self.client.post(
-            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
-            {
-                'request_featured': 1
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("content:request-featured", kwargs={"pk": tutorial.pk}),
+            {"request_featured": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(200, response.status_code)
 
@@ -718,11 +627,9 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         r.save()
 
         response = self.client.post(
-            reverse('content:request-featured', kwargs={'pk': tutorial.pk}),
-            {
-                'request_featured': 1
-            },
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+            reverse("content:request-featured", kwargs={"pk": tutorial.pk}),
+            {"request_featured": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
         self.assertEqual(403, response.status_code)
 

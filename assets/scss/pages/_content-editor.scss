@@ -1,0 +1,56 @@
+.editable-element {
+  display: flex;
+  align-items: center;
+
+  > :not(.edit-button) {
+    flex: 21;
+    margin: 0;
+  }
+}
+
+.edit-button {
+  position: relative;
+
+  margin: 0 $length-4;
+
+  width: $length-24;
+  height: $length-24;
+
+  border-radius: $radius-round;
+
+  transition: background-color .1s ease-in-out;
+
+  &:hover {
+    background-color: $color-primary;
+
+    &:after {
+      @include sprite-position($edit-light);
+    }
+  }
+
+  &:first-child {
+    margin-left: 0;
+  }
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &:after {
+    content: " ";
+    display: block;
+
+    position: absolute;
+
+    top: $length-4;
+    left: $length-4;
+
+    width: $length-16;
+    height: $length-16;
+
+    background-repeat: no-repeat;
+
+    @include sprite;
+    @include sprite-position($edit-blue);
+  }
+}

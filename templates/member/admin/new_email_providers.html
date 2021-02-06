@@ -1,0 +1,86 @@
+{% extends "member/admin/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Fournisseurs en attente de vérification" %} &bull; {% trans "Gestion des fournisseurs bannis" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        <a href="{% url 'banned-email-providers' %}">
+            {% trans "Gestion des fournisseurs bannis" %}
+        </a>
+    </li>
+    <li>
+        {% trans "Fournisseurs en attente de vérification" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Fournisseurs en attente de vérification" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% trans "Vous pouvez ici vérifier les nouveaux fournisseurs d’adresses e-mail afin de s’assurer qu’ils ne génèrent pas d’adresses e-mail jetables. Bannir un fournisseur empêchera de futures inscriptions avec une de ses adresses e-mail, mais le compte concerné restera actif (sauf action contraire)." %}
+    </p>
+
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if providers %}
+        <table class="fullwidth">
+            <thead>
+                <th>{% trans "Fournisseur" %}</th>
+                <th class="wide">{% trans "Utilisation" %}</th>
+                <th class="wide">{% trans "Compte concerné" %}</th>
+                <th class="wide">{% trans "Date d’utilisation" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </thead>
+            <tbody>
+                {% for provider in providers %}
+                    <tr>
+                        <td>{{ provider.provider }}</td>
+                        <td class="wide">{{ provider.get_use_display }}</td>
+                        <td class="wide">{% include 'misc/member_item.part.html' with member=provider.user avatar=True %}</td>
+                        <td class="wide">{{ provider.date|format_date|capfirst }}</td>
+                        <td>
+                            <form method="post" action="{% url 'check-new-email-provider' provider.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" name="ban" class="btn btn-grey ico-after red cross">{% trans "Bannir" %}</button>
+                                <button type="submit" class="btn btn-grey ico-after green tick">{% trans "Approuver" %}</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <em>{% trans "Aucun fournisseur n’est actuellement en attente de vérification." %}</em>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+
+{% block sidebar_actions %}
+    <div>
+        <a href="{% url "banned-email-providers" %}" class="new-btn ico-after cross blue">
+            {% trans "Fournisseurs bannis" %}
+        </a>
+
+        <a href="{% url "add-banned-email-provider" %}" class="new-btn ico-after more blue">
+            {% blocktrans %}
+                Bannir <span class="wide">un fournisseur</span>
+            {% endblocktrans %}
+        </a>
+    </div>
+{% endblock %}

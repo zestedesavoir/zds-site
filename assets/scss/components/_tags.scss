@@ -2,29 +2,36 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
+
     list-style: none;
+
+    margin: 0 0 $length-16 0;
     padding: 0;
-    margin: -14px 0 15px;
-    height: 30px;
-    line-height: 30px;
+
+    height: $length-32;
+    line-height: $length-32;
 
     li {
         a {
             display: block;
-            text-decoration: none;
-            padding: 0 10px;
+
+            margin-left: $length-1;
+            padding: 0 $length-10;
+
             background: $color-header-hover;
-            color: #FFF;
-            margin-left: 1px;
+            color: $white;
+
+            text-decoration: none;
+
             transition-property: color, background, border;
             transition-timing-function: ease;
             transition-duration: $transition-duration;
 
             &:hover,
             &:focus {
-                background: #FFF;
+                border-bottom: $length-1 solid $color-header-hover;
+                background: $grey-000;
                 color: $color-header-hover;
-                border-bottom: 1px solid $color-header-hover;
             }
         }
     }
@@ -43,31 +50,39 @@
 }
 
 .content-tag {
-    margin: 0 5px 20px;
-    line-height: 1.4em;
-    white-space: nowrap;
     flex: auto;
+    margin: 0 $length-6 $length-20;
+    white-space: nowrap;
 
     a {
-        color: #777;
         display: block;
-        padding: 8px 15px;
-        text-decoration: none;
-        background-color: #EEE;
-        transition-property: color, background, border, outline;
-        transition-timing-function: ease;
-        transition-duration: $transition-duration;
-        border: solid 1px #CCC;
+        padding: $length-8 $length-16;
 
-        &:hover, &:focus {
-            color: #EEE;
-            background-color: #777;
-            border-color: #777;
-            outline: none;
+        border: solid $length-1 $grey-200;
+        background-color: $grey-000;
+
+        color: $grey-800;
+        text-decoration: none;
+
+        &, .tag-count {
+            transition-property: color, background, border, outline;
+            transition-timing-function: ease;
+            transition-duration: $transition-duration;
         }
 
         .tag-count {
-            color: #AAA;
+            color: $grey-500;
+        }
+
+        &:hover, &:focus {
+            color: $grey-000;
+            background-color: $grey-400;
+            border-color: $grey-400;
+            outline: none;
+
+            .tag-count {
+                color: $grey-100;
+            }
         }
     }
 }

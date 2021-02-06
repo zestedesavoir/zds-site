@@ -3,7 +3,6 @@ import os
 import string
 import uuid
 import logging
-from uuslug import uuslug
 
 from django.conf import settings
 
@@ -18,13 +17,14 @@ from django.template.loader import render_to_string
 
 from easy_thumbnails.fields import ThumbnailerImageField
 
-from zds.notification import signals
+from zds.utils import signals
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.utils.mps import send_mp
-from zds.utils import slugify
+from zds.utils import old_slugify
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.templatetags.emarkdown import render_markdown
+from zds.utils.uuslug_wrapper import uuslug
 
 from model_utils.managers import InheritanceManager
 
@@ -34,28 +34,28 @@ logger = logging.getLogger(__name__)
 
 def image_path_category(instance, filename):
     """Return path to an image."""
-    ext = filename.split('.')[-1]
-    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('categorie/normal', str(instance.pk), filename)
+    ext = filename.split(".")[-1]
+    filename = "{}.{}".format(str(uuid.uuid4()), string.lower(ext))
+    return os.path.join("categorie/normal", str(instance.pk), filename)
 
 
 def image_path_help(instance, filename):
     """Return path to an image."""
-    ext = filename.split('.')[-1]
-    filename = '{}.{}'.format(str(uuid.uuid4()), string.lower(ext))
-    return os.path.join('helps/normal', str(instance.pk), filename)
+    ext = filename.split(".")[-1]
+    filename = "{}.{}".format(str(uuid.uuid4()), string.lower(ext))
+    return os.path.join("helps/normal", str(instance.pk), filename)
 
 
 class Category(models.Model):
     """Common category for several concepts of the application."""
 
     class Meta:
-        verbose_name = 'Categorie'
-        verbose_name_plural = 'Categories'
+        verbose_name = "Categorie"
+        verbose_name_plural = "Categories"
 
-    title = models.CharField('Titre', unique=True, max_length=80)
-    description = models.TextField('Description')
-    position = models.IntegerField('Position', default=0, db_index=True)
+    title = models.CharField("Titre", unique=True, max_length=80)
+    description = models.TextField("Description")
+    position = models.IntegerField("Position", default=0, db_index=True)
 
     slug = models.SlugField(max_length=80, unique=True)
 
@@ -63,23 +63,24 @@ class Category(models.Model):
         return self.title
 
     def get_subcategories(self):
-        return [a.subcategory for a in
-                CategorySubCategory.objects
-                .filter(is_main=True, category__pk=self.pk)
-                .prefetch_related('subcategory')
-                .all()]
+        return [
+            a.subcategory
+            for a in CategorySubCategory.objects.filter(is_main=True, category__pk=self.pk)
+            .prefetch_related("subcategory")
+            .all()
+        ]
 
 
 class SubCategory(models.Model):
     """Common subcategory for several concepts of the application."""
 
     class Meta:
-        verbose_name = 'Sous-categorie'
-        verbose_name_plural = 'Sous-categories'
+        verbose_name = "Sous-categorie"
+        verbose_name_plural = "Sous-categories"
 
-    title = models.CharField('Titre', max_length=80, unique=True)
-    subtitle = models.CharField('Sous-titre', max_length=200)
-    position = models.IntegerField('Position', db_index=True, default=0)
+    title = models.CharField("Titre", max_length=80, unique=True)
+    subtitle = models.CharField("Sous-titre", max_length=200)
+    position = models.IntegerField("Position", db_index=True, default=0)
 
     image = models.ImageField(upload_to=image_path_category, blank=True, null=True)
 
@@ -89,13 +90,13 @@ class SubCategory(models.Model):
         return self.title
 
     def get_absolute_url_tutorial(self):
-        url = reverse('tutorial-index')
-        url += '?tag={}'.format(self.slug)
+        url = reverse("tutorial-index")
+        url += "?tag={}".format(self.slug)
         return url
 
     def get_absolute_url_article(self):
-        url = reverse('article-index')
-        url += '?tag={}'.format(self.slug)
+        url = reverse("article-index")
+        url += "?tag={}".format(self.slug)
         return url
 
     def get_parent_category(self):
@@ -115,37 +116,34 @@ class CategorySubCategory(models.Model):
 
     """ManyToMany between Category and SubCategory but save a boolean to know
     if category is his main category."""
-    class Meta:
-        verbose_name = 'Hierarchie catégorie'
-        verbose_name_plural = 'Hierarchies catégories'
 
-    category = models.ForeignKey(Category, verbose_name='Catégorie', db_index=True, on_delete=models.CASCADE)
-    subcategory = models.ForeignKey(SubCategory, verbose_name='Sous-Catégorie', db_index=True,
-                                    on_delete=models.CASCADE)
-    is_main = models.BooleanField('Est la catégorie principale', default=True, db_index=True)
+    class Meta:
+        verbose_name = "Hierarchie catégorie"
+        verbose_name_plural = "Hierarchies catégories"
+
+    category = models.ForeignKey(Category, verbose_name="Catégorie", db_index=True, on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(SubCategory, verbose_name="Sous-Catégorie", db_index=True, on_delete=models.CASCADE)
+    is_main = models.BooleanField("Est la catégorie principale", default=True, db_index=True)
 
     def __str__(self):
         """Textual Link Form."""
         if self.is_main:
-            return '[{0}][main]: {1}'.format(
-                self.category.title,
-                self.subcategory.title)
+            return "[{0}][main]: {1}".format(self.category.title, self.subcategory.title)
         else:
-            return '[{0}]: {1}'.format(
-                self.category.title,
-                self.subcategory.title)
+            return "[{0}]: {1}".format(self.category.title, self.subcategory.title)
 
 
 class Licence(models.Model):
 
     """Publication licence."""
-    class Meta:
-        verbose_name = 'Licence'
-        verbose_name_plural = 'Licences'
 
-    code = models.CharField('Code', max_length=20)
-    title = models.CharField('Titre', max_length=80)
-    description = models.TextField('Description')
+    class Meta:
+        verbose_name = "Licence"
+        verbose_name_plural = "Licences"
+
+    code = models.CharField("Code", max_length=20)
+    title = models.CharField("Titre", max_length=80)
+    description = models.TextField("Description")
 
     def __str__(self):
         """Textual Licence Form."""
@@ -162,20 +160,27 @@ class Hat(models.Model):
     that a moderation message was posted by a staff member.
     """
 
-    name = models.CharField('Casquette', max_length=40, unique=True)
-    group = models.ForeignKey(Group, on_delete=models.SET_NULL, verbose_name='Groupe possédant la casquette',
-                              related_name='hats', db_index=True, null=True, blank=True)
-    is_staff = models.BooleanField('Casquette interne au site', default=False)
+    name = models.CharField("Casquette", max_length=40, unique=True)
+    group = models.ForeignKey(
+        Group,
+        on_delete=models.SET_NULL,
+        verbose_name="Groupe possédant la casquette",
+        related_name="hats",
+        db_index=True,
+        null=True,
+        blank=True,
+    )
+    is_staff = models.BooleanField("Casquette interne au site", default=False)
 
     class Meta:
-        verbose_name = 'Casquette'
-        verbose_name_plural = 'Casquettes'
+        verbose_name = "Casquette"
+        verbose_name_plural = "Casquettes"
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('hat-detail', args=[self.pk])
+        return reverse("hat-detail", args=[self.pk])
 
     def get_users(self):
         """
@@ -190,7 +195,7 @@ class Hat(models.Model):
         return len(self.get_users())
 
     def get_users_preview(self):
-        return self.get_users()[:settings.ZDS_APP['member']['users_in_hats_list']]
+        return self.get_users()[: settings.ZDS_APP["member"]["users_in_hats_list"]]
 
 
 class HatRequest(models.Model):
@@ -198,27 +203,26 @@ class HatRequest(models.Model):
     A hat requested by a user.
     """
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Utilisateur',
-                             related_name='requested_hats')
-    hat = models.CharField('Casquette', max_length=40)
-    reason = models.TextField('Raison de la demande', max_length=3000)
-    date = models.DateTimeField(auto_now_add=True, db_index=True,
-                                verbose_name='Date de la demande', db_column='request_date')
-    is_granted = models.NullBooleanField('Est acceptée')
-    solved_at = models.DateTimeField('Date de résolution', blank=True, null=True)
-    moderator = models.ForeignKey(User, verbose_name='Modérateur', blank=True, null=True, on_delete=models.SET_NULL)
-    comment = models.TextField('Commentaire', max_length=1000, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Utilisateur", related_name="requested_hats")
+    hat = models.CharField("Casquette", max_length=40)
+    reason = models.TextField("Raison de la demande", max_length=3000)
+    date = models.DateTimeField(
+        auto_now_add=True, db_index=True, verbose_name="Date de la demande", db_column="request_date"
+    )
+    is_granted = models.NullBooleanField("Est acceptée")
+    solved_at = models.DateTimeField("Date de résolution", blank=True, null=True)
+    moderator = models.ForeignKey(User, verbose_name="Modérateur", blank=True, null=True, on_delete=models.SET_NULL)
+    comment = models.TextField("Commentaire", max_length=1000, blank=True)
 
     class Meta:
-        verbose_name = 'Demande de casquette'
-        verbose_name_plural = 'Demandes de casquettes'
+        verbose_name = "Demande de casquette"
+        verbose_name_plural = "Demandes de casquettes"
 
     def __str__(self):
-        return 'Hat {0} requested by {1}'.format(
-            self.hat, self.user.username)
+        return "Hat {0} requested by {1}".format(self.hat, self.user.username)
 
     def get_absolute_url(self):
-        return reverse('hat-request', args=[self.pk])
+        return reverse("hat-request", args=[self.pk])
 
     def get_hat(self, create=False):
         """
@@ -234,17 +238,17 @@ class HatRequest(models.Model):
             else:
                 return None
 
-    def solve(self, is_granted, moderator=None, comment='', hat_name=None):
+    def solve(self, is_granted, moderator=None, comment="", hat_name=None):
         """
         Solve a hat request by granting or denying the requested hat according
         to the `is_granted` parameter.
         """
 
         if self.is_granted is not None:
-            raise Exception('This request is already solved.')
+            raise Exception("This request is already solved.")
 
         if moderator is None:
-            moderator = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            moderator = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
 
         if is_granted:
             if self.get_hat() is None and hat_name:
@@ -263,20 +267,29 @@ class HatRequest(models.Model):
         """
 
         if self.is_granted is None:
-            raise Exception('The request must have been solved to use this method.')
+            raise Exception("The request must have been solved to use this method.")
 
-        solved_by_bot = self.moderator == get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+        solved_by_bot = self.moderator == get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
 
         message = render_to_string(
-            'member/messages/hat_request_decision.md', {
-                'is_granted': self.is_granted,
-                'hat': self.hat,
-                'comment': self.comment,
-                'solved_by_bot': solved_by_bot,
-            }
+            "member/messages/hat_request_decision.md",
+            {
+                "is_granted": self.is_granted,
+                "hat": self.hat,
+                "comment": self.comment,
+                "solved_by_bot": solved_by_bot,
+            },
         )
-        send_mp(self.moderator, [self.user], _('Casquette « {} »').format(self.hat), '', message,
-                leave=solved_by_bot, mark_as_read=True, hat=get_hat_from_settings('hats_management'))
+        send_mp(
+            self.moderator,
+            [self.user],
+            _("Casquette « {} »").format(self.hat),
+            "",
+            message,
+            leave=solved_by_bot,
+            mark_as_read=True,
+            hat=get_hat_from_settings("hats_management"),
+        )
 
 
 @receiver(models.signals.post_save, sender=Hat)
@@ -289,10 +302,14 @@ def prevent_users_getting_hat_linked_to_group(sender, instance, **kwargs):
     if instance.group:
         instance.profile_set.clear()
         for request in HatRequest.objects.filter(hat__iexact=instance.name, is_granted__isnull=True):
-            request.solve(is_granted=False,
-                          comment=_('La demande a été automatiquement annulée car la casquette est désormais accordée '
-                                    'aux membres d’un groupe particulier. Vous l’avez reçue si '
-                                    'vous en êtes membre.'))
+            request.solve(
+                is_granted=False,
+                comment=_(
+                    "La demande a été automatiquement annulée car la casquette est désormais accordée "
+                    "aux membres d’un groupe particulier. Vous l’avez reçue si "
+                    "vous en êtes membre."
+                ),
+            )
 
 
 def get_hat_from_request(request, author=None):
@@ -303,21 +320,21 @@ def get_hat_from_request(request, author=None):
 
     if author is None:
         author = request.user
-    if not request.POST.get('with_hat', None):
+    if not request.POST.get("with_hat", None):
         return None
     try:
-        hat = Hat.objects.get(pk=int(request.POST.get('with_hat')))
+        hat = Hat.objects.get(pk=int(request.POST.get("with_hat")))
         if hat not in author.profile.get_hats():
             raise ValueError
         return hat
     except (ValueError, Hat.DoesNotExist):
-        logger.warning('User #{0} failed to use hat #{1}.'.format(request.user.pk, request.POST.get('hat')))
+        logger.warning("User #{0} failed to use hat #{1}.".format(request.user.pk, request.POST.get("hat")))
         return None
 
 
 def get_hat_from_settings(key):
-    hat_name = settings.ZDS_APP['hats'][key]
-    hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+    hat_name = settings.ZDS_APP["hats"][key]
+    hat, _ = Hat.objects.get_or_create(name__iexact=hat_name, defaults={"name": hat_name})
     return hat
 
 
@@ -330,63 +347,71 @@ def get_hat_to_add(hat_name, user):
 
     hat_name = hat_name.strip()
     if not hat_name:
-        raise ValueError(_('Veuillez saisir une casquette.'))
+        raise ValueError(_("Veuillez saisir une casquette."))
     if contains_utf8mb4(hat_name):
-        raise ValueError(_('La casquette saisie contient des caractères utf8mb4, '
-                           'ceux-ci ne peuvent pas être utilisés.'))
+        raise ValueError(
+            _("La casquette saisie contient des caractères utf8mb4, " "ceux-ci ne peuvent pas être utilisés.")
+        )
     if len(hat_name) > 40:
-        raise ValueError(_('La longueur des casquettes est limitée à 40 caractères.'))
-    hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={'name': hat_name})
+        raise ValueError(_("La longueur des casquettes est limitée à 40 caractères."))
+    hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={"name": hat_name})
     if created:
         logger.info('Hat #{0} "{1}" has been created.'.format(hat.pk, hat.name))
     if hat in user.profile.get_hats():
-        raise ValueError(_('{0} possède déjà la casquette « {1} ».'.format(user.username, hat.name)))
+        raise ValueError(_("{0} possède déjà la casquette « {1} ».".format(user.username, hat.name)))
     if hat.group:
-        raise ValueError(_('La casquette « {} » est accordée automatiquement aux membres d\'un groupe particulier '
-                           'et ne peut donc pas être ajoutée à un membre externe à ce groupe.'.format(hat.name)))
+        raise ValueError(
+            _(
+                "La casquette « {} » est accordée automatiquement aux membres d'un groupe particulier "
+                "et ne peut donc pas être ajoutée à un membre externe à ce groupe.".format(hat.name)
+            )
+        )
     return hat
 
 
 class Comment(models.Model):
 
     """Comment in forum, articles, tutorial, chapter, etc."""
+
     class Meta:
-        verbose_name = 'Commentaire'
-        verbose_name_plural = 'Commentaires'
+        verbose_name = "Commentaire"
+        verbose_name_plural = "Commentaires"
 
     objects = InheritanceManager()
 
-    author = models.ForeignKey(User, verbose_name='Auteur',
-                               # better on_delete with "set anonymous?"
-                               related_name='comments', db_index=True, on_delete=models.CASCADE)
-    editor = models.ForeignKey(User, verbose_name='Editeur',
-                               related_name='comments-editor+',
-                               null=True, blank=True, on_delete=models.SET_NULL)
-    ip_address = models.CharField('Adresse IP de l\'auteur ', max_length=39)
+    author = models.ForeignKey(
+        User,
+        verbose_name="Auteur",
+        # better on_delete with "set anonymous?"
+        related_name="comments",
+        db_index=True,
+        on_delete=models.CASCADE,
+    )
+    editor = models.ForeignKey(
+        User, verbose_name="Editeur", related_name="comments-editor+", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    ip_address = models.CharField("Adresse IP de l'auteur ", max_length=39)
 
-    position = models.IntegerField('Position', db_index=True)
+    position = models.IntegerField("Position", db_index=True)
 
-    text = models.TextField('Texte')
-    text_html = models.TextField('Texte en Html')
+    text = models.TextField("Texte")
+    text_html = models.TextField("Texte en Html")
 
-    like = models.IntegerField('Likes', default=0)
-    dislike = models.IntegerField('Dislikes', default=0)
+    like = models.IntegerField("Likes", default=0)
+    dislike = models.IntegerField("Dislikes", default=0)
 
-    pubdate = models.DateTimeField('Date de publication', auto_now_add=True, db_index=True)
-    update = models.DateTimeField('Date d\'édition', null=True, blank=True)
+    pubdate = models.DateTimeField("Date de publication", auto_now_add=True, db_index=True)
+    update = models.DateTimeField("Date d'édition", null=True, blank=True)
     update_index_date = models.DateTimeField(
-        'Date de dernière modification pour la réindexation partielle',
-        auto_now=True,
-        db_index=True)
+        "Date de dernière modification pour la réindexation partielle", auto_now=True, db_index=True
+    )
 
-    is_visible = models.BooleanField('Est visible', default=True)
-    text_hidden = models.CharField(
-        'Texte de masquage ',
-        max_length=80,
-        default='')
+    is_visible = models.BooleanField("Est visible", default=True)
+    text_hidden = models.CharField("Texte de masquage ", max_length=80, default="")
 
-    hat = models.ForeignKey(Hat, verbose_name='Casquette', on_delete=models.SET_NULL,
-                            related_name='comments', blank=True, null=True)
+    hat = models.ForeignKey(
+        Hat, verbose_name="Casquette", on_delete=models.SET_NULL, related_name="comments", blank=True, null=True
+    )
 
     def update_content(self, text, on_error=None):
         _, old_metadata, _ = render_markdown(self.text)
@@ -403,19 +428,19 @@ class Comment(models.Model):
                     filtered_list.append(username)
             return filtered_list
 
-        max_pings_allowed = settings.ZDS_APP['comment']['max_pings']
-        pinged_usernames_from_new_text = filter_usernames(metadata.get('ping', []))[:max_pings_allowed]
-        pinged_usernames_from_old_text = filter_usernames(old_metadata.get('ping', []))[:max_pings_allowed]
+        max_pings_allowed = settings.ZDS_APP["comment"]["max_pings"]
+        pinged_usernames_from_new_text = filter_usernames(metadata.get("ping", []))[:max_pings_allowed]
+        pinged_usernames_from_old_text = filter_usernames(old_metadata.get("ping", []))[:max_pings_allowed]
 
         pinged_usernames = set(pinged_usernames_from_new_text) - set(pinged_usernames_from_old_text)
         pinged_users = User.objects.filter(username__in=pinged_usernames)
         for pinged_user in pinged_users:
-            signals.new_content.send(sender=self.__class__, instance=self, user=pinged_user)
+            signals.ping.send(sender=self.__class__, instance=self, user=pinged_user)
 
         unpinged_usernames = set(pinged_usernames_from_old_text) - set(pinged_usernames_from_new_text)
         unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
-            signals.unsubscribe.send(self.author, instance=self, user=unpinged_user)
+            signals.unping.send(self.author, instance=self, user=unpinged_user)
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
@@ -433,31 +458,30 @@ class Comment(models.Model):
         """ Get a user vote (like, dislike or neutral) """
         if user.is_authenticated:
             try:
-                user_vote = 'like' if CommentVote.objects.get(user=user,
-                                                              comment=self).positive else 'dislike'
+                user_vote = "like" if CommentVote.objects.get(user=user, comment=self).positive else "dislike"
             except CommentVote.DoesNotExist:
-                user_vote = 'neutral'
+                user_vote = "neutral"
         else:
-            user_vote = 'neutral'
+            user_vote = "neutral"
 
         return user_vote
 
     def set_user_vote(self, user, vote):
         """ Set a user vote (like, dislike or neutral) """
-        if vote == 'neutral':
+        if vote == "neutral":
             CommentVote.objects.filter(user=user, comment=self).delete()
         else:
-            CommentVote.objects.update_or_create(user=user, comment=self,
-                                                 defaults={'positive': (vote == 'like')})
+            CommentVote.objects.update_or_create(user=user, comment=self, defaults={"positive": (vote == "like")})
 
         self.like = CommentVote.objects.filter(positive=True, comment=self).count()
         self.dislike = CommentVote.objects.filter(positive=False, comment=self).count()
 
     def get_votes(self, type=None):
         """ Get the non-anonymous votes """
-        if not hasattr(self, 'votes'):
-            self.votes = CommentVote.objects.filter(comment=self,
-                                                    id__gt=settings.VOTES_ID_LIMIT).select_related('user').all()
+        if not hasattr(self, "votes"):
+            self.votes = (
+                CommentVote.objects.filter(comment=self, id__gt=settings.VOTES_ID_LIMIT).select_related("user").all()
+            )
 
         return self.votes
 
@@ -473,7 +497,7 @@ class Comment(models.Model):
         return Comment.objects.get_subclass(id=self.id).get_absolute_url()
 
     def __str__(self):
-        return 'Comment by {}'.format(self.author.username)
+        return "Comment by {}".format(self.author.username)
 
 
 class CommentEdit(models.Model):
@@ -481,108 +505,123 @@ class CommentEdit(models.Model):
 
     class Meta:
         verbose_name = "Édition d'un message"
-        verbose_name_plural = 'Éditions de messages'
+        verbose_name_plural = "Éditions de messages"
 
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, verbose_name='Message',
-                                related_name='edits', db_index=True)
-    editor = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Éditeur',
-                               related_name='edits', db_index=True)
-    date = models.DateTimeField(auto_now_add=True, db_index=True,
-                                verbose_name="Date de l'édition", db_column='edit_date')
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, verbose_name="Message", related_name="edits", db_index=True
+    )
+    editor = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Éditeur", related_name="edits", db_index=True
+    )
+    date = models.DateTimeField(
+        auto_now_add=True, db_index=True, verbose_name="Date de l'édition", db_column="edit_date"
+    )
     original_text = models.TextField("Contenu d'origine", blank=True)
-    deleted_at = models.DateTimeField(db_index=True, verbose_name='Date de suppression',
-                                      blank=True, null=True)
-    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Supprimé par',
-                                   related_name='deleted_edits', db_index=True,
-                                   null=True, blank=True)
+    deleted_at = models.DateTimeField(db_index=True, verbose_name="Date de suppression", blank=True, null=True)
+    deleted_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Supprimé par",
+        related_name="deleted_edits",
+        db_index=True,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
-        return 'Edit by {0} on a comment of {1}'.format(
-            self.editor.username, self.comment.author.username)
+        return "Edit by {0} on a comment of {1}".format(self.editor.username, self.comment.author.username)
 
 
 class Alert(models.Model):
     """Alerts on all kinds of Comments and PublishedContents."""
+
     SCOPE_CHOICES = [
-        ('PROFILE', _('Profil')),
-        ('FORUM', _('Forum')),
-        ('CONTENT', _('Contenu')),
+        ("PROFILE", _("Profil")),
+        ("FORUM", _("Forum")),
+        ("CONTENT", _("Contenu")),
     ] + TYPE_CHOICES
 
     SCOPE_CHOICES_DICT = dict(SCOPE_CHOICES)
 
-    author = models.ForeignKey(User,
-                               verbose_name='Auteur',
-                               related_name='alerts',
-                               db_index=True, on_delete=models.CASCADE)
-    comment = models.ForeignKey(Comment,
-                                verbose_name='Commentaire',
-                                related_name='alerts_on_this_comment',
-                                db_index=True,
-                                null=True,
-                                blank=True, on_delete=models.SET_NULL)
+    author = models.ForeignKey(
+        User, verbose_name="Auteur", related_name="alerts", db_index=True, on_delete=models.CASCADE
+    )
+    comment = models.ForeignKey(
+        Comment,
+        verbose_name="Commentaire",
+        related_name="alerts_on_this_comment",
+        db_index=True,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     # use of string definition of pk to avoid circular import.
-    profile = models.ForeignKey('member.Profile',
-                                verbose_name='Profil',
-                                related_name='alerts_on_this_profile',
-                                db_index=True,
-                                null=True,
-                                blank=True, on_delete=models.CASCADE)
-    content = models.ForeignKey('tutorialv2.PublishableContent',
-                                verbose_name='Contenu',
-                                related_name='alerts_on_this_content',
-                                db_index=True,
-                                null=True,
-                                blank=True, on_delete=models.SET_NULL)
+    profile = models.ForeignKey(
+        "member.Profile",
+        verbose_name="Profil",
+        related_name="alerts_on_this_profile",
+        db_index=True,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+    content = models.ForeignKey(
+        "tutorialv2.PublishableContent",
+        verbose_name="Contenu",
+        related_name="alerts_on_this_content",
+        db_index=True,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField("Texte d'alerte")
-    pubdate = models.DateTimeField('Date de création', db_index=True)
-    solved = models.BooleanField('Est résolue', default=False)
-    moderator = models.ForeignKey(User,
-                                  verbose_name='Modérateur',
-                                  related_name='solved_alerts',
-                                  db_index=True,
-                                  null=True,
-                                  blank=True, on_delete=models.SET_NULL)
+    pubdate = models.DateTimeField("Date de création", db_index=True)
+    solved = models.BooleanField("Est résolue", default=False)
+    moderator = models.ForeignKey(
+        User,
+        verbose_name="Modérateur",
+        related_name="solved_alerts",
+        db_index=True,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
     # sent to the alert creator
-    resolve_reason = models.TextField('Texte de résolution',
-                                      null=True,
-                                      blank=True)
+    resolve_reason = models.TextField("Texte de résolution", null=True, blank=True)
     # PrivateTopic sending the resolve_reason to the alert creator
-    privatetopic = models.ForeignKey(PrivateTopic,
-                                     on_delete=models.SET_NULL,
-                                     verbose_name='Message privé',
-                                     db_index=True,
-                                     null=True,
-                                     blank=True)
-    solved_date = models.DateTimeField('Date de résolution',
-                                       db_index=True,
-                                       null=True,
-                                       blank=True)
+    privatetopic = models.ForeignKey(
+        PrivateTopic, on_delete=models.SET_NULL, verbose_name="Message privé", db_index=True, null=True, blank=True
+    )
+    solved_date = models.DateTimeField("Date de résolution", db_index=True, null=True, blank=True)
 
     def get_type(self):
         if self.scope in TYPE_CHOICES_DICT:
-            return _('Commentaire')
+            return _("Commentaire")
         else:
             return self.get_scope_display()
 
-    def solve(self, moderator, resolve_reason='', msg_title='', msg_content=''):
-        """Solve alert and send a PrivateTopic to the alert author if a reason is given
+    def is_automated(self):
+        """Returns true if this alert was opened automatically."""
+        return self.author.username == settings.ZDS_APP["member"]["bot_account"]
+
+    def solve(self, moderator, resolve_reason="", msg_title="", msg_content=""):
+        """Solve the alert and send a private message to the author if a reason is given
 
         :param resolve_reason: reason
         :type resolve_reason: str
         """
         self.resolve_reason = resolve_reason or None
         if msg_title and msg_content:
-            bot = get_object_or_404(User, username=settings.ZDS_APP['member']['bot_account'])
+            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
             privatetopic = send_mp(
                 bot,
                 [self.author],
                 msg_title,
-                '',
+                "",
                 msg_content,
-                True,
-                hat=get_hat_from_settings('moderation'),
+                send_by_mail=True,
+                hat=get_hat_from_settings("moderation"),
             )
             self.privatetopic = privatetopic
 
@@ -606,24 +645,26 @@ class Alert(models.Model):
         return self.text
 
     class Meta:
-        verbose_name = 'Alerte'
-        verbose_name_plural = 'Alertes'
+        verbose_name = "Alerte"
+        verbose_name_plural = "Alertes"
+        get_latest_by = "pubdate"
 
 
 class CommentVote(models.Model):
 
     """Set of comment votes."""
+
     class Meta:
-        verbose_name = 'Vote'
-        verbose_name_plural = 'Votes'
-        unique_together = ('user', 'comment')
+        verbose_name = "Vote"
+        verbose_name_plural = "Votes"
+        unique_together = ("user", "comment")
 
     comment = models.ForeignKey(Comment, db_index=True, on_delete=models.CASCADE)
     user = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE)
-    positive = models.BooleanField('Est un vote positif', default=True)
+    positive = models.BooleanField("Est un vote positif", default=True)
 
     def __str__(self):
-        return 'Vote from {} about Comment#{} thumb_up={}'.format(self.user.username, self.comment.pk, self.positive)
+        return "Vote from {} about Comment#{} thumb_up={}".format(self.user.username, self.comment.pk, self.positive)
 
 
 class Tag(models.Model):
@@ -631,25 +672,25 @@ class Tag(models.Model):
     """Set of tags."""
 
     class Meta:
-        verbose_name = 'Tag'
-        verbose_name_plural = 'Tags'
+        verbose_name = "Tag"
+        verbose_name_plural = "Tags"
 
-    title = models.CharField('Titre', max_length=30, unique=True, db_index=True)
-    slug = models.SlugField('Slug', max_length=30, unique=True)
+    title = models.CharField("Titre", max_length=30, unique=True, db_index=True)
+    slug = models.SlugField("Slug", max_length=30, unique=True)
 
     def __str__(self):
         """Textual Link Form."""
         return self.title
 
     def get_absolute_url(self):
-        return reverse('topic-tag-find', kwargs={'tag_slug': self.slug})
+        return reverse("topic-tag-find", kwargs={"tag_slug": self.slug})
 
     def save(self, *args, **kwargs):
         self.title = self.title.strip()
-        if not self.title or not slugify(self.title.replace('-', '')):
+        if not self.title or not old_slugify(self.title.replace("-", "")):
             raise ValueError('Tag "{}" is not correct'.format(self.title))
         self.title = smart_text(self.title).lower()
-        self.slug = uuslug(self.title, instance=self, max_length=Tag._meta.get_field('slug').max_length)
+        self.slug = uuslug(self.title, instance=self, max_length=Tag._meta.get_field("slug").max_length)
         super(Tag, self).save(*args, **kwargs)
 
     @staticmethod
@@ -663,16 +704,17 @@ class Tag(models.Model):
 class HelpWriting(models.Model):
 
     """Tutorial Help"""
+
     class Meta:
-        verbose_name = 'Aide à la rédaction'
-        verbose_name_plural = 'Aides à la rédaction'
+        verbose_name = "Aide à la rédaction"
+        verbose_name_plural = "Aides à la rédaction"
 
     # A name for this help
-    title = models.CharField('Name', max_length=20, null=False)
+    title = models.CharField("Name", max_length=20, null=False)
     slug = models.SlugField(max_length=20)
 
     # tablelabel: Used for the accessibility "This tutoriel need help for writing"
-    tablelabel = models.CharField('TableLabel', max_length=150, null=False)
+    tablelabel = models.CharField("TableLabel", max_length=150, null=False)
 
     # The image to use to illustrate this role
     image = ThumbnailerImageField(upload_to=image_path_help)
@@ -682,5 +724,5 @@ class HelpWriting(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
+        self.slug = old_slugify(self.title)
         super(HelpWriting, self).save(*args, **kwargs)

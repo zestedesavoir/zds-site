@@ -56,7 +56,7 @@
 8. Components
 ------------------------*/
 @import "components/alert-box";
-@import "components/authors";
+@import "components/aside-meta";
 @import "components/autocomplete";
 @import "components/breadcrumb";
 @import "components/content-item";
@@ -64,8 +64,10 @@
 @import "components/editor-old";
 @import "components/featured-item";
 @import "components/markdown-help";
+@import "components/members";
 @import "components/mobile-menu";
 @import "components/modals";
+@import "components/moderation-alert";
 @import "components/pagination";
 @import "components/pygments";
 @import "components/search-box";
@@ -92,6 +94,8 @@
 @import "pages/stats";
 @import "pages/tutorial-help";
 @import "pages/tutorial-history";
+@import "pages/content-editor";
+@import "pages/content-exports";
 
 /*-------------------------
 10. High pixel ratio (retina)

@@ -1,0 +1,120 @@
+.member-item {
+    display: inline-flex;
+    align-items: center;
+
+    margin: 0;
+    padding: 0;
+
+    height: $length-32 + $length-4;
+
+    text-decoration: none;
+
+    &:hover, &:focus {
+        background-color: $grey-100;
+    }
+
+    .avatar {
+        box-sizing: border-box;
+
+        width: $length-32;
+        height: $length-32;
+
+        border: $length-1 solid $grey-200;
+    }
+
+    span {
+        padding: 0 $length-8;
+
+        &:only-child {
+            padding: 0;
+        }
+    }
+
+    .info {
+        padding-left: $length-6;
+        color: $grey-700;
+    }
+
+    &.is-inline {
+        margin: 0;
+        padding: 0 $length-2;
+
+        height: $length-24;
+        vertical-align: middle;
+
+        .avatar {
+            width: $length-20;
+            height: $length-20;
+        }
+
+        span {
+            padding: 0 $length-2;
+        }
+    }
+
+    &.is-link {
+        display: inline;
+        padding: 0;
+
+        vertical-align: unset;
+
+        &:hover, &:active {
+            background-color: transparent;
+            text-decoration: underline;
+        }
+    }
+}
+
+.members {
+    display: flex;
+    align-items: center;
+
+    .authors-label {
+        display: inline-block;
+        margin-right: $length-4;
+    }
+
+    ul {
+        display: flex;
+        flex-wrap: wrap;
+
+        list-style: none;
+
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin: 0;
+
+            .member-item {
+                margin: 0 $length-8 0 0;
+                padding: $length-1;
+                padding-left: $length-4;
+            }
+        }
+    }
+
+    &.is-fullwidth {
+        li {
+            width: 100%;
+
+            .member-item {
+                display: flex;
+                width: 100%;
+
+                span[itemprop="name"] {
+                    flex: 2;
+                }
+            }
+        }
+    }
+
+    .btn-add {
+        color: $grey-600;
+
+        &:hover {
+            background-color: $grey-100;
+            color: $grey-700;
+        }
+    }
+}

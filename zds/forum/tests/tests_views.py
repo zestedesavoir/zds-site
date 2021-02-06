@@ -1,52 +1,56 @@
 from datetime import datetime
+from unittest.mock import patch
 
-from django.contrib.auth.models import Group
+from django.conf import settings
+from django.contrib.auth.models import User, Group
 from django.urls import reverse
+from django.shortcuts import get_object_or_404
 from django.test import TestCase
+
 from zds.forum.factories import create_category_and_forum, create_topic_in_forum
 from zds.forum.factories import PostFactory, TagFactory
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentEdit, Hat
+from zds.utils.models import CommentEdit, Hat, Alert
 
 
 class LastTopicsViewTests(TestCase):
     def test_logged_user(self):
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         _, forum = create_category_and_forum()
         create_topic_in_forum(forum, profile)
-        response = self.client.get(reverse('last-subjects'))
+        response = self.client.get(reverse("last-subjects"))
         self.assertEqual(200, response.status_code)
-        self.assertTrue(Topic.objects.last() in response.context['topics'])
+        self.assertTrue(Topic.objects.last() in response.context["topics"])
 
     def test_anonymous_user(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         create_topic_in_forum(forum, profile)
-        response = self.client.get(reverse('last-subjects'))
+        response = self.client.get(reverse("last-subjects"))
         self.assertEqual(200, response.status_code)
-        self.assertTrue(Topic.objects.last() in response.context['topics'])
+        self.assertTrue(Topic.objects.last() in response.context["topics"])
 
     def test_private_topic(self):
         author_profile = ProfileFactory()
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
         _, forum = create_category_and_forum(group)
         create_topic_in_forum(forum, author_profile)
         # Tests with a user who cannot read the last topic.
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('last-subjects'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("last-subjects"))
         self.assertEqual(200, response.status_code)
-        self.assertTrue(Topic.objects.last() not in response.context['topics'])
+        self.assertTrue(Topic.objects.last() not in response.context["topics"])
         # Adds to the user the right to read the last topic, and test again.
         profile.user.groups.add(group)
         profile.user.save()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('last-subjects'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("last-subjects"))
         self.assertEqual(200, response.status_code)
-        self.assertTrue(Topic.objects.last() in response.context['topics'])
+        self.assertTrue(Topic.objects.last() in response.context["topics"])
 
 
 class CategoriesForumsListViewTests(TestCase):
@@ -54,34 +58,34 @@ class CategoriesForumsListViewTests(TestCase):
         profile = ProfileFactory()
         category, forum = create_category_and_forum()
 
-        response = self.client.get(reverse('cats-forums-list'))
+        response = self.client.get(reverse("cats-forums-list"))
 
         self.assertEqual(200, response.status_code)
-        current_category = response.context['categories'].get(pk=category.pk)
+        current_category = response.context["categories"].get(pk=category.pk)
         self.assertEqual(category, current_category)
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
 
     def test_success_list_all_forums_with_private_forums(self):
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
 
         profile = ProfileFactory()
         category, forum = create_category_and_forum(group)
 
-        response = self.client.get(reverse('cats-forums-list'))
+        response = self.client.get(reverse("cats-forums-list"))
 
         self.assertEqual(200, response.status_code)
-        current_category = response.context['categories'].get(pk=category.pk)
+        current_category = response.context["categories"].get(pk=category.pk)
         self.assertEqual(category, current_category)
         self.assertEqual(0, len(current_category.get_forums(profile.user)))
 
         profile.user.groups.add(group)
         profile.user.save()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
 
-        response = self.client.get(reverse('cats-forums-list'))
+        response = self.client.get(reverse("cats-forums-list"))
 
         self.assertEqual(200, response.status_code)
-        current_category = response.context['categories'].get(pk=category.pk)
+        current_category = response.context["categories"].get(pk=category.pk)
         self.assertEqual(category, current_category)
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
 
@@ -94,12 +98,9 @@ class CategoriesForumsListViewTests(TestCase):
 
         topics_nb = len(Topic.objects.get_last_topics())
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'lock': 'true',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"lock": "true", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked)
@@ -112,51 +113,51 @@ class CategoryForumsDetailViewTest(TestCase):
         profile = ProfileFactory()
         category, forum = create_category_and_forum()
 
-        response = self.client.get(reverse('cat-forums-list', args=[category.slug]))
+        response = self.client.get(reverse("cat-forums-list", args=[category.slug]))
 
         self.assertEqual(200, response.status_code)
-        current_category = response.context['category']
+        current_category = response.context["category"]
         self.assertEqual(category, current_category)
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
-        self.assertEqual(response.context['forums'][0], current_category.get_forums(profile.user)[0])
+        self.assertEqual(response.context["forums"][0], current_category.get_forums(profile.user)[0])
 
     def test_success_list_all_forums_of_a_category_with_private_forums(self):
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
 
         profile = ProfileFactory()
         category, forum = create_category_and_forum(group)
 
-        response = self.client.get(reverse('cat-forums-list', args=[category.slug]))
+        response = self.client.get(reverse("cat-forums-list", args=[category.slug]))
 
         self.assertEqual(200, response.status_code)
-        current_category = response.context['category']
+        current_category = response.context["category"]
         self.assertEqual(category, current_category)
-        self.assertEqual(0, len(response.context['forums']))
+        self.assertEqual(0, len(response.context["forums"]))
 
         profile.user.groups.add(group)
         profile.user.save()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
 
-        response = self.client.get(reverse('cat-forums-list', args=[category.slug]))
+        response = self.client.get(reverse("cat-forums-list", args=[category.slug]))
 
         self.assertEqual(200, response.status_code)
-        current_category = response.context['category']
+        current_category = response.context["category"]
         self.assertEqual(category, current_category)
         self.assertEqual(forum, current_category.get_forums(profile.user)[0])
-        self.assertEqual(response.context['forums'][0], current_category.get_forums(profile.user)[0])
+        self.assertEqual(response.context["forums"][0], current_category.get_forums(profile.user)[0])
 
 
 class ForumTopicsListViewTest(TestCase):
     def test_failure_list_all_topics_of_a_wrong_forum(self):
-        response = self.client.get(reverse('forum-topics-list', args=['x', 'x']))
+        response = self.client.get(reverse("forum-topics-list", args=["x", "x"]))
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_list_all_topics_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
         category, forum = create_category_and_forum(group)
 
-        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
+        response = self.client.get(reverse("forum-topics-list", args=[category.slug, forum.slug]))
 
         self.assertEqual(403, response.status_code)
 
@@ -165,13 +166,13 @@ class ForumTopicsListViewTest(TestCase):
         category, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
+        response = self.client.get(reverse("forum-topics-list", args=[category.slug, forum.slug]))
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(forum, response.context['forum'])
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic, response.context['topics'][0])
-        self.assertEqual(0, len(response.context['sticky_topics']))
+        self.assertEqual(forum, response.context["forum"])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic, response.context["topics"][0])
+        self.assertEqual(0, len(response.context["sticky_topics"]))
 
     def test_success_list_all_topics_of_a_forum_with_sticky_topics(self):
         profile = ProfileFactory()
@@ -179,14 +180,14 @@ class ForumTopicsListViewTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
         topic_sticky = create_topic_in_forum(forum, profile, is_sticky=True)
 
-        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]))
+        response = self.client.get(reverse("forum-topics-list", args=[category.slug, forum.slug]))
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(forum, response.context['forum'])
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic, response.context['topics'][0])
-        self.assertEqual(1, len(response.context['sticky_topics']))
-        self.assertEqual(topic_sticky, response.context['sticky_topics'][0])
+        self.assertEqual(forum, response.context["forum"])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic, response.context["topics"][0])
+        self.assertEqual(1, len(response.context["sticky_topics"]))
+        self.assertEqual(topic_sticky, response.context["sticky_topics"][0])
 
     def test_success_filter_list_all_topics_solved_of_a_forum(self):
         profile = ProfileFactory()
@@ -194,12 +195,12 @@ class ForumTopicsListViewTest(TestCase):
         create_topic_in_forum(forum, profile)
         topic_solved = create_topic_in_forum(forum, profile, is_solved=True)
 
-        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=solve')
+        response = self.client.get(reverse("forum-topics-list", args=[category.slug, forum.slug]) + "?filter=solve")
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(forum, response.context['forum'])
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic_solved, response.context['topics'][0])
+        self.assertEqual(forum, response.context["forum"])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic_solved, response.context["topics"][0])
 
     def test_success_filter_list_all_topics_unsolved_of_a_forum(self):
         profile = ProfileFactory()
@@ -207,12 +208,12 @@ class ForumTopicsListViewTest(TestCase):
         topic_unsolved = create_topic_in_forum(forum, profile)
         create_topic_in_forum(forum, profile, is_solved=True)
 
-        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=unsolve')
+        response = self.client.get(reverse("forum-topics-list", args=[category.slug, forum.slug]) + "?filter=unsolve")
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(forum, response.context['forum'])
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic_unsolved, response.context['topics'][0])
+        self.assertEqual(forum, response.context["forum"])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic_unsolved, response.context["topics"][0])
 
     def test_success_filter_list_all_topics_noanswer_of_a_forum(self):
         profile = ProfileFactory()
@@ -220,21 +221,21 @@ class ForumTopicsListViewTest(TestCase):
         create_topic_in_forum(forum, profile)
         create_topic_in_forum(forum, profile, is_solved=True)
 
-        response = self.client.get(reverse('forum-topics-list', args=[category.slug, forum.slug]) + '?filter=noanswer')
+        response = self.client.get(reverse("forum-topics-list", args=[category.slug, forum.slug]) + "?filter=noanswer")
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(forum, response.context['forum'])
-        self.assertEqual(2, len(response.context['topics']))
+        self.assertEqual(forum, response.context["forum"])
+        self.assertEqual(2, len(response.context["topics"]))
 
 
 class TopicPostsListViewTest(TestCase):
     def test_failure_list_all_posts_of_a_topic_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
         profile = ProfileFactory()
         category, forum = create_category_and_forum(group)
         topic = create_topic_in_forum(forum, profile)
 
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
 
         self.assertEqual(403, response.status_code)
 
@@ -243,7 +244,7 @@ class TopicPostsListViewTest(TestCase):
         category, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, 'x']))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, "x"]))
 
         self.assertEqual(302, response.status_code)
 
@@ -252,32 +253,32 @@ class TopicPostsListViewTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(topic, response.context['topic'])
-        self.assertEqual(1, len(response.context['posts']))
-        self.assertEqual(topic.last_message, response.context['posts'][0])
-        self.assertEqual(topic.last_message.pk, response.context['last_post_pk'])
-        self.assertIsNotNone(response.context['form'])
-        self.assertIsNotNone(response.context['form_move'])
+        self.assertEqual(topic, response.context["topic"])
+        self.assertEqual(1, len(response.context["posts"]))
+        self.assertEqual(topic.last_message, response.context["posts"][0])
+        self.assertEqual(topic.last_message.pk, response.context["last_post_pk"])
+        self.assertIsNotNone(response.context["form"])
+        self.assertIsNotNone(response.context["form_move"])
 
     def test_subscriber_count_of_a_topic(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, response.context['subscriber_count'])
+        self.assertEqual(1, response.context["subscriber_count"])
 
 
 class TopicNewTest(TestCase):
     def test_failure_create_topic_with_a_post_with_client_unauthenticated(self):
         _, forum = create_category_and_forum()
 
-        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
+        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk))
 
         self.assertEqual(302, response.status_code)
 
@@ -288,26 +289,26 @@ class TopicNewTest(TestCase):
         profile.save()
         _, forum = create_category_and_forum()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_create_topics_with_a_post_in_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
         profile = ProfileFactory()
         _, forum = create_category_and_forum(group)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_create_topics_with_a_post_with_wrong_forum(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('topic-new') + '?forum=x')
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("topic-new") + "?forum=x")
 
         self.assertEqual(404, response.status_code)
 
@@ -315,64 +316,51 @@ class TopicNewTest(TestCase):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-new') + '?forum={}'.format(forum.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-new") + "?forum={}".format(forum.pk))
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(forum, response.context['forum'])
-        self.assertIsNotNone(response.context['form'])
+        self.assertEqual(forum, response.context["forum"])
+        self.assertIsNotNone(response.context["form"])
 
     def test_last_read_topic_url(self):
         profile = ProfileFactory()
         profile2 = ProfileFactory()
         notvisited = ProfileFactory()
         _, forum = create_category_and_forum()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'title': 'Title of the topic',
-            'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!',
-            'tags': ''
-        }
-        self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"title": "Title of the topic", "subtitle": "Subtitle of the topic", "text": "A new post!", "tags": ""}
+        self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
         self.client.logout()
-        self.assertTrue(self.client.login(username=profile2.user.username, password='hostel77'))
-        data = {
-            'title': 'Title of the topic',
-            'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!',
-            'tags': ''
-        }
-        self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile2.user.username, password="hostel77"))
+        data = {"title": "Title of the topic", "subtitle": "Subtitle of the topic", "text": "A new post!", "tags": ""}
+        self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
         self.client.logout()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         topic = Topic.objects.last()
         post = Post.objects.filter(topic__pk=topic.pk).first()
         # for user
         url = topic.resolve_last_read_post_absolute_url()
-        self.assertEqual(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
+        self.assertEqual(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
 
         # for anonymous
         self.client.logout()
-        self.assertEqual(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
+        self.assertEqual(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
         # for no visit
-        self.assertTrue(self.client.login(username=notvisited.user.username, password='hostel77'))
-        self.assertEqual(url, topic.get_absolute_url() + '?page=1#p' + str(post.pk))
+        self.assertTrue(self.client.login(username=notvisited.user.username, password="hostel77"))
+        self.assertEqual(url, topic.get_absolute_url() + "?page=1#p" + str(post.pk))
 
     def test_success_create_topic_with_post_in_preview_in_ajax(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'preview': '',
-            'text': 'A new post!'
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"preview": "", "text": "A new post!"}
         response = self.client.post(
-            reverse('topic-new') + '?forum={}'.format(forum.pk),
+            reverse("topic-new") + "?forum={}".format(forum.pk),
             data,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            follow=False
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            follow=False,
         )
 
         self.assertEqual(200, response.status_code)
@@ -381,14 +369,14 @@ class TopicNewTest(TestCase):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {
-            'preview': '',
-            'title': 'Title of the topic',
-            'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!'
+            "preview": "",
+            "title": "Title of the topic",
+            "subtitle": "Subtitle of the topic",
+            "text": "A new post!",
         }
-        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -396,14 +384,9 @@ class TopicNewTest(TestCase):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'title': 'Title of the topic',
-            'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!',
-            'tags': ''
-        }
-        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"title": "Title of the topic", "subtitle": "Subtitle of the topic", "text": "A new post!", "tags": ""}
+        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
 
@@ -411,26 +394,26 @@ class TopicNewTest(TestCase):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
 
-        hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
+        hat, _ = Hat.objects.get_or_create(name__iexact="A hat", defaults={"name": "A hat"})
         profile.hats.add(hat)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {
-            'title': 'Title of the topic',
-            'subtitle': 'Subtitle of the topic',
-            'text': 'A new post!',
-            'tags': '',
-            'with_hat': hat.pk,
+            "title": "Title of the topic",
+            "subtitle": "Subtitle of the topic",
+            "text": "A new post!",
+            "tags": "",
+            "with_hat": hat.pk,
         }
-        response = self.client.post(reverse('topic-new') + '?forum={}'.format(forum.pk), data, follow=False)
+        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertEqual(Post.objects.latest('pubdate').hat, hat)
+        self.assertEqual(Post.objects.latest("pubdate").hat, hat)
 
 
 class TopicEditTest(TestCase):
     def test_failure_edit_topic_with_client_unauthenticated(self):
-        response = self.client.post(reverse('topic-edit'))
+        response = self.client.post(reverse("topic-edit"))
 
         self.assertEqual(302, response.status_code)
 
@@ -440,32 +423,36 @@ class TopicEditTest(TestCase):
         profile.can_write = False
         profile.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('topic-edit'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("topic-edit"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_edit_topic_with_wrong_topic_pk(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.post(
-            reverse('topic-edit'),
+            reverse("topic-edit"),
             {
-                'topic': 'abc',
-            }, follow=False)
+                "topic": "abc",
+            },
+            follow=False,
+        )
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_edit_topic_with_a_topic_not_found(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.post(
-            reverse('topic-edit'),
+            reverse("topic-edit"),
             {
-                'topic': 99999,
-            }, follow=False)
+                "topic": 99999,
+            },
+            follow=False,
+        )
 
         self.assertEqual(404, response.status_code)
 
@@ -474,11 +461,9 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, HTTP_X_REQUESTED_WITH='XMLHttpRequest', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, HTTP_X_REQUESTED_WITH="XMLHttpRequest", follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -487,11 +472,9 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
 
@@ -500,16 +483,14 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'follow': '1'
-        }
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"follow": "1"}
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
 
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
@@ -523,16 +504,14 @@ class TopicEditTest(TestCase):
         first_post.is_visible = False
         first_post.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'follow': '1'
-        }
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"follow": "1"}
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
 
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
@@ -542,21 +521,21 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'email': '1'
-        }
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"email": "1"}
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
-            profile.user, topic, is_active=True, by_email=True))
+        self.assertIsNotNone(
+            TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True, by_email=True)
+        )
 
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
-        self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(
-            profile.user, topic, is_active=True, by_email=False))
+        self.assertIsNotNone(
+            TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True, by_email=False)
+        )
 
     def test_failure_edit_topic_solved_not_author(self):
         profile = ProfileFactory()
@@ -565,12 +544,9 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, another_profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'solved': '',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"solved": "", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(403, response.status_code)
 
@@ -579,12 +555,9 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'solved': '',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"solved": "", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)
@@ -598,12 +571,9 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'solved': '',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"solved": "", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)
@@ -617,12 +587,9 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, another_profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'lock': 'true',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"lock": "true", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(403, response.status_code)
 
@@ -633,21 +600,15 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'lock': 'true',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"lock": "true", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked)
 
-        data = {
-            'lock': 'false',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        data = {"lock": "false", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertFalse(Topic.objects.get(pk=topic.pk).is_locked)
@@ -659,12 +620,9 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, another_profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'sticky': 'true',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"sticky": "true", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(403, response.status_code)
 
@@ -675,76 +633,66 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'sticky': 'true',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"sticky": "true", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertTrue(Topic.objects.get(pk=topic.pk).is_sticky)
 
-        data = {
-            'sticky': 'false',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        data = {"sticky": "false", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertFalse(Topic.objects.get(pk=topic.pk).is_sticky)
 
-    def test_failure_edit_topic_move_by_user(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_failure_edit_topic_move_by_user(self, topic_moved):
         profile = ProfileFactory()
 
         another_profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, another_profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'move': '',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"move": "", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    def test_failure_edit_topic_move_with_wrong_forum_pk_by_staff(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_failure_edit_topic_move_with_wrong_forum_pk_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'move': '',
-            'forum': 'abc',
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"move": "", "forum": "abc", "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_failure_edit_topic_move_with_a_forum_not_found_by_staff(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_failure_edit_topic_move_with_a_forum_not_found_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'move': '',
-            'forum': 99999,
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"move": "", "forum": 99999, "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_success_edit_topic_move_by_staff(self):
+    @patch("zds.forum.signals.topic_moved")
+    def test_success_edit_topic_move_by_staff(self, topic_moved):
         staff = StaffProfileFactory()
 
         profile = ProfileFactory()
@@ -753,14 +701,11 @@ class TopicEditTest(TestCase):
 
         _, another_forum = create_category_and_forum()
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        data = {
-            'move': '',
-            'forum': another_forum.pk,
-            'topic': topic.pk
-        }
-        response = self.client.post(reverse('topic-edit'), data, follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        data = {"move": "", "forum": another_forum.pk, "topic": topic.pk}
+        response = self.client.post(reverse("topic-edit"), data, follow=False)
 
+        self.assertEqual(topic_moved.send.call_count, 1)
         self.assertEqual(302, response.status_code)
 
     def test_failure_edit_topic_not_author_and_not_staff(self):
@@ -769,14 +714,12 @@ class TopicEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         another_profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=another_profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+        self.assertTrue(self.client.login(username=another_profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
         self.assertEqual(403, response.status_code)
 
-        data = {
-            'text': 'New text for the post'
-        }
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        data = {"text": "New text for the post"}
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
         self.assertEqual(403, response.status_code)
 
     def test_success_edit_topic_staff_in_get_method(self):
@@ -786,8 +729,8 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -796,8 +739,8 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -806,36 +749,36 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {
-            'preview': '',
-            'title': 'New title',
-            'subtitle': 'New subtitle',
-            'text': 'A new post!',
+            "preview": "",
+            "title": "New title",
+            "subtitle": "New subtitle",
+            "text": "A new post!",
         }
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(topic, response.context['topic'])
-        self.assertIsNotNone(response.context['form'])
+        self.assertEqual(topic, response.context["topic"])
+        self.assertIsNotNone(response.context["form"])
 
     def test_success_edit_topic_in_preview_in_ajax(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {
-            'preview': '',
-            'title': 'New title',
-            'subtitle': 'New subtitle',
-            'text': 'A new post!',
+            "preview": "",
+            "title": "New title",
+            "subtitle": "New subtitle",
+            "text": "A new post!",
         }
         response = self.client.post(
-            reverse('topic-edit') + '?topic={}'.format(topic.pk),
+            reverse("topic-edit") + "?topic={}".format(topic.pk),
             data,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            follow=False
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            follow=False,
         )
 
         self.assertEqual(200, response.status_code)
@@ -845,25 +788,25 @@ class TopicEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {
-            'title': 'New title',
-            'subtitle': 'New subtitle',
-            'text': 'A new post!',
+            "title": "New title",
+            "subtitle": "New subtitle",
+            "text": "A new post!",
         }
-        response = self.client.post(reverse('topic-edit') + '?topic={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(topic__pk=topic.pk)
-        self.assertEqual(data.get('title'), topic.title)
-        self.assertEqual(data.get('subtitle'), topic.subtitle)
-        self.assertEqual(data.get('text'), post.text)
+        self.assertEqual(data.get("title"), topic.title)
+        self.assertEqual(data.get("subtitle"), topic.subtitle)
+        self.assertEqual(data.get("text"), post.text)
 
 
 class FindTopicTest(TestCase):
     def test_failure_find_topics_of_a_member_not_found(self):
-        response = self.client.get(reverse('topic-find', args=[9999]), follow=False)
+        response = self.client.get(reverse("topic-find", args=[9999]), follow=False)
 
         self.assertEqual(404, response.status_code)
 
@@ -872,11 +815,11 @@ class FindTopicTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        response = self.client.get(reverse('topic-find', args=[profile.user.pk]), follow=False)
+        response = self.client.get(reverse("topic-find", args=[profile.user.pk]), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic, response.context['topics'][0])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic, response.context["topics"][0])
 
     def test_success_find_topics_of_a_member_private_forum(self):
         """
@@ -884,8 +827,8 @@ class FindTopicTest(TestCase):
         only one topic is returned by the query (cf. Issue 4068).
         """
         profile = ProfileFactory()
-        group = Group.objects.create(name='DummyGroup_1')
-        another_group = Group.objects.create(name='DummyGroup_2')
+        group = Group.objects.create(name="DummyGroup_1")
+        another_group = Group.objects.create(name="DummyGroup_2")
         _, forum = create_category_and_forum(group)
 
         forum.groups.add(another_group)
@@ -897,17 +840,34 @@ class FindTopicTest(TestCase):
 
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-find', args=[profile.user.pk]), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-find", args=[profile.user.pk]), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic, response.context['topics'][0])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic, response.context["topics"][0])
+
+
+class FindFollowedTopicTest(TestCase):
+    def test_public_cant_access_followed_topics(self):
+        response = self.client.get(reverse("followed-topic-find"), follow=False)
+        self.assertEqual(302, response.status_code)
+        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("followed-topic-find"))
+
+    def test_success_find_followed_topics_of_a_member(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("followed-topic-find"), follow=False)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic, response.context["topics"][0])
 
 
 class FindTopicByTagTest(TestCase):
     def test_failure_find_topics_of_a_tag_not_found(self):
-        response = self.client.get(reverse('topic-tag-find', args=['x']), follow=False)
+        response = self.client.get(reverse("topic-tag-find", args=["x"]), follow=False)
 
         self.assertEqual(404, response.status_code)
 
@@ -918,13 +878,13 @@ class FindTopicByTagTest(TestCase):
         tag = TagFactory()
         topic.add_tags([tag.title])
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-tag-find", args=[tag.slug]), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic, response.context['topics'][0])
-        self.assertEqual(tag, response.context['tag'])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic, response.context["topics"][0])
+        self.assertEqual(tag, response.context["tag"])
 
     def test_success_find_topics_of_a_tag_private_forums(self):
         """
@@ -932,8 +892,8 @@ class FindTopicByTagTest(TestCase):
         only one topic is returned by the query (cf. Issue 4068).
         """
         profile = ProfileFactory()
-        group = Group.objects.create(name='DummyGroup_1')
-        another_group = Group.objects.create(name='DummyGroup_2')
+        group = Group.objects.create(name="DummyGroup_1")
+        another_group = Group.objects.create(name="DummyGroup_2")
         _, forum = create_category_and_forum(group)
 
         forum.groups.add(another_group)
@@ -947,13 +907,13 @@ class FindTopicByTagTest(TestCase):
         tag = TagFactory()
         topic.add_tags([tag.title])
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-tag-find", args=[tag.slug]), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic, response.context['topics'][0])
-        self.assertEqual(tag, response.context['tag'])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic, response.context["topics"][0])
+        self.assertEqual(tag, response.context["tag"])
 
     def test_success_find_topics_of_a_tag_solved(self):
         profile = ProfileFactory()
@@ -963,12 +923,12 @@ class FindTopicByTagTest(TestCase):
         tag = TagFactory()
         topic_solved.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=solve')
+        response = self.client.get(reverse("topic-tag-find", args=[tag.slug]) + "?filter=solve")
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic_solved, response.context['topics'][0])
-        self.assertEqual(tag, response.context['tag'])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic_solved, response.context["topics"][0])
+        self.assertEqual(tag, response.context["tag"])
 
     def test_success_filter_find_topics_of_a_tag_unsolved(self):
         profile = ProfileFactory()
@@ -978,12 +938,12 @@ class FindTopicByTagTest(TestCase):
         tag = TagFactory()
         topic_unsolved.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=unsolve')
+        response = self.client.get(reverse("topic-tag-find", args=[tag.slug]) + "?filter=unsolve")
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(topic_unsolved, response.context['topics'][0])
-        self.assertEqual(tag, response.context['tag'])
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(topic_unsolved, response.context["topics"][0])
+        self.assertEqual(tag, response.context["tag"])
 
     def test_success_filter_find_topics_of_a_tag_noanswer(self):
         profile = ProfileFactory()
@@ -994,11 +954,11 @@ class FindTopicByTagTest(TestCase):
         topic.add_tags([tag.title])
         another_topic.add_tags([tag.title])
 
-        response = self.client.get(reverse('topic-tag-find', args=[tag.slug]) + '?filter=noanswer')
+        response = self.client.get(reverse("topic-tag-find", args=[tag.slug]) + "?filter=noanswer")
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(2, len(response.context['topics']))
-        self.assertEqual(tag, response.context['tag'])
+        self.assertEqual(2, len(response.context["topics"]))
+        self.assertEqual(tag, response.context["tag"])
 
     def test_redirection(self):
         profile = ProfileFactory()
@@ -1008,17 +968,17 @@ class FindTopicByTagTest(TestCase):
         tag = TagFactory()
         topic_solved.add_tags([tag.title])
 
-        response = self.client.get(reverse('old-topic-tag-find', args=[tag.pk, tag.slug]))
+        response = self.client.get(reverse("old-topic-tag-find", args=[tag.pk, tag.slug]))
         self.assertEqual(301, response.status_code)
 
-        response = self.client.get(reverse('old-topic-tag-find', args=[tag.pk, tag.slug]), follow=True)
-        self.assertEqual(1, len(response.context['topics']))
-        self.assertEqual(tag, response.context['tag'])
+        response = self.client.get(reverse("old-topic-tag-find", args=[tag.pk, tag.slug]), follow=True)
+        self.assertEqual(1, len(response.context["topics"]))
+        self.assertEqual(tag, response.context["tag"])
 
 
 class PostNewTest(TestCase):
     def test_failure_new_post_with_client_unauthenticated(self):
-        response = self.client.post(reverse('post-new'))
+        response = self.client.post(reverse("post-new"))
 
         self.assertEqual(302, response.status_code)
 
@@ -1028,35 +988,35 @@ class PostNewTest(TestCase):
         profile.can_write = False
         profile.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-new'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-new"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_new_post_with_wrong_topic_pk(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-new') + '?sujet=abc', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-new") + "?sujet=abc", follow=False)
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_new_post_with_a_topic_not_found(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-new') + '?sujet=99999', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-new") + "?sujet=99999", follow=False)
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_new_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
         _, forum = create_category_and_forum(group)
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
 
         self.assertEqual(403, response.status_code)
 
@@ -1065,8 +1025,8 @@ class PostNewTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile, is_locked=True)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
 
         self.assertEqual(403, response.status_code)
 
@@ -1077,8 +1037,8 @@ class PostNewTest(TestCase):
         topic.last_message.pubdate = datetime.now()
         topic.last_message.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
 
         self.assertEqual(403, response.status_code)
 
@@ -1088,14 +1048,14 @@ class PostNewTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-new') + '?sujet={}'.format(topic.pk), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(topic, response.context['topic'])
-        self.assertEqual(topic.last_message, response.context['posts'][0])
-        self.assertEqual(topic.last_message.pk, response.context['last_post_pk'])
-        self.assertIsNotNone(response.context['form'])
+        self.assertEqual(topic, response.context["topic"])
+        self.assertEqual(topic.last_message, response.context["posts"][0])
+        self.assertEqual(topic.last_message.pk, response.context["last_post_pk"])
+        self.assertIsNotNone(response.context["form"])
 
     def test_success_new_post_with_quote_in_ajax(self):
         another_profile = ProfileFactory()
@@ -1103,11 +1063,11 @@ class PostNewTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.get(
-            reverse('post-new') + '?sujet={0}&cite={1}'.format(topic.pk, topic.last_message.pk),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            follow=False
+            reverse("post-new") + "?sujet={0}&cite={1}".format(topic.pk, topic.last_message.pk),
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            follow=False,
         )
 
         self.assertEqual(200, response.status_code)
@@ -1118,19 +1078,15 @@ class PostNewTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'preview': '',
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk
-        }
-        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"preview": "", "text": "A new post!", "last_post": topic.last_message.pk}
+        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(topic, response.context['topic'])
-        self.assertEqual(topic.last_message, response.context['posts'][0])
-        self.assertEqual(topic.last_message.pk, response.context['last_post_pk'])
-        self.assertIsNotNone(response.context['form'])
+        self.assertEqual(topic, response.context["topic"])
+        self.assertEqual(topic.last_message, response.context["posts"][0])
+        self.assertEqual(topic.last_message.pk, response.context["last_post_pk"])
+        self.assertIsNotNone(response.context["form"])
 
     def test_success_new_post_in_preview_in_ajax(self):
         another_profile = ProfileFactory()
@@ -1138,17 +1094,13 @@ class PostNewTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'preview': '',
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"preview": "", "text": "A new post!", "last_post": topic.last_message.pk}
         response = self.client.post(
-            reverse('post-new') + '?sujet={}'.format(topic.pk),
+            reverse("post-new") + "?sujet={}".format(topic.pk),
             data,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            follow=False
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            follow=False,
         )
 
         self.assertEqual(200, response.status_code)
@@ -1159,12 +1111,9 @@ class PostNewTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk
-        }
-        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"text": "A new post!", "last_post": topic.last_message.pk}
+        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1175,10 +1124,10 @@ class PostNewTest(TestCase):
 
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
 
-        hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
-        other_hat, _ = Hat.objects.get_or_create(name__iexact='Another hat', defaults={'name': 'Another hat'})
+        hat, _ = Hat.objects.get_or_create(name__iexact="A hat", defaults={"name": "A hat"})
+        other_hat, _ = Hat.objects.get_or_create(name__iexact="Another hat", defaults={"name": "Another hat"})
 
         # Add a hat to profile
         profile.hats.add(hat)
@@ -1186,11 +1135,11 @@ class PostNewTest(TestCase):
         # Post with a wrong hat pk
         topic = create_topic_in_forum(forum, another_profile)
         data = {
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk,
-            'with_hat': 'abc',
+            "text": "A new post!",
+            "last_post": topic.last_message.pk,
+            "with_hat": "abc",
         }
-        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1199,11 +1148,11 @@ class PostNewTest(TestCase):
         # Post with a hat that doesn't exist
         topic = create_topic_in_forum(forum, another_profile)
         data = {
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk,
-            'with_hat': 1587,
+            "text": "A new post!",
+            "last_post": topic.last_message.pk,
+            "with_hat": 1587,
         }
-        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1212,11 +1161,11 @@ class PostNewTest(TestCase):
         # Post with a hat the user hasn't
         topic = create_topic_in_forum(forum, another_profile)
         data = {
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk,
-            'with_hat': other_hat.pk,
+            "text": "A new post!",
+            "last_post": topic.last_message.pk,
+            "with_hat": other_hat.pk,
         }
-        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1225,11 +1174,11 @@ class PostNewTest(TestCase):
         # Post with a hat the user has
         topic = create_topic_in_forum(forum, another_profile)
         data = {
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk,
-            'with_hat': hat.pk,
+            "text": "A new post!",
+            "last_post": topic.last_message.pk,
+            "with_hat": hat.pk,
         }
-        response = self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1238,7 +1187,7 @@ class PostNewTest(TestCase):
 
 class PostEditTest(TestCase):
     def test_failure_edit_post_with_client_unauthenticated(self):
-        response = self.client.post(reverse('post-edit'))
+        response = self.client.post(reverse("post-edit"))
 
         self.assertEqual(302, response.status_code)
 
@@ -1248,35 +1197,35 @@ class PostEditTest(TestCase):
         profile.can_write = False
         profile.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-edit'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-edit"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_edit_post_with_wrong_post_pk(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-edit') + '?message=abc', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-edit") + "?message=abc", follow=False)
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_edit_post_with_a_topic_not_found(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-edit') + '?message=99999', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-edit") + "?message=99999", follow=False)
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_edit_post_in_a_forum_we_cannot_read(self):
         profile = ProfileFactory()
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
         _, forum = create_category_and_forum(group)
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk))
 
         self.assertEqual(403, response.status_code)
 
@@ -1286,8 +1235,8 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk))
 
         self.assertEqual(403, response.status_code)
 
@@ -1296,27 +1245,25 @@ class PostEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(topic, response.context['topic'])
-        self.assertEqual(topic.last_message, response.context['post'])
-        self.assertEqual(topic.last_message.text, response.context['text'])
-        self.assertIsNotNone(response.context['form'])
+        self.assertEqual(topic, response.context["topic"])
+        self.assertEqual(topic.last_message, response.context["post"])
+        self.assertEqual(topic.last_message.text, response.context["text"])
+        self.assertIsNotNone(response.context["form"])
 
     def test_success_new_post_in_preview(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'preview': '',
-            'text': 'A new post!'
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"preview": "", "text": "A new post!"}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(200, response.status_code)
 
@@ -1325,16 +1272,16 @@ class PostEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {
-            'preview': '',
-            'text': 'A new post!',
+            "preview": "",
+            "text": "A new post!",
         }
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk),
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk),
             data,
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            follow=False
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            follow=False,
         )
 
         self.assertEqual(200, response.status_code)
@@ -1344,17 +1291,16 @@ class PostEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'text': 'A new post!'
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"text": "A new post!"}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
         self.assertEqual(profile.user, post.editor)
-        self.assertEqual(data.get('text'), post.text)
+        self.assertEqual(data.get("text"), post.text)
 
     def test_failure_edit_post_hide_message_not_author_and_not_staff(self):
         another_profile = ProfileFactory()
@@ -1362,12 +1308,11 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'delete_message': ''
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"delete_message": ""}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(403, response.status_code)
 
@@ -1376,20 +1321,19 @@ class PostEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         # WARNING : if author is not staff he can't send a delete message.
-        data = {
-            'delete_message': ''
-        }
+        data = {"delete_message": ""}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
         self.assertEqual(0, len(post.alerts_on_this_comment.all()))
         self.assertFalse(post.is_visible)
         self.assertEqual(profile.user, post.editor)
-        self.assertEqual('', post.text_hidden)
+        self.assertEqual("", post.text_hidden)
 
     def test_success_edit_post_hide_message_by_staff(self):
         profile = ProfileFactory()
@@ -1397,14 +1341,12 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = 'Bad guy!'
-        data = {
-            'delete_message': '',
-            'text_hidden': text_hidden_expected
-        }
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        text_hidden_expected = "Bad guy!"
+        data = {"delete_message": "", "text_hidden": text_hidden_expected}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
@@ -1418,19 +1360,20 @@ class PostEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk), follow=False)
         self.assertEqual(302, response.status_code)
 
         response = self.client.get(topic.get_absolute_url(), follow=False)
-        self.assertNotContains(response, 'green hidden')
+        self.assertNotContains(response, "green hidden")
 
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), {'delete_message': ''}, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), {"delete_message": ""}, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
         response = self.client.get(topic.get_absolute_url(), follow=False)
-        self.assertContains(response, 'green hidden')
+        self.assertContains(response, "green hidden")
 
     def test_failure_edit_post_show_message_by_user(self):
         another_profile = ProfileFactory()
@@ -1438,12 +1381,11 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'show_message': ''
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"show_message": ""}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(403, response.status_code)
 
@@ -1452,12 +1394,11 @@ class PostEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'show_message': ''
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"show_message": ""}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(403, response.status_code)
 
@@ -1467,21 +1408,22 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         topic.last_message.is_visible = False
-        topic.last_message.text_hidden = 'Bad guy!'
+        topic.last_message.text_hidden = "Bad guy!"
         topic.last_message.save()
 
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
         data = {
-            'show_message': '',
+            "show_message": "",
         }
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
         self.assertTrue(post.is_visible)
-        self.assertEqual('', post.text_hidden)
+        self.assertEqual("", post.text_hidden)
 
     def test_success_edit_post_alert_message(self):
         another_profile = ProfileFactory()
@@ -1489,14 +1431,12 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        text_expected = 'Bad guy!'
-        data = {
-            'signal_message': '',
-            'signal_text': text_expected
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        text_expected = "Bad guy!"
+        data = {"signal_message": "", "signal_text": text_expected}
         response = self.client.post(
-            reverse('post-create-alert') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-create-alert") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
@@ -1510,25 +1450,24 @@ class PostEditTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'delete_message': ''
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"delete_message": ""}
 
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
-        response = self.client.get(reverse('post-edit') + '?message={}'.format(topic.last_message.pk))
+        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk))
         self.assertEqual(403, response.status_code)
 
-        response = self.client.get(reverse('topic-edit') + '?topic={}'.format(topic.pk), follow=False)
+        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
         self.assertEqual(403, response.status_code)
 
     def test_hat_edit(self):
         profile = ProfileFactory()
-        hat, _ = Hat.objects.get_or_create(name__iexact='A hat', defaults={'name': 'A hat'})
-        other_hat, _ = Hat.objects.get_or_create(name__iexact='Another hat', defaults={'name': 'Another hat'})
+        hat, _ = Hat.objects.get_or_create(name__iexact="A hat", defaults={"name": "A hat"})
+        other_hat, _ = Hat.objects.get_or_create(name__iexact="Another hat", defaults={"name": "Another hat"})
         profile.hats.add(hat)
 
         # add a new thread
@@ -1536,43 +1475,38 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, ProfileFactory())
 
         # post a message with a hat
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {
-            'text': 'A new post!',
-            'last_post': topic.last_message.pk,
-            'with_hat': hat.pk,
+            "text": "A new post!",
+            "last_post": topic.last_message.pk,
+            "with_hat": hat.pk,
         }
-        self.client.post(reverse('post-new') + '?sujet={}'.format(topic.pk), data, follow=False)
+        self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, hat)  # Hat was used
 
         # test that it's possible to remove the hat
-        data = {
-            'text': 'A new post!'
-        }
-        self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        data = {"text": "A new post!"}
+        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, None)  # Hat was removed
 
         # test that it's impossible to use a hat the user hasn't
         data = {
-            'text': 'A new post!',
-            'with_hat': other_hat.pk,
+            "text": "A new post!",
+            "with_hat": other_hat.pk,
         }
-        self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
         # but check that it's possible to use a hat the user has
         profile.hats.add(other_hat)
         data = {
-            'text': 'A new post!',
-            'with_hat': other_hat.pk,
+            "text": "A new post!",
+            "with_hat": other_hat.pk,
         }
-        self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, other_hat)  # Now, it works
 
@@ -1585,19 +1519,18 @@ class PostEditTest(TestCase):
         edits_count = CommentEdit.objects.count()
 
         # Edit post
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        data = {
-            'text': 'A new post!'
-        }
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        data = {"text": "A new post!"}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
         # Check that an archive was created
         self.assertEqual(CommentEdit.objects.count(), edits_count + 1)
 
         # Check the archive content
-        edit = CommentEdit.objects.latest('date')
+        edit = CommentEdit.objects.latest("date")
         self.assertEqual(post_before_edit.pk, edit.comment.pk)
         self.assertEqual(post_before_edit.text, edit.original_text)
         self.assertEqual(profile.user, edit.editor)
@@ -1605,12 +1538,12 @@ class PostEditTest(TestCase):
 
 class PostUsefulTest(TestCase):
     def test_failure_post_useful_require_method_post(self):
-        response = self.client.get(reverse('post-useful'), follow=False)
+        response = self.client.get(reverse("post-useful"), follow=False)
 
         self.assertEqual(405, response.status_code)
 
     def test_failure_post_useful_with_client_unauthenticated(self):
-        response = self.client.post(reverse('post-useful'), follow=False)
+        response = self.client.post(reverse("post-useful"), follow=False)
 
         self.assertEqual(302, response.status_code)
 
@@ -1620,36 +1553,36 @@ class PostUsefulTest(TestCase):
         profile.can_write = False
         profile.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful"))
 
         self.assertEqual(403, response.status_code)
 
     def test_failure_post_useful_with_wrong_topic_pk(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message=abc', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message=abc", follow=False)
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_post_useful_with_a_topic_not_found(self):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message=99999', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message=99999", follow=False)
 
         self.assertEqual(404, response.status_code)
 
     def test_failure_post_useful_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name='DummyGroup_1')
+        group = Group.objects.create(name="DummyGroup_1")
 
         profile = ProfileFactory()
         _, forum = create_category_and_forum(group)
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk))
 
         self.assertEqual(403, response.status_code)
 
@@ -1658,8 +1591,8 @@ class PostUsefulTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk))
 
         self.assertEqual(302, response.status_code)
 
@@ -1669,8 +1602,8 @@ class PostUsefulTest(TestCase):
         topic = create_topic_in_forum(forum, another_profile)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk))
 
         self.assertEqual(403, response.status_code)
 
@@ -1681,11 +1614,9 @@ class PostUsefulTest(TestCase):
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.post(
-            reverse('post-useful') + '?message={}'.format(post.pk),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-            follow=False
+            reverse("post-useful") + "?message={}".format(post.pk), HTTP_X_REQUESTED_WITH="XMLHttpRequest", follow=False
         )
 
         self.assertEqual(200, response.status_code)
@@ -1698,8 +1629,8 @@ class PostUsefulTest(TestCase):
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message={}'.format(post.pk), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message={}".format(post.pk), follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertTrue(Post.objects.get(pk=post.pk).is_useful)
@@ -1710,14 +1641,18 @@ class PostUsefulTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        response = self.client.post(reverse('post-useful') + '?message={}'.format(topic.last_message.pk), follow=False)
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk), follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertTrue(Post.objects.get(pk=topic.last_message.pk).is_useful)
 
 
 class MessageActionTest(TestCase):
+    def setUp(self):
+        # We need a bot for test_mark_as_potential_spam.
+        settings.ZDS_APP["member"]["bot_account"] = ProfileFactory().user.username
+
     def test_alert(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
@@ -1726,37 +1661,185 @@ class MessageActionTest(TestCase):
         PostFactory(topic=topic, author=another_profile.user, position=2)
 
         # unauthenticated, no 'Alert' button
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        self.assertNotContains(response, 'Signaler')
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, "Signaler")
 
         # authenticated, two 'Alert' buttons because we have two messages
-        self.client.login(username=profile.user.username, password='hostel77')
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in str(response.content).split() if word == 'alert']
+        self.client.login(username=profile.user.username, password="hostel77")
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        alerts = [word for word in str(response.content).split() if word == "alert"]
         self.assertEqual(len(alerts), 2)
 
         # staff hides a message
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = 'Bad guy!'
-        data = {
-            'delete_message': '',
-            'text_hidden': text_hidden_expected
-        }
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        text_hidden_expected = "Bad guy!"
+        data = {"delete_message": "", "text_hidden": text_hidden_expected}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
         # staff can alert all messages
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in str(response.content).split() if word == 'alert']
-        self.assertEqual(len(alerts), 2)
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertContains(response, '<a href="#signal-message-', count=2)
 
-        # authenticated, user can't alert the hidden message
-        self.client.login(username=profile.user.username, password='hostel77')
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        alerts = [word for word in str(response.content).split() if word == 'alert']
-        self.assertEqual(len(alerts), 2)
+        # authenticated, user can alert the hidden message too
+        self.client.login(username=profile.user.username, password="hostel77")
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertContains(response, '<a href="#signal-message-', count=2)
+
+    def test_mark_as_potential_spam(self):
+        potential_spam_class_not_thete_if_not_staff = "potential-spam"
+        potential_spam_classes_if_hidden = 'class="message-potential-spam alert ico-after hidden"'
+        potential_spam_classes_if_visible = 'class="message-potential-spam alert ico-after "'
+        alert_text = "Ce message, soupçonné d'être un spam, a été modifié."
+        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+
+        profile = ProfileFactory()
+        staff = StaffProfileFactory()
+
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+        PostFactory(topic=topic, author=profile.user, position=2)
+
+        # unauthenticated, no potential spam, no message
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, potential_spam_class_not_thete_if_not_staff)
+
+        # authenticated, no potential spam, no message
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertContains(response, potential_spam_classes_if_hidden)
+
+        # unauthenticated, cannot mark a message as potential spam
+        self.client.logout()
+        response = self.client.post(reverse("post-potential-spam") + f"?message={topic.last_message.pk}", follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/membres/connexion/?next="))
+
+        # authenticated as non-staff, cannot mark a message as potential spam
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-potential-spam") + f"?message={topic.last_message.pk}", follow=False)
+        self.assertEqual(response.status_code, 403)
+
+        # authenticated as non-staff, if we edit the message, there is no alert
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (1)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0
+        )
+
+        # authenticated as non-staff, if we edit the message, there is no alert
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (2)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0
+        )
+
+        # authenticated as staff, can mark a message as potential spam
+        response = self.client.post(reverse("post-potential-spam") + f"?message={topic.last_message.pk}", follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, topic.last_message.get_absolute_url())
+
+        # ok so now we have a message marked as potential spam
+
+        # authenticated as staff, can see the message marked as potential spam
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertContains(response, potential_spam_classes_if_visible)
+
+        # authenticated as staff, if we edit the message, there is no alert
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (21)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0
+        )
+
+        # authenticated as non-staff, if we edit the message, there is an alert
+        self.client.logout()
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (22)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 1
+        )
+
+        # authenticated as non-staff, if we edit again the message, there is still one alert (we dont stack them up)
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (23)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 1
+        )
+
+        # let's assume the alert was solved
+        for alert in Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False):
+            alert.solve(staff.user)
+
+        # authenticated as non-staff, if we edit but the text doesn't actually change, there is no alert
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (23)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0
+        )
+
+        # ...but as the other alert was solved, if we now edit the message for real, there is a new alert
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (24)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 1
+        )
+
+        # ... and there are two alerts in total, including the solved one
+        self.assertEqual(len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text)), 2)
+
+        # let's unmark the message, it's no longer some spam
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.post(reverse("post-potential-spam") + f"?message={topic.last_message.pk}", follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, topic.last_message.get_absolute_url())
+
+        # oh, and the alert was solved in the meantime
+        for alert in Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False):
+            alert.solve(staff.user)
+
+        # if the staff edit the message, there is no alert
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (25)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0
+        )
+
+        # if the author edit the message, there is no alert either
+        self.client.logout()
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.post(
+            reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False, data={"text": "Argh du spam (26)"}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            len(Alert.objects.filter(author=bot, comment=topic.last_message, text=alert_text, solved=False)), 0
+        )
 
     def test_hide(self):
         profile = ProfileFactory()
@@ -1766,135 +1849,146 @@ class MessageActionTest(TestCase):
         PostFactory(topic=topic, author=another_profile.user, position=2)
 
         # two posts are displayed
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        posts = [word for word in response.content.decode().split() if word == 'm\'appelle']
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        posts = [word for word in response.content.decode().split() if word == "m'appelle"]
         self.assertEqual(len(posts), 2)
 
         # unauthenticated, no 'Hide' button
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        self.assertNotContains(response, 'Masquer')
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, "Masquer")
 
         # authenticated, only one 'Hide' buttons because our user only posted one of them
-        self.client.login(username=profile.user.username, password='hostel77')
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        hide_buttons = [word for word in response.content.decode().split() if word == 'hide']
+        self.client.login(username=profile.user.username, password="hostel77")
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        hide_buttons = [word for word in response.content.decode().split() if word == "hide"]
         self.assertEqual(len(hide_buttons), 1)
 
         # staff hides a message
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        text_hidden_expected = 'Bad guy!'
-        data = {
-            'delete_message': '',
-            'text_hidden': text_hidden_expected
-        }
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        text_hidden_expected = "Bad guy!"
+        data = {"delete_message": "", "text_hidden": text_hidden_expected}
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
         # unauthenticated
         # only one post is displayed, visitor can see hide reason and cannot show or re-enable
         self.client.logout()
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        posts = [word for word in response.content.decode().split() if word == 'm\'appelle']
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        posts = [word for word in response.content.decode().split() if word == "m'appelle"]
         self.assertEqual(len(posts), 1)
-        self.assertNotContains(response, '#show-message-hidden-')
-        self.assertNotContains(response, 'Démasquer')
-        self.assertContains(response, 'Bad guy!')
+        self.assertNotContains(response, "#show-message-hidden-")
+        self.assertNotContains(response, "Démasquer")
+        self.assertContains(response, "Bad guy!")
 
         # user cannot show or re-enable their message
-        self.client.login(username=profile.user.username, password='hostel77')
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        self.assertNotContains(response, '#show-message-hidden-')
-        self.assertNotContains(response, 'Démasquer')
-        self.assertContains(response, 'Bad guy!')
+        self.client.login(username=profile.user.username, password="hostel77")
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertNotContains(response, "#show-message-hidden-")
+        self.assertNotContains(response, "Démasquer")
+        self.assertContains(response, "Bad guy!")
 
         # staff can show or re-enable
-        self.assertTrue(self.client.login(username=staff.user.username, password='hostel77'))
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        self.assertContains(response, 'show-message-hidden-')
-        self.assertContains(response, 'Démasquer')
-        text_hidden_expected = 'Bad guy!'
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        self.assertContains(response, "show-message-hidden-")
+        self.assertContains(response, "Démasquer")
+        text_hidden_expected = "Bad guy!"
         data = {
-            'show_message': '',
+            "show_message": "",
         }
         response = self.client.post(
-            reverse('post-edit') + '?message={}'.format(topic.last_message.pk), data, follow=False)
+            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
         # two posts are displayed again
         self.client.logout()
-        response = self.client.get(reverse('topic-posts-list', args=[topic.pk, topic.slug()]))
-        posts = [word for word in response.content.decode().split() if word == 'm\'appelle']
+        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        posts = [word for word in response.content.decode().split() if word == "m'appelle"]
         self.assertEqual(len(posts), 2)
 
 
 class PostUnreadTest(TestCase):
-    def test_failure_post_unread_require_method_get(self):
-        response = self.client.post(reverse('post-unread'), follow=False)
-
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_require_method_get(self, post_unread):
+        response = self.client.post(reverse("post-unread"), follow=False)
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(405, response.status_code)
 
-    def test_failure_post_unread_with_client_unauthenticated(self):
-        response = self.client.get(reverse('post-unread'), follow=False)
-
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_client_unauthenticated(self, post_unread):
+        response = self.client.get(reverse("post-unread"), follow=False)
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(302, response.status_code)
 
-    def test_failure_post_unread_with_sanctioned_user(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_sanctioned_user(self, post_unread):
         profile = ProfileFactory()
         profile.can_read = False
         profile.can_write = False
         profile.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-unread'))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-unread"))
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    def test_failure_post_unread_with_wrong_topic_pk(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_wrong_topic_pk(self, post_unread):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-unread') + '?message=abc', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-unread") + "?message=abc", follow=False)
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_failure_post_unread_with_a_topic_not_found(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_with_a_topic_not_found(self, post_unread):
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-unread') + '?message=99999', follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-unread") + "?message=99999", follow=False)
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(404, response.status_code)
 
-    def test_failure_post_unread_of_a_forum_we_cannot_read(self):
-        group = Group.objects.create(name='DummyGroup_1')
+    @patch("zds.forum.signals.post_unread")
+    def test_failure_post_unread_of_a_forum_we_cannot_read(self, post_unread):
+        group = Group.objects.create(name="DummyGroup_1")
 
         profile = ProfileFactory()
         _, forum = create_category_and_forum(group)
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-unread') + '?message={}'.format(topic.last_message.pk))
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-unread") + "?message={}".format(topic.last_message.pk))
 
+        self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(403, response.status_code)
 
-    def test_success_post_unread(self):
+    @patch("zds.forum.signals.post_unread")
+    def test_success_post_unread(self, post_unread):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-unread') + '?message={}'.format(post.pk), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-unread") + "?message={}".format(post.pk), follow=False)
 
+        self.assertEqual(post_unread.send.call_count, 1)
         self.assertEqual(302, response.status_code)
 
 
 class FindPostTest(TestCase):
     def test_failure_find_topics_of_a_member_not_found(self):
-        response = self.client.get(reverse('post-find', args=[9999]), follow=False)
+        response = self.client.get(reverse("post-find", args=[9999]), follow=False)
 
         self.assertEqual(404, response.status_code)
 
@@ -1903,11 +1997,11 @@ class FindPostTest(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        response = self.client.get(reverse('post-find', args=[profile.user.pk]), follow=False)
+        response = self.client.get(reverse("post-find", args=[profile.user.pk]), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['posts']))
-        self.assertEqual(topic.last_message, response.context['posts'][0])
+        self.assertEqual(1, len(response.context["posts"]))
+        self.assertEqual(topic.last_message, response.context["posts"][0])
 
     def test_success_find_topics_of_a_member_private_forum(self):
         """
@@ -1915,8 +2009,8 @@ class FindPostTest(TestCase):
         only one post is returned by the query (cf. Issue 4068).
         """
         profile = ProfileFactory()
-        group = Group.objects.create(name='DummyGroup_1')
-        another_group = Group.objects.create(name='DummyGroup_2')
+        group = Group.objects.create(name="DummyGroup_1")
+        another_group = Group.objects.create(name="DummyGroup_2")
         _, forum = create_category_and_forum(group)
 
         forum.groups.add(another_group)
@@ -1928,9 +2022,9 @@ class FindPostTest(TestCase):
 
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password='hostel77'))
-        response = self.client.get(reverse('post-find', args=[profile.user.pk]), follow=False)
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-find", args=[profile.user.pk]), follow=False)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.context['posts']))
-        self.assertEqual(topic.last_message, response.context['posts'][0])
+        self.assertEqual(1, len(response.context["posts"]))
+        self.assertEqual(topic.last_message, response.context["posts"][0])

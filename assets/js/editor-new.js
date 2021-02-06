@@ -1,12 +1,10 @@
 /* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */ // eslint-disable-line camelcase
-
 (function($) {
   'use strict'
-
+  const $saveButton = $('.inline-save-button')
   if (localStorage.getItem('editor_choice') !== 'new') {
     return
   }
-
   (function() {
     /**
      * Migration easymde
@@ -301,12 +299,12 @@
   }
 
   var uploadImage = function(file, onSuccess, onError) {
-    var galleryUrl = '/api/galeries/' + document.body.getAttribute('data-gallery') + '/images/'
+    const galleryUrl = '/api/galeries/' + document.body.getAttribute('data-gallery') + '/images/'
 
     var formData = new FormData()
     formData.append('physical', file)
     formData.append('title', file.name)
-    // WARN: if you test zds with sqlite, you can"t upload multiple files at a time
+    // WARN: if you test zds with sqlite, you can't upload multiple files at a time
     $.ajax({
       url: galleryUrl,
       data: formData,
@@ -322,11 +320,15 @@
     }).fail(function(resp) {
       var error = 'Erreur inconnue'
       if (resp.responseText !== undefined && resp.responseText.indexOf('RequestDataTooBig') !== -1) {
-        error = 'L"image est trop lourde.'
+        error = 'L\'image est trop lourde.'
       } else if (resp.responseJSON !== undefined) {
         error = resp.responseJSON[0]
       } else if (resp.responseText !== undefined) {
-        error = 'Erreur ' + resp.status + ' ' + resp.statusText + ' : ' + "'" + resp.responseText.split('\n')[0] + "'"
+        if (parseInt(resp.status) === 400) {
+          error = 'Quelque chose s\'est mal passé lors de l\'envoi. Votre image est peut-être trop lourde.'
+        } else {
+          error = 'Erreur ' + resp.status + ' ' + resp.statusText + ' : ' + "'" + resp.responseText.split('\n')[0] + "'"
+        }
       } else if (resp.readyState === 0 && resp.statusText === 'error') {
         error = 'Oups ! Impossible de se connecter au serveur.'
       }
@@ -376,10 +378,10 @@
     var easyMDE = new EasyMDE({
       autoDownloadFontAwesome: false,
       element: this,
+      forceSync: true,
       autosave: {
         enabled: true,
         uniqueId: mdeUniqueKey,
-        submit_delay: 10000,
         delay: 1000
       },
       indentWithTabs: false,
@@ -394,14 +396,15 @@
       imageUploadFunction: uploadImage,
       imageTexts: {
         sbInit: 'Joindre des images par glisser-déposer ou coller depuis le presse-papiers.',
-        sbOnDragEnter: 'Déposer l"image pour l"envoyer dans votre galérie',
-        sbOnDrop: 'Téléchargement d"images #images_names#',
+        sbOnDragEnter: 'Déposez l\'image pour l\'envoyer dans votre galerie.',
+        sbOnDrop: 'Téléchargement d\'images #images_names#',
         sbProgress: 'Téléchargement #file_name#: #progress#%',
         sbOnUploaded: 'Image téléchargée #image_name#'
       },
       spellChecker: false,
       inputStyle: 'contenteditable',
       nativeSpellcheck: true,
+      sideBySideFullscreen: false,
       promptAbbrv: true,
       theme: 'idea',
       previewRender: customMarkdownParser,
@@ -445,7 +448,7 @@
                   return false
                 }
               }
-              description = prompt('Description de l"abbréviation', '')
+              description = prompt('Description de l\'abbréviation', '')
             }
 
             cm.replaceRange(cm.lineSeparator() + cm.lineSeparator() + '*[' + abbr + ']: ' + description, { line: lastLine, ch: lastCh }, { line: lastLine, ch: maxRange })
@@ -657,8 +660,8 @@
             }
             easyMDE.codemirror.refresh()
           },
-          className: 'fas fa-broom',
-          title: 'Passe au mode compatibilité'
+          className: 'fas fa-remove-format',
+          title: 'Zone de texte sans mise en forme'
         },
         '|',
         {
@@ -690,7 +693,7 @@
       $hide.attr({
         href: 'javascript:void(0)',
         class: 'close-alert-box ico-after cross white',
-        title: "Masquer l'alerte (raccourci clavier: Echap)"
+        title: 'Masquer l\'alerte (raccourci clavier: Echap)'
       })
 
       const $undo = $('<a href="javascript:void(0)">cliquant ici</a>.').click(function() {
@@ -710,14 +713,13 @@
           easyMDE.codemirror.off('keyHandled', onKeyHandled)
           $alertbox.hide(() => $(this).remove())
         }
-
         return true
       }
 
       easyMDE.codemirror.on('keyHandled', onKeyHandled)
 
       const spanContent = [
-        "La version actuelle du contenu provient d'une sauvegarde de votre navigateur. ",
+        'La version actuelle du contenu provient d\'une sauvegarde de votre navigateur. ',
         'Vous pouvez revenir à la version originale (du serveur) avec CTRL+Z ou en ',
         $undo,
         '.'
@@ -744,6 +746,21 @@
     })
     easyMDE.codemirror.addKeyMap({
       'Cmd-Enter': submit
+    })
+    // Does not handle Ctrl + s
+    easyMDE.codemirror.addKeyMap({
+      'Ctrl-S': () => {
+        if ($saveButton.length) {
+          window.saveFormNoRedirect($($saveButton[0].form), $saveButton)
+        }
+      }
+    })
+    easyMDE.codemirror.addKeyMap({
+      'Cmd-S': () => {
+        if ($saveButton.length) {
+          window.saveFormNoRedirect($($saveButton[0].form), $saveButton)
+        }
+      }
     })
 
     this.removeAttribute('required')
@@ -784,7 +801,7 @@ function mirroringEasyMDE(easyMDE, textarea) {
     }, 12) // <-- after default trigger (I mean after browser trigger)
   })
 
-  $(easyMDE.element.parentElement).children('.editor-statusbar').before($twin)
+  $(easyMDE.element.parentElement).find('.editor-statusbar').before($twin)
 
   return $twin
 }

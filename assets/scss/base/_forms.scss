@@ -4,8 +4,8 @@
         width: 100%;
 
         &.content-wrapper {
-            width: calc(100% - 20px);
-            margin: 0 10px;
+            width: calc(100% - #{$length-20});
+            margin: 0 $length-10;
         }
 
         p {
@@ -23,68 +23,78 @@
         align-items: stretch;
 
         input {
-            margin-right: 10px;
+            margin-right: $length-10;
             height: initial;
         }
     }
 
     fieldset {
-        border-top: 1px solid #DDD;
-        border-bottom: 3px solid #DDD;
-        background: #EFEFEF;
+        border-top: $length-1 solid $grey-200;
+        border-bottom: $length-4 solid $grey-200;
+        background: $white;
         padding: 0 4%;
 
         legend {
-            padding: 0 10px;
-            border-top: 1px solid #DDD;
-            border-bottom: 3px solid #DDD;
-            background: #EFEFEF;
+            padding: 0 $length-10;
+            border-top: $length-1 solid $grey-200;
+            border-bottom: $length-4 solid $grey-200;
+            background: $white;
         }
     }
-
 
 
     label {
         display: block;
-        color: #555;
-        height: 30px;
-        line-height: 30px;
+        margin-top: $length-12;
+
+        color: $grey-700;
+        height: $length-32;
+        font-size: $font-size-10;
+        line-height: 2;
+
+        cursor: pointer;
 
         .asteriskField {
-            color: #C0392B;
-            margin-left: 4px;
+            font-size: $font-size-9;
+            color: $red-500;
+            margin-left: $length-4;
+            vertical-align: middle;
         }
     }
+
     .small-content-wrapper .asteriskField {
         display: none;
     }
+
     .form-error {
         display: block;
-        font-size: 13px;
-        color: #C0392B;
+        font-size: $font-size-10;
+        color: $red-500;
     }
 
     input,
     textarea {
-        border: 1px solid #D2D5D6;
+        border: $length-1 solid $grey-200;
 
         &:focus {
-            outline-color: #999;
+            outline-color: $grey-400;
+            border-color: $grey-400;
         }
 
         &.field-error,
         &:invalid {
-            border-color: #C0392B;
+            border-color: $red-700;
 
             &:focus {
-                outline-color: #C0392B;
+                outline-color: $red-400;
+                border-color: $red-400;
             }
         }
 
         &[disabled],
         .disabled {
-            background: #DDD !important;
-            color: #555;
+            background: $grey-200 !important;
+            color: $grey-700;
         }
     }
     input,
@@ -92,16 +102,18 @@
     button,
     .btn {
         -webkit-appearance: none;
-        transition: color $transition-duration ease, background $transition-duration ease;
+        transition: color $transition-duration ease,
+                    background $transition-duration ease;
     }
 
     input:not([type=submit]):not([type=reset]):not([type=radio]):not([type=checkbox]) {
         width: calc(98% - 2px);
         padding: 0 1%;
     }
+
     textarea {
         width: calc(98% - 2px);
-        padding: 10px 1%;
+        padding: $length-10 1%;
         font-family: $font-monospace;
         line-height: normal;
     }
@@ -110,13 +122,13 @@
     button,
     .btn {
         display: block;
-        height: 30px;
+        height: $length-38;
 
         &.ico-after {
-            padding-left: 30px;
+            padding-left: $length-32;
 
             &:after {
-                margin: 12px 0 0 10px;
+                margin: $length-12 0 0 $length-10;
             }
         }
     }
@@ -124,18 +136,23 @@
     button:not(.link),
     .btn {
         position: relative;
-        height: 40px;
-        line-height: 40px;
-        cursor: pointer;
-        color: #DDD;
-        padding: 0 15px;
+
+        margin-left: $length-2;
+        padding: 0 $length-16;
+
         border: none;
-        text-decoration: none;
-        margin-left: 1px;
         outline: none;
 
+        height: $length-38;
+        line-height: 2.5;
+
+        color: $grey-200;
+        text-decoration: none;
+
+        cursor: pointer;
+
         &.submitted {
-            color: #555;
+            color: $grey-700;
 
             // Animation loading on submit buttons
             .line-loading {
@@ -144,25 +161,27 @@
                 left: 0;
                 bottom: 0;
                 width: 0;
-                height: 1px;
-                background: #555;
+                height: $length-1;
+                background: $grey-700;
                 animation: lineLoading linear 1s infinite;
             }
         }
+
         &:not(.btn-holder){
             float: right;
         }
     }
+
     [type=submit]:not(.link),
     .btn-submit:not(.link) {
-        color: #FFF;
+        color: $white;
         background: $color-success;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($color-success, 7%);
+            background: $color-success-hover;
         }
 
         &.disabled.submitted {
@@ -174,13 +193,14 @@
         }
     }
     .btn-cancel:not(.link) {
+        color: $true-white;
         background: $color-danger;
 
         &:not([disabled]):hover,
         &:not([disabled]):focus,
         &:not(.disabled):hover,
         &:not(.disabled):focus {
-            background: lighten($color-danger, 7%);
+            background: $color-danger-hover;
         }
 
         &.disabled.submitted {
@@ -191,7 +211,8 @@
             }
         }
     }
-    @mixin addBtnColorProperties($bg, $color, $bg_hover, $color_hover, $bg_loading) {  
+
+    @mixin addBtnColorProperties($bg, $color, $bg-hover, $color-hover, $bg-loading) {
         &:not(.link) {
             background: $bg;
             color: $color;
@@ -200,22 +221,24 @@
             &:not([disabled]):focus,
             &:not(.disabled):hover,
             &:not(.disabled):focus {
-                background: $bg_hover;
-                color: $color_hover;
+                background: $bg-hover;
+                color: $color-hover;
             }
 
             &.disabled.submitted {
                 color: $color;
 
                 .line-loading {
-                    background: $bg_loading;
+                    background: $bg-loading;
                 }
             }
         }
     }
+
     .btn-grey {
-        @include addBtnColorProperties(#EEE, #555, #CCC, #333, #999);
+        @include addBtnColorProperties($grey-100, $grey-700, $grey-200, $grey-800, $grey-400);
     }
+
     .btn-inline {
         display: inline-block;
     }
@@ -226,10 +249,10 @@
     [disabled],
     .disabled {
         cursor: default !important;
-        background: #EEE !important;
+        background: $grey-100 !important;
 
         &:not(.submitted){
-            color: #BBB !important;
+            color: $grey-300 !important;
         }
     }
 
@@ -257,6 +280,7 @@
             background: darken(#d34836, 10%);
         }
     }
+
     .btn-facebook,
     .btn-twitter,
     .btn-google-plus {
@@ -269,8 +293,8 @@
 .content-container {
     .btn-holder,
     .buttonHolder /* specifix for crispy */ {
-        margin-top: 25px;
-        min-height: 40px;
+        margin-top: $length-24;
+        min-height: $length-38;
     }
 }
 
@@ -279,23 +303,34 @@
     input[type=radio],
     input[type=checkbox] {
         float: left;
-        margin-right: 5px;
-        height: 15px;
-        width: 15px;
-        border: 1px solid #BBB;
-        background: #FCFCFC;
-        transition: none;
+
         position: relative;
+        top: -$length-2;
+
+        margin-right: $length-6;
+
+        height: $length-18;
+        width: $length-18;
+
+        border: $length-1 solid $grey-300;
+        background: $white;
+
+        cursor: pointer;
+
+        transition: none;
 
         &:after {
-            display: block;
             content: '';
+
             position: absolute;
-            top: 0;
-            left: 0;
+            top: $length-1;
+            left: $length-1;
             bottom: 0;
             right: 0;
+
+            display: block;
             opacity: 0;
+
             @include sprite();
         }
 
@@ -313,30 +348,37 @@
         @include sprite-position($check);
     }
 
-
     // TEMP STYLES TO PATCH TEMP TEMPLATE PACK MIX
     .checkbox,
     .radio {
-        padding: 10px 0;
+        margin: 0;
+        padding: $length-10 0;
+        height: 100%;
+
+        &:not(:first-child) {
+            padding-top: 0;
+        }
+        &:not(:last-child) {
+            padding-bottom: 0;
+        }
 
         input {
-            margin-top: 8px;
+            margin-top: $length-8;
         }
     }
+
     .controls .radio {
-        padding-top: 3px;
+        padding-top: $length-4;
         padding-bottom: 0;
     }
+
     // used in the "new content" page
     .checkbox-new-content {
         padding: 0;
     }
-    #div_id_helps .checkbox {
-      padding: 0;
-    }
 }
 
-@media only screen and #{$media-wide} {
+@include desktop {
     .content-container,
     .modals-container {
         form.content-wrapper {

@@ -1,0 +1,26 @@
+aside.meta {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+
+    margin-bottom: $length-20 !important;
+    padding-top: 0;
+    padding-bottom: $length-10;
+
+    border-bottom: $length-1 solid $grey-100;
+    color: $grey-600;
+
+    @include mobile {
+        flex-direction: column;
+    }
+
+    .meta-column {
+        &:first-child {
+            flex: 2;
+        }
+
+        p {
+            margin: $length-2 0;
+        }
+    }
+}

@@ -1,19 +1,40 @@
 #very-top-banner {
     position: sticky;
-    z-index: 2;
     top: 0;
 
+    display: flex;
+    align-items: center;
+
+    padding: 0 $length-10;
+
     box-sizing: border-box;
-    height: 25px;
+    min-height: $length-24;
     width: 100%;
 
-    border-bottom: 2px solid black;
+    border-bottom: $length-2 solid $grey-900;
     text-align: center;
     font-weight: bold;
 
-    a {
-        color: white;
-        float: right;
-        margin: 0 5px;
+    /* Variables from `templates/very_top_banner.html` */
+    background-color: var(--very-top-banner-background-color);
+    border-color: var(--very-top-banner-border-color);
+    color: var(--very-top-banner-color);
+
+    z-index: 21;
+
+    span {
+        flex: 12;
+    }
+
+    button {
+        background: transparent;
+        border: none;
+
+        font-size: $font-size-6;
+
+        color: inherit;
+        font-weight: normal;
+
+        cursor: pointer;
     }
 }

@@ -6,15 +6,16 @@ from zds.notification.models import Notification
 
 
 class Command(BaseCommand):
-    help = 'Remove useless notifications for private topics.'
+    help = "Remove useless notifications for private topics."
 
     def handle(self, *args, **options):
         for profile in Profile.objects.all():
-            self.stdout.write('Remove all useless notifications of {}...'.format(profile.user.username))
-            content_type = ContentType.objects.get(model='privatepost')
-            for notification in Notification.objects\
-                    .filter(is_read=False, content_type=content_type, subscription__user=profile.user):
+            self.stdout.write("Remove all useless notifications of {}...".format(profile.user.username))
+            content_type = ContentType.objects.get(model="privatepost")
+            for notification in Notification.objects.filter(
+                is_read=False, content_type=content_type, subscription__user=profile.user
+            ):
                 if notification.content_object is None:
                     notification.is_read = True
                     notification.save()
-                    self.stdout.write('Notification #{} marked as read.'.format(notification.id))
+                    self.stdout.write("Notification #{} marked as read.".format(notification.id))

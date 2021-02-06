@@ -348,4 +348,32 @@
     e.stopPropagation()
     e.preventDefault()
   })
+
+  /*
+     * Mark a message as potential spam
+     */
+  $('.topic-message').on('click', "[data-ajax-input='mark-message-as-potential-spam']", function(e) {
+    var $button = $(this)
+    var $form = $button.parents('form:first')
+    var $message = $form.parents('article')
+    var $usefulText = $message.find("[data-ajax-output='mark-message-as-potential-spam']")
+    var csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+
+    $.ajax({
+      url: $form.attr('action'),
+      type: 'POST',
+      data: {
+        csrfmiddlewaretoken: csrfmiddlewaretoken
+      },
+      success: function() {
+        $message.toggleClass('potential-spam')
+        $button.toggleText('content-on-click')
+        $usefulText.toggleClass('hidden')
+        $button.blur()
+      }
+    })
+
+    e.stopPropagation()
+    e.preventDefault()
+  })
 })(jQuery)

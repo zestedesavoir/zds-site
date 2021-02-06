@@ -1,9 +1,16 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% if not content.is_opinion %}
-    <h3>Editorialisation</h3>
-    <ul>
+<h3>Éditorialisation</h3>
+<ul>
+    <li>
+        <a href="#edit-tags" class="open-modal ico-after gear blue">
+            Modifier les tags
+        </a>
+        {% crispy form_edit_tags %}
+    </li>
+
+    {% if is_staff and not content.is_opinion %}
         <li>
             <a href="#add-suggestion" class="open-modal ico-after more blue">
                 {% trans "Ajouter une suggestion" %}
@@ -35,9 +42,8 @@
                         {% endfor %}
                     </tbody>
                 </table>
-
                 {% csrf_token %}
             </form>
         </li>
-    </ul>
-{% endif %}
+    {% endif %}
+</ul>

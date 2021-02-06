@@ -68,12 +68,18 @@ hr.clearfix {
 }
 
 // Hidden on mobile
-.screen,
+.desktop,
 .wide {
     display: none;
 }
 
-@media only screen and #{$media-extra-wide} {
+// Hidden on desktop
+.until-desktop,
+.until-wide {
+    display: none;
+}
+
+@include wide {
     .wide {
         display: inline;
     }
@@ -82,8 +88,20 @@ hr.clearfix {
     }
 }
 
-@media only screen and #{$media-wide} {
-    .screen {
+@include desktop {
+    .desktop {
+        display: inline;
+    }
+}
+
+@include until-desktop {
+    .until-desktop {
+        display: inline;
+    }
+}
+
+@include until-wide {
+    .until-wide {
         display: inline;
     }
 }

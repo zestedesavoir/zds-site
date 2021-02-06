@@ -10,25 +10,31 @@
 </a>
 
 <div class="content-info">
-    <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+    <header>
         <h3 class="content-title" itemprop="itemListElement">
-            {{ search_result.title }}
+            <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+                {{ search_result.title }}
+            </a>
         </h3>
-    </a>
 
-    <p class="content-description">
-        {% highlight search_result "text" %}
-    </p>
-
-    <div class="content-meta inline" title="Chapitre">
-        <p>
-            {% trans "Chapitre du tutoriel" %}
-            <a href="{{ search_result.parent_get_absolute_url_online }}">{{ search_result.parent_title }}</a> &bullet;
-
-            <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date|from_elasticsearch_date }}">
-                <span class="long">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
-                <span class="short">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
-            </time>
+        <p class="content-description is-long">
+            <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
+                {% highlight search_result "text" %}
+            </a>
         </p>
-    </div>
+    </header>
+
+    <footer>
+        <div class="content-meta inline" title="Chapitre">
+            <p>
+                {% trans "Chapitre du tutoriel" %}
+                <a href="{{ search_result.parent_get_absolute_url_online }}">{{ search_result.parent_title }}</a> &bullet;
+
+                <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date|from_elasticsearch_date }}">
+                    <span class="long">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
+                </time>
+            </p>
+        </div>
+    </footer>
 </div>

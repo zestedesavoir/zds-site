@@ -1,0 +1,76 @@
+{% extends "member/admin/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Demandes résolues" %} &bull; {% trans "Demandes de casquettes" %} &bull; {% trans "Casquettes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        <a href="{% url 'hats-list' %}">
+            {% trans "Casquettes" %}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'requested-hats' %}">
+            {% trans "Demandes de casquettes" %}
+        </a>
+    </li>
+    <li>
+        {% trans "Demandes résolues" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Demandes résolues" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if requests %}
+        <table class="fullwidth">
+            <thead>
+                <th>{% trans "Casquette demandée" %}</th>
+                <th>{% trans "Utilisateur" %}</th>
+                <th>{% trans "Décision" %}</th>
+                <th class="wide">{% trans "Modérateur" %}</th>
+                <th class="wide">{% trans "Date de résolution" %}</th>
+            </thead>
+            <tbody>
+                {% for request in requests %}
+                    <tr>
+                        <td>
+                            <a href="{{ request.get_absolute_url }}">{{ request.hat }}</a>
+                        </td>
+                        <td>{% include 'misc/member_item.part.html' with member=request.user avatar=True %}</td>
+                        <td>{{ request.is_granted|yesno:_('Acceptée,Refusée') }}</td>
+                        <td class="wide">{% include 'misc/member_item.part.html' with member=request.moderator avatar=True %}</td>
+                        <td class="wide">{{ request.solved_at|format_date:True|capfirst }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <em>{% trans "Aucune demande n'a été résolue." %}</em>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
+
+
+{% block sidebar_actions %}
+    <div>
+        <a href="{% url "requested-hats" %}" class="new-btn ico-after history blue">
+            {% trans "Demandes en cours" %}
+        </a>
+    </div>
+{% endblock %}

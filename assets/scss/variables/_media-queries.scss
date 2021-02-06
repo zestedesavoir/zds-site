@@ -1,7 +1,84 @@
-$media-mega-wide: "(min-width: 1360px)";
-$media-extra-wide: "(min-width: 1140px)";
-$media-wide: "(min-width: 960px)";
-$media-tablet: "(min-width: 760px)";
-$media-mobile-tablet: "(max-width: 959px)";
-$media-under-extra-wide: "(max-width: 1140px)";
-$media-mobile: "(max-width: 759px)";
+// Breakpoints between each screen category
+$tablet: 769px;
+$desktop: 1024px;
+$wide: 1216px;
+$extra-wide: 1408px;
+
+// Some inspiration for names & concepts from the Bulma CSS framework
+
+// Mobile and below (well, mobile)
+@mixin mobile {
+  @media screen and (max-width: $tablet - 1px) {
+    @content;
+  }
+}
+
+// Tablet and above (also print)
+@mixin tablet {
+  @media screen and (min-width: $tablet), print {
+    @content;
+  }
+}
+
+// Tablet
+@mixin tablet-only {
+  @media screen and (min-width: $tablet) and (max-width: $desktop - 1px) {
+    @content;
+  }
+}
+
+// Tablets and mobiles (touchscreens)
+@mixin until-desktop {
+  @media screen and (max-width: $desktop - 1px) {
+    @content;
+  }
+}
+
+// Desktop and above
+@mixin desktop {
+  @media screen and (min-width: $desktop) {
+    @content;
+  }
+}
+
+// Desktop only
+@mixin desktop-only {
+  @media screen and (min-width: $desktop) and (max-width: $wide - 1px) {
+    @content;
+  }
+}
+
+// Mobile, tablet and desktop
+@mixin until-wide {
+  @media screen and (max-width: $wide - 1px) {
+     @content;
+  }
+}
+
+// Wide screen and above
+@mixin wide {
+  @media screen and (min-width: $wide) {
+    @content;
+  }
+}
+
+// Wide screen only
+@mixin wide-only {
+  @media screen and (min-width: $wide) and (max-width: $extra-wide - 1px) {
+    @content;
+  }
+}
+
+// Mobile, tablet, desktop and wide screen
+@mixin until-extra-wide {
+  @media screen and (max-width: $extra-wide - 1px) {
+    @content;
+  }
+}
+
+// Full HD screen
+@mixin extra-wide {
+  @media screen and (min-width: $extra-wide) {
+    @content;
+  }
+}

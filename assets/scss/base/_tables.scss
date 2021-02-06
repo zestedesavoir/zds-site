@@ -3,26 +3,27 @@
     overflow: auto;
 
     & + figcaption {
-        margin-top: -15px;
+        margin-top: -$length-14;
     }
 }
 
 table {
-    margin: 15px auto;
-    border-top: 1px solid #DDD;
+    margin: $length-14 auto;
+    border-top: $length-1 solid $grey-200;
     border-collapse: collapse;
 
     thead {
-        background: #DDD;
+        background: $grey-200;
         color: $color-primary;
     }
+
     th, td {
         text-align: left;
-        padding: 5px 15px 5px 7px;
-        border-right: 1px solid #DDD;
+        padding: $length-6 $length-16 $length-6 $length-6;
+        border-right: $length-1 solid $grey-200;
 
         &:first-child {
-            border-left: 1px solid #DDD;
+            border-left: $length-1 solid $grey-200;
         }
 
         p {
@@ -31,11 +32,11 @@ table {
     }
 
     tbody tr {
-        background: #FDFDFD;
-        border-bottom: 1px solid #DDD;
+        background: $grey-100;
+        border-bottom: $length-1 solid $grey-200;
 
         &:nth-child(2n+1) {
-            background: #F7F7F7;
+            background: $white;
         }
     }
 
@@ -44,27 +45,29 @@ table {
     }
 }
 
-/* Specific for diff */
+// Specific for diff
 
 .diff_delta {
     overflow-x: auto;
     width: 100%;
-    margin: 15px 0; /* add margin to container */
+    margin: $length-16 0;
 
     table.diff {
+        margin: 0; // abort table default margin
+
+        border: $length-2 solid $grey-500;
+
         font-family: $font-monospace;
-        font-size: 0.9em;
-        border: 2px solid gray;
-        margin: 0; /* abort table default margin */
+        font-size: $font-size-10;
 
         tr {
-            line-height: 1em;
+            line-height: 1;
             border-bottom: none;
         }
 
         .diff_header {
-            background-color: #e0e0e0;
-            padding: 5px;
+            background-color: $grey-200;
+            padding: $length-4 $length-6;
         }
 
         td.diff_header {
@@ -77,14 +80,14 @@ table {
     }
 }
 
-.diff_add { /* added text */
-    background-color: #aaffaa;
+.diff_add { // added text
+    background-color: $green-200;
 }
 
-.diff_chg { /* changed text */
-    background-color: #fff8ab;
+.diff_chg { // changed text
+    background-color: $accent-200;
 }
 
-.diff_sub { /* deleted text */
-    background-color: #ffaaaa;
+.diff_sub { // deleted text
+    background-color: $red-100;
 }

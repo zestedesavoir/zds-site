@@ -1,3 +1,25 @@
+// FONT FAMILIES
+// These families should be used, not others.
+
 $font-sans-serif: "Source Sans Pro", "Segoe UI", "Trebuchet MS", Helvetica, "Helvetica Neue", Arial, sans-serif;
 $font-serif: "Merriweather", "Liberation Serif", "Times New Roman", Times, Georgia, FreeSerif, serif;
 $font-monospace: "Source Code Pro", monospace, serif;
+
+// FONT SIZE SCALE
+// These sizes should be used whenever possible to ensure consistency.
+// You can preview the fonts above in these different sizes at
+// https://zestedesavoir.github.io/normes-graphiques/#polices
+
+$font-size-1: 7.2rem;
+$font-size-2: 6rem;
+$font-size-3: 4.8rem;
+$font-size-4: 3.6rem;
+$font-size-5: 3rem;
+$font-size-6: 2.4rem;
+$font-size-7: 2rem;
+$font-size-8: 1.8rem;
+$font-size-9: 1.6rem;
+$font-size-10: 1.4rem;
+$font-size-11: 1.2rem;
+$font-size-12: 1rem;
+$font-size-13: .8rem;

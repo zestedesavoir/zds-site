@@ -1,0 +1,40 @@
+{% extends "member/admin/base.html" %}
+
+{% load captureas %}
+{% load date %}
+{% load i18n %}
+{% load remove_url_scheme %}
+
+{% block title %}
+    {% trans "Membres par IP" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "IP" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Membres par IP" %} : <strong>{{ ip }}</strong>
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% blocktrans %}
+            Liste des membres dont la dernière IP connue est {{ ip }}
+        {% endblocktrans %}
+    </p>
+
+    <div class="members">
+        <ul>
+            {% for member in members %}
+                <li>{% include "misc/member_item.part.html" with member=member info=member.last_visit|format_date:True avatar=True %}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

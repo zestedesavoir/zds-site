@@ -2,6 +2,7 @@
     background-repeat: no-repeat;
     @include sprite();
 }
+
 .ico-after,
 .custom-block-body {
     position: relative;
@@ -151,6 +152,18 @@
         }
         &.light:after {
             @include sprite-position($diaspora-light);
+        }
+    }
+
+    &.discord {
+        &:after {
+            @include sprite-position($discord);
+        }
+        &.blue:after {
+            @include sprite-position($discord-blue);
+        }
+        &.light:after {
+            @include sprite-position($discord-light);
         }
     }
 
@@ -453,4 +466,11 @@ h6 {
         width: 16px;
         height: 16px;
     }
+}
+
+// As icons are not in the size grid, they are off-aligned for titles
+// because of the close line under them. This is not a problem for other
+// elements due to different layout.
+h2.ico-after:after {
+    top: -$length-2;
 }

@@ -8,56 +8,63 @@ from zds.utils.models import Tag
 from zds.utils.misc import contains_utf8mb4
 
 
-class CommonLayoutEditor(Layout):
+class IncludeEasyMDE(Layout):
+    """Include EasyMDE JS File for this form"""
 
     def __init__(self, *args, **kwargs):
+        super().__init__(HTML('{% include "easymde.html" %}'), *args, **kwargs)
+
+
+class CommonLayoutEditor(Layout):
+    def __init__(self, *args, **kwargs):
         super(CommonLayoutEditor, self).__init__(
-            Field('text', css_class='md-editor mini-editor'),
+            IncludeEasyMDE(),
+            Field("text", css_class="md-editor mini-editor"),
             HTML("<div class='message-bottom'>"),
             HTML("<div class='message-submit'>"),
+            StrictButton(_("Envoyer"), type="submit", name="answer"),
             StrictButton(
-                _('Envoyer'),
-                type='submit',
-                name='answer'),
-            StrictButton(
-                _('Aperçu'),
-                type='submit',
-                name='preview',
-                css_class='btn-grey',
-                data_ajax_input='preview-message'),
-            HTML('</div>'),
-            HTML('</div>'),
-            *args, **kwargs
+                _("Aperçu"), type="submit", name="preview", css_class="btn-grey", data_ajax_input="preview-message"
+            ),
+            HTML("</div>"),
+            HTML("</div>"),
+            *args,
+            **kwargs
         )
 
 
 class CommonLayoutVersionEditor(Layout):
-
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, send_label="Envoyer", display_save=False, **kwargs):
+        save_button = Div()
+        if display_save:
+            save_button = StrictButton(
+                _("Sauvegarder et continuer"), name="save_and_continue", css_class="btn-grey inline-save-button"
+            )
         super(CommonLayoutVersionEditor, self).__init__(
             Div(
-                Field('text', css_class='md-editor'),
-                Field('msg_commit'),
+                IncludeEasyMDE(),
+                Field("text", css_class="md-editor"),
+                Field("msg_commit"),
                 ButtonHolder(
-                    StrictButton(
-                        _('Envoyer'),
-                        type='submit',
-                        name='answer'),
-                    StrictButton(
-                        _('Aperçu'),
-                        type='submit',
-                        name='preview',
-                        css_class='btn-grey preview-btn'),
+                    StrictButton(_(send_label), type="submit", name="answer"),
+                    save_button,
+                    StrictButton(_("Aperçu"), type="submit", name="preview", css_class="btn-grey preview-btn"),
                 ),
             ),
-            *args, **kwargs
+            *args,
+            **kwargs
         )
 
 
-class TagValidator(object):
+class TagValidator:
     """
     validate tags
     """
+
+    error_empty_slug = _("Le tag « {} » n'est constitué que de caractères spéciaux et est donc incorrect.")
+    error_tag_too_long = _("Le tag « {} » est trop long (maximum {} caractères).")
+    error_utf8mb4 = _("Le tag « {} » contient des caractères utf8mb4.")
+
     def __init__(self):
         self.__errors = []
         self.logger = logging.getLogger(__name__)
@@ -74,7 +81,7 @@ class TagValidator(object):
         """
         if raw_string is None or not isinstance(raw_string, str):
             return self.validate_string_list([])
-        return self.validate_string_list(raw_string.split(','))
+        return self.validate_string_list(raw_string.split(","))
 
     def validate_length(self, tag):
         """
@@ -83,11 +90,11 @@ class TagValidator(object):
         :param tag: the tag lavel to validate
         :return: ``True`` if length is valid
         """
-        if len(tag) > Tag._meta.get_field('title').max_length:
-            self.errors.append(_('Le tag {} est trop long (maximum {} caractères)'.format(
-                tag, Tag._meta.get_field('title').max_length)))
-            self.logger.debug('%s est trop long expected=%d got=%d', tag,
-                              Tag._meta.get_field('title').max_length, len(tag))
+        if len(tag) > Tag._meta.get_field("title").max_length:
+            self.errors.append(TagValidator.error_tag_too_long.format(tag, Tag._meta.get_field("title").max_length))
+            self.logger.debug(
+                "%s est trop long expected=%d got=%d", tag, Tag._meta.get_field("title").max_length, len(tag)
+            )
             return False
         return True
 
@@ -96,8 +103,8 @@ class TagValidator(object):
         Same as ``validate_raw_string`` but with a list of tag labels.
 
         :param string_list:
-        :return: ``True`` if ``v`` is fully valid, ``False`` if at least one error appears. See ``self.errors``
-        to get all internationalized error.
+        :return: ``True`` if ``v`` is fully valid, ``False`` if at least one error appears. \
+        See ``self.errors`` to get all internationalized error.
         """
         string_list = list(filter(lambda s: s.strip(), string_list))  # needed to keep only real candidates
         self.__clean = filter(self.validate_length, string_list)
@@ -113,8 +120,8 @@ class TagValidator(object):
         :return: ``True`` if no utf8mb4 string is found
         """
         if contains_utf8mb4(tag):
-            self.errors.append(_('Le tag {} contient des caractères utf8mb4').format(tag))
-            self.logger.warn('%s contains utf8mb4 char', tag)
+            self.errors.append(TagValidator.error_utf8mb4.format(tag))
+            self.logger.warning("%s contains utf8mb4 char", tag)
             return False
         return True
 
@@ -126,8 +133,8 @@ class TagValidator(object):
         :return: ``True`` if the tag slug is good
         """
         if not defaultfilters.slugify(tag):
-            self.errors.append(_("Le tag {} n'est constitué que de caractères spéciaux et est donc incorrect"))
-            self.logger.warn('%s bad slug', tag)
+            self.errors.append(TagValidator.error_empty_slug.format(tag))
+            self.logger.warning('"%s" bad slug', tag)
             return False
         return True
 
@@ -149,4 +156,4 @@ class FieldValidatorMixin:
 
     def check_text_length_limit(self, text, max_length, message_format):
         if len(text) > max_length:
-            self._errors['text'] = [message_format().format(max_length)]
+            self._errors["text"] = [message_format().format(max_length)]

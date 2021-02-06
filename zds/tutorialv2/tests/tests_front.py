@@ -1,14 +1,17 @@
+from copy import deepcopy
+from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.test import override_settings
+from django.test import tag
 from django.urls import reverse
 from selenium.common.exceptions import WebDriverException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox.webdriver import WebDriver
-from django.test import tag
-from selenium.webdriver.support import expected_conditions
-from selenium.webdriver.support.ui import Select, WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver import Firefox
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import WebDriverWait
 
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.tutorialv2.factories import (
@@ -20,25 +23,24 @@ from zds.tutorialv2.factories import (
 )
 from zds.tutorialv2.models.database import PublishedContent, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
-from copy import deepcopy
-from django.conf import settings
-
 from zds.utils.factories import CategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
-overridden_zds_app['content']['repo_private_path'] = settings.BASE_DIR / 'contents-private-test'
-overridden_zds_app['content']['repo_public_path'] = settings.BASE_DIR / 'contents-public-test'
+overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
+overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
 
 
-@override_settings(MEDIA_ROOT=settings.BASE_DIR / 'media-test')
+@override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
 @override_settings(ES_ENABLED=False)
-@tag('front')
+@tag("front")
 class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, TutorialFrontMixin):
     @classmethod
     def setUpClass(cls):
         super(PublicationFronttest, cls).setUpClass()
-        cls.selenium = WebDriver()
+        options = Options()
+        options.headless = True
+        cls.selenium = Firefox(options=options)
         cls.selenium.implicitly_wait(10)
 
     @classmethod
@@ -53,13 +55,13 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
-        overridden_zds_app['content']['build_pdf_when_published'] = False
+        overridden_zds_app["content"]["build_pdf_when_published"] = False
 
         self.staff = StaffProfileFactory().user
 
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
-        overridden_zds_app['member']['bot_account'] = self.mas.username
+        overridden_zds_app["member"]["bot_account"] = self.mas.username
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory(category=CategoryFactory())
@@ -78,19 +80,19 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         self.selenium.get(self.live_server_url + self.ignored_part.get_absolute_url())
         find_element = self.selenium.find_element_by_css_selector
         button = WebDriverWait(self.selenium, 20).until(
-            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, '.readiness'))
+            expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, ".readiness"))
         )
-        readiness = button.get_attribute('data-is-ready')
+        readiness = button.get_attribute("data-is-ready")
         button.click()
-        self.wait_element_attribute_change((By.CSS_SELECTOR, '.readiness'), 'data-is-ready', readiness, 20)
+        self.wait_element_attribute_change((By.CSS_SELECTOR, ".readiness"), "data-is-ready", readiness, 20)
         self.content = PublishableContent.objects.get(pk=self.content.pk)
         self.ignored_part = self.content.load_version().children[1]
-        self.assertFalse(self.ignored_part.ready_to_publish, 'part should be marked as not ready to publish')
+        self.assertFalse(self.ignored_part.ready_to_publish, "part should be marked as not ready to publish")
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         self.selenium.get(self.live_server_url + self.ignored_part.get_absolute_url())
-        button = find_element('.readiness')
+        button = find_element(".readiness")
         self.assertNotEqual(
-            readiness, button.get_attribute('data-is-ready'), 'part should be marked as not ready to publish'
+            readiness, button.get_attribute("data-is-ready"), "part should be marked as not ready to publish"
         )
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         self.ask_validation()
@@ -105,8 +107,8 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
             find_element,
             'a[href="{}"]'.format(
                 reverse(
-                    'tutorial:view-container',
-                    kwargs={'slug': self.content.slug, 'pk': self.content.pk, 'container_slug': self.ignored_part.slug},
+                    "tutorial:view-container",
+                    kwargs={"slug": self.content.slug, "pk": self.content.pk, "container_slug": self.ignored_part.slug},
                 )
             ),
         )
@@ -117,34 +119,34 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         author = ProfileFactory()
 
-        article = PublishableContentFactory(type='ARTICLE', author_list=[author.user])
+        article = PublishableContentFactory(type="ARTICLE", author_list=[author.user])
 
         versioned_article = article.load_version()
-        article.sha_draft = versioned_article.repo_update('article', '', '', update_slug=False)
+        article.sha_draft = versioned_article.repo_update("article", "", "", update_slug=False)
         article.save()
 
-        article_edit_url = reverse('content:edit', args=[article.pk, article.slug])
+        article_edit_url = reverse("content:edit", args=[article.pk, article.slug])
 
         self.login(author)
         selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
         selenium.get(self.live_server_url + article_edit_url)
 
-        intro = find_element('div#div_id_introduction div.CodeMirror')
+        intro = find_element("div#div_id_introduction div.CodeMirror")
         # ActionChains: Support for CodeMirror https://stackoverflow.com/a/48969245/2226755
         action_chains = ActionChains(selenium)
         scrollDriverTo(selenium, 0, 312)
         action_chains.click(intro).perform()
-        action_chains.send_keys('intro').perform()
+        action_chains.send_keys("intro").perform()
 
-        output = 'div#div_id_introduction div.CodeMirror div.CodeMirror-code'
-        self.assertEqual('intro', find_element(output).text)
+        output = "div#div_id_introduction div.CodeMirror div.CodeMirror-code"
+        self.assertEqual("intro", find_element(output).text)
 
-        article.sha_draft = versioned_article.repo_update('article', 'new intro', '', update_slug=False)
+        article.sha_draft = versioned_article.repo_update("article", "new intro", "", update_slug=False)
         article.save()
 
         selenium.refresh()
 
-        self.assertEqual('new intro', find_element('.md-editor#id_introduction').get_attribute('value'))
+        self.assertEqual("new intro", find_element(".md-editor#id_introduction").get_attribute("value"))
 
     def test_the_editor_forgets_its_content_on_form_submission(self):
         selenium = self.selenium
@@ -154,30 +156,28 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         self.login(author)
         selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
-        new_article_url = self.live_server_url + reverse('content:create-article')
+        new_article_url = self.live_server_url + reverse("content:create-article")
         selenium.get(new_article_url)
-        WebDriverWait(self.selenium, 10).until(ec.element_to_be_clickable(
-            (By.CSS_SELECTOR, 'input[type=checkbox][name=subcategory]')
-        )).click()
-        license_select = Select(find_element('#id_licence'))
-        license_select.select_by_index(len(license_select.options) - 1)
+        WebDriverWait(self.selenium, 10).until(
+            ec.element_to_be_clickable((By.CSS_SELECTOR, "input[type=checkbox][name=subcategory]"))
+        ).click()
 
-        find_element('#id_title').send_keys('Oulipo')
+        find_element("#id_title").send_keys("Oulipo")
 
-        intro = find_element('div#div_id_introduction div.CodeMirror')
+        intro = find_element("div#div_id_introduction div.CodeMirror")
         action_chains = ActionChains(selenium)
         action_chains.click(intro).perform()
-        action_chains.send_keys('Le cadavre exquis boira le vin nouveau.').perform()
+        action_chains.send_keys("Le cadavre exquis boira le vin nouveau.").perform()
 
-        find_element('.content-container button[type=submit]').click()
+        find_element(".content-container button[type=submit]").click()
 
-        self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains(('Oulipo'))))
+        self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains(("Oulipo"))))
 
         selenium.get(new_article_url)
 
-        self.assertEqual('', find_element('.md-editor#id_introduction').get_attribute('value'))
+        self.assertEqual("", find_element(".md-editor#id_introduction").get_attribute("value"))
 
 
 def scrollDriverTo(driver, x, y):
-    scriptScrollTo = 'window.scrollTo(%s, %s);' % (x, y)
+    scriptScrollTo = "window.scrollTo(%s, %s);" % (x, y)
     driver.execute_script(scriptScrollTo)

@@ -12,7 +12,7 @@ L'élément que vous souhaitez imager (un bouton, un lien de la barre latérale,
 Toutes les icônes nécessitent la présence de la classe ``ico-after``.
 Elle sera mise en place de façon différente selon l'endroit où vous l'insérez.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <button class="ico-after btn-cancel cross light">
       Bouton de suppression
@@ -20,7 +20,7 @@ Elle sera mise en place de façon différente selon l'endroit où vous l'insére
 
 Ou :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <span class="ico-after beta blue"></span>
 
@@ -39,7 +39,7 @@ Tous les boutons doivent avoir la classe btn associé à la couleur que l'on sou
 
 Exemple :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#" class="btn btn-grey">Ceci est un lien</a>
   <button class="btn btn-grey">Ceci est un bouton</button>
@@ -65,7 +65,7 @@ Ajoutez une icône sur un bouton comme sur n'importe quel autre élément :
 .. figure:: ../images/design/boutons_icones.png
    :align: center
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <button type="submit" class="ico-after arrow-right light">Submit</button>
   <button type="submit" class="btn-cancel ico-after cross light">Supprimer</button>
@@ -73,7 +73,7 @@ Ajoutez une icône sur un bouton comme sur n'importe quel autre élément :
 Le style général du site se veut épuré, on évitera les icônes sur les boutons de soumission de formulaire. On les utilisera pour illustrer les boutons d'action : déplacer, supprimer, renommer, éditer, etc.
 
 Icône d'aide
--------------
+------------
 
 Il existe une classe, ``help-question-mark``, à appliquer sur un lien, affichant
 un petit cercle coloré autour du texte du lien. Avec ``?`` comme texte de lien,
@@ -83,10 +83,60 @@ petite icône ouvrant une aide.
 N'oubliez pas d'ajouter un attribut ``title`` (ou si l'infobulle gêne,
 ``aria-label``), pour l'accessibilité du lien.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#" class="help-question-mark" title="Titre du lien">?</a>
 
+Bouton de modification
+----------------------
+
+Pour afficher un petit bouton permettant de modifier un élément, et *seulement si
+l'élément modifié est clairement identifié pour l'utilisateur*, il existe une
+classe ``edit-button`` à ajouter à un lien. Le texte de ce lien doit être masqué
+afin de ne pas briser son affichage. Le rendu sera un crayon bleu, virant au blanc
+sur fond bleu circulaire lorsque survolé.
+
+Il est important de tout de même spécifier *et* un texte dans le bouton (masqué),
+*et* une infobulle, afin d'être très clair sur le rôle du bouton tant pour un
+utilisateur normal (le bouton n'ayant pas de nom visuel, l'infobulle permet de
+confirmer ce qu'il fait) que pour un utilisateur usant d'un lecteur d'écran (le
+texte alternatif étant alors indispensable, l'icône crayon ne pouvant être vue).
+
+Aussi, si le lien ouvre une boîte modale, celle-ci sera sans titre si le lien est
+vide.
+
+Voici un exemple.
+
+.. sourcecode:: html+django
+
+  <a href="#modal" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
+    <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
+  </a>
+
+Pour s'assurer que le bouton de modification et ce qu'il permet de modifier
+soient correctement alignés verticalement et espacés, il existe une seconde
+classe à appliquer à un conteneur des deux éléments : ``editable-element``.
+
+Cet élément doit avoir deux enfants : l'un d'entre eux sera l'élément
+visuellement modifié, et l'autre le bouton de modification, avec la classe
+``edit-button``. S'il a plus de deux enfants, le bouton de modification prendra
+toujours le moins d'espace possible, et les autres se partageront équitablement
+la place disponible, tout en restant alignés verticalement.
+
+Le bouton peut être placé avant ou après l'élément : l'alignement et
+l'espacement seront correctement gérés.
+
+Si on prend l'exemple d'une licence d'un contenu à côté de laquelle on place un
+bouton de modification, l'on pourrait utiliser le code HTML suivant.
+
+.. sourcecode:: html+django
+
+  <div class="editable-element">
+    <p>{{ content.licence }}</p>
+    <a href="#edit-license" class="open-modal edit-button" title="Modifier la licence">
+      <span class="visuallyhidden">Modifier la licence</span>
+    </a>
+  </div>
 
 Formulaires
 ===========
@@ -116,7 +166,7 @@ Un lien, généralement sous la forme d'un bouton, ayant comme ``href`` l'``id``
 
 Une boite modale et son lien associés peuvent être n'importe où dans la page, le système se base sur un ``id`` qui est par définition unique.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#doc-modal" class="open-modal">Ce lien ouvre une boite modale</a>
   <form class="modal modal-small" id="doc-modal" action="">
@@ -146,7 +196,7 @@ Informations supplémentatires
 
 Si le lien a une icône, la modale la rajoutera automatiquement.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#doc-modal-ico" class="open-modal btn btn-grey ico-after view blue">Exemple avec icône</a>
   <form class="modal modal-small" id="doc-modal-ico" action="">
@@ -161,7 +211,7 @@ Lecture seule
 
 Dans certains cas, les modales ne sont pas des formulaires mais simplement des boites d'affichage en lecture seule. Il est alors possible de préciser le texte du bouton de fermeture au travers de l'attribut ``data-modal-close``.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <a href="#doc-modal-close" class="open-modal">Ce lien ouvre une boite modale</a>
   <div class="modal modal-small" id="doc-modal-close" data-modal-close="Fermer">
@@ -174,7 +224,7 @@ Dans certains cas, les modales ne sont pas des formulaires mais simplement des b
 Messages flash
 ==============
 
-Un message dit "flash" est un message d'information ou d'alerte qui est masquable selon la volonté de l'utilisateur et qui disparraîtra généralement à la page suivante (comportement selon le back-end).
+Un message dit "flash" est un message d'information ou d'alerte qui est masquable selon la volonté de l'utilisateur et qui disparaîtra généralement à la page suivante (comportement selon le back-end).
 
 Utilisation de base
 -------------------
@@ -187,7 +237,7 @@ Il y a trois couleurs :
 -  orange, pour les alertes/avertissements ``alert-box warning``
 -  vert, pour les succès/confirmations ``alert-box success``
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <!-- Changez simplement la classe "success" pour une autre pour changer le fond -->
   <div class="alert-box success">
@@ -200,7 +250,7 @@ Modulation
 
 Il est possible de forcer l'affichage du texte à la place ou en plus de la croix en rajoutant la classe ``close-alert-box-text`` au bouton de fermeture.
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <div class="alert-box success">
       <span class="alert-box-text">Pas d'icône, juste du texte.</span>
@@ -209,10 +259,9 @@ Il est possible de forcer l'affichage du texte à la place ou en plus de la croi
 
 Vous pouvez combiner icône et texte comme ceci :
 
-.. sourcecode:: html
+.. sourcecode:: html+django
 
   <div class="alert-box success">
       <span class="alert-box-text">Croix + texte.</span>
       <button class="close-alert-box close-alert-box-text ico-after cross white">Masquer l'alerte</button>
   </div>
-

@@ -18,21 +18,27 @@ class ForumManager(models.Manager):
         category
         :type with_count: bool
         """
-        queryset = self.filter(category=category, groups__isnull=True).select_related('category').distinct()
+        queryset = self.filter(category=category, groups__isnull=True).select_related("category").distinct()
         if with_count:
             # this request count the threads in each forum
-            thread_sub_query = 'SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id'
+            thread_sub_query = "SELECT COUNT(*) FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id"
             # this request count the posts in each forum
-            post_sub_query = 'SELECT COUNT(*) FROM forum_post WHERE forum_post.topic_id ' \
-                             'IN(SELECT id FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id)'
+            post_sub_query = (
+                "SELECT COUNT(*) FROM forum_post WHERE forum_post.topic_id "
+                "IN(SELECT id FROM forum_topic WHERE forum_topic.forum_id=forum_forum.id)"
+            )
 
-            queryset = queryset.extra(select={'thread_count': thread_sub_query, 'post_count': post_sub_query})
+            queryset = queryset.extra(select={"thread_count": thread_sub_query, "post_count": post_sub_query})
         return queryset.all()
 
     def get_private_forums_of_category(self, category, user):
-        return self.filter(category=category, groups__in=user.groups.all())\
-            .order_by('position_in_category')\
-            .select_related('category').distinct().all()
+        return (
+            self.filter(category=category, groups__in=user.groups.all())
+            .order_by("position_in_category")
+            .select_related("category")
+            .distinct()
+            .all()
+        )
 
 
 class TopicManager(models.Manager):
@@ -59,11 +65,10 @@ class TopicManager(models.Manager):
         :param user: Request user.
         :return: List of topics.
         """
-        queryset = self.filter(author=author) \
-                       .prefetch_related('author')
+        queryset = self.filter(author=author).prefetch_related("author")
         queryset = queryset.filter(self.visibility_check_query(user)).distinct()
 
-        return queryset.order_by('-pubdate').all()[:settings.ZDS_APP['forum']['home_number']]
+        return queryset.order_by("-pubdate").all()[: settings.ZDS_APP["forum"]["home_number"]]
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
@@ -75,28 +80,32 @@ class TopicManager(models.Manager):
         :return:
         :rtype: django.models.Queryset
         """
-        return self.filter(is_locked=False, forum__groups__isnull=True) \
-                   .select_related('forum', 'author', 'last_message') \
-                   .prefetch_related('tags').order_by('-pubdate') \
-                   .all()[:settings.ZDS_APP['topic']['home_number']]
+        return (
+            self.filter(is_locked=False, forum__groups__isnull=True)
+            .select_related("forum", "author", "last_message")
+            .prefetch_related("tags")
+            .order_by("-pubdate")
+            .all()[: settings.ZDS_APP["topic"]["home_number"]]
+        )
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
-        return self.filter(forum__pk=forum_pk, is_sticky=is_sticky) \
-                   .order_by('-last_message__pubdate')\
-                   .select_related('author__profile')\
-                   .prefetch_related('last_message', 'tags').all()
+        return (
+            self.filter(forum__pk=forum_pk, is_sticky=is_sticky)
+            .order_by("-last_message__pubdate")
+            .select_related("author__profile")
+            .prefetch_related("last_message", "tags")
+            .all()
+        )
 
     def get_all_topics_of_a_user(self, current, target):
-        queryset = self.filter(author=target)\
-                       .prefetch_related('author')
+        queryset = self.filter(author=target).prefetch_related("author")
         queryset = queryset.filter(self.visibility_check_query(current)).distinct()
-        return queryset.order_by('-pubdate').all()
+        return queryset.order_by("-pubdate").all()
 
     def get_all_topics_of_a_tag(self, tag, user):
-        queryset = self.filter(tags__in=[tag])\
-                       .prefetch_related('author', 'last_message', 'tags')
+        queryset = self.filter(tags__in=[tag]).prefetch_related("author", "last_message", "tags")
         queryset = queryset.filter(self.visibility_check_query(user)).distinct()
-        return queryset.order_by('-last_message__pubdate')
+        return queryset.order_by("-last_message__pubdate")
 
 
 class PostManager(InheritanceManager):
@@ -115,33 +124,32 @@ class PostManager(InheritanceManager):
         return Q(topic__forum__groups__isnull=True)
 
     def get_messages_of_a_topic(self, topic_pk):
-        return self.filter(topic__pk=topic_pk)\
-                   .select_related('hat')\
-                   .select_related('author__profile')\
-                   .prefetch_related('alerts_on_this_comment')\
-                   .prefetch_related('alerts_on_this_comment__author')\
-                   .prefetch_related('alerts_on_this_comment__author__profile')\
-                   .order_by('position').all()
+        return (
+            self.filter(topic__pk=topic_pk)
+            .select_related("hat")
+            .select_related("author__profile")
+            .prefetch_related("alerts_on_this_comment")
+            .prefetch_related("alerts_on_this_comment__author")
+            .prefetch_related("alerts_on_this_comment__author__profile")
+            .order_by("position")
+            .all()
+        )
 
     def get_all_messages_of_a_user(self, current, target):
         queryset = self.filter(author=target).distinct()
 
         # if user can't change posts, exclude hidden messages from queryset
-        if not current.has_perm('forum.change_post'):
+        if not current.has_perm("forum.change_post"):
             queryset = queryset.filter(is_visible=True)
 
-        queryset = queryset\
-            .filter(self.visibility_check_query(current))\
-            .prefetch_related('author')\
-            .order_by('-pubdate')
+        queryset = queryset.filter(self.visibility_check_query(current)).prefetch_related("author").order_by("-pubdate")
 
         return queryset
 
 
 class TopicReadManager(models.Manager):
-
     def topic_read_by_user(self, user, topic_sub_list=None):
-        """ get all the topic that the user has already read.
+        """get all the topic that the user has already read.
 
         :param user: an authenticated user
         :param topic_sub_list: optional list of topics. If not ``None`` no subject out of this list will be selected
@@ -152,12 +160,12 @@ class TopicReadManager(models.Manager):
         base_queryset = self.filter(user__pk=user.pk)
         if topic_sub_list is not None:
             base_queryset = base_queryset.filter(topic__in=topic_sub_list)
-        base_queryset = base_queryset.filter(post=F('topic__last_message'))
+        base_queryset = base_queryset.filter(post=F("topic__last_message"))
 
         return base_queryset
 
     def list_read_topic_pk(self, user, topic_sub_list=None):
-        """ get all the topic that the user has already read in a flat list.
+        """get all the topic that the user has already read in a flat list.
 
         :param user: an authenticated user
         :param topic_sub_list: optional list of topics. If not ``None`` no subject out of this list will be selected
@@ -165,4 +173,4 @@ class TopicReadManager(models.Manager):
         :return: the flat list of all topics primary key
         :rtype: list
         """
-        return self.topic_read_by_user(user, topic_sub_list).values_list('topic__pk', flat=True)
+        return self.topic_read_by_user(user, topic_sub_list).values_list("topic__pk", flat=True)

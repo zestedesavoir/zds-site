@@ -1,7 +1,7 @@
 from rest_framework.pagination import PageNumberPagination
 
 REST_PAGE_SIZE = 10
-REST_PAGE_SIZE_QUERY_PARAM = 'page_size'
+REST_PAGE_SIZE_QUERY_PARAM = "page_size"
 REST_MAX_PAGE_SIZE = 100
 
 

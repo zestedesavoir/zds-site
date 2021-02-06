@@ -14,9 +14,9 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         # Write permissions are only allowed to the owner of the snippet
-        if hasattr(obj, 'user'):
+        if hasattr(obj, "user"):
             author = obj.user
-        elif hasattr(obj, 'author'):
+        elif hasattr(obj, "author"):
             author = obj.author
         else:
             author = AnonymousUser()
@@ -25,17 +25,16 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
 
 
 class IsOwner(permissions.BasePermission):
-
     def has_permission(self, request, view):
         return request.user and self.has_object_permission(request, view, view.get_object())
 
     def has_object_permission(self, request, view, obj):
-        if hasattr(obj, 'user'):
+        if hasattr(obj, "user"):
             owners = [obj.user.pk]
-        elif hasattr(obj, 'author'):
+        elif hasattr(obj, "author"):
             owners = [obj.author.pk]
-        elif hasattr(obj, 'authors'):
-            owners = list(obj.authors.values_list('pk', flat=True))
+        elif hasattr(obj, "authors"):
+            owners = list(obj.authors.values_list("pk", flat=True))
         else:
             owners = []
         return request.user.pk in owners
@@ -43,8 +42,9 @@ class IsOwner(permissions.BasePermission):
 
 class IsAuthorOrStaff(permissions.BasePermission):
     def has_permission(self, request, view):
-        return IsStaffUser().has_permission(request, view) or IsOwner().has_object_permission(request, view,
-                                                                                              view.get_object())
+        return IsStaffUser().has_permission(request, view) or IsOwner().has_object_permission(
+            request, view, view.get_object()
+        )
 
 
 class IsNotOwnerOrReadOnly(permissions.BasePermission):
@@ -59,9 +59,9 @@ class IsNotOwnerOrReadOnly(permissions.BasePermission):
             return True
 
         # Write permissions are not allowed to the owner of the snippet
-        if hasattr(obj, 'user'):
+        if hasattr(obj, "user"):
             author = obj.user
-        elif hasattr(obj, 'author'):
+        elif hasattr(obj, "author"):
             author = obj.author
         else:
             author = AnonymousUser()
@@ -75,7 +75,7 @@ class IsStaffUser(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.has_perm('member.change_profile')
+        return request.user and request.user.has_perm("member.change_profile")
 
 
 class CanReadAndWriteNowOrReadOnly(permissions.BasePermission):

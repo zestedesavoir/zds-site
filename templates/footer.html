@@ -38,6 +38,22 @@
                        class="btn ico-after twitter light btn-twitter btn-holder"></a>
                 </li>
             {% endif %}
+
+            {% if app.site.social.discord %}
+                <li>
+                    <a href="{{app.site.social.discord}}"
+                       title="Discutez avec nous sur Discord"
+                       class="btn ico-after discord light btn-discord btn-holder"></a>
+                </li>
+            {% endif %}
+
+            {% if app.site.social.github %}
+                <li>
+                    <a href="{{app.site.social.github}}"
+                       title="Contribuez au développement"
+                       class="btn ico-after github light btn-github btn-holder"></a>
+                </li>
+            {% endif %}
         </ul>
 
         <ul class="links">
@@ -46,7 +62,12 @@
             <li><a href="{% url "pages-about" %}">{% trans "À propos" %}</a></li>
             {% if app.site.association %}
                 <li><a href="{% url "pages-association" %}">{% trans "L’association" %}</a></li>
-                <li><a href="{{ app.site.association.subscribe_link }}">{% trans "Adhérer à l'association" %}</a></li>
+                <li>
+                    <a href="{{ app.site.association.subscribe_link }}">
+                        <span class="wide">{% trans "Adhérer à l'association" %}</span>
+                        <span class="until-wide" aria-hidden="true">{% trans "Adhérer" %}</span>
+                    </a>
+                </li>
             {% endif %}
             <li><a href="{% url "pages-contact" %}">{% trans "Contact" %}</a></li>
         </ul>

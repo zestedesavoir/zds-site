@@ -5,8 +5,14 @@ from django.db.models.signals import post_save, post_delete
 from django.http import QueryDict
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import status, exceptions, filters
-from rest_framework.generics import RetrieveUpdateDestroyAPIView, DestroyAPIView, ListCreateAPIView, \
-    get_object_or_404, RetrieveUpdateAPIView, ListAPIView
+from rest_framework.generics import (
+    RetrieveUpdateDestroyAPIView,
+    DestroyAPIView,
+    ListCreateAPIView,
+    get_object_or_404,
+    RetrieveUpdateAPIView,
+    ListAPIView,
+)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
@@ -16,57 +22,69 @@ from rest_framework_extensions.key_constructor.constructors import DefaultKeyCon
 
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
-from zds.mp.api.permissions import IsParticipant, IsParticipantFromPrivatePost, IsLastPrivatePostOfCurrentUser, \
-    IsAuthor, IsNotAloneInPrivatePost
-from zds.mp.api.serializers import PrivateTopicSerializer, PrivateTopicUpdateSerializer, PrivateTopicCreateSerializer, \
-    PrivatePostSerializer, PrivatePostActionSerializer
+from zds.mp.api.permissions import (
+    IsParticipant,
+    IsParticipantFromPrivatePost,
+    IsLastPrivatePostOfCurrentUser,
+    IsAuthor,
+    IsNotAloneInPrivatePost,
+)
+from zds.mp.api.serializers import (
+    PrivateTopicSerializer,
+    PrivateTopicUpdateSerializer,
+    PrivateTopicCreateSerializer,
+    PrivatePostSerializer,
+    PrivatePostActionSerializer,
+)
 from zds.mp.commons import LeavePrivateTopic
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
 from zds.notification.models import Notification
 
 
 class PagingPrivateTopicListKeyConstructor(PagingListKeyConstructor):
-    search = bits.QueryParamsKeyBit(['search', 'ordering'])
+    search = bits.QueryParamsKeyBit(["search", "ordering"])
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_topic')
+    updated_at = UpdatedAtKeyBit("api_updated_topic")
 
 
 class PagingPrivatePostListKeyConstructor(PagingListKeyConstructor):
-    search = bits.QueryParamsKeyBit(['ordering'])
+    search = bits.QueryParamsKeyBit(["ordering"])
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_post')
+    updated_at = UpdatedAtKeyBit("api_updated_post")
 
 
 class PagingNotificationListKeyConstructor(DefaultKeyConstructor):
     pagination = DJRF3xPaginationKeyBit()
     unique_view_id = bits.UniqueViewIdKeyBit()
     user = bits.UserKeyBit()
-    updated_at = UpdatedAtKeyBit('api_updated_notification')
+    updated_at = UpdatedAtKeyBit("api_updated_notification")
 
 
 class PrivateTopicDetailKeyConstructor(DetailKeyConstructor):
-    updated_at = UpdatedAtKeyBit('api_updated_topic')
+    updated_at = UpdatedAtKeyBit("api_updated_topic")
 
 
 class PrivatePostDetailKeyConstructor(DetailKeyConstructor):
-    updated_at = UpdatedAtKeyBit('api_updated_post')
+    updated_at = UpdatedAtKeyBit("api_updated_post")
 
 
 def change_api_private_topic_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_topic', datetime.datetime.utcnow())
+    cache.set("api_updated_topic", datetime.datetime.utcnow())
 
 
 def change_api_private_post_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_post', datetime.datetime.utcnow())
+    cache.set("api_updated_post", datetime.datetime.utcnow())
 
 
 def change_api_notification_updated_at(sender=None, instance=None, *args, **kwargs):
-    cache.set('api_updated_notification', datetime.datetime.utcnow())
+    cache.set("api_updated_notification", datetime.datetime.utcnow())
 
 
-for model, func in [(PrivateTopic, change_api_private_topic_updated_at),
-                    (PrivatePost, change_api_private_post_updated_at),
-                    (Notification, change_api_notification_updated_at)]:
+for model, func in [
+    (PrivateTopic, change_api_private_topic_updated_at),
+    (PrivatePost, change_api_private_post_updated_at),
+    (Notification, change_api_notification_updated_at),
+]:
     post_save.connect(receiver=func, sender=model)
     post_delete.connect(receiver=func, sender=model)
 
@@ -77,8 +95,8 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
     """
 
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
-    search_fields = ('title',)
-    ordering_fields = ('pubdate', 'last_message', 'title')
+    search_fields = ("title",)
+    ordering_fields = ("pubdate", "last_message", "title")
     list_key_func = PagingPrivateTopicListKeyConstructor()
 
     @etag(list_key_func)
@@ -184,22 +202,24 @@ class PrivateTopicListAPI(LeavePrivateTopic, ListCreateAPIView, DestroyAPIView):
         return self.request.user
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return PrivateTopicSerializer
-        elif self.request.method == 'POST':
+        elif self.request.method == "POST":
             return PrivateTopicCreateSerializer
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, ]
-        if self.request.method == 'GET' or self.request.method == 'POST':
+        permission_classes = [
+            IsAuthenticated,
+        ]
+        if self.request.method == "GET" or self.request.method == "POST":
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        if self.request.method == 'DELETE':
-            qdict = QueryDict('', mutable=True)
+        if self.request.method == "DELETE":
+            qdict = QueryDict("", mutable=True)
             qdict.update(self.request.data)
-            list_ = qdict.getlist('pk')
+            list_ = qdict.getlist("pk")
             return PrivateTopic.objects.get_private_topics_selected(self.request.user.id, list_)
         return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
@@ -298,18 +318,21 @@ class PrivateTopicDetailAPI(LeavePrivateTopic, RetrieveUpdateDestroyAPIView):
         return self.request.user
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return PrivateTopicSerializer
-        elif self.request.method == 'PUT':
+        elif self.request.method == "PUT":
             return PrivateTopicUpdateSerializer
         else:  # used only for API documentation
             return PrivateTopicSerializer
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, IsParticipant, ]
-        if self.request.method == 'GET':
+        permission_classes = [
+            IsAuthenticated,
+            IsParticipant,
+        ]
+        if self.request.method == "GET":
             permission_classes.append(DRYPermissions)
-        elif self.request.method == 'PUT':
+        elif self.request.method == "PUT":
             permission_classes.append(DRYPermissions)
             permission_classes.remove(IsParticipant)
             permission_classes.append(IsAuthor)
@@ -322,7 +345,7 @@ class PrivatePostListAPI(ListCreateAPIView):
     """
 
     filter_backends = (filters.OrderingFilter,)
-    ordering_fields = ('position_in_topic', 'pubdate', 'update')
+    ordering_fields = ("position_in_topic", "pubdate", "update")
     list_key_func = PagingPrivatePostListKeyConstructor()
 
     @etag(list_key_func)
@@ -363,7 +386,7 @@ class PrivatePostListAPI(ListCreateAPIView):
               message: Not Found
         """
         response = self.list(request, *args, **kwargs)
-        topic = get_object_or_404(PrivateTopic, pk=self.kwargs.get('pk_ptopic'))
+        topic = get_object_or_404(PrivateTopic, pk=self.kwargs.get("pk_ptopic"))
         mark_read(topic, self.request.user)
         return response
 
@@ -393,19 +416,23 @@ class PrivatePostListAPI(ListCreateAPIView):
         return self.create(request, *args, **kwargs)
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, DRYPermissions, ]
-        if self.request.method == 'POST':
+        permission_classes = [
+            IsAuthenticated,
+            IsParticipantFromPrivatePost,
+            DRYPermissions,
+        ]
+        if self.request.method == "POST":
             permission_classes.append(IsNotAloneInPrivatePost)
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return PrivatePostSerializer
-        elif self.request.method == 'POST':
+        elif self.request.method == "POST":
             return PrivatePostActionSerializer
 
     def get_queryset(self):
-        return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get('pk_ptopic'))
+        return PrivatePost.objects.get_message_of_a_private_topic(self.kwargs.get("pk_ptopic"))
 
 
 class PrivatePostDetailAPI(RetrieveUpdateAPIView):
@@ -472,22 +499,25 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
         return self.update(request, *args, **kwargs)
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == "GET":
             return PrivatePostSerializer
-        elif self.request.method == 'PUT':
+        elif self.request.method == "PUT":
             return PrivatePostActionSerializer
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, IsParticipantFromPrivatePost, ]
-        if self.request.method == 'GET':
+        permission_classes = [
+            IsAuthenticated,
+            IsParticipantFromPrivatePost,
+        ]
+        if self.request.method == "GET":
             permission_classes.append(DRYPermissions)
-        elif self.request.method == 'PUT':
+        elif self.request.method == "PUT":
             permission_classes.append(DRYPermissions)
             permission_classes.append(IsLastPrivatePostOfCurrentUser)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs['pk_ptopic'])
+        return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs["pk_ptopic"])
 
 
 class PrivateTopicReadAPI(ListAPIView):
@@ -534,13 +564,15 @@ class PrivateTopicReadAPI(ListAPIView):
         return self.request.user
 
     def get_permissions(self):
-        permission_classes = [IsAuthenticated, ]
-        if self.request.method == 'GET':
+        permission_classes = [
+            IsAuthenticated,
+        ]
+        if self.request.method == "GET":
             permission_classes.append(DRYPermissions)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        notifications = Notification.objects \
-            .get_unread_notifications_of(self.get_current_user()) \
-            .filter(subscription__content_type=ContentType.objects.get_for_model(PrivateTopic))
+        notifications = Notification.objects.get_unread_notifications_of(self.get_current_user()).filter(
+            subscription__content_type=ContentType.objects.get_for_model(PrivateTopic)
+        )
         return [notification.content_object.privatetopic for notification in notifications]

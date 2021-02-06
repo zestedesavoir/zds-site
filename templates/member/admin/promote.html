@@ -1,0 +1,26 @@
+{% extends "member/admin/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Gestion des groupes" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "Gestion des groupes" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Gestion des groupes" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

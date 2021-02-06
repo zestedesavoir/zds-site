@@ -32,7 +32,7 @@
 
 
 {% block content %}
-    <div class="authors">
+    <div class="members">
         <span class="authors-label">{% trans "Participant" %}{{ topic.participants.all|length|add:"1"|pluralize }} : </span>
         <ul>
             <li>
@@ -45,7 +45,7 @@
             {% endfor %}
             {% if user == topic.author %}
                 <li>
-                    <a href="#add-participant" class="open-modal ico-after more blue">
+                    <a href="#add-participant" class="btn btn-add open-modal ico-after more blue">
                         {% trans "Ajouter un membre" %}
                     </a>
                 </li>
@@ -121,7 +121,7 @@
                                data-autocomplete="{'type':'single'}">
 
                         {% csrf_token %}
-                        <button type="submit">{% trans "Ajouter" %}</button>
+                        <button type="submit" class="btn btn-submit">{% trans "Ajouter" %}</button>
                     </form>
                 </li>
 
@@ -142,7 +142,7 @@
                     </p>
 
                     {% csrf_token %}
-                    <button type="submit" name="leave">{% trans "Confirmer" %}</button>
+                    <button type="submit" name="leave" class="btn btn-submit">{% trans "Confirmer" %}</button>
                 </form>
             </li>
         </ul>

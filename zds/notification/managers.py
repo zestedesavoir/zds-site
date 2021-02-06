@@ -17,15 +17,11 @@ class SubscriptionManager(models.Manager):
         Generates QuerySet lookup parameters for use with get(), filter(), ...
         """
         content_type = ContentType.objects.get_for_model(content_object)
-        lookup = dict(
-            object_id=content_object.pk,
-            content_type__pk=content_type.pk,
-            user=user
-        )
+        lookup = dict(object_id=content_object.pk, content_type__pk=content_type.pk, user=user)
         if is_active is not None:
-            lookup['is_active'] = is_active
+            lookup["is_active"] = is_active
         if by_email is not None:
-            lookup['by_email'] = by_email
+            lookup["by_email"] = by_email
         return lookup
 
     def get_existing(self, user, content_object, is_active=None, by_email=None):
@@ -78,10 +74,7 @@ class SubscriptionManager(models.Manager):
         """
         content_type = ContentType.objects.get_for_model(content_object)
         try:
-            subscription = self.get(
-                object_id=content_object.pk,
-                content_type__pk=content_type.pk,
-                user=user)
+            subscription = self.get(object_id=content_object.pk, content_type__pk=content_type.pk, user=user)
             if not subscription.is_active:
                 subscription.activate()
         except ObjectDoesNotExist:
@@ -101,9 +94,7 @@ class SubscriptionManager(models.Manager):
         :return: an iterable list of subscriptions
         """
         content_type = ContentType.objects.get_for_model(content_object)
-        return self.filter(object_id=content_object.pk,
-                           content_type__pk=content_type.pk,
-                           is_active=is_active)
+        return self.filter(object_id=content_object.pk, content_type__pk=content_type.pk, is_active=is_active)
 
     def get_subscribers(self, content_object, only_by_email=False):
         """
@@ -119,13 +110,10 @@ class SubscriptionManager(models.Manager):
         if only_by_email:
             # if I'm only interested by the email subscription
             subscription_list = self.filter(
-                object_id=content_object.pk,
-                content_type__pk=content_type.pk,
-                by_email=True)
+                object_id=content_object.pk, content_type__pk=content_type.pk, by_email=True
+            )
         else:
-            subscription_list = self.filter(
-                object_id=content_object.pk,
-                content_type__pk=content_type.pk)
+            subscription_list = self.filter(object_id=content_object.pk, content_type__pk=content_type.pk)
 
         return [subscription.user for subscription in subscription_list]
 
@@ -149,8 +137,9 @@ class SubscriptionManager(models.Manager):
             if by_email:
                 subscription.activate_email()
             return subscription
-        signals.content_read.send(sender=content_object.__class__, instance=content_object, user=user,
-                                  target=content_object.__class__)
+        signals.content_read.send(
+            sender=content_object.__class__, instance=content_object, user=user, target=content_object.__class__
+        )
         if by_email:
             existing.deactivate_email()
         else:
@@ -164,8 +153,8 @@ class SubscriptionManager(models.Manager):
             notification = subscription.last_notification
             notification.is_read = True
             notification.is_dead = True
-            notification.save(update_fields=['is_read', 'is_dead'])
-            subscription.save(update_fields=['is_active'])
+            notification.save(update_fields=["is_read", "is_dead"])
+            subscription.save(update_fields=["is_active"])
 
 
 class NewTopicSubscriptionManager(SubscriptionManager):
@@ -177,8 +166,10 @@ class NewTopicSubscriptionManager(SubscriptionManager):
         :return:
         """
         from zds.notification.models import Notification
-        notifications = Notification.objects.filter(content_type__pk=ContentType.objects.get_for_model(topic).pk,
-                                                    object_id=topic.pk)
+
+        notifications = Notification.objects.filter(
+            content_type__pk=ContentType.objects.get_for_model(topic).pk, object_id=topic.pk
+        )
         for notification in notifications:
             if not topic.forum.can_read(notification.subscription.user):
                 notification.is_read = True
@@ -198,10 +189,11 @@ class TopicAnswerSubscriptionManager(SubscriptionManager):
         :type user: django.contrib.auth.models.User
         :return: All objects followed by given user.
         """
-        topic_list = self.filter(user=user, is_active=True, content_type=ContentType.objects.get_for_model(Topic)) \
-            .values_list('object_id', flat=True)
+        topic_list = self.filter(
+            user=user, is_active=True, content_type=ContentType.objects.get_for_model(Topic)
+        ).values_list("object_id", flat=True)
 
-        return Topic.objects.filter(id__in=topic_list).order_by('-last_message__pubdate')
+        return Topic.objects.filter(id__in=topic_list).order_by("-last_message__pubdate")
 
     def unfollow_and_mark_read_everybody_at(self, topic):
         """
@@ -229,7 +221,7 @@ class NotificationManager(models.Manager):
         :param user: user object.
         :return: a queryset of notifications.
         """
-        return self.filter(subscription__user=user).select_related('sender')
+        return self.filter(subscription__user=user).select_related("sender")
 
     def get_unread_notifications_of(self, user):
         """
@@ -240,8 +232,7 @@ class NotificationManager(models.Manager):
         :return: an iterable over notifications with user data already loaded
         :rtype: an iterable list of notifications
         """
-        return self.filter(subscription__user=user, is_read=False) \
-            .select_related('sender')
+        return self.filter(subscription__user=user, is_read=False).select_related("sender")
 
     def filter_content_type_of(self, model):
         """
@@ -263,9 +254,11 @@ class NotificationManager(models.Manager):
         :return: an iterable list of users.
         """
         content_type = ContentType.objects.get_for_model(content_object)
-        notifications = self.filter(object_id=content_object.pk, content_type__pk=content_type.pk) \
-            .select_related('subscription') \
-            .select_related('subscription__user')
+        notifications = (
+            self.filter(object_id=content_object.pk, content_type__pk=content_type.pk)
+            .select_related("subscription")
+            .select_related("subscription__user")
+        )
         return [notification.subscription.user for notification in notifications]
 
 
@@ -274,7 +267,7 @@ class TopicFollowedManager(models.Manager):
         """
         :return: the set of users who follow this topic by email.
         """
-        return self.filter(topic=topic, email=True).select_related('user')
+        return self.filter(topic=topic, email=True).select_related("user")
 
     def is_followed(self, topic, user=None):
         """

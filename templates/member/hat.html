@@ -39,7 +39,7 @@
 
     {% if users %}
         <p>{% trans "Les personnes possédant cette casquette sont :" %}</p>
-        <div class="authors">
+        <div class="members">
             <ul>
                 {% for member in users %}
                     <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
@@ -90,7 +90,7 @@
                                         {% endblocktrans %}
                                     </p>
                                     <p>{% trans "Vous ne pourrez plus poster avec cette casquette et elle n'apparaîtra plus sur votre profil. Les messages ayant été postés avec le resteront. Notez toutefois que vous ne pourrez pas conserver la casquette si vous les éditez." %}</p>
-                                    <button type="submit">{% trans 'Confirmer' %}</button>
+                                    <button type="submit" class="btn btn-submit">{% trans 'Confirmer' %}</button>
                                 </form>
                             </li>
                         {% endif %}

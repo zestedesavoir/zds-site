@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load staticfiles %}
+{% load static %}
 {% load emarkdown %}
 {% load date %}
 {% load interventions %}
@@ -94,7 +94,7 @@
     <div class="flexpage-wrapper">
         <section class="home-pinned-content">
             <h1 class="home-heading heading-white ico-after ico-news" itemprop="name">
-                {% trans "À la une" %}
+                <span>{% trans "À la une" %}</span>
 
                 {% if perms.featured.change_featuredresource %}
                     <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
@@ -112,25 +112,24 @@
         <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
-                    {% trans "Derniers tutoriels" %}
+                    <span>{% trans "Derniers tutoriels" %}</span>
                     <a href="{% url 'publication:list' %}?type=tutorial" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
-                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_tutorials col_number=1 %}
-
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_tutorials col_number=1 ignore_categories=True %}
             </section>
 
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-articles home-heading" itemprop="name">
-                    {% trans "Derniers articles" %}
+                    <span>{% trans "Derniers articles" %}</span>
                     <a href="{% url 'publication:list' %}?type=article" class="btn btn-grey">{% trans "Tous les articles" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
-                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_articles col_number=1 %}
+                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_articles col_number=1 ignore_categories=True %}
 
                 <div class="content-item-list">
 
@@ -152,7 +151,7 @@
         <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-opinions home-heading" itemprop="name">
-                    {% trans "Derniers billets choisis" %}
+                    <span>{% trans "Derniers billets choisis" %}</span>
                     <a href="{% url "opinion:list" %}" class="btn btn-grey">{% trans "Tous les billets" %}</a>
                 </h2>
 
@@ -160,7 +159,7 @@
 
                 <div class="content-item-list">
                     {% for opinion in last_opinions %}
-                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" ignore_date=True show_reactions=True %}
+                        {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" show_reactions=True ignore_categories=True %}
                     {% empty %}
                         <p>{% trans "Aucun billet disponible." %}</p>
                     {% endfor %}
@@ -169,7 +168,7 @@
 
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="home-heading ico-after ico-forum" itemprop="name">
-                    {% trans "Derniers sujets" %}
+                    <span>{% trans "Derniers sujets" %}</span>
                     <a href="{% url 'last-subjects' %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
                 </h2>
 

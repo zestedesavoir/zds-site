@@ -54,19 +54,19 @@
         {% else %}
             {% if profile.last_visit %}
                 <li>
-                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True %}
-                        Inscription le <time datetime="{{ datetime }}">{{ date }}</time>
+                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date_prefixed:True %}
+                        Inscription <time datetime="{{ datetime }}">{{ date }}</time>
                     {% endblocktrans %}
                 </li>
                 <li>
-                    {% blocktrans with datetime=profile.last_visit|date:"c" time=profile.last_visit|format_date:True ip=ip %}
-                        Dernière visite le <time datetime="{{ datetime }}">{{ time }}</time> {{ ip }}
+                    {% blocktrans with datetime=profile.last_visit|date:"c" time=profile.last_visit|format_date_prefixed:True ip=ip %}
+                        Dernière visite <time datetime="{{ datetime }}">{{ time }}</time> {{ ip }}
                     {% endblocktrans %}
                 </li>
             {% else %}
                 <li>
-                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date:True ip=ip %}
-                        Inscription le <time datetime="{{ datetime }}">{{ date }}</time> {{ ip }}
+                    {% blocktrans with datetime=usr.date_joined|date:"c" date=usr.date_joined|format_date_prefixed:True ip=ip %}
+                        Inscription <time datetime="{{ datetime }}">{{ date }}</time> {{ ip }}
                     {% endblocktrans %}
                 </li>
             {% endif %}
@@ -166,7 +166,7 @@
                             {% with content_is_followed=usr|is_new_publication_followed content_is_followed_email=usr|is_new_publication_email_followed %}
                                 {% url 'content:follow' usr.pk as link_follow %}
                                 {% if followed_user == user %}
-                                    
+
                                 {% elif content_is_followed %}
                                     {% trans "S'abonner" as data_onclick %}
                                     {% trans "Abonné" as button_text %}
@@ -232,17 +232,32 @@
                                                 <span>({{ app.site.literal_name }})</span>
                                             {% endif %}
                                         </a>
-                                        {% if perms.utils.change_hat and not hat.group %}
-                                            <a href="#remove-hat-{{ hat.pk }}" class="open-modal" title="{% trans "Retirer la casquette" %}" aria-haspopup="dialog">×</a>
-                                            <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex" data-modal-title="{% trans "Retirer la casquette" %}">
-                                                {% csrf_token %}
-                                                <p>
-                                                    {% blocktrans with hat=hat.name username=usr.username %}
-                                                        Voulez-vous vraiment retirer la casquette « {{ hat }} » à {{ username }} ?
-                                                    {% endblocktrans %}
-                                                </p>
-                                                <button type="submit">{% trans 'Confirmer' %}</button>
-                                            </form>
+
+                                        {% if not hat.group %}
+                                            {% if perms.utils.change_hat or profile == user.profile %}
+                                                <a href="#remove-hat-{{ hat.pk }}" class="open-modal" title="{% trans "Retirer la casquette" %}" aria-haspopup="dialog">×</a>
+                                                <form action="{% url 'remove-hat' usr.pk hat.pk %}" method="post" id="remove-hat-{{ hat.pk }}" class="modal modal-flex" data-modal-title="{% trans "Retirer la casquette" %}">
+                                                    {% if profile == user.profile %}
+                                                        {% blocktrans with hat=hat.name username=usr.username %}
+                                                            <p>
+                                                                Voulez-vous vraiment vous retirer la casquette « <strong>{{ hat }}</strong> » ?
+                                                                Vous ne pourrez plus poster avec, mais vos anciens messages l'auront toujours,
+                                                                tant que vous ne les modifiez pas.
+                                                            </p>
+                                                            <p>
+                                                                Vous pourrez toujours re-demander la casquette à l'avenir.
+                                                            </p>
+                                                        {% endblocktrans %}
+                                                    {% else %}
+                                                        {% blocktrans with hat=hat.name username=usr.username %}
+                                                            <p>Voulez-vous vraiment retirer la casquette « <strong>{{ hat }}</strong> » à {{ username }} ?</p>
+                                                        {% endblocktrans %}
+                                                    {% endif %}
+
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-submit">{% trans 'Confirmer' %}</button>
+                                                </form>
+                                            {% endif %}
                                         {% endif %}
                                     </li>
                                 {% endfor %}
@@ -295,7 +310,7 @@
 
                 {% captureas messages_count %}{% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
 
-                {% with topics_count=profile.get_topic_count messages_count=messages_count|add:"0" %}
+                {% with topics_count=profile.get_topic_count followed_topics_count=profile.get_followed_topic_count messages_count=messages_count|add:"0" %}
                     {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or messages_count > 0 %}
                         <div class="activity">
                             <div class="content-linkbox-list {% if profile.biography or profile.sign or profile.user == user %}is-vertical{% endif %}">
@@ -325,7 +340,7 @@
                                     </div>
                                 {% endif %}
 
-                                {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 %}
+                                {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or content_reactions_count > 0 %}
                                     <div class="linkbox-item primary">
                                         <div class="head">
                                             <h3>{% trans 'Contenus' %}</h3>
@@ -362,6 +377,17 @@
                                                         <span class="bold">{{ opinions_public_count }}</span> billet publié
                                                     {% plural %}
                                                         <span class="bold">{{ opinions_public_count }}</span> billets publiés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+                                        {% if content_reactions_count > 0 %}
+                                            <a href="{% url "content:list-content-reactions" usr.pk %}" class="tail">
+                                                <p>
+                                                    {% blocktrans count content_reactions_count=content_reactions_count %}
+                                                        <span class="bold">{{ content_reactions_count }}</span> commentaire publié
+                                                    {% plural %}
+                                                        <span class="bold">{{ content_reactions_count }}</span> commentaires publiés
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
@@ -440,7 +466,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if topics_count > 0 or messages_count > 0 %}
+                                {% if topics_count > 0 or messages_count > 0 or followed_topics_count > 0 and profile.user == user %}
                                     <div class="linkbox-item primary">
                                         <div class="head">
                                             <h3>{% trans 'Forum' %}</h3>
@@ -453,6 +479,19 @@
                                                         <span class="bold">{{ topics_count }}</span> sujet créé
                                                     {% plural %}
                                                         <span class="bold">{{ topics_count }}</span> sujets créés
+                                                    {% endblocktrans %}
+                                                </p>
+                                            </a>
+                                        {% endif %}
+
+                                        {% if followed_topics_count > 0 and profile.user == user %}
+                                            <a href="{% url 'followed-topic-find' %}" class="tail">
+                                                <p>
+
+                                                    {% blocktrans count followed_topics_count=followed_topics_count %}
+                                                        <span class="bold">{{ followed_topics_count }}</span> sujet suivi
+                                                    {% plural %}
+                                                        <span class="bold">{{ followed_topics_count }}</span> sujets suivis
                                                     {% endblocktrans %}
                                                 </p>
                                             </a>
@@ -482,7 +521,7 @@
                     {% if articles_and_tutorials %}
                         <section>
                             <h2 itemprop="name">
-                                {% trans 'Dernières publications' %}
+                                <span>{% trans 'Dernières publications' %}</span>
                                 <a href="{% url "content:find-all" usr.username %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                             </h2>
                             <div class="content-item-list">
@@ -499,7 +538,7 @@
                     {% if opinions %}
                         <section>
                             <h2 itemprop="name">
-                              {% trans 'Derniers billets' %}
+                                <span>{% trans 'Derniers billets' %}</span>
                                 <a href="{% url "opinion:find-opinion" usr.username %}?filter=public" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                             </h2>
                             <div class="content-item-list">
@@ -518,7 +557,7 @@
             {% if topics %}
                 <section>
                     <h2 itemprop="name">
-                        {% trans 'Derniers sujets créés' %}
+                        <span>{% trans 'Derniers sujets créés' %}</span>
                         <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                     </h2>
 
@@ -560,7 +599,7 @@
                                         </ul>
                                         <p>{% trans "La casquette sera créée si elle n’existe pas." %}</p>
                                         <input type="text" name="hat" maxlength="40" placeholder="{% trans 'Casquette à attribuer.' %}" required />
-                                        <button type="submit">{% trans 'Valider' %}</button>
+                                        <button type="submit" class="btn btn-submit">{% trans 'Valider' %}</button>
                                     </form>
                                 {% endif %}
 
@@ -618,7 +657,7 @@
                             <div class="head">
                                 <h3>{% trans 'Adresse IP' %}</h3>
                             </div>
-                            
+
                             <div class="tail">
                                 <p>{% trans "Dernière adresse IP" %} : {{ profile.last_ip_address }}</p>
                             </div>
@@ -630,7 +669,7 @@
                             {% endif %}
 
                             <a href="{% url "member-from-ip" profile.last_ip_address %}" class="tail">
-                                <p>{% trans "Voir tous les membres avec cette IP" %}</p>
+                                <p>{% trans "Voir les membres avec cette IP" %}</p>
                             </a>
                         </div>
                         {% endif %}
@@ -680,7 +719,8 @@
                                            min="1">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ls-temp">
+                                            name="ls-temp"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -700,7 +740,8 @@
                                            placeholder="{% trans 'Spam, Troll, etc.' %}">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ls">
+                                            name="ls"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -732,7 +773,8 @@
                                            placeholder="{% trans 'Bonne action ?' %}">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="un-ls">
+                                            name="un-ls"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -762,7 +804,8 @@
                                            min="1">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ban-temp">
+                                            name="ban-temp"
+                                            class="btn  btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -782,7 +825,8 @@
                                            placeholder="{% trans 'Spam, Troll, etc.' %}">
                                     {% csrf_token %}
                                     <button type="submit"
-                                            name="ban">
+                                            name="ban"
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>
@@ -812,7 +856,8 @@
                                        placeholder="{% trans 'Bonne action ?' %}">
                                 {% csrf_token %}
                                 <button type="submit"
-                                        name="un-ban">
+                                        name="un-ban"
+                                        class="btn btn-submit">
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>
@@ -864,28 +909,7 @@
             {% if perms.member.change_profile and alerts %}
                 <section id="alerts">
                     <h2 itemprop="name">{% trans "Signalements du profil" %}</h2>
-                    {% for alert in alerts %}
-                        <div class="alert-box{% if not alert.solved %} error{% endif %}">
-                            <span>
-                                {{ alert.pubdate|format_date|capfirst }} {% trans "par" %}
-                                {% include "misc/member_item.part.html" with member=alert.author %} :
-                                <em>{{ alert.text }}</em>
-                            </span>
-                            {% if alert.solved %}
-                                <span class="close-alert-box close-alert-box-text">
-                                    {% trans "Résolu par" %}
-                                    {% include "misc/member_item.part.html" with member=alert.moderator %}
-                                </span>
-                            {% else %}
-                                <a href="#solve-alert-{{ alert.pk }}" class="open-modal close-alert-box close-alert-box-text">{% trans "Résoudre" %}</a>
-                                <form id="solve-alert-{{ alert.pk }}" method="post" action="{% url 'solve-profile-alert' alert.pk %}" class="modal modal-flex">
-                                    <textarea name="text" class="input" placeholder="{% trans 'Message à envoyer au membre ayant lancé l’alerte' %}"></textarea>
-                                    {% csrf_token %}
-                                    <button type="submit" class="button expand alert tiny">{% trans "Résoudre l’alerte" %}</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    {% endfor %}
+                    {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='solve-profile-alert' %}
                 </section>
             {% endif %}
 
@@ -900,7 +924,7 @@
                     </label>
                     <textarea type="text" name="reason" id="report-reason" placeholder='{% trans "Spam, Contenu illégal, …" %}' pattern=".{3,}" required title='{% trans "Minimum 3 caractères pour signaler" %}' rows="4"></textarea>
 
-                    <button type="submit">
+                    <button type="submit" class="btn btn-submit">
                         {% trans "Signaler" %}
                     </button>
                 </form>

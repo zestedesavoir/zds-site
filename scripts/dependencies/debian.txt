@@ -25,3 +25,4 @@ build-essential
 imagemagick
 librsvg2-bin
 xzdec
+dh-autoreconf

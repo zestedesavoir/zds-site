@@ -6,6 +6,7 @@
 {% load remove_url_scheme %}
 {% load set %}
 {% load topbar %}
+{% load captureas %}
 
 <header>
     <div class="mobile-menu-btn ico-after"></div>
@@ -33,7 +34,6 @@
             data-hovering-mode
         {% endif %}
     >
-
 
         <ul class="header-menu-list">
             <li>
@@ -228,7 +228,7 @@
 
                     <div class="dropdown">
                         <span class="dropdown-title dropdown-pm">
-                            {% trans "Messagerie privée" %}
+                            <h1>{% trans "Messagerie privée" %}</h1>
                             <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
                         </span>
 
@@ -236,9 +236,11 @@
                             {% for notification in header_private_topic_notifications.list %}
                                 <li>
                                     <a href="{{ notification.url }}">
-                                        <img src="{{ notification.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                        <span class="username">{{ notification.author.username }}</span>
-                                        <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                        <header>
+                                            <img src="{{ notification.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                            <span class="username">{{ notification.author.username }}</span>
+                                            <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
+                                        </header>
                                         <span class="topic">{{ notification.title }}</span>
                                     </a>
                                 </li>
@@ -266,16 +268,18 @@
                     </a>
 
                     <div class="dropdown">
-                        <span class="dropdown-title">{% trans "Notifications" %}</span>
+                        <h1 class="dropdown-title">{% trans "Notifications" %}</h1>
 
                         <ul class="dropdown-list">
                             {% for first_unread in header_general_notifications.list %}
                                 <li>
                                     <a href="{{ first_unread.url }}">
-                                        <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
-                                        <span class="username">{{ first_unread.author.username }}</span>
-                                        <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
-                                        <span class="topic">{{ first_unread.title }}</span>
+                                      <header>
+                                          <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                          <span class="username">{{ first_unread.author.username }}</span>
+                                          <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
+                                      </header>
+                                      <span class="topic">{{ first_unread.title }}</span>
                                     </a>
                                 </li>
                             {% endfor %}
@@ -303,13 +307,15 @@
                         </a>
 
                         <div class="dropdown staff-only">
-                            <span class="dropdown-title">{% trans "Alertes de modération" %}</span>
+                            <h1 class="dropdown-title">{% trans "Alertes de modération" %}</h1>
                             <ul class="dropdown-list">
                                 {% for alert in header_alerts.list %}
                                     <li>
                                         <a href="{{ alert.url }}">
-                                            <span class="username">{{ alert.title }}</span>
-                                            <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                            <header>
+                                                <span class="username">{{ alert.title }}</span>
+                                                <span class="date">{{ alert.pubdate|format_date:True|capfirst }}</span>
+                                            </header>
                                             <span class="topic">{{ alert.text }}</span>
                                         </a>
                                     </li>
@@ -331,7 +337,7 @@
                 {% with profile=user.profile %}
                     <a href="{% url "member-detail" user.username %}"
                        id="my-account"
-                       class="dont-click-if-sidebar"
+                       class="mobile-menu-hide"
                        title="{% trans 'Mon profil' %}"
                        data-title="{% trans 'Mon profil' %}"
 
@@ -345,7 +351,7 @@
                 {% endwith %}
 
                 <div class="dropdown my-account-dropdown mobile-all-links" data-title="{% trans 'Mon compte' %}">
-                    <span class="dropdown-title">{{ user.username|truncatechars:25 }}</span>
+                    <h1 class="dropdown-title">{{ user.username|truncatechars:25 }}</h1>
 
                     <ul class="dropdown-list">
                         <li>
@@ -370,18 +376,22 @@
                         {% if perms.tutorialv2.change_validation %}
                             {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count waiting_opinions_count="OPINION"|waiting_count %}
                                 <li class="staff-only">
-                                    <a href="{% url "validation:list" %}?type=tuto">
-                                        {% trans "Validation des tutoriels" %}
-                                        {% if waiting_tutorials_count > 0 %}
-                                            ({{ waiting_tutorials_count }})
-                                        {% endif %}
-                                    </a>
-                                </li>
-                                <li class="staff-only">
-                                    <a href="{% url "validation:list" %}?type=article">
-                                        {% trans "Validation des articles" %}
-                                        {% if waiting_articles_count > 0 %}
-                                            ({{ waiting_articles_count }})
+                                    <a href="{% url "validation:list" %}">
+                                        {% trans "Validation" %}
+
+                                        {% captureas tutorials_chunk %}
+                                            {{ waiting_tutorials_count }} tutoriel{{ waiting_tutorials_count|pluralize:"s" }}
+                                        {% endcaptureas %}
+                                        {% captureas articles_chunk %}
+                                            {{ waiting_articles_count }} article{{ waiting_articles_count|pluralize:"s" }}
+                                        {% endcaptureas %}
+
+                                        {% if waiting_tutorials_count > 0 and waiting_articles_count > 0 %}
+                                            ({{ tutorials_chunk }} et {{ articles_chunk }})
+                                        {% elif waiting_tutorials_count > 0 and not waiting_articles_count > 0 %}
+                                            ({{ tutorials_chunk }})
+                                        {% elif not waiting_tutorials_count > 0 and waiting_articles_count > 0 %}
+                                            ({{ articles_chunk }})
                                         {% endif %}
                                     </a>
                                 </li>
@@ -447,4 +457,3 @@
         {% endif %}
     </div>
 </header>
-

@@ -1,32 +1,29 @@
+from django.conf import settings
 from django.contrib import admin
 
 from .models import PrivatePost, PrivateTopic, PrivateTopicRead
 
 
-class PrivatePostAdmin(admin.ModelAdmin):
+if settings.DEBUG:
 
-    """Representation of PrivatePost model in the admin interface."""
+    class PrivatePostAdmin(admin.ModelAdmin):
+        """Representation of PrivatePost model in the admin interface."""
 
-    list_display = ('privatetopic', 'author', 'pubdate', 'update', 'position_in_topic')
-    raw_id_fields = ('privatetopic', 'author')
+        list_display = ("privatetopic", "author", "pubdate", "update", "position_in_topic")
+        raw_id_fields = ("privatetopic", "author")
 
+    class PrivateTopicAdmin(admin.ModelAdmin):
+        """Representation of PrivateTopic model in the admin interface."""
 
-class PrivateTopicAdmin(admin.ModelAdmin):
+        list_display = ("title", "subtitle", "author", "last_message", "pubdate")
+        raw_id_fields = ("author", "participants", "last_message")
 
-    """Representation of PrivateTopic model in the admin interface."""
+    class PrivateTopicReadAdmin(admin.ModelAdmin):
+        """Representation of PrivateTopicRead model in the admin interface."""
 
-    list_display = ('title', 'subtitle', 'author', 'last_message', 'pubdate')
-    raw_id_fields = ('author', 'participants', 'last_message')
+        list_display = ("privatetopic", "privatepost", "user")
+        raw_id_fields = ("privatetopic", "privatepost", "user")
 
-
-class PrivateTopicReadAdmin(admin.ModelAdmin):
-
-    """Representation of PrivateTopicRead model in the admin interface."""
-
-    list_display = ('privatetopic', 'privatepost', 'user')
-    raw_id_fields = ('privatetopic', 'privatepost', 'user')
-
-
-admin.site.register(PrivatePost, PrivatePostAdmin)
-admin.site.register(PrivateTopic, PrivateTopicAdmin)
-admin.site.register(PrivateTopicRead, PrivateTopicReadAdmin)
+    admin.site.register(PrivatePost, PrivatePostAdmin)
+    admin.site.register(PrivateTopic, PrivateTopicAdmin)
+    admin.site.register(PrivateTopicRead, PrivateTopicReadAdmin)
