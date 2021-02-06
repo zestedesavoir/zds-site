@@ -46,17 +46,17 @@ class PublishableContentFactory(factory.DjangoModelFactory):
 
     @classmethod
     def _prepare(
-      cls,
-      create,
-      *,
-      light=True,
-      author_list=None,
-      licence: Licence = None,
-      add_license=true,
-      introduction=text_content,
-      conclusion=text_content,
-      add_category=True,
-      **kwargs
+        cls,
+        create,
+        *,
+        light=True,
+        author_list=None,
+        licence: Licence = None,
+        add_license=true,
+        introduction=text_content,
+        conclusion=text_content,
+        add_category=True,
+        **kwargs
     ):
         auths = author_list or []
         if add_license:
@@ -105,7 +105,7 @@ class ContainerFactory(factory.Factory):
         sha = parent.repo_add_container(kwargs["title"], introduction, conclusion)
         container = parent.children[-1]
 
-        if db_object:/)
+        if db_object:
             db_object.sha_draft = sha
             db_object.save()
 
