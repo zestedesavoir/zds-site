@@ -51,40 +51,30 @@ class TutorialTestMixin:
         self.client.logout()
 
     def content_view_get(self, kwargs):
-        return self.client.get(
-            reverse('content:view', kwargs=kwargs),
-            follow=False)
+        return self.client.get(reverse("content:view", kwargs=kwargs), follow=False)
 
     def container_view_get(self, kwargs):
-        return self.client.get(
-            reverse('content:view-container', kwargs=kwargs),
-            follow=False)
+        return self.client.get(reverse("content:view-container", kwargs=kwargs), follow=False)
 
-    def content_create_get(self, _type='TUTORIAL'):
-        return self.client.get(
-            reverse(f'content:create-{_type.lower()}'),
-            follow=False)
+    def content_create_get(self, _type="TUTORIAL"):
+        return self.client.get(reverse(f"content:create-{_type.lower()}"), follow=False)
 
     def content_create_post(self, content_informations):
-        _type = content_informations['type'].lower()
-        return self.client.post(
-            reverse(f'content:create-{_type}'),
-            content_informations,
-            follow=False
-        )
+        _type = content_informations["type"].lower()
+        return self.client.post(reverse(f"content:create-{_type}"), content_informations, follow=False)
 
     def get_content_informations(self, content):
         f = lambda obj: obj.pk
         versioned = content.load_version()
         kwargs = {}
-        kwargs['title']        = versioned.title
-        kwargs['introduction'] = versioned.get_introduction()
-        kwargs['conclusion']   = versioned.get_conclusion()
-        kwargs['description']  = versioned.description
-        kwargs['licence']      = versioned.licence.pk
-        kwargs['subcategory']  = set(map(f, set(versioned.subcategory.all())))
-        kwargs['type']         = versioned.type
-        kwargs['authors']      = set(versioned.authors.all())
+        kwargs["title"] = versioned.title
+        kwargs["introduction"] = versioned.get_introduction()
+        kwargs["conclusion"] = versioned.get_conclusion()
+        kwargs["description"] = versioned.description
+        # kwargs['licence']      = versioned.licence.pk
+        kwargs["subcategory"] = set(map(f, set(versioned.subcategory.all())))
+        kwargs["type"] = versioned.type
+        kwargs["authors"] = set(versioned.authors.all())
         return kwargs
 
     def check_content_informations(self, content, informations_to_check):
@@ -97,10 +87,7 @@ class TutorialTestMixin:
                 self.assertEqual(content_informations[key], informations_to_check[key])
 
     def check_content_gallery(self, content, authors, size=0):
-        self.assertEqual(
-            Gallery.objects.filter(pk=content.gallery.pk).count(),
-            1
-        )
+        self.assertEqual(Gallery.objects.filter(pk=content.gallery.pk).count(), 1)
         self.assertEqual(
             Image.objects.filter(gallery__pk=content.gallery.pk).count(),
             size,
@@ -116,36 +103,22 @@ class TutorialTestMixin:
             )
 
     def content_edit_get(self, kwargs):
-        return self.client.get(
-            reverse('content:edit', kwargs=kwargs),
-            follow=False)
+        return self.client.get(reverse("content:edit", kwargs=kwargs), follow=False)
 
     def container_edit_get(self, kwargs):
-        return self.client.get(
-            reverse('content:edit-container', kwargs=kwargs),
-            follow=False)
+        return self.client.get(reverse("content:edit-container", kwargs=kwargs), follow=False)
 
     def content_edit_post(self, kwargs, content_informations):
-        return self.client.post(
-            reverse('content:edit', kwargs=kwargs),
-            content_informations,
-            follow=False)
+        return self.client.post(reverse("content:edit", kwargs=kwargs), content_informations, follow=False)
 
     def content_delete_post(self, kwargs):
-        return self.client.post(
-            reverse('content:delete', kwargs=kwargs),
-            follow=False)
+        return self.client.post(reverse("content:delete", kwargs=kwargs), follow=False)
 
     def content_download_get(self, kwargs):
-        return self.client.get(
-            reverse('content:download-zip', kwargs=kwargs),
-            follow=False)
+        return self.client.get(reverse("content:download-zip", kwargs=kwargs), follow=False)
 
     def content_add_author_post(self, content_kwargs, new_author_kwargs):
-        return self.client.post(
-            reverse('content:add-author', kwargs=content_kwargs),
-            new_author_kwargs,
-            follow=False)
+        return self.client.post(reverse("content:add-author", kwargs=content_kwargs), new_author_kwargs, follow=False)
 
 
 class TutorialFrontMixin:

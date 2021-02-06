@@ -52,7 +52,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         light=True,
         author_list=None,
         licence: Licence = None,
-        add_license=true,
+        add_license=True,
         introduction=text_content,
         conclusion=text_content,
         add_category=True,
@@ -95,7 +95,9 @@ class ContainerFactory(factory.Factory):
     title = factory.Sequence(lambda n: "Mon container No{0}".format(n + 1))
 
     @classmethod
-    def _prepare(cls, create, *, db_object=None, light=True, introduction=text_content, conclusion=text_content, **kwargs):
+    def _prepare(
+        cls, create, *, db_object=None, light=True, introduction=text_content, conclusion=text_content, **kwargs
+    ):
         parent = kwargs.pop("parent", None)
 
         if not light:
