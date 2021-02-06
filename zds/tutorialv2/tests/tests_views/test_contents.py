@@ -189,7 +189,6 @@ class CreateContentTests(TutorialTestMixin, TestCase):
                 "introduction": f"{_type} introduction",
                 "conclusion": f"{_type} conclusion",
                 "type": _type,
-                "licence": self.licence.pk,
                 "subcategory": self.subcategory.pk,
             }
             self.kwargs_to_create_contents[_type] = kwargs
@@ -197,7 +196,6 @@ class CreateContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
         self.content_types = ["TUTORIAL", "ARTICLE", "OPINION"]
         self.create_users()
-        self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
         self.create_kwargs_to_create_contents()
 
@@ -400,7 +398,6 @@ class EditContentTests(TutorialTestMixin, TestCase):
                 "introduction": f"{content.type} new intro",
                 "conclusion": f"{content.type} new conclusion",
                 "type": content.type,
-                "licence": self.new_licence.pk,
                 "subcategory": self.new_subcategory.pk,
                 "last_hash": content.load_version().compute_hash(),
             }
@@ -409,7 +406,6 @@ class EditContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
         self.content_types = ["TUTORIAL", "ARTICLE", "OPINION"]
         self.create_users()
-        self.new_licence = LicenceFactory()
         self.new_subcategory = SubCategoryFactory()
         self.create_contents_set()
         self.create_kwargs_to_edit_contents()
