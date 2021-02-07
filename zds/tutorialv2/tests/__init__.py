@@ -43,11 +43,11 @@ class TutorialTestMixin:
         self.clean_media_dir()
         self.client.logout()
 
-    def login(self, user, password):
+    def login_back(self, user, password):
         success = self.client.login(username=user.username, password=password)
         self.assertEqual(success, True)
 
-    def logout(self):
+    def logout_back(self):
         self.client.logout()
 
     def content_view_get(self, kwargs):
