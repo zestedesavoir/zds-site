@@ -3,6 +3,7 @@ div.msg-are-hidden {
     z-index: 1;
     text-align: center;
     margin: 0;
+    margin-bottom: $length-14;
 
     a {
         color: $grey-400;
@@ -20,8 +21,13 @@ div.msg-are-hidden {
     & + .topic-message.hidden + .pagination {
         margin-top: 10px;
     }
+
+    + .topic-message {
+        margin-top: 0;
+    }
+
     .topic-message + & {
-        margin-top: -15px;
+        margin-top: -$length-16;
     }
 }
 
@@ -97,6 +103,16 @@ div.msg-are-hidden {
             }
             &:after {
                 border-right-color: $grey-100;
+            }
+
+            // Messages like “this reply was useful” are not displayed for hidden messages.
+            // This avoid a parasite margin.
+            .message-content aside {
+                display: none;
+            }
+
+            .message-bottom {
+               display: none;
             }
         }
 
@@ -547,12 +563,7 @@ div.msg-are-hidden {
                 margin-top: 0;
             }
 
-            .message-hidden-content {
-                display: none;
-            }
-
             .message-edited,
-            .message-hidden,
             .message-helpful,
             .message-potential-spam,
             .message-repeated {
@@ -568,10 +579,8 @@ div.msg-are-hidden {
             }
 
             .message-edited,
-            .message-hidden,
+            .message-hidden-reason,
             .message-repeated {
-                font-style: italic;
-
                 &, & > a {
                     color: $grey-500;
                 }
@@ -581,8 +590,31 @@ div.msg-are-hidden {
                 }
             }
 
-            .message-hidden {
-                margin-top: $length-1;
+            .message-edited,
+            .message-repeated {
+                font-style: italic;
+            }
+
+            .message-hidden-reason {
+                margin-top: 0;
+            }
+
+            details.message-hidden-container {
+                margin-bottom: $length-10;
+
+                // These styles are only applied to summaries as they
+                // are used to make this visibly clickable. Theses should
+                // not be applied to p.message-hidden-reason, displayed to
+                // users without the right to see the hidden message.
+                summary.message-hidden-reason {
+                    cursor: pointer;
+
+                    &:hover, &:active, &:focus {
+                        color: $grey-800;
+                        outline: none;
+                        border: none;
+                    }
+                }
             }
 
             .message-helpful:not(.message-potential-spam) {

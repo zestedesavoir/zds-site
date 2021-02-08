@@ -6,6 +6,7 @@
 {% load i18n %}
 {% load pluralize_fr %}
 {% load cache %}
+{% load captureas %}
 
 
 {% url 'api:utils:update-comment-potential-spam' message.pk as potential_spam_link %}
@@ -112,13 +113,7 @@
                                     </li>
                                 {% endif %}
 
-                                {% if message_is_hidden %}
-                                    <li>
-                                        <a href="#show-message-hidden-{{ message.id }}" class="ico-after view">
-                                            <span>{% trans "Voir" %}</span>
-                                        </a>
-                                    </li>
-                                {% else %}
+                                {% if not message_is_hidden %}
                                     <li>
                                         <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                             <span>{% trans "Masquer" %}</span>
@@ -185,13 +180,6 @@
                                     {% endif %}
 
                                     {% if message_is_hidden %}
-                                        {% if message.author != user %}
-                                            <li>
-                                                <a href="#show-message-hidden-{{ message.id }}" class="ico-after view">
-                                                    {% trans "Voir" %}
-                                                </a>
-                                            </li>
-                                        {% endif %}
                                         <li>
                                             <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
                                                 {% trans "Démasquer" %}
@@ -280,20 +268,22 @@
                 <div class="message-text" itemprop="text">
                     {{ message.text_html|safe }}
                 </div>
-            {% elif perms_change or message.author == user %}
-                <div class="message-text message-hidden-content">
-                    {{ message.text_html|safe }}
-                </div>
-            {% endif %}
-
-            {% if message_is_hidden %}
-                <p class="message-hidden">
+            {% else %}
+                {% captureas hidden_message_reason %}
                     {% trans "Masqué par" %} {{ message.editor }}
 
                     {% if message.text_hidden %}
-                        {# nbsp #} : {{ message.text_hidden }}
+                        &nbsp;— {{ message.text_hidden }}
                     {% endif %}
-                </p>
+                {% endcaptureas %}
+                {% if perms_change or message.author == user %}
+                    <details class="message-text message-hidden-container">
+                        <summary class="message-hidden-reason">{{ hidden_message_reason }}</summary>
+                        {{ message.text_html|safe }}
+                    </details>
+                {% else %}
+                    <p class="message-hidden-reason">{{ hidden_message_reason }}</p>
+                {% endif %}
             {% endif %}
         </div>
 
