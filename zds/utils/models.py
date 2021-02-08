@@ -425,7 +425,7 @@ class Comment(models.Model):
         This method will render the new comment to HTML, store the rendered
         version, and analyze pings.
 
-        This method updates fields and pings, but won't save the instance.
+        This method updates fields and pings, and save the instance as well.
 
         :param text: The new comment content.
         :param on_error: A callable called if zmd returns an error, provided
