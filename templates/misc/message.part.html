@@ -113,7 +113,7 @@
                                     </li>
                                 {% endif %}
 
-                                {% if not message_is_hidden and can_hide %}
+                                {% if not message_is_hidden and can_hide != False %}
                                     <li>
                                         <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                             <span>{% trans "Masquer" %}</span>
@@ -171,7 +171,7 @@
                                         </li>
                                     {% endif %}
 
-                                    {% if can_hide %}
+                                    {% if can_hide != False %}
                                         {% if not message_is_hidden and message.author != user %}
                                             <li>
                                                 <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
