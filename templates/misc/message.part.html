@@ -311,6 +311,22 @@
                             </div>
                         </li>
                     {% endif %}
+                    {% with profile=message.author|profile %}
+                        {% if perms.forum.change_post and profile.karma != 0 %}
+                            <li>
+                                <a href="{{ member.get_absolute_url }}#historique-moderation"
+                                   class="user-karma
+                                          {% if profile.karma < 0 %}
+                                              negative
+                                          {% elif profile.karma > 0 %}
+                                              positive
+                                          {% endif %}"
+                                >
+                                    {{ profile.karma }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endwith %}
                 </ul>
             </div>
 
