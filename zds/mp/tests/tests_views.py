@@ -164,8 +164,7 @@ class TopicViewTest(TestCase):
     def test_available_actions(self):
         """we should be able to cite, but not hide or alert"""
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
 
         response = self.client.get(
             reverse(
@@ -176,6 +175,7 @@ class TopicViewTest(TestCase):
                 },
             )
         )
+
         # Citation button
         self.assertContains(response, "Citer")
         # no Alert button

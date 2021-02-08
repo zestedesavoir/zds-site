@@ -113,7 +113,7 @@
                                     </li>
                                 {% endif %}
 
-                                {% if not message_is_hidden %}
+                                {% if not message_is_hidden and can_hide %}
                                     <li>
                                         <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                             <span>{% trans "Masquer" %}</span>
@@ -171,33 +171,35 @@
                                         </li>
                                     {% endif %}
 
-                                    {% if not message_is_hidden and message.author != user %}
-                                        <li>
-                                            <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
-                                                {% trans "Masquer" %}
-                                            </a>
-                                        </li>
-                                    {% endif %}
+                                    {% if can_hide %}
+                                        {% if not message_is_hidden and message.author != user %}
+                                            <li>
+                                                <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
+                                                    {% trans "Masquer" %}
+                                                </a>
+                                            </li>
+                                        {% endif %}
 
-                                    {% if message_is_hidden %}
-                                        <li>
-                                            <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
-                                                {% trans "Démasquer" %}
-                                            </a>
+                                        {% if message_is_hidden %}
+                                            <li>
+                                                <a href="#show-message-{{ message.id }}" class="ico-after hide open-modal">
+                                                    {% trans "Démasquer" %}
+                                                </a>
 
-                                            <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
-                                                {% csrf_token %}
-                                                <p>
-                                                    {% blocktrans with editor=message.editor %}
-                                                        Ce message a été masqué par <strong>{{ editor }}</strong>. Êtes-vous certain⋅e de vouloir le ré-afficher ?
-                                                    {% endblocktrans %}
-                                                </p>
+                                                <form action="{{ show_link|safe }}" method="post" id="show-message-{{ message.id }}" class="modal modal-flex">
+                                                    {% csrf_token %}
+                                                    <p>
+                                                        {% blocktrans with editor=message.editor %}
+                                                            Ce message a été masqué par <strong>{{ editor }}</strong>. Êtes-vous certain⋅e de vouloir le ré-afficher ?
+                                                        {% endblocktrans %}
+                                                    </p>
 
-                                                <button type="submit" name="show_message" class="btn btn-submit">
-                                                    {% trans "Confirmer" %}
-                                                </button>
-                                            </form>
-                                        </li>
+                                                    <button type="submit" name="show_message" class="btn btn-submit">
+                                                        {% trans "Confirmer" %}
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
 

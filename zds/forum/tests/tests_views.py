@@ -1723,23 +1723,24 @@ class MessageActionTest(TestCase):
         response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         posts = [word for word in response.content.decode().split() if word == "m'appelle"]
         self.assertEqual(len(posts), 1)
-        self.assertNotContains(response, "#show-message-hidden-")
+        self.assertNotContains(response, '<details class="message-text message-hidden-container">')
         self.assertNotContains(response, "Démasquer")
         self.assertContains(response, "Bad guy!")
 
         # user cannot show or re-enable their message
         self.client.login(username=profile.user.username, password="hostel77")
         response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
-        self.assertNotContains(response, "#show-message-hidden-")
+        self.assertNotContains(response, '<details class="message-text message-hidden-container">')
         self.assertNotContains(response, "Démasquer")
         self.assertContains(response, "Bad guy!")
 
         # staff can show or re-enable
         self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
         response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
-        self.assertContains(response, "show-message-hidden-")
+        self.assertContains(response, '<details class="message-text message-hidden-container">')
         self.assertContains(response, "Démasquer")
-        text_hidden_expected = "Bad guy!"
+        self.assertContains(response, "Bad guy!")
+
         data = {
             "show_message": "",
         }
