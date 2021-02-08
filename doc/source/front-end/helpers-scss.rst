@@ -127,3 +127,43 @@ mêmes non plus.
     - ``wide``
   * - ``$media-mega-wide``
     - ``extra-wide``
+
+
+Listes au format horizontal (``horizontal-list``)
+=================================================
+
+Cette mixin CSS sert à transformer n'importe quelle liste (numérotée ou non, de toutes façon les puces seront masquées)
+en liste horizontale.
+
+Conceptuellement, une liste de ce genre :
+
+.. sourcecode:: html
+
+   <ul class="my-horizontal-list">
+       <li>Premier</li>
+       <li>Second</li>
+       <li>Troisième</li>
+   </ul>
+
+avec le CSS suivant :
+
+.. sourcecode:: scss
+
+   .my-horizontal-list {
+       @include horizontal-list;
+   }
+
+sera affichée ainsi si cette mixin est appliquée.
+
+.. sourcecode::
+
+   Premier • Second • Troisième
+
+Vous pouvez personnaliser le séparateur ainsi que la distance entre les éléments. Par défaut, une puce (``•``) et une
+distance de 16 sont utilisées.
+
+.. sourcecode:: scss
+
+   .my-horizontal-list {
+       @include horizontal-list($gap: $length-32, $separator: " — ");
+   }
