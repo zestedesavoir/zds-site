@@ -263,9 +263,13 @@
         align-items: center;
 
         width: 50%;
-        height: 38px;  // $length-38
+        height: $length-38;
 
-        margin: 8px auto;  // $length-8 auto
+        @include mobile {
+            width: 80%;
+        }
+
+        margin: $length-8 auto;
 
         border: 1px solid transparent;
 
@@ -273,18 +277,20 @@
         transition-property: background-color border-color;
 
         &:not(:first-of-type) {
-            margin-top: 16px;  // $length-16
+            margin-top: $length-16;
         }
 
         img {
-            width: 24px;  // $length-32
-            height: 24px; // $length-32
+            width: $length-24;
+            height: $length-24;
         }
 
         span {
             flex: 2;
             text-align: center;
-            font-size:  1.6rem;  // $size-9
+            font-size:  $font-size-9;
+
+            line-height: 1.2;
         }
 
         &.is-facebook {
@@ -301,11 +307,11 @@
         &.is-google {
             background-color: white;
             border-color: $color-brand-google;
-            color: hsl(209, 18%, 30%);  // $grey-700
+            color: $grey-700;
 
             &:hover {
                 border-color: $color-brand-google-hover;
-                color: hsl(210, 24%, 16%);  // $grey-900
+                color: $grey-900;
             }
         }
     }
