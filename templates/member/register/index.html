@@ -53,12 +53,8 @@
                         {% trans "Vous pouvez également créer un compte en utilisant un des services tiers ci-dessous" %}.
                     </p>
 
-                    <a href="{% url "social:begin" "facebook" %}" class="btn ico-after facebook light btn-facebook btn-holder">
-                        Inscription via Facebook
-                    </a>
-                    <a href="{% url "social:begin" "google-oauth2" %}" class="btn ico-after google-plus light btn-google-plus btn-holder">
-                        Inscription via Google+
-                    </a>
+                    {% include "member/includes/login_button.part.html" with network="facebook" %}
+                    {% include "member/includes/login_button.part.html" with network="google" %}
                 </div>
             </div>
         {% else %}

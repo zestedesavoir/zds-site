@@ -179,18 +179,6 @@
         }
     }
 
-    &.foursquare {
-        &:after {
-            @include sprite-position($foursquare);
-        }
-        &.blue:after {
-            @include sprite-position($foursquare-blue);
-        }
-        &.light:after {
-            @include sprite-position($foursquare-light);
-        }
-    }
-
     &.gear {
         &:after {
             @include sprite-position($gear);
@@ -200,30 +188,6 @@
         }
         &.light:after {
             @include sprite-position($gear-light);
-        }
-    }
-
-    &.github {
-        &:after {
-            @include sprite-position($github);
-        }
-        &.blue:after {
-            @include sprite-position($github-blue);
-        }
-        &.light:after {
-            @include sprite-position($github-light);
-        }
-    }
-
-    &.google-plus {
-        &:after {
-            @include sprite-position($google-plus);
-        }
-        &.blue:after {
-            @include sprite-position($google-plus-blue);
-        }
-        &.light:after {
-            @include sprite-position($google-plus-light);
         }
     }
 

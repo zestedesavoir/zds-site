@@ -256,37 +256,64 @@
         }
     }
 
-    .btn-facebook:not(.link) {
-        background: #3b5998;
+    .btn.is-social-login {
+        float: none;
 
-        &:hover,
-        &:focus {
-            background: darken(#3b5998, 10%);
-        }
-    }
-    .btn-twitter:not(.link) {
-        background: #4099FF;
+        display: flex;
+        align-items: center;
 
-        &:hover,
-        &:focus {
-            background: darken(#4099FF, 10%);
-        }
-    }
-    .btn-google-plus:not(.link) {
-        background: #d34836;
-
-        &:hover,
-        &:focus {
-            background: darken(#d34836, 10%);
-        }
-    }
-
-    .btn-facebook,
-    .btn-twitter,
-    .btn-google-plus {
         width: 50%;
-        margin: 0 auto;
-        text-align: center;
+        height: $length-38;
+
+        @include mobile {
+            width: 80%;
+        }
+
+        margin: $length-8 auto;
+
+        border: 1px solid transparent;
+
+        transition: $transition-duration ease-in-out;
+        transition-property: background-color border-color;
+
+        &:not(:first-of-type) {
+            margin-top: $length-16;
+        }
+
+        img {
+            width: $length-24;
+            height: $length-24;
+        }
+
+        span {
+            flex: 2;
+            text-align: center;
+            font-size: $font-size-9;
+
+            line-height: 1.2;
+        }
+
+        &.is-facebook {
+            background-color: $color-brand-facebook;
+            border-color: $color-brand-facebook;
+            color: white;
+
+            &:hover {
+                background-color: $color-brand-facebook-hover;
+                border-color: $color-brand-facebook-hover;
+            }
+        }
+
+        &.is-google {
+            background-color: white;
+            border-color: $color-brand-google;
+            color: $grey-700;
+
+            &:hover {
+                border-color: $color-brand-google-hover;
+                color: $grey-900;
+            }
+        }
     }
 }
 
