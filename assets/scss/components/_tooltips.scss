@@ -78,7 +78,7 @@ $tooltip-background-color: $grey-900;
 
         &::before {
             opacity: 0;
-            content: attr(aria-label);
+            content: attr(aria-describedby);
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
@@ -90,6 +90,12 @@ $tooltip-background-color: $grey-900;
             max-width: $tooltip-max-width;
         }
 
+        &[aria-label]::before {
+            content: attr(aria-label);
+        }
+
+        // For compatibility and specific cases. Should not be used except with
+        // a very good reason as this is not accessible.
         &[data-tooltip]::before {
             content: attr(data-tooltip);
         }
