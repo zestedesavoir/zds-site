@@ -16,6 +16,7 @@ Variables
 Tout d'abord, des variables SCSS définissent différents points d'arrêt entre
 plusieurs types d'écran :
 
+- ``$tiny`` : largeur maximale des très très petits écrans (penser iPhone SE) (419 px) ;
 - ``$tablet`` : largeur minimale des tablettes (769 pixels) ;
 - ``$desktop`` : largeur minimale d'un écran d'ordinateur classique (1024 pixels) ;
 - ``$wide`` : largeur minimale d'un écran large (1216 pixels) ;
@@ -76,7 +77,8 @@ haut.
 
 	Pour des raisons de cohérence, et sauf si vous avez une bonne raison de faire autrement (par exemple, en cas de besoin d'un point d'arrêt très spécifique), utilisez toujours ces *mixins* pour insérer un code CSS spécifique à une largeur d'écran.
 
-
+- | ``tiny`` : les très petits appareils mobiles.
+  | *0 → 418 pixels*
 - | ``mobile`` : les appareils mobiles.
   | *0 → 768 pixels*
 - | ``tablet`` : les tablettes, et toutes les tailles au dessus.
