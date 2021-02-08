@@ -649,7 +649,7 @@ div.msg-are-hidden {
 
             min-height: $length-32;
 
-            .date-mobile {
+            .metadata-mobile {
                 @include tablet {
                     display: none;
                 }
