@@ -673,6 +673,20 @@ div.msg-are-hidden {
                             }
                         }
                     }
+
+                    // The user global karma, displayed in the message footer
+                    // on mobile
+                    .user-karma {
+                        font-weight: bold;
+                        text-decoration: none;
+
+                        &.positive {
+                            color: $green-800;
+                        }
+                        &.negative {
+                            color: $red-800;
+                        }
+                    }
                 }
             }
 
