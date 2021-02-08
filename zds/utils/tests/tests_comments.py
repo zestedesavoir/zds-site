@@ -121,7 +121,7 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False)), 0)
 
-        # authenticated as non-staff, if we edit the message, there is no alert
+        # authenticated as staff, if we edit the message, there is no alert
         self.login(staff)
         response = self.client.post(url_comment_edit, {"text": "Argh du spam (2)"})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
