@@ -11,15 +11,11 @@ div.msg-are-hidden {
     }
 
     & ~ .topic-message.hidden + .topic-message:not(.hidden) {
-        margin-top: 10px;
-
-        @include until-desktop {
-            margin-top: 0;
-            padding-top: 5px;
-        }
+        margin-top: $length-10;
     }
+
     & + .topic-message.hidden + .pagination {
-        margin-top: 10px;
+        margin-top: $length-10;
     }
 
     + .topic-message {
@@ -145,6 +141,10 @@ div.msg-are-hidden {
     }
 
     .user {
+        @include until-desktop {
+            display: none;
+        }
+
         margin-top: $length-6;
 
         @include desktop {
@@ -608,6 +608,10 @@ div.msg-are-hidden {
                 // users without the right to see the hidden message.
                 summary.message-hidden-reason {
                     cursor: pointer;
+
+                    @include mobile {
+                        margin-left: $length-10;
+                    }
 
                     &:hover, &:active, &:focus {
                         color: $grey-800;
