@@ -1,7 +1,10 @@
-from django.urls import re_path
+from django.urls import path
 
-from zds.utils.api.views import TagListAPI
+from zds.utils.api.views import TagListAPI, UpdateCommentPotentialSpam
 
 urlpatterns = [
-    re_path(r"^$", TagListAPI.as_view(), name="list"),
+    path("tags/", TagListAPI.as_view(), name="tags-list"),
+    path(
+        "messages/potential-spam/<int:pk>/", UpdateCommentPotentialSpam.as_view(), name="update-comment-potential-spam"
+    ),
 ]

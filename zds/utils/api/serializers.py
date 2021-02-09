@@ -56,3 +56,9 @@ class KarmaSerializer(ModelSerializer):
             instance.save()
 
         return instance
+
+
+class PotentialSpamSerializer(ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ("is_potential_spam",)
