@@ -3,7 +3,7 @@ from rest_framework import permissions
 
 class UpdatePotentialSpamPermission(permissions.BasePermission):
     """
-    Global permission check for blocked IPs.
+    Permission to use the API to mark a comment as (non)spam.
     """
 
     def has_permission(self, request, view):
