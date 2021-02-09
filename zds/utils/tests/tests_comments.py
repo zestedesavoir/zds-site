@@ -151,7 +151,7 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False)), 1)
 
-        # authenticated as non-staff, if we edit again the message, there is still one alert (we dont stack them up)
+        # authenticated as non-staff, if we edit again the message, there is still one alert (we don't stack them up)
         response = self.client.post(url_comment_edit, {"text": "Argh du spam (23)"})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False)), 1)
@@ -185,20 +185,23 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
         for alert in Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False):
             alert.solve(staff.user)
 
-        # if the staff edit the message, there is no alert
+        # if the staff edits the message, there is no alert
         response = self.client.post(url_comment_edit, {"text": "Argh du spam (25)"})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False)), 0)
 
-        # if the author edit the message, there is no alert either
+        # if the author edits the message, there is no alert either
         self.login(author)
         response = self.client.post(url_comment_edit, {"text": "Argh du spam (26)"})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False)), 0)
 
-        # Now we test a tricky scenarii: an user create a message, then edit te message; then the message is marked as
-        # span and _a staff_ edit the message. No alert should be sent.
-        # The message was already modified by its author just before, so we'll start at the second step.
+        # Now we test a tricky scenario:
+        # 1. a user creates a message;
+        # 2. the same user edits the message;
+        # 3. a staff member marks the message as potential spam.
+        # No alert should be sent.
+        # The message was already modified by its author just before, so we'll start at the third step.
 
         self.login(staff)
         response = self.client_api.put(
