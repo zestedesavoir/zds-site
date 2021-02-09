@@ -7,6 +7,7 @@ import logging
 from django.conf import settings
 
 from django.contrib.auth.models import User, Group
+from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.encoding import smart_text
 from django.db import models
@@ -377,14 +378,16 @@ class Comment(models.Model):
         verbose_name = "Commentaire"
         verbose_name_plural = "Commentaires"
 
+        permissions = [("change_comment_potential_spam", "Can change the potential spam status of a comment")]
+
     objects = InheritanceManager()
 
     author = models.ForeignKey(
         User,
         verbose_name="Auteur",
-        # better on_delete with "set anonymous?"
         related_name="comments",
         db_index=True,
+        # better on_delete with "set anonymous?"
         on_delete=models.CASCADE,
     )
     editor = models.ForeignKey(
@@ -413,12 +416,66 @@ class Comment(models.Model):
         Hat, verbose_name="Casquette", on_delete=models.SET_NULL, related_name="comments", blank=True, null=True
     )
 
+    is_potential_spam = models.BooleanField("Est potentiellement du spam", default=False)
+
     def update_content(self, text, on_error=None):
+        """
+        Updates the content of this comment.
+
+        This method will render the new comment to HTML, store the rendered
+        version, and store data to later analyze pings and spam.
+
+        This method updates fields, but does not save the instance.
+
+        :param text: The new comment content.
+        :param on_error: A callable called if zmd returns an error, provided
+                         with a single argument: a list of user-friendly errors.
+                         See render_markdown.
+        """
+        # This attribute will be used by `_save_check_spam`, called after save (but not saved into the database).
+        # We only update it if it does not already exist, so if this method is called multiple times, the oldest
+        # version (i.e. the one currently in the database) is used for comparison. `_save_check_spam` will delete
+        # the attribute, so if we re-save the same instance, this will be re-set.
+        if not hasattr(self, "old_text"):
+            self.old_text = self.text
+
         _, old_metadata, _ = render_markdown(self.text)
-        html, metadata, messages = render_markdown(text, on_error=on_error)
+        html, new_metadata, _ = render_markdown(text, on_error=on_error)
+
+        # These attributes will be used by `_save_compute_pings` to create notifications if needed.
+        # For the same reason as `old_text`, we only update `old_metadata` if not already set.
+        if not hasattr(self, "old_metadata"):
+            self.old_metadata = old_metadata
+        self.new_metadata = new_metadata
+
         self.text = text
         self.text_html = html
-        self.save()
+
+    def save(self, *args, **kwargs):
+        """
+        We override the save method for two tasks:
+        1. we want to analyze the pings in the message to know if notifications
+           needs to be created;
+        2. if this comment is marked as potential spam, we need to open an alert
+           in case of update by its author.
+        """
+        super(Comment, self).save(*args, **kwargs)
+
+        self._save_compute_pings()
+        self._save_check_spam()
+
+    def _save_compute_pings(self):
+        """
+        This method, called on the save method when the save is complete,
+        analyzes pings to create, or delete, ping notifications. It must run
+        when the instance is saved (for new messages) as notifications
+        references messages in the database.
+        """
+
+        # If `update_content` was not called, there is nothing to do as the
+        # message's content stayed the same.
+        if not hasattr(self, "old_metadata") or not hasattr(self, "new_metadata"):
+            return
 
         def filter_usernames(original_list):
             # removes duplicates and the message's author
@@ -429,8 +486,8 @@ class Comment(models.Model):
             return filtered_list
 
         max_pings_allowed = settings.ZDS_APP["comment"]["max_pings"]
-        pinged_usernames_from_new_text = filter_usernames(metadata.get("ping", []))[:max_pings_allowed]
-        pinged_usernames_from_old_text = filter_usernames(old_metadata.get("ping", []))[:max_pings_allowed]
+        pinged_usernames_from_new_text = filter_usernames(self.new_metadata.get("ping", []))[:max_pings_allowed]
+        pinged_usernames_from_old_text = filter_usernames(self.old_metadata.get("ping", []))[:max_pings_allowed]
 
         pinged_usernames = set(pinged_usernames_from_new_text) - set(pinged_usernames_from_old_text)
         pinged_users = User.objects.filter(username__in=pinged_usernames)
@@ -441,6 +498,42 @@ class Comment(models.Model):
         unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
             signals.unping.send(self.author, instance=self, user=unpinged_user)
+
+        del self.old_metadata
+        del self.new_metadata
+
+    def _save_check_spam(self):
+        """
+        This method checks if this message is marked as spam and if it was
+        modified by its author. If so, an alert is created.
+        """
+        # For new comments (if there is no editor), this does not apply.
+        # If we edit a comment but the `old_text` attribute is not set, this means
+        # `Comment.update_content` was not called: the content was not updated.
+        if not hasattr(self, "old_text") or not self.editor:
+            return
+
+        # If this post is marked as potential spam, we open an alert to notify the staff that
+        # the post was edited. If an open alert already exists for this reason, we update the
+        # date of this alert to avoid lots of them stacking up.
+        if self.old_text != self.text and self.is_potential_spam and self.editor == self.author:
+            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
+
+            try:
+                alert = self.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
+                alert.pubdate = datetime.now()
+                alert.save()
+            except Alert.DoesNotExist:
+                # We first have to compute the correct scope
+                if type(self).__name__ == "ContentReaction":
+                    scope = self.related_content.type
+                else:
+                    scope = "FORUM"
+
+                Alert(author=bot, comment=self, scope=scope, text=alert_text, pubdate=datetime.now()).save()
+
+        del self.old_text
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it

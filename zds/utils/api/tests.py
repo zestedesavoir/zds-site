@@ -24,7 +24,7 @@ class TagListAPITest(APITestCase):
         """
         Gets empty list of tags in the database.
         """
-        response = self.client.get(reverse("api:tag:list"))
+        response = self.client.get(reverse("api:utils:tags-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 0)
         self.assertEqual(response.data.get("results"), [])
@@ -37,7 +37,7 @@ class TagListAPITest(APITestCase):
         """
         self.create_multiple_tags()
 
-        response = self.client.get(reverse("api:tag:list"))
+        response = self.client.get(reverse("api:utils:tags-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), REST_PAGE_SIZE)
         self.assertEqual(len(response.data.get("results")), REST_PAGE_SIZE)
@@ -50,14 +50,14 @@ class TagListAPITest(APITestCase):
         """
         self.create_multiple_tags(REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse("api:tag:list"))
+        response = self.client.get(reverse("api:utils:tags-list"))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), REST_PAGE_SIZE + 1)
         self.assertIsNotNone(response.data.get("next"))
         self.assertIsNone(response.data.get("previous"))
         self.assertEqual(len(response.data.get("results")), REST_PAGE_SIZE)
 
-        response = self.client.get(reverse("api:tag:list") + "?page=2")
+        response = self.client.get(reverse("api:utils:tags-list") + "?page=2")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), REST_PAGE_SIZE + 1)
         self.assertIsNone(response.data.get("next"))
@@ -70,7 +70,7 @@ class TagListAPITest(APITestCase):
         """
         self.create_multiple_tags(REST_PAGE_SIZE + 1)
 
-        response = self.client.get(reverse("api:tag:list") + "?page=2")
+        response = self.client.get(reverse("api:utils:tags-list") + "?page=2")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 11)
         self.assertEqual(len(response.data.get("results")), 1)
@@ -81,7 +81,7 @@ class TagListAPITest(APITestCase):
         """
         Gets an error when the tag asks a wrong page.
         """
-        response = self.client.get(reverse("api:tag:list") + "?page=2")
+        response = self.client.get(reverse("api:utils:tags-list") + "?page=2")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_list_of_tags_with_a_custom_page_size(self):
@@ -92,7 +92,7 @@ class TagListAPITest(APITestCase):
         self.create_multiple_tags(REST_PAGE_SIZE * 2)
 
         page_size = "page_size"
-        response = self.client.get(reverse("api:tag:list") + "?{}=20".format(page_size))
+        response = self.client.get(reverse("api:utils:tags-list") + "?{}=20".format(page_size))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 20)
         self.assertEqual(len(response.data.get("results")), 20)
@@ -108,7 +108,7 @@ class TagListAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_tags(page_size_value)
 
-        response = self.client.get(reverse("api:tag:list") + "?page_size={}".format(page_size_value))
+        response = self.client.get(reverse("api:utils:tags-list") + "?page_size={}".format(page_size_value))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), page_size_value)
         self.assertIsNotNone(response.data.get("next"))
@@ -121,7 +121,7 @@ class TagListAPITest(APITestCase):
         """
         self.create_multiple_tags()
 
-        response = self.client.get(reverse("api:tag:list") + "?search=number0")
+        response = self.client.get(reverse("api:utils:tags-list") + "?search=number0")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data.get("count") > 0)
 
@@ -132,7 +132,7 @@ class TagListAPITest(APITestCase):
         """
         self.create_multiple_tags()
 
-        response = self.client.get(reverse("api:tag:list") + "?search=zozor")
+        response = self.client.get(reverse("api:utils:tags-list") + "?search=zozor")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 0)
         self.assertIsNone(response.data.get("next"))
