@@ -423,28 +423,59 @@ class Comment(models.Model):
         Updates the content of this comment.
 
         This method will render the new comment to HTML, store the rendered
-        version, and analyze pings.
+        version, and store data to later analyze pings and spam.
 
-        This method updates fields and pings, and save the instance as well.
+        This method updates fields, but does not save the instance.
 
         :param text: The new comment content.
         :param on_error: A callable called if zmd returns an error, provided
                          with a single argument: a list of user-friendly errors.
                          See render_markdown.
         """
-        # This attribute will be used by the `post_save` signal (but not saved into the database).
-        self.old_text = self.text
+        # This attribute will be used by `_save_check_spam`, called after save (but not saved into the database).
+        # We only update it if it does not already exist, so if this method is called multiple times, the oldest
+        # version (i.e. the one currently in the database) is used for comparison. `_save_check_spam` will delete
+        # the attribute, so if we re-save the same instance, this will be re-set.
+        if not hasattr(self, "old_text"):
+            self.old_text = self.text
 
         _, old_metadata, _ = render_markdown(self.text)
-        html, metadata, messages = render_markdown(text, on_error=on_error)
+        html, new_metadata, _ = render_markdown(text, on_error=on_error)
+
+        # These attributes will be used by `_save_compute_pings` to create notifications if needed.
+        # For the same reason as `old_text`, we only update `old_metadata` if not already set.
+        if not hasattr(self, "old_metadata"):
+            self.old_metadata = old_metadata
+        self.new_metadata = new_metadata
 
         self.text = text
         self.text_html = html
 
-        # Required for pings analysis, even if it will frequently mean we double-save…
-        self.save()
+    def save(self, *args, **kwargs):
+        """
+        We override the save method for two tasks:
+        1. we want to analyze the pings in the message to know if notifications
+           needs to be created;
+        2. if this comment is marked as potential spam, we need to open an alert
+           in case of update by its author.
+        """
+        super(Comment, self).save(*args, **kwargs)
 
-        # Pings analysis
+        self._save_compute_pings()
+        self._save_check_spam()
+
+    def _save_compute_pings(self):
+        """
+        This method, called on the save method when the save is complete,
+        analyzes pings to create, or delete, ping notifications. It must run
+        when the instance is saved (for new messages) as notifications
+        references messages in the database.
+        """
+
+        # If `update_content` was not called, there is nothing to do as the
+        # message's content stayed the same.
+        if not hasattr(self, "old_metadata") or not hasattr(self, "new_metadata"):
+            return
 
         def filter_usernames(original_list):
             # removes duplicates and the message's author
@@ -455,8 +486,8 @@ class Comment(models.Model):
             return filtered_list
 
         max_pings_allowed = settings.ZDS_APP["comment"]["max_pings"]
-        pinged_usernames_from_new_text = filter_usernames(metadata.get("ping", []))[:max_pings_allowed]
-        pinged_usernames_from_old_text = filter_usernames(old_metadata.get("ping", []))[:max_pings_allowed]
+        pinged_usernames_from_new_text = filter_usernames(self.new_metadata.get("ping", []))[:max_pings_allowed]
+        pinged_usernames_from_old_text = filter_usernames(self.old_metadata.get("ping", []))[:max_pings_allowed]
 
         pinged_usernames = set(pinged_usernames_from_new_text) - set(pinged_usernames_from_old_text)
         pinged_users = User.objects.filter(username__in=pinged_usernames)
@@ -467,6 +498,42 @@ class Comment(models.Model):
         unpinged_users = User.objects.filter(username__in=unpinged_usernames)
         for unpinged_user in unpinged_users:
             signals.unping.send(self.author, instance=self, user=unpinged_user)
+
+        del self.old_metadata
+        del self.new_metadata
+
+    def _save_check_spam(self):
+        """
+        This method checks if this message is marked as spam and if it was
+        modified by its author. If so, an alert is created.
+        """
+        # For new comments (if there is no editor), this does not apply.
+        # If we edit a comment but the `old_text` attribute is not set, this means
+        # `Comment.update_content` was not called: the content was not updated.
+        if not hasattr(self, "old_text") or not self.editor:
+            return
+
+        # If this post is marked as potential spam, we open an alert to notify the staff that
+        # the post was edited. If an open alert already exists for this reason, we update the
+        # date of this alert to avoid lots of them stacking up.
+        if self.old_text != self.text and self.is_potential_spam and self.editor == self.author:
+            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
+
+            try:
+                alert = self.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
+                alert.pubdate = datetime.now()
+                alert.save()
+            except Alert.DoesNotExist:
+                # We first have to compute the correct scope
+                if type(self).__name__ == "ContentReaction":
+                    scope = self.related_content.type
+                else:
+                    scope = "FORUM"
+
+                Alert(author=bot, comment=self, scope=scope, text=alert_text, pubdate=datetime.now()).save()
+
+        del self.old_text
 
     def hide_comment_by_user(self, user, text_hidden):
         """Hide a comment and save it
@@ -524,45 +591,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return "Comment by {}".format(self.author.username)
-
-
-@receiver(post_save)
-def on_comment_update_alert_potential_spam(sender, instance, created, **kwargs):
-    """
-    Called when this comment is modified. If this message is marked as
-    potential spam, sends an alert in the appropriate scope.
-    """
-    if sender is not Comment and not issubclass(sender, Comment):
-        return
-
-    # For new comments, this does not apply.
-    # If we edit a comment but the `old_text` attribute is not set, this means
-    # `Comment.update_content` was not called: the content was not updated.
-    if created or not hasattr(instance, "old_text"):
-        return
-
-    old_text = instance.old_text
-    new_text = instance.text
-
-    # If this post is marked as potential spam, we open an alert to notify the staff that
-    # the post was edited. If an open alert already exists for this reason, we update the
-    # date of this alert to avoid lots of them stacking up.
-    if old_text != new_text and instance.is_potential_spam and instance.editor == instance.author:
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-        alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
-
-        try:
-            alert = instance.alerts_on_this_comment.filter(author=bot, text=alert_text, solved=False).latest()
-            alert.pubdate = datetime.now()
-            alert.save()
-        except Alert.DoesNotExist:
-            # We first have to compute the correct scope
-            if sender.__name__ == "ContentReaction":
-                scope = instance.related_content.type
-            else:
-                scope = "FORUM"
-
-            Alert(author=bot, comment=instance, scope=scope, text=alert_text, pubdate=datetime.now()).save()
 
 
 class CommentEdit(models.Model):

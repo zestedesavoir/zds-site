@@ -195,3 +195,19 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
         response = self.client.post(url_comment_edit, {"text": "Argh du spam (26)"})
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False)), 0)
+
+        # Now we test a tricky scenarii: an user create a message, then edit te message; then the message is marked as
+        # span and _a staff_ edit the message. No alert should be sent.
+        # The message was already modified by its author just before, so we'll start at the second step.
+
+        self.login(staff)
+        response = self.client_api.put(
+            reverse("api:utils:update-comment-potential-spam", args=[comment.pk]), {"is_potential_spam": True}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, {"is_potential_spam": True})
+
+        # Still logged in as staff, we edit the message. There is no alert.
+        response = self.client.post(url_comment_edit, {"text": "Argh du spam (27)"})
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(len(Alert.objects.filter(author=bot, comment=comment, text=alert_text, solved=False)), 0)
