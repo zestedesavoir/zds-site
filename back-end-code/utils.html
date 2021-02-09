@@ -339,9 +339,42 @@ if category is his main category.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="zds.utils.models.Comment.save">
+<code class="sig-name descname">save</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.save" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>We override the save method for two tasks:
+1. we want to analyze the pings in the message to know if notifications</p>
+<blockquote>
+<div><p>needs to be created;</p>
+</div></blockquote>
+<ol class="arabic simple" start="2">
+<li><p>if this comment is marked as potential spam, we need to open an alert
+in case of update by its author.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zds.utils.models.Comment.set_user_vote">
 <code class="sig-name descname">set_user_vote</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">user</span></em>, <em class="sig-param"><span class="n">vote</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.set_user_vote" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Set a user vote (like, dislike or neutral)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="zds.utils.models.Comment.update_content">
+<code class="sig-name descname">update_content</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">on_error</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.update_content" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Updates the content of this comment.</p>
+<p>This method will render the new comment to HTML, store the rendered
+version, and store data to later analyze pings and spam.</p>
+<p>This method updates fields, but does not save the instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Paramètres</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – The new comment content.</p></li>
+<li><p><strong>on_error</strong> – A callable called if zmd returns an error, provided
+with a single argument: a list of user-friendly errors.
+See render_markdown.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
