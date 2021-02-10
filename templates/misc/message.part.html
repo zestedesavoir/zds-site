@@ -357,18 +357,6 @@
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
-                        {% if user.is_authenticated and perms.utils.change_comment_potential_spam and potential_spam_link %}
-                            <button
-                                class="alert ico-after potential-spam-handle"
-                                title="{% if not message.is_potential_spam %}{% trans "Marquer ce message comme spam potentiel, afin de recevoir une alerte de modération s'il est modifié." %}{% endif %}"
-                                data-potential-spam-api="{{ potential_spam_link }}"
-                                data-potential-spam-new-state="{% if message.is_potential_spam %}false{% else %}true{% endif %}"
-                                data-content-on-click="{% if not message.is_potential_spam %}
-                                {% trans "Ce message n'est pas du spam" %}
-                                {% endif %}"
-                                >{% if message.is_potential_spam %}{% trans "Ce message n'est pas du spam" %}{% endif %}</button>
-                        {% endif %}
-
                         {% if user.is_authenticated and helpful_link %}
                             {% if topic.author == user or perms_change %}
                                 <form action="{{ helpful_link }}" method="post">
