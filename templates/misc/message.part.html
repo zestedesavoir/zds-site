@@ -203,6 +203,38 @@
                                     {% endif %}
                                 {% endif %}
 
+                                {% if user.is_authenticated and helpful_link and topic.author != user %}
+                                    <li>
+                                        <form action="{{ helpful_link }}" method="post">
+                                            {% csrf_token %}
+
+                                            {% spaceless %}
+                                            <button
+                                                type="submit"
+                                                class="btn tick ico-after"
+                                                data-ajax-input="mark-message-as-useful"
+                                                data-content-on-click="{% if message.is_useful %}
+                                                                           {% trans "Réponse utile" %}
+                                                                       {% else %}
+                                                                           {% trans "Réponse non-utile" %}
+                                                                       {% endif %}"
+                                                title="{% spaceless %}{% if message.is_useful %}
+                                                           {% trans "Marquer cette réponse comme n'ayant pas été utile" %}
+                                                       {% else %}
+                                                           {% trans "Marquer cette réponse comme ayant été utile" %}
+                                                       {% endif %}{% endspaceless %}">
+
+                                                {% if message.is_useful %}
+                                                    {% trans "Réponse non-utile" %}
+                                                {% else %}
+                                                    {% trans "Réponse utile" %}
+                                                {% endif %}
+                                            </button>
+                                            {% endspaceless %}
+                                        </form>
+                                    </li>
+                                {% endif %}
+
                                 {% if user.is_authenticated and perms.utils.change_comment_potential_spam and potential_spam_link %}
                                     <li>
                                         <button
@@ -358,38 +390,36 @@
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
-                        {% if user.is_authenticated and helpful_link %}
-                            {% if topic.author == user or perms_change %}
-                                <form action="{{ helpful_link }}" method="post">
-                                    {% csrf_token %}
+                        {% if user.is_authenticated and helpful_link and topic.author == user %}
+                            <form action="{{ helpful_link }}" method="post">
+                                {% csrf_token %}
 
-                                    {% spaceless %}
-                                    <button
-                                        type="submit"
-                                        class="tick ico-after {% if message.is_useful %}green{% endif %}"
-                                        data-ajax-input="mark-message-as-useful"
-                                        data-content-on-click="{% if user == topic.author %}{% if message.is_useful %}
-                                                                   {% trans "Cette réponse m’a été utile" %}
-                                                               {% else %}
-                                                                   {% trans "Cette réponse ne m’a pas été utile" %}
-                                                               {% endif %}{% endif %}"
-                                        title="{% spaceless %}{% if user != topic.author %}{% if message.is_useful %}
-                                                   {% trans "Marquer cette réponse comme n'ayant pas été utile" %}
-                                               {% else %}
-                                                   {% trans "Marquer cette réponse comme ayant été utile" %}
-                                               {% endif %}{% endif %}{% endspaceless %}">
+                                {% spaceless %}
+                                <button
+                                    type="submit"
+                                    class="tick ico-after {% if message.is_useful %}green{% endif %}"
+                                    data-ajax-input="mark-message-as-useful"
+                                    data-content-on-click="{% if user == topic.author %}{% if message.is_useful %}
+                                                               {% trans "Cette réponse m’a été utile" %}
+                                                           {% else %}
+                                                               {% trans "Cette réponse ne m’a pas été utile" %}
+                                                           {% endif %}{% endif %}"
+                                    title="{% spaceless %}{% if user != topic.author %}{% if message.is_useful %}
+                                               {% trans "Marquer cette réponse comme n'ayant pas été utile" %}
+                                           {% else %}
+                                               {% trans "Marquer cette réponse comme ayant été utile" %}
+                                           {% endif %}{% endif %}{% endspaceless %}">
 
-                                        {% if user == topic.author %}
-                                            {% if message.is_useful %}
-                                                {% trans "Cette réponse ne m’a pas été utile" %}
-                                            {% else %}
-                                                {% trans "Cette réponse m’a été utile" %}
-                                            {% endif %}
+                                    {% if user == topic.author %}
+                                        {% if message.is_useful %}
+                                            {% trans "Cette réponse ne m’a pas été utile" %}
+                                        {% else %}
+                                            {% trans "Cette réponse m’a été utile" %}
                                         {% endif %}
-                                    </button>
-                                    {% endspaceless %}
-                                </form>
-                            {% endif %}
+                                    {% endif %}
+                                </button>
+                                {% endspaceless %}
+                            </form>
                         {% endif %}
 
                         {% if user.is_authenticated and user != message.author %}
