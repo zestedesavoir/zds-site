@@ -22,7 +22,6 @@
 }
 
 /* Orange */
-.hljs-number,
 .hljs-built_in,
 .hljs-builtin-name,
 .hljs-literal,
@@ -47,9 +46,10 @@
 }
 
 /* Blue */
+.hljs-number,
 .hljs-title,
 .hljs-section {
-  color: $primary-500;
+  color: $primary-600;
 }
 
 /* Purple */
