@@ -424,7 +424,7 @@ div.msg-are-hidden {
                             height: 100%;
                         }
 
-                        a, button {
+                        a, button, button[type=submit] {
                             display: block;
                             float: none; // to cancel universal button floating
 
@@ -542,7 +542,7 @@ div.msg-are-hidden {
                                 display: flex;
                             }
 
-                            a, button {
+                            a, button, button[type=submit] {
                                 color: $grey-900;
                             }
                         }
