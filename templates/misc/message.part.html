@@ -337,11 +337,12 @@
                             {% if user.is_authenticated %}
                                 {% with profile_user=user|profile %}
                                     {% if profile_user.show_sign %}
-                                        <div class="signature">
+                                        <label class="signature">
+                                            <input type="checkbox" />
                                             {% cache 300 profile.user.username profile.sign %}
                                                 {{ profile.sign|emarkdown_inline }}
                                             {% endcache %}
-                                        </div>
+                                        </label>
                                     {% endif %}
                                 {% endwith %}
                             {% else %}
