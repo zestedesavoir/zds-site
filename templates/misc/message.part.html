@@ -333,14 +333,20 @@
                     </li>
                     {% if message.update %}
                         <li>
-                            <a href="#message-update-mobile-details-{{ message.pk }}" class="open-modal" aria-haspopup="dialog">{% include "misc/message_edited_by.part.html" with message=message tooltip=False short=True %}</a>
-                            <div id="message-update-mobile-details-{{ message.pk }}" class="modal modal-flex" data-modal-close="Fermer" data-modal-title="Modification du message">
-                                {% include "misc/message_edited_by.part.html" with message=message tooltip=False %}
-                                <time itemprop="dateUpdated" datetime="{{ message.update|date:"c" }}">
-                                    {{ message.update | format_date }}
-                                </time>
-                                {% if can_view_history %}<a class="btn btn-submit" href="{% url 'comment-edits-history' message.pk %}">Historique</a>{% endif %}
-                            </div>
+                            {% if not can_view_history %}
+                                {% include "misc/message_edited_by.part.html" with message=message tooltip=True tooltip_top=True short=True %}
+                            {% else %}
+                                <a href="#message-update-mobile-details-{{ message.pk }}" class="open-modal" aria-haspopup="dialog">
+                                    {% include "misc/message_edited_by.part.html" with message=message tooltip=False short=True %}
+                                </a>
+                                <div id="message-update-mobile-details-{{ message.pk }}" class="modal modal-flex" data-modal-close="Fermer" data-modal-title="Modification du message">
+                                    {% include "misc/message_edited_by.part.html" with message=message tooltip=False %}
+                                    <time itemprop="dateUpdated" datetime="{{ message.update|date:"c" }}">
+                                        {{ message.update | format_date }}
+                                    </time>
+                                    <a class="btn btn-submit" href="{% url 'comment-edits-history' message.pk %}">Historique</a>
+                                </div>
+                            {% endif %}
                         </li>
                     {% endif %}
                     {% with profile=message.author|profile %}
