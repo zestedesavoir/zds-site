@@ -1647,6 +1647,56 @@ class PostUsefulTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertTrue(Post.objects.get(pk=topic.last_message.pk).is_useful)
 
+    def test_position_post_useful_button(self):
+        """
+        The “Useful message” button should be:
+        - for logged-out users, nowhere;
+        - for normal users, under the message on their own threads, nowhere else;
+        - for staff, under the message on their own thread, on the menu else.
+        """
+        mark_button_under_message = "Cette réponse m’a été utile"
+        mark_button_in_menu = "Réponse utile"
+
+        user = ProfileFactory()
+        staff = StaffProfileFactory()
+
+        _, forum = create_category_and_forum()
+        user_topic = create_topic_in_forum(forum, user)
+        staff_topic = create_topic_in_forum(forum, staff)
+
+        # Logged-out users should not see any “useful message” button
+
+        self.client.logout()
+        response = self.client.get(reverse("topic-posts-list", args=[user_topic.pk, user_topic.slug()]))
+        self.assertNotContains(response, mark_button_under_message)
+        self.assertNotContains(response, mark_button_in_menu)
+
+        # Normal users should see the “useful message” button on their topics but
+        # not on other ones.
+
+        self.client.force_login(user.user)
+
+        response = self.client.get(reverse("topic-posts-list", args=[user_topic.pk, user_topic.slug()]))
+        self.assertContains(response, mark_button_under_message)
+        self.assertNotContains(response, mark_button_in_menu)
+
+        response = self.client.get(reverse("topic-posts-list", args=[staff_topic.pk, staff_topic.slug()]))
+        self.assertNotContains(response, mark_button_under_message)
+        self.assertNotContains(response, mark_button_in_menu)
+
+        # Staff users should see the “useful message” button on their topics and
+        # other ones, but the button should be in the menu for other topics.
+
+        self.client.force_login(staff.user)
+
+        response = self.client.get(reverse("topic-posts-list", args=[user_topic.pk, user_topic.slug()]))
+        self.assertNotContains(response, mark_button_under_message)
+        self.assertContains(response, mark_button_in_menu)
+
+        response = self.client.get(reverse("topic-posts-list", args=[staff_topic.pk, staff_topic.slug()]))
+        self.assertContains(response, mark_button_under_message)
+        self.assertNotContains(response, mark_button_in_menu)
+
 
 class MessageActionTest(TestCase):
     def test_alert(self):
