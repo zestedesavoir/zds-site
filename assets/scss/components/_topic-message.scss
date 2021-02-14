@@ -254,34 +254,6 @@ div.msg-are-hidden {
 
                 border-right-color: $true-white;
             }
-
-            .message-bottom label.signature {
-                position: relative;
-                height: auto;
-                cursor: pointer;
-
-                input[type=checkbox] {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-
-                    opacity: 0;
-                }
-
-                p {
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-
-                    img.smiley {
-                        max-height: $length-16;
-                    }
-                }
-
-                input[type=checkbox]:checked ~ p {
-                    white-space: normal;
-                }
-            }
         }
 
         header {
@@ -701,10 +673,11 @@ div.msg-are-hidden {
             }
 
             .signature {
+                position: relative;
                 flex: 1;
 
+                height: auto;
                 box-sizing: border-box;
-                height: $length-32;
 
                 margin: 0 $length-10 0 0;
                 padding: $length-4 0 $length-4 $length-10;
@@ -722,6 +695,14 @@ div.msg-are-hidden {
                     display: none;
                 }
 
+                input[type=checkbox] {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+
+                    opacity: 0;
+                }
+
                 p {
                     margin: 0;
                     padding: 0;
@@ -735,7 +716,7 @@ div.msg-are-hidden {
                     }
                 }
 
-                &.full p {
+                input[type=checkbox]:checked ~ p {
                     white-space: normal;
                 }
 
