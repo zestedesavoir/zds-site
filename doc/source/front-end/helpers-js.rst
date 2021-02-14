@@ -21,7 +21,7 @@ Cette fonction retourne un objet ``Tooltip`` qui est définie dans le fichier ``
 .. note::
 
    Si vous n'avez besoin que d'infobulles simples, sans avoir à y mettre du contenu HTML riche ou à réagir au clic ou
-   autre sur ces dernière, `préférez utiliser les plus simples et légères infobulles CSS, d'apparence identique <elements-specifiques-au-site.html#les-infobulles-css>`_.
+   autre sur ces dernières, `préférez utiliser les plus simples et légères infobulles CSS, d'apparence identique <elements-specifiques-au-site.html#les-infobulles-css>`_.
 
 
 $(message).karma()

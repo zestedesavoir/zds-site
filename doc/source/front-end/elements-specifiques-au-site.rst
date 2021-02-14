@@ -133,7 +133,7 @@ Les infobulles CSS
 
 À ne pas confondre avec `les infobulles en JavaScript <helpers-js.html#tooltip>`_, les infobulles CSS ont la même apparence
 mais sont beaucoup plus légères et simples à utiliser. Par contre, elles ne peuvent contenir de contenu HTML riche, ni ne
-réagir au clic. Elles sont donc efficace pour des infobulles purement informatives, mais qui sont suffisamment importantes
+réagir au clic. Elles sont donc efficaces pour des infobulles purement informatives, mais qui sont suffisamment importantes
 pour être affichées directement au survol, et non en attendant une seconde ou deux (comme un attribut ``title``).
 
 Pour ajouter une infobulle CSS sur un élément, ajoutez simplement la classe ``has-tooltip`` à l'élément, assortie de l'attribut
@@ -519,4 +519,3 @@ Par exemple, pour activer les changements ``snow`` et ``clem-christmas``, il fau
 .. sourcecode:: python
 
     ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
-
