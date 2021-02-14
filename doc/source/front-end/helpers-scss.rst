@@ -134,7 +134,7 @@ mêmes non plus.
 Listes au format horizontal (``horizontal-list``)
 =================================================
 
-Cette mixin CSS sert à transformer n'importe quelle liste (numérotée ou non, de toutes façon les puces seront masquées)
+Cette mixin CSS sert à transformer n'importe quelle liste (numérotée ou non, de toute façon les puces seront masquées)
 en liste horizontale.
 
 Conceptuellement, une liste de ce genre :
