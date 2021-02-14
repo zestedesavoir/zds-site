@@ -411,18 +411,18 @@
                                                            {% else %}
                                                                {% trans "Cette réponse ne m’a pas été utile" %}
                                                            {% endif %}{% endif %}"
-                                    title="{% spaceless %}{% if user != topic.author %}{% if message.is_useful %}
-                                               {% trans "Marquer cette réponse comme n'ayant pas été utile" %}
-                                           {% else %}
-                                               {% trans "Marquer cette réponse comme ayant été utile" %}
-                                           {% endif %}{% endif %}{% endspaceless %}">
+                                    data-content-on-click-mobile="{% if user == topic.author %}{% if message.is_useful %}
+                                                               {% trans "Utile" %}
+                                                           {% else %}
+                                                               {% trans "Non-utile" %}
+                                                           {% endif %}{% endif %}">
 
-                                    {% if user == topic.author %}
-                                        {% if message.is_useful %}
-                                            {% trans "Cette réponse ne m’a pas été utile" %}
-                                        {% else %}
-                                            {% trans "Cette réponse m’a été utile" %}
-                                        {% endif %}
+                                    {% if message.is_useful %}
+                                        <span class="until-desktop" aria-hidden="true">{% trans "Non-utile" %}</span>
+                                        <span class="desktop">{% trans "Cette réponse ne m’a pas été utile" %}</span>
+                                    {% else %}
+                                        <span class="until-desktop" aria-hidden="true">{% trans "Utile" %}</span>
+                                        <span class="desktop">{% trans "Cette réponse m’a été utile" %}</span>
                                     {% endif %}
                                 </button>
                                 {% endspaceless %}
