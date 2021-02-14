@@ -102,7 +102,7 @@
                 {% spaceless %}
                     <aside class="message-actions">
                         <ul tabindex="0">
-                            {# User actions on his own message #}
+                            {# User actions on their own message #}
 
                             {% if message.author == user %}
                                 {% if edit_link %}
@@ -122,7 +122,7 @@
                                 {% endif %}
                             {% endif %}
 
-                            {# Actions related to someother message (non-administrative) #}
+                            {# Actions related to some other message (non-administrative) #}
 
                             {% if not message_is_hidden and cite_link and not topic.is_locked and not is_antispam %}
                                 <li>
