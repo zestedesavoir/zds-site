@@ -325,11 +325,14 @@
      * Mark a message useful
      */
   $('.topic-message').on('click', "[data-ajax-input='mark-message-as-useful']", function(e) {
-    var $button = $(this)
-    var $form = $button.parents('form:first')
-    var $message = $form.parents('article')
-    var $usefulText = $message.find("[data-ajax-output='mark-message-as-useful']")
-    var csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+    const $button = $(this)
+    const $form = $button.parents('form:first')
+    const $message = $form.parents('article')
+    const $usefulText = $message.find("[data-ajax-output='mark-message-as-useful']")
+    const csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+
+    const $desktopText = $button.find('.desktop')
+    const $mobileText = $button.find('.until-desktop')
 
     $.ajax({
       url: $form.attr('action'),
@@ -339,9 +342,18 @@
       },
       success: function() {
         $message.toggleClass('helpful')
-        $button.toggleText('content-on-click')
         $usefulText.toggleClass('hidden')
         $button.blur()
+
+        // Toggle both mobile and desktop texts
+        const currentDesktopText = $desktopText.text()
+        const currentMobileText = $mobileText.text()
+
+        $desktopText.text($button.data('content-on-click'))
+        $mobileText.text($button.data('content-on-click-mobile'))
+
+        $button.data('content-on-click', currentDesktopText)
+        $button.data('content-on-click-mobile', currentMobileText)
       }
     })
 
