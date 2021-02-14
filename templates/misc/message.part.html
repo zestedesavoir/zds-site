@@ -334,7 +334,7 @@
                     {% if message.update %}
                         <li>
                             {% if not can_view_history %}
-                                {% include "misc/message_edited_by.part.html" with message=message tooltip=True tooltip_top=True short=True %}
+                                {% include "misc/message_edited_by.part.html" with message=message tooltip=True tooltip_top=True tooltip_with_editor=True short=True %}
                             {% else %}
                                 <a href="#message-update-mobile-details-{{ message.pk }}" class="open-modal" aria-haspopup="dialog">
                                     {% include "misc/message_edited_by.part.html" with message=message tooltip=False short=True %}
