@@ -11,4 +11,15 @@
     {% endif %}
 {% endcaptureas %}
 
-<time itemprop="dateModified" datetime="{{ message.update|date:"c" }}" {% if tooltip|default_if_none:True %}class="has-tooltip {% if tooltip_top %}is-tooltip-top{% else %}is-tooltip-bottom{% endif %}" aria-describedby="{{ message.update|format_date|capfirst }}"{% endif %}>{{ edited_by_text }}</time>
+<time
+    itemprop="dateModified"
+    datetime="{{ message.update|date:"c" }}"
+    {% if tooltip|default_if_none:True %}class="has-tooltip {% if tooltip_top %}is-tooltip-top{% else %}is-tooltip-bottom{% endif %} {% if tooltip_with_editor and message.editor and message.editor != message.author %}is-tooltip-multiline{% endif %}"
+    aria-describedby="{% spaceless %}
+        {% if tooltip_with_editor and message.editor and message.editor != message.author %}
+            {% blocktrans with editor=message.editor %}Par {{ editor }}, {% endblocktrans %}
+            {{ message.update|format_date }}
+        {% else %}
+            {{ message.update|format_date|capfirst }}
+        {% endif %}
+    {% endspaceless %}"{% endif %}>{{ edited_by_text }}</time>
