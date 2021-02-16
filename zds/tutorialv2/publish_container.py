@@ -20,20 +20,16 @@ def publish_use_manifest(db_object, base_dir, versionable_content: VersionedCont
     publish_container_new(db_object, base_dir, versionable_content, md[0])
 
 
-def publish_container_new(
-    db_object,
-    base_dir,
-    container: Container,
-    rendered,
-    template="tutorialv2/export/chapter.html",
-    file_ext="html",
-    **ctx
-):
+def publish_container_new(db_object, base_dir, container: Container, rendered,
+                          template="tutorialv2/export/chapter.html",
+                          file_ext="html",
+                          **ctx):
     path_to_title_dict = collections.OrderedDict()
     current_dir = path.dirname(path.join(base_dir, container.get_prod_path(relative=True)))
     if container.has_extracts():  # the container can be rendered in one template
         rendered["children"] = zip(rendered["children"], container.children)
-        args = {"container": rendered, "versioned_object": container}
+        args = {"container": rendered,
+                "versioned_object": container}
         args.update(ctx)
         parsed = render_to_string(template, args)
         write_chapter_file(
@@ -64,7 +60,9 @@ def publish_container_new(
             else:
                 parsed = rendered["introduction"]
             container.introduction = str(part_path)
-            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict)
+            write_chapter_file(
+                base_dir, container, part_path, parsed, path_to_title_dict
+            )
         children = copy.copy(container.children)
         container.children = []
         container.children_dict = {}
@@ -74,7 +72,13 @@ def publish_container_new(
             altered_version = copy.copy(child)
             container.children.append(altered_version)
             container.children_dict[altered_version.slug] = altered_version
-            result = publish_container_new(db_object, base_dir, altered_version, rendered["children"][i], **ctx)
+            result = publish_container_new(
+                db_object,
+                base_dir,
+                altered_version,
+                rendered["children"][i],
+                **ctx
+            )
             path_to_title_dict.update(result)
         if container.conclusion and container.get_conclusion():
             part_path = Path(container.get_prod_path(relative=True), "conclusion." + file_ext)
@@ -83,18 +87,20 @@ def publish_container_new(
             args["relative"] = relative_ccl_path
             parsed = rendered["conclusion"]
             container.conclusion = str(part_path)
-            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict)
+            write_chapter_file(
+                base_dir, container, part_path, parsed, path_to_title_dict
+            )
     return path_to_title_dict
 
 
 def publish_container(
-    db_object,
-    base_dir,
-    container,
-    template="tutorialv2/export/chapter.html",
-    file_ext="html",
-    image_callback=None,
-    **ctx
+        db_object,
+        base_dir,
+        container,
+        template="tutorialv2/export/chapter.html",
+        file_ext="html",
+        image_callback=None,
+        **ctx
 ):
     """'Publish' a given container, in a recursive way
 
