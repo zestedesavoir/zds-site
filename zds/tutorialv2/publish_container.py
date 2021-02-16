@@ -3,20 +3,110 @@ import contextlib
 from os import path, makedirs
 from pathlib import Path
 import copy
+
+import requests
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
+from zds.tutorialv2.models.database import PublishableContent
+from zds.tutorialv2.models.versioned import Container, VersionedContent
+from zds.tutorialv2.utils import export_content
 from zds.utils.templatetags.emarkdown import emarkdown
 
 
+def publish_use_manifest(db_object, base_dir, versionable_content: VersionedContent):
+    base_content = export_content(versionable_content, with_text=True)
+    md = requests.post("http://127.0.0.1:27272/html", json={
+        "md": base_content,
+        "opts": {
+            "stats": True,
+            "disable_jsfiddle": not db_object.js_support
+        }
+    }).json()
+    publish_container_new(db_object, base_dir, versionable_content, md[0])
+
+
+def publish_container_new(db_object, base_dir, container: Container, rendered,
+                          template="tutorialv2/export/chapter.html",
+                          file_ext="html",
+                          **ctx):
+    path_to_title_dict = collections.OrderedDict()
+    current_dir = path.dirname(path.join(base_dir, container.get_prod_path(relative=True)))
+    if container.has_extracts():  # the container can be rendered in one template
+        rendered["children"] = zip(rendered["children"], container.children)
+        args = {"container": rendered,
+                "versioned_object": container}
+        args.update(ctx)
+        parsed = render_to_string(template, args)
+        write_chapter_file(
+            base_dir,
+            container,
+            Path(container.get_prod_path(True)),
+            parsed,
+            path_to_title_dict,
+        )
+        for extract in container.children:
+            extract.text = None
+
+        container.introduction = None
+        container.conclusion = None
+
+    else:  # separate render of introduction and conclusion
+        # create subdirectory
+        if not path.isdir(current_dir):
+            makedirs(current_dir)
+        relative_ccl_path = "../" + ctx.get("relative", ".")
+        if container.introduction and container.get_introduction():
+            part_path = Path(container.get_prod_path(relative=True), "introduction." + file_ext)
+            args = {"text": container.get_introduction()}
+            args.update(ctx)
+            args["relative"] = relative_ccl_path
+            if ctx.get("intro_ccl_template", None):
+                parsed = render_to_string(ctx.get("intro_ccl_template"), args)
+            else:
+                parsed = rendered["introduction"]
+            container.introduction = str(part_path)
+            write_chapter_file(
+                base_dir, container, part_path, parsed, path_to_title_dict
+            )
+        children = copy.copy(container.children)
+        container.children = []
+        container.children_dict = {}
+        for i, child in enumerate(children):
+            if not child.ready_to_publish:
+                continue
+            altered_version = copy.copy(child)
+            container.children.append(altered_version)
+            container.children_dict[altered_version.slug] = altered_version
+            result = publish_container_new(
+                db_object,
+                base_dir,
+                altered_version,
+                rendered["children"][i],
+                **ctx
+            )
+            path_to_title_dict.update(result)
+        if container.conclusion and container.get_conclusion():
+            part_path = Path(container.get_prod_path(relative=True), "conclusion." + file_ext)
+            args = {"text": container.get_conclusion()}
+            args.update(ctx)
+            args["relative"] = relative_ccl_path
+            parsed = rendered["conclusion"]
+            container.conclusion = str(part_path)
+            write_chapter_file(
+                base_dir, container, part_path, parsed, path_to_title_dict
+            )
+    return path_to_title_dict
+
+
 def publish_container(
-    db_object,
-    base_dir,
-    container,
-    template="tutorialv2/export/chapter.html",
-    file_ext="html",
-    image_callback=None,
-    **ctx
+        db_object,
+        base_dir,
+        container,
+        template="tutorialv2/export/chapter.html",
+        file_ext="html",
+        image_callback=None,
+        **ctx
 ):
     """'Publish' a given container, in a recursive way
 

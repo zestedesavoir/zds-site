@@ -45,18 +45,26 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
 
     try:
         timeout = 10
+        real_input = str(md_input)
         if output_format.startswith("tex"):
             # latex may be really long to generate but it is also restrained by server configuration
             timeout = 120
+            # use manifest renderer
+            real_input = md_input
+        open("payload.json", "w").write(json.dumps({
+                "opts": kwargs,
+                "md": real_input,
+            }, indent=4))
         response = post(
             "{}{}".format(settings.ZDS_APP["zmd"]["server"], endpoint),
             json={
                 "opts": kwargs,
-                "md": str(md_input),
+                "md": real_input,
             },
             timeout=timeout,
         )
-    except HTTPError:
+    except HTTPError as e:
+        print('Bad http', e)
         logger.exception("An HTTP error happened, markdown rendering failed")
         log_args()
         return "", {}, []

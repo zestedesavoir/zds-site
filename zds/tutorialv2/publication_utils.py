@@ -1,5 +1,6 @@
 import contextlib
 import copy
+import json
 import logging
 import os
 import shutil
@@ -18,8 +19,9 @@ from django.conf import settings
 from zds.tutorialv2 import signals
 from zds.tutorialv2.epub_utils import build_ebook
 from zds.tutorialv2.models.database import ContentReaction, PublishedContent, PublicationEvent
-from zds.tutorialv2.publish_container import publish_container
+from zds.tutorialv2.publish_container import publish_use_manifest
 from zds.tutorialv2.signals import content_unpublished
+from zds.tutorialv2.utils import export_content
 from zds.utils.forums import send_post, lock_topic
 from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
@@ -75,7 +77,7 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     # render HTML:
     altered_version = copy.deepcopy(versioned)
-    publish_container(db_object, tmp_path, altered_version)
+    publish_use_manifest(db_object, tmp_path, altered_version)
     altered_version.dump_json(path.join(tmp_path, "manifest.json"))
 
     # make room for 'extra contents'
@@ -315,7 +317,6 @@ class ZipPublicator(Publicator):
             raise FailureDuringPublication("Zip could not be created", e)
 
 
-@PublicatorRegistry.register("html")
 class ZmarkdownHtmlPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         md_flat_content = _read_flat_markdown(md_file_path)
@@ -351,7 +352,6 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         self.latex_classes = latex_classes
 
     def publish(self, md_file_path, base_name, **kwargs):
-        md_flat_content = _read_flat_markdown(md_file_path)
         published_content_entity = self.get_published_content_entity(md_file_path)
         gallery_pk = published_content_entity.content.gallery.pk
         depth_to_size_map = {
@@ -396,7 +396,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         elif replacement_image_url.endswith("/") and not settings.MEDIA_URL.endswith("/"):
             replacement_image_url = replacement_image_url[:-1]
         content, __, messages = render_markdown(
-            md_flat_content,
+            export_content(public_versionned_source, with_text=True),
             output_format="texfile",
             # latex template arguments
             content_type=content_type,
@@ -413,6 +413,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
         zmd_class_dir_path = Path(settings.ZDS_APP["content"]["latex_template_repo"])
+
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
             with contextlib.suppress(FileExistsError):
                 zmd_class_link = base_directory / "zmdocument.cls"
