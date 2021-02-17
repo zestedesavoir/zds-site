@@ -37,6 +37,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         logger.error(f"kwargs: {kwargs!r}")
 
     inline = kwargs.get("inline", False) is True
+    full_json = kwargs.pop("full_json", False)
 
     if settings.ZDS_APP["zmd"]["disable_pings"] is True:
         kwargs["disable_ping"] = True
@@ -46,15 +47,11 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
     try:
         timeout = 10
         real_input = str(md_input)
-        if output_format.startswith("tex"):
+        if output_format.startswith("tex") or full_json:
             # latex may be really long to generate but it is also restrained by server configuration
             timeout = 120
             # use manifest renderer
             real_input = md_input
-        open("payload.json", "w").write(json.dumps({
-                "opts": kwargs,
-                "md": real_input,
-            }, indent=4))
         response = post(
             "{}{}".format(settings.ZDS_APP["zmd"]["server"], endpoint),
             json={
@@ -64,7 +61,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
             timeout=timeout,
         )
     except HTTPError as e:
-        print('Bad http', e)
+
         logger.exception("An HTTP error happened, markdown rendering failed")
         log_args()
         return "", {}, []
@@ -163,7 +160,6 @@ def emarkdown(md_input, use_jsfiddle="", **kwargs):
     :rtype: str
     """
     disable_jsfiddle = use_jsfiddle != "js"
-
     content, metadata, messages = render_markdown(
         md_input,
         on_error=lambda m: logger.error("Markdown errors %s", str(m)),
