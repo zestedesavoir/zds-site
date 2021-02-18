@@ -1,7 +1,7 @@
 import logging
 
-from django.db.models import F
 from django.conf import settings
+from django.db.models import F
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
 
