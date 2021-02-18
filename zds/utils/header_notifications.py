@@ -20,7 +20,7 @@ def _get_alert_info(alert):
         return post.topic.title, post.get_absolute_url()
     elif alert.scope == "CONTENT":
         published = PublishableContent.objects.select_related("public_version").get(pk=alert.content.pk)
-        title = (published.public_version.title if published.public_version else published.title,)
+        title = published.public_version.title if published.public_version else published.title
         url = published.get_absolute_url_online() if published.public_version else ""
         return title, url
     elif alert.scope == "PROFILE":
