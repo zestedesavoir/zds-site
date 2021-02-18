@@ -86,8 +86,8 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                 content_type=self.current_content_type, must_redirect=False
             )
             
-        if self.current_content_type == 'OPINION':
-            queryset_pagination = queryset_pagination.filter(content__sha_picked=F('sha_public'))
+            if self.current_content_type == 'OPINION':
+                queryset_pagination = queryset_pagination.filter(content__sha_picked=F("sha_public"))
 
             context["previous_content"] = (
                 queryset_pagination.filter(publication_date__lt=self.public_content_object.publication_date)
