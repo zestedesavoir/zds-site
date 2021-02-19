@@ -9,6 +9,18 @@
         .editor-toolbar {
             border: 0;
 
+            @include tablet {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                background-color: $color-body-background;
+                border-bottom: $length-1 solid $grey-200;
+                
+                ~ .CodeMirror {
+                    border-top: 0;
+                }
+            }
+
             &.disabled-for-textarea-mode {
                 button {
                     &.disable-for-textarea-mode {
