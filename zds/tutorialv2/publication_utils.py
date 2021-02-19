@@ -395,8 +395,11 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             replacement_image_url += "/"
         elif replacement_image_url.endswith("/") and not settings.MEDIA_URL.endswith("/"):
             replacement_image_url = replacement_image_url[:-1]
+        exported = export_content(public_versionned_source, with_text=True)
+        # no title to avoid zmd to put it on the final latex
+        del exported["title"]
         content, __, messages = render_markdown(
-            export_content(public_versionned_source, with_text=True),
+            exported,
             output_format="texfile",
             # latex template arguments
             content_type=content_type,
@@ -409,6 +412,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             smileys_directory=str(SMILEYS_BASE_PATH / "svg"),
             images_download_dir=str(base_directory / "images"),
             local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url],
+            heading_shift=0,
         )
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
