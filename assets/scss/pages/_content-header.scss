@@ -89,28 +89,6 @@
             margin: 0;
             padding: 0;
             font-weight: normal;
-            //font-size: 2.2rem;
-        }
-
-        button.btn, button.btn-submit, button.link, button {
-            flex-grow: 0;
-            vertical-align: middle;
-            cursor: pointer;
-            line-height: 32px;
-            height: 32px;
-        }
-
-        button.link {
-            flex-grow: 0;
-            box-sizing: border-box;
-            color: lighten($color-primary, 20%);
-            transition: color $transition-duration ease, text-decoration $transition-duration ease;
-            text-decoration: underline;
-
-            &:hover {
-                color: darken($color-secondary, 15%);
-                text-decoration: none;
-            }
         }
     }
 }

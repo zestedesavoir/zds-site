@@ -241,7 +241,6 @@
 
     .btn-inline {
         display: inline-block;
-        cursor: pointer;
     }
     .btn-no-float {
         float: none !important;
@@ -254,6 +253,17 @@
 
         &:not(.submitted){
             color: $grey-300 !important;
+        }
+    }
+
+    button.link {
+        color: $color-link;
+        text-decoration: underline;
+
+
+        &:hover {
+            color: $color-link-hover;
+            text-decoration: none;
         }
     }
 
