@@ -456,11 +456,13 @@ $logo-width: 24rem;
     }
 
     .dropdown.my-account-dropdown {
-        .dropdown-list {
-            max-height: unset;
+        @include tablet-only {
+            .dropdown-list {
+                max-height: unset;
 
-            overflow-x: unset;
-            overflow-y: unset;
+                overflow-x: unset;
+                overflow-y: unset;
+            }
         }
 
         a,
