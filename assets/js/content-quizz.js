@@ -62,16 +62,19 @@ function computeForm(formdata, answers) {
 
 function markBadAnswers(names, answers) {
   const toAdd = []
-  names.forEach(({name}) => {
+  names.forEach(({ name }) => {
     document.querySelectorAll('input[name="' + name + '"]').forEach(field => {
       if (answers[name][parseInt(field.getAttribute('value'), 10)] && !field.checked) {
         field.parentElement.classList.add('quizz-forget')
-        toAdd.push({name: name, value: field.getAttribute('value')})
+        toAdd.push({
+          name: name,
+          value: field.getAttribute('value')
+        })
       }
     })
     document.querySelector(`.custom-block[data-name=${name}]`).classList.add('quizz-bad')
   })
-  names.forEach(({name, value}) => {
+  names.forEach(({ name, value }) => {
     document.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`)
       .parentElement.classList.add('quizz-bad')
   })
@@ -94,25 +97,37 @@ document.querySelectorAll('form.quizz').forEach(form => {
         questions.push(result.name)
       }
     })
-    const statistics = {}
+    const statistics = {
+      expected: {},
+      result: {}
+    }
     Object.keys(answers).forEach(name => {
       const element = document.querySelector(`.custom-block[data-name="${name}"]`)
       const title = document.querySelector(`.custom-block[data-name="${name}"] .custom-block-heading`).textContent
+      statistics.result[title] = {
+        evaluation: 'bad',
+        labels: []
+      }
+      statistics.expected[title] = {}
+      const availableResponses = element.querySelectorAll('input')
+      for (let i = 0; i < availableResponses.length; i++) {
+        statistics.expected[title][availableResponses[i].parentElement.textContent] = answers[name][i]
+      }
+      element.querySelectorAll('input:checked')
+        .forEach(node => statistics.result[title].labels.push(node.parentElement.textContent.trim()))
       if (!element.classList.contains('quizz-bad')) {
         element.classList.add('quizz-good')
-        statistics[title] = 'ok'
-      } else {
-        statistics[title] = 'bad'
+        statistics.result[title].evaluation = 'ok'
       }
     })
-    const csrfmiddlewaretoken = document.querySelector("input[name='csrfmiddlewaretoken']").value
+    const csrfmiddlewaretoken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
     const xhttp = new XMLHttpRequest()
     xhttp.open('POST', form.getAttribute('action'))
     xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
-    xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
+    xhttp.setRequestHeader('Content-Type', 'application/json')
     xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
     statistics.url = form.parentElement.previousElementSibling.firstElementChild.href
-    xhttp.send(Object.keys(statistics).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(statistics[k])).join('&'))
+    xhttp.send(JSON.stringify(statistics))
     // here send result
     console.log(result)
   })

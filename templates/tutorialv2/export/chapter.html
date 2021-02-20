@@ -28,7 +28,7 @@
     {% if rendered_extract.text %}
         <div class="extract-wrapper {% if rendered_extract.is_quizz %}quizz{% endif %}">
             {% if rendered_extract.is_quizz %}
-                <form action="{% url 'content:answer-quizz' content.pk public_content.content_public_slug %}" class="quizz">
+                <form action="{% url 'content:answer-quizz' content.pk content.slug %}" class="quizz">
             {% endif %}
             {{ rendered_extract.get_text|emarkdown:is_js }}
             {% if rendered_extract.is_quizz %}
