@@ -25,7 +25,14 @@
 
 {% ifchanged %}
 {% if message_is_hidden and message.pk != topic.first_post.pk %}
-    <div class="msg-are-hidden hidden" aria-hidden="true"><a class="link" href="#show">{% trans "Un ou plusieurs messages ont été masqués" %}</a></div>
+    <div class="msg-are-hidden hidden" aria-hidden="true">
+        <a class="link"
+           href="#show"
+           data-message-singular="{% trans "Un message a été masqué" %}"
+           data-message-plural="{% trans "{n} messages ont été masqués" %}">
+            {% trans "Un ou plusieurs messages ont été masqués" %}
+        </a>
+    </div>
 {% endif %}
 {% endifchanged %}
 
