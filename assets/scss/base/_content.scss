@@ -52,12 +52,18 @@ h2 {
     }
 
     .actions-title {
+        display: flex;
+
         margin: 0 $length-10;
+
+        @include mobile {
+            flex-direction: column;
+        }
 
         .btn {
             height: $length-32;
 
-            margin-left: $length-4;
+            margin: $length-2;
 
             background-color: $grey-100;
             color: $grey-600;
