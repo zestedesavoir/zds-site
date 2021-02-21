@@ -379,11 +379,11 @@ div.msg-are-hidden {
                         transition: $transition-duration ease-in-out;
                         transition-property: min-width, width, box-shadow;
 
-                        @include tiny {
+                        @include mobile {
                             width: 0;
                             min-width: $length-64;
 
-                            span {
+                            span, a:after {
                                 display: none;
                             }
                         }
@@ -448,6 +448,7 @@ div.msg-are-hidden {
 
                                 color: $grey-500;
                                 font-size: $font-size-9;
+                                font-weight: bold;
 
                                 line-height: .8;
                             }
@@ -492,9 +493,13 @@ div.msg-are-hidden {
                         li {
                             min-width: $length-192;
 
-                            @include tiny {
+                            @include mobile {
                                 span {
                                     display: inline;
+                                }
+
+                                a:after {
+                                    display: block;
                                 }
                             }
 
