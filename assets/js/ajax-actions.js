@@ -314,9 +314,9 @@
 
     // scroll to the textarea
     if (localStorage.getItem('editor_choice') === 'new') {
-      $('html, body').animate({ scrollTop: $(editor).siblings('.CodeMirror').offset().top }, 500)
+      $('html, body').animate({ scrollTop: $(editor).siblings('.CodeMirror').top }, 500)
     } else {
-      $('html, body').animate({ scrollTop: $(editor).offset().top }, 500)
+      $('html, body').animate({ scrollTop: $(editor).top }, 500)
       editor.focus()
     }
   })
