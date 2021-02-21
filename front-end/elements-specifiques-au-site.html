@@ -107,6 +107,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#api-javascript-pour-manipuler-les-modales">API Javascript pour manipuler les modales</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#les-infobulles-css">Les infobulles CSS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#la-lecture-zen">La lecture zen</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#les-boites-representant-les-contenus-et-les-derniers-sujets">Les boîtes représentant les contenus et les derniers sujets</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#importation-dans-un-gabarit">Importation dans un gabarit</a></li>
@@ -310,17 +311,58 @@ de l’attribut (ici <code class="docutils literal notranslate"><span class="pre
 </div>
 </div>
 </div>
+<div class="section" id="les-infobulles-css">
+<h2>Les infobulles CSS<a class="headerlink" href="#les-infobulles-css" title="Lien permanent vers ce titre">¶</a></h2>
+<p>À ne pas confondre avec <a class="reference external" href="helpers-js.html#tooltip">les infobulles en JavaScript</a>, les infobulles CSS ont la même apparence
+mais sont beaucoup plus légères et simples à utiliser. Par contre, elles ne peuvent contenir de contenu HTML riche, ni ne
+réagir au clic. Elles sont donc efficaces pour des infobulles purement informatives, mais qui sont suffisamment importantes
+pour être affichées directement au survol, et non en attendant une seconde ou deux (comme un attribut <code class="docutils literal notranslate"><span class="pre">title</span></code>).</p>
+<p>Pour ajouter une infobulle CSS sur un élément, ajoutez simplement la classe <code class="docutils literal notranslate"><span class="pre">has-tooltip</span></code> à l’élément, assortie de l’attribut
+<code class="docutils literal notranslate"><span class="pre">aria-describedby</span></code> contenant le texte de l’infobulle.</p>
+<p>Par exemple :</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;has-tooltip is-tooltip-bottom&quot;</span> <span class="na">aria-describedby</span><span class="o">=</span><span class="s">&quot;Jeudi 31 décembre 2020 à 14h02&quot;</span><span class="p">&gt;</span>
+    Modifié par staff
+<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>donnera, au survol :</p>
+<div class="figure align-center" id="id2">
+<img alt="../_images/infobulle-css.png" src="../_images/infobulle-css.png" />
+<p class="caption"><span class="caption-text">Une belle infobulle</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>S’il ne fait pas sens d’utiliser l’attribut <code class="docutils literal notranslate"><span class="pre">aria-describedby</span></code> dans le contexte de l’infobulle, il est également
+possible d’utiliser :</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">aria-label</span></code>, si tout l’élément est décrit par l’infobulle, et que l’élément lui-même ne contient pas de texte
+(par exemple pour une icône) ;</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data-tooltip</span></code>, si rien d’autre ne convient. Attention : le texte de l’infobulle ne sera alors pas accessible.
+Vous ne devriez jamais avoir à utiliser cela.</p></li>
+</ul>
+</div>
+<p>L’infobulle sera affichée au survol. Si besoin, elle peut également être affichée programmatiquement en ajoutant la classe
+CSS <code class="docutils literal notranslate"><span class="pre">is-tooltip-active</span></code> à l’élément.</p>
+<p>Il est possible de contrôler la position de l’infobulle à l’aide des classes <code class="docutils literal notranslate"><span class="pre">is-tooltip-right</span></code>, <code class="docutils literal notranslate"><span class="pre">is-tooltip-left</span></code> et
+<code class="docutils literal notranslate"><span class="pre">is-tooltip-bottom</span></code>. Par défaut, l’infobulle est affichée au dessus de l’élément.</p>
+<p>S’il vous faut afficher un texte un peu long sur l’infobulle, qui ne rentre pas en une seule ligne, ajoutez la classe
+<code class="docutils literal notranslate"><span class="pre">is-tooltip-multiline</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Ce module est une reprise adaptée de <code class="docutils literal notranslate"><span class="pre">bulma-tooltip</span></code> <a class="reference external" href="https://wikiki.github.io/elements/tooltip/">de Wikiki</a>.</p>
+</div>
+</div>
 <div class="section" id="la-lecture-zen">
 <h2>La lecture zen<a class="headerlink" href="#la-lecture-zen" title="Lien permanent vers ce titre">¶</a></h2>
 <p>La lecture zen est un mode d’affichage des tutoriels et des articles permettant à l’utilisateur de se concentrer sur sa lecture.
 Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le contenu principal.</p>
-<div class="figure align-center" id="id2">
-<img alt="../_images/lecture-zen_off.png" src="../_images/lecture-zen_off.png" />
-<p class="caption"><span class="caption-text">Un tutoriel sans lecture zen</span><a class="headerlink" href="#id2" title="Lien permanent vers cette image">¶</a></p>
-</div>
 <div class="figure align-center" id="id3">
+<img alt="../_images/lecture-zen_off.png" src="../_images/lecture-zen_off.png" />
+<p class="caption"><span class="caption-text">Un tutoriel sans lecture zen</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+</div>
+<div class="figure align-center" id="id4">
 <img alt="../_images/lecture-zen_on.png" src="../_images/lecture-zen_on.png" />
-<p class="caption"><span class="caption-text">Ce même tutoriel avec lecture zen</span><a class="headerlink" href="#id3" title="Lien permanent vers cette image">¶</a></p>
+<p class="caption"><span class="caption-text">Ce même tutoriel avec lecture zen</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
 </div>
 <p>Pour avoir la lecture zen, il suffit d’inclure le bouton « Lecture zen » là où vous voulez :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/zen_button.part.html&quot;</span> <span class="cp">%}</span>
@@ -332,9 +374,9 @@ Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le 
 <h2>Les boîtes représentant les contenus et les derniers sujets<a class="headerlink" href="#les-boites-representant-les-contenus-et-les-derniers-sujets" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d’accueil sont représentés dans des boîtes
 les résumant.</p>
-<div class="figure align-center" id="id4">
+<div class="figure align-center" id="id5">
 <img alt="../_images/item-contenu.png" src="../_images/item-contenu.png" />
-<p class="caption"><span class="caption-text">En voici un exemple</span><a class="headerlink" href="#id4" title="Lien permanent vers cette image">¶</a></p>
+<p class="caption"><span class="caption-text">En voici un exemple</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
 </div>
 <div class="section" id="importation-dans-un-gabarit">
 <h3>Importation dans un gabarit<a class="headerlink" href="#importation-dans-un-gabarit" title="Lien permanent vers ce titre">¶</a></h3>
@@ -378,9 +420,9 @@ les résumant.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;tutorialv2/includes/content_item_type_tutoriel.part.html&quot;</span> <span class="k">with</span> <span class="nv">tutorial</span><span class="o">=</span><span class="nv">tutorial</span> <span class="nv">type</span><span class="o">=</span><span class="s2">&quot;beta&quot;</span> <span class="nv">item_class</span><span class="o">=</span><span class="s2">&quot;mini&quot;</span> <span class="cp">%}</span>
 </pre></div>
 </div>
-<div class="figure align-center" id="id5">
+<div class="figure align-center" id="id6">
 <img alt="../_images/item-contenu-mini.png" src="../_images/item-contenu-mini.png" />
-<p class="caption"><span class="caption-text">Voici deux tutoriels en taille réduite</span><a class="headerlink" href="#id5" title="Lien permanent vers cette image">¶</a></p>
+<p class="caption"><span class="caption-text">Voici deux tutoriels en taille réduite</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
 </div>
 </div>
 <div class="section" id="sujet">
@@ -405,9 +447,9 @@ les résumant.</p>
 <span class="p">|</span>           Tutoriel            <span class="p">|</span>
 </pre></div>
 </div>
-<div class="figure align-center" id="id6">
+<div class="figure align-center" id="id7">
 <img alt="../_images/item-contenu-sans-fill.png" src="../_images/item-contenu-sans-fill.png" />
-<p class="caption"><span class="caption-text">Voici trois tutoriels sur deux colonnes avec le problème</span><a class="headerlink" href="#id6" title="Lien permanent vers cette image">¶</a></p>
+<p class="caption"><span class="caption-text">Voici trois tutoriels sur deux colonnes avec le problème</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
 </div>
 <p>Pour y remédier, il faut toujours mettre à la fin de votre liste d’articles trois <code class="docutils literal notranslate"><span class="pre">&lt;div</span> <span class="pre">class=&quot;fill&quot;&gt;&lt;/div&gt;</span></code>. Cela donne au final ceci :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;content-item-list&quot;</span><span class="p">&gt;</span>
@@ -418,9 +460,9 @@ les résumant.</p>
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </pre></div>
 </div>
-<div class="figure align-center" id="id7">
+<div class="figure align-center" id="id8">
 <img alt="../_images/item-contenu-avec-fill.png" src="../_images/item-contenu-avec-fill.png" />
-<p class="caption"><span class="caption-text">Voici trois tutoriels sur deux colonnes sans le problème</span><a class="headerlink" href="#id7" title="Lien permanent vers cette image">¶</a></p>
+<p class="caption"><span class="caption-text">Voici trois tutoriels sur deux colonnes sans le problème</span><a class="headerlink" href="#id8" title="Lien permanent vers cette image">¶</a></p>
 </div>
 <p>(Pour l’explication technique, c’est dû à l’utilisation de <em>flexbox</em>.)</p>
 <p>Si vous voulez mettre plusieurs listes de contenus, avec des titres, vous pouvez grouper chaque titre + liste dans une

@@ -128,6 +128,54 @@ Il est possible de créer des modales en Javascript. Exemple:
   Modal.current; // Contient la modale courante (utile pour savoir si une modale est ouverte)
   Modal.closeCurrent(); // Ferme la modale courante
 
+Les infobulles CSS
+==================
+
+À ne pas confondre avec `les infobulles en JavaScript <helpers-js.html#tooltip>`_, les infobulles CSS ont la même apparence
+mais sont beaucoup plus légères et simples à utiliser. Par contre, elles ne peuvent contenir de contenu HTML riche, ni ne
+réagir au clic. Elles sont donc efficaces pour des infobulles purement informatives, mais qui sont suffisamment importantes
+pour être affichées directement au survol, et non en attendant une seconde ou deux (comme un attribut ``title``).
+
+Pour ajouter une infobulle CSS sur un élément, ajoutez simplement la classe ``has-tooltip`` à l'élément, assortie de l'attribut
+``aria-describedby`` contenant le texte de l'infobulle.
+
+Par exemple :
+
+.. sourcecode:: html
+
+   <span class="has-tooltip is-tooltip-bottom" aria-describedby="Jeudi 31 décembre 2020 à 14h02">
+       Modifié par staff
+   </span>
+
+donnera, au survol :
+
+.. figure:: ../images/design/infobulle-css.png
+   :align: center
+
+   Une belle infobulle
+
+.. note::
+
+   S'il ne fait pas sens d'utiliser l'attribut ``aria-describedby`` dans le contexte de l'infobulle, il est également
+   possible d'utiliser :
+
+   - ``aria-label``, si tout l'élément est décrit par l'infobulle, et que l'élément lui-même ne contient pas de texte
+     (par exemple pour une icône) ;
+   - ``data-tooltip``, si rien d'autre ne convient. Attention : le texte de l'infobulle ne sera alors pas accessible.
+     Vous ne devriez jamais avoir à utiliser cela.
+
+L'infobulle sera affichée au survol. Si besoin, elle peut également être affichée programmatiquement en ajoutant la classe
+CSS ``is-tooltip-active`` à l'élément.
+
+Il est possible de contrôler la position de l'infobulle à l'aide des classes ``is-tooltip-right``, ``is-tooltip-left`` et
+``is-tooltip-bottom``. Par défaut, l'infobulle est affichée au dessus de l'élément.
+
+S'il vous faut afficher un texte un peu long sur l'infobulle, qui ne rentre pas en une seule ligne, ajoutez la classe
+``is-tooltip-multiline``.
+
+.. note::
+
+   Ce module est une reprise adaptée de ``bulma-tooltip`` `de Wikiki <https://wikiki.github.io/elements/tooltip/>`_.
 
 La lecture zen
 ==============
@@ -471,4 +519,3 @@ Par exemple, pour activer les changements ``snow`` et ``clem-christmas``, il fau
 .. sourcecode:: python
 
     ZDS_APP['visual_changes'] = ['snow', 'clem-christmas']
-

@@ -106,6 +106,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#si-vous-etiez-habituee-a-l-ancien-systeme">Si vous étiez habitué⋅e à l’ancien système…</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#listes-au-format-horizontal-horizontal-list">Listes au format horizontal (<code class="docutils literal notranslate"><span class="pre">horizontal-list</span></code>)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="interface-utilisateur.html">Interface utilisateur</a></li>
@@ -195,6 +196,7 @@ afin d’adapter l’interface du site aux différents appareils du marché.</p>
 <p>Tout d’abord, des variables SCSS définissent différents points d’arrêt entre
 plusieurs types d’écran :</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">$tiny</span></code> : largeur maximale des très très petits écrans (penser iPhone SE) (419 px) ;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">$tablet</span></code> : largeur minimale des tablettes (769 pixels) ;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">$desktop</span></code> : largeur minimale d’un écran d’ordinateur classique (1024 pixels) ;</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">$wide</span></code> : largeur minimale d’un écran large (1216 pixels) ;</p></li>
@@ -249,6 +251,11 @@ haut.</p>
 <p>Pour des raisons de cohérence, et sauf si vous avez une bonne raison de faire autrement (par exemple, en cas de besoin d’un point d’arrêt très spécifique), utilisez toujours ces <em>mixins</em> pour insérer un code CSS spécifique à une largeur d’écran.</p>
 </div>
 <ul>
+<li><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">tiny</span></code> : les très petits appareils mobiles.</div>
+<div class="line"><em>0 → 418 pixels</em></div>
+</div>
+</li>
 <li><div class="line-block">
 <div class="line"><code class="docutils literal notranslate"><span class="pre">mobile</span></code> : les appareils mobiles.</div>
 <div class="line"><em>0 → 768 pixels</em></div>
@@ -347,6 +354,36 @@ mêmes non plus.</p>
 </tr>
 </tbody>
 </table>
+</div>
+</div>
+<div class="section" id="listes-au-format-horizontal-horizontal-list">
+<h2>Listes au format horizontal (<code class="docutils literal notranslate"><span class="pre">horizontal-list</span></code>)<a class="headerlink" href="#listes-au-format-horizontal-horizontal-list" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Cette mixin CSS sert à transformer n’importe quelle liste (numérotée ou non, de toute façon les puces seront masquées)
+en liste horizontale.</p>
+<p>Conceptuellement, une liste de ce genre :</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">ul</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;my-horizontal-list&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Premier<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Second<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Troisième<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>avec le CSS suivant :</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.my-horizontal-list</span> <span class="p">{</span>
+    <span class="k">@include</span><span class="nd"> horizontal-list</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>sera affichée ainsi si cette mixin est appliquée.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Premier • Second • Troisième
+</pre></div>
+</div>
+<p>Vous pouvez personnaliser le séparateur ainsi que la distance entre les éléments. Par défaut, une puce (<code class="docutils literal notranslate"><span class="pre">•</span></code>) et une
+distance de 16 sont utilisées.</p>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.my-horizontal-list</span> <span class="p">{</span>
+    <span class="k">@include</span><span class="nd"> horizontal-list</span><span class="p">(</span><span class="nv">$gap</span><span class="o">:</span> <span class="nv">$length-32</span><span class="o">,</span> <span class="nv">$separator</span><span class="o">:</span> <span class="s2">&quot; — &quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>
