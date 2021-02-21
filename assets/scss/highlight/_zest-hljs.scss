@@ -3,13 +3,13 @@
 /* Itself based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
 /* @author: Amaury Carrade */
 
-/* Comment */
+// Comment
 .hljs-comment,
 .hljs-quote {
   color: $grey-600;
 }
 
-/* Red */
+// Red
 .hljs-variable,
 .hljs-template-variable,
 .hljs-tag,
@@ -21,7 +21,7 @@
   color: $red-600;
 }
 
-/* Orange */
+// Orange
 .hljs-built_in,
 .hljs-builtin-name,
 .hljs-literal,
@@ -32,12 +32,12 @@
   color: $accent-900;
 }
 
-/* Yellow */
+// Yellow
 .hljs-attribute {
   color: $accent-800;
 }
 
-/* Green */
+// Green
 .hljs-string,
 .hljs-symbol,
 .hljs-bullet,
@@ -45,25 +45,29 @@
   color: $green-700;
 }
 
-/* Blue */
+// Blue
 .hljs-number,
 .hljs-title,
 .hljs-section {
   color: $primary-600;
 }
 
-/* Purple */
+// Purple
 .hljs-keyword,
 .hljs-selector-tag {
   color: $purple-800;
 }
 
+// The whole code
 .hljs {
   display: block;
   overflow-x: auto;
-  background: #fefefe;
-  color: #545454;
   padding: 0.5em;
+
+  background: $true-white;
+  color: $grey-800;
+
+  font-weight: 500;
 }
 
 .hljs-emphasis {
