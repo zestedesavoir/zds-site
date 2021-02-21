@@ -382,7 +382,11 @@
       autosave: {
         enabled: true,
         uniqueId: mdeUniqueKey,
-        delay: 1000
+        delay: 1000,
+        timeFormat: {
+          locale: 'fr'
+        },
+        text: 'Sauvegardé à '
       },
       indentWithTabs: false,
       minHeight: minHeight + 'px',
