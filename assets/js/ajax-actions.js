@@ -346,14 +346,18 @@
         $button.blur()
 
         // Toggle both mobile and desktop texts
-        const currentDesktopText = $desktopText.text()
-        const currentMobileText = $mobileText.text()
+        if ($desktopText.length !== 0 && $mobileText.length !== 0) {
+          const currentDesktopText = $desktopText.text()
+          const currentMobileText = $mobileText.text()
 
-        $desktopText.text($button.data('content-on-click'))
-        $mobileText.text($button.data('content-on-click-mobile'))
+          $desktopText.text($button.data('content-on-click'))
+          $mobileText.text($button.data('content-on-click-mobile'))
 
-        $button.data('content-on-click', currentDesktopText)
-        $button.data('content-on-click-mobile', currentMobileText)
+          $button.data('content-on-click', currentDesktopText)
+          $button.data('content-on-click-mobile', currentMobileText)
+        } else {
+          $button.toggleText('content-on-click')
+        }
       }
     })
 
