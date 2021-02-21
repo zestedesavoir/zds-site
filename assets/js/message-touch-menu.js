@@ -5,12 +5,12 @@
 
   // On touch-sensitive devices, we force the menu to be opened at the first
   // touch, to prevent the first item from being triggered.
-  for (const handle of messagesActionsHandles) {
-    const messageActionsElement = handle.parentElement
+  for (const handleElement of messagesActionsHandles) {
+    const messageActionsElement = handleElement.parentElement
 
     // We open the menu if we touch one of its item and it is not already open.
 
-    handle.addEventListener('touchend', e => {
+    handleElement.addEventListener('touchend', e => {
       if (!messageActionsElement.classList.contains('is-active')) {
         e.preventDefault()
         messageActionsElement.classList.add('is-active')
@@ -24,8 +24,11 @@
         e.preventDefault()
         messageActionsElement.classList.remove('is-active')
 
-        // We also remove focus from the first element, if any.
-        handle.querySelector(':first-child').blur()
+        // We also remove focus from the first element, if any, and from the
+        // menu itself, so it closes.
+        handleElement.querySelector(':first-child').blur()
+        handleElement.blur()
+        messageActionsElement.blur()
       }
     })
   }
