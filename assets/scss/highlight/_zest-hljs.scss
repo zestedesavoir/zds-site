@@ -48,10 +48,13 @@
 }
 
 // Blue
-.hljs-number,
 .hljs-title,
 .hljs-section {
   color: $primary-600;
+}
+
+.hljs-number {
+  color: $blue-400;
 }
 
 // Purple
