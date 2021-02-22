@@ -182,7 +182,7 @@ function prepareZmd() {
 
 // Prepares files for easy mde
 function prepareEasyMde() {
-  return gulp.src(['node_modules/easymde/dist/easymde.min.css', 'node_modules/codemirror/theme/idea.css'])
+  return gulp.src(['node_modules/easymde/dist/easymde.min.css'])
     .pipe(gulp.dest('dist/css/'))
 }
 

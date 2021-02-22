@@ -406,7 +406,7 @@
       nativeSpellcheck: true,
       sideBySideFullscreen: false,
       promptAbbrv: true,
-      theme: 'idea',
+      theme: 'zest',
       previewRender: customMarkdownParser,
       syncSideBySidePreviewScroll: false,
       toolbar: [
