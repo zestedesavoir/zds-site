@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="fr" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Les pages (pages/) &mdash; Documentation Zeste de Savoir dev</title>
   
@@ -16,7 +16,10 @@
 
   
   
+
   
+  
+
   
 
   
@@ -29,7 +32,6 @@
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script src="../_static/translations.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -52,7 +54,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Zeste de Savoir
+            <a href="../index.html" class="icon icon-home"> Zeste de Savoir
           
 
           
@@ -153,6 +155,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -166,7 +170,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/back-end-code/pages.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -197,16 +201,16 @@
 <span id="vues-views-py"></span><h2><a class="toc-backref" href="#id2">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.pages.views" title="Lien permanent vers ce titre">¶</a></h2>
 <dl class="py class">
 <dt id="zds.pages.views.CommentEditsHistory">
-<em class="property">class </em><code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">CommentEditsHistory</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.CommentEditsHistory" title="Lien permanent vers cette définition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">CommentEditsHistory</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.CommentEditsHistory" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><dl class="py method">
 <dt id="zds.pages.views.CommentEditsHistory.get_context_data">
-<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.CommentEditsHistory.get_context_data" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_context_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.CommentEditsHistory.get_context_data" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Get the context for this view.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="zds.pages.views.CommentEditsHistory.get_queryset">
-<code class="sig-name descname">get_queryset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.CommentEditsHistory.get_queryset" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_queryset</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.CommentEditsHistory.get_queryset" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Return the list of items for this view.</p>
 <p>The return value must be an iterable and may be an instance of
 <cite>QuerySet</cite> in which case <cite>QuerySet</cite> specific behavior will be enabled.</p>
@@ -214,74 +218,74 @@
 
 <dl class="py attribute">
 <dt id="zds.pages.views.CommentEditsHistory.model">
-<code class="sig-name descname">model</code><a class="headerlink" href="#zds.pages.views.CommentEditsHistory.model" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>alias de <a class="reference internal" href="utils.html#zds.utils.models.CommentEdit" title="zds.utils.models.CommentEdit"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.utils.models.CommentEdit</span></code></a></p>
+<code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#zds.pages.views.CommentEditsHistory.model" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="utils.html#zds.utils.models.CommentEdit" title="zds.utils.models.CommentEdit"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.utils.models.CommentEdit</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="zds.pages.views.ContactView">
-<em class="property">class </em><code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">ContactView</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.ContactView" title="Lien permanent vers cette définition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">ContactView</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.ContactView" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Display contact page.</p>
 <dl class="py attribute">
 <dt id="zds.pages.views.ContactView.model">
-<code class="sig-name descname">model</code><a class="headerlink" href="#zds.pages.views.ContactView.model" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.pages.models.GroupContact</span></code></p>
+<code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#zds.pages.views.ContactView.model" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.pages.models.GroupContact</span></code></p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="zds.pages.views.EditDetail">
-<em class="property">class </em><code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">EditDetail</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.EditDetail" title="Lien permanent vers cette définition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">EditDetail</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.EditDetail" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><dl class="py method">
 <dt id="zds.pages.views.EditDetail.get_context_data">
-<code class="sig-name descname">get_context_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.EditDetail.get_context_data" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_context_data</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.EditDetail.get_context_data" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Insert the single object into the context dict.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="zds.pages.views.EditDetail.model">
-<code class="sig-name descname">model</code><a class="headerlink" href="#zds.pages.views.EditDetail.model" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>alias de <a class="reference internal" href="utils.html#zds.utils.models.CommentEdit" title="zds.utils.models.CommentEdit"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.utils.models.CommentEdit</span></code></a></p>
+<code class="sig-name descname"><span class="pre">model</span></code><a class="headerlink" href="#zds.pages.views.EditDetail.model" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="utils.html#zds.utils.models.CommentEdit" title="zds.utils.models.CommentEdit"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.utils.models.CommentEdit</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py function">
 <dt id="zds.pages.views.about">
-<code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">about</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.about" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">about</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.about" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Display many informations about the website.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="zds.pages.views.association">
-<code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">association</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.association" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">association</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.association" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Display association’s presentation.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="zds.pages.views.cookies">
-<code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">cookies</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.cookies" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">cookies</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.cookies" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Cookies explanation page.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="zds.pages.views.custom_error_500">
-<code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">custom_error_500</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.custom_error_500" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">custom_error_500</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.custom_error_500" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Custom view for 500 errors</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="zds.pages.views.eula">
-<code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">eula</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.eula" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">eula</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.eula" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>End-User Licence Agreement.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="zds.pages.views.home">
-<code class="sig-prename descclassname">zds.pages.views.</code><code class="sig-name descname">home</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">request</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.home" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.pages.views.</span></code><code class="sig-name descname"><span class="pre">home</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.pages.views.home" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Display the home page with last topics added.</p>
 </dd></dl>
 
@@ -293,37 +297,29 @@
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="private-message.html" class="btn btn-neutral float-right" title="Les messages privés (mp/)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="member.html" class="btn btn-neutral float-left" title="Les membres (member/)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="private-message.html" class="btn btn-neutral float-right" title="Les messages privés (mp/)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="member.html" class="btn btn-neutral float-left" title="Les membres (member/)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2014-2021, Zeste de Savoir
+        &#169; Copyright 2014-2021, Zeste de Savoir.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 
