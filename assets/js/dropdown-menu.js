@@ -14,7 +14,7 @@
     return $('.header-menu').is('[data-hovering-mode]')
   }
 
-  var handlers = $('.dropdown')
+  var handlers = $('.header-dropdown')
     .map(function(_, dropdown) {
       return setupDropdown($(dropdown))
     })
