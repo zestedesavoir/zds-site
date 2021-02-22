@@ -1,82 +1,78 @@
 $dropdown-offset-right: 6px;
 
 details.dropdown {
-	position: relative;
+    position: relative;
 
-	summary {
-		height: $length-32;
-		padding-right: $length-16;
-		padding-left: $length-16;
+    summary {
+        height: $length-32;
+        padding-right: $length-16;
+        padding-left: $length-16;
 
-		appearance: none;
+        appearance: none;
 
-		&::marker {
-			content: '…';
+        &::marker {
+            content: '…';
 
-			position: absolute;
+            position: absolute;
 
-			top: 0;
-			right: 0;
+            top: 0;
+            right: 0;
 
-			padding: $length-6;
-			padding-right: $length-16;
+            padding: $length-6;
+            padding-right: $length-16;
 
-			color: $grey-500;
-			font-size: $font-size-9;
-			font-weight: bold;
+            color: $grey-500;
+            font-size: $font-size-9;
+            font-weight: bold;
 
-			line-height: .8;
-		}
-	}
+            line-height: .8;
+        }
+    }
 
-	&[open] {
-		summary {
-			&::before {
-				content: '';
-				position: fixed;
-				top: 0;
-				right: 0;
-				bottom: 0;
-				left: 0;
-			}
-		}
-	}
+    &[open] summary::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
 
-	.dropdown-content {
-		position: absolute;
-		top: $length-32;
-		right: $dropdown-offset-right;
+    .dropdown-content {
+        position: absolute;
+        top: $length-32;
+        right: $dropdown-offset-right;
 
-		margin: 0;
-		padding: 0;
+        margin: 0;
+        padding: 0;
 
-		z-index: 21;
+        z-index: 21;
 
-		@include shadow-2;
+        @include shadow-2;
 
-		&::before,
-		&::after {
-			content: " ";
-			position: absolute;
-			display: block;
-			width: 0;
-			height: 0;
-			border: 10px solid transparent;
-			border-top: 0;
-		}
-		&::before {
-			top: -10px;
-			right: #{14px - $dropdown-offset-right};
-			border-width: 10px;
-			border-top: 0;
-			border-bottom-color: hsla(0, 0%, 0%, .04);
-		}
-		&::after {
-			top: -9px;
-			right: #{15px - $dropdown-offset-right};
-			border-width: 9px;
-			border-top: 0;
-			border-bottom-color: #fff;
-		}
-	}
+        &::before,
+        &::after {
+            content: " ";
+            position: absolute;
+            display: block;
+            width: 0;
+            height: 0;
+            border: 10px solid transparent;
+            border-top: 0;
+        }
+        &::before {
+            top: -10px;
+            right: #{14px - $dropdown-offset-right};
+            border-width: 10px;
+            border-top: 0;
+            border-bottom-color: hsla(0, 0%, 0%, .04);
+        }
+        &::after {
+            top: -9px;
+            right: #{15px - $dropdown-offset-right};
+            border-width: 9px;
+            border-top: 0;
+            border-bottom-color: #fff;
+        }
+    }
 }

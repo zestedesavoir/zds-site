@@ -178,13 +178,13 @@ S'il vous faut afficher un texte un peu long sur l'infobulle, qui ne rentre pas 
    Ce module est une reprise adaptée de ``bulma-tooltip`` `de Wikiki <https://wikiki.github.io/elements/tooltip/>`_.
 
 Les menus déroulants (ou dropdown)
-==================
+==================================
 
-À ne pas confondre avec `header-dropdown`, ces menus déroulants ne requièrent aucun JS pour fonctionner mais se reposent sur la balise ``<details>``
+À ne pas confondre avec ``header-dropdown``, ces menus déroulants ne requièrent aucun JS pour fonctionner mais se reposent sur la balise ``<details>``.
 
 Pour créer un menu déroulant, utilisez simplement la classe ``dropdown`` à l'élément ``<details>``, en utilisant la balise ``<summary>`` pour fournir un texte alternatif au ``…`` affiché par défaut.
 
-La class ``.dropdown-content`` permet de grouper le contenu pour le positionner.
+La classe ``.dropdown-content`` permet de grouper le contenu pour le positionner.
 
 Par exemple :
 
