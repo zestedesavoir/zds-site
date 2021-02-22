@@ -12,7 +12,7 @@
 
   function accessibility(element) {
     element.addEventListener('focus', () => {
-      Array.from(document.querySelectorAll('.dropdown'))
+      Array.from(document.querySelectorAll('.header-dropdown'))
         .filter(item => !isHidden(item))
         .forEach(item => item.parentElement.querySelector('.active').classList.remove('active'))
       document.querySelector('#accessibility').classList.add('focused')

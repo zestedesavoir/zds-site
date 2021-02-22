@@ -12,7 +12,7 @@ $logo-width: 24rem;
         @include desktop {
             padding: 0 $length-20;
 
-            .header-right .dropdown {
+            .header-right .header-dropdown {
                 right: $length-20;
             }
         }
@@ -268,14 +268,14 @@ $logo-width: 24rem;
         }
     }
 
-    .dropdown {
+    .header-dropdown {
         overflow: hidden;
 
         @include mobile {
             top: $length-48;
             height: calc(100vh - #{$length-48});
 
-            @at-root body.has-top-banner .logbox .dropdown {
+            @at-root body.has-top-banner .logbox .header-dropdown {
                 height: calc(100vh - #{$length-48 + $length-24});
             }
         }
@@ -455,7 +455,7 @@ $logo-width: 24rem;
         }
     }
 
-    .dropdown.my-account-dropdown {
+    .header-dropdown.my-account-dropdown {
         @include tablet-only {
             .dropdown-list {
                 max-height: unset;
@@ -543,7 +543,7 @@ $logo-width: 24rem;
                 width: 100%;
             }
 
-            .dropdown {
+            .header-dropdown {
                 top: $length-48 - $length-1;
             }
 
@@ -554,7 +554,7 @@ $logo-width: 24rem;
                 width: $length-48;
             }
 
-            .dropdown.my-account-dropdown .dropdown-list {
+            .header-dropdown.my-account-dropdown .dropdown-list {
                 bottom: 0;
 
                 li {
@@ -635,11 +635,11 @@ $logo-width: 24rem;
         text-align: left;
     }
 
-    .dropdown {
+    .header-dropdown {
         top: $header-height;
     }
 
-    .logbox .dropdown.my-account-dropdown ul li {
+    .logbox .header-dropdown.my-account-dropdown ul li {
         height: $length-32;
         line-height: $length-32;
 
