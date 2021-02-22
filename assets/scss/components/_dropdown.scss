@@ -1,3 +1,5 @@
+$dropdown-offset-right: 6px;
+
 details.dropdown {
 	position: relative;
 
@@ -41,11 +43,9 @@ details.dropdown {
 	}
 
 	.dropdown-content {
-		$message-option-offset-right: 6px;
-
 		position: absolute;
 		top: $length-32;
-		right: $message-option-offset-right;
+		right: $dropdown-offset-right;
 
 		margin: 0;
 		padding: 0;
@@ -66,14 +66,14 @@ details.dropdown {
 		}
 		&::before {
 			top: -10px;
-			right: #{14px - $message-option-offset-right};
+			right: #{14px - $dropdown-offset-right};
 			border-width: 10px;
 			border-top: 0;
 			border-bottom-color: hsla(0, 0%, 0%, .04);
 		}
 		&::after {
 			top: -9px;
-			right: #{15px - $message-option-offset-right};
+			right: #{15px - $dropdown-offset-right};
 			border-width: 9px;
 			border-top: 0;
 			border-bottom-color: #fff;
