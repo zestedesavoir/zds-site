@@ -1,0 +1,136 @@
+/* Zeste de Savoir CodeMirror theme */
+/* Based on a11y-light theme by ericwbailey: https://github.com/highlightjs/highlight.js/blob/35cd46312bf3e898471617c47d52f9528fedd763/src/styles/a11y-light.css */
+/* Itself based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
+/* @author: Amaury Carrade */
+
+.cm-s-zest {
+    font-family: $font-monospace;
+
+    span.cm-meta {
+        color: $green-900;
+    }
+
+    span.cm-formatting {
+        color: $grey-700;
+    }
+
+    span.cm-builtin {
+        color: $accent-700;
+    }
+
+    span.cm-number {
+        color: $blue-800;
+    }
+
+    span.cm-keyword {
+        line-height: 1em;
+        font-weight: bold;
+        color: $blue-900;
+    }
+
+    span.cm-atom {
+        font-weight: bold;
+        color: $blue-900;
+    }
+
+    span.cm-def {
+        color: $black;
+    }
+
+    span.cm-variable {
+        color: $black;
+    }
+
+    span.cm-variable-2 {
+        color: $black;
+    }
+
+    span.cm-variable-3, span.cm-type {
+        color: $black;
+    }
+
+    span.cm-formatting-list {
+        color: $primary-600;
+    }
+
+    span.cm-property {
+        color: $black;
+    }
+
+    span.cm-operator {
+        color: $accent-800;
+    }
+
+    span.cm-comment {
+        color: $grey-800;
+    }
+
+    span.cm-string {
+        color: $green-700;
+    }
+
+    span.cm-string-2 {
+        color: $green-700;
+    }
+
+    span.cm-qualifier {
+        color: $grey-600;
+    }
+
+    span.cm-error {
+        color: $red-600;
+    }
+
+    span.cm-attribute {
+        color: $blue-600;
+    }
+
+    span.cm-tag {
+        color: $blue-900;
+    }
+
+    span.cm-link {
+        color: $primary-600;
+        text-decoration: none;
+    }
+
+    span.cm-formatting-strikethrough {
+        text-decoration: none;
+    }
+
+    span.cm-quote {
+        color: $purple-900;
+    }
+
+    span.cm-formatting-quote {
+        color: $purple-600;
+    }
+
+    span.cm-header {
+        color: $accent-800;
+    }
+
+    .CodeMirror-activeline-background {
+        background: $primary-000;
+    }
+
+    span.cm-bracket {
+        color: $green-300;
+    }
+
+    .CodeMirror-matchingbracket {
+        outline: 1px solid grey;
+        color: $green-800 !important;
+    }
+}
+
+.CodeMirror-hints.zest {
+    font-family: $font-monospace;
+    color: $grey-500;
+    background-color: $blue-000 !important;
+
+    .CodeMirror-hint-active {
+        color: $grey-600 !important;
+        background-color: $blue-100 !important;
+    }
+}
