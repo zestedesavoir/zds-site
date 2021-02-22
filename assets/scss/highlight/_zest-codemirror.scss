@@ -91,6 +91,11 @@
 
     span.cm-link {
         color: $primary-600;
+        text-decoration: none;
+    }
+
+    span.cm-formatting-strikethrough {
+        text-decoration: none;
     }
 
     span.cm-quote {
@@ -101,8 +106,8 @@
         color: $purple-600;
     }
 
-    span.cm-formatting-header {
-        color: $accent-700;
+    span.cm-header {
+        color: $accent-800;
     }
 
     .CodeMirror-activeline-background {
