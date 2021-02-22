@@ -33,7 +33,8 @@
 }
 
 // Yellow
-.hljs-attribute {
+.hljs-attribute,
+.hljs-selector-pseudo {
   color: $accent-800;
 }
 
@@ -41,7 +42,8 @@
 .hljs-string,
 .hljs-symbol,
 .hljs-bullet,
-.hljs-addition {
+.hljs-addition,
+.hljs-selector-attr {
   color: $green-700;
 }
 
@@ -56,6 +58,15 @@
 .hljs-keyword,
 .hljs-selector-tag {
   color: $purple-800;
+}
+
+// Emphasis on these
+.hljs-attribute,
+.hljs-keyword,
+.hljs-selector-class,
+.hljs-selector-tag,
+.hljs-string {
+  font-weight: 700;
 }
 
 // The whole code
