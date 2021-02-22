@@ -65,6 +65,7 @@
 .hljs-keyword,
 .hljs-selector-class,
 .hljs-selector-tag,
+.hljs-selector-id,
 .hljs-string {
   font-weight: 700;
 }
@@ -76,11 +77,12 @@
   padding: 0.5em;
 
   background: $true-white;
-  color: $grey-800;
+  color: $black;
 
   font-weight: 500;
 }
 
+// Markdown
 .hljs-emphasis {
   font-style: italic;
 }
