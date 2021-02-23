@@ -57,22 +57,20 @@ details.dropdown {
             display: block;
             width: 0;
             height: 0;
-            border: 10px solid transparent;
-            border-top: 0;
         }
         &::before {
             top: -10px;
             right: #{14px - $dropdown-offset-right};
-            border-width: 10px;
+            border: 10px solid transparent;
             border-top: 0;
-            border-bottom-color: hsla(0, 0%, 0%, .04);
+            border-bottom-color: rgba($true-black, .04);
         }
         &::after {
             top: -9px;
             right: #{15px - $dropdown-offset-right};
-            border-width: 9px;
+            border: 9px solid transparent;
             border-top: 0;
-            border-bottom-color: #fff;
+            border-bottom-color: $true-white;
         }
     }
 }
