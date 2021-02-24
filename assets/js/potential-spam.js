@@ -1,7 +1,10 @@
 (function() {
   'use strict'
-
-  const csrf = document.querySelector('input[name=csrfmiddlewaretoken]').value
+  const csrfInput = document.querySelector('input[name=csrfmiddlewaretoken]')
+  if (!csrfInput) {
+    return
+  }
+  const csrf = csrfInput.value
 
   for (const potentialSpamHandle of document.getElementsByClassName('potential-spam-handle')) {
     potentialSpamHandle.addEventListener('click', function() {
