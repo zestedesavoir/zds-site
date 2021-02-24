@@ -102,11 +102,14 @@
     background-color: $black;
 
     .hljs-line-numbers {
-      border-right-color: $grey-400;
+      border-right-color: $grey-600;
 
       span {
-        &:after , &.hll:after{
-          color: $white;
+        &:after {
+          color: $grey-400;
+        }
+        &.hll:after {
+          color: $grey-200;
         }
       }
     }

@@ -191,6 +191,18 @@
         }
     }
 
+    &.github {
+        &:after {
+            @include sprite-position($github);
+        }
+        &.blue:after {
+            @include sprite-position($github-blue);
+        }
+        &.light:after {
+            @include sprite-position($github-light);
+        }
+    }
+
     &.help {
         &:after {
             @include sprite-position($help);

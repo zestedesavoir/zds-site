@@ -9,7 +9,7 @@ const imagemin = require('gulp-imagemin')
 const options = require('gulp-options')
 const path = require('path')
 const postcss = require('gulp-postcss')
-const sass = require('gulp-sass')
+const sass = require('gulp-dart-sass')
 const spritesmith = require('gulp.spritesmith')
 const terser = require('gulp-terser-js')
 const fs = require('fs')
@@ -182,7 +182,7 @@ function prepareZmd() {
 
 // Prepares files for easy mde
 function prepareEasyMde() {
-  return gulp.src(['node_modules/easymde/dist/easymde.min.css', 'node_modules/codemirror/theme/idea.css'])
+  return gulp.src(['node_modules/easymde/dist/easymde.min.css'])
     .pipe(gulp.dest('dist/css/'))
 }
 
