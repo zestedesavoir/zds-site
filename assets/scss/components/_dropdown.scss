@@ -42,14 +42,14 @@ details.dropdown {
         }
         &::before {
             top: -10px;
-            right: #{$length-14 - $dropdown-offset-right};
+            right: calc(14px - #{$dropdown-offset-right});
             border: 10px solid transparent;
             border-top: 0;
             border-bottom-color: rgba($true-black, .1);
         }
         &::after {
             top: -9px;
-            right: #{$length-15 - $dropdown-offset-right};
+            right: calc(15px - #{$dropdown-offset-right});
             border: 9px solid transparent;
             border-top: 0;
             border-bottom-color: $true-white;
