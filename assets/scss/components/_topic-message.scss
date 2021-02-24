@@ -362,7 +362,23 @@ div.msg-are-hidden {
                     padding-right: $length-16;
                     padding-left: $length-16;
 
-                    appearance: none;
+                    &::marker {
+                        content: '…';
+
+                        position: absolute;
+
+                        top: 0;
+                        right: 0;
+
+                        padding: $length-6;
+                        padding-right: $length-16;
+
+                        color: $grey-500;
+                        font-size: $font-size-9;
+                        font-weight: bold;
+
+                        line-height: .8;
+                    }
                 }
 
                 ul {
