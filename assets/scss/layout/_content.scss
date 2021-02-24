@@ -75,9 +75,11 @@
             a {
                 text-decoration: none;
 
-                &:hover,
-                &:focus {
-                    text-decoration: underline;
+                &:not(.btn) {
+                    &:hover,
+                    &:focus {
+                        text-decoration: underline;
+                    }
                 }
             }
         }
