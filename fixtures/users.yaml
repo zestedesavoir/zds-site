@@ -1,29 +1,173 @@
--   model: auth.group
-    pk: 1
-    fields:
-        name : staff
-        permissions: 
-            - 8
-            - 38
-            - 40
-            - 41
-            - 43
-            - 46
-            - 55
-            - 58
-            - 61
-            - 76
-            - 109
-            - 121
-            - 184
--   model: auth.group
-    pk: 2
-    fields:
-        name : bot
--   model: auth.group
-    pk: 3
-    fields:
-        name: devs
+- model: auth.group
+  fields:
+    name: staff
+    # Logic in permissions natural keys is:
+    # - - code_name
+    #   - app_label
+    #   - model
+    permissions:
+    - - change_user
+      - auth
+      - user
+    - - add_featuredmessage
+      - featured
+      - featuredmessage
+    - - change_featuredmessage
+      - featured
+      - featuredmessage
+    - - delete_featuredmessage
+      - featured
+      - featuredmessage
+    - - add_featuredresource
+      - featured
+      - featuredresource
+    - - change_featuredresource
+      - featured
+      - featuredresource
+    - - delete_featuredresource
+      - featured
+      - featuredresource
+    - - change_forum
+      - forum
+      - forum
+    - - add_post
+      - forum
+      - post
+    - - change_post
+      - forum
+      - post
+    - - delete_post
+      - forum
+      - post
+    - - add_topic
+      - forum
+      - topic
+    - - change_topic
+      - forum
+      - topic
+    - - delete_topic
+      - forum
+      - topic
+    - - add_topicread
+      - forum
+      - topicread
+    - - change_topicread
+      - forum
+      - topicread
+    - - delete_topicread
+      - forum
+      - topicread
+    - - change_gallery
+      - gallery
+      - gallery
+    - - change_usergallery
+      - gallery
+      - usergallery
+    - - add_ban
+      - member
+      - ban
+    - - change_ban
+      - member
+      - ban
+    - - add_profile
+      - member
+      - profile
+    - - change_profile
+      - member
+      - profile
+    - - moderation
+      - member
+      - profile
+    - - show_ip
+      - member
+      - profile
+    - - change_tokenforgotpassword
+      - member
+      - tokenforgotpassword
+    - - change_tokenregister
+      - member
+      - tokenregister
+    - - delete_tokenregister
+      - member
+      - tokenregister
+    - - add_privatepost
+      - mp
+      - privatepost
+    - - add_privatetopic
+      - mp
+      - privatetopic
+    - - add_privatetopicread
+      - mp
+      - privatetopicread
+    - - change_contentreaction
+      - tutorialv2
+      - contentreaction
+    - - add_picklistoperation
+      - tutorialv2
+      - picklistoperation
+    - - change_picklistoperation
+      - tutorialv2
+      - picklistoperation
+    - - delete_picklistoperation
+      - tutorialv2
+      - picklistoperation
+    - - change_publishablecontent
+      - tutorialv2
+      - publishablecontent
+    - - change_publishedcontent
+      - tutorialv2
+      - publishedcontent
+    - - change_validation
+      - tutorialv2
+      - validation
+    - - delete_validation
+      - tutorialv2
+      - validation
+    - - add_alert
+      - utils
+      - alert
+    - - change_alert
+      - utils
+      - alert
+    - - change_category
+      - utils
+      - category
+    - - add_comment
+      - utils
+      - comment
+    - - change_comment
+      - utils
+      - comment
+    - - change_comment_potential_spam
+      - utils
+      - comment
+    - - delete_comment
+      - utils
+      - comment
+    - - add_commentedit
+      - utils
+      - commentedit
+    - - add_subcategory
+      - utils
+      - subcategory
+    - - change_subcategory
+      - utils
+      - subcategory
+    - - add_tag
+      - utils
+      - tag
+    - - change_tag
+      - utils
+      - tag
+- model: auth.group
+  fields:
+    name: bot
+    permissions: []
+- model: auth.group
+  fields:
+    name: devs
+    permissions: []
+
 
 -   model: auth.user
     pk: 1
@@ -33,7 +177,7 @@
         username: admin
         password: pbkdf2_sha256$10000$9fsFMQYzY9yi$/tR1ozxJyvUE29bCDA/n/t03ESacCKVCwli/kej7j24=
         groups:
-            - 1
+            - - staff
         is_staff: True
         is_superuser: True
 -   model: auth.user
@@ -44,7 +188,7 @@
         username: staff
         password: pbkdf2_sha256$10000$XJGkwj7jBlnj$slcAhRhr/clGbPsf5gq+Ec1LNri62GECMIsPFp1rF20=
         groups:
-            - 1
+            - - staff
         is_superuser: False
 -   model: auth.user
     pk: 3
@@ -71,7 +215,7 @@
         password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
         is_superuser: False
         groups:
-            - 2
+            - - bot
 -   model: auth.user
     pk: 6
     fields:
@@ -81,7 +225,7 @@
         password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
         is_superuser: False
         groups:
-            - 2
+            - - bot
 -   model: auth.user
     pk: 7
     fields:
@@ -99,7 +243,7 @@
         password: pbkdf2_sha256$20000$JDIYMDQusKug$k9gJBXge+eyQ01M6iH5ymM4nV6gzylzYQETRrLvvVQc=
         is_superuser: False
         groups:
-            - 3
+            - - devs
 -   model: auth.user
     pk: 9
     fields:
@@ -109,7 +253,7 @@
         password: pbkdf2_sha256$150000$bzWpLKZ2InfO$pmA3IQng4g+79tJ4p99GHKfEkGoztRnzDqa7Ny6jNu8=
         is_superuser: False
         groups:
-            - 2
+            - - bot
 
 -   model: member.Profile
     pk: 1
@@ -161,11 +305,13 @@
     pk: 1
     fields:
         name: Staff
-        group: 1
+        group:
+          - staff
         is_staff: True
 -   model: utils.Hat
     pk: 2
     fields:
         name: Équipe technique
-        group: 3
+        group:
+          - devs
         is_staff: True
