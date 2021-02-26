@@ -110,6 +110,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#les-infobulles-css">Les infobulles CSS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-menus-deroulants-ou-dropdown">Les menus déroulants (ou dropdown)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#la-lecture-zen">La lecture zen</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#les-boites-representant-les-contenus-et-les-derniers-sujets">Les boîtes représentant les contenus et les derniers sujets</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#importation-dans-un-gabarit">Importation dans un gabarit</a></li>
@@ -355,6 +356,21 @@ CSS <code class="docutils literal notranslate"><span class="pre">is-tooltip-acti
 <p class="admonition-title">Note</p>
 <p>Ce module est une reprise adaptée de <code class="docutils literal notranslate"><span class="pre">bulma-tooltip</span></code> <a class="reference external" href="https://wikiki.github.io/elements/tooltip/">de Wikiki</a>.</p>
 </div>
+</div>
+<div class="section" id="les-menus-deroulants-ou-dropdown">
+<h2>Les menus déroulants (ou dropdown)<a class="headerlink" href="#les-menus-deroulants-ou-dropdown" title="Lien permanent vers ce titre">¶</a></h2>
+<p>À ne pas confondre avec <code class="docutils literal notranslate"><span class="pre">header-dropdown</span></code>, ces menus déroulants ne requièrent aucun JS pour fonctionner mais se reposent sur la balise <code class="docutils literal notranslate"><span class="pre">&lt;details&gt;</span></code>.</p>
+<p>Pour créer un menu déroulant, utilisez simplement la classe <code class="docutils literal notranslate"><span class="pre">dropdown</span></code> à l’élément <code class="docutils literal notranslate"><span class="pre">&lt;details&gt;</span></code>, en utilisant la balise <code class="docutils literal notranslate"><span class="pre">&lt;summary&gt;</span></code> pour fournir un texte alternatif au <code class="docutils literal notranslate"><span class="pre">…</span></code> affiché par défaut.</p>
+<p>La classe <code class="docutils literal notranslate"><span class="pre">.dropdown-content</span></code> permet de grouper le contenu pour le positionner.</p>
+<p>Par exemple :</p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">details</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;dropdown&quot;</span><span class="p">&gt;</span>
+   <span class="p">&lt;</span><span class="nt">summary</span><span class="p">&gt;&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;sr-only&quot;</span><span class="p">&gt;</span>Menu déroulant<span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;&lt;/</span><span class="nt">summary</span><span class="p">&gt;</span>
+
+   <span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;dropdown-content&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">details</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p>Note : Il y a par défaut un léger décalage vers la gauche via la variable <code class="docutils literal notranslate"><span class="pre">$dropdown-offset-right</span></code>.</p>
 </div>
 <div class="section" id="la-lecture-zen">
 <h2>La lecture zen<a class="headerlink" href="#la-lecture-zen" title="Lien permanent vers ce titre">¶</a></h2>
