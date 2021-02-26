@@ -4,7 +4,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import gettext_lazy as _
 
-from zds.utils.models import Category, SubCategory
+from zds.utils.models import Category, SubCategory, Tag
+from zds.utils.uuslug_wrapper import slugify
 from zds.tutorialv2.models.database import PublishedContent
 
 
@@ -34,10 +35,15 @@ class LastContentFeedRSS(Feed):
         if "subcategory" in self.query_params:
             subcategories = [get_object_or_404(SubCategory, slug=self.query_params.get("subcategory"))]
 
+        if "tag" in self.query_params:
+            tags = [get_object_or_404(Tag, slug=slugify(self.query_params.get("tag")))]
+        else:
+            tags = None
+
         feed_length = settings.ZDS_APP["content"]["feed_length"]
 
         contents = PublishedContent.objects.last_contents(
-            content_type=[self.content_type], subcategories=subcategories
+            content_type=[self.content_type], subcategories=subcategories, tags=tags
         )[:feed_length]
 
         return contents
