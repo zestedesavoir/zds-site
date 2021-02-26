@@ -1,6 +1,4 @@
 html {
-    height: 100%;
-    width: 100%;
     font-size: 62.5%;
 }
 
@@ -9,7 +7,7 @@ body {
     font-size: $font-size-10;
     line-height: 1.5;
     width: 100%;
-    height: 100%;
+    min-height: 100%;
 }
 
 @mixin normal-selection {
@@ -42,7 +40,7 @@ body {
     display: flex;
     flex-direction: column;
 
-    min-height: 100%;
+    min-height: 100vh;
 
     .main-container {
         display: flex;
@@ -141,9 +139,8 @@ nav {
 }
 
 @include desktop {
-    html,
     body {
-        height: 100%;
+        min-height: 100%;
     }
 
     .wrapper {
