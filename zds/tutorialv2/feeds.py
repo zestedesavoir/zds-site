@@ -35,11 +35,10 @@ class LastContentFeedRSS(Feed):
         if "subcategory" in self.query_params:
             subcategories = [get_object_or_404(SubCategory, slug=self.query_params.get("subcategory"))]
 
+        tags = None
         tag = self.query_params.get("tag", "").strip()
         if tag:
             tags = [get_object_or_404(Tag, slug=slugify(self.query_params.get("tag")))]
-        else:
-            tags = None
 
         feed_length = settings.ZDS_APP["content"]["feed_length"]
 
