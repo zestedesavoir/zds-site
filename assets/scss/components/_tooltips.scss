@@ -84,7 +84,7 @@ $tooltip-background-color: $grey-900;
             text-overflow: ellipsis;
             font-size: $font-size-10;
             padding: $length-4 $length-8;
-            transform: translate(-50%, 1rem);
+            transform: translate(-50%, 10px);
             background: $tooltip-background-color;
             color: $white;
             max-width: $tooltip-max-width;
