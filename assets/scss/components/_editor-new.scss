@@ -15,7 +15,11 @@
                 z-index: 2;
                 background-color: $color-body-background;
                 border-bottom: $length-1 solid $grey-200;
-                
+
+                @at-root body.has-top-banner & {
+                    top: $length-24;
+                }
+
                 ~ .CodeMirror {
                     border-top: 0;
                 }
