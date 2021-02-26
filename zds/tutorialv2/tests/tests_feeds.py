@@ -1,11 +1,12 @@
 from django.conf import settings
+from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import Group
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.forum.factories import ForumFactory, ForumCategoryFactory
+from zds.forum.factories import ForumFactory, ForumCategoryFactory, TagFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.tutorialv2.factories import (
@@ -50,6 +51,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
+        self.tag = TagFactory()
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
@@ -61,6 +63,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         UserGalleryFactory(gallery=self.tuto.gallery, user=self.user_author, mode="W")
         self.tuto.licence = self.licence
         self.tuto.subcategory.add(self.subcategory)
+        self.tuto.tags.add(self.tag)
         self.tuto.save()
 
         # fill it with one part, containing one chapter, containing one extract
@@ -138,6 +141,67 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         ret = self.tutofeed.item_link(item=tuto)
         self.assertEqual(ret, ref)
 
+    def test_filters(self):
+        """ Test filtering by category & tag """
+        subcategory2 = SubCategoryFactory()
+        subcategory3 = SubCategoryFactory()
+        tag2 = TagFactory()
+        tag3 = TagFactory()
+
+        # Add a new tuto & publish it
+
+        tuto2 = PublishableContentFactory(type="TUTORIAL")
+        tuto2.authors.add(self.user_author)
+        tuto2.licence = self.licence
+        tuto2.subcategory.add(subcategory2)
+        tuto2.tags.add(self.tag)
+        tuto2.tags.add(tag2)
+        tuto2.save()
+
+        tuto2_draft = tuto2.load_version()
+        tuto2.sha_public = tuto2.sha_draft = tuto2_draft.current_version
+        tuto2.public_version = publish_content(tuto2, tuto2_draft, is_major_update=True)
+        tuto2.save()
+
+        # Default view
+
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [tuto2, self.tuto])
+
+        # Filter by subcategory
+
+        self.tutofeed.query_params = {"subcategory": self.subcategory.slug}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [self.tuto])
+
+        self.tutofeed.query_params = {"subcategory": subcategory2.slug}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [tuto2])
+
+        self.tutofeed.query_params = {"subcategory": subcategory3.slug}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [])
+
+        self.tutofeed.query_params = {"subcategory": "invalid"}
+        self.assertRaises(Http404, self.tutofeed.items)
+
+        # Filter by tag
+
+        self.tutofeed.query_params = {"tag": self.tag.slug}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [tuto2, self.tuto])
+
+        self.tutofeed.query_params = {"tag": tag2.slug}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [tuto2])
+
+        self.tutofeed.query_params = {"tag": tag3.slug}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [])
+
+        self.tutofeed.query_params = {"tag": "invalid"}
+        self.assertRaises(Http404, self.tutofeed.items)
+
 
 @override_settings(ZDS_APP=overridden_zds_app)
 class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
@@ -164,6 +228,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
+        self.tag = TagFactory()
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
@@ -175,6 +240,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         UserGalleryFactory(gallery=self.article.gallery, user=self.user_author, mode="W")
         self.article.licence = self.licence
         self.article.subcategory.add(self.subcategory)
+        self.article.tags.add(self.tag)
         self.article.save()
 
         # fill it with one extract
@@ -249,3 +315,64 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         article = list(self.articlefeed.items())[0]
         ret = self.articlefeed.item_link(item=article)
         self.assertEqual(ret, ref)
+
+    def test_filters(self):
+        """ Test filtering by category & tag """
+        subcategory2 = SubCategoryFactory()
+        subcategory3 = SubCategoryFactory()
+        tag2 = TagFactory()
+        tag3 = TagFactory()
+
+        # Add a new tuto & publish it
+
+        article2 = PublishableContentFactory(type="ARTICLE")
+        article2.authors.add(self.user_author)
+        article2.licence = self.licence
+        article2.subcategory.add(subcategory2)
+        article2.tags.add(self.tag)
+        article2.tags.add(tag2)
+        article2.save()
+
+        article2_draft = article2.load_version()
+        article2.sha_public = article2.sha_draft = article2_draft.current_version
+        article2.public_version = publish_content(article2, article2_draft, is_major_update=True)
+        article2.save()
+
+        # Default view
+
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [article2, self.article])
+
+        # Filter by subcategory
+
+        self.articlefeed.query_params = {"subcategory": self.subcategory.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [self.article])
+
+        self.articlefeed.query_params = {"subcategory": subcategory2.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [article2])
+
+        self.articlefeed.query_params = {"subcategory": subcategory3.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [])
+
+        self.articlefeed.query_params = {"subcategory": "invalid"}
+        self.assertRaises(Http404, self.articlefeed.items)
+
+        # Filter by tag
+
+        self.articlefeed.query_params = {"tag": self.tag.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [article2, self.article])
+
+        self.articlefeed.query_params = {"tag": tag2.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [article2])
+
+        self.articlefeed.query_params = {"tag": tag3.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [])
+
+        self.articlefeed.query_params = {"tag": "invalid"}
+        self.assertRaises(Http404, self.articlefeed.items)
