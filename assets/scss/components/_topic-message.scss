@@ -355,12 +355,15 @@ div.msg-are-hidden {
             }
 
             details.message-actions {
+                margin-top: $length-4;
+                margin-right: $length-4;
                 margin-bottom: $length-8;
 
                 summary {
                     height: $length-32;
-                    padding-right: $length-16;
-                    padding-left: $length-16;
+                    padding-right: $length-8;
+                    padding-left: $length-8;
+                    color: $grey-500;
 
                     &::marker {
                         content: '…';
@@ -370,10 +373,11 @@ div.msg-are-hidden {
                         top: 0;
                         right: 0;
 
+                        width: $length-6;
+
                         padding: $length-6;
                         padding-right: $length-16;
 
-                        color: $grey-500;
                         font-size: $font-size-9;
                         font-weight: bold;
 
@@ -381,7 +385,9 @@ div.msg-are-hidden {
                     }
                 }
 
-                ul {
+                .dropdown-content {
+                    --dropdown-arrow-offset-right: #{$length-6};
+
                     li {
                         display: flex;
                         align-items: center;
