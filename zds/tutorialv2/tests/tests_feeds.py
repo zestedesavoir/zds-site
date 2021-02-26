@@ -195,6 +195,10 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         ret = [item.content for item in self.tutofeed.items()]
         self.assertEqual(ret, [tuto2])
 
+        self.tutofeed.query_params = {"tag": f" {tag2.slug} "}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [tuto2])
+
         self.tutofeed.query_params = {"tag": tag3.slug}
         ret = [item.content for item in self.tutofeed.items()]
         self.assertEqual(ret, [])
@@ -367,6 +371,10 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, [article2, self.article])
 
         self.articlefeed.query_params = {"tag": tag2.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [article2])
+
+        self.articlefeed.query_params = {"tag": f" {tag2.slug} "}
         ret = [item.content for item in self.articlefeed.items()]
         self.assertEqual(ret, [article2])
 
