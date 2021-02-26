@@ -8,15 +8,24 @@ details.dropdown {
 
     summary {
         appearance: none;
+        display: inline-block;
         cursor: pointer;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+        &::marker {
+            display: none;
+        }
     }
 
     &[open] {
         z-index: 10;
     }
 
-    &[open] summary::before {
+    &[open] summary::after {
         content: '';
+        cursor: default;
         position: fixed;
         top: 0;
         right: 0;
