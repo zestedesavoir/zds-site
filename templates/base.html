@@ -126,13 +126,15 @@
     {% endwith %}
 
     {# RSS links #}
-    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}">
-    <link rel="alternate" type="application/rss+xml" title="Nouveaux tutoriels (RSS)" href="{% url "tutorial:feed-rss" %}">
-    <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}">
-    <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}">
-    <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}">
-    <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}">
-    <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}">
+    {% with request.GET|yesno:'?,'|add:request.GET.urlencode as rss_params %}
+    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}{{ rss_params | safe }}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux tutoriels (RSS)" href="{% url "tutorial:feed-rss" %}{{ rss_params | safe }}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}{{ rss_params | safe }}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}{{ rss_params | safe }}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux articles (ATOM)" href="{% url "article:feed-atom" %}{{ rss_params | safe }}">
+    <link rel="alternate" type="application/rss+xml" title="Nouveaux billets (RSS)" href="{% url "opinion:feed-rss" %}{{ rss_params | safe }}">
+    <link rel="alternate" type="application/atom+xml" title="Nouveaux billets (ATOM)" href="{% url "opinion:feed-atom" %}{{ rss_params | safe }}">
+    {% endwith %}
     {# OpenSearch plugin autodiscovery #}
     <link rel="search" type="application/opensearchdescription+xml" title="{{ app.site.literal_name }}" href="{% url "search:opensearch" %}">
 
