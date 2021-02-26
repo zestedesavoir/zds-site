@@ -43,7 +43,7 @@
                 </a>
 
                 {% cache 1800 menu_publications user|groups %}
-                    <div class="dropdown header-menu-dropdown">
+                    <div class="header-dropdown header-menu-dropdown">
                         <a href="{% url "publication:list" %}" class="dropdown-link-all">
                             {% trans "Accéder à tous les contenus de la bibliothèque" %}
                         </a>
@@ -101,7 +101,7 @@
                     <span class="arrow"></span>
                 </a>
                 {% cache 1800 menu_opinion user|groups %}
-                    <div class="dropdown header-menu-dropdown">
+                    <div class="header-dropdown header-menu-dropdown">
                         <a href="{% url "opinion:list" %}" class="dropdown-link-all">
                             {% trans "Tous les billets" %}
                         </a>
@@ -156,7 +156,7 @@
                     <span class="arrow"></span>
                 </a>
                 {% cache 1800 menu_forum user|groups %}
-                    <div class="dropdown header-menu-dropdown">
+                    <div class="header-dropdown header-menu-dropdown">
                         <a href="{% url "cats-forums-list" %}" class="dropdown-link-all">
                             {% trans "Tous les forums" %}
                         </a>
@@ -226,7 +226,7 @@
                         <span class="notif-text ico ico-messages">{% trans "Messagerie privée" %}</span>
                     </a>
 
-                    <div class="dropdown">
+                    <div class="header-dropdown">
                         <span class="dropdown-title dropdown-pm">
                             <h1>{% trans "Messagerie privée" %}</h1>
                             <a href="{% url "mp-new" %}" class="ico-after pm-new white" title="{% trans 'Envoyer un nouveau message privé' %}"></a>
@@ -267,7 +267,7 @@
                         <span class="notif-text ico ico-notifs">{% trans "Notifications" %}</span>
                     </a>
 
-                    <div class="dropdown">
+                    <div class="header-dropdown">
                         <h1 class="dropdown-title">{% trans "Notifications" %}</h1>
 
                         <ul class="dropdown-list">
@@ -306,7 +306,7 @@
                             {% endif %}
                         </a>
 
-                        <div class="dropdown staff-only">
+                        <div class="header-dropdown staff-only">
                             <h1 class="dropdown-title">{% trans "Alertes de modération" %}</h1>
                             <ul class="dropdown-list">
                                 {% for alert in header_alerts.list %}
@@ -350,7 +350,7 @@
                     </a>
                 {% endwith %}
 
-                <div class="dropdown my-account-dropdown mobile-all-links" data-title="{% trans 'Mon compte' %}">
+                <div class="header-dropdown my-account-dropdown mobile-all-links" data-title="{% trans 'Mon compte' %}">
                     <h1 class="dropdown-title">{{ user.username|truncatechars:25 }}</h1>
 
                     <ul class="dropdown-list">
