@@ -387,6 +387,8 @@ div.msg-are-hidden {
 
                 .dropdown-content {
                     --dropdown-arrow-offset-right: #{$length-12};
+                    padding-top: $length-4;
+                    padding-bottom: $length-4;
 
                     li {
                         display: flex;
