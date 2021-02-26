@@ -29,11 +29,13 @@ class LastContentFeedRSS(Feed):
         :return: The last (typically 5) contents (sorted by publication date).
         """
         subcategories = None
-        if "category" in self.query_params:
-            category = get_object_or_404(Category, slug=self.query_params.get("category"))
+        category = self.query_params.get("category", "").strip()
+        if category:
+            category = get_object_or_404(Category, slug=category)
             subcategories = category.get_subcategories()
-        if "subcategory" in self.query_params:
-            subcategories = [get_object_or_404(SubCategory, slug=self.query_params.get("subcategory"))]
+        subcategory = self.query_params.get("subcategory", "").strip()
+        if subcategory:
+            subcategories = [get_object_or_404(SubCategory, slug=subcategory)]
 
         tags = None
         tag = self.query_params.get("tag", "").strip()

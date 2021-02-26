@@ -174,6 +174,10 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         ret = [item.content for item in self.tutofeed.items()]
         self.assertEqual(ret, [self.tuto])
 
+        self.tutofeed.query_params = {"subcategory": f" {self.subcategory.slug} "}
+        ret = [item.content for item in self.tutofeed.items()]
+        self.assertEqual(ret, [self.tuto])
+
         self.tutofeed.query_params = {"subcategory": subcategory2.slug}
         ret = [item.content for item in self.tutofeed.items()]
         self.assertEqual(ret, [tuto2])
@@ -350,6 +354,10 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         # Filter by subcategory
 
         self.articlefeed.query_params = {"subcategory": self.subcategory.slug}
+        ret = [item.content for item in self.articlefeed.items()]
+        self.assertEqual(ret, [self.article])
+
+        self.articlefeed.query_params = {"subcategory": f" {self.subcategory.slug} "}
         ret = [item.content for item in self.articlefeed.items()]
         self.assertEqual(ret, [self.article])
 
