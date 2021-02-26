@@ -1,10 +1,14 @@
-$dropdown-offset-right: $length-6;
+$dropdown-arrow-height: 10px;
 
 details.dropdown {
+    --dropdown-offset-right: 0;
+    --dropdown-arrow-offset-right: #{$length-4};
+
     position: relative;
 
     summary {
         appearance: none;
+        cursor: pointer;
     }
 
     &[open] {
@@ -22,14 +26,15 @@ details.dropdown {
 
     .dropdown-content {
         position: absolute;
-        top: $length-32;
-        right: $dropdown-offset-right;
+        top: 100%;
+        right: var(--dropdown-offset-right);
 
         margin: 0;
         padding: 0;
 
         z-index: 21;
 
+        background-color: $true-white;
         @include shadow-4;
 
         &::before,
@@ -41,16 +46,16 @@ details.dropdown {
             height: 0;
         }
         &::before {
-            top: -10px;
-            right: calc(14px - #{$dropdown-offset-right});
-            border: 10px solid transparent;
+            top: -#{$dropdown-arrow-height};
+            right: var(--dropdown-arrow-offset-right);
+            border: #{$dropdown-arrow-height} solid transparent;
             border-top: 0;
             border-bottom-color: rgba($true-black, .1);
         }
         &::after {
-            top: -9px;
-            right: calc(15px - #{$dropdown-offset-right});
-            border: 9px solid transparent;
+            top: -#{$dropdown-arrow-height - 1px};
+            right: calc(var(--dropdown-arrow-offset-right) + 1px);
+            border: #{$dropdown-arrow-height - 1px} solid transparent;
             border-top: 0;
             border-bottom-color: $true-white;
         }
