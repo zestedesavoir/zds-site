@@ -77,7 +77,7 @@ def publish_content(db_object, versioned, is_major_update=True):
 
     # render HTML:
     altered_version = copy.deepcopy(versioned)
-    publish_use_manifest(db_object, tmp_path, altered_version)
+    char_count = publish_use_manifest(db_object, tmp_path, altered_version)
     altered_version.dump_json(path.join(tmp_path, "manifest.json"))
 
     # make room for 'extra contents'
@@ -106,21 +106,18 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_pk = db_object.pk
     public_version.content = db_object
     public_version.must_reindex = True
+    public_version.char_count = char_count
     public_version.save()
     with contextlib.suppress(FileExistsError):
         makedirs(public_version.get_extra_contents_directory())
-    PublicatorRegistry.get("md").publish(md_file_path, base_name, versioned=versioned, cur_language=cur_language)
-    public_version.char_count = public_version.get_char_count(md_file_path)
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
     elif is_update:
         public_version.update_date = datetime.now()
     public_version.sha_public = versioned.current_version
     public_version.save()
-    with contextlib.suppress(OSError):
-        make_zip_file(public_version)
 
-    public_version.save(update_fields=["char_count", "publication_date", "update_date", "sha_public"])
+    public_version.save(update_fields=["publication_date", "update_date", "sha_public"])
 
     public_version.authors.clear()
     for author in db_object.authors.all():
@@ -184,7 +181,6 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
     :param excluded: list of excluded format, None if no exclusion
     """
     excluded = excluded or ["watchdog"]
-    excluded.append("md")
     if not settings.ZDS_APP["content"]["build_pdf_when_published"] and not overload_settings:
         excluded.append("pdf")
     for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
@@ -398,7 +394,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         exported = export_content(public_versionned_source, with_text=True)
         # no title to avoid zmd to put it on the final latex
         del exported["title"]
-        content, __, messages = render_markdown(
+        content, metadata, messages = render_markdown(
             exported,
             output_format="texfile",
             # latex template arguments
@@ -412,8 +408,10 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             smileys_directory=str(SMILEYS_BASE_PATH / "svg"),
             images_download_dir=str(base_directory / "images"),
             local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url],
-            heading_shift=0,
+            heading_shift=-1
         )
+        print("\n===================================\n", metadata, "\n========================\n")
+        published_content_entity
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
         zmd_class_dir_path = Path(settings.ZDS_APP["content"]["latex_template_repo"])
@@ -543,7 +541,7 @@ class WatchdogFilePublicator(Publicator):
         self.publish_from_published_content(published_content)
 
     def publish_from_published_content(self, published_content: PublishedContent):
-        for requested_format in PublicatorRegistry.get_all_registered(["md", "watchdog"]):
+        for requested_format in PublicatorRegistry.get_all_registered(["watchdog"]):
             PublicationEvent.objects.create(
                 state_of_processing="REQUESTED",
                 published_object=published_content,

@@ -11,13 +11,16 @@ from django.utils.translation import gettext_lazy as _
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.versioned import Container, VersionedContent
 from zds.tutorialv2.utils import export_content
-from zds.utils.templatetags.emarkdown import emarkdown
+from zds.utils.templatetags.emarkdown import emarkdown, render_markdown
 
 
 def publish_use_manifest(db_object, base_dir, versionable_content: VersionedContent):
     base_content = export_content(versionable_content, with_text=True)
-    md = emarkdown(base_content, "js" if db_object.js_support else "", full_json=True)
-    publish_container_new(db_object, base_dir, versionable_content, md[0])
+
+    md, metadata, __ = render_markdown(base_content, disable_jsfiddle = not db_object.js_support,
+                                       full_json=True, stats=True)
+    publish_container_new(db_object, base_dir, versionable_content, md)
+    return metadata.get("stats", {}).get("words", 0)
 
 
 def publish_container_new(

@@ -79,9 +79,12 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         logger.debug("Result %s, %s, %s", content, metadata, messages)
         if messages:
             logger.error("Markdown errors %s", json.dumps(messages))
-        content = content.strip()
+        if isinstance(content, str):
+            content = content.strip()
         if inline:
             content = content.replace("</p>\n", "\n\n").replace("\n<p>", "\n")
+        if full_json:
+            return content, metadata, messages
         return mark_safe(content), metadata, messages
     except:  # noqa
         logger.exception("Unexpected exception raised")
@@ -165,7 +168,7 @@ def emarkdown(md_input, use_jsfiddle="", **kwargs):
         on_error=lambda m: logger.error("Markdown errors %s", str(m)),
         **dict(kwargs, disable_jsfiddle=disable_jsfiddle),
     )
-
+    kwargs.get('metadata', {}).update(metadata)
     return content or ""
 
 
