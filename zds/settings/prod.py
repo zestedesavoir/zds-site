@@ -1,3 +1,7 @@
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import ignore_logger
+import sentry_sdk
+
 from .abstract_base import *
 
 # For secrets, prefer `config[key]` over `config.get(key)` in this
@@ -27,11 +31,6 @@ DATABASES = {
         },
     },
 }
-
-INSTALLED_APPS += (
-    # Sentry client (errors reporting)
-    "raven.contrib.django.raven_compat",
-)
 
 ALLOWED_HOSTS = [
     "beta.zestedesavoir.com",
@@ -87,51 +86,27 @@ def _get_version():
         return "{}/{}".format(__version__, git_version[:7])
 
 
-# Sentry (+ raven, the Python Client)
-# https://docs.getsentry.com/hosted/clients/python/integrations/django/
-RAVEN_CONFIG = {
-    "dsn": config["raven"]["dsn"],
-    "release": _get_version(),
-}
+sentry_sdk.init(
+    dsn=config["sentry"]["dsn"],
+    integrations=[DjangoIntegration()],
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0,
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True,
+    # By default the SDK will try to use the SENTRY_RELEASE
+    # environment variable, or infer a git commit
+    # SHA as release, however you may want to set
+    # something more human-readable.
+    release=_get_version().replace("/", "#"),
+    # /!\ It cannot contain slashes
+    environment=config["sentry"]["environment"],
+)
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "formatters": {
-        "verbose": {"format": "[%(levelname)s] -- %(asctime)s -- %(name)s : %(message)s"},
-    },
-    "handlers": {
-        "sentry": {
-            "level": "WARNING",
-            "class": "raven.handlers.logging.SentryHandler",
-            "dsn": RAVEN_CONFIG["dsn"],
-        },
-        "middlewares_log": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "maxBytes": 1024 * 1024 * 10,
-            "backupCount": 50,
-            "filename": "/var/log/zds/middlewares.log",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "zds": {
-            "handlers": ["sentry"],
-            "propagate": True,
-            "level": "DEBUG",
-        },
-        "zds.middlewares": {
-            "handlers": ["middlewares_log"],
-            "propagate": True,
-            "level": "INFO",
-        },
-        "zds.utils.templatetags.emarkdown": {
-            "propagate": False,
-            "level": "NOTSET",
-        },
-    },
-}
+# Ignoring emarkdown logging because it is too noisy
+ignore_logger("zds.utils.templatetags.emarkdown")
 
 
 ###############################################################################
