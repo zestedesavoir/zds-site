@@ -168,7 +168,7 @@ def emarkdown(md_input, use_jsfiddle="", **kwargs):
         on_error=lambda m: logger.error("Markdown errors %s", str(m)),
         **dict(kwargs, disable_jsfiddle=disable_jsfiddle),
     )
-    kwargs.get('metadata', {}).update(metadata)
+    kwargs.get("metadata", {}).update(metadata)
     return content or ""
 
 

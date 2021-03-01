@@ -408,9 +408,8 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             smileys_directory=str(SMILEYS_BASE_PATH / "svg"),
             images_download_dir=str(base_directory / "images"),
             local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url],
-            heading_shift=-1
+            heading_shift=-1,
         )
-        print("\n===================================\n", metadata, "\n========================\n")
         published_content_entity
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")

@@ -17,8 +17,9 @@ from zds.utils.templatetags.emarkdown import emarkdown, render_markdown
 def publish_use_manifest(db_object, base_dir, versionable_content: VersionedContent):
     base_content = export_content(versionable_content, with_text=True)
 
-    md, metadata, __ = render_markdown(base_content, disable_jsfiddle = not db_object.js_support,
-                                       full_json=True, stats=True)
+    md, metadata, __ = render_markdown(
+        base_content, disable_jsfiddle=not db_object.js_support, full_json=True, stats=True
+    )
     publish_container_new(db_object, base_dir, versionable_content, md)
     return metadata.get("stats", {}).get("words", 0)
 
