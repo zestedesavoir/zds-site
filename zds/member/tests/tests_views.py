@@ -142,6 +142,23 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("member-detail", args=["unknown_user"]), follow=False)
         self.assertEqual(result.status_code, 404)
 
+    def test_redirection_when_using_old_detail_member_url(self):
+        """
+        To test the redirection when accessing the member profile through the old url
+        """
+        user = ProfileFactory().user
+        result = self.client.get(reverse("member-detail-redirect", args=[user.username]), follow=False)
+
+        self.assertEqual(result.status_code, 301)
+
+    def test_old_detail_member_url_with_unexistant_member(self):
+        """
+        To test wether a 404 error is raised when the user in the old url does not exist
+        """
+        response = self.client.get(reverse("member-detail-redirect", args=["tartempion"]), follow=False)
+
+        self.assertEqual(response.status_code, 404)
+
     def test_moderation_history(self):
         user = ProfileFactory().user
 
