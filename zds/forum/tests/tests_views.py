@@ -1355,6 +1355,22 @@ class PostEditTest(TestCase):
         self.assertEqual(staff.user, post.editor)
         self.assertEqual(text_hidden_expected, post.text_hidden)
 
+    def test_last_post_update_after_hiding(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+        expected_last_post = topic.last_message
+        post_to_hide = PostFactory(topic=topic, author=profile.user, position=2)
+
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        text_hidden_expected = "Bad guy!"
+        data = {"delete_message": "", "text_hidden": text_hidden_expected}
+        response = self.client.post(reverse("post-edit") + "?message={}".format(post_to_hide.pk), data, follow=False)
+
+        last_post = Post.objects.get(pk=topic.get_last_post().pk)
+        self.assertEqual(last_post.pk, expected_last_post.pk)
+
     def test_hide_helpful_message(self):
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
