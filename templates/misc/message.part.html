@@ -114,11 +114,13 @@
 
                             {% if message.author == user %}
                                 {% if edit_link %}
-                                    <li>
-                                        <a href="{{ edit_link | safe }}" class="ico-after edit">
-                                            <span>{% trans "Modifier" %}</span>
-                                        </a>
-                                    </li>
+                                    {% if message.pk in user_can_modify %} {# User cannot edit a MP post if someone answered after. #}
+                                        <li>
+                                            <a href="{{ edit_link | safe }}" class="ico-after edit">
+                                                <span>{% trans "Modifier" %}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
                                 {% endif %}
 
                                 {% if not message_is_hidden and can_hide != False %}
