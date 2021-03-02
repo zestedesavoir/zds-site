@@ -64,8 +64,10 @@
 
 
     <div class="message">
-        {# Message header: name, date, “Topic author”, hat, actions #}
         <header>
+
+            {# METADATA (MEMBER, DATE, EDITED, HAT, IS-AUTHOR) #}
+
             {% spaceless %}
                 <ul class="message-metadata">
                     <li>
@@ -104,6 +106,10 @@
                     {% endif %}
                 </ul>
             {% endspaceless %}
+
+
+
+            {# ACTIONS #}
 
             {% if user.is_authenticated %}
                 {% spaceless %}
@@ -283,6 +289,10 @@
             {% endif %}
         </header>
 
+
+
+        {# MESSAGE CONTENT #}
+
         <div class="message-content">
             {% spaceless %}
                 <aside>
@@ -330,9 +340,17 @@
             {% endif %}
         </div>
 
+
+
+        {# ALERTS #}
+
         {% if perms_change %}
             {% include "misc/alerts.part.html" with alerts=message.alerts_on_this_comment.all alert_solve_link=alert_solve_link %}
         {% endif %}
+
+
+
+        {# METADATA MOBILE (DATE, EDITION, KARMA) #}
 
         <div class="message-bottom">
             <div class="metadata-mobile">
@@ -377,6 +395,10 @@
                 </ul>
             </div>
 
+
+
+            {# SIGNATURE #}
+
             {% if not message_is_hidden %}
                 {% with profile=message.author|profile %}
                     {% if profile.sign %}
@@ -403,6 +425,10 @@
                         {% endif %}
                     {% endif %}
                 {% endwith %}
+
+
+
+                {# LIKES, DISLIKES AND IS-HELPFUL #}
 
                 {% if karma_link %}
                     <div class="message-karma{% if user.is_authenticated and user != message.author %} can-vote{% endif %}" data-karma-uri="{{ karma_link }}">
