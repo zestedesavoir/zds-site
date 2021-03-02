@@ -6,6 +6,7 @@ from django.urls import include, re_path, path, get_resolver, reverse
 
 from zds.forum.models import ForumCategory, Forum, Topic, Tag
 from zds.pages.views import home as home_view
+from zds.member.views import MemberDetail
 from zds.tutorialv2.models.database import PublishedContent
 
 from django.conf import settings
@@ -97,6 +98,7 @@ urlpatterns = [
     re_path(r"^$", home_view, name="homepage"),
     re_path(r"^api/", include(("zds.api.urls", "zds.api"), namespace="api")),
     re_path(r"^oauth2/", include(("oauth2_provider.urls", "oauth2_provider"), namespace="oauth2_provider")),
+    path("@<str:user_name>", MemberDetail.as_view(), name="member-detail"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # SiteMap URLs

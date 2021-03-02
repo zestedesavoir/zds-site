@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import re_path, path
 
 from zds.member.views import (
     MemberList,
@@ -41,13 +41,15 @@ from zds.member.views import (
     SolvedHatRequestsList,
     CreateProfileReportView,
     SolveProfileReportView,
+    redirect_old_profile_to_new,
 )
 
 urlpatterns = [
     # list
     re_path(r"^$", MemberList.as_view(), name="member-list"),
     # details
-    re_path(r"^voir/(?P<user_name>.+)/$", MemberDetail.as_view(), name="member-detail"),
+    # re_path(r"^voir/(?P<user_name>.+)/$", MemberDetail.as_view(), name="member-detail"),
+    path("voir/<str:user_name>/", redirect_old_profile_to_new, name="member-detail-redirect"),
     # modification
     re_path(r"^parametres/profil/$", UpdateMember.as_view(), name="update-member"),
     re_path(r"^parametres/github/$", UpdateGitHubToken.as_view(), name="update-github"),
