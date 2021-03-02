@@ -112,7 +112,7 @@
                         <ul class="dropdown-content" tabindex="0">
                             {# User actions on their own message #}
 
-                            {% if message.author == user %}
+                            {% if message.author == user and not message_is_hidden %}
                                 {% if edit_link %}
                                     {% if message.pk in user_can_modify %} {# User cannot edit a MP post if someone answered after. #}
                                         <li>
@@ -123,7 +123,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if not message_is_hidden and can_hide != False %}
+                                {% if can_hide != False %}
                                     <li>
                                         <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                             <span>{% trans "Masquer" %}</span>
