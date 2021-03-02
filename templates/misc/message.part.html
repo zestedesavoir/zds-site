@@ -107,8 +107,9 @@
 
             {% if user.is_authenticated %}
                 {% spaceless %}
-                    <aside class="message-actions">
-                        <ul tabindex="0">
+                    <details class="message-actions dropdown">
+                        <summary><span class="sr-only">Options du message</span></summary>
+                        <ul class="dropdown-content" tabindex="0">
                             {# User actions on their own message #}
 
                             {% if message.author == user %}
@@ -254,7 +255,7 @@
                                 {% endif %}
                             {% endif %}
                         </ul>
-                    </aside>
+                    </details>
                 {% endspaceless %}
 
                 {# Hide message modale #}

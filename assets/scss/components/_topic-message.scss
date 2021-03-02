@@ -354,17 +354,41 @@ div.msg-are-hidden {
                 }
             }
 
-            aside.message-actions {
-                position: relative;
+            details.message-actions {
+                margin-top: $length-4;
+                margin-right: $length-4;
                 margin-bottom: $length-8;
 
-                ul {
-                    position: absolute;
-                    top: 0;
-                    right: 0;
+                summary {
+                    height: $length-32;
+                    padding-right: $length-8;
+                    padding-left: $length-8;
+                    color: $grey-500;
 
-                    margin: 0;
-                    padding: 0;
+                    &::before {
+                        content: '…';
+
+                        width: $length-6;
+
+                        padding: $length-6;
+
+                        font-size: $font-size-9;
+                        font-weight: bold;
+
+                        line-height: .8;
+                    }
+
+                    &:hover,
+                    &:focus {
+                        color: $grey-700;
+                        outline: none;
+                    }
+                }
+
+                .dropdown-content {
+                    --dropdown-arrow-offset-right: #{$length-12};
+                    padding-top: $length-4;
+                    padding-bottom: $length-4;
 
                     li {
                         display: flex;
@@ -372,7 +396,6 @@ div.msg-are-hidden {
                         box-sizing: border-box;
 
                         min-width: $length-128;
-                        height: $length-32;
 
                         user-select: none;
 
@@ -428,32 +451,6 @@ div.msg-are-hidden {
                             }
                         }
 
-                        &:not(:first-child) {
-                            display: none;
-                        }
-
-                        &:first-child {
-                            padding-right: $length-32;
-
-                            &:after {
-                                content: '…';
-
-                                position: absolute;
-
-                                top: 0;
-                                right: 0;
-
-                                padding: $length-6;
-                                padding-right: $length-16;;
-
-                                color: $grey-500;
-                                font-size: $font-size-9;
-                                font-weight: bold;
-
-                                line-height: .8;
-                            }
-                        }
-
                         &.is-separator {
                             // display: flex in :hover
                             align-items: center;
@@ -481,47 +478,41 @@ div.msg-are-hidden {
                         }
                     }
 
-                    &:hover, &:focus, &.is-active {
-                        z-index: 21;
+                    &, li, a, button {
+                        background-color: $true-white;
+                    }
 
-                        @include shadow-2;
+                    li {
+                        min-width: $length-192;
 
-                        &, li, a, button {
-                            background-color: $true-white;
-                        }
-
-                        li {
-                            min-width: $length-192;
-
-                            @include mobile {
-                                span {
-                                    display: inline;
-                                }
-
-                                a:after {
-                                    display: block;
-                                }
+                        @include mobile {
+                            span {
+                                display: inline;
                             }
 
-                            &:first-child {
-                                padding-right: 0;
-
-                                &:after {
-                                    display: none;
-                                }
-                            }
-
-                            &:not(:first-child) {
+                            a:after {
                                 display: block;
                             }
+                        }
 
-                            &.is-separator {
-                                display: flex;
-                            }
+                        &:first-child {
+                            padding-right: 0;
 
-                            a, button, button[type=submit] {
-                                color: $grey-900;
+                            &:after {
+                                display: none;
                             }
+                        }
+
+                        &:not(:first-child) {
+                            display: block;
+                        }
+
+                        &.is-separator {
+                            display: flex;
+                        }
+
+                        a, button, button[type=submit] {
+                            color: $grey-900;
                         }
                     }
                 }
@@ -532,11 +523,8 @@ div.msg-are-hidden {
 
             @include desktop {
 
-                margin: 0 $length-10;
+                margin: 0 $length-14;
 
-                > :first-child {
-                    margin-top: $length-6;
-                }
                 > figure:first-child {
                     margin-top: $length-10;
                 }
