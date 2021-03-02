@@ -130,7 +130,7 @@ class Forum(models.Model):
         :return: the last message on the forum, if there are any.
         """
         try:
-            return Post.objects.filter(topic__forum=self).order_by("-pubdate").all()[0]
+            return Post.objects.filter(topic__forum=self, is_visible=True).order_by("-pubdate").all()[0]
         except IndexError:
             return None
 
@@ -257,7 +257,10 @@ class Topic(AbstractESDjangoIndexable):
         """
         :return: the last post in the thread.
         """
-        return self.last_message
+        try:
+            return self.post_set.filter(is_visible=True).latest("pubdate")
+        except Post.DoesNotExist:
+            return None
 
     def get_last_answer(self):
         """
