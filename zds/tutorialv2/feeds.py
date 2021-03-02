@@ -4,7 +4,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import gettext_lazy as _
 
-from zds.utils.models import Category, SubCategory
+from zds.utils.models import Category, SubCategory, Tag
+from zds.utils.uuslug_wrapper import slugify
 from zds.tutorialv2.models.database import PublishedContent
 
 
@@ -28,16 +29,23 @@ class LastContentFeedRSS(Feed):
         :return: The last (typically 5) contents (sorted by publication date).
         """
         subcategories = None
-        if "category" in self.query_params:
-            category = get_object_or_404(Category, slug=self.query_params.get("category"))
+        category = self.query_params.get("category", "").strip()
+        if category:
+            category = get_object_or_404(Category, slug=category)
             subcategories = category.get_subcategories()
-        if "subcategory" in self.query_params:
-            subcategories = [get_object_or_404(SubCategory, slug=self.query_params.get("subcategory"))]
+        subcategory = self.query_params.get("subcategory", "").strip()
+        if subcategory:
+            subcategories = [get_object_or_404(SubCategory, slug=subcategory)]
+
+        tags = None
+        tag = self.query_params.get("tag", "").strip()
+        if tag:
+            tags = [get_object_or_404(Tag, slug=slugify(self.query_params.get("tag")))]
 
         feed_length = settings.ZDS_APP["content"]["feed_length"]
 
         contents = PublishedContent.objects.last_contents(
-            content_type=[self.content_type], subcategories=subcategories
+            content_type=[self.content_type], subcategories=subcategories, tags=tags
         )[:feed_length]
 
         return contents
