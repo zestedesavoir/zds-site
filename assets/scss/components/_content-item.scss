@@ -79,10 +79,6 @@ $content-item-padding-vertical: $length-14;
         header {
             flex: 2;
 
-            &:hover .content-title {
-                text-decoration: underline;
-            }
-
             .content-title {
                 margin: 0;
                 padding: 0;
@@ -102,6 +98,10 @@ $content-item-padding-vertical: $length-14;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
                 }
             }
 
@@ -112,10 +112,6 @@ $content-item-padding-vertical: $length-14;
                 &, a {
                     font-size: $font-size-9;
                     color: $grey-600;
-
-                    &:hover {
-                        text-decoration: none;
-                    }
                 }
 
                 &.is-long {
@@ -297,6 +293,10 @@ $content-item-padding-vertical: $length-14;
                 text-decoration: underline;
             }
         }
+    }
+
+    &:not(.topic-item) .content-info header:hover .content-title {
+        text-decoration: underline;
     }
 }
 
