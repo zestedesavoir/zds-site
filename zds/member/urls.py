@@ -48,7 +48,6 @@ urlpatterns = [
     # list
     re_path(r"^$", MemberList.as_view(), name="member-list"),
     # details
-    # re_path(r"^voir/(?P<user_name>.+)/$", MemberDetail.as_view(), name="member-detail"),
     path("voir/<str:user_name>/", redirect_old_profile_to_new, name="member-detail-redirect"),
     # modification
     re_path(r"^parametres/profil/$", UpdateMember.as_view(), name="update-member"),
