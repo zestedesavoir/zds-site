@@ -213,7 +213,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if user.is_authenticated and helpful_link and topic.author != user %}
+                                {% if user.is_authenticated and message.is_visible and helpful_link and topic.author != user %}
                                     <li>
                                         <form action="{{ helpful_link }}" method="post">
                                             {% csrf_token %}
@@ -244,7 +244,7 @@
                                     </li>
                                 {% endif %}
 
-                                {% if user.is_authenticated and perms.utils.change_comment_potential_spam and potential_spam_link %}
+                                {% if user.is_authenticated and message.is_visible and perms.utils.change_comment_potential_spam and potential_spam_link %}
                                     <li>
                                         <button
                                             class="alert ico-after potential-spam-handle"
