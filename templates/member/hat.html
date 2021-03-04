@@ -45,10 +45,10 @@
                     <li>{% include "misc/member_item.part.html" with avatar=True %}</li>
                 {% endfor %}
             </ul>
-            <p>
-                {% trans "Remarque : cette liste correspond aux membres possédant actuellement la casquette. Si vous voyez un message avec cette casquette mais que son auteur n'apparaît pas ici, cela signifie qu'il l'avait en postant. Des messages privés automatiques peuvent également être envoyés avec une casquette." %}
-            </p>
         </div>
+        <p class="is-dimmed">
+            {% trans "Remarque : cette liste correspond aux membres possédant actuellement la casquette. Si vous voyez un message avec cette casquette mais que son auteur n'apparaît pas ici, cela signifie qu'il l'avait en postant. Des messages privés automatiques peuvent également être envoyés avec une casquette." %}
+        </p>
     {% else %}
         <p>{% trans "Aucun membre ne possède cette casquette." %}</p>
     {% endif %}
