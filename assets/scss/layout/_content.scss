@@ -131,6 +131,10 @@
         font-size: $font-size-6;
         font-weight: normal;
     }
+
+    p.is-dimmed {
+        color: $grey-500;
+    }
 }
 
 @include wide {

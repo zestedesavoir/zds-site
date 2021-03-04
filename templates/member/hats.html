@@ -45,13 +45,14 @@
                         </td>
                         <td class="wide">
                             {% if hat.get_users %}
-                                {% for user in hat.get_users_preview %}
-                                    {% include 'misc/member_item.part.html' with member=user avatar=True %}
-                                {% endfor %}
-
+                                <div class="members">
+                                    <ul>
+                                        {% for user in hat.get_users_preview %}
+                                            <li>{% include "misc/member_item.part.html" with member=user avatar=True %}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
                                 {% if hat.get_users_count > app.member.users_in_hats_list %}
-                                    –
-
                                     <a href="{{ hat.get_absolute_url }}">
                                         {% blocktrans with users_count=hat.get_users_count %}
                                             Voir les {{ users_count }} membres

@@ -112,16 +112,18 @@
                         <ul class="dropdown-content" tabindex="0">
                             {# User actions on their own message #}
 
-                            {% if message.author == user %}
+                            {% if message.author == user and not message_is_hidden %}
                                 {% if edit_link %}
-                                    <li>
-                                        <a href="{{ edit_link | safe }}" class="ico-after edit">
-                                            <span>{% trans "Modifier" %}</span>
-                                        </a>
-                                    </li>
+                                    {% if message.pk in user_can_modify %} {# User cannot edit a MP post if someone answered after. #}
+                                        <li>
+                                            <a href="{{ edit_link | safe }}" class="ico-after edit">
+                                                <span>{% trans "Modifier" %}</span>
+                                            </a>
+                                        </li>
+                                    {% endif %}
                                 {% endif %}
 
-                                {% if not message_is_hidden and can_hide != False %}
+                                {% if can_hide != False %}
                                     <li>
                                         <a href="#hide-message-{{ message.id }}" class="ico-after hide open-modal">
                                             <span>{% trans "Masquer" %}</span>
@@ -211,7 +213,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if user.is_authenticated and helpful_link and topic.author != user %}
+                                {% if user.is_authenticated and message.is_visible and helpful_link and topic.author != user %}
                                     <li>
                                         <form action="{{ helpful_link }}" method="post">
                                             {% csrf_token %}
@@ -242,7 +244,7 @@
                                     </li>
                                 {% endif %}
 
-                                {% if user.is_authenticated and perms.utils.change_comment_potential_spam and potential_spam_link %}
+                                {% if user.is_authenticated and message.is_visible and perms.utils.change_comment_potential_spam and potential_spam_link %}
                                     <li>
                                         <button
                                             class="alert ico-after potential-spam-handle"
