@@ -69,7 +69,7 @@
             {% spaceless %}
                 <ul class="message-metadata">
                     <li>
-                        <a href="{{ message.author.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
+                        <a href="{{ message.author.profile.get_absolute_url }}" class="username" itemprop="author" itemscope itemtype="http://schema.org/Person">
                             <span itemprop="name">{{ message.author.username }}</span>
                         </a><span class="username-date-separator">, </span>
                         <a href="#p{{ message.pk }}" class="date" title="{{ message.pubdate|tooltip_date|capfirst }}">
