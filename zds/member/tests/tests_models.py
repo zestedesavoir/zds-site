@@ -27,7 +27,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.forumtopic = TopicFactory(forum=self.forum, author=self.staff.user)
 
     def test_get_absolute_url_for_details_of_member(self):
-        self.assertEqual(self.user1.get_absolute_url(), "/membres/voir/{0}/".format(self.user1.user.username))
+        self.assertEqual(self.user1.get_absolute_url(), f"/@{self.user1.user.username}")
 
     def test_get_avatar_url(self):
         # if no url was specified -> gravatar !

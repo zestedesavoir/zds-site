@@ -250,6 +250,11 @@ class MemberDetail(DetailView):
         return context
 
 
+def redirect_old_profile_to_new(request, user_name):
+    user = get_object_or_404(User, username=user_name)
+    return redirect(user.profile, permanent=True)
+
+
 class UpdateMember(UpdateView):
     """Update a profile."""
 
