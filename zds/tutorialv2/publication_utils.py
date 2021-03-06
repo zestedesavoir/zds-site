@@ -410,7 +410,6 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url],
             heading_shift=-1,
         )
-        published_content_entity
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
         zmd_class_dir_path = Path(settings.ZDS_APP["content"]["latex_template_repo"])
