@@ -33,8 +33,10 @@ class EnableMatomoMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.queue = Queue()
-        self.worker = Thread(target=_background_process, args=(self.queue,))
-        self.worker.start()
+        if settings.ZDS_APP["site"].get("matomo_enabled", True):
+            self.worker = Thread(target=_background_process, args=(self.queue,))
+            self.worker.setDaemon(True)
+            self.worker.start()
 
     def __call__(self, request):
         return self.process_response(request, self.get_response(request))
@@ -68,5 +70,6 @@ class EnableMatomoMiddleware:
         return response
 
     def __del__(self):
-        self.queue.put(False)
-        self.worker.join()
+        if settings.ZDS_APP["site"].get("matomo_enabled", True):
+            self.queue.put(False)
+            self.worker.join(timeout=2)
