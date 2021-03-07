@@ -31,7 +31,7 @@ def _background_process(queue: Queue):
 class EnableMatomoMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.queue = JoinableQueue()
+        self.queue = Queue()
         self.worker = Process(target=_background_process, args=(self.queue,))
 
     def __call__(self, request):
