@@ -3242,6 +3242,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
 
         for extra in avail_extra:
+            if extra == 'html':
+                continue
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
         # test for visitor:
@@ -3250,11 +3252,11 @@ class ContentTests(TutorialTestMixin, TestCase):
         # get 404 on markdown:
         result = self.client.get(published.get_absolute_url_to_extra_content("md"))
         self.assertEqual(result.status_code, 404)
-
+        # md is for staff, html is not really supported
         # get 200 for the rest !
-        avail_extra = avail_extra[1:]  # remove 'md' from the list
-
         for extra in avail_extra:
+            if extra in ["html", "md"]:
+                continue
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
