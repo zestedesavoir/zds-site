@@ -34,6 +34,7 @@ class EnableMatomoMiddleware:
         ctx = get_context("spawn")
         self.queue = ctx.Queue()
         self.worker = ctx.Process(target=_background_process, args=(self.queue,))
+        self.worker.start()
 
     def __call__(self, request):
         return self.process_response(request, self.get_response(request))
@@ -67,4 +68,3 @@ class EnableMatomoMiddleware:
 
     def __del__(self):
         self.queue.put(False)
-        self.worker.join()
