@@ -1,6 +1,7 @@
 {% extends "forum/base.html" %}
 {% load i18n %}
 {% load interventions %}
+{% load topics_sort %}
 
 
 {% block title %}
@@ -86,7 +87,7 @@
 
     {% if topics %}
         <div class="topic-list navigable-list" itemscope itemtype="http://schema.org/ItemList">
-            {% for topic in topics %}
+            {% for topic in topics|topics_sort %}
                 {% include "forum/includes/topic_row.part.html" %}
             {% endfor %}
         </div>
