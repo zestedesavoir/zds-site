@@ -2,14 +2,14 @@ import requests
 
 from django.conf import settings
 from multiprocessing import Process
-from multiprocessing.queues import JoinableQueue
+from multiprocessing.queues import Queue
 
 matomo_api_url = "{0}/matomo.php".format(settings.ZDS_APP["site"]["matomoUrl"])
 matomo_site_id = settings.ZDS_APP["site"]["matomoID"]
 matomo_api_version = 1
 
 
-def _background_process(queue: JoinableQueue):
+def _background_process(queue: Queue):
     data = queue.get(block=True)
     while data:
         requests.get(
@@ -26,7 +26,6 @@ def _background_process(queue: JoinableQueue):
             },
         )
         data = queue.get(block=True)
-    queue.join()
 
 
 class EnableMatomoMiddleware:
