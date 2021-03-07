@@ -1042,6 +1042,24 @@ class PostNewTest(TestCase):
 
         self.assertEqual(403, response.status_code)
 
+    def test_new_post_stopped_by_anti_spam_after_hidden_post(self):
+        profile = ProfileFactory()
+        _, forum = create_category_and_forum()
+        topic = create_topic_in_forum(forum, profile)
+
+        post_to_hide = PostFactory(topic=topic, author=profile.user, position=topic.last_message.position + 1)
+
+        staff = StaffProfileFactory()
+        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        text_hidden_expected = "Bad guy!"
+        data = {"delete_message": "", "text_hidden": text_hidden_expected}
+        response = self.client.post(reverse("post-edit") + "?message={}".format(post_to_hide.pk), data, follow=False)
+
+        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
+
+        self.assertEqual(403, response.status_code)
+
     def test_success_new_post_method_get(self):
         another_profile = ProfileFactory()
         _, forum = create_category_and_forum()
@@ -1368,7 +1386,7 @@ class PostEditTest(TestCase):
         data = {"delete_message": "", "text_hidden": text_hidden_expected}
         response = self.client.post(reverse("post-edit") + "?message={}".format(post_to_hide.pk), data, follow=False)
 
-        last_post = Post.objects.get(pk=topic.get_last_post().pk)
+        last_post = Post.objects.get(pk=topic.get_last_visible_post().pk)
         self.assertEqual(last_post.pk, expected_last_post.pk)
 
     def test_hide_helpful_message(self):
