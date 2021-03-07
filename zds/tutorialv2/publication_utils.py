@@ -115,8 +115,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     elif is_update:
         public_version.update_date = datetime.now()
     public_version.sha_public = versioned.current_version
-    public_version.save()
-
     public_version.save(update_fields=["publication_date", "update_date", "sha_public"])
 
     public_version.authors.clear()
@@ -126,12 +124,14 @@ def publish_content(db_object, versioned, is_major_update=True):
     # this puts the manifest.json and base json file on the prod path.
     shutil.rmtree(public_version.get_prod_path(), ignore_errors=True)
     shutil.copytree(tmp_path, public_version.get_prod_path())
+    db_object.sha_public = versioned.current_version
+    public_version.save()
     if settings.ZDS_APP["content"]["extra_content_generation_policy"] == "SYNC":
         # ok, now we can really publish the thing!
-        generate_external_content(base_name, build_extra_contents_path, md_file_path)
+        generate_external_content(base_name, build_extra_contents_path, md_file_path, versioned=versioned)
     elif settings.ZDS_APP["content"]["extra_content_generation_policy"] == "WATCHDOG":
         PublicatorRegistry.get("watchdog").publish(md_file_path, base_name, silently_pass=False)
-    db_object.sha_public = versioned.current_version
+
     return public_version
 
 
@@ -169,7 +169,9 @@ def write_md_file(md_file_path, parsed_with_local_images, versioned):
             )
 
 
-def generate_external_content(base_name, extra_contents_path, md_file_path, overload_settings=False, excluded=None):
+def generate_external_content(
+    base_name, extra_contents_path, md_file_path, overload_settings=False, excluded=None, **kwargs
+):
     """
     generate all static file that allow offline access to content
 
@@ -186,7 +188,11 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
     for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
         try:
             publicator.publish(
-                md_file_path, base_name, change_dir=extra_contents_path, cur_language=translation.get_language()
+                md_file_path,
+                base_name,
+                change_dir=extra_contents_path,
+                cur_language=translation.get_language(),
+                **kwargs
             )
         except (FailureDuringPublication, OSError):
             logging.getLogger(__name__).exception(
@@ -285,7 +291,7 @@ class Publicator:
 class MarkdownPublicator(Publicator):
     def publish(self, md_file_path, base_name, *, cur_language, **kwargs):
         published_content_entity = self.get_published_content_entity(md_file_path)
-        versioned = published_content_entity.load_public_version()
+        versioned = kwargs.pop("versioned", None) or published_content_entity.load_public_version()
         try:
             translation.activate(settings.LANGUAGE_CODE)
             parsed = render_to_string("tutorialv2/export/content.md", {"content": versioned})

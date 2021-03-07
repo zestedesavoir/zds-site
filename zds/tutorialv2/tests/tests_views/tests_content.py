@@ -3216,7 +3216,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(os.path.exists(published.get_extra_contents_directory()))
         self.assertTrue(os.path.exists(os.path.join(published.get_extra_contents_directory(), "images")))
 
-        avail_extra = ["md", "html", "pdf", "epub", "zip"]
+        avail_extra = ["md", "pdf", "epub", "zip"]
 
         # test existence and access for admin
         for extra in avail_extra:
@@ -3242,8 +3242,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
 
         for extra in avail_extra:
-            if extra == 'html':
-                continue
+
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
         # test for visitor:
@@ -3255,7 +3254,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # md is for staff, html is not really supported
         # get 200 for the rest !
         for extra in avail_extra:
-            if extra in ["html", "md"]:
+            if extra == "md":
                 continue
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
