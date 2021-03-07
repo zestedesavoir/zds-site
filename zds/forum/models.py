@@ -127,7 +127,7 @@ class Forum(models.Model):
 
     def get_last_message(self):
         """
-        :return: the last message on the forum, if there are any.
+        :return: the last visible message on the forum, if there are any.
         """
         try:
             return Post.objects.filter(topic__forum=self, is_visible=True).order_by("-pubdate").all()[0]
@@ -228,6 +228,10 @@ class Topic(AbstractESDjangoIndexable):
             return first_post.text
         return Topic.__remove_greetings(first_post)[: settings.ZDS_APP["forum"]["description_size"]]
 
+    @property
+    def update(self):
+        return self.get_last_visible_post().update_index_date
+
     @staticmethod
     def __remove_greetings(post):
         greetings = settings.ZDS_APP["forum"]["greetings"]
@@ -253,14 +257,20 @@ class Topic(AbstractESDjangoIndexable):
         """
         return Post.objects.filter(topic__pk=self.pk).count()
 
-    def get_last_post(self):
+    def get_last_visible_post(self):
         """
-        :return: the last post in the thread.
+        :return: the last visible post in the thread.
         """
         try:
             return self.post_set.filter(is_visible=True).latest("pubdate")
         except Post.DoesNotExist:
             return None
+
+    def get_last_post(self):
+        """
+        :return: the last post in the thread.
+        """
+        return self.last_message
 
     def get_last_answer(self):
         """
@@ -269,7 +279,7 @@ class Topic(AbstractESDjangoIndexable):
         return `None`.
         :return: the last answer in the thread, if any.
         """
-        last_post = self.get_last_post()
+        last_post = self.get_last_visible_post()
 
         if last_post == self.first_post():
             return None
