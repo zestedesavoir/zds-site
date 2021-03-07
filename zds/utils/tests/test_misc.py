@@ -5,6 +5,8 @@ from zds.tutorialv2.factories import PublishedContentFactory
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Alert
 from zds.utils.context_processor import get_header_notifications
+from zds.utils.templatetags.topics_sort import topics_sort
+from zds.forum.factories import TopicFactory, create_category_and_forum, create_topic_in_forum
 
 
 class Misc(TestCase):
@@ -31,3 +33,11 @@ class Misc(TestCase):
         filter_result = get_header_notifications(staff.user)["alerts"]
         self.assertEqual(1, filter_result["total"])
         self.assertEqual(alert.text, filter_result["list"][0]["text"])
+
+    def test_topics_sort(self):
+        author = ProfileFactory()
+        _, forum = create_category_and_forum()
+        topic1 = create_topic_in_forum(forum, author)
+        topic2 = create_topic_in_forum(forum, author)
+
+        self.assertEqual(topics_sort([topic1, topic2]), [topic2, topic1])
