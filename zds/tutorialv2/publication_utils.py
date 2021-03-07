@@ -283,6 +283,8 @@ class Publicator:
 @PublicatorRegistry.register("md")
 class MarkdownPublicator(Publicator):
     def publish(self, md_file_path, base_name, *, cur_language, **kwargs):
+        published_content_entity = self.get_published_content_entity(md_file_path)
+        versioned = published_content_entity.load_public_version()
         try:
             translation.activate(settings.LANGUAGE_CODE)
             parsed = render_to_string("tutorialv2/export/content.md", {"content": versioned})
@@ -290,8 +292,7 @@ class MarkdownPublicator(Publicator):
             raise FailureDuringPublication("Could not publish flat markdown")
         finally:
             translation.activate(cur_language)
-        published_content_entity = self.get_published_content_entity(md_file_path)
-        versioned = published_content_entity.load_public_version()
+
         write_md_file(md_file_path, parsed, versioned)
         if "__building" in md_file_path:
             shutil.copy2(md_file_path, md_file_path.replace("__building", ""))
