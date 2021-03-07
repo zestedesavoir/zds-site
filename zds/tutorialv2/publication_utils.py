@@ -185,8 +185,9 @@ def generate_external_content(base_name, extra_contents_path, md_file_path, over
         excluded.append("pdf")
     for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
         try:
-            publicator.publish(md_file_path, base_name, change_dir=extra_contents_path,
-                               cur_language=translation.get_language())
+            publicator.publish(
+                md_file_path, base_name, change_dir=extra_contents_path, cur_language=translation.get_language()
+            )
         except (FailureDuringPublication, OSError):
             logging.getLogger(__name__).exception(
                 "Could not publish %s format from %s base.", publicator_name, md_file_path
