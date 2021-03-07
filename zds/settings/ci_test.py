@@ -44,3 +44,5 @@ for logger in LOGGING["loggers"].values():
             },
         },
     }
+
+ZDS_APP["site"]["matomo_enabled"] = False
