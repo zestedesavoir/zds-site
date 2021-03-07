@@ -31,9 +31,10 @@ def _background_process(queue: MultiProcessingQueue):
 class EnableMatomoMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        ctx = get_context("spawn")
+        ctx = get_context("fork")
         self.queue = ctx.Queue()
         self.worker = ctx.Process(target=_background_process, args=(self.queue,))
+        self.worker.start()
 
     def __call__(self, request):
         return self.process_response(request, self.get_response(request))
