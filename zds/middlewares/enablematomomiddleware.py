@@ -1,15 +1,15 @@
 import requests
 
 from django.conf import settings
-from multiprocessing import Process
-from multiprocessing.queues import Queue
+from multiprocessing import Process, get_context
+from multiprocessing import Queue as MultiProcessingQueue
 
 matomo_api_url = "{0}/matomo.php".format(settings.ZDS_APP["site"]["matomoUrl"])
 matomo_site_id = settings.ZDS_APP["site"]["matomoID"]
 matomo_api_version = 1
 
 
-def _background_process(queue: Queue):
+def _background_process(queue: MultiProcessingQueue):
     data = queue.get(block=True)
     while data:
         requests.get(
@@ -31,8 +31,9 @@ def _background_process(queue: Queue):
 class EnableMatomoMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.queue = Queue()
-        self.worker = Process(target=_background_process, args=(self.queue,))
+        ctx = get_context("spawn")
+        self.queue = ctx.Queue()
+        self.worker = ctx.Process(target=_background_process, args=(self.queue,))
 
     def __call__(self, request):
         return self.process_response(request, self.get_response(request))
