@@ -3,7 +3,7 @@
 Qu'est-ce que Zeste de Savoir ?
 ===============================
 
-`Zeste de Savoir <https://zestedesavoir.com>`__ est un site internet communautaire dédié au partage de la connaissance pour tous. Il est propulsé par le framework `Django <https://www.djangoproject.com/>`__ 2.2 et `Python <https://www.python.org/>`__ 3.
+`Zeste de Savoir <https://zestedesavoir.com>`__ est un site internet communautaire dédié au partage de la connaissance pour tous. Il est propulsé par le framework `Django <https://www.djangoproject.com/>`__ 3 et `Python <https://www.python.org/>`__ 3.
 
 Zeste de Savoir était à l'origine un fork de Progdupeupl (`voir le dépôt Git <https://github.com/progdupeupl/pdp_website>`__).
 
