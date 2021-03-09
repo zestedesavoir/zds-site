@@ -17,8 +17,6 @@ from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    LicenceFactory,
-    SubCategoryFactory,
     PublishedContentFactory,
 )
 from zds.tutorialv2.models.database import (
@@ -31,7 +29,7 @@ from zds.tutorialv2.models.database import (
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import Alert, Tag, Hat
-from zds.utils.factories import CategoryFactory
+from zds.utils.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
 from zds.utils.header_notifications import get_header_notifications
 from copy import deepcopy
 from zds import json_handler

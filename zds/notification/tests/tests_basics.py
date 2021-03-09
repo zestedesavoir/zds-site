@@ -24,14 +24,13 @@ from zds.notification.models import (
 )
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
-    LicenceFactory,
     ContentReactionFactory,
-    SubCategoryFactory,
     PublishedContentFactory,
 )
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import old_slugify
+from zds.utils.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.mps import send_mp, send_message_mp
 
 
