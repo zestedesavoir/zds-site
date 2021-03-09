@@ -168,9 +168,9 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         # populate with 2 chapters (1 extract each)
         midsize_tuto_draft = midsize_tuto.load_version()
-        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto)
         ExtractFactory(container=chapter1, db_object=midsize_tuto)
-        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto)
         ExtractFactory(container=chapter2, db_object=midsize_tuto)
 
         # publish it
@@ -213,11 +213,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         # populate with 2 part (1 chapter with 1 extract each)
         bigtuto_draft = bigtuto.load_version()
-        part1 = ContainerFactory(parent=bigtuto_draft, db_objet=bigtuto)
-        chapter1 = ContainerFactory(parent=part1, db_objet=bigtuto)
+        part1 = ContainerFactory(parent=bigtuto_draft, db_object=bigtuto)
+        chapter1 = ContainerFactory(parent=part1, db_object=bigtuto)
         ExtractFactory(container=chapter1, db_object=bigtuto)
-        part2 = ContainerFactory(parent=bigtuto_draft, db_objet=bigtuto)
-        chapter2 = ContainerFactory(parent=part2, db_objet=bigtuto)
+        part2 = ContainerFactory(parent=bigtuto_draft, db_object=bigtuto)
+        chapter2 = ContainerFactory(parent=part2, db_object=bigtuto)
         ExtractFactory(container=chapter2, db_object=bigtuto)
 
         # publish it
