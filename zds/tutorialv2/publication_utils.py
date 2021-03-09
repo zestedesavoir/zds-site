@@ -464,10 +464,10 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             command, shell=True, cwd=path.dirname(texfile), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         # let's put 10 min of timeout because we do not generate latex everyday
-        command_process.communicate(timeout=600)
+        out, err = command_process.communicate(timeout=600)
         print(command)
-        print(command_process.stdout.readlines())
-        print(command_process.stderr.readlines())
+        print(out)
+        print(err)
         print(texfile)
         with contextlib.suppress(ImportError):
             from raven import breadcrumbs

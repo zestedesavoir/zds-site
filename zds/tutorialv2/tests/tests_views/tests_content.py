@@ -3271,7 +3271,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # get 200 for the rest !
         for extra in avail_extra:
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
-            self.assertEqual(result.status_code, 200)
+            self.assertEqual(result.status_code, 200, msg="Could not read {} export".format(extra))
 
     def test_publication_give_pubdate_if_no_major(self):
         """if a content has never been published and `is_major` is not checked, still gives a publication date"""
