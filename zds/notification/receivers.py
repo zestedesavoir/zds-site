@@ -406,19 +406,18 @@ def content_published_event(*__, instance, by_email, **___):
 
 @receiver(mp_signals.topic_created, sender=PrivateTopic)
 @disable_for_loaddata
-def answer_private_topic_event(sender, *, topic, by_email, **__):
+def create_private_topic_event(sender, *, topic, by_email, **__):
     """
-    Sends PrivateTopicAnswerSubscription to the subscribers to the topic and subscribe
-    the author to the following answers to the topic.
+    Subscribe the author to the answers to the topic.
 
     :param topic: the new post.
-    :param by_email: Send or not an email.
+    :param by_email: Send or not an email for this subscription.
     """
-
+    subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(topic.author, topic)
     if by_email:
-        PrivateTopicAnswerSubscription.objects.toggle_follow(topic.privatetopic, topic.author, by_email=by_email)
+        subscription.activate_email()
     else:
-        PrivateTopicAnswerSubscription.objects.toggle_follow(topic.privatetopic, topic.author)
+        subscription.deactivate_email()
 
 
 @receiver(mp_signals.message_added, sender=PrivatePost)
