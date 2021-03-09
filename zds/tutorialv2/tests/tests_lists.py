@@ -10,8 +10,6 @@ from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    LicenceFactory,
-    SubCategoryFactory,
     PublishedContentFactory,
     ValidationFactory,
 )
@@ -19,7 +17,7 @@ from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, ForumCategoryFactory
-from zds.utils.factories import CategoryFactory as ContentCategoryFactory
+from zds.utils.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
 
 
 @override_for_contents()
@@ -105,7 +103,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto_1.save()
 
     def test_list_categories(self):
-        category_1 = ContentCategoryFactory()
+        category_1 = CategoryFactory()
         subcategory_1 = SubCategoryFactory(category=category_1)
         subcategory_2 = SubCategoryFactory(category=category_1)
         # Not in context if nothing published inside this subcategory

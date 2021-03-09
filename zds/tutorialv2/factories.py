@@ -4,7 +4,8 @@ import factory
 
 from zds.forum.factories import PostFactory, TopicFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
-from zds.utils.models import SubCategory, Licence, CategorySubCategory
+from zds.utils.factories import LicenceFactory, SubCategoryFactory
+from zds.utils.models import Licence
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
@@ -238,33 +239,6 @@ class PublishedContentFactory(PublishableContentFactory):
         return content
 
 
-class SubCategoryFactory(factory.django.DjangoModelFactory):
-    """
-    Factory that creates a SubCategory.
-    """
-
-    class Meta:
-        model = SubCategory
-
-    title = factory.Sequence(lambda n: f"Sous-Categorie {n} pour Tuto")
-    subtitle = factory.Sequence(lambda n: f"Sous titre de Sous-Categorie {n} pour Tuto")
-    slug = factory.Sequence(lambda n: f"sous-categorie-{n}")
-
-    @classmethod
-    def _generate(cls, create, attrs):
-        # This parameter is only used inside _generate() and won't be saved in the database,
-        # which is why we use attrs.pop() (it is removed from attrs).
-        category = attrs.pop("category", None)
-
-        subcategory = super()._generate(create, attrs)
-
-        if category is not None:
-            relation = CategorySubCategory(category=category, subcategory=subcategory)
-            relation.save()
-
-        return subcategory
-
-
 class ValidationFactory(factory.django.DjangoModelFactory):
     """
     Factory that creates a Validation.
@@ -272,15 +246,3 @@ class ValidationFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Validation
-
-
-class LicenceFactory(factory.django.DjangoModelFactory):
-    """
-    Factory that creates a License.
-    """
-
-    class Meta:
-        model = Licence
-
-    code = factory.Sequence(lambda n: "bidon-no{}".format(n + 1))
-    title = factory.Sequence(lambda n: "Licence bidon no{}".format(n + 1))

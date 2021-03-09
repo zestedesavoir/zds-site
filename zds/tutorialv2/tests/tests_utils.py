@@ -11,7 +11,6 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
-    LicenceFactory,
     ExtractFactory,
     PublishedContentFactory,
     ContentReactionFactory,
@@ -35,6 +34,7 @@ from django.core.management import call_command
 from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds import json_handler
+from zds.utils.factories import LicenceFactory
 from zds.utils.models import Alert
 from zds.utils.header_notifications import get_header_notifications
 
