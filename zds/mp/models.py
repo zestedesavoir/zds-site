@@ -263,20 +263,21 @@ class PrivateTopic(models.Model):
         """
         return self.is_author(user) or user in self.participants.all()
 
-    def add_participant(self, user):
+    def add_participant(self, user, silent=False):
         """
         Add a participant to the private topic.
-        If the user is already participating, do not add it again.
+        If the user is already participating, do nothing.
         Send the `participant_added` signal if successful.
 
         :param user: the user to add to the private topic
+        :param silent: specify if the `participant_added` signal should be silent (e.g. no notification)
         :raise NotReachableError: if the user cannot receive private messages (e.g. a bot)
         """
         if not is_reachable(user):
             raise NotReachableError
-        if not self.is_participant(user):  # avoid adding the same participant twice
+        if not self.is_participant(user):
             self.participants.add(user)
-            signals.participant_added.send(sender=PrivateTopic, topic=self)
+            signals.participant_added.send(sender=PrivateTopic, topic=self, silent=silent)
 
     def remove_participant(self, user):
         """

@@ -200,18 +200,20 @@ def unread_private_topic_event(sender, *, user, instance, **__):
 
 
 @receiver(mp_signals.participant_added, sender=PrivateTopic)
-def notify_participants(sender, *, topic, **__):
+def notify_participants(sender, *, topic, silent, **__):
     """
-    Show a notification to all participants of a private topic except the author.
+    Subscribe participants to the private topic if not already subscribed.
+    If not silent, send a notification to all participants except the author.
     The notification uses the last message of the private topic and respects email preferences.
     """
     for participant in topic.participants.all():
         subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, topic)
-        subscription.send_notification(
-            content=topic.last_message,
-            sender=topic.last_message.author,
-            send_email=participant.profile.email_for_answer,
-        )
+        if not silent:
+            subscription.send_notification(
+                content=topic.last_message,
+                sender=topic.last_message.author,
+                send_email=participant.profile.email_for_answer,
+            )
 
 
 @receiver(mp_signals.participant_removed, sender=PrivateTopic)

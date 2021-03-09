@@ -5,7 +5,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 import logging
 
-from zds.mp.models import PrivateTopic, PrivatePost, mark_read
+from zds.mp.models import PrivateTopic, PrivatePost, mark_read, NotReachableError
 from zds.mp import signals
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -53,7 +53,7 @@ def send_mp(
 
     # Add all participants on the MP.
     for participants in users:
-        n_topic.participants.add(participants)
+        n_topic.add_participant(participants, silent=True)
 
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
     if mark_as_read:
@@ -128,8 +128,15 @@ def send_message_mp(author, n_topic, text, send_by_mail=True, direct=False, hat=
             no_notification_for = [no_notification_for]
         for not_notified_user in no_notification_for:
             mark_read(n_topic, not_notified_user)
-    if author.pk not in [p.pk for p in n_topic.participants.all()] and author.pk != n_topic.author.pk:
-        n_topic.participants.add(author)
+
+    # There's no need to inform of the new participant
+    # because participants are already notified through the `message_added` signal.
+    try:
+        n_topic.add_participant(author, silent=True)
         n_topic.save()
+    except NotReachableError:
+        # we tried to add the bot, that's fine
+        # a better solution would be welcome though
+        pass
 
     return n_topic
