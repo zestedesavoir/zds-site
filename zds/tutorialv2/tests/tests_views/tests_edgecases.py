@@ -3,9 +3,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishedContentFactory, LicenceFactory, SubCategoryFactory
+from zds.tutorialv2.factories import PublishedContentFactory
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
+from zds.utils.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()

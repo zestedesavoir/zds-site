@@ -32,8 +32,6 @@ from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    LicenceFactory,
-    SubCategoryFactory,
     PublishedContentFactory,
     tricky_text_content,
     BetaContentFactory,
@@ -54,7 +52,7 @@ from zds.tutorialv2.publication_utils import (
 )
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.models import HelpWriting, Alert, Tag, Hat
-from zds.utils.factories import HelpWritingFactory, CategoryFactory
+from zds.utils.factories import HelpWritingFactory, CategoryFactory, SubCategoryFactory, LicenceFactory
 from zds.utils.header_notifications import get_header_notifications
 from zds import json_handler
 

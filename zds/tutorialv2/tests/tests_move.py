@@ -10,14 +10,13 @@ from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    LicenceFactory,
-    SubCategoryFactory,
 )
 from zds.tutorialv2.models.database import PublishableContent
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, ForumCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.utils.factories import SubCategoryFactory, LicenceFactory
 
 
 @override_for_contents()
