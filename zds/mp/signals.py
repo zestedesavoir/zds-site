@@ -10,3 +10,5 @@ message_unread = Signal(providing_args=["instance", "user"])
 # Participant management
 participant_added = Signal(providing_args=["instance"])
 participant_removed = Signal(providing_args=["instance"])
+
+topic_created = Signal(providing_args=["instance"])

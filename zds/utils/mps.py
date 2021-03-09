@@ -50,10 +50,12 @@ def send_mp(
     n_topic.pubdate = datetime.now()
     n_topic.author = author
     n_topic.save()
+    signals.topic_created.send(sender=PrivateTopic, topic=n_topic, by_email=send_by_mail)
 
     # Add all participants on the MP.
     for participants in users:
         n_topic.add_participant(participants, silent=True)
+    n_topic.save()
 
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
     if mark_as_read:
@@ -105,7 +107,7 @@ def send_message_mp(author, n_topic, text, send_by_mail=True, direct=False, hat=
 
     if not direct:
         signals.message_added.send(
-            sender=post.__class__, instance=post, by_email=send_by_mail, no_notification_for=no_notification_for
+            sender=post.__class__, post=post, by_email=send_by_mail, no_notification_for=no_notification_for
         )
 
     if send_by_mail and direct:
