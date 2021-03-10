@@ -32,4 +32,10 @@
             margin-top: $length-4;
         }
     }
+
+    .message-content:first-child &:first-child {
+        @include desktop {
+            margin-top: $length-14;
+        }
+    }
 }
