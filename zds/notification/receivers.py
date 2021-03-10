@@ -208,6 +208,7 @@ def notify_participants(sender, *, topic, silent, **__):
     """
     for participant in topic.participants.all():
         subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, topic)
+        subscription.activate_email()
         if not silent:
             subscription.send_notification(
                 content=topic.last_message,
