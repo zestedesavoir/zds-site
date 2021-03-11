@@ -37,7 +37,7 @@ overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "content
 class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, TutorialFrontMixin):
     @classmethod
     def setUpClass(cls):
-        super(PublicationFronttest, cls).setUpClass()
+        super().setUpClass()
         options = Options()
         options.headless = True
         cls.selenium = Firefox(options=options)
@@ -46,7 +46,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
-        super(PublicationFronttest, cls).tearDownClass()
+        super().tearDownClass()
 
     def tearDown(self):
         super().tearDown()
@@ -171,7 +171,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         find_element(".content-container button[type=submit]").click()
 
-        self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains(("Oulipo"))))
+        self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains("Oulipo")))
 
         selenium.get(new_article_url)
 
@@ -179,5 +179,5 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
 
 def scrollDriverTo(driver, x, y):
-    scriptScrollTo = "window.scrollTo(%s, %s);" % (x, y)
+    scriptScrollTo = f"window.scrollTo({x}, {y});"
     driver.execute_script(scriptScrollTo)

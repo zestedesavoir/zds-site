@@ -30,10 +30,10 @@ class FilterMixin:
         return self.request.GET.get(self.filter_url_kwarg, self.get_default_filter_param())
 
     def get_queryset(self):
-        return self.filter_queryset(super(FilterMixin, self).get_queryset(), self.get_filter_param())
+        return self.filter_queryset(super().get_queryset(), self.get_filter_param())
 
     def get_context_data(self, *args, **kwargs):
-        context = super(FilterMixin, self).get_context_data(*args, **kwargs)
+        context = super().get_context_data(*args, **kwargs)
         context.update(
             {
                 self.filter_url_kwarg: self.get_filter_param(),

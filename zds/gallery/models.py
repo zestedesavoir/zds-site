@@ -33,7 +33,7 @@ def image_path(instance, filename):
     :rtype: unicode
     """
     ext = filename.split(".")[-1].lower()
-    filename = "{0}.{1}".format(str(uuid4()), ext)
+    filename = "{}.{}".format(str(uuid4()), ext)
 
     return os.path.join("galleries", str(instance.gallery.pk), filename)
 
@@ -109,7 +109,7 @@ class Image(models.Model):
     update = models.DateTimeField(_("Date de modification"), null=True, blank=True)
 
     def __init__(self, *args, **kwargs):
-        super(Image, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def __str__(self):
         """Human-readable representation of the Image model.
@@ -125,7 +125,7 @@ class Image(models.Model):
         :return: Image object URL
         :rtype: str
         """
-        return "{0}/{1}".format(settings.MEDIA_URL, self.physical).replace("//", "/")
+        return f"{settings.MEDIA_URL}/{self.physical}".replace("//", "/")
 
     def get_thumbnail_url(self):
         return self.physical["gallery"].url

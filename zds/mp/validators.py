@@ -19,7 +19,7 @@ class ParticipantsUserValidator(Validator):
                     if not Profile.objects.contactable_members().filter(pk=current.pk).exists():
                         msg = _("Vous avez tenté d'ajouter un utilisateur injoignable.")
                 except Http404:
-                    msg = _("Un des participants saisi est introuvable ({0}).".format(participant))
+                    msg = _(f"Un des participants saisi est introuvable ({participant}).")
         else:
             msg = _("Vous devez spécifier des participants.")
         if msg is not None:
@@ -59,7 +59,7 @@ class ParticipantsStringValidator(Validator):
                         if not Profile.objects.contactable_members().filter(pk=current.pk).exists():
                             msg = _("Vous avez tenté d'ajouter un utilisateur injoignable.")
                     except Http404:
-                        msg = _("Un des participants saisi est introuvable ({0}).".format(participant))
+                        msg = _(f"Un des participants saisi est introuvable ({participant}).")
             else:
                 msg = _("Le champ participants ne peut être vide.")
             if msg is not None:

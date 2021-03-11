@@ -208,7 +208,7 @@ class CommentEditsHistoryTests(TestCase):
 
         self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
         data = {"text": "A new post!"}
-        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
+        self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.post = topic.last_message
         self.edit = CommentEdit.objects.latest("date")
 

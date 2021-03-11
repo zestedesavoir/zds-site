@@ -1563,7 +1563,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         requests_count = HatRequest.objects.count()
         result = self.client.get(reverse("pages-index"))
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, "({})".format(requests_count))
+        self.assertContains(result, f"({requests_count})")
         # test that the hat asked appears on the requested hats page
         result = self.client.get(reverse("requested-hats"))
         self.assertEqual(result.status_code, 200)

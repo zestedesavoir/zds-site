@@ -33,7 +33,7 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         # if no url was specified -> gravatar !
         self.assertEqual(
             self.user1.get_avatar_url(),
-            "https://secure.gravatar.com/avatar/{0}?d=identicon".format(
+            "https://secure.gravatar.com/avatar/{}?d=identicon".format(
                 md5(self.user1.user.email.lower().encode()).hexdigest()
             ),
         )
@@ -438,7 +438,7 @@ class TestTokenForgotPassword(TestCase):
         self.token = TokenForgotPassword.objects.create(user=self.user1.user, token="abcde", date_end=datetime.now())
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.token.get_absolute_url(), "/membres/new_password/?token={0}".format(self.token.token))
+        self.assertEqual(self.token.get_absolute_url(), f"/membres/new_password/?token={self.token.token}")
 
 
 class TestTokenRegister(TestCase):
@@ -447,4 +447,4 @@ class TestTokenRegister(TestCase):
         self.token = TokenRegister.objects.create(user=self.user1.user, token="abcde", date_end=datetime.now())
 
     def test_get_absolute_url(self):
-        self.assertEqual(self.token.get_absolute_url(), "/membres/activation/?token={0}".format(self.token.token))
+        self.assertEqual(self.token.get_absolute_url(), f"/membres/activation/?token={self.token.token}")

@@ -25,7 +25,7 @@ class AlertsTest(TestCase):
                 author=self.dummy_author.user,
                 comment=self.post,
                 scope="FORUM",
-                text="pouet-{}".format(i),
+                text=f"pouet-{i}",
                 pubdate=(datetime.now() + timedelta(minutes=i)),
             )
             alert.save()

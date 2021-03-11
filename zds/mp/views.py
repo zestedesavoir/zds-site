@@ -38,7 +38,7 @@ class PrivateTopicList(ZdSPagingListView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(PrivateTopicList, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
         return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
@@ -54,7 +54,7 @@ class PrivateTopicNew(CreateView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(PrivateTopicNew, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         title = request.GET.get("title") if "title" in request.GET else None
@@ -132,10 +132,10 @@ class PrivateTopicEdit(UpdateView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(PrivateTopicEdit, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
-        topic = super(PrivateTopicEdit, self).get_object(queryset)
+        topic = super().get_object(queryset)
         if topic is not None and not topic.author == self.request.user:
             raise PermissionDenied
         return topic
@@ -152,7 +152,7 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
     @method_decorator(login_required)
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        return super(PrivateTopicLeaveDetail, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
@@ -172,10 +172,10 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
     @method_decorator(login_required)
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
-        return super(PrivateTopicAddParticipant, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        topic = super(PrivateTopicAddParticipant, self).get_object(self.queryset)
+        topic = super().get_object(self.queryset)
         if topic is not None and not topic.author == self.request.user:
             raise PermissionDenied
         return topic
@@ -208,7 +208,7 @@ class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(PrivateTopicLeaveList, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         list = self.request.POST.getlist("items")
@@ -234,16 +234,16 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(PrivatePostList, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=PrivateTopic.objects.all())
         if not self.object.is_participant(request.user):
             raise PermissionDenied
-        return super(PrivatePostList, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(PrivatePostList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["topic"] = self.object
         context["last_post_pk"] = self.object.last_message.pk
         context["form"] = PrivatePostForm(self.object)
@@ -282,7 +282,7 @@ class PrivatePostAnswer(CreatePostView):
             .prefetch_related()
             .order_by("-pubdate")[: settings.ZDS_APP["forum"]["posts_per_page"]]
         )
-        return super(PrivatePostAnswer, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def create_forum(self, form_class, **kwargs):
         return form_class(self.object, initial=kwargs)
@@ -310,12 +310,12 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(PrivatePostEdit, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         # if post.position_in_topic >= 1:
         self.topic = get_object_or_404(PrivateTopic, pk=(self.kwargs.get("topic_pk", None)))
-        self.current_post = super(PrivatePostEdit, self).get_object(queryset)
+        self.current_post = super().get_object(queryset)
         last = get_object_or_404(PrivatePost, pk=self.topic.last_message.pk)
         # Only edit last private post
         if not last.pk == self.current_post.pk:
@@ -383,7 +383,7 @@ class PrivatePostUnread(UpdateView, UpdatePrivatePost, SinglePrivatePostObjectMi
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return super(PrivatePostUnread, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         if not self.object.privatetopic.author == request.user and request.user not in list(

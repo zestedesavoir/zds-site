@@ -182,7 +182,7 @@ class PrivateTopic(models.Model):
             page_nb = 1
             if pos > settings.ZDS_APP["forum"]["posts_per_page"]:
                 page_nb += (pos - 1) // settings.ZDS_APP["forum"]["posts_per_page"]
-            return "{}?page={}#p{}".format(self.get_absolute_url(), page_nb, pk)
+            return f"{self.get_absolute_url()}?page={page_nb}#p{pk}"
         except PrivateTopicRead.DoesNotExist:
             return self.first_unread_post().get_absolute_url()
 
@@ -346,7 +346,7 @@ class PrivatePost(models.Model):
         :return: PrivatePost description
         :rtype: unicode
         """
-        return "<Post pour « {0} », #{1}>".format(self.privatetopic, self.pk)
+        return f"<Post pour « {self.privatetopic} », #{self.pk}>"
 
     def get_absolute_url(self):
         """
@@ -357,7 +357,7 @@ class PrivatePost(models.Model):
         """
         page = int(ceil(float(self.position_in_topic) / settings.ZDS_APP["forum"]["posts_per_page"]))
 
-        return "{0}?page={1}#p{2}".format(self.privatetopic.get_absolute_url(), page, self.pk)
+        return f"{self.privatetopic.get_absolute_url()}?page={page}#p{self.pk}"
 
     def is_author(self, user):
         """
@@ -421,7 +421,7 @@ class PrivateTopicRead(models.Model):
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return "<Sujet « {0} » lu par {1}, #{2}>".format(self.privatetopic, self.user, self.privatepost.pk)
+        return f"<Sujet « {self.privatetopic} » lu par {self.user}, #{self.privatepost.pk}>"
 
 
 def is_privatetopic_unread(privatetopic, user=None):

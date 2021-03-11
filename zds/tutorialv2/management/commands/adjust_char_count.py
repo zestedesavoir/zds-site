@@ -23,7 +23,7 @@ class Command(BaseCommand):
             query = PublishedContent.objects.filter(must_redirect=False)
 
         for content in query:
-            self.stdout.write("Processing « {} »...".format(content.title()))
+            self.stdout.write(f"Processing « {content.title()} »...")
             content.char_count = content.get_char_count()
             content.save()
-            self.stdout.write("  It got {} letters.".format(content.char_count))
+            self.stdout.write(f"  It got {content.char_count} letters.")

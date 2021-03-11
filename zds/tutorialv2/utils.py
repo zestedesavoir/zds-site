@@ -169,7 +169,7 @@ class TooDeepContainerError(ValueError):
     """
 
     def __init__(self, *args, **kwargs):
-        super(TooDeepContainerError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 def try_adopt_new_child(adoptive_parent, child):
@@ -302,7 +302,7 @@ class BadManifestError(Exception):
     """ The exception that is raised when the manifest.json contains errors """
 
     def __init__(self, *args, **kwargs):
-        super(BadManifestError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_len=80, hint_licence=None):
@@ -467,7 +467,7 @@ class InvalidSlugError(ValueError):
             self.source = kwargs.pop("source")
             self.had_source = True
 
-        super(InvalidSlugError, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 def check_slug(slug):

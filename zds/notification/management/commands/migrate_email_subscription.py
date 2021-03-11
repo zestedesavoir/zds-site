@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for profile in Profile.objects.all():
-            self.stdout.write("Starting migration for {}".format(profile.user.username))
+            self.stdout.write(f"Starting migration for {profile.user.username}")
 
             # Get alls topic followed by the user.
             topics_followed = (

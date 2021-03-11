@@ -93,15 +93,13 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         return queryset.order_by("date_proposition").all()
 
     def get_context_data(self, **kwargs):
-        context = super(ValidationListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         removed_ids = []
         for validation in context["validations"]:
             try:
                 validation.versioned_content = validation.content.load_version(sha=validation.content.sha_validation)
             except OSError:  # remember that load_version can raise OSError when path is not correct
-                logger.warning(
-                    "A validation {} for content {} failed to load".format(validation.pk, validation.content.title)
-                )
+                logger.warning(f"A validation {validation.pk} for content {validation.content.title} failed to load")
                 removed_ids.append(validation.pk)
         context["validations"] = [_valid for _valid in context["validations"] if _valid.pk not in removed_ids]
         context["category"] = self.subcategory
@@ -124,7 +122,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     def get_form_kwargs(self):
         if not self.versioned_object.requires_validation():
             raise PermissionDenied
-        kwargs = super(AskValidationForContent, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -187,7 +185,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         messages.success(self.request, _("Votre demande de validation a été transmise à l'équipe."))
 
         self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
-        return super(AskValidationForContent, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class CancelValidation(LoginRequiredMixin, ModalFormView):
@@ -201,7 +199,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
     modal_form = True
 
     def get_form_kwargs(self):
-        kwargs = super(CancelValidation, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["validation"] = Validation.objects.filter(pk=self.kwargs["pk"]).last()
         return kwargs
 
@@ -274,7 +272,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
             + validation.version
         )
 
-        return super(CancelValidation, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
@@ -344,7 +342,7 @@ class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, Require
     template_name = "tutorialv2/validation/history.html"
 
     def get_context_data(self, **kwargs):
-        context = super(ValidationHistoryView, self).get_context_data()
+        context = super().get_context_data()
 
         context["validations"] = (
             Validation.objects.prefetch_related("validator")
@@ -365,7 +363,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
     modal_form = True
 
     def get_form_kwargs(self):
-        kwargs = super(RejectValidation, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["validation"] = Validation.objects.filter(pk=self.kwargs["pk"]).last()
         return kwargs
 
@@ -425,7 +423,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
         messages.info(self.request, _("Le contenu a bien été refusé."))
         self.success_url = reverse("validation:list")
-        return super(RejectValidation, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
@@ -440,7 +438,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         raise Http404("Publier un contenu depuis la validation n'est pas disponible en GET.")
 
     def get_form_kwargs(self):
-        kwargs = super(AcceptValidation, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["validation"] = Validation.objects.filter(pk=self.kwargs["pk"]).last()
         return kwargs
 
@@ -485,7 +483,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             messages.success(self.request, _("Le contenu a bien été validé."))
             self.success_url = published.get_absolute_url_online()
 
-        return super(AcceptValidation, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
@@ -498,7 +496,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
     modal_form = True
 
     def get_form_kwargs(self):
-        kwargs = super(RevokeValidation, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -562,7 +560,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         messages.success(self.request, _("Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
 
-        return super(RevokeValidation, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):

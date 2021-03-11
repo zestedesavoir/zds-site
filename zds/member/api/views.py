@@ -349,7 +349,7 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
             - code: 404
               message: Not Found
         """
-        return super(MemberDetailReadingOnly, self).post(request, args, kwargs)
+        return super().post(request, args, kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -369,7 +369,7 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
             - code: 404
               message: Not Found
         """
-        return super(MemberDetailReadingOnly, self).delete(request, args, kwargs)
+        return super().delete(request, args, kwargs)
 
     def get_state_instance(self, request):
         if request.method == "POST":
@@ -379,7 +379,7 @@ class MemberDetailReadingOnly(CreateDestroyMemberSanctionAPIView):
                 return ReadingOnlySanction(request.data)
         elif request.method == "DELETE":
             return DeleteReadingOnlySanction(request.data)
-        raise ValueError("Method {0} is not supported in this API route.".format(request.method))
+        raise ValueError(f"Method {request.method} is not supported in this API route.")
 
 
 class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
@@ -417,7 +417,7 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
             - code: 404
               message: Not Found
         """
-        return super(MemberDetailBan, self).post(request, args, kwargs)
+        return super().post(request, args, kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -437,7 +437,7 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
             - code: 404
               message: Not Found
         """
-        return super(MemberDetailBan, self).delete(request, args, kwargs)
+        return super().delete(request, args, kwargs)
 
     def get_state_instance(self, request):
         if request.method == "POST":
@@ -447,4 +447,4 @@ class MemberDetailBan(CreateDestroyMemberSanctionAPIView):
                 return BanSanction(request.POST)
         elif request.method == "DELETE":
             return DeleteBanSanction(request.data)
-        raise ValueError("Method {0} is not supported in this API route.".format(request.method))
+        raise ValueError(f"Method {request.method} is not supported in this API route.")

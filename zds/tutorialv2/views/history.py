@@ -23,7 +23,7 @@ class DisplayHistory(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     template_name = "tutorialv2/view/history.html"
 
     def get_context_data(self, **kwargs):
-        context = super(DisplayHistory, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         repo = self.versioned_object.repository
         commits = list(objects.commit.Commit.iter_items(repo, "HEAD"))
@@ -52,7 +52,7 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     only_draft_version = False
 
     def get_context_data(self, **kwargs):
-        context = super(DisplayDiff, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if "from" not in self.request.GET:
             raise Http404("Paramètre GET 'from' manquant.")

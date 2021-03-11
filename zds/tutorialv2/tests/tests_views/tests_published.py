@@ -488,7 +488,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
 
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.published.content.pk),
+            reverse("content:add-reaction") + f"?pk={self.published.content.pk}",
             {"text": message_to_post, "last_note": 0, "with_hat": self.hat.pk},
             follow=True,
         )
@@ -508,7 +508,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200
         )
         result = self.client.post(
-            reverse("content:add-reaction") + "?clementine={}".format(self.published.content.pk),
+            reverse("content:add-reaction") + f"?clementine={self.published.content.pk}",
             {"text": message_to_post, "last_note": "0"},
             follow=True,
         )
@@ -534,7 +534,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test preview (without JS)
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.published.content.pk),
+            reverse("content:add-reaction") + f"?pk={self.published.content.pk}",
             {"text": message_to_post, "last_note": reactions[0].pk, "preview": True},
         )
         self.assertEqual(result.status_code, 200)
@@ -543,7 +543,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test preview (with JS)
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.published.content.pk),
+            reverse("content:add-reaction") + f"?pk={self.published.content.pk}",
             {"text": message_to_post, "last_note": reactions[0].pk, "preview": True},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
@@ -589,7 +589,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(ContentReaction.objects.count(), 1)
 
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.published.content.pk),
+            reverse("content:add-reaction") + f"?pk={self.published.content.pk}",
             {"text": message_to_post, "last_note": -1},  # wrong pk
             follow=False,
         )
@@ -606,7 +606,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
 
         self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
             {"text": "message", "last_note": "0"},
             follow=True,
         )
@@ -629,7 +629,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
 
         result = self.client.get(
-            reverse("content:add-reaction") + "?pk={}&cite={}".format(self.tuto.pk, reaction.pk), follow=False
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}&cite={reaction.pk}", follow=False
         )
         self.assertEqual(result.status_code, 403)  # unable to quote a reaction if hidden
 
@@ -648,7 +648,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
 
         self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
             {"text": "message", "last_note": "0"},
             follow=True,
         )
@@ -699,7 +699,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
         result = self.client.post(
-            reverse("content:update-reaction") + "?message={}&pk={}".format(reaction.pk, self.tuto.pk),
+            reverse("content:update-reaction") + f"?message={reaction.pk}&pk={self.tuto.pk}",
             {"text": "Much to learn, you still have."},
             follow=False,
         )
@@ -712,7 +712,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
         result = self.client.post(
-            reverse("content:warn-typo") + "?pk={}".format(self.tuto.pk),
+            reverse("content:warn-typo") + f"?pk={self.tuto.pk}",
             {
                 "pk": self.tuto.pk,
                 "version": self.published.sha_public,
@@ -736,7 +736,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.tuto.save()
 
         result = self.client.post(
-            reverse("content:warn-typo") + "?pk={}".format(self.tuto.pk),
+            reverse("content:warn-typo") + f"?pk={self.tuto.pk}",
             {
                 "pk": self.tuto.pk,
                 "version": self.published.sha_public,
@@ -963,7 +963,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # post a reaction
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
             {"text": "message", "last_note": "0"},
             follow=True,
         )
@@ -997,7 +997,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # post another reaction
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
             {"text": "message", "last_note": reactions[0].pk},
             follow=True,
         )
@@ -1085,7 +1085,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # post another reaction
         self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
             {"text": "message", "last_note": "0"},
             follow=True,
         )
@@ -1114,12 +1114,10 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         new_reaction.save()
         self.assertEqual(self.client.login(username=new_user.username, password="hostel77"), True)
-        resp = self.client.get(
-            reverse("content:update-reaction") + "?message={}&pk={}".format(new_reaction.pk, article.pk)
-        )
+        resp = self.client.get(reverse("content:update-reaction") + f"?message={new_reaction.pk}&pk={article.pk}")
         self.assertEqual(403, resp.status_code)
         resp = self.client.post(
-            reverse("content:update-reaction") + "?message={}&pk={}".format(new_reaction.pk, article.pk),
+            reverse("content:update-reaction") + f"?message={new_reaction.pk}&pk={article.pk}",
             {"text": "I edited it"},
         )
         self.assertEqual(403, resp.status_code)
@@ -1142,9 +1140,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
 
         # cite note
-        result = self.client.get(
-            reverse("content:add-reaction") + "?pk={}&cite={}".format(tuto.pk, reaction.pk), follow=True
-        )
+        result = self.client.get(reverse("content:add-reaction") + f"?pk={tuto.pk}&cite={reaction.pk}", follow=True)
         self.assertEqual(200, result.status_code)
 
         self.assertTrue(text in result.context["form"].initial["text"])  # ok, text quoted !
@@ -1167,9 +1163,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         reaction.is_visible = False
         reaction.save()
 
-        result = self.client.get(
-            reverse("content:add-reaction") + "?pk={}&cite={}".format(tuto.pk, reaction.pk), follow=True
-        )
+        result = self.client.get(reverse("content:add-reaction") + f"?pk={tuto.pk}&cite={reaction.pk}", follow=True)
         self.assertEqual(403, result.status_code)
 
     def test_cant_view_private_even_if_draft_is_equal_to_public(self):
@@ -1749,7 +1743,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIn(article_1.pk, pks)
 
         # 4. Final page and filters
-        result = self.client.get(reverse("publication:list") + "?category={}".format(category_1.slug))
+        result = self.client.get(reverse("publication:list") + f"?category={category_1.slug}")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 2)
@@ -1758,7 +1752,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIn(tuto_2.pk, pks)
 
         # filter by category and type
-        result = self.client.get(reverse("publication:list") + "?category={}".format(category_2.slug))
+        result = self.client.get(reverse("publication:list") + f"?category={category_2.slug}")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 2)
@@ -1766,16 +1760,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIn(tuto_3.pk, pks)
         self.assertIn(article_1.pk, pks)
 
-        result = self.client.get(reverse("publication:list") + "?category={}".format(category_2.slug) + "&type=article")
+        result = self.client.get(reverse("publication:list") + f"?category={category_2.slug}" + "&type=article")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 1)
         pks = [x.pk for x in result.context["filtered_contents"]]
         self.assertIn(article_1.pk, pks)
 
-        result = self.client.get(
-            reverse("publication:list") + "?category={}".format(category_2.slug) + "&type=tutorial"
-        )
+        result = self.client.get(reverse("publication:list") + f"?category={category_2.slug}" + "&type=tutorial")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 1)
@@ -1783,7 +1775,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIn(tuto_3.pk, pks)
 
         # filter by subcategory
-        result = self.client.get(reverse("publication:list") + "?subcategory={}".format(subcategory_1.slug))
+        result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_1.slug}")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 2)
@@ -1792,22 +1784,18 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIn(tuto_2.pk, pks)
 
         # filter by subcategory and type
-        result = self.client.get(reverse("publication:list") + "?subcategory={}".format(subcategory_3.slug))
+        result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_3.slug}")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 1)
         pks = [x.pk for x in result.context["filtered_contents"]]
         self.assertIn(tuto_3.pk, pks)
 
-        result = self.client.get(
-            reverse("publication:list") + "?subcategory={}".format(subcategory_3.slug) + "&type=article"
-        )
+        result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_3.slug}" + "&type=article")
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context["filtered_contents"]), 0)
 
-        result = self.client.get(
-            reverse("publication:list") + "?subcategory={}".format(subcategory_3.slug) + "&type=tutorial"
-        )
+        result = self.client.get(reverse("publication:list") + f"?subcategory={subcategory_3.slug}" + "&type=tutorial")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 1)
@@ -1815,7 +1803,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIn(tuto_3.pk, pks)
 
         # filter by tag
-        result = self.client.get(reverse("publication:list") + "?tag={}".format(tag_1.slug) + "&type=article")
+        result = self.client.get(reverse("publication:list") + f"?tag={tag_1.slug}" + "&type=article")
         self.assertEqual(result.status_code, 200)
 
         self.assertEqual(len(result.context["filtered_contents"]), 1)
@@ -1945,17 +1933,17 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         for meta in ["twitter:image", "og:image:url"]:
             self.assertRegex(
                 result.content.decode("utf-8"),
-                start_reg + meta + '(\S+)(\s+)content="http://(\S+)/' + pattern_link_image + '(\S+)"',
+                start_reg + meta + r'(\S+)(\s+)content="http://(\S+)/' + pattern_link_image + r'(\S+)"',
             )
         for meta in ["og:image:secure_url"]:
             self.assertRegex(
                 result.content.decode("utf-8"),
-                start_reg + meta + '(\S+)(\s+)content="https://(\S+)/' + pattern_link_image + '(\S+)"',
+                start_reg + meta + r'(\S+)(\s+)content="https://(\S+)/' + pattern_link_image + r'(\S+)"',
             )
         for meta in ["twitter:description"]:
-            self.assertRegex(result.content.decode("utf-8"), start_reg + meta + '(\S+)(\s+)content="' + description)
+            self.assertRegex(result.content.decode("utf-8"), start_reg + meta + r'(\S+)(\s+)content="' + description)
         for meta in ["twitter:title", "og:title"]:
-            self.assertRegex(result.content.decode("utf-8"), start_reg + meta + '(\S+)(\s+)content="' + title)
+            self.assertRegex(result.content.decode("utf-8"), start_reg + meta + r'(\S+)(\s+)content="' + title)
 
     def test_social_cards_without_image(self):
         """

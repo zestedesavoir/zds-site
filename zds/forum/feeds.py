@@ -50,7 +50,7 @@ class LastPostsFeedRSS(Feed, ItemMixin):
         return posts
 
     def item_title(self, item):
-        return "{}, message #{}".format(item.topic.title, item.pk)
+        return f"{item.topic.title}, message #{item.pk}"
 
     def item_description(self, item):
         return item.text_html
@@ -82,7 +82,7 @@ class LastTopicsFeedRSS(Feed, ItemMixin):
         return topics
 
     def item_title(self, item):
-        return "{} dans {}".format(item.title, item.forum.title)
+        return f"{item.title} dans {item.forum.title}"
 
     def item_description(self, item):
         return item.subtitle

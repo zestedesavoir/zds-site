@@ -43,7 +43,7 @@ class PermissionRequiredMixin:
 
     def dispatch(self, *args, **kwargs):
         self.check_permissions()
-        return super(PermissionRequiredMixin, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
 
 class LoginRequiredMixin:
@@ -56,7 +56,7 @@ class LoginRequiredMixin:
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(LoginRequiredMixin, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
 
 class LoggedWithReadWriteHability(LoginRequiredMixin):
@@ -67,4 +67,4 @@ class LoggedWithReadWriteHability(LoginRequiredMixin):
 
     @method_decorator(can_write_and_read_now)
     def dispatch(self, *args, **kwargs):
-        return super(LoggedWithReadWriteHability, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
