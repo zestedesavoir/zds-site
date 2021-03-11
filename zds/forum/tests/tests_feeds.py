@@ -19,8 +19,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.forum2 = ForumFactory(category=self.category1, position_in_category=2)
 
         self.user = ProfileFactory().user
-        log = self.client.login(username=self.user.username, password="hostel77")
-        self.assertEqual(log, True)
+        self.client.force_login(self.user)
 
         self.tag = TagFactory()
         self.topic1 = TopicFactory(forum=self.forum, author=self.user)
@@ -153,8 +152,7 @@ class LastPostFeedTest(TestCase):
         self.forum3 = ForumFactory(category=self.category1, position_in_category=3)
 
         self.user = ProfileFactory().user
-        log = self.client.login(username=self.user.username, password="hostel77")
-        self.assertEqual(log, True)
+        self.client.force_login(self.user)
 
         self.tag = TagFactory()
         self.topic1 = TopicFactory(forum=self.forum, author=self.user)
