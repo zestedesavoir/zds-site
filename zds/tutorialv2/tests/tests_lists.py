@@ -126,7 +126,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tutorial_unpublished = PublishableContentFactory(author_list=[self.user_author])
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type="ARTICLE")
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         resp = self.client.get(reverse("tutorial:find-tutorial", args=[self.user_author.username]))
         self.assertContains(resp, tutorial.title)
         self.assertContains(resp, tutorial_unpublished.title)
@@ -173,7 +173,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)  # get 302 → redirection to login
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.get(reverse("validation:list"), follow=False)
         self.assertEqual(result.status_code, 403)  # get 403 not allowed
@@ -181,7 +181,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         # connect with staff:
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         response = self.client.get(reverse("validation:list"), follow=False)
         self.assertEqual(response.status_code, 200)  # OK
