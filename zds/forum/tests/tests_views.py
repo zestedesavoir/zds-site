@@ -1050,12 +1050,12 @@ class PostNewTest(TestCase):
         post_to_hide = PostFactory(topic=topic, author=profile.user, position=topic.last_message.position + 1)
 
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        self.client.force_login(staff.user)
         text_hidden_expected = "Bad guy!"
         data = {"delete_message": "", "text_hidden": text_hidden_expected}
         response = self.client.post(reverse("post-edit") + "?message={}".format(post_to_hide.pk), data, follow=False)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
 
         self.assertEqual(403, response.status_code)
@@ -1381,7 +1381,7 @@ class PostEditTest(TestCase):
         post_to_hide = PostFactory(topic=topic, author=profile.user, position=2)
 
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        self.client.force_login(staff.user)
         text_hidden_expected = "Bad guy!"
         data = {"delete_message": "", "text_hidden": text_hidden_expected}
         response = self.client.post(reverse("post-edit") + "?message={}".format(post_to_hide.pk), data, follow=False)
