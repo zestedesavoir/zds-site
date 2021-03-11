@@ -22,7 +22,7 @@ class LastContentFeedRSS(Feed):
 
     def get_object(self, request, *args, **kwargs):
         self.query_params = request.GET
-        return super(LastContentFeedRSS, self).get_object(request, *args, **kwargs)
+        return super().get_object(request, *args, **kwargs)
 
     def items(self):
         """

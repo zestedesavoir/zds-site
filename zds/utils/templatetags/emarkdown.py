@@ -33,8 +33,8 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
     """
 
     def log_args():
-        logger.error("md_input: {!r}".format(md_input))
-        logger.error("kwargs: {!r}".format(kwargs))
+        logger.error(f"md_input: {md_input!r}")
+        logger.error(f"kwargs: {kwargs!r}")
 
     inline = kwargs.get("inline", False) is True
 
@@ -65,7 +65,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         return "", {}, [{"message": str(_("Texte trop volumineux."))}]
 
     if response.status_code != 200:
-        logger.error("The markdown server replied with status {} (expected 200)".format(response.status_code))
+        logger.error(f"The markdown server replied with status {response.status_code} (expected 200)")
         log_args()
         return "", {}, []
 
@@ -113,8 +113,8 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
         return render_markdown(md_input, **dict(kwargs, attempts=attempts + 1))
 
     logger.error("Max attempt count reached, giving up")
-    logger.error("md_input: {!r}".format(md_input))
-    logger.error("kwargs: {!r}".format(kwargs))
+    logger.error(f"md_input: {md_input!r}")
+    logger.error(f"kwargs: {kwargs!r}")
 
     # FIXME: This cannot work with LaTeX.
     if inline:
@@ -159,7 +159,7 @@ def emarkdown(md_input, use_jsfiddle="", **kwargs):
     content, metadata, messages = render_markdown(
         md_input,
         on_error=lambda m: logger.error("Markdown errors %s", str(m)),
-        **dict(kwargs, disable_jsfiddle=disable_jsfiddle)
+        **dict(kwargs, disable_jsfiddle=disable_jsfiddle),
     )
 
     return content or ""

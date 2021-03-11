@@ -311,7 +311,7 @@ class ZipPublicator(Publicator):
                 raise ValueError("published_content_entity is None")
             make_zip_file(published_content_entity)
             # no need to move zip file because it is already dumped to the public directory
-        except (IOError, ValueError) as e:
+        except (OSError, ValueError) as e:
             raise FailureDuringPublication("Zip could not be created", e)
 
 
@@ -381,7 +381,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         licence_short = licence.replace("CC", "").strip().lower()
         licence_logo = licences.get(licence_short, False)
         if licence_logo:
-            licence_url = "https://creativecommons.org/licenses/{}/4.0/legalcode".format(licence_short)
+            licence_url = f"https://creativecommons.org/licenses/{licence_short}/4.0/legalcode"
             # we need a specific case for CC-0 as it is "public-domain"
             if licence_logo == licences["0"]:
                 licence_url = "https://creativecommons.org/publicdomain/zero/1.0/legalcode.fr"
@@ -411,7 +411,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url],
         )
         if content == "" and messages:
-            raise FailureDuringPublication("Markdown was not parsed due to {}".format(messages))
+            raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
         zmd_class_dir_path = Path(settings.ZDS_APP["content"]["latex_template_repo"])
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
             with contextlib.suppress(FileExistsError):
@@ -447,7 +447,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         raise FailureDuringPublication(errors)
 
     def tex_compiler(self, texfile, draftmode: str = ""):
-        command = "lualatex -shell-escape -interaction=nonstopmode {} {}".format(draftmode, texfile)
+        command = f"lualatex -shell-escape -interaction=nonstopmode {draftmode} {texfile}"
         command_process = subprocess.Popen(
             command, shell=True, cwd=path.dirname(texfile), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
@@ -463,7 +463,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         return path.exists(pdf_file_path)
 
     def make_glossary(self, basename, texfile):
-        command = "makeglossaries {}".format(basename)
+        command = f"makeglossaries {basename}"
         command_process = subprocess.Popen(
             command, shell=True, cwd=path.dirname(texfile), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
@@ -482,7 +482,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 def handle_tex_compiler_error(latex_file_path, ext):
     # TODO zmd: fix extension parsing
     log_file_path = latex_file_path[:-3] + "log"
-    errors = ["Error occured, log file {} not found.".format(log_file_path)]
+    errors = [f"Error occured, log file {log_file_path} not found."]
     with contextlib.suppress(FileNotFoundError, UnicodeDecodeError):
         with Path(log_file_path).open(encoding="utf-8") as latex_log:
             # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
@@ -514,7 +514,7 @@ class ZMarkdownEpubPublicator(Publicator):
             epub_file_path = Path(base_name + ".epub")
             logger.info("Start generating epub")
             build_ebook(published_content_entity, path.dirname(md_file_path), epub_file_path)
-        except (IOError, OSError, requests.exceptions.HTTPError):
+        except (OSError, requests.exceptions.HTTPError):
             raise FailureDuringPublication("Error while generating epub file.")
         else:
             logger.info(epub_file_path)
@@ -550,7 +550,7 @@ class FailureDuringPublication(Exception):
     """Exception raised if something goes wrong during publication process"""
 
     def __init__(self, *args, **kwargs):
-        super(FailureDuringPublication, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 def make_zip_file(published_content):

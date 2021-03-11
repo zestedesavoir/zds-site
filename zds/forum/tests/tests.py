@@ -42,18 +42,16 @@ class ForumMemberTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
-            response = self.client.get(reverse("post-feed-rss") + "?forum={}".format(forum.pk), follow=False)
+            response = self.client.get(reverse("post-feed-rss") + f"?forum={forum.pk}", follow=False)
             self.assertEqual(response.status_code, 200)
 
         for tag in Tag.objects.all():
-            response = self.client.get(reverse("post-feed-rss") + "?tag={}".format(tag.pk), follow=False)
+            response = self.client.get(reverse("post-feed-rss") + f"?tag={tag.pk}", follow=False)
             self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
             for tag in Tag.objects.all():
-                response = self.client.get(
-                    reverse("post-feed-rss") + "?tag={}&forum={}".format(tag.pk, forum.pk), follow=False
-                )
+                response = self.client.get(reverse("post-feed-rss") + f"?tag={tag.pk}&forum={forum.pk}", follow=False)
                 self.assertEqual(response.status_code, 200)
 
     def test_display(self):
@@ -73,7 +71,7 @@ class ForumMemberTests(TestCase):
     def test_create_topic(self):
         """To test all aspects of topic's creation by member."""
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein ete",
@@ -172,7 +170,7 @@ class ForumMemberTests(TestCase):
 
         # check if we send an empty text
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {"last_post": topic1.last_message.pk, "text": ""},
             follow=False,
         )
@@ -185,7 +183,7 @@ class ForumMemberTests(TestCase):
         # now check a valid post containing utf8mb4 characters
         post_content = "Une famille 👩‍👩‍👦 mangeant un gratin d'🍆🍆 ne blesse pas les innocents 🐙🐙🐙."
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {"last_post": topic1.last_message.pk, "text": post_content},
             follow=False,
         )
@@ -213,7 +211,7 @@ class ForumMemberTests(TestCase):
 
         # test antispam return 403
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {"last_post": topic1.last_message.pk, "text": "Testons l'antispam"},
             follow=False,
         )
@@ -281,7 +279,7 @@ class ForumMemberTests(TestCase):
         expected_subtitle = "Encore ces lombards en plein été"
         expected_text = "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter "
         result = self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic1.pk),
+            reverse("topic-edit") + f"?topic={topic1.pk}",
             {"title": expected_title, "subtitle": expected_subtitle, "text": expected_text, "tags": ""},
             follow=False,
         )
@@ -309,7 +307,7 @@ class ForumMemberTests(TestCase):
 
         # check if topic is valid (no topic)
         result = self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic2.pk),
+            reverse("topic-edit") + f"?topic={topic2.pk}",
             {"title": "", "subtitle": expected_subtitle, "text": expected_text, "tags": ""},
             follow=False,
         )
@@ -317,7 +315,7 @@ class ForumMemberTests(TestCase):
 
         # check if topic is valid (tags only)
         result = self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic2.pk),
+            reverse("topic-edit") + f"?topic={topic2.pk}",
             {"title": "", "subtitle": expected_subtitle, "text": expected_text, "tags": "foo, bar"},
             follow=False,
         )
@@ -325,7 +323,7 @@ class ForumMemberTests(TestCase):
 
         # check if topic is valid (spaces only)
         result = self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic2.pk),
+            reverse("topic-edit") + f"?topic={topic2.pk}",
             {"title": "  ", "subtitle": expected_subtitle, "text": expected_text, "tags": ""},
             follow=False,
         )
@@ -333,7 +331,7 @@ class ForumMemberTests(TestCase):
 
         # check if topic is valid (valid title)
         result = self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic2.pk),
+            reverse("topic-edit") + f"?topic={topic2.pk}",
             {"title": expected_title, "subtitle": expected_subtitle, "text": expected_text, "tags": ""},
             follow=False,
         )
@@ -347,7 +345,7 @@ class ForumMemberTests(TestCase):
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post2.pk),
+            reverse("post-edit") + f"?message={post2.pk}",
             {"text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter "},
             follow=False,
         )
@@ -390,15 +388,13 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=self.user, position=2)
         post3 = PostFactory(topic=topic1, author=self.user, position=3)
 
-        result = self.client.post(reverse("post-edit") + "?message={0}".format(post2.pk), {"text": "  "}, follow=True)
+        result = self.client.post(reverse("post-edit") + f"?message={post2.pk}", {"text": "  "}, follow=True)
 
         self.assertEqual(result.status_code, 200)
         self.assertEqual(result.request["PATH_INFO"], "/forums/message/editer/")
-        self.assertEqual(result.request["QUERY_STRING"], "message={}".format(post2.pk))
+        self.assertEqual(result.request["QUERY_STRING"], f"message={post2.pk}")
 
-        result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post3.pk), {"text": " contenu "}, follow=True
-        )
+        result = self.client.post(reverse("post-edit") + f"?message={post3.pk}", {"text": " contenu "}, follow=True)
 
         self.assertEqual(result.status_code, 200)
         self.assertNotEqual(result.request["PATH_INFO"], "/forums/message/editer/")
@@ -411,12 +407,12 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(reverse("post-new") + "?sujet={0}&cite={1}".format(topic1.pk, post2.pk), follow=True)
+        result = self.client.get(reverse("post-new") + f"?sujet={topic1.pk}&cite={post2.pk}", follow=True)
 
         self.assertEqual(result.status_code, 200)
 
         # if the quote pk is altered
-        result = self.client.get(reverse("post-new") + "?sujet={0}&cite=abcd".format(topic1.pk), follow=True)
+        result = self.client.get(reverse("post-new") + f"?sujet={topic1.pk}&cite=abcd", follow=True)
 
         self.assertEqual(result.status_code, 404)
 
@@ -429,7 +425,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse("post-create-alert") + "?message={0}".format(post2.pk),
+            reverse("post-create-alert") + f"?message={post2.pk}",
             {"signal_text": "Troll", "signal_message": "confirmer"},
             follow=False,
         )
@@ -440,7 +436,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Alert.objects.get(author=self.user, solved=False).text, "Troll")
 
         result = self.client.post(
-            reverse("post-create-alert") + "?message={0}".format(post1.pk),
+            reverse("post-create-alert") + f"?message={post1.pk}",
             {"signal_text": "Bad title", "signal_message": "confirmer"},
             follow=False,
         )
@@ -481,7 +477,7 @@ class ForumMemberTests(TestCase):
             "delete_message": "",
             "text_hidden": "Bad guy!",
         }
-        response = self.client.post(reverse("post-edit") + "?message={}".format(post1.pk), data, follow=False)
+        response = self.client.post(reverse("post-edit") + f"?message={post1.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
         # alerts automatically solved
         self.assertEqual(Alert.objects.filter(author=self.user, solved=False).count(), 0)
@@ -496,7 +492,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse("post-create-alert") + "?message={0}".format(post2.pk),
+            reverse("post-create-alert") + f"?message={post2.pk}",
             {"signal_text": "Troll", "signal_message": "confirmer"},
             follow=False,
         )
@@ -524,7 +520,7 @@ class ForumMemberTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.post(reverse("post-useful") + "?message={0}".format(post2.pk), follow=False)
+        result = self.client.post(reverse("post-useful") + f"?message={post2.pk}", follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -533,7 +529,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post3.pk).is_useful, False)
 
         # useful the first post
-        result = self.client.post(reverse("post-useful") + "?message={0}".format(post1.pk), follow=False)
+        result = self.client.post(reverse("post-useful") + f"?message={post1.pk}", follow=False)
         self.assertEqual(result.status_code, 302)
 
         self.assertEqual(Post.objects.get(pk=post1.pk).is_useful, True)
@@ -545,7 +541,7 @@ class ForumMemberTests(TestCase):
         post4 = PostFactory(topic=topic1, author=user1, position=1)
         post5 = PostFactory(topic=topic1, author=self.user, position=2)
 
-        result = self.client.post(reverse("post-useful") + "?message={0}".format(post5.pk), follow=False)
+        result = self.client.post(reverse("post-useful") + f"?message={post5.pk}", follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -555,7 +551,7 @@ class ForumMemberTests(TestCase):
         # useful if you are staff
         StaffProfileFactory().user
         self.assertEqual(self.client.login(username=self.user.username, password="hostel77"), True)
-        result = self.client.post(reverse("post-useful") + "?message={0}".format(post4.pk), follow=False)
+        result = self.client.post(reverse("post-useful") + f"?message={post4.pk}", follow=False)
         self.assertNotEqual(result.status_code, 403)
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
@@ -651,7 +647,7 @@ class ForumMemberTests(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {"last_post": topic1.last_message.pk, "text": " "},
             follow=False,
         )
@@ -670,7 +666,7 @@ class ForumMemberTests(TestCase):
         self.assertNotEqual(tag_c_sharp.title, tag_c.title)
         # post a topic with a tag
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein ete",
@@ -717,13 +713,13 @@ class ForumMemberTests(TestCase):
         init_topic_count = Topic.objects.all().count()
 
         # Empty fields
-        response = self.client.post(reverse("topic-new") + "?forum={0}".format(self.forum12.pk), {}, follow=False)
+        response = self.client.post(reverse("topic-new") + f"?forum={self.forum12.pk}", {}, follow=False)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Topic.objects.all().count(), init_topic_count)
 
         # Blank data
         response = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": " ",
                 "text": " ",
@@ -803,18 +799,16 @@ class ForumGuestTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
-            response = self.client.get(reverse("post-feed-rss") + "?forum={}".format(forum.pk), follow=False)
+            response = self.client.get(reverse("post-feed-rss") + f"?forum={forum.pk}", follow=False)
             self.assertEqual(response.status_code, 200)
 
         for tag in Tag.objects.all():
-            response = self.client.get(reverse("post-feed-rss") + "?tag={}".format(tag.pk), follow=False)
+            response = self.client.get(reverse("post-feed-rss") + f"?tag={tag.pk}", follow=False)
             self.assertEqual(response.status_code, 200)
 
         for forum in Forum.objects.all():
             for tag in Tag.objects.all():
-                response = self.client.get(
-                    reverse("post-feed-rss") + "?tag={}&forum={}".format(tag.pk, forum.pk), follow=False
-                )
+                response = self.client.get(reverse("post-feed-rss") + f"?tag={tag.pk}&forum={forum.pk}", follow=False)
                 self.assertEqual(response.status_code, 200)
 
     def test_display(self):
@@ -834,7 +828,7 @@ class ForumGuestTests(TestCase):
     def test_create_topic(self):
         """To test all aspects of topic's creation by guest."""
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein ete",
@@ -858,7 +852,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {
                 "last_post": topic1.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -884,7 +878,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic3, author=self.user, position=1)
 
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post1.pk),
+            reverse("post-edit") + f"?message={post1.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein été",
@@ -910,7 +904,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=self.user, position=3)
 
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post2.pk),
+            reverse("post-edit") + f"?message={post2.pk}",
             {"text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter "},
             follow=False,
         )
@@ -929,7 +923,7 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(reverse("post-new") + "?sujet={}&cite={}".format(topic1.pk, post2.pk), follow=False)
+        result = self.client.get(reverse("post-new") + f"?sujet={topic1.pk}&cite={post2.pk}", follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -942,7 +936,7 @@ class ForumGuestTests(TestCase):
         PostFactory(topic=topic1, author=user1, position=3)
 
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post2.pk),
+            reverse("post-edit") + f"?message={post2.pk}",
             {"signal_text": "Troll", "signal_message": "confirmer"},
             follow=False,
         )
@@ -959,7 +953,7 @@ class ForumGuestTests(TestCase):
         post2 = PostFactory(topic=topic1, author=user1, position=2)
         post3 = PostFactory(topic=topic1, author=user1, position=3)
 
-        result = self.client.get(reverse("post-useful") + "?message={0}".format(post2.pk), follow=False)
+        result = self.client.get(reverse("post-useful") + f"?message={post2.pk}", follow=False)
 
         self.assertEqual(result.status_code, 405)
 

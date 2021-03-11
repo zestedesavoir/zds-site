@@ -54,7 +54,7 @@ class LoginForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(LoginForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("member-login")
         self.helper.form_method = "post"
@@ -106,7 +106,7 @@ class RegisterForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(RegisterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -137,7 +137,7 @@ class RegisterForm(forms.Form):
 
     def clean(self):
         validate_raw_zds_username(self.data)
-        cleaned_data = super(RegisterForm, self).clean()
+        cleaned_data = super().clean()
         return validate_passwords(cleaned_data)
 
     def throw_error(self, key=None, message=None):
@@ -186,7 +186,7 @@ class MiniProfileForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(MiniProfileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -245,7 +245,7 @@ class ProfileForm(MiniProfileForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ProfileForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -331,7 +331,7 @@ class GitHubTokenForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(GitHubTokenForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -372,7 +372,7 @@ class ChangeUserForm(forms.Form):
     )
 
     def __init__(self, user, *args, **kwargs):
-        super(ChangeUserForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -394,7 +394,7 @@ class ChangeUserForm(forms.Form):
 
     def clean(self):
         validate_raw_zds_username(self.data)
-        cleaned_data = super(ChangeUserForm, self).clean()
+        cleaned_data = super().clean()
         cleaned_data["previous_username"] = self.previous_username
         cleaned_data["previous_email"] = self.previous_email
         username = cleaned_data.get("username")
@@ -431,7 +431,7 @@ class ChangePasswordForm(forms.Form):
     )
 
     def __init__(self, user, *args, **kwargs):
-        super(ChangePasswordForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -448,7 +448,7 @@ class ChangePasswordForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(ChangePasswordForm, self).clean()
+        cleaned_data = super().clean()
 
         password_old = cleaned_data.get("password_old")
 
@@ -476,7 +476,7 @@ class UsernameAndEmailForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(UsernameAndEmailForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -499,7 +499,7 @@ class UsernameAndEmailForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(UsernameAndEmailForm, self).clean()
+        cleaned_data = super().clean()
 
         # Clean data
         username = cleaned_data.get("username")
@@ -547,7 +547,7 @@ class NewPasswordForm(forms.Form):
     )
 
     def __init__(self, identifier, *args, **kwargs):
-        super(NewPasswordForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -562,7 +562,7 @@ class NewPasswordForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(NewPasswordForm, self).clean()
+        cleaned_data = super().clean()
         return validate_passwords(cleaned_data, username=self.username)
 
 
@@ -583,7 +583,7 @@ class PromoteMemberForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(PromoteMemberForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -613,7 +613,7 @@ class KarmaForm(forms.Form):
     )
 
     def __init__(self, profile, *args, **kwargs):
-        super(KarmaForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("member-modify-karma")
         self.helper.form_class = "modal modal-flex"
@@ -644,7 +644,7 @@ class BannedEmailProviderForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(BannedEmailProviderForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -682,7 +682,7 @@ class HatRequestForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(HatRequestForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"

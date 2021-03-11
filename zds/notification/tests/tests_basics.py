@@ -54,7 +54,7 @@ class NotificationForumTest(TestCase):
         When we create a topic, the author follows it.
         """
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -118,7 +118,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {
                 "last_post": topic1.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -151,7 +151,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {
                 "last_post": topic1.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -209,7 +209,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user1, position=2)
         post = PostFactory(topic=topic1, author=self.user2, position=3)
 
-        result = self.client.get(reverse("post-unread") + "?message={}".format(post.pk), follow=False)
+        result = self.client.get(reverse("post-unread") + f"?message={post.pk}", follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -232,9 +232,7 @@ class NotificationForumTest(TestCase):
         # hide last post
         data = {"delete_message": ""}
         self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password="hostel77"))
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
@@ -359,9 +357,9 @@ class NotificationForumTest(TestCase):
         content = PublishedContentFactory(author_list=[self.user1])
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(content.pk),
+            reverse("content:add-reaction") + f"?pk={content.pk}",
             {
-                "text": "@{}".format(self.user1.username),
+                "text": f"@{self.user1.username}",
                 "last_note": 0,
             },
             follow=True,
@@ -446,7 +444,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic, author=self.user1, position=1)
 
         self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein ete",
@@ -473,7 +471,7 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(notifications))
 
         self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein été",
@@ -549,7 +547,7 @@ class NotificationPublishableContentTest(TestCase):
         self.assertIsNone(subscription)
 
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
             {"text": "message", "last_note": "0"},
             follow=True,
         )

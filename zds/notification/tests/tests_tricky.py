@@ -52,7 +52,7 @@ class ForumNotification(TestCase):
         overridden_zds_app["comment"]["enable_pings"] = True
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -70,11 +70,11 @@ class ForumNotification(TestCase):
         overridden_zds_app["comment"]["enable_pings"] = True
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged, not @{}".format(self.user1.username, self.user2.username),
+                "text": f"@{self.user1.username} is pinged, not @{self.user2.username}",
                 "tags": "",
             },
             follow=False,
@@ -90,7 +90,7 @@ class ForumNotification(TestCase):
         pinged_users = [ProfileFactory(), ProfileFactory(), ProfileFactory(), ProfileFactory()]
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -107,7 +107,7 @@ class ForumNotification(TestCase):
         self.assertFalse(PingSubscription.objects.get_existing(pinged_users[2].user, post, True))
         self.assertFalse(PingSubscription.objects.get_existing(pinged_users[3].user, post, True))
         self.client.post(
-            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -127,11 +127,11 @@ class ForumNotification(TestCase):
         overridden_zds_app["comment"]["enable_pings"] = True
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged".format(self.user1.username),
+                "text": f"@{self.user1.username} is pinged",
                 "tags": "",
             },
             follow=False,
@@ -144,11 +144,11 @@ class ForumNotification(TestCase):
         user3 = ProfileFactory().user
         post = Topic.objects.last().last_message
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post.pk),
+            reverse("post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged even twice @{}".format(self.user1.username, self.user1.username),
+                "text": f"@{self.user1.username} is pinged even twice @{self.user1.username}",
                 "tags": "",
             },
             follow=False,
@@ -157,7 +157,7 @@ class ForumNotification(TestCase):
         self.assertEqual(1, PingSubscription.objects.count(), "No added subscription.")
         self.assertEqual(1, Notification.objects.count())
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post.pk),
+            reverse("post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -179,11 +179,11 @@ class ForumNotification(TestCase):
         overridden_zds_app["comment"]["enable_pings"] = True
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged".format(self.user1.username),
+                "text": f"@{self.user1.username} is pinged",
                 "tags": "",
             },
             follow=False,
@@ -195,11 +195,11 @@ class ForumNotification(TestCase):
         self.assertEqual(1, Notification.objects.count())
         post = Topic.objects.last().last_message
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post.pk),
+            reverse("post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@ {} is no more pinged ".format(self.user1.username),
+                "text": f"@ {self.user1.username} is no more pinged ",
                 "tags": "",
             },
             follow=False,
@@ -214,7 +214,7 @@ class ForumNotification(TestCase):
         NewTopicSubscription.objects.get_or_create_active(self.user1, self.forum11)
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -246,11 +246,11 @@ class ForumNotification(TestCase):
     def test_no_ping_on_private_forum(self):
         self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "ping @{}".format(self.user1.username),
+                "text": f"ping @{self.user1.username}",
                 "tags": "",
             },
             follow=False,
@@ -264,11 +264,11 @@ class ForumNotification(TestCase):
     def test_no_dead_ping_notif_on_moving_to_private_forum(self):
         self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "ping @{}".format(self.user1.username),
+                "text": f"ping @{self.user1.username}",
                 "tags": "",
             },
             follow=False,
@@ -297,7 +297,7 @@ class ForumNotification(TestCase):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
         self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
         self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -318,7 +318,7 @@ class ForumNotification(TestCase):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
         self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
         self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",

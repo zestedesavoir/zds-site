@@ -110,7 +110,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
         show_email = kwargs.pop("show_email", False)
         is_authenticated = kwargs.pop("is_authenticated", False)
 
-        super(ProfileDetailSerializer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if not show_email or not is_authenticated:
             # Drop email field.

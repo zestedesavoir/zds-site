@@ -7,33 +7,33 @@ class ForumCategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = ForumCategory
 
-    title = factory.Sequence("Ma catégorie No{0}".format)
-    slug = factory.Sequence("category{0}".format)
+    title = factory.Sequence("Ma catégorie No{}".format)
+    slug = factory.Sequence("category{}".format)
 
 
 class ForumFactory(factory.DjangoModelFactory):
     class Meta:
         model = Forum
 
-    title = factory.Sequence("Mon Forum No{0}".format)
-    subtitle = factory.Sequence("Sous Titre du Forum No{0}".format)
-    slug = factory.Sequence("forum{0}".format)
+    title = factory.Sequence("Mon Forum No{}".format)
+    subtitle = factory.Sequence("Sous Titre du Forum No{}".format)
+    slug = factory.Sequence("forum{}".format)
 
 
 class TagFactory(factory.DjangoModelFactory):
     class Meta:
         model = Tag
 
-    title = factory.Sequence("Tag{0}".format)
-    slug = factory.Sequence("tag{0}".format)
+    title = factory.Sequence("Tag{}".format)
+    slug = factory.Sequence("tag{}".format)
 
 
 class TopicFactory(factory.DjangoModelFactory):
     class Meta:
         model = Topic
 
-    title = factory.Sequence("Mon Sujet No{0}".format)
-    subtitle = factory.Sequence("Sous Titre du sujet No{0}".format)
+    title = factory.Sequence("Mon Sujet No{}".format)
+    subtitle = factory.Sequence("Sous Titre du sujet No{}".format)
 
 
 class PostFactory(factory.DjangoModelFactory):
@@ -46,7 +46,7 @@ class PostFactory(factory.DjangoModelFactory):
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-        post = super(PostFactory, cls)._prepare(create, **kwargs)
+        post = super()._prepare(create, **kwargs)
         topic = kwargs.pop("topic", None)
         if topic:
             post.save()

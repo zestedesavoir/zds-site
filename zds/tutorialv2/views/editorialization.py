@@ -37,7 +37,7 @@ class RemoveSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         else:
             self.success_url = self.object.get_absolute_url()
 
-        return super(RemoveSuggestion, self).form_valid(form)
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, str(_("Les suggestions sélectionnées n'existent pas.")))
@@ -45,7 +45,7 @@ class RemoveSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             self.success_url = self.object.get_absolute_url_online()
         else:
             self.success_url = self.object.get_absolute_url()
-        return super(RemoveSuggestion, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class AddSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -68,29 +68,29 @@ class AddSuggestion(LoggedWithReadWriteHability, SingleContentFormViewMixin):
                 if ContentSuggestion.objects.filter(publication=publication, suggestion=suggestion).exists():
                     messages.error(
                         self.request,
-                        _('Le contenu "{}" fait déjà partie des suggestions de {}'.format(suggestion.title, _type)),
+                        _(f'Le contenu "{suggestion.title}" fait déjà partie des suggestions de {_type}'),
                     )
                 elif suggestion.pk == publication.pk:
                     messages.error(
                         self.request,
-                        _("Vous ne pouvez pas ajouter {} en tant que suggestion pour lui même.".format(_type)),
+                        _(f"Vous ne pouvez pas ajouter {_type} en tant que suggestion pour lui même."),
                     )
                 elif suggestion.is_opinion and suggestion.sha_picked != suggestion.sha_public:
                     messages.error(
                         self.request,
-                        _("Vous ne pouvez pas suggerer pour {} un billet qui n'a pas été mis en avant.".format(_type)),
+                        _(f"Vous ne pouvez pas suggerer pour {_type} un billet qui n'a pas été mis en avant."),
                     )
                 elif not suggestion.sha_public:
                     messages.error(
                         self.request,
-                        _("Vous ne pouvez pas suggerer pour {} un contenu qui n'a pas été publié.".format(_type)),
+                        _(f"Vous ne pouvez pas suggerer pour {_type} un contenu qui n'a pas été publié."),
                     )
                 else:
                     obj_suggestion = ContentSuggestion(publication=publication, suggestion=suggestion)
                     obj_suggestion.save()
                     messages.info(
                         self.request,
-                        _('Le contenu "{}" a été ajouté dans les suggestions de {}'.format(suggestion.title, _type)),
+                        _(f'Le contenu "{suggestion.title}" a été ajouté dans les suggestions de {_type}'),
                     )
 
         if self.object.public_version:
@@ -106,7 +106,7 @@ class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     success_message = _("Les tags ont bien été modifiés.")
 
     def get_form_kwargs(self):
-        kwargs = super(EditContentTags, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         kwargs["db_content"] = self.object
         return kwargs

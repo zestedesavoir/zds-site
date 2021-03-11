@@ -278,7 +278,7 @@ class TopicNewTest(TestCase):
     def test_failure_create_topic_with_a_post_with_client_unauthenticated(self):
         _, forum = create_category_and_forum()
 
-        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk))
+        response = self.client.post(reverse("topic-new") + f"?forum={forum.pk}")
 
         self.assertEqual(302, response.status_code)
 
@@ -290,7 +290,7 @@ class TopicNewTest(TestCase):
         _, forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk))
+        response = self.client.post(reverse("topic-new") + f"?forum={forum.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -300,7 +300,7 @@ class TopicNewTest(TestCase):
         _, forum = create_category_and_forum(group)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk))
+        response = self.client.post(reverse("topic-new") + f"?forum={forum.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -317,7 +317,7 @@ class TopicNewTest(TestCase):
         _, forum = create_category_and_forum()
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("topic-new") + "?forum={}".format(forum.pk))
+        response = self.client.get(reverse("topic-new") + f"?forum={forum.pk}")
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(forum, response.context["forum"])
@@ -330,11 +330,11 @@ class TopicNewTest(TestCase):
         _, forum = create_category_and_forum()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"title": "Title of the topic", "subtitle": "Subtitle of the topic", "text": "A new post!", "tags": ""}
-        self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
+        self.client.post(reverse("topic-new") + f"?forum={forum.pk}", data, follow=False)
         self.client.logout()
         self.assertTrue(self.client.login(username=profile2.user.username, password="hostel77"))
         data = {"title": "Title of the topic", "subtitle": "Subtitle of the topic", "text": "A new post!", "tags": ""}
-        self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
+        self.client.post(reverse("topic-new") + f"?forum={forum.pk}", data, follow=False)
         self.client.logout()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         topic = Topic.objects.last()
@@ -357,7 +357,7 @@ class TopicNewTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"preview": "", "text": "A new post!"}
         response = self.client.post(
-            reverse("topic-new") + "?forum={}".format(forum.pk),
+            reverse("topic-new") + f"?forum={forum.pk}",
             data,
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
             follow=False,
@@ -376,7 +376,7 @@ class TopicNewTest(TestCase):
             "subtitle": "Subtitle of the topic",
             "text": "A new post!",
         }
-        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
+        response = self.client.post(reverse("topic-new") + f"?forum={forum.pk}", data, follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -386,7 +386,7 @@ class TopicNewTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"title": "Title of the topic", "subtitle": "Subtitle of the topic", "text": "A new post!", "tags": ""}
-        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
+        response = self.client.post(reverse("topic-new") + f"?forum={forum.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
 
@@ -405,7 +405,7 @@ class TopicNewTest(TestCase):
             "tags": "",
             "with_hat": hat.pk,
         }
-        response = self.client.post(reverse("topic-new") + "?forum={}".format(forum.pk), data, follow=False)
+        response = self.client.post(reverse("topic-new") + f"?forum={forum.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertEqual(Post.objects.latest("pubdate").hat, hat)
@@ -485,12 +485,12 @@ class TopicEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"follow": "1"}
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
 
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
@@ -506,12 +506,12 @@ class TopicEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"follow": "1"}
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=False))
 
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True))
@@ -523,14 +523,14 @@ class TopicEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"email": "1"}
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(
             TopicAnswerSubscription.objects.get_existing(profile.user, topic, is_active=True, by_email=True)
         )
 
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(
@@ -715,11 +715,11 @@ class TopicEditTest(TestCase):
 
         another_profile = ProfileFactory()
         self.assertTrue(self.client.login(username=another_profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
+        response = self.client.get(reverse("topic-edit") + f"?topic={topic.pk}", follow=False)
         self.assertEqual(403, response.status_code)
 
         data = {"text": "New text for the post"}
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
         self.assertEqual(403, response.status_code)
 
     def test_success_edit_topic_staff_in_get_method(self):
@@ -730,7 +730,7 @@ class TopicEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
-        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
+        response = self.client.get(reverse("topic-edit") + f"?topic={topic.pk}", follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -740,7 +740,7 @@ class TopicEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
+        response = self.client.get(reverse("topic-edit") + f"?topic={topic.pk}", follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -756,7 +756,7 @@ class TopicEditTest(TestCase):
             "subtitle": "New subtitle",
             "text": "A new post!",
         }
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(topic, response.context["topic"])
@@ -775,7 +775,7 @@ class TopicEditTest(TestCase):
             "text": "A new post!",
         }
         response = self.client.post(
-            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             data,
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
             follow=False,
@@ -794,7 +794,7 @@ class TopicEditTest(TestCase):
             "subtitle": "New subtitle",
             "text": "A new post!",
         }
-        response = self.client.post(reverse("topic-edit") + "?topic={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("topic-edit") + f"?topic={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)
@@ -1016,7 +1016,7 @@ class PostNewTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
+        response = self.client.get(reverse("post-new") + f"?sujet={topic.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -1026,7 +1026,7 @@ class PostNewTest(TestCase):
         topic = create_topic_in_forum(forum, profile, is_locked=True)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
+        response = self.client.get(reverse("post-new") + f"?sujet={topic.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -1038,7 +1038,7 @@ class PostNewTest(TestCase):
         topic.last_message.save()
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk))
+        response = self.client.get(reverse("post-new") + f"?sujet={topic.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -1049,7 +1049,7 @@ class PostNewTest(TestCase):
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-new") + "?sujet={}".format(topic.pk), follow=False)
+        response = self.client.get(reverse("post-new") + f"?sujet={topic.pk}", follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(topic, response.context["topic"])
@@ -1065,7 +1065,7 @@ class PostNewTest(TestCase):
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.get(
-            reverse("post-new") + "?sujet={0}&cite={1}".format(topic.pk, topic.last_message.pk),
+            reverse("post-new") + f"?sujet={topic.pk}&cite={topic.last_message.pk}",
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
             follow=False,
         )
@@ -1080,7 +1080,7 @@ class PostNewTest(TestCase):
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"preview": "", "text": "A new post!", "last_post": topic.last_message.pk}
-        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + f"?sujet={topic.pk}", data, follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(topic, response.context["topic"])
@@ -1097,7 +1097,7 @@ class PostNewTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"preview": "", "text": "A new post!", "last_post": topic.last_message.pk}
         response = self.client.post(
-            reverse("post-new") + "?sujet={}".format(topic.pk),
+            reverse("post-new") + f"?sujet={topic.pk}",
             data,
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
             follow=False,
@@ -1113,7 +1113,7 @@ class PostNewTest(TestCase):
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"text": "A new post!", "last_post": topic.last_message.pk}
-        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + f"?sujet={topic.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1139,7 +1139,7 @@ class PostNewTest(TestCase):
             "last_post": topic.last_message.pk,
             "with_hat": "abc",
         }
-        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + f"?sujet={topic.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1152,7 +1152,7 @@ class PostNewTest(TestCase):
             "last_post": topic.last_message.pk,
             "with_hat": 1587,
         }
-        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + f"?sujet={topic.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1165,7 +1165,7 @@ class PostNewTest(TestCase):
             "last_post": topic.last_message.pk,
             "with_hat": other_hat.pk,
         }
-        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + f"?sujet={topic.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1178,7 +1178,7 @@ class PostNewTest(TestCase):
             "last_post": topic.last_message.pk,
             "with_hat": hat.pk,
         }
-        response = self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
+        response = self.client.post(reverse("post-new") + f"?sujet={topic.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(2, Post.objects.filter(topic__pk=topic.pk).count())
@@ -1225,7 +1225,7 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk))
+        response = self.client.get(reverse("post-edit") + f"?message={topic.last_message.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -1236,7 +1236,7 @@ class PostEditTest(TestCase):
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk))
+        response = self.client.get(reverse("post-edit") + f"?message={topic.last_message.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -1246,7 +1246,7 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk), follow=False)
+        response = self.client.get(reverse("post-edit") + f"?message={topic.last_message.pk}", follow=False)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(topic, response.context["topic"])
@@ -1261,9 +1261,7 @@ class PostEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"preview": "", "text": "A new post!"}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(200, response.status_code)
 
@@ -1278,7 +1276,7 @@ class PostEditTest(TestCase):
             "text": "A new post!",
         }
         response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk),
+            reverse("post-edit") + f"?message={topic.last_message.pk}",
             data,
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
             follow=False,
@@ -1293,9 +1291,7 @@ class PostEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"text": "A new post!"}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
@@ -1310,9 +1306,7 @@ class PostEditTest(TestCase):
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"delete_message": ""}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(403, response.status_code)
 
@@ -1324,9 +1318,7 @@ class PostEditTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         # WARNING : if author is not staff he can't send a delete message.
         data = {"delete_message": ""}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
@@ -1344,9 +1336,7 @@ class PostEditTest(TestCase):
         self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
         text_hidden_expected = "Bad guy!"
         data = {"delete_message": "", "text_hidden": text_hidden_expected}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
@@ -1361,14 +1351,14 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk), follow=False)
+        response = self.client.post(reverse("post-useful") + f"?message={topic.last_message.pk}", follow=False)
         self.assertEqual(302, response.status_code)
 
         response = self.client.get(topic.get_absolute_url(), follow=False)
         self.assertNotContains(response, "green hidden")
 
         response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), {"delete_message": ""}, follow=False
+            reverse("post-edit") + f"?message={topic.last_message.pk}", {"delete_message": ""}, follow=False
         )
         self.assertEqual(302, response.status_code)
 
@@ -1383,9 +1373,7 @@ class PostEditTest(TestCase):
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"show_message": ""}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(403, response.status_code)
 
@@ -1396,9 +1384,7 @@ class PostEditTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"show_message": ""}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(403, response.status_code)
 
@@ -1416,9 +1402,7 @@ class PostEditTest(TestCase):
         data = {
             "show_message": "",
         }
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
 
         self.assertEqual(302, response.status_code)
         post = Post.objects.get(pk=topic.last_message.pk)
@@ -1435,7 +1419,7 @@ class PostEditTest(TestCase):
         text_expected = "Bad guy!"
         data = {"signal_message": "", "signal_text": text_expected}
         response = self.client.post(
-            reverse("post-create-alert") + "?message={}".format(topic.last_message.pk), data, follow=False
+            reverse("post-create-alert") + f"?message={topic.last_message.pk}", data, follow=False
         )
 
         self.assertEqual(302, response.status_code)
@@ -1453,15 +1437,13 @@ class PostEditTest(TestCase):
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"delete_message": ""}
 
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
 
-        response = self.client.get(reverse("post-edit") + "?message={}".format(topic.last_message.pk))
+        response = self.client.get(reverse("post-edit") + f"?message={topic.last_message.pk}")
         self.assertEqual(403, response.status_code)
 
-        response = self.client.get(reverse("topic-edit") + "?topic={}".format(topic.pk), follow=False)
+        response = self.client.get(reverse("topic-edit") + f"?topic={topic.pk}", follow=False)
         self.assertEqual(403, response.status_code)
 
     def test_hat_edit(self):
@@ -1481,13 +1463,13 @@ class PostEditTest(TestCase):
             "last_post": topic.last_message.pk,
             "with_hat": hat.pk,
         }
-        self.client.post(reverse("post-new") + "?sujet={}".format(topic.pk), data, follow=False)
+        self.client.post(reverse("post-new") + f"?sujet={topic.pk}", data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, hat)  # Hat was used
 
         # test that it's possible to remove the hat
         data = {"text": "A new post!"}
-        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
+        self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, None)  # Hat was removed
 
@@ -1496,7 +1478,7 @@ class PostEditTest(TestCase):
             "text": "A new post!",
             "with_hat": other_hat.pk,
         }
-        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
+        self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, None)  # Hat wasn't used
 
@@ -1506,7 +1488,7 @@ class PostEditTest(TestCase):
             "text": "A new post!",
             "with_hat": other_hat.pk,
         }
-        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
+        self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         topic = Topic.objects.get(pk=topic.pk)  # refresh
         self.assertEqual(topic.last_message.hat, other_hat)  # Now, it works
 
@@ -1521,9 +1503,7 @@ class PostEditTest(TestCase):
         # Edit post
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         data = {"text": "A new post!"}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
 
         # Check that an archive was created
@@ -1582,7 +1562,7 @@ class PostUsefulTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk))
+        response = self.client.post(reverse("post-useful") + f"?message={topic.last_message.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -1592,7 +1572,7 @@ class PostUsefulTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk))
+        response = self.client.post(reverse("post-useful") + f"?message={topic.last_message.pk}")
 
         self.assertEqual(302, response.status_code)
 
@@ -1603,7 +1583,7 @@ class PostUsefulTest(TestCase):
 
         profile = ProfileFactory()
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk))
+        response = self.client.post(reverse("post-useful") + f"?message={topic.last_message.pk}")
 
         self.assertEqual(403, response.status_code)
 
@@ -1616,7 +1596,7 @@ class PostUsefulTest(TestCase):
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
         response = self.client.post(
-            reverse("post-useful") + "?message={}".format(post.pk), HTTP_X_REQUESTED_WITH="XMLHttpRequest", follow=False
+            reverse("post-useful") + f"?message={post.pk}", HTTP_X_REQUESTED_WITH="XMLHttpRequest", follow=False
         )
 
         self.assertEqual(200, response.status_code)
@@ -1630,7 +1610,7 @@ class PostUsefulTest(TestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.post(reverse("post-useful") + "?message={}".format(post.pk), follow=False)
+        response = self.client.post(reverse("post-useful") + f"?message={post.pk}", follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertTrue(Post.objects.get(pk=post.pk).is_useful)
@@ -1642,7 +1622,7 @@ class PostUsefulTest(TestCase):
 
         staff = StaffProfileFactory()
         self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
-        response = self.client.post(reverse("post-useful") + "?message={}".format(topic.last_message.pk), follow=False)
+        response = self.client.post(reverse("post-useful") + f"?message={topic.last_message.pk}", follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertTrue(Post.objects.get(pk=topic.last_message.pk).is_useful)
@@ -1721,9 +1701,7 @@ class MessageActionTest(TestCase):
         self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
         text_hidden_expected = "Bad guy!"
         data = {"delete_message": "", "text_hidden": text_hidden_expected}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
 
         # staff can alert all messages
@@ -1762,9 +1740,7 @@ class MessageActionTest(TestCase):
         self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
         text_hidden_expected = "Bad guy!"
         data = {"delete_message": "", "text_hidden": text_hidden_expected}
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
 
         # unauthenticated
@@ -1794,9 +1770,7 @@ class MessageActionTest(TestCase):
         data = {
             "show_message": "",
         }
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
 
         # two posts are displayed again
@@ -1861,7 +1835,7 @@ class PostUnreadTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-unread") + "?message={}".format(topic.last_message.pk))
+        response = self.client.get(reverse("post-unread") + f"?message={topic.last_message.pk}")
 
         self.assertEqual(post_unread.send.call_count, 0)
         self.assertEqual(403, response.status_code)
@@ -1875,7 +1849,7 @@ class PostUnreadTest(TestCase):
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
         self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        response = self.client.get(reverse("post-unread") + "?message={}".format(post.pk), follow=False)
+        response = self.client.get(reverse("post-unread") + f"?message={post.pk}", follow=False)
 
         self.assertEqual(post_unread.send.call_count, 1)
         self.assertEqual(302, response.status_code)

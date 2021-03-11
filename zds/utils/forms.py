@@ -17,7 +17,7 @@ class IncludeEasyMDE(Layout):
 
 class CommonLayoutEditor(Layout):
     def __init__(self, *args, **kwargs):
-        super(CommonLayoutEditor, self).__init__(
+        super().__init__(
             IncludeEasyMDE(),
             Field("text", css_class="md-editor mini-editor"),
             HTML("<div class='message-bottom'>"),
@@ -40,7 +40,7 @@ class CommonLayoutVersionEditor(Layout):
             save_button = StrictButton(
                 _("Sauvegarder et continuer"), name="save_and_continue", css_class="btn-grey inline-save-button"
             )
-        super(CommonLayoutVersionEditor, self).__init__(
+        super().__init__(
             Div(
                 IncludeEasyMDE(),
                 Field("text", css_class="md-editor"),

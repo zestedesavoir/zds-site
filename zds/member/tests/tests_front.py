@@ -9,7 +9,7 @@ from selenium.webdriver.firefox.options import Options
 class MemberFrontTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
-        super(MemberFrontTests, cls).setUpClass()
+        super().setUpClass()
         options = Options()
         options.headless = True
         cls.selenium = Firefox(options=options)
@@ -18,7 +18,7 @@ class MemberFrontTests(StaticLiveServerTestCase):
     @classmethod
     def tearDownClass(cls):
         cls.selenium.quit()
-        super(MemberFrontTests, cls).tearDownClass()
+        super().tearDownClass()
 
     def test_zestedesavoir_is_present(self):
         self.selenium.get(self.live_server_url + "/")

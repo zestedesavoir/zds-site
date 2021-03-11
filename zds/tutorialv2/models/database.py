@@ -178,7 +178,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             self.slug = uuslug(self.title, instance=self, max_length=80)
         if update_date:
             self.update_date = datetime.now()
-        super(PublishableContent, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def get_absolute_url_beta(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
@@ -209,7 +209,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :return: url to the PM creation form
         :rtype: str
         """
-        get = "?" + urlencode({"title": "{} - {}".format(title, self.title)})
+        get = "?" + urlencode({"title": f"{title} - {self.title}"})
 
         for author in self.authors.all():
             get += "&" + urlencode({"username": author.username})
@@ -378,7 +378,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             if sha != public.sha_public:
                 raise NotAPublicVersion
 
-            with open(os.path.join(path, "manifest.json"), "r", encoding="utf-8") as manifest:
+            with open(os.path.join(path, "manifest.json"), encoding="utf-8") as manifest:
                 json = json_handler.loads(manifest.read())
                 versioned = get_content_from_json(
                     json,
@@ -982,7 +982,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     def get_es_django_indexable(cls, force_reindexing=False):
         """Overridden to remove must_redirect=True (and prefetch stuffs)."""
 
-        q = super(PublishedContent, cls).get_es_django_indexable(force_reindexing)
+        q = super().get_es_django_indexable(force_reindexing)
         return (
             q.prefetch_related("content")
             .prefetch_related("content__tags")
@@ -999,7 +999,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         # fetch initial batch
         last_pk = 0
-        objects_source = super(PublishedContent, cls).get_es_indexable(force_reindexing)
+        objects_source = super().get_es_indexable(force_reindexing)
         objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
         while objects:
@@ -1040,7 +1040,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         excluded_fields = excluded_fields or []
         excluded_fields.extend(["title", "description", "tags", "categories", "text", "thumbnail", "picked"])
 
-        data = super(PublishedContent, self).get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_es_document_source(excluded_fields=excluded_fields)
 
         # fetch versioned information
         versioned = self.load_public_version()
@@ -1179,7 +1179,7 @@ class FakeChapter(AbstractESIndexable):
     def get_es_document_as_bulk_action(self, index, action="index"):
         """Overridden to handle parenting between chapter and PublishedContent"""
 
-        document = super(FakeChapter, self).get_es_document_as_bulk_action(index, action)
+        document = super().get_es_document_as_bulk_action(index, action)
         document["_parent"] = self.parent_id
         return document
 
@@ -1204,7 +1204,7 @@ class ContentReaction(Comment):
     objects = ReactionManager()
 
     def __str__(self):
-        return "<Réaction pour '{0}', #{1}>".format(self.related_content, self.pk)
+        return f"<Réaction pour '{self.related_content}', #{self.pk}>"
 
     def get_absolute_url(self):
         """Find the url to the reaction
@@ -1213,7 +1213,7 @@ class ContentReaction(Comment):
         :rtype: str
         """
         page = int(ceil(float(self.position) / settings.ZDS_APP["content"]["notes_per_page"]))
-        return "{0}?page={1}#p{2}".format(self.related_content.get_absolute_url_online(), page, self.pk)
+        return f"{self.related_content.get_absolute_url_online()}?page={page}#p{self.pk}"
 
     def get_notification_title(self):
         return self.related_content.title
@@ -1241,10 +1241,10 @@ class ContentRead(models.Model):
         if self.user not in self.content.authors.all() and self.note is None:
             raise ValueError(_("La note doit exister ou l'utilisateur doit être l'un des auteurs."))
 
-        return super(ContentRead, self).save(force_insert, force_update, using, update_fields)
+        return super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
-        return '<Contenu "{}" lu par {}, #{}>'.format(self.content, self.user, self.note.pk)
+        return f'<Contenu "{self.content}" lu par {self.user}, #{self.note.pk}>'
 
 
 class Validation(models.Model):
@@ -1357,7 +1357,7 @@ class PickListOperation(models.Model):
     is_effective = models.BooleanField(verbose_name="Choix actif", default=True)
 
     def __str__(self):
-        return "{} : {}".format(self.get_operation_display(), self.content)
+        return f"{self.get_operation_display()} : {self.content}"
 
     def cancel(self, canceler, autosave=True):
         """
@@ -1372,7 +1372,7 @@ class PickListOperation(models.Model):
 
     def save(self, **kwargs):
         if self.content is not None and self.content.type == "OPINION":
-            return super(PickListOperation, self).save(**kwargs)
+            return super().save(**kwargs)
         raise ValueError("Content cannot be null or something else than opinion.", self.content)
 
 
@@ -1398,7 +1398,7 @@ class PublicationEvent(models.Model):
     created = models.DateTimeField(verbose_name="date de création", name="date", auto_now_add=True)
 
     def __str__(self):
-        return "{}: {} - {}".format(self.published_object.title(), self.format_requested, self.state_of_processing)
+        return f"{self.published_object.title()}: {self.format_requested} - {self.state_of_processing}"
 
     def url(self):
         return self.published_object.get_absolute_url_to_extra_content(self.format_requested)
@@ -1418,7 +1418,7 @@ class ContentContributionRole(models.Model):
     position = models.IntegerField(default=0)
 
     def __str__(self):
-        return "<Role de type '{0}', #{1}>".format(self.title, self.pk)
+        return f"<Role de type '{self.title}', #{self.pk}>"
 
 
 class ContentContribution(models.Model):
@@ -1444,7 +1444,7 @@ class ContentContribution(models.Model):
     comment = models.CharField(verbose_name="Commentaire", null=True, blank=True, max_length=200)
 
     def __str__(self):
-        return "<Contribution a '{0}' par {1} de type {2}, #{3}>".format(
+        return "<Contribution a '{}' par {} de type {}, #{}>".format(
             self.content.title, self.user.username, self.contribution_role.title, self.pk
         )
 
@@ -1472,7 +1472,7 @@ class ContentSuggestion(models.Model):
     )
 
     def __str__(self):
-        return "<Suggest '{0}' for content {1}, #{2}>".format(self.suggestion.title, self.publication.title, self.pk)
+        return f"<Suggest '{self.suggestion.title}' for content {self.publication.title}, #{self.pk}>"
 
 
 @receiver(models.signals.pre_delete, sender=User)

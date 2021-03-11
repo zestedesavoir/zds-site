@@ -12,13 +12,13 @@ class HelpWritingFactory(factory.DjangoModelFactory):
     class Meta:
         model = HelpWriting
 
-    title = factory.Sequence("titre de l'image {0}".format)
-    slug = factory.LazyAttribute(lambda o: "{0}".format(old_slugify(o.title)))
+    title = factory.Sequence("titre de l'image {}".format)
+    slug = factory.LazyAttribute(lambda o: "{}".format(old_slugify(o.title)))
     tablelabel = factory.LazyAttribute(lambda n: "Besoin de " + n.title)
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-        help_writing = super(HelpWritingFactory, cls)._prepare(create, **kwargs)
+        help_writing = super()._prepare(create, **kwargs)
         image_path = kwargs.pop("image_path", None)
         fixture_image_path = kwargs.pop("fixture_image_path", None)
 
@@ -37,12 +37,12 @@ class HelpWritingFactory(factory.DjangoModelFactory):
         kwargs.pop("image_path", None)
         kwargs.pop("fixture_image_path", None)
 
-        return super(HelpWritingFactory, cls)._create(target_class, *args, **kwargs)
+        return super()._create(target_class, *args, **kwargs)
 
 
 class CategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = Category
 
-    title = factory.Sequence("Ma catégorie No{0}".format)
-    slug = factory.Sequence("category{0}".format)
+    title = factory.Sequence("Ma catégorie No{}".format)
+    slug = factory.Sequence("category{}".format)

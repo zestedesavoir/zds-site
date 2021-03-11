@@ -66,7 +66,7 @@ class Container:
         self.slug_pool = default_slug_pool()
 
     def __str__(self):
-        return "<Conteneur '{}'>".format(self.title)
+        return f"<Conteneur '{self.title}'>"
 
     def __copy__(self):
         cpy = self.__class__(self.title, self.slug, self.parent, self.position_in_parent)
@@ -759,8 +759,7 @@ class Container:
         yield self
         for child in self.children:
             if isinstance(child, Container):
-                for _y in child.traverse(only_container):
-                    yield _y
+                yield from child.traverse(only_container)
             elif not only_container:
                 yield child
 
@@ -928,7 +927,7 @@ class Extract:
         self.position_in_parent = position_in_parent
 
     def __str__(self):
-        return "<Extrait '{}'>".format(self.title)
+        return f"<Extrait '{self.title}'>"
 
     def get_absolute_url(self):
         """Find the url that point to the offline version of this extract
@@ -936,21 +935,21 @@ class Extract:
         :return: the url to access the tutorial offline
         :rtype: str
         """
-        return "{0}#{1}-{2}".format(self.container.get_absolute_url(), self.position_in_parent, self.slug)
+        return f"{self.container.get_absolute_url()}#{self.position_in_parent}-{self.slug}"
 
     def get_absolute_url_online(self):
         """
         :return: the url to access the tutorial when online
         :rtype: str
         """
-        return "{0}#{1}-{2}".format(self.container.get_absolute_url_online(), self.position_in_parent, self.slug)
+        return f"{self.container.get_absolute_url_online()}#{self.position_in_parent}-{self.slug}"
 
     def get_absolute_url_beta(self):
         """
         :return: the url to access the tutorial when in beta
         :rtype: str
         """
-        return "{0}#{1}-{2}".format(self.container.get_absolute_url_beta(), self.position_in_parent, self.slug)
+        return f"{self.container.get_absolute_url_beta()}#{self.position_in_parent}-{self.slug}"
 
     def get_edit_url(self):
         """
@@ -1439,4 +1438,4 @@ class NotAPublicVersion(Exception):
     """Exception raised when a given version is not a public version as it should be"""
 
     def __init__(self, *args, **kwargs):
-        super(NotAPublicVersion, self).__init__(self, *args, **kwargs)
+        super().__init__(self, *args, **kwargs)

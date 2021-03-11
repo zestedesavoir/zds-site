@@ -21,7 +21,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(SendContentAlert, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         try:
@@ -51,7 +51,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
 class SolveContentAlert(FormView, LoginRequiredMixin):
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(SolveContentAlert, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if not request.user.has_perm("tutorialv2.change_contentreaction"):
