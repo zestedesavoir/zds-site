@@ -45,7 +45,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
@@ -65,17 +65,17 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         subcategory = SubCategoryFactory()
         opinion.subcategory.add(subcategory)
         opinion.save()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         resp = self.client.get(reverse("opinion:view", kwargs={"pk": opinion.pk, "slug": opinion.slug}))
         self.assertContains(resp, "Version brouillon", msg_prefix="Author must access their draft directly")
         self.assertNotContains(resp, "{}?subcategory=".format(reverse("publication:list")))
         self.assertContains(resp, "{}?category=".format(reverse("opinion:list")))
 
     def test_no_help_for_tribune(self):
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
     def test_help_for_article(self):
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         resp = self.client.get(reverse("content:create-article"))
         self.assertEqual(200, resp.status_code)
 
@@ -97,7 +97,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.post(
             reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
@@ -130,7 +130,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.post(
             reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
@@ -162,7 +162,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # author
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish
         result = self.client.post(
@@ -193,7 +193,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # staff
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # publish
         result = self.client.post(
@@ -224,7 +224,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # guest => 403
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish with author
         result = self.client.post(
@@ -240,7 +240,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         # unpublish
         result = self.client.post(
@@ -270,7 +270,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish
         result = self.client.post(
@@ -301,7 +301,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNone(opinion.sha_picked)
         self.assertIsNone(opinion.picked_date)
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # valid with staff
         result = self.client.post(
@@ -316,7 +316,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(opinion.picked_date)
 
         # invalid with author => 403
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("validation:unpick-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
@@ -329,7 +329,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(opinion.sha_picked, opinion_draft.current_version)
 
         # invalid with staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.post(
             reverse("validation:unpick-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
@@ -361,7 +361,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish
         result = self.client.post(
@@ -382,7 +382,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 403)
 
         # now, login as staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # check that the opinion is displayed
         result = self.client.get(reverse("validation:list-opinion"))
@@ -448,7 +448,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish
         result = self.client.post(
@@ -459,7 +459,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login as staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # unpublish opinion
         result = self.client.post(
@@ -500,7 +500,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish
         result = self.client.post(
@@ -511,7 +511,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login as staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         alerter = ProfileFactory().user
         Alert.objects.create(
             author=alerter,
@@ -565,7 +565,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish
         result = self.client.post(
@@ -576,7 +576,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login as staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # PICK
         result = self.client.post(
@@ -665,7 +665,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # publish
         result = self.client.post(
@@ -689,7 +689,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 403)
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # valid with staff
         result = self.client.post(
@@ -715,7 +715,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=opinion_draft, db_object=opinion)
         ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
@@ -733,7 +733,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # Alert content
         random_user = ProfileFactory().user
 
-        self.assertEqual(self.client.login(username=random_user.username, password="hostel77"), True)
+        self.client.force_login(random_user)
 
         result = self.client.post(
             reverse("content:alert-content", kwargs={"pk": opinion.pk}), {"signal_text": "Yeurk !"}, follow=False
@@ -755,7 +755,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         alert = Alert.objects.get(pk=alert.pk)
         self.assertFalse(alert.solved)
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.post(
             reverse("content:resolve-content", kwargs={"pk": opinion.pk}),
