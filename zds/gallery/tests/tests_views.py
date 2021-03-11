@@ -20,8 +20,7 @@ class GalleryListViewTest(TestCase):
         GalleryFactory()
         UserGalleryFactory(user=profile.user, gallery=gallery)
 
-        login_check = self.client.login(username=profile.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(profile.user)
 
         response = self.client.get(reverse("gallery-list"), follow=True)
         self.assertEqual(200, response.status_code)
@@ -44,8 +43,7 @@ class GalleryDetailViewTest(TestCase):
         )
 
     def test_fail_gallery_no_exist(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
         response = self.client.get(reverse("gallery-details", args=["89", "test-gallery"]), follow=True)
 
         self.assertEqual(404, response.status_code)
@@ -55,8 +53,7 @@ class GalleryDetailViewTest(TestCase):
         gallery = GalleryFactory()
         UserGalleryFactory(gallery=gallery, user=self.profile1.user)
 
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         response = self.client.get(reverse("gallery-details", args=[gallery.pk, gallery.slug]))
         self.assertEqual(403, response.status_code)
@@ -66,8 +63,7 @@ class GalleryDetailViewTest(TestCase):
         UserGalleryFactory(gallery=gallery, user=self.profile1.user)
         UserGalleryFactory(gallery=gallery, user=self.profile2.user)
 
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         response = self.client.get(reverse("gallery-details", args=[gallery.pk, gallery.slug]))
         self.assertEqual(200, response.status_code)
@@ -86,15 +82,13 @@ class NewGalleryViewTest(TestCase):
 
     def test_access_member(self):
         """ just verify with get request that everythings is ok """
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(reverse("gallery-new"))
         self.assertEqual(200, response.status_code)
 
     def test_fail_new_gallery_with_missing_params(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
         self.assertEqual(0, Gallery.objects.count())
 
         response = self.client.post(reverse("gallery-new"), {"subtitle": "test"})
@@ -103,8 +97,7 @@ class NewGalleryViewTest(TestCase):
         self.assertEqual(0, Gallery.objects.filter(subtitle="test").count())
 
     def test_success_new_gallery(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
         self.assertEqual(0, Gallery.objects.count())
 
         response = self.client.post(
@@ -146,8 +139,7 @@ class ModifyGalleryViewTest(TestCase):
 
     def test_fail_delete_multi_read_permission(self):
         """ when user wants to delete a list of galleries just with a read permission """
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         self.assertEqual(4, Gallery.objects.all().count())
         self.assertEqual(5, UserGallery.objects.all().count())
@@ -163,8 +155,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(3, Image.objects.all().count())
 
     def test_success_delete_multi_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         self.assertEqual(4, Gallery.objects.all().count())
         self.assertEqual(5, UserGallery.objects.all().count())
@@ -182,8 +173,7 @@ class ModifyGalleryViewTest(TestCase):
 
     def test_fail_delete_read_permission(self):
         """ when user wants to delete a gallery just with a read permission """
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         self.assertEqual(4, Gallery.objects.all().count())
         self.assertEqual(5, UserGallery.objects.all().count())
@@ -199,8 +189,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(3, Image.objects.all().count())
 
     def test_success_delete_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         self.assertEqual(4, Gallery.objects.all().count())
         self.assertEqual(5, UserGallery.objects.all().count())
@@ -215,8 +204,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(0, Image.objects.filter(gallery=self.gallery1).count())
 
     def test_fail_add_user_with_read_permission(self):
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         # gallery nonexistent
         response = self.client.post(
@@ -239,8 +227,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_fail_add_user_already_has_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         # Same permission : read
         response = self.client.post(
@@ -274,8 +261,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual("R", permissions[0].mode)
 
     def test_success_add_user_read_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
@@ -292,8 +278,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual("R", permissions[0].mode)
 
     def test_success_add_user_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
@@ -310,8 +295,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual("W", permissions[0].mode)
 
     def test_success_modify_user_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
@@ -342,8 +326,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual("R", permissions[0].mode)
 
     def test_fail_user_modify_self(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
@@ -360,8 +343,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual("W", permissions[0].mode)
 
     def test_success_user_leave_gallery(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         user_galleries = UserGallery.objects.filter(gallery=self.gallery1)
         self.assertEqual(user_galleries.count(), 2)
@@ -381,8 +363,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(user_galleries.last().user, self.profile1.user)
 
     def test_error_last_user_with_write_leave_gallery(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         user_gallery = UserGallery.objects.filter(gallery=self.gallery1, user=self.profile1.user)
         self.assertEqual(user_gallery.count(), 1)
@@ -401,8 +382,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(user_gallery.count(), 1)  # not gone
 
     def test_success_user_with_read_permission_leave_gallery(self):
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         user_galleries = UserGallery.objects.filter(gallery=self.gallery1)
         self.assertEqual(user_galleries.count(), 2)
@@ -422,8 +402,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(user_galleries.last().user, self.profile1.user)
 
     def test_fail_user_modify_user_has_permission(self):
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         user_galleries = UserGallery.objects.filter(gallery=self.gallery1)
         self.assertEqual(user_galleries.count(), 2)
@@ -467,8 +446,7 @@ class EditGalleryTestView(TestCase):
         self.user_gallery3 = UserGalleryFactory(user=self.profile3.user, gallery=self.gallery1, mode="R")
 
     def test_fail_member_no_permission_can_edit_gallery(self):
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         given_title = "Un nouveau titre"
         given_subtile = "Un nouveau sous-titre"
@@ -484,8 +462,7 @@ class EditGalleryTestView(TestCase):
         self.assertNotEqual(given_subtile, gallery.subtitle)
 
     def test_fail_member_read_permission_can_edit_gallery(self):
-        login_check = self.client.login(username=self.profile3.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile3.user)
 
         given_title = "Un nouveau titre"
         given_subtile = "Un nouveau sous-titre"
@@ -501,8 +478,7 @@ class EditGalleryTestView(TestCase):
         self.assertNotEqual(given_subtile, gallery.subtitle)
 
     def test_success_member_edit_gallery(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         given_title = "Un nouveau titre"
         given_subtile = "Un nouveau sous-titre"
@@ -532,8 +508,7 @@ class EditImageViewTest(TestCase):
         self.image.delete()
 
     def test_fail_member_no_permission_can_edit_image(self):
-        login_check = self.client.login(username=self.profile3.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile3.user)
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
 
@@ -548,8 +523,7 @@ class EditImageViewTest(TestCase):
         image_test.delete()
 
     def test_success_member_edit_image(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         nb_files = len(os.listdir(self.gallery.get_gallery_path()))
 
@@ -570,8 +544,7 @@ class EditImageViewTest(TestCase):
         self.assertEqual(nb_files, len(os.listdir(self.gallery.get_gallery_path())))
 
     def test_access_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]))
 
@@ -598,8 +571,7 @@ class ModifyImageTest(TestCase):
         self.image3.delete()
 
     def test_fail_modify_image_with_no_permission(self):
-        login_check = self.client.login(username=self.profile3.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile3.user)
 
         response = self.client.post(
             reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
@@ -618,8 +590,7 @@ class ModifyImageTest(TestCase):
         UserGalleryFactory(user=profile4.user, gallery=gallery4)
         self.assertEqual(1, Image.objects.filter(pk=image4.pk).count())
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         self.client.post(
             reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
@@ -631,8 +602,7 @@ class ModifyImageTest(TestCase):
         image4.delete()
 
     def test_success_delete_image_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
@@ -644,8 +614,7 @@ class ModifyImageTest(TestCase):
         self.assertEqual(0, Image.objects.filter(pk=self.image1.pk).count())
 
     def test_success_delete_list_images_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
@@ -658,8 +627,7 @@ class ModifyImageTest(TestCase):
         self.assertEqual(0, Image.objects.filter(pk=self.image2.pk).count())
 
     def test_fail_delete_image_read_permission(self):
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         response = self.client.post(
             reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
@@ -681,8 +649,7 @@ class NewImageViewTest(TestCase):
         self.user_gallery2 = UserGalleryFactory(user=self.profile2.user, gallery=self.gallery, mode="R")
 
     def test_success_new_image_write_permission(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
         self.assertEqual(0, len(self.gallery.get_images()))
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
@@ -698,8 +665,7 @@ class NewImageViewTest(TestCase):
         self.gallery.get_images()[0].delete()
 
     def test_fail_new_image_with_read_permission(self):
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
         self.assertEqual(0, len(self.gallery.get_images()))
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
@@ -713,8 +679,7 @@ class NewImageViewTest(TestCase):
         self.assertEqual(0, len(self.gallery.get_images()))
 
     def test_fail_new_image_with_no_permission(self):
-        login_check = self.client.login(username=self.profile3.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile3.user)
         self.assertEqual(0, len(self.gallery.get_images()))
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
@@ -728,8 +693,7 @@ class NewImageViewTest(TestCase):
         self.assertEqual(0, len(self.gallery.get_images()))
 
     def test_fail_gallery_not_exist(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
@@ -741,8 +705,7 @@ class NewImageViewTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_import_images_in_gallery(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         with (settings.BASE_DIR / "fixtures" / "archive-gallery.zip").open("rb") as fp:
             response = self.client.post(
@@ -760,8 +723,7 @@ class NewImageViewTest(TestCase):
         self.assertEqual(200, response.status_code)
 
     def test_import_images_in_gallery_no_archive(self):
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         with (settings.BASE_DIR / "fixtures" / "archive-gallery.zip").open("rb"):
             response = self.client.post(
@@ -777,8 +739,7 @@ class NewImageViewTest(TestCase):
         self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 0)
 
     def test_denies_import_images_in_gallery(self):
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         with (settings.BASE_DIR / "fixtures" / "archive-gallery.zip").open("rb") as fp:
             response = self.client.post(
