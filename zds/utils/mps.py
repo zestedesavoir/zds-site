@@ -21,7 +21,6 @@ def send_mp(
     send_by_mail=True,
     leave=True,
     direct=False,
-    mark_as_read=False,
     hat=None,
     automatically_read=None,
 ):
@@ -36,30 +35,16 @@ def send_mp(
     :param send_by_mail:
     :param direct: send a mail directly without mp (ex : ban members who wont connect again)
     :param leave: if True, do not add the sender to the topic
-    :param mark_as_read:
     :param hat: hat with which to send the private message
     :param automatically_read: a user or a list of users that will automatically be marked as having read of the mp
     :raise UnreachableUserError:
     """
 
-    # Creating the thread
-    limit = PrivateTopic._meta.get_field("title").max_length
-    n_topic = PrivateTopic()
-    n_topic.title = title[:limit]
-    n_topic.subtitle = subtitle
-    n_topic.pubdate = datetime.now()
-    n_topic.author = author
-    n_topic.save()
+    n_topic = PrivateTopic.create(title=title, subtitle=subtitle, author=author, recipients=users)
     signals.topic_created.send(sender=PrivateTopic, topic=n_topic, by_email=send_by_mail)
 
-    # Add all participants on the MP.
-    for participants in users:
-        n_topic.add_participant(participants, silent=True)
-    n_topic.save()
-
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
-    if mark_as_read:
-        mark_read(topic, author)
+
     if automatically_read:
         if not isinstance(automatically_read, list):
             automatically_read = [automatically_read]

@@ -1,3 +1,4 @@
+from datetime import datetime
 from math import ceil
 
 from django.conf import settings
@@ -12,8 +13,6 @@ from zds.utils import get_current_user, old_slugify
 
 class NotReachableError(Exception):
     """Raised when a user cannot be reached using private messages (e.g. bots)."""
-
-    pass
 
 
 class NotParticipatingError(Exception):
@@ -57,6 +56,22 @@ class PrivateTopic(models.Model):
     )
     pubdate = models.DateTimeField("Date de création", auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
+
+    @staticmethod
+    def create(title, subtitle, author, recipients):
+        limit = PrivateTopic._meta.get_field("title").max_length
+        topic = PrivateTopic()
+        topic.title = title[:limit]
+        topic.subtitle = subtitle
+        topic.pubdate = datetime.now()
+        topic.author = author
+        topic.save()
+
+        for participants in recipients:
+            topic.add_participant(participants, silent=True)
+        topic.save()
+
+        return topic
 
     def __str__(self):
         """
