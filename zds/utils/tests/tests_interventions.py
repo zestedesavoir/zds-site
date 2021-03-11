@@ -60,14 +60,14 @@ class InterventionsTest(TestCase):
 
     def test_interventions_privatetopics(self):
 
-        self.assertTrue(self.client.login(username=self.author.user.username, password="hostel77"))
+        self.client.force_login(self.author.user)
         response = self.client.post(reverse("homepage"))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
 
         self.client.logout()
 
-        self.assertTrue(self.client.login(username=self.user.user.username, password="hostel77"))
+        self.client.force_login(self.user.user)
         response = self.client.post(reverse("homepage"))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
@@ -80,14 +80,14 @@ class InterventionsTest(TestCase):
         self.topic.participants.remove(move)
         self.topic.save()
 
-        self.assertTrue(self.client.login(username=self.user.user.username, password="hostel77"))
+        self.client.force_login(self.user.user)
         response = self.client.post(reverse("homepage"))
         self.assertEqual(200, response.status_code)
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
 
     def test_interventions_waiting_contents(self):
         # Login as staff
-        self.assertTrue(self.client.login(username=self.staff.user.username, password="hostel77"))
+        self.client.force_login(self.staff.user)
 
         # check that the number of waiting tutorials is correct
         response = self.client.post(reverse("homepage"))
