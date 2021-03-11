@@ -42,22 +42,19 @@ class EditContentLicensePermissionTests(TutorialTestMixin, TestCase):
 
     def test_authenticated_author(self):
         """Test that on form submission, authors are redirected to the content page."""
-        login_success = self.client.login(username=self.author.username, password="hostel77")
-        self.assertTrue(login_success)
+        self.client.force_login(self.author)
         response = self.client.post(self.form_url, self.form_data)
         self.assertRedirects(response, self.content_url)
 
     def test_authenticated_staff(self):
         """Test that on form submission, staffs are redirected to the content page."""
-        login_success = self.client.login(username=self.staff.username, password="hostel77")
-        self.assertTrue(login_success)
+        self.client.force_login(self.staff)
         response = self.client.post(self.form_url, self.form_data)
         self.assertRedirects(response, self.content_url)
 
     def test_authenticated_outsider(self):
         """Test that on form submission, unauthorized users get a 403."""
-        login_success = self.client.login(username=self.outsider.username, password="hostel77")
-        self.assertTrue(login_success)
+        self.client.force_login(self.outsider)
         response = self.client.post(self.form_url, self.form_data)
         self.assertEquals(response.status_code, 403)
 
@@ -83,8 +80,7 @@ class EditContentLicenseWorkflowTests(TutorialTestMixin, TestCase):
         self.success_message_profile_update = EditContentLicense.success_message_profile_update
 
         # Log in with an authorized user (e.g the author of the content) to perform the tests
-        login_success = self.client.login(username=self.author.user.username, password="hostel77")
-        self.assertTrue(login_success)
+        self.client.force_login(self.author.user)
 
     def get_test_cases(self):
         return {
@@ -135,8 +131,7 @@ class EditContentLicenseFunctionalTests(TutorialTestMixin, TestCase):
         self.form_url = reverse("content:edit-license", kwargs={"pk": self.content.pk})
 
         # Log in with an authorized user (e.g the author of the content) to perform the tests
-        login_success = self.client.login(username=self.author.user.username, password="hostel77")
-        self.assertTrue(login_success)
+        self.client.force_login(self.author.user)
 
     def test_form_function(self):
         """Test many use cases for the form."""
