@@ -101,7 +101,7 @@ class FeaturedRequested(models.Model):
         return new_value, new_count
 
     def __str__(self):
-        return '<RequestFeatured for "{}">'.format(self.content_object.title)
+        return f'<RequestFeatured for "{self.content_object.title}">'
 
 
 class FeaturedMessage(models.Model):

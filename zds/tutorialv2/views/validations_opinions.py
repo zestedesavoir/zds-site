@@ -46,7 +46,7 @@ class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormVi
         raise Http404(_("Publier un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
-        kwargs = super(PublishOpinion, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -78,7 +78,7 @@ class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormVi
             messages.success(self.request, _("Le contenu a bien été publié."))
             self.success_url = published.get_absolute_url_online()
 
-        return super(PublishOpinion, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, DoesNotRequireValidationFormViewMixin):
@@ -90,7 +90,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
     modal_form = True
 
     def get_form_kwargs(self):
-        kwargs = super(UnpublishOpinion, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -145,7 +145,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
         messages.success(self.request, _("Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url()
 
-        return super(UnpublishOpinion, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
@@ -158,7 +158,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
     template_name = "tutorialv2/validation/opinion-moderation-history.html"
 
     def get_context_data(self):
-        context = super(DoNotPickOpinion, self).get_context_data()
+        context = super().get_context_data()
         context["operations"] = (
             PickListOperation.objects.filter(content=self.object)
             .order_by("-operation_date")
@@ -170,7 +170,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
         return self.render_to_response(self.get_context_data())
 
     def get_form_kwargs(self):
-        kwargs = super(DoNotPickOpinion, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -282,7 +282,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
         raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
-        kwargs = super(PickOpinion, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -338,7 +338,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
 
         messages.success(self.request, _("Le billet a bien été choisi."))
 
-        return super(PickOpinion, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin):
@@ -354,7 +354,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
         raise Http404(_("Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
-        kwargs = super(UnpickOpinion, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -406,7 +406,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
 
         messages.success(self.request, _("Le contenu a bien été enlevé de la liste des billets choisis."))
 
-        return super(UnpickOpinion, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -441,7 +441,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
         raise Http404(_("Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))
 
     def get_form_kwargs(self):
-        kwargs = super(PromoteOpinionToArticle, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.versioned_object
         return kwargs
 
@@ -499,7 +499,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
         validation.content = article
         validation.date_proposition = datetime.now()
         validation.comment_authors = _(
-            "Promotion du billet « [{0}]({1}) » en article par [{2}]({3}).".format(
+            "Promotion du billet « [{}]({}) » en article par [{}]({}).".format(
                 article.title,
                 article.get_absolute_url_online(),
                 self.request.user.username,
@@ -552,4 +552,4 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             ),
         )
 
-        return super(PromoteOpinionToArticle, self).form_valid(form)
+        return super().form_valid(form)

@@ -114,14 +114,14 @@ class CommentEditsHistory(ListView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        response = super(CommentEditsHistory, self).dispatch(*args, **kwargs)
+        response = super().dispatch(*args, **kwargs)
         current_user = self.request.user
         if not self.get_object().author == current_user and not current_user.has_perm("forum.change_post"):
             raise PermissionDenied
         return response
 
     def get_context_data(self, **kwargs):
-        context = super(CommentEditsHistory, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["comment"] = self.get_object()
         context["is_staff"] = self.request.user.has_perm("forum.change_post")
         return context
@@ -145,7 +145,7 @@ class EditDetail(DetailView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        response = super(EditDetail, self).dispatch(*args, **kwargs)
+        response = super().dispatch(*args, **kwargs)
         current_user = self.request.user
         edit = self.get_object()
         if not edit.comment.author == current_user and not current_user.has_perm("forum.change_post"):
@@ -155,7 +155,7 @@ class EditDetail(DetailView):
         return response
 
     def get_context_data(self, **kwargs):
-        context = super(EditDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["comment"] = self.get_object().comment
         context["is_staff"] = self.request.user.has_perm("forum.change_post")
         return context

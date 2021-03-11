@@ -12,20 +12,20 @@ class Command(BaseCommand):
         def title_pk(tag):
             if isinstance(tag, dict):
                 return '"{}" ({})'.format(tag["title"], tag["pk"])
-            return '"{}" ({})'.format(tag.title, tag.pk)
+            return f'"{tag.title}" ({tag.pk})'
 
         def replace(tag_to_delete, tag_to_use_instead):
             self.stdout.write("Replacing {} with {}".format(title_pk(tag_to_delete), title_pk(tag_to_use_instead)))
 
             topics = Topic.objects.filter(tags__pk=tag_to_delete["pk"])
             for topic in topics:
-                self.stdout.write('    Replaced on topic "{}"'.format(topic))
+                self.stdout.write(f'    Replaced on topic "{topic}"')
                 topic.tags.add(tag_to_use_instead.pk)
                 topic.tags.remove(tag_to_delete["pk"])
 
             contents = PublishableContent.objects.filter(tags__pk=tag_to_delete["pk"])
             for content in contents:
-                self.stdout.write('    Replaced on content "{}"'.format(content))
+                self.stdout.write(f'    Replaced on content "{content}"')
                 content.tags.add(tag_to_use_instead.pk)
                 content.tags.remove(tag_to_delete["pk"])
 

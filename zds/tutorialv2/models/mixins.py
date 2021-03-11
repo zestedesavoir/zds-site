@@ -81,4 +81,4 @@ class OnlineLinkableContentMixin:
         :rtype: str
         """
         content_type = getattr(self, self.content_type_attribute).lower()
-        return reverse("{}:view".format(content_type), kwargs={"pk": self.content_pk, "slug": self.content_public_slug})
+        return reverse(f"{content_type}:view", kwargs={"pk": self.content_pk, "slug": self.content_public_slug})

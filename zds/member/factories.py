@@ -17,8 +17,8 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence("firm{0}".format)
-    email = factory.Sequence("firm{0}@zestedesavoir.com".format)
+    username = factory.Sequence("firm{}".format)
+    email = factory.Sequence("firm{}@zestedesavoir.com".format)
     password = "hostel77"
 
     is_active = True
@@ -26,7 +26,7 @@ class UserFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         password = kwargs.pop("password", None)
-        user = super(UserFactory, cls)._prepare(create, **kwargs)
+        user = super()._prepare(create, **kwargs)
         if password:
             user.set_password(password)
             if create:
@@ -44,8 +44,8 @@ class StaffFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence("firmstaff{0}".format)
-    email = factory.Sequence("firmstaff{0}@zestedesavoir.com".format)
+    username = factory.Sequence("firmstaff{}".format)
+    email = factory.Sequence("firmstaff{}@zestedesavoir.com".format)
     password = "hostel77"
 
     is_active = True
@@ -53,7 +53,7 @@ class StaffFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         password = kwargs.pop("password", None)
-        user = super(StaffFactory, cls)._prepare(create, **kwargs)
+        user = super()._prepare(create, **kwargs)
         if password:
             user.set_password(password)
             if create:
@@ -85,8 +85,8 @@ class DevFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence("firmdev{0}".format)
-    email = factory.Sequence("firmdev{0}@zestedesavoir.com".format)
+    username = factory.Sequence("firmdev{}".format)
+    email = factory.Sequence("firmdev{}@zestedesavoir.com".format)
     password = "hostel77"
 
     is_active = True
@@ -94,7 +94,7 @@ class DevFactory(factory.DjangoModelFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         password = kwargs.pop("password", None)
-        user = super(DevFactory, cls)._prepare(create, **kwargs)
+        user = super()._prepare(create, **kwargs)
         if password:
             user.set_password(password)
             if create:
@@ -125,7 +125,7 @@ class ProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return "My name is {0} and I i'm the guy who kill the bad guys ".format(self.user.username.lower())
+        return f"My name is {self.user.username.lower()} and I i'm the guy who kill the bad guys "
 
     sign = "Please look my flavour"
 
@@ -153,7 +153,7 @@ class StaffProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return "My name is {0} and I i'm the guy who kill the bad guys ".format(self.user.username.lower())
+        return f"My name is {self.user.username.lower()} and I i'm the guy who kill the bad guys "
 
     sign = "Please look my flavour"
 
@@ -173,7 +173,7 @@ class DevProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return "My name is {0} and I i'm the guy who kill the bad guys ".format(self.user.username.lower())
+        return f"My name is {self.user.username.lower()} and I i'm the guy who kill the bad guys "
 
     sign = "Please look my flavour"
 
@@ -188,7 +188,7 @@ class NonAsciiUserFactory(UserFactory):
     class Meta:
         model = User
 
-    username = factory.Sequence("ïéàçÊÀ{0}".format)
+    username = factory.Sequence("ïéàçÊÀ{}".format)
 
 
 class NonAsciiProfileFactory(ProfileFactory):

@@ -26,6 +26,6 @@ class Migration(migrations.Migration):
         migrations.RunPython(force_unicity),
         migrations.AlterUniqueTogether(
             name="topicread",
-            unique_together=set([("topic", "user")]),
+            unique_together={("topic", "user")},
         ),
     ]

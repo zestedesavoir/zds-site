@@ -165,7 +165,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
     def __init__(self, *args, **kwargs):
         """Override to match ES ``_id`` field and ``pk``"""
-        super(AbstractESDjangoIndexable, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.es_id = str(self.pk)
 
     @classmethod
@@ -176,7 +176,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         :rtype: elasticsearch_dsl.Mapping
         """
 
-        es_mapping = super(AbstractESDjangoIndexable, cls).get_es_mapping()
+        es_mapping = super().get_es_mapping()
         es_mapping.field("pk", "integer")
         return es_mapping
 
@@ -217,7 +217,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
 
         self.es_flagged = kwargs.pop("es_flagged", True)
 
-        return super(AbstractESDjangoIndexable, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 def delete_document_in_elasticsearch(instance):
@@ -268,7 +268,7 @@ class ESIndexManager:
         self.number_of_shards = shards
         self.number_of_replicas = replicas
 
-        self.logger = logging.getLogger("{}.{}:{}".format(__name__, self.__class__.__name__, self.index))
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}:{self.index}")
 
         self.es = None
         self.connected_to_es = False
@@ -440,7 +440,7 @@ class ESIndexManager:
                 for obj in objects:
                     obj.es_already_indexed = False
 
-        self.logger.info("unindex {}".format(model.get_es_document_type()))
+        self.logger.info(f"unindex {model.get_es_document_type()}")
 
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
         """Perform a bulk action on documents of a given model. Use the ``objects_per_batch`` property to index.
@@ -601,7 +601,7 @@ class ESIndexManager:
         arguments = {"index": self.index, "doc_type": document.get_es_document_type(), "id": document.es_id}
         if self.es.exists(**arguments):
             self.es.update(body={"doc": doc}, **arguments)
-            self.logger.info("partial_update {} with id {}".format(document.get_es_document_type(), document.es_id))
+            self.logger.info(f"partial_update {document.get_es_document_type()} with id {document.es_id}")
 
     def delete_document(self, document):
         """Delete a given document, based on its ``es_id``
@@ -619,7 +619,7 @@ class ESIndexManager:
         arguments = {"index": self.index, "doc_type": document.get_es_document_type(), "id": document.es_id}
         if self.es.exists(**arguments):
             self.es.delete(**arguments)
-            self.logger.info("delete {} with id {}".format(document.get_es_document_type(), document.es_id))
+            self.logger.info(f"delete {document.get_es_document_type()} with id {document.es_id}")
 
     def delete_by_query(self, doc_type="", query=MatchAll()):
         """Perform a deletion trough the ``_delete_by_query`` API.

@@ -109,7 +109,7 @@ class PrivateTopicListAPITest(APITestCase):
         self.create_multiple_private_topics_for_member(self.profile.user, REST_PAGE_SIZE * 2)
 
         page_size = "page_size"
-        response = self.client.get(reverse("api:mp:list") + "?{}=20".format(page_size))
+        response = self.client.get(reverse("api:mp:list") + f"?{page_size}=20")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 20)
         self.assertEqual(len(response.data.get("results")), 20)
@@ -125,7 +125,7 @@ class PrivateTopicListAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_private_topics_for_member(self.profile.user, page_size_value)
 
-        response = self.client.get(reverse("api:mp:list") + "?page_size={}".format(page_size_value))
+        response = self.client.get(reverse("api:mp:list") + f"?page_size={page_size_value}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), page_size_value)
         self.assertIsNotNone(response.data.get("next"))
@@ -701,7 +701,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic, REST_PAGE_SIZE * 2)
 
         page_size = "page_size"
-        response = self.client.get(reverse("api:mp:message-list", args=[private_topic.id]) + "?{}=20".format(page_size))
+        response = self.client.get(reverse("api:mp:message-list", args=[private_topic.id]) + f"?{page_size}=20")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 20)
         self.assertEqual(len(response.data.get("results")), 20)
@@ -719,7 +719,7 @@ class PrivatePostListAPI(APITestCase):
         self.create_multiple_private_posts_for_member(self.profile.user, private_topic, page_size_value)
 
         response = self.client.get(
-            reverse("api:mp:message-list", args=[private_topic.id]) + "?page_size={}".format(page_size_value)
+            reverse("api:mp:message-list", args=[private_topic.id]) + f"?page_size={page_size_value}"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), page_size_value)

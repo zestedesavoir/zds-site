@@ -28,7 +28,7 @@ class NotificationList(ZdSPagingListView):
 
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
-        return super(NotificationList, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         content_type = ContentType.objects.get_for_model(PrivateTopic)

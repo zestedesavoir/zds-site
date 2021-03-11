@@ -93,7 +93,7 @@ class MemberListAPITest(APITestCase):
         self.create_multiple_users(REST_PAGE_SIZE * 2)
 
         page_size = "page_size"
-        response = self.client.get(reverse("api:member:list") + "?{}=20".format(page_size))
+        response = self.client.get(reverse("api:member:list") + f"?{page_size}=20")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 20)
         self.assertEqual(len(response.data.get("results")), 20)
@@ -109,7 +109,7 @@ class MemberListAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_users(page_size_value)
 
-        response = self.client.get(reverse("api:member:list") + "?page_size={}".format(page_size_value))
+        response = self.client.get(reverse("api:member:list") + f"?page_size={page_size_value}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), page_size_value)
         self.assertIsNotNone(response.data.get("next"))
@@ -1172,4 +1172,4 @@ def authenticate_client(client, client_auth, username, password):
         },
     )
     access_token = AccessToken.objects.get(user__username=username)
-    client.credentials(HTTP_AUTHORIZATION="Bearer {}".format(access_token))
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {access_token}")

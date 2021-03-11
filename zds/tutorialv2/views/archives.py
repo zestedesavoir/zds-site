@@ -100,8 +100,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         for child in container.children:
             if isinstance(child, Container):
-                for _y in UpdateContentWithArchive.walk_container(child):
-                    yield _y
+                yield from UpdateContentWithArchive.walk_container(child)
             else:
                 yield child.text
 
@@ -114,8 +113,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
         :rtype: collections.Iterable[str]
         """
 
-        for _y in UpdateContentWithArchive.walk_container(versioned):
-            yield _y
+        yield from UpdateContentWithArchive.walk_container(versioned)
 
     @staticmethod
     def extract_content_from_zip(zip_archive):
@@ -192,14 +190,12 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                     try:
                         introduction = str(zip_file.read(child.introduction), "utf-8")
                     except UnicodeDecodeError:
-                        raise BadArchiveError(
-                            _("Le fichier « {} » n'est pas encodé en UTF-8".format(child.introduction))
-                        )
+                        raise BadArchiveError(_(f"Le fichier « {child.introduction} » n'est pas encodé en UTF-8"))
                 if child.conclusion:
                     try:
                         conclusion = str(zip_file.read(child.conclusion), "utf-8")
                     except UnicodeDecodeError:
-                        raise BadArchiveError(_("Le fichier « {} » n'est pas encodé en UTF-8".format(child.conclusion)))
+                        raise BadArchiveError(_(f"Le fichier « {child.conclusion} » n'est pas encodé en UTF-8"))
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False, slug=child.slug)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
@@ -208,7 +204,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 try:
                     text = str(zip_file.read(child.text), "utf-8")
                 except UnicodeDecodeError:
-                    raise BadArchiveError(_("Le fichier « {} » n'est pas encodé en UTF-8".format(child.text)))
+                    raise BadArchiveError(_(f"Le fichier « {child.text} » n'est pas encodé en UTF-8"))
 
                 copy_to.repo_add_extract(child.title, text, do_commit=False, slug=child.slug)
 
@@ -335,13 +331,13 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 zfile = zipfile.ZipFile(self.request.FILES["archive"], "r")
             except zipfile.BadZipfile:
                 messages.error(self.request, _("Cette archive n'est pas au format ZIP."))
-                return super(UpdateContentWithArchive, self).form_invalid(form)
+                return super().form_invalid(form)
 
             try:
                 new_version = UpdateContentWithArchive.extract_content_from_zip(zfile)
             except BadArchiveError as e:
                 messages.error(self.request, e.message)
-                return super(UpdateContentWithArchive, self).form_invalid(form)
+                return super().form_invalid(form)
             else:
 
                 # Warn the user if the license has been changed
@@ -395,7 +391,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 except BadArchiveError as e:
                     versioned.repository.index.reset()
                     messages.error(self.request, e.message)
-                    return super(UpdateContentWithArchive, self).form_invalid(form)
+                    return super().form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data["msg_commit"]
@@ -427,7 +423,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
                 self.success_url = reverse("content:view", args=[versioned.pk, versioned.slug])
 
-        return super(UpdateContentWithArchive, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
@@ -450,18 +446,16 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 new_content = UpdateContentWithArchive.extract_content_from_zip(zfile)
             except BadArchiveError as e:
                 messages.error(self.request, e.message)
-                return super(CreateContentFromArchive, self).form_invalid(form)
+                return super().form_invalid(form)
             except KeyError as e:
                 messages.error(self.request, _(e.message + " n'est pas correctement renseigné."))
-                return super(CreateContentFromArchive, self).form_invalid(form)
+                return super().form_invalid(form)
             else:
 
                 # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read("manifest.json"), "utf-8"))
                 if new_content.licence and "licence" in manifest and manifest["licence"] != new_content.licence.code:
-                    messages.info(
-                        self.request, _("la licence « {} » a été appliquée.".format(new_content.licence.code))
-                    )
+                    messages.info(self.request, _(f"la licence « {new_content.licence.code} » a été appliquée."))
 
                 # first, create DB object (in order to get a slug)
                 self.object = PublishableContent()
@@ -513,7 +507,7 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 except BadArchiveError as e:
                     self.object.delete()  # abort content creation
                     messages.error(self.request, e.message)
-                    return super(CreateContentFromArchive, self).form_invalid(form)
+                    return super().form_invalid(form)
 
                 # and end up by a commit !!
                 commit_message = form.cleaned_data["msg_commit"]
@@ -551,4 +545,4 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
 
                 self.success_url = reverse("content:view", args=[versioned.pk, versioned.slug])
 
-        return super(CreateContentFromArchive, self).form_valid(form)
+        return super().form_valid(form)

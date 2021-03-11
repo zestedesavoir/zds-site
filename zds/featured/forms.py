@@ -52,7 +52,7 @@ class FeaturedResourceForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         hide_major_update_field = kwargs.pop("hide_major_update_field", False)
 
-        super(FeaturedResourceForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -88,7 +88,7 @@ class FeaturedMessageForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        super(FeaturedMessageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"

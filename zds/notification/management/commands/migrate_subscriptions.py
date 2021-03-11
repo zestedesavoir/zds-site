@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for profile in Profile.objects.all():
-            self.stdout.write("Migrate all notifications of {}...".format(profile.user.username))
+            self.stdout.write(f"Migrate all notifications of {profile.user.username}...")
             # Forums.
             self.stdout.write("Starting migration with topics...")
             topics_followed = TopicFollowed.objects.filter(user=profile.user).values("topic").distinct().all()
@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 notification.pubdate = content.pubdate
                 notification.save()
 
-                self.stdout.write("Migration about « {} » [OK]".format(topic_never_read.topic.title))
+                self.stdout.write(f"Migration about « {topic_never_read.topic.title} » [OK]")
 
             # Private messages.
             self.stdout.write("Starting migration with private topics...")
@@ -104,7 +104,7 @@ class Command(BaseCommand):
                 notification.pubdate = answer.pubdate
                 notification.save()
 
-                self.stdout.write("Migration about « {} » [OK]".format(private_topic_unread.title))
+                self.stdout.write(f"Migration about « {private_topic_unread.title} » [OK]")
 
             # Contents.
             self.stdout.write("Starting migration with contents...")
@@ -156,4 +156,4 @@ class Command(BaseCommand):
                 notification.pubdate = reaction.pubdate
                 notification.save()
 
-                self.stdout.write("Migration about « {} » [OK]".format(content.title))
+                self.stdout.write(f"Migration about « {content.title} » [OK]")

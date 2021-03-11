@@ -37,7 +37,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
     authorized_for_staff = True  # former behaviour
 
     def get_context_data(self, **kwargs):
-        context = super(CreateContainer, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["container"] = search_container_or_404(self.versioned_object, self.kwargs)
         context["gallery"] = self.object.gallery
@@ -49,7 +49,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
             messages.error(self.request, _("Vous ne pouvez plus ajouter de conteneur à « {} ».").format(parent.title))
             return redirect(parent.get_absolute_url())
 
-        return super(CreateContainer, self).render_to_response(context, **response_kwargs)
+        return super().render_to_response(context, **response_kwargs)
 
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
@@ -68,7 +68,7 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
 
         self.success_url = parent.children[-1].get_absolute_url()
 
-        return super(CreateContainer, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
@@ -82,7 +82,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
-        context = super(DisplayContainer, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         container = search_container_or_404(self.versioned_object, self.kwargs)
         context["containers_target"] = get_target_tagged_tree(container, self.versioned_object)
 
@@ -135,7 +135,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
     content = None
 
     def get_context_data(self, **kwargs):
-        context = super(EditContainer, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if "preview" not in self.request.POST:
             container = search_container_or_404(self.versioned_object, self.kwargs)
@@ -146,7 +146,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
-        initial = super(EditContainer, self).get_initial()
+        initial = super().get_initial()
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         initial["title"] = container.title
@@ -187,7 +187,7 @@ class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
         self.success_url = container.get_absolute_url()
 
-        return super(EditContainer, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
@@ -197,7 +197,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
     authorized_for_staff = True
 
     def get_context_data(self, **kwargs):
-        context = super(CreateExtract, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["container"] = search_container_or_404(self.versioned_object, self.kwargs)
         context["gallery"] = self.object.gallery
 
@@ -209,7 +209,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
             messages.error(self.request, _("Vous ne pouvez plus ajouter de section à « {} ».").format(parent.title))
             return redirect(parent.get_absolute_url())
 
-        return super(CreateExtract, self).render_to_response(context, **response_kwargs)
+        return super().render_to_response(context, **response_kwargs)
 
     def form_valid(self, form):
         parent = search_container_or_404(self.versioned_object, self.kwargs)
@@ -225,7 +225,7 @@ class CreateExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, For
 
         self.success_url = parent.children[-1].get_absolute_url()
 
-        return super(CreateExtract, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
@@ -234,7 +234,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
     content = None
 
     def get_context_data(self, **kwargs):
-        context = super(EditExtract, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["gallery"] = self.object.gallery
 
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
@@ -244,7 +244,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
-        initial = super(EditExtract, self).get_initial()
+        initial = super().get_initial()
         extract = search_extract_or_404(self.versioned_object, self.kwargs)
 
         initial["title"] = extract.title
@@ -280,7 +280,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             return JsonResponse(
                 {"result": "ok", "last_hash": extract.compute_hash(), "new_url": extract.get_edit_url()}
             )
-        return super(EditExtract, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
@@ -349,10 +349,10 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             child = parent.children_dict[child_slug]
             if form.data["moving_method"] == MoveElementForm.MOVE_UP:
                 parent.move_child_up(child_slug)
-                logger.debug("{} was moved up in tutorial id:{}".format(child_slug, content.pk))
+                logger.debug(f"{child_slug} was moved up in tutorial id:{content.pk}")
             elif form.data["moving_method"] == MoveElementForm.MOVE_DOWN:
                 parent.move_child_down(child_slug)
-                logger.debug("{} was moved down in tutorial id:{}".format(child_slug, content.pk))
+                logger.debug(f"{child_slug} was moved down in tutorial id:{content.pk}")
             elif form.data["moving_method"][0 : len(MoveElementForm.MOVE_AFTER)] == MoveElementForm.MOVE_AFTER:
                 target = form.data["moving_method"][len(MoveElementForm.MOVE_AFTER) + 1 :]
                 if not parent.has_child_with_path(target):
@@ -371,7 +371,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_after(child_slug, target.split("/")[-1])
-                logger.debug("{} was moved after {} in tutorial id:{}".format(child_slug, target, content.pk))
+                logger.debug(f"{child_slug} was moved after {target} in tutorial id:{content.pk}")
             elif form.data["moving_method"][0 : len(MoveElementForm.MOVE_BEFORE)] == MoveElementForm.MOVE_BEFORE:
                 target = form.data["moving_method"][len(MoveElementForm.MOVE_BEFORE) + 1 :]
                 if not parent.has_child_with_path(target):
@@ -389,7 +389,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
                     child_slug = target_parent.children[-1].slug
                     parent = target_parent
                 parent.move_child_before(child_slug, target.split("/")[-1])
-                logger.debug("{} was moved before {} in tutorial id:{}".format(child_slug, target, content.pk))
+                logger.debug(f"{child_slug} was moved before {target} in tutorial id:{content.pk}")
             versioned.slug = content.slug  # we force not to change slug
             versioned.dump_json()
             parent.repo_update(
@@ -419,7 +419,7 @@ class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
             raise Http404("L'arbre spécifié n'est pas valide." + str(e))
         except IndexError:
             messages.warning(self.request, _("L'élément se situe déjà à la place souhaitée."))
-            logger.debug("L'élément {} se situe déjà à la place souhaitée".format(child_slug))
+            logger.debug(f"L'élément {child_slug} se situe déjà à la place souhaitée")
         except TypeError:
             messages.error(self.request, _("L'élément ne peut pas être déplacé à cet endroit."))
         if base_container_slug == versioned.slug:

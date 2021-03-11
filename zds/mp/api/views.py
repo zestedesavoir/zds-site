@@ -517,7 +517,7 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return super(PrivatePostDetailAPI, self).get_queryset().filter(privatetopic__pk=self.kwargs["pk_ptopic"])
+        return super().get_queryset().filter(privatetopic__pk=self.kwargs["pk_ptopic"])
 
 
 class PrivateTopicReadAPI(ListAPIView):

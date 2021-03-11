@@ -218,7 +218,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         for validation in validations:
             self.assertTrue(validation.content in reserved_contents)
 
-        response = self.client.get(reverse("validation:list") + "?subcategory={}".format(subcat.pk), follow=False)
+        response = self.client.get(reverse("validation:list") + f"?subcategory={subcat.pk}", follow=False)
         self.assertEqual(response.status_code, 200)  # OK
         validations = response.context["validations"]
         self.assertEqual(len(validations), 1)  # 1 content with this category

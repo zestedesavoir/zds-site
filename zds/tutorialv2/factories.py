@@ -38,8 +38,8 @@ class PublishableContentFactory(factory.DjangoModelFactory):
     class Meta:
         model = PublishableContent
 
-    title = factory.Sequence("Mon contenu No{0}".format)
-    description = factory.Sequence("Description du contenu No{0}".format)
+    title = factory.Sequence("Mon contenu No{}".format)
+    description = factory.Sequence("Description du contenu No{}".format)
     type = "TUTORIAL"
     creation_date = datetime.now()
     pubdate = datetime.now()
@@ -54,7 +54,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         licence: Licence = None,
         add_license=True,
         add_category=True,
-        **kwargs
+        **kwargs,
     ):
         auths = author_list or []
         if add_license:
@@ -67,7 +67,7 @@ class PublishableContentFactory(factory.DjangoModelFactory):
         if not light:
             text = tricky_text_content
 
-        publishable_content = super(PublishableContentFactory, cls)._prepare(create, **kwargs)
+        publishable_content = super()._prepare(create, **kwargs)
         publishable_content.gallery = GalleryFactory()
         publishable_content.licence = licence
         for auth in auths:
@@ -90,7 +90,7 @@ class ContainerFactory(factory.Factory):
     class Meta:
         model = Container
 
-    title = factory.Sequence(lambda n: "Mon container No{0}".format(n + 1))
+    title = factory.Sequence(lambda n: "Mon container No{}".format(n + 1))
 
     @classmethod
     def _prepare(cls, create, *, db_object=None, light=True, **kwargs):
@@ -114,7 +114,7 @@ class ExtractFactory(factory.Factory):
     class Meta:
         model = Extract
 
-    title = factory.Sequence(lambda n: "Mon extrait No{0}".format(n + 1))
+    title = factory.Sequence(lambda n: "Mon extrait No{}".format(n + 1))
 
     @classmethod
     def _prepare(cls, create, *, light=True, container=None, db_object=None, **kwargs):
@@ -142,7 +142,7 @@ class ContentReactionFactory(factory.DjangoModelFactory):
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-        note = super(ContentReactionFactory, cls)._prepare(create, **kwargs)
+        note = super()._prepare(create, **kwargs)
         note.pubdate = datetime.now()
         note.save()
         note.related_content.last_note = note
@@ -154,7 +154,7 @@ class BetaContentFactory(PublishableContentFactory):
     @classmethod
     def _prepare(cls, create, **kwargs):
         beta_forum = kwargs.pop("forum", None)
-        publishable_content = super(BetaContentFactory, cls)._prepare(create, **kwargs)
+        publishable_content = super()._prepare(create, **kwargs)
         if publishable_content.authors.count() > 0 and beta_forum is not None:
             beta_topic = TopicFactory(
                 title="[beta]" + publishable_content.title, author=publishable_content.authors.first(), forum=beta_forum
@@ -174,9 +174,7 @@ class PublishedContentFactory(PublishableContentFactory):
 
         is_major_update = kwargs.pop("is_major_update", True)
 
-        content = super(PublishedContentFactory, cls)._prepare(
-            create, light=light, author_list=author_list, licence=licence, **kwargs
-        )
+        content = super()._prepare(create, light=light, author_list=author_list, licence=licence, **kwargs)
         published = publish_content(content, content.load_version(), is_major_update)
         content.sha_public = content.sha_draft
         content.public_version = published
@@ -190,16 +188,16 @@ class SubCategoryFactory(factory.DjangoModelFactory):
     class Meta:
         model = SubCategory
 
-    title = factory.Sequence(lambda n: "Sous-Categorie {0} pour Tuto".format(n))
-    subtitle = factory.Sequence(lambda n: "Sous titre de Sous-Categorie {0} pour Tuto".format(n))
-    slug = factory.Sequence(lambda n: "sous-categorie-{0}".format(n))
+    title = factory.Sequence(lambda n: f"Sous-Categorie {n} pour Tuto")
+    subtitle = factory.Sequence(lambda n: f"Sous titre de Sous-Categorie {n} pour Tuto")
+    slug = factory.Sequence(lambda n: f"sous-categorie-{n}")
 
     @classmethod
     def _prepare(cls, create, **kwargs):
 
         category = kwargs.pop("category", None)
 
-        subcategory = super(SubCategoryFactory, cls)._prepare(create, **kwargs)
+        subcategory = super()._prepare(create, **kwargs)
 
         if category is not None:
             relation = CategorySubCategory(category=category, subcategory=subcategory)
@@ -217,10 +215,10 @@ class LicenceFactory(factory.DjangoModelFactory):
     class Meta:
         model = Licence
 
-    code = factory.Sequence(lambda n: "bidon-no{0}".format(n + 1))
-    title = factory.Sequence(lambda n: "Licence bidon no{0}".format(n + 1))
+    code = factory.Sequence(lambda n: "bidon-no{}".format(n + 1))
+    title = factory.Sequence(lambda n: "Licence bidon no{}".format(n + 1))
 
     @classmethod
     def _prepare(cls, create, **kwargs):
-        licence = super(LicenceFactory, cls)._prepare(create, **kwargs)
+        licence = super()._prepare(create, **kwargs)
         return licence
