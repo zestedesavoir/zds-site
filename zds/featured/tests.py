@@ -73,7 +73,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
 
         for field, value in list(fields.items()):
             if field != "pubdate":
-                self.assertEqual(value, getattr(featured, field), msg="Error on {}".format(field))
+                self.assertEqual(value, getattr(featured, field), msg=f"Error on {field}")
             else:
                 self.assertEqual(value, featured.pubdate.strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -150,14 +150,14 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         self.assertTrue(login_check)
         response = self.client.get(
             "{}{}".format(
-                reverse("featured-resource-create"), "?content_type=published_content&content_id={}".format(tutorial.pk)
+                reverse("featured-resource-create"), f"?content_type=published_content&content_id={tutorial.pk}"
             )
         )
         initial_dict = response.context["form"].initial
         self.assertEqual(initial_dict["title"], tutorial.title)
-        self.assertEqual(initial_dict["authors"], "{}, {}".format(author, author2))
+        self.assertEqual(initial_dict["authors"], f"{author}, {author2}")
         self.assertEqual(initial_dict["type"], _("Un tutoriel"))
-        self.assertEqual(initial_dict["url"], "http://testserver{}".format(tutorial.get_absolute_url_online()))
+        self.assertEqual(initial_dict["url"], f"http://testserver{tutorial.get_absolute_url_online()}")
         self.assertEqual(initial_dict["image_url"], "http://testserver{}".format(image.physical["featured"].url))
 
     def test_success_initial_content_topic(self):
@@ -175,7 +175,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         self.assertEqual(initial_dict["title"], topic.title)
         self.assertEqual(initial_dict["authors"], str(author))
         self.assertEqual(initial_dict["type"], _("Un sujet"))
-        self.assertEqual(initial_dict["url"], "http://testserver{}".format(topic.get_absolute_url()))
+        self.assertEqual(initial_dict["url"], f"http://testserver{topic.get_absolute_url()}")
 
     def test_failure_initial_content_not_found(self):
         staff = StaffProfileFactory()
@@ -221,7 +221,7 @@ class FeaturedResourceUpdateViewTest(TestCase):
             self.assertNotEqual(getattr(featured, field), getattr(old_featured, field))
 
             if field != "pubdate":
-                self.assertEqual(value, getattr(featured, field), msg="Error on {}".format(field))
+                self.assertEqual(value, getattr(featured, field), msg=f"Error on {field}")
             else:
                 self.assertEqual(value, featured.pubdate.strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -526,7 +526,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic = TopicFactory(forum=forum, author=author.user)
 
         response = self.client.post(
-            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {"request_featured": 1},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
@@ -542,7 +542,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic.save()
 
         response = self.client.post(
-            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {"request_featured": 1},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )

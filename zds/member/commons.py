@@ -100,7 +100,7 @@ class MemberSanctionState:
     array_infos = None
 
     def __init__(self, array_infos):
-        super(MemberSanctionState, self).__init__()
+        super().__init__()
         self.array_infos = array_infos
 
     def get_type(self):

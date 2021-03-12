@@ -69,12 +69,12 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         self.object.save()
         self.success_url = self.object.get_absolute_url()
 
-        return super(AddAuthorToContent, self).form_valid(form)
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
-        return super(AddAuthorToContent, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -152,9 +152,9 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             self.success_url = reverse(
                 self.object.type.lower() + ":find-" + self.object.type.lower(), args=[self.request.user.username]
             )
-        return super(RemoveAuthorFromContent, self).form_valid(form)
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
-        return super(RemoveAuthorFromContent, self).form_valid(form)
+        return super().form_valid(form)

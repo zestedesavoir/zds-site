@@ -46,7 +46,7 @@ class ListGallery(LoginRequiredMixin, ZdSPagingListView):
         return Gallery.objects.galleries_of_user(self.request.user).order_by("pk")
 
     def get_context_data(self, **kwargs):
-        context = super(ListGallery, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # fetch content linked to galleries:
         linked_contents = {}
@@ -97,7 +97,7 @@ class GalleryDetails(LoginRequiredMixin, GalleryMixin, ZdSPagingListView):
         return self.gallery.get_images().order_by("title")
 
     def get_context_data(self, **kwargs):
-        context = super(GalleryDetails, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["permissions"] = self.users_and_permissions[self.request.user.pk]
         context["form"] = UserGalleryForm(gallery=self.gallery)
@@ -364,7 +364,7 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(EditImage, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["as_avatar_form"] = ImageAsAvatarForm()
         context["image"] = self.image

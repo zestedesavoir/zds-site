@@ -293,7 +293,7 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 LOGIN_URL = "member-login"
 LOGIN_REDIRECT_URL = "/"
 
-ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda u: "/@{0}".format(quote(u.username.encode("utf-8")))}
+ABSOLUTE_URL_OVERRIDES = {"auth.user": lambda u: "/@{}".format(quote(u.username.encode("utf-8")))}
 
 # Django fileserve settings (set to True for local dev version only)
 SERVE = False

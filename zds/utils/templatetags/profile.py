@@ -38,7 +38,7 @@ def user_groups(user):
     else:
         user_identifier = user.pk
 
-    key = "user_pk={}_groups".format(user_identifier)
+    key = f"user_pk={user_identifier}_groups"
     groups = cache.get(key)
 
     if groups is None:

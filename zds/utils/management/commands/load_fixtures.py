@@ -38,7 +38,7 @@ def load_member(cli, size, fake, root, *_):
     Load members
     """
     nb_users = size * 10
-    cli.stdout.write("Nombres de membres à créer : {}".format(nb_users))
+    cli.stdout.write(f"Nombres de membres à créer : {nb_users}")
     tps1 = time.time()
     cpt = 1
     # member in settings
@@ -65,9 +65,9 @@ def load_member(cli, size, fake, root, *_):
                 profile.save()
 
     for i in range(0, nb_users):
-        while Profile.objects.filter(user__username="{}{}".format(root, cpt)).count() > 0:
+        while Profile.objects.filter(user__username=f"{root}{cpt}").count() > 0:
             cpt += 1
-        profile = ProfileFactory(user__username="{}{}".format(root, cpt))
+        profile = ProfileFactory(user__username=f"{root}{cpt}")
         profile.user.set_password(profile.user.username)
         profile.user.first_name = fake.first_name()
         profile.user.last_name = fake.last_name()
@@ -89,13 +89,13 @@ def load_staff(cli, size, fake, root, *_):
     Load staff
     """
     nb_staffs = size * 3
-    cli.stdout.write("Nombres de staffs à créer : {}".format(nb_staffs))
+    cli.stdout.write(f"Nombres de staffs à créer : {nb_staffs}")
     tps1 = time.time()
     cpt = 1
     for i in range(0, nb_staffs):
-        while Profile.objects.filter(user__username="{}staff{}".format(root, cpt)).count() > 0:
+        while Profile.objects.filter(user__username=f"{root}staff{cpt}").count() > 0:
             cpt += 1
-        profile = StaffProfileFactory(user__username="{}staff{}".format(root, cpt))
+        profile = StaffProfileFactory(user__username=f"{root}staff{cpt}")
         profile.user.first_name = fake.first_name()
         profile.user.last_name = fake.last_name()
         profile.user.email = fake.free_email()
@@ -118,8 +118,8 @@ def load_gallery(cli, size, fake, *_, **__):
     """
     nb_galleries = size * 1
     nb_images = size * 3
-    cli.stdout.write("Nombres de galéries à créer par utilisateur: {}".format(nb_galleries))
-    cli.stdout.write("Nombres d'images à créer par gallerie: {}".format(nb_images))
+    cli.stdout.write(f"Nombres de galéries à créer par utilisateur: {nb_galleries}")
+    cli.stdout.write(f"Nombres d'images à créer par gallerie: {nb_images}")
     tps1 = time.time()
     nb_users = User.objects.count()
     if nb_users == 0:
@@ -153,7 +153,7 @@ def load_categories_forum(cli, size, fake, *_, **__):
     Load categories
     """
     nb_categories = size * 4
-    cli.stdout.write("Nombres de catégories de forum à créer : {}".format(nb_categories))
+    cli.stdout.write(f"Nombres de catégories de forum à créer : {nb_categories}")
     tps1 = time.time()
     for i in range(0, nb_categories):
         cat = ForumCategoryFactory(position=i + 1)
@@ -170,7 +170,7 @@ def load_forums(cli, size, fake, *_, **__):
     Load forums
     """
     nb_forums = size * 8
-    cli.stdout.write("Nombres de Forums à créer : {}".format(nb_forums))
+    cli.stdout.write(f"Nombres de Forums à créer : {nb_forums}")
     tps1 = time.time()
     nb_categories = ForumCategory.objects.count()
     if nb_categories == 0:
@@ -199,7 +199,7 @@ def load_tags(cli, size, fake, *_, **__):
     Load tags
     """
     nb_tags = size * 30
-    cli.stdout.write("Nombres de Tags de forum à créer : {}".format(nb_tags))
+    cli.stdout.write(f"Nombres de Tags de forum à créer : {nb_tags}")
     tps1 = time.time()
     for i in range(0, nb_tags):
         title = fake.word()
@@ -217,7 +217,7 @@ def load_topics(cli, size, fake, *_, **__):
     Load topics
     """
     nb_topics = size * 10
-    cli.stdout.write("Nombres de Topics à créer : {}".format(nb_topics))
+    cli.stdout.write(f"Nombres de Topics à créer : {nb_topics}")
     tps1 = time.time()
     nb_forums = Forum.objects.count()
     if nb_forums == 0:
@@ -267,7 +267,7 @@ def load_posts(cli, size, fake, *_, **__):
     Load posts
     """
     nb_avg_posts_in_topic = size * 20
-    cli.stdout.write("Nombres de messages à poster en moyenne dans un sujet : {}".format(nb_avg_posts_in_topic))
+    cli.stdout.write(f"Nombres de messages à poster en moyenne dans un sujet : {nb_avg_posts_in_topic}")
     tps1 = time.time()
     nb_topics = Topic.objects.count()
     if nb_topics == 0:
@@ -316,13 +316,13 @@ def load_categories_content(cli, size, fake, *_, **__):
         if Licence.objects.filter(code=lic).count() == 0:
             licence = Licence(code=lic, title=lic, description="")
             licence.save()
-            cli.stdout.write("Note : ajout de la licence `{}`".format(lic))
+            cli.stdout.write(f"Note : ajout de la licence `{lic}`")
     categories = []
     sub_categories = []
     nb_categories = size * 5
     nb_sub_categories = size * 10
-    cli.stdout.write("Nombres de catégories de contenus à créer : {}".format(nb_categories))
-    cli.stdout.write("Nombres de sous-catégories de contenus à créer : {}".format(nb_sub_categories))
+    cli.stdout.write(f"Nombres de catégories de contenus à créer : {nb_categories}")
+    cli.stdout.write(f"Nombres de sous-catégories de contenus à créer : {nb_sub_categories}")
     tps1 = time.time()
     for i in range(0, nb_categories):
         ttl = str(i) + " " + fake.job()
@@ -363,7 +363,7 @@ def load_comment_content(cli, size, fake, *_, **__):
     Load content's comments
     """
     nb_avg_posts = size * 20
-    cli.stdout.write("Nombres de messages à poster en moyenne : {}".format(nb_avg_posts))
+    cli.stdout.write(f"Nombres de messages à poster en moyenne : {nb_avg_posts}")
     tps1 = time.time()
     contents = list(PublishableContent.objects.filter(sha_public__isnull=False))
     nb_contents = len(contents)
@@ -411,7 +411,7 @@ def load_contents(cli, size, fake, _type, *_, **__):
         textual_type = "billet"
 
     # small introduction
-    cli.stdout.write("À créer: {:d} {}s".format(nb_contents, textual_type), ending="")
+    cli.stdout.write(f"À créer: {nb_contents:d} {textual_type}s", ending="")
 
     if is_tutorials:
         cli.stdout.write(
@@ -670,7 +670,7 @@ class Command(BaseCommand):
             group.add_argument(
                 "--{}".format(zds_module.name.replace("_", "-")),
                 dest="modules",
-                help="add new {}.".format(zds_module.description),
+                help=f"add new {zds_module.description}.",
                 action="append_const",
                 const=zds_module,
             )

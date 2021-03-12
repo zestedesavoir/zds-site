@@ -92,12 +92,12 @@ class SubCategory(models.Model):
 
     def get_absolute_url_tutorial(self):
         url = reverse("tutorial-index")
-        url += "?tag={}".format(self.slug)
+        url += f"?tag={self.slug}"
         return url
 
     def get_absolute_url_article(self):
         url = reverse("article-index")
-        url += "?tag={}".format(self.slug)
+        url += f"?tag={self.slug}"
         return url
 
     def get_parent_category(self):
@@ -129,9 +129,9 @@ class CategorySubCategory(models.Model):
     def __str__(self):
         """Textual Link Form."""
         if self.is_main:
-            return "[{0}][main]: {1}".format(self.category.title, self.subcategory.title)
+            return f"[{self.category.title}][main]: {self.subcategory.title}"
         else:
-            return "[{0}]: {1}".format(self.category.title, self.subcategory.title)
+            return f"[{self.category.title}]: {self.subcategory.title}"
 
 
 class Licence(models.Model):
@@ -220,7 +220,7 @@ class HatRequest(models.Model):
         verbose_name_plural = "Demandes de casquettes"
 
     def __str__(self):
-        return "Hat {0} requested by {1}".format(self.hat, self.user.username)
+        return f"Hat {self.hat} requested by {self.user.username}"
 
     def get_absolute_url(self):
         return reverse("hat-request", args=[self.pk])
@@ -329,7 +329,7 @@ def get_hat_from_request(request, author=None):
             raise ValueError
         return hat
     except (ValueError, Hat.DoesNotExist):
-        logger.warning("User #{0} failed to use hat #{1}.".format(request.user.pk, request.POST.get("hat")))
+        logger.warning("User #{} failed to use hat #{}.".format(request.user.pk, request.POST.get("hat")))
         return None
 
 
@@ -357,9 +357,9 @@ def get_hat_to_add(hat_name, user):
         raise ValueError(_("La longueur des casquettes est limitée à 40 caractères."))
     hat, created = Hat.objects.get_or_create(name__iexact=hat_name, defaults={"name": hat_name})
     if created:
-        logger.info('Hat #{0} "{1}" has been created.'.format(hat.pk, hat.name))
+        logger.info(f'Hat #{hat.pk} "{hat.name}" has been created.')
     if hat in user.profile.get_hats():
-        raise ValueError(_("{0} possède déjà la casquette « {1} ».".format(user.username, hat.name)))
+        raise ValueError(_(f"{user.username} possède déjà la casquette « {hat.name} »."))
     if hat.group:
         raise ValueError(
             _(
@@ -459,7 +459,7 @@ class Comment(models.Model):
         2. if this comment is marked as potential spam, we need to open an alert
            in case of update by its author.
         """
-        super(Comment, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
         self._save_compute_pings()
         self._save_check_spam()
@@ -590,7 +590,7 @@ class Comment(models.Model):
         return Comment.objects.get_subclass(id=self.id).get_absolute_url()
 
     def __str__(self):
-        return "Comment by {}".format(self.author.username)
+        return f"Comment by {self.author.username}"
 
 
 class CommentEdit(models.Model):
@@ -622,7 +622,7 @@ class CommentEdit(models.Model):
     )
 
     def __str__(self):
-        return "Edit by {0} on a comment of {1}".format(self.editor.username, self.comment.author.username)
+        return f"Edit by {self.editor.username} on a comment of {self.comment.author.username}"
 
 
 class Alert(models.Model):
@@ -757,7 +757,7 @@ class CommentVote(models.Model):
     positive = models.BooleanField("Est un vote positif", default=True)
 
     def __str__(self):
-        return "Vote from {} about Comment#{} thumb_up={}".format(self.user.username, self.comment.pk, self.positive)
+        return f"Vote from {self.user.username} about Comment#{self.comment.pk} thumb_up={self.positive}"
 
 
 class Tag(models.Model):
@@ -781,10 +781,10 @@ class Tag(models.Model):
     def save(self, *args, **kwargs):
         self.title = self.title.strip()
         if not self.title or not old_slugify(self.title.replace("-", "")):
-            raise ValueError('Tag "{}" is not correct'.format(self.title))
+            raise ValueError(f'Tag "{self.title}" is not correct')
         self.title = smart_str(self.title).lower()
         self.slug = uuslug(self.title, instance=self, max_length=Tag._meta.get_field("slug").max_length)
-        super(Tag, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     @staticmethod
     def has_read_permission(request):
@@ -818,4 +818,4 @@ class HelpWriting(models.Model):
 
     def save(self, *args, **kwargs):
         self.slug = old_slugify(self.title)
-        super(HelpWriting, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)

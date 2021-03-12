@@ -4,7 +4,7 @@ from rest_framework.relations import PrimaryKeyRelatedField, ManyRelatedField
 
 class ZdSModelSerializer(serializers.ModelSerializer):
     def get_fields(self):
-        fields = super(ZdSModelSerializer, self).get_fields()
+        fields = super().get_fields()
 
         request = self._context.get("request")
         if request is None:

@@ -35,7 +35,7 @@ class FeaturedResourceList(FeaturedViewMixin, ZdSPagingListView):
     template_name = "featured/index.html"
 
     def dispatch(self, request, *args, **kwargs):
-        return super(FeaturedResourceList, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
@@ -55,7 +55,7 @@ class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
     }
 
     def dispatch(self, request, *args, **kwargs):
-        return super(FeaturedResourceCreate, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_initial_topic_data(self, topic_id):
         try:
@@ -99,7 +99,7 @@ class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
         }
 
     def get_initial(self):
-        initial = super(FeaturedResourceCreate, self).get_initial()
+        initial = super().get_initial()
         content_type = self.request.GET.get("content_type", None)
         content_id = self.request.GET.get("content_id", None)
         if content_type == "topic" and content_id:
@@ -109,7 +109,7 @@ class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
         return initial
 
     def get_form_kwargs(self):
-        kw = super(FeaturedResourceCreate, self).get_form_kwargs()
+        kw = super().get_form_kwargs()
         kw["hide_major_update_field"] = True
         return kw
 
@@ -151,10 +151,10 @@ class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
     context_object_name = "featured_resource"
 
     def dispatch(self, request, *args, **kwargs):
-        return super(FeaturedResourceUpdate, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
-        initial = super(FeaturedResourceUpdate, self).get_initial()
+        initial = super().get_initial()
         initial.update(
             {
                 "title": self.object.title,
@@ -182,10 +182,10 @@ class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
 
         messages.success(self.request, _("La une a été mise à jour."))
         self.success_url = reverse("featured-resource-list")
-        return super(FeaturedResourceUpdate, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_form(self, form_class=None):
-        form = super(FeaturedResourceUpdate, self).get_form(form_class)
+        form = super().get_form(form_class)
         form.helper.form_action = reverse("featured-resource-update", args=[self.object.pk])
         return form
 
@@ -199,10 +199,10 @@ class FeaturedResourceDeleteDetail(FeaturedViewMixin, DeleteView):
 
     def dispatch(self, request, *args, **kwargs):
         self.success_url = reverse("featured-resource-list")
-        return super(FeaturedResourceDeleteDetail, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        r = super(FeaturedResourceDeleteDetail, self).post(request, *args, **kwargs)
+        r = super().post(request, *args, **kwargs)
         messages.success(request, _("La une a été supprimée avec succès."))
         return r
 
@@ -215,7 +215,7 @@ class FeaturedResourceDeleteList(FeaturedViewMixin, MultipleObjectMixin, Redirec
     permanent = False
 
     def dispatch(self, request, *args, **kwargs):
-        return super(FeaturedResourceDeleteList, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         items_list = self.request.POST.getlist("items")
@@ -301,10 +301,10 @@ class FeaturedMessageCreateUpdate(FeaturedViewMixin, FormView):
 
     def dispatch(self, request, *args, **kwargs):
         self.last_message = FeaturedMessage.objects.get_last_message()
-        return super(FeaturedMessageCreateUpdate, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_initial(self):
-        init = super(FeaturedMessageCreateUpdate, self).get_initial()
+        init = super().get_initial()
 
         if self.last_message is not None:
             init.update(

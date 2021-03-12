@@ -311,7 +311,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.post(
             reverse("mp-new"),
             {
-                "participants": "{}".format(profile_inactive.user.username),
+                "participants": f"{profile_inactive.user.username}",
                 "title": "title",
                 "subtitle": "subtitle",
                 "text": "text",
@@ -427,7 +427,7 @@ class AnswerViewTest(TestCase):
         another_post = PrivatePostFactory(privatetopic=another_topic, author=self.profile2.user, position_in_topic=1)
 
         response = self.client.get(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + "?cite={}".format(another_post.pk)
+            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={another_post.pk}"
         )
 
         self.assertEqual(403, response.status_code)
@@ -442,7 +442,7 @@ class AnswerViewTest(TestCase):
     def test_success_cite_post(self):
 
         response = self.client.get(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + "?cite={}".format(self.post2.pk)
+            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={self.post2.pk}"
         )
 
         self.assertEqual(200, response.status_code)

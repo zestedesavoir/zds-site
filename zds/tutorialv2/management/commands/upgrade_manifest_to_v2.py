@@ -15,7 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         _file = options["manifest_path"]
         if os.path.isfile(_file) and _file[-5:] == ".json":
-            with open(_file, "r") as json_file:
+            with open(_file) as json_file:
                 data = json_handler.load(json_file)
             _type = "TUTORIAL"
             if data["type"].lower() == "article":

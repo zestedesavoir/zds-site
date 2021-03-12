@@ -375,7 +375,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         os.remove(pdf_path2)
         self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))
-        call_command("generate_pdf", "id={}".format(tuto.pk))
+        call_command("generate_pdf", f"id={tuto.pk}")
         self.assertTrue(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))  # only the first PDF is generated
 

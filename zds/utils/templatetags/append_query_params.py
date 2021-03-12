@@ -60,11 +60,11 @@ class AppendGetNode(template.Node):
                 try:
                     key, val = pair.split("=")
                     if not val:
-                        raise template.TemplateSyntaxError("Bad argument format. Empty value for key '{}".format(key))
+                        raise template.TemplateSyntaxError(f"Bad argument format. Empty value for key '{key}")
                     self.__dict_pairs[key] = template.Variable(val)
                 except ValueError:
                     raise template.TemplateSyntaxError(
-                        "Bad argument format.\n'{}' must use the format 'key1=var1,key2=var2'".format(arg_list)
+                        f"Bad argument format.\n'{arg_list}' must use the format 'key1=var1,key2=var2'"
                     )
 
     def render(self, context):
@@ -83,7 +83,7 @@ class AppendGetNode(template.Node):
 
         if len(get) > 0:
             list_arg = [
-                "{0}={1}".format(key, quote(str(value))) for key in list(get.keys()) for value in get.getlist(key)
+                "{}={}".format(key, quote(str(value))) for key in list(get.keys()) for value in get.getlist(key)
             ]
             path += "?" + "&".join(list_arg)
 

@@ -61,12 +61,12 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     created_content_type = "TUTORIAL"
 
     def get_form(self, form_class=ContentForm):
-        form = super(CreateContent, self).get_form(form_class)
+        form = super().get_form(form_class)
         form.initial["type"] = self.created_content_type
         return form
 
     def get_context_data(self, **kwargs):
-        context = super(CreateContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["editorial_line_link"] = settings.ZDS_APP["content"]["editorial_line_link"]
         context["site_name"] = settings.ZDS_APP["site"]["literal_name"]
         return context
@@ -123,7 +123,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
             form.cleaned_data["msg_commit"],
         )
 
-        return super(CreateContent, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse("content:view", args=[self.content.pk, self.content.slug])
@@ -175,7 +175,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             context["formPublication"] = None
 
     def get_context_data(self, **kwargs):
-        context = super(DisplayContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # check whether this tuto support js fiddle
         if self.object.js_support:
@@ -210,7 +210,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
-        initial = super(EditContent, self).get_initial()
+        initial = super().get_initial()
         versioned = self.versioned_object
 
         initial["title"] = versioned.title
@@ -225,7 +225,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(EditContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if "preview" not in self.request.POST:
             context["gallery"] = self.object.gallery
 
@@ -311,7 +311,7 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
     success_message_profile_update = _("Votre licence préférée a bien été mise à jour.")
 
     def get_form_kwargs(self):
-        kwargs = super(EditContentLicense, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["versioned_content"] = self.versioned_object
         return kwargs
 
@@ -358,7 +358,7 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(DeleteContent, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """rewrite delete() function to ensure repository deletion"""

@@ -8,7 +8,7 @@ config_path = os.environ.get("ZDS_CONFIG", default_config_path)
 
 try:
     config = toml.load(config_path)
-    print("Using the config file at {!r}".format(config_path))
+    print(f"Using the config file at {config_path!r}")
 except OSError:
     config = {}
 

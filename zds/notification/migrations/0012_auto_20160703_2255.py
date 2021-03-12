@@ -10,6 +10,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AlterUniqueTogether(
             name="subscription",
-            unique_together=set([("user", "content_type", "object_id")]),
+            unique_together={("user", "content_type", "object_id")},
         ),
     ]
