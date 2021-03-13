@@ -677,7 +677,9 @@ class AskValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=False,
-        widget=forms.Textarea(attrs={"placeholder": _("Commentaire pour votre demande."), "rows": "3"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Commentaire pour votre demande."), "rows": "3", "id": "ask_validation_text"}
+        ),
     )
 
     version = forms.CharField(widget=forms.HiddenInput(), required=True)
@@ -810,7 +812,9 @@ class CancelValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4", "id": "cancelçtext"}
+        ),
     )
 
     def __init__(self, validation, *args, **kwargs):
