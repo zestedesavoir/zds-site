@@ -192,7 +192,7 @@ def generate_external_content(
                 base_name,
                 change_dir=extra_contents_path,
                 cur_language=translation.get_language(),
-                **kwargs
+                **kwargs,
             )
         except (FailureDuringPublication, OSError):
             logging.getLogger(__name__).exception(
