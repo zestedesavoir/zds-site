@@ -912,7 +912,9 @@ class RevokeValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6", "id": "up_text"}
+        ),
     )
 
     def __init__(self, content, *args, **kwargs):
@@ -1009,7 +1011,9 @@ class MoveElementForm(forms.Form):
 class WarnTypoForm(forms.Form):
 
     text = forms.CharField(
-        label="", required=True, widget=forms.Textarea(attrs={"placeholder": _("Expliquez la faute"), "rows": "3"})
+        label="",
+        required=True,
+        widget=forms.Textarea(attrs={"placeholder": _("Expliquez la faute"), "rows": "3", "id": "warn_text"}),
     )
 
     target = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -1154,7 +1158,9 @@ class UnpublicationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6", "id": "up_reason"}
+        ),
     )
 
     def __init__(self, content, *args, **kwargs):
