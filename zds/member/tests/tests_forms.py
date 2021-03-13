@@ -176,6 +176,17 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
+    def test_username_coma_register_form(self):
+        ProfileFactory()
+        data = {
+            "email": "test@gmail.com",
+            "username": "Ze/Tester",
+            "password": "ZePassword",
+            "password_confirm": "ZePassword",
+        }
+        form = RegisterForm(data=data)
+        self.assertFalse(form.is_valid())
+
 
 class MiniProfileFormTest(TestCase):
     """
