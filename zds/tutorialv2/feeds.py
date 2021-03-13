@@ -1,8 +1,10 @@
 from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import make_aware
 from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import gettext_lazy as _
+from pytz import AmbiguousTimeError, NonExistentTimeError
 
 from zds.utils.models import Category, SubCategory, Tag
 from zds.utils.uuslug_wrapper import slugify
@@ -54,7 +56,13 @@ class LastContentFeedRSS(Feed):
         return item.content.title
 
     def item_pubdate(self, item):
-        return item.publication_date
+        try:
+            return make_aware(item.publication_date)
+        except AmbiguousTimeError:
+            try:
+                return make_aware(item.publication_date, is_dst=True)
+            except NonExistentTimeError:
+                return make_aware(item.publication_date, is_dst=False)
 
     def item_description(self, item):
         return item.content.description
