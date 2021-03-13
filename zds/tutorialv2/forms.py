@@ -813,7 +813,7 @@ class CancelValidationForm(forms.Form):
         label="",
         required=True,
         widget=forms.Textarea(
-            attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4", "id": "cancelçtext"}
+            attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4", "id": "cancel_text"}
         ),
     )
 
@@ -860,7 +860,9 @@ class CancelValidationForm(forms.Form):
 class RejectValidationForm(forms.Form):
 
     text = forms.CharField(
-        label="", required=True, widget=forms.Textarea(attrs={"placeholder": _("Commentaire de rejet."), "rows": "6"})
+        label="",
+        required=True,
+        widget=forms.Textarea(attrs={"placeholder": _("Commentaire de rejet."), "rows": "6", "id": "reject_text"}),
     )
 
     def __init__(self, validation, *args, **kwargs):
