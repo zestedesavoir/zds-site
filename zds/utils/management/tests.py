@@ -57,7 +57,7 @@ class CommandsTestCase(TutorialTestMixin, TestCase):
         admin = ProfileFactory()
         admin.user.is_superuser = True
         admin.save()
-        self.assertTrue(self.client.login(username=admin.user.username, password="hostel77"))
+        self.client.force_login(admin.user)
 
         result = self.client.get("/?prof", follow=True)
         self.assertEqual(result.status_code, 200)

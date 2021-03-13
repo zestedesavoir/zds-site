@@ -55,11 +55,11 @@ class MemberTests(TutorialTestMixin, TestCase):
     def test_karma(self):
         user = ProfileFactory()
         other_user = ProfileFactory()
-        self.client.login(username=other_user.user.username, password="hostel77")
+        self.client.force_login(other_user.user)
         r = self.client.post(reverse("member-modify-karma"), {"profile_pk": user.pk, "karma": 42, "note": "warn"})
         self.assertEqual(403, r.status_code)
         self.client.logout()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         # bad id
         r = self.client.post(
             reverse("member-modify-karma"), {"profile_pk": "blah", "karma": 42, "note": "warn"}, follow=True
@@ -182,12 +182,12 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         # staff rights are required to view the history, check that
         self.client.logout()
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.get(user.profile.get_absolute_url(), follow=False)
         self.assertNotContains(result, "Historique de modération")
 
         self.client.logout()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(user.profile.get_absolute_url(), follow=False)
         self.assertContains(result, "Historique de modération")
 
@@ -225,13 +225,13 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         # we need staff right for update other profile, so a member who is not staff can't access to the page
         self.client.logout()
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
 
         result = self.client.get(reverse("member-settings-mini-profile", args=["xkcd"]), follow=False)
         self.assertEqual(result.status_code, 403)
 
         self.client.logout()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
 
         # an inexistant member return 404
         result = self.client.get(reverse("member-settings-mini-profile", args=["xkcd"]), follow=False)
@@ -244,7 +244,7 @@ class MemberTests(TutorialTestMixin, TestCase):
     def test_success_preview_biography(self):
 
         member = ProfileFactory()
-        self.client.login(username=member.user.username, password="hostel77")
+        self.client.force_login(member.user)
 
         response = self.client.post(
             reverse("update-member"),
@@ -412,8 +412,7 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         # test logged user can register.
         user = ProfileFactory()
-        login_check = self.client.login(username=user.user.username, password="hostel77")
-        self.assertEqual(login_check, True)
+        self.client.force_login(user.user)
         result = self.client.post(reverse("member-unregister"), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
@@ -446,7 +445,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         writing_tutorial_2.authors.add(user.user)
         writing_tutorial_2.authors.add(user2.user)
         writing_tutorial_2.save()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         # same thing for articles
         published_article_alone = PublishedContentFactory(type="ARTICLE")
         published_article_alone.authors.add(user.user)
@@ -510,8 +509,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         ban.save()
 
         # login and unregister:
-        login_check = self.client.login(username=user.user.username, password="hostel77")
-        self.assertEqual(login_check, True)
+        self.client.force_login(user.user)
         result = self.client.post(reverse("member-unregister"), follow=False)
         self.assertEqual(result.status_code, 302)
 
@@ -655,8 +653,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         """
 
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertEqual(login_check, True)
+        self.client.force_login(staff.user)
 
         # list of members.
         result = self.client.get(reverse("member-list"), follow=False)
@@ -795,7 +792,7 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         # we need staff right for update the sanction of a user, so a member who is not staff can't access to the page
         self.client.logout()
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
 
         # Test: LS
         result = self.client.post(
@@ -808,7 +805,7 @@ class MemberTests(TutorialTestMixin, TestCase):
 
         # if the user is staff, he can update the sanction of a user
         self.client.logout()
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
 
         # Test: LS
         result = self.client.post(
@@ -822,8 +819,7 @@ class MemberTests(TutorialTestMixin, TestCase):
     def test_failed_bot_sanctions(self):
 
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertEqual(login_check, True)
+        self.client.force_login(staff.user)
 
         bot_profile = ProfileFactory()
         bot_profile.user.groups.add(self.bot)
@@ -886,8 +882,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(login_check, False)
 
         # connect as staff (superuser)
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertEqual(login_check, True)
+        self.client.force_login(staff.user)
 
         # check that we can go through the page
         result = self.client.get(reverse("member-settings-promote", kwargs={"user_pk": tester.user.id}), follow=False)
@@ -1066,7 +1061,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         """
         tester = ProfileFactory()
         old_pseudo = tester.user.username
-        self.client.login(username=tester.user.username, password="hostel77")
+        self.client.force_login(tester.user)
         data = {"username": "dummy", "email": tester.user.email}
         result = self.client.post(reverse("update-username-email-member"), data, follow=False)
 
@@ -1097,7 +1092,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("member-detail", args=[user_ban.user.username]), follow=False)
         self.assertNotContains(result, phrase)
 
-        self.assertTrue(self.client.login(username=user_2.user.username, password="hostel77"))
+        self.client.force_login(user_2.user)
 
         # If an user is logged in, the PM button is shown for other normal users
         result = self.client.get(reverse("member-detail", args=[user_1.user.username]), follow=False)
@@ -1108,7 +1103,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertNotContains(result, phrase)
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=user_1.user.username, password="hostel77"))
+        self.client.force_login(user_1.user)
 
         # Neither for his own profile
         result = self.client.get(reverse("member-detail", args=[user_1.user.username]), follow=False)
@@ -1121,7 +1116,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         dev = DevProfileFactory()
 
         # test that github settings are only availables for dev
-        self.client.login(username=user.user.username, password="hostel77")
+        self.client.force_login(user.user)
         result = self.client.get(reverse("update-github"), follow=False)
         self.assertEqual(result.status_code, 403)
         result = self.client.post(reverse("remove-github"), follow=False)
@@ -1129,7 +1124,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         # now, test the form
-        self.client.login(username=dev.user.username, password="hostel77")
+        self.client.force_login(dev.user)
         result = self.client.get(reverse("update-github"), follow=False)
         self.assertEqual(result.status_code, 200)
         result = self.client.post(
@@ -1157,7 +1152,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         user = ProfileFactory().user
 
         # login and check that the Markdown help is displayed
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.get(reverse("pages-index"), follow=False)
         self.assertContains(result, 'data-show-markdown-help="true"')
 
@@ -1192,7 +1187,7 @@ class MemberTests(TutorialTestMixin, TestCase):
     def test_new_provider_with_email_edit(self):
         new_providers_count = NewEmailProvider.objects.count()
         user = ProfileFactory().user
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         # Edit the email with an unknown provider
         self.client.post(
             reverse("update-username-email-member"),
@@ -1210,11 +1205,11 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.logout()
         result = self.client.get(reverse("new-email-providers"), follow=False)
         self.assertEqual(result.status_code, 302)
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.get(reverse("new-email-providers"), follow=False)
         self.assertEqual(result.status_code, 403)
         # and that it contains the provider we created
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(reverse("new-email-providers"), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertIn(provider, result.context["providers"])
@@ -1225,17 +1220,17 @@ class MemberTests(TutorialTestMixin, TestCase):
         provider1 = NewEmailProvider.objects.create(use="NEW_ACCOUNT", user=user, provider="test1.com")
         provider2 = NewEmailProvider.objects.create(use="EMAIl_EDIT", user=user, provider="test2.com")
         # check that this option is only available for a staff member
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.post(reverse("check-new-email-provider", args=[provider1.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
         # test approval
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.post(reverse("check-new-email-provider", args=[provider1.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertFalse(NewEmailProvider.objects.filter(pk=provider1.pk).exists())
         self.assertFalse(BannedEmailProvider.objects.filter(provider=provider1.provider).exists())
         # test ban
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.post(reverse("check-new-email-provider", args=[provider2.pk]), {"ban": "on"}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertFalse(NewEmailProvider.objects.filter(pk=provider2.pk).exists())
@@ -1249,11 +1244,11 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.logout()
         result = self.client.get(reverse("banned-email-providers"), follow=False)
         self.assertEqual(result.status_code, 302)
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.get(reverse("banned-email-providers"), follow=False)
         self.assertEqual(result.status_code, 403)
         # and that it contains the provider we created
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(reverse("banned-email-providers"), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertIn(provider, result.context["providers"])
@@ -1264,10 +1259,10 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.logout()
         result = self.client.get(reverse("add-banned-email-provider"), follow=False)
         self.assertEqual(result.status_code, 302)
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.get(reverse("add-banned-email-provider"), follow=False)
         self.assertEqual(result.status_code, 403)
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(reverse("add-banned-email-provider"), follow=False)
         self.assertEqual(result.status_code, 200)
 
@@ -1295,10 +1290,10 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.client.logout()
         result = self.client.get(reverse("members-with-provider", args=[provider.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
-        self.client.login(username=member1.username, password="hostel77")
+        self.client.force_login(member1)
         result = self.client.get(reverse("members-with-provider", args=[provider.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(reverse("members-with-provider", args=[provider.pk]), follow=False)
         self.assertEqual(result.status_code, 200)
         # check that it contains the two members
@@ -1310,11 +1305,11 @@ class MemberTests(TutorialTestMixin, TestCase):
         # add a banned provider
         provider = BannedEmailProvider.objects.create(moderator=self.staff, provider="test-remove.com")
         # check that this option is only available for a staff member
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.post(reverse("check-new-email-provider", args=[provider.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
         # test that it removes the provider
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.post(reverse("remove-banned-email-provider", args=[provider.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertFalse(BannedEmailProvider.objects.filter(pk=provider.pk).exists())
@@ -1325,11 +1320,11 @@ class MemberTests(TutorialTestMixin, TestCase):
         profile = ProfileFactory()
         user = profile.user
         # Test that hats don't appear if there are no hats
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.get(profile.get_absolute_url())
         self.assertNotContains(result, _("Casquettes"))
         # Test that they don't appear with a staff member but that the link to add one does appear
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(profile.get_absolute_url())
         self.assertNotContains(result, _("Casquettes"))
         self.assertContains(result, _("Ajouter une casquette"))
@@ -1340,7 +1335,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertContains(result, _("Casquettes"))
         self.assertContains(result, hat_name)
         # And also for a member that is not staff
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.get(profile.get_absolute_url())
         self.assertContains(result, _("Casquettes"))
         self.assertContains(result, hat_name)
@@ -1357,11 +1352,11 @@ class MemberTests(TutorialTestMixin, TestCase):
         profile = ProfileFactory()
         user = profile.user
         # check that this option is only available for a staff member
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.post(reverse("add-hat", args=[user.pk]), {"hat": short_hat}, follow=False)
         self.assertEqual(result.status_code, 403)
         # login as staff
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         # test that it doesn't work with a too long hat (> 40 characters)
         result = self.client.post(reverse("add-hat", args=[user.pk]), {"hat": long_hat}, follow=False)
         self.assertEqual(result.status_code, 302)
@@ -1390,23 +1385,23 @@ class MemberTests(TutorialTestMixin, TestCase):
         profile = ProfileFactory()
         user = profile.user
         # add a hat with a staff member
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         self.client.post(reverse("add-hat", args=[user.pk]), {"hat": hat_name}, follow=False)
         self.assertIn(hat_name, profile.hats.values_list("name", flat=True))
         hat = Hat.objects.get(name=hat_name)
         # test that this option is not available for an other user
-        self.client.login(username=ProfileFactory().user.username, password="hostel77")
+        self.client.force_login(ProfileFactory().user)
         result = self.client.post(reverse("remove-hat", args=[user.pk, hat.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
         self.assertIn(hat, profile.hats.all())
         # but check that it works for the user having the hat
-        self.client.login(username=user.username, password="hostel77")
+        self.client.force_login(user)
         result = self.client.post(reverse("remove-hat", args=[user.pk, hat.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(hat, profile.hats.all())
         # test that it works for a staff member
         profile.hats.add(hat)  # we have to add the hat again for this test
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.post(reverse("remove-hat", args=[user.pk, hat.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(hat, profile.hats.all())
@@ -1487,7 +1482,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         profile = ProfileFactory()
         profile.hats.add(hat)
         # login and check that the hat appears
-        self.client.login(username=profile.user.username, password="hostel77")
+        self.client.force_login(profile.user)
         result = self.client.get(reverse("hats-settings"))
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, hat_name)
@@ -1544,7 +1539,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         hat_name = "A hat"
         # ask for a hat
         profile = ProfileFactory()
-        self.client.login(username=profile.user.username, password="hostel77")
+        self.client.force_login(profile.user)
         result = self.client.post(
             reverse("hats-settings"),
             {
@@ -1558,7 +1553,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("requested-hats"))
         self.assertEqual(result.status_code, 403)
         # login as staff
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         # test the count displayed on the user menu is right
         requests_count = HatRequest.objects.count()
         result = self.client.get(reverse("pages-index"))
@@ -1573,7 +1568,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         hat_name = "A hat"
         # ask for a hat
         profile = ProfileFactory()
-        self.client.login(username=profile.user.username, password="hostel77")
+        self.client.force_login(profile.user)
         result = self.client.post(
             reverse("hats-settings"),
             {
@@ -1589,11 +1584,11 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
         # test it's not available for another user
         other_user = ProfileFactory().user
-        self.client.login(username=other_user.username, password="hostel77")
+        self.client.force_login(other_user)
         result = self.client.get(request.get_absolute_url())
         self.assertEqual(result.status_code, 403)
         # login as staff
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         # test the page works
         result = self.client.get(request.get_absolute_url())
         self.assertEqual(result.status_code, 200)
@@ -1605,7 +1600,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         hat_name = "A hat"
         # ask for a hat
         profile = ProfileFactory()
-        self.client.login(username=profile.user.username, password="hostel77")
+        self.client.force_login(profile.user)
         result = self.client.post(
             reverse("hats-settings"),
             {
@@ -1620,7 +1615,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.post(reverse("solve-hat-request", args=[request.pk]), follow=False)
         self.assertEqual(result.status_code, 403)
         # test denying as staff
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.post(reverse("solve-hat-request", args=[request.pk]), follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertNotIn(hat_name, [h.name for h in profile.hats.all()])
@@ -1641,7 +1636,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("hats-list"))
         self.assertEqual(result.status_code, 200)
         # and while being authenticated
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(reverse("hats-list"))
         self.assertEqual(result.status_code, 200)
         # test that it does contain the name of a hat
@@ -1655,7 +1650,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         result = self.client.get(hat.get_absolute_url())
         self.assertEqual(result.status_code, 200)
         # and while being authenticated
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.get(hat.get_absolute_url())
         self.assertEqual(result.status_code, 200)
         # test that it does contain the name of a hat
@@ -1681,7 +1676,7 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(alerts_count, Alert.objects.count())
         # login and check it doesn't work without reason
-        self.client.login(username=self.staff.username, password="hostel77")
+        self.client.force_login(self.staff)
         result = self.client.post(reverse("report-profile", args=[profile.pk]), {"reason": ""}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(alerts_count, Alert.objects.count())

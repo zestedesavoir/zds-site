@@ -52,7 +52,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         profile.can_write = False
         profile.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:content:reaction-karma", args=(reaction.pk,)))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -65,7 +65,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         reaction = ContentReactionFactory(author=author.user, position=1, related_content=self.content)
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:content:reaction-karma", args=(reaction.pk,)), {"vote": "like"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=reaction, positive=True).exists())
@@ -76,7 +76,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
 
         profile = ProfileFactory()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:content:reaction-karma", args=(reaction.pk,)), {"vote": "dislike"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=reaction, positive=False).exists())
@@ -91,7 +91,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         vote.save()
 
         self.assertTrue(CommentVote.objects.filter(pk=vote.pk).exists())
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:content:reaction-karma", args=(reaction.pk,)), {"vote": "neutral"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(CommentVote.objects.filter(pk=vote.pk).exists())
@@ -105,7 +105,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         vote = CommentVote(user=profile.user, comment=reaction, positive=False)
         vote.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:content:reaction-karma", args=(reaction.pk,)), {"vote": "like"})
         vote.refresh_from_db()
 
@@ -138,7 +138,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         CommentVote.objects.create(user=profile.user, comment=equal_reaction, positive=True)
         CommentVote.objects.create(user=profile2.user, comment=equal_reaction, positive=False)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
 
         # on first message we should see 2 likes and 0 anonymous
         response = self.client.get(reverse("api:content:reaction-karma", args=[upvoted_reaction.pk]))
@@ -221,13 +221,13 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(0, PublicationEvent.objects.filter(published_object=content).count())
 
         # An authenticated author but not an author should not either
-        self.assertTrue(self.client.login(username=not_author.user.username, password="hostel77"))
+        self.client.force_login(not_author.user)
         response = self.client.post(reverse("api:content:generate_export", args=[content.content.pk]))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertEqual(0, PublicationEvent.objects.filter(published_object=content).count())
 
         # But if the user is staff, it should
-        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        self.client.force_login(staff.user)
         response = self.client.post(reverse("api:content:generate_export", args=[content.content.pk]))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -235,7 +235,7 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         self.assertGreater(requests_count, 0)
 
         # And if the user is an author, it should too
-        self.assertTrue(self.client.login(username=author.user.username, password="hostel77"))
+        self.client.force_login(author.user)
         response = self.client.post(reverse("api:content:generate_export", args=[content.content.pk]))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -262,7 +262,7 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
             self.assertEqual(response.data, [])
 
         # Let's request some
-        self.assertTrue(self.client.login(username=author.user.username, password="hostel77"))
+        self.client.force_login(author.user)
         response = self.client.post(reverse("api:content:generate_export", args=[content.content.pk]))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
@@ -278,7 +278,7 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         # Let's request some more. The API should only return the latest ones, so
         # even if there are some more records in the database, the count should stay
         # the same.
-        self.assertTrue(self.client.login(username=author.user.username, password="hostel77"))
+        self.client.force_login(author.user)
         response = self.client.post(reverse("api:content:generate_export", args=[content.content.pk]))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.client.logout()

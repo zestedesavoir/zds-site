@@ -111,7 +111,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """General access test for author, user, guest and staff"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
@@ -175,7 +175,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with guest
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
@@ -206,7 +206,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 403)
 
         # login with staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
@@ -240,7 +240,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """General test on the basic workflow of a tutorial: creation, edition, deletion for the author"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # create tutorial
         intro = "une intro"
@@ -636,13 +636,13 @@ class ContentTests(TutorialTestMixin, TestCase):
         """Test beta workflow (access and update)"""
 
         # login with guest and test the non-access
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(reverse("content:view", args=[self.tuto.pk, self.tuto.slug]), follow=False)
         self.assertEqual(result.status_code, 403)  # (get 403 since he is not part of the authors)
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         sometag = Tag(title="randomizeit")
         sometag.save()
         self.tuto.tags.add(sometag)
@@ -685,7 +685,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)  # (get 302: no access to beta for public)
 
         # test access for guest;
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         # get 200 everywhere :)
         result = self.client.get(
@@ -721,7 +721,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # change beta version
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse(
@@ -772,7 +772,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # then test for guest
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(
             reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + old_sha_beta, follow=False
@@ -786,7 +786,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # inactive beta
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("content:inactive-beta", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
@@ -800,7 +800,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # then test for guest
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(
             reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + current_sha_beta, follow=False
@@ -809,7 +809,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # reactive beta
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("content:set-beta", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
@@ -829,7 +829,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # then test for guest
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(
             reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + tuto.sha_draft, follow=False
@@ -845,7 +845,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """Check that editorial helps are visible on the beta"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # create and add help
         help = HelpWritingFactory()
@@ -881,7 +881,7 @@ class ContentTests(TutorialTestMixin, TestCase):
     def test_history_navigation(self):
         """ensure that, if the title (and so the slug) of the content change, its content remain accessible"""
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         versioned = tuto.load_version()
@@ -1189,7 +1189,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """ensure that everything is ok if `None` is set"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         given_title = "Un titre que personne ne lira"
         some_text = "Tralalala !!"
@@ -1271,7 +1271,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """Test if content is exported well"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         given_title = "Oh, le beau titre à lire !"
         some_text = "À lire à un moment ou un autre, Über utile"  # accentuated characters are important for the test
@@ -1431,7 +1431,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """Test if the importation of a tuto is working"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         given_title = "Une autre histoire captivante"
         some_text = "Il était une fois ... La suite."
@@ -1547,7 +1547,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """Test if the importation of a content into another is working"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         given_title = "Parce que le texte change à chaque fois"
         some_text = "Sinon, c'pas drôle"
@@ -1652,7 +1652,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """Tests an error case that happen when someone sends an archive that modify the content title
         with a string that cannont be properly slugified"""
         new_article = PublishableContentFactory(type="ARTICLE", title="extension", authors=[self.user_author])
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         archive_path = settings.BASE_DIR / "fixtures" / "tuto" / "BadArchive.zip"
         answer = self.client.post(
             reverse("content:import", args=[new_article.pk, new_article.slug]),
@@ -1678,7 +1678,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         text2 = f"![Piège](img3.png) ![Image qui existe pas]({prefix}:img3.png) ![](mauvais:img3.png)"
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # create an article
         article = PublishableContentFactory(type="ARTICLE", licence=self.licence)
@@ -1787,19 +1787,19 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # login as guest and test the non-access
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         result = self.client.get(reverse("content:history", args=[tuto.pk, tuto.slug]), follow=False)
         self.assertEqual(result.status_code, 403)
 
         # staff access
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         result = self.client.get(reverse("content:history", args=[tuto.pk, tuto.slug]), follow=False)
         self.assertEqual(result.status_code, 200)
 
         # login as author and test the access
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.get(reverse("content:history", args=[tuto.pk, tuto.slug]), follow=False)
         self.assertEqual(result.status_code, 200)
 
@@ -1818,7 +1818,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         invalid_sha = "a" * 40
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # check 404 if missing parameters
         result = self.client.get(
@@ -1880,7 +1880,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         self.assertEqual(Validation.objects.count(), 0)
@@ -1902,7 +1902,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # validate with staff
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.get(
             reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
@@ -1938,7 +1938,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         # Re-ask a new validation
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version()
@@ -1975,7 +1975,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         # validate with staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.get(
             reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
@@ -2022,7 +2022,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         self.assertEqual(Validation.objects.count(), 0)
@@ -2074,7 +2074,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)  # no, public cannot access a tutorial in validation ...
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(
             reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
@@ -2084,7 +2084,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # then try with staff
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.get(
             reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
@@ -2148,7 +2148,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
         # ensure that author cannot publish himself
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
@@ -2160,7 +2160,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(Validation.objects.filter(content=tuto).last().status, "PENDING_V")
 
         # reject it with staff !
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.post(
             reverse("validation:reject", kwargs={"pk": validation.pk}), {"text": ""}, follow=False
@@ -2255,7 +2255,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # ... another test cover the file creation and so all, lets skip this part
 
         # ensure that author cannot revoke his own publication
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("validation:revoke", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
@@ -2266,7 +2266,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(Validation.objects.filter(content=tuto).last().status, "ACCEPT")
 
         # revoke publication with staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.post(
             reverse("validation:revoke", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
@@ -2310,7 +2310,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         nb_messages = PrivatePost.objects.filter(
             privatetopic__pk=validation.content.validation_private_message.pk
         ).count()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("validation:cancel", kwargs={"pk": validation.pk}), {"text": text_cancel}, follow=False
@@ -2334,7 +2334,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto.authors.add(self.user_staff)
         tuto.save()
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         self.assertEqual(Validation.objects.count(), 0)
 
         result = self.client.post(
@@ -2371,7 +2371,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         self.assertEqual(Validation.objects.count(), 0)
@@ -2388,7 +2388,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # login with staff and reserve
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.post(
             reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
@@ -2401,7 +2401,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # login with author, delete tuto
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # does not work without a text
         result = self.client.post(reverse("content:delete", args=[tuto.pk, tuto.slug]), follow=False)
@@ -2427,8 +2427,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
     def test_js_fiddle_activation(self):
 
-        login_check = self.client.login(username=self.staff.username, password="hostel77")
-        self.assertEqual(login_check, True)
+        self.client.force_login(self.staff)
         result = self.client.post(
             reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": "on"}, follow=True
         )
@@ -2446,13 +2445,13 @@ class ContentTests(TutorialTestMixin, TestCase):
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertFalse(updated.js_support)
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": True})
         self.assertEqual(result.status_code, 403)
 
     def test_validate_unexisting(self):
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug}),
             {"text": "blaaaaa", "version": "unexistingversion"},
@@ -2482,7 +2481,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # then active the beta on tutorial :
         # first, login with author :
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         sha_draft = PublishableContent.objects.get(pk=self.tuto.pk).sha_draft
         response = self.client.post(
@@ -2617,7 +2616,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[1], tutoriel_2)
 
     def test_add_author(self):
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": self.user_guest.username}, follow=False
         )
@@ -2634,7 +2633,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
 
     def test_remove_author(self):
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         tuto = PublishableContentFactory(author_list=[self.user_author, self.user_guest])
         result = self.client.post(
             reverse("content:remove-author", args=[tuto.pk]), {"username": self.user_guest.username}, follow=False
@@ -2682,7 +2681,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # create a tuto, populate, and set beta
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         sha_draft = PublishableContent.objects.get(pk=tuto.pk).sha_draft
         response = self.client.post(
@@ -2713,7 +2712,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # login with normal user
         self.client.logout()
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         # check if user can warn typo in tutorial
         result = self.client.post(
@@ -2756,7 +2755,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertIn(self.chapter1.get_absolute_url_beta(), sent_pm.last_message.text)  # beta url is in message
 
         # now, induce change and publish
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         ExtractFactory(container=self.chapter1, db_object=tuto)  # new extract
 
@@ -2774,7 +2773,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content=tuto).last()
 
@@ -2798,7 +2797,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version()
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         # check if user can warn typo in tutorial
         result = self.client.post(
@@ -2863,7 +2862,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         random = "Il est minuit 30 et j'écris un test ;)"
         random_with_md = "un text contenant du **markdown** ."
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # no hash, no edition
         result = self.client.post(
@@ -3019,7 +3018,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(extract.get_text(), random)
 
     def test_malformed_url(self):
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.get(self.chapter1.get_absolute_url()[:-2] + "/")
         self.assertEqual(result.status_code, 404)
@@ -3041,7 +3040,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             published.get_absolute_url_online().replace(str(published.content.pk), "he-s-dead-jim")
         )
         self.assertEqual(result.status_code, 404)
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.post(
             reverse("content:add-reaction") + f"?pk={publishable.pk}",
@@ -3092,7 +3091,7 @@ class ContentTests(TutorialTestMixin, TestCase):
     def test_import_old_version(self):
         self.overridden_zds_app["content"]["default_licence_pk"] = LicenceFactory().pk
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         base = settings.BASE_DIR / "fixtures" / "tuto"
         old_contents = [
             base / "article_v1",
@@ -3115,7 +3114,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             self.assertEqual(json["title"], PublishableContent.objects.last().title)
 
     def test_import_bad_archive(self):
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         base = settings.BASE_DIR / "fixtures" / "tuto"
         old_path = base / "article_v1"
 
@@ -3178,7 +3177,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         result = self.client.post(
@@ -3189,7 +3188,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content=tuto).last()
 
@@ -3237,7 +3236,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             f.write("I rebuilt it to finish the test. Perhaps a funny quote would be a good thing?")
 
         # same test with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         for extra in avail_extra:
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
@@ -3258,7 +3257,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # same test with guest:
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         # get 404 on markdown:
         result = self.client.get(published.get_absolute_url_to_extra_content("md"))
@@ -3276,7 +3275,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         result = self.client.post(
@@ -3287,7 +3286,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content=tuto).last()
 
@@ -3316,7 +3315,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=self.chapter1, db_object=tuto)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         result = self.client.post(
@@ -3327,7 +3326,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content=tuto).last()
 
@@ -3358,7 +3357,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # create extract while there is already a part:
         result = self.client.get(reverse("content:create-extract", args=[tuto.pk, tuto.slug]), follow=False)
@@ -3408,7 +3407,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(1, Gallery.objects.filter(pk=self.tuto.gallery.pk).count())
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # try to delete gallery
         result = self.client.post(reverse("galleries-delete"), {"delete": "", "gallery": gallery.pk}, follow=True)
@@ -3447,7 +3446,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         new_author = ProfileFactory().user
 
         # login with author and add user
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": new_author.username}, follow=False
@@ -3465,7 +3464,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
 
         # login with this new author, try to delete tuto
-        self.assertEqual(self.client.login(username=new_author.username, password="hostel77"), True)
+        self.client.force_login(new_author)
 
         # deleting
         result = self.client.post(reverse("content:delete", args=[tuto.pk, tuto.slug]), follow=False)
@@ -3480,7 +3479,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # login with author
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # now, will work
         result = self.client.post(reverse("content:delete", args=[tuto.pk, tuto.slug]), follow=False)
@@ -3492,7 +3491,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         """Test that invalid title (empty or wrong slugs) are not allowed"""
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         dic = {
             "title": "",
@@ -3592,7 +3591,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         # test access for guest user
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(reverse("tutorial:view", kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug}))
         self.assertEqual(result.status_code, 200)
@@ -3617,7 +3616,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=article_draft, db_object=article)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         self.assertEqual(Validation.objects.count(), 0)
@@ -3630,7 +3629,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content=article).last()
 
@@ -3660,7 +3659,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         # test access for guest user
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         result = self.client.get(reverse("article:view", kwargs={"pk": article.pk, "slug": article_draft.slug}))
         self.assertEqual(result.status_code, 200)
 
@@ -3678,7 +3677,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=chapter1, db_object=midsize_tuto)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         result = self.client.post(
@@ -3689,7 +3688,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content=midsize_tuto).last()
 
@@ -3739,7 +3738,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         # test access for guest user
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         result = self.client.get(
             reverse("tutorial:view", kwargs={"pk": midsize_tuto.pk, "slug": midsize_tuto_draft.slug})
         )
@@ -3768,7 +3767,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         ExtractFactory(container=chapter1, db_object=bigtuto)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         result = self.client.post(
@@ -3779,7 +3778,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content=bigtuto).last()
 
@@ -3853,7 +3852,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         # test access for guest user
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         result = self.client.get(reverse("tutorial:view", kwargs={"pk": bigtuto.pk, "slug": bigtuto_draft.slug}))
         self.assertEqual(result.status_code, 200)
 
@@ -3879,7 +3878,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         # just for the fun of it, lets then revoke publication
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         result = self.client.post(
             reverse("validation:revoke", kwargs={"pk": bigtuto.pk, "slug": bigtuto.slug}),
@@ -3940,7 +3939,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 404)
 
         # test access for guest user
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(reverse("tutorial:view", kwargs={"pk": bigtuto.pk, "slug": bigtuto_draft.slug}))
         self.assertEqual(result.status_code, 404)
@@ -3970,7 +3969,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         message_to_post = "la ZEP-12"
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.post(
             reverse("content:add-reaction") + f"?pk={self.published.content.pk}",
@@ -4000,7 +3999,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 404)
 
         # visit the tutorial trigger the creation of a ContentRead
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         self.assertEqual(
             self.client.get(reverse("tutorial:view", args=[self.tuto.pk, self.tuto.slug])).status_code, 200
@@ -4015,7 +4014,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(reads.first().note.get_absolute_url() not in interventions)
 
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # test preview (without JS)
         result = self.client.post(
@@ -4088,7 +4087,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             "Ever notice how you come across somebody once in a while you shouldn't have fucked with? That's me."
         )
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         self.client.post(
             reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
@@ -4096,7 +4095,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         reaction = ContentReaction.objects.filter(related_content__pk=self.tuto.pk).first()
 
@@ -4111,7 +4110,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(reaction.editor, self.user_staff)
 
         # test that someone else is not abble to quote the text
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(
             reverse("content:add-reaction") + f"?pk={self.tuto.pk}&cite={reaction.pk}", follow=False
@@ -4119,7 +4118,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 403)  # unable to quote a reaction if hidden
 
         # then, unhide it !
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.post(reverse("content:show-reaction", args=[reaction.pk]), follow=False)
 
@@ -4130,7 +4129,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_alert_reaction(self):
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         self.client.post(
             reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
@@ -4138,7 +4137,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=True,
         )
         reaction = ContentReaction.objects.filter(related_content__pk=self.tuto.pk).first()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("content:alert-reaction", args=[reaction.pk]),
             {"signal_text": "No. Try not. Do... or do not. There is no try."},
@@ -4155,7 +4154,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False,
         )
         self.assertEqual(result.status_code, 403)
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         result = self.client.post(
             reverse("content:resolve-reaction"),
             {
@@ -4171,7 +4170,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         reaction = ContentReaction.objects.filter(related_content__pk=self.tuto.pk).first()
 
         # test that edition of a comment with an alert by an admin also solve the alert
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("content:alert-reaction", args=[reaction.pk]),
             {"signal_text": "No. Try not. Do... or do not. There is no try."},
@@ -4182,7 +4181,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             Alert.objects.filter(author__pk=self.user_author.pk, comment__pk=reaction.pk, solved=False).first()
         )
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         result = self.client.post(
             reverse("content:update-reaction") + f"?message={reaction.pk}&pk={self.tuto.pk}",
             {"text": "Much to learn, you still have."},
@@ -4195,7 +4194,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_warn_typo_without_accessible_author(self):
 
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         result = self.client.post(
             reverse("content:warn-typo") + f"?pk={self.tuto.pk}",
             {
@@ -4237,7 +4236,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_find_tutorial_or_article(self):
         """test the behavior of `article:find-article` and `tutorial:find-tutorial` urls"""
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         tuto_in_beta = PublishableContentFactory(type="TUTORIAL")
         tuto_in_beta.authors.add(self.user_author)
@@ -4392,7 +4391,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         contents = response.context["articles"]
         self.assertEqual(len(contents), 0)  # no published article
 
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         response = self.client.get(reverse("tutorial:find-tutorial", args=[self.user_author.username]), follow=False)
         self.assertEqual(200, response.status_code)
@@ -4432,7 +4431,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         visited before, therefore this test will visit the index after each login (because :p)"""
 
         # login with guest
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(reverse("pages-index"))  # go to whatever page
         self.assertEqual(result.status_code, 200)
@@ -4468,7 +4467,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         # login with author (could be staff, we don't care in this test)
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.get(reverse("pages-index"))  # go to whatever page
         self.assertEqual(result.status_code, 200)
@@ -4521,7 +4520,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(tuto.first_unread_note(), reactions[0])  # first unread note = first note
 
         # re-login with guest
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
 
         result = self.client.get(reverse("pages-index"))  # go to whatever page
         self.assertEqual(result.status_code, 200)
@@ -4554,7 +4553,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(0, len(mail.outbox))
 
         profile = ProfileFactory()
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.post(reverse("content:follow-reactions", args=[self.tuto.pk]), {"email": "1"})
         self.assertEqual(302, response.status_code)
 
@@ -4566,7 +4565,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.client.logout()
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # post another reaction
         self.client.post(
@@ -4578,7 +4577,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(1, len(mail.outbox))
 
     def test_note_with_bad_param(self):
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         url_template = reverse("content:update-reaction") + "?pk={}&message={}"
         result = self.client.get(url_template.format(self.tuto.pk, 454545665895123))
         self.assertEqual(404, result.status_code)
@@ -4598,7 +4597,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         new_reaction.update_content("I will find you.")
 
         new_reaction.save()
-        self.assertEqual(self.client.login(username=new_user.username, password="hostel77"), True)
+        self.client.force_login(new_user)
         resp = self.client.get(reverse("content:update-reaction") + f"?message={new_reaction.pk}&pk={article.pk}")
         self.assertEqual(403, resp.status_code)
         resp = self.client.post(
@@ -4622,7 +4621,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         reaction.update_content(text)
         reaction.save()
 
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # cite note
         result = self.client.get(reverse("content:add-reaction") + f"?pk={tuto.pk}&cite={reaction.pk}", follow=True)
@@ -4653,7 +4652,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_cant_view_private_even_if_draft_is_equal_to_public(self):
         content = PublishedContentFactory(author_list=[self.user_author])
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         resp = self.client.get(reverse("content:view", args=[content.pk, content.slug]))
         self.assertEqual(403, resp.status_code)
 
@@ -4667,7 +4666,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertFalse(old_published.must_redirect)
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # change title
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
@@ -4707,7 +4706,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff and publish
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         validation = Validation.objects.filter(content__pk=tuto.pk).last()
 
@@ -4769,7 +4768,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_validation_list_has_good_title(self):
         # aka fix 3172
         tuto = PublishableContentFactory(author_list=[self.user_author], type="TUTORIAL")
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("validation:ask", args=[tuto.pk, tuto.slug]),
             {"text": "something good", "version": tuto.sha_draft},
@@ -4792,7 +4791,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False,
         )
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         result = self.client.get(reverse("validation:list") + "?type=tuto")
         self.assertIn(old_title, str(result.content))
         self.assertNotIn(new_title, str(result.content))
@@ -4821,7 +4820,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             date_validation=datetime.datetime.now(),
         )
         registered_validation.save()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         self.client.post(
             reverse("content:edit", args=[article.pk, article.slug]),
             {
@@ -4861,12 +4860,12 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         registered_validation.save()
         subscriber = ProfileFactory().user
-        self.client.login(username=subscriber.username, password="hostel77")
+        self.client.force_login(subscriber)
         resp = self.client.post(reverse("content:follow-reactions", args=[article.pk]), {"follow": True})
         self.assertEqual(302, resp.status_code)
         public_count = PublishedContent.objects.count()
         self.client.logout()
-        self.client.login(username=self.user_staff.username, password="hostel77")
+        self.client.force_login(self.user_staff)
         result = self.client.post(
             reverse("validation:revoke", kwargs={"pk": article.pk, "slug": article.public_version.content_public_slug}),
             {"text": "This content was bad", "version": article.public_version.sha_public},
@@ -4878,7 +4877,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_validation_history(self):
         published = PublishedContentFactory(author_list=[self.user_author])
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("content:edit", args=[published.pk, published.slug]),
             {
@@ -4902,13 +4901,13 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         result = self.client.get(reverse("validation:list") + "?type=tuto")
         self.assertIn('class="update_content"', str(result.content))
 
     def test_validation_history_for_new_content(self):
         publishable = PublishableContentFactory(author_list=[self.user_author])
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": publishable.pk, "slug": publishable.slug}),
@@ -4918,7 +4917,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         result = self.client.get(reverse("validation:list") + "?type=tuto")
         self.assertNotIn('class="update_content"', str(result.content))
 
@@ -4934,7 +4933,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(Validation.objects.count(), 0)
 
         # login with user and ask validation
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": content_draft.pk, "slug": content_draft.slug}),
             {"text": text_validation, "version": content_draft.current_version},
@@ -4944,7 +4943,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(Validation.objects.count(), 1)
 
         # login with staff and reserve the content
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
         validation = Validation.objects.filter(content=content).last()
         result = self.client.post(
             reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
@@ -4952,7 +4951,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with user, edit content and ask validation for update
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("content:edit", args=[content_draft.pk, content_draft.slug]),
             {
@@ -4992,7 +4991,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         article_draft = article.load_version()
 
         # login with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # set beta
         result = self.client.post(
@@ -5012,7 +5011,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # reserve the article
         validation = Validation.objects.filter(content=article).last()
@@ -5041,7 +5040,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(last_message)
 
         # login with author to ensure that the beta is not closed if it was already closed (at a second validation).
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # ask validation
         result = self.client.post(
@@ -5052,7 +5051,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # login with staff
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         # reserve the article
         validation = Validation.objects.filter(content=article).last()
@@ -5075,11 +5074,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_obsolete(self):
         # check that this function is only available for staff
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         result = self.client.post(reverse("validation:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
         self.assertEqual(result.status_code, 403)
         # login as staff
-        self.client.login(username=self.user_staff.username, password="hostel77")
+        self.client.force_login(self.user_staff)
         # check that when the content is not marked as obsolete, the alert is not shown
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
@@ -5364,7 +5363,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         tutorial_draft = tutorial.load_version()
 
         # ask validation
-        self.client.login(username=self.user_staff.username, password="hostel77")
+        self.client.force_login(self.user_staff)
         self.client.post(
             reverse("validation:ask", kwargs={"pk": tutorial.pk, "slug": tutorial.slug}),
             {"text": text_validation, "version": tutorial_draft.current_version},
@@ -5389,7 +5388,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         tutorial_draft = tutorial.load_version()
 
         # ask validation
-        self.client.login(username=self.user_staff.username, password="hostel77")
+        self.client.force_login(self.user_staff)
         self.client.post(
             reverse("validation:ask", kwargs={"pk": tutorial.pk, "slug": tutorial.slug}),
             {"text": text_validation, "version": tutorial_draft.current_version},
@@ -5410,7 +5409,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(tutorial.public_version.authors.count(), 1)
 
     def test_add_help_tuto(self):
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         tutorial = PublishableContentFactory(author_list=[self.user_author])
         help_wanted = HelpWritingFactory()
         resp = self.client.post(
@@ -5420,7 +5419,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(1, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
 
     def test_add_help_opinion(self):
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         tutorial = PublishableContentFactory(author_list=[self.user_author], type="OPINION")
         help_wanted = HelpWritingFactory()
         resp = self.client.post(
@@ -5430,7 +5429,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(0, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
 
     def test_save_no_redirect(self):
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         tutorial = PublishableContentFactory(author_list=[self.user_author])
         extract = ExtractFactory(db_object=tutorial, container=tutorial.load_version())
         tutorial = PublishableContent.objects.get(pk=tutorial.pk)

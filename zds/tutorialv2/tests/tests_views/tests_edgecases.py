@@ -34,7 +34,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             type="ARTICLE", title="title", author_list=[self.author.user], licence=self.licence
         )
         # login with author
-        self.assertEqual(self.client.login(username=self.author.user.username, password="hostel77"), True)
+        self.client.force_login(self.author.user)
         result = self.client.post(
             reverse("content:edit", args=[opinion.pk, opinion.slug]),
             {
