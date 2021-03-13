@@ -31,8 +31,7 @@ class ForumMemberTests(TestCase):
         self.forum22 = ForumFactory(category=self.category2, position_in_category=2)
         self.user = ProfileFactory().user
         self.user2 = ProfileFactory().user
-        log = self.client.login(username=self.user.username, password="hostel77")
-        self.assertEqual(log, True)
+        self.client.force_login(self.user)
 
         settings.ZDS_APP["member"]["bot_account"] = ProfileFactory().user.username
 
@@ -459,7 +458,7 @@ class ForumMemberTests(TestCase):
         self.assertEqual(result.status_code, 403)
         # login as staff
         staff1 = StaffProfileFactory().user
-        self.assertTrue(self.client.login(username=staff1.username, password="hostel77"))
+        self.client.force_login(staff1)
         # try again as staff
         resolve_reason = "Everything is OK kid"
         result = self.client.post(
@@ -500,7 +499,7 @@ class ForumMemberTests(TestCase):
         alert = Alert.objects.get(comment=post2.pk)
         # login as staff
         staff1 = StaffProfileFactory().user
-        self.assertEqual(self.client.login(username=staff1.username, password="hostel77"), True)
+        self.client.force_login(staff1)
         # try again as staff
         result = self.client.post(
             reverse("forum-solve-alert"),
@@ -549,8 +548,8 @@ class ForumMemberTests(TestCase):
         self.assertEqual(Post.objects.get(pk=post5.pk).is_useful, True)
 
         # useful if you are staff
-        StaffProfileFactory().user
-        self.assertEqual(self.client.login(username=self.user.username, password="hostel77"), True)
+        staff = StaffProfileFactory().user
+        self.client.force_login(staff)
         result = self.client.post(reverse("post-useful") + f"?message={post4.pk}", follow=False)
         self.assertNotEqual(result.status_code, 403)
         self.assertEqual(Post.objects.get(pk=post4.pk).is_useful, True)
@@ -591,7 +590,7 @@ class ForumMemberTests(TestCase):
 
         # test with staff
         staff1 = StaffProfileFactory().user
-        self.assertEqual(self.client.login(username=staff1.username, password="hostel77"), True)
+        self.client.force_login(staff1)
 
         result = self.client.post(
             reverse("topic-edit"), {"move": "", "forum": self.forum12.pk, "topic": topic1.pk}, follow=False
@@ -612,7 +611,7 @@ class ForumMemberTests(TestCase):
 
         # log as staff
         staff1 = StaffProfileFactory().user
-        self.assertEqual(self.client.login(username=staff1.username, password="hostel77"), True)
+        self.client.force_login(staff1)
 
         # missing parameter
         result = self.client.post(
@@ -769,7 +768,7 @@ class ForumMemberTests(TestCase):
 
         for i in range(settings.ZDS_APP["forum"]["posts_per_page"] + 2):
             PostFactory(topic=topic, author=profiles[i % 2].user, position=i + 2)
-        self.client.login(username=profiles[1].user.username, password="hostel77")
+        self.client.force_login(profiles[1].user)
 
         template_response = self.client.get(topic.get_absolute_url())
         self.assertIn(expected, template_response.content.decode("utf-8"))

@@ -35,8 +35,8 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
 
     def login(self, profile):
         self.logout()
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
-        self.assertTrue(self.client_api.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
+        self.client_api.force_login(profile.user)
 
     def test_mark_as_potential_spam_forum(self):
         author = ProfileFactory()

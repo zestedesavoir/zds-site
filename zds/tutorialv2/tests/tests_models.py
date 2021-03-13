@@ -449,7 +449,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         old_description = article.public_version.description()
         article.licence = LicenceFactory()
         article.save()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         self.client.post(
             reverse("content:edit", args=[article.pk, article.slug]),
             {

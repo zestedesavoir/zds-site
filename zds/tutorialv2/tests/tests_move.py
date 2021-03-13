@@ -59,7 +59,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
 
     def test_move_up_extract(self):
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         old_sha = tuto.sha_draft
@@ -105,7 +105,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         # test moving without permission
 
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         result = self.client.post(
             reverse("content:move-element"),
             {
@@ -122,7 +122,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
     def test_move_extract_before(self):
         # test 1 : move extract after a sibling
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         self.extract3 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
@@ -243,7 +243,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
 
     def test_move_container_before(self):
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.chapter3 = ContainerFactory(parent=self.part1, db_object=self.tuto)
@@ -329,7 +329,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         # test moving without permission
 
         self.client.logout()
-        self.assertEqual(self.client.login(username=self.user_guest.username, password="hostel77"), True)
+        self.client.force_login(self.user_guest)
         result = self.client.post(
             reverse("content:move-element"),
             {
@@ -346,7 +346,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
     def test_move_extract_after(self):
         # test 1 : move extract after a sibling
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.extract2 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
         self.extract3 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
@@ -443,7 +443,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
 
     def test_move_container_after(self):
         # login with author
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.chapter2 = ContainerFactory(parent=self.part1, db_object=self.tuto)
         self.chapter3 = ContainerFactory(parent=self.part1, db_object=self.tuto)
@@ -507,7 +507,7 @@ class ContentMoveTests(TutorialTestMixin, TestCase):
         :return:
         """
         LicenceFactory(code="CC BY")
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         draft_zip_path = join(dirname(__file__), "fake_lasynchrone-et-le-multithread-en-net.zip")
         result = self.client.post(
             reverse("content:import-new"),
