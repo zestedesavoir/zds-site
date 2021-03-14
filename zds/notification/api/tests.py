@@ -103,3 +103,43 @@ class NotificationListAPITest(APITestCase):
         topic.participants.add(target)
         send_message_mp(author=sender, n_topic=topic, text="Testing")
         return topic
+
+    def test_filter_read_notifications(self):
+        """
+        Filter notification list according to their read status.
+        """
+        # Create a notification (not read yet):
+        topic = self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
+
+        # Get unread notifications:
+        response = self.client.get(reverse("api:notification:list") + "?is_read=false")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 1)
+
+        # Get read notifications:
+        response = self.client.get(reverse("api:notification:list") + "?is_read=true")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 0)
+
+        # Read the notification:
+        notification = Notification.objects.get(object_id=topic.last_message.pk, is_read=False)
+        notification.is_read = True
+        notification.save()
+
+        # Get unread notifications:
+        response = self.client.get(reverse("api:notification:list") + "?is_read=false")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 0)
+
+        # Get read notifications:
+        response = self.client.get(reverse("api:notification:list") + "?is_read=true")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 1)
+
+        # Create a new notification (not read yet):
+        self.create_notification_for_pm(ProfileFactory().user, self.profile.user)
+
+        # Wrong values are ignored:
+        response = self.client.get(reverse("api:notification:list") + "?is_read=foo")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("count"), 2)
