@@ -67,8 +67,8 @@ class PrivateTopic(models.Model):
         topic.author = author
         topic.save()
 
-        for participants in recipients:
-            topic.add_participant(participants, silent=True)
+        for participant in recipients:
+            topic.add_participant(participant, silent=True)
         topic.save()
 
         return topic
