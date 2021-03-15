@@ -80,16 +80,6 @@ ZDS_APP = {
             "url": "https://github.com/zestedesavoir/zds-site",
             "bugtracker": "https://github.com/zestedesavoir/zds-site/issues",
             "api": "https://api.github.com/repos/zestedesavoir/zds-site",
-            "tags": [
-                "C-Back",
-                "C-Front",
-                "C-API",
-                "C-Documentation",
-                "C-Infra",
-                "S-Bug",
-                "S-Régression",
-                "S-Évolution",
-            ],
         },
         "licenses": {
             "logo": {

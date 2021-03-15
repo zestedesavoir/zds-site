@@ -204,7 +204,6 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         context["subscriber_count"] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         if hasattr(self.request.user, "profile"):
             context["is_dev"] = self.request.user.profile.is_dev()
-            context["tags"] = settings.ZDS_APP["site"]["repository"]["tags"]
             context["has_token"] = self.request.user.profile.github_token != ""
 
         if self.request.user.has_perm("forum.change_topic"):
@@ -844,7 +843,6 @@ class ManageGitHubIssue(UpdateView):
                 messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
 
             else:
-                tags = [value.strip() for key, value in list(request.POST.items()) if key.startswith("tag-")]
                 body = _("{}\n\nSujet : {}\n*Envoyé depuis {}*").format(
                     request.POST["body"],
                     settings.ZDS_APP["site"]["url"] + self.object.get_absolute_url(),
@@ -855,7 +853,7 @@ class ManageGitHubIssue(UpdateView):
                         settings.ZDS_APP["site"]["repository"]["api"] + "/issues",
                         timeout=10,
                         headers={"Authorization": f"Token {self.request.user.profile.github_token}"},
-                        json={"title": request.POST["title"], "body": body, "labels": tags},
+                        json={"title": request.POST["title"], "body": body},
                     )
                     if response.status_code != 201:
                         raise Exception

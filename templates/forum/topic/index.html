@@ -274,12 +274,6 @@
                                 </p>
                                 <input type="text" name="title" value="{{ topic.title }}" required>
                                 <textarea name="body" class="textarea" cols="40" required>{{ topic.first_post.text }}</textarea>
-                                {% for tag in tags %}
-                                    <label for="tag-{{ tag }}">
-                                        {{ tag }}
-                                        <input type="checkbox" name="tag-{{ tag }}" value="{{ tag }}" id="tag-{{ tag }}">
-                                    </label>
-                                {% endfor %}
                                 <button type="submit" name="create" class="btn btn-submit">{% trans 'Envoyer' %}</button>
                             {% else %}
                                 <p>{% trans "Il semblerait que vous n’ayez pas spécifié de token d’identification GitHub, vous ne pouvez donc pas créer de ticket pour ce sujet." %}</p>
