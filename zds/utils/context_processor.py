@@ -13,10 +13,18 @@ def get_version():
     """
     if git_version is not None:
         name = "{}/{}".format(__version__, git_version[:7])
-        url = settings.ZDS_APP["site"]["repository"]["url"]
+        url = get_repository("zds-site")["url"]
         return {"name": name, "url": f"{url}/tree/{git_version}"}
     else:
         return {"name": __version__, "url": None}
+
+
+def get_repository(repository_name):
+    for repository in settings.ZDS_APP["repositories"]:
+        if repository["name"] == repository_name:
+            return repository
+
+    raise Exception("Incorrect repository_name: " + repository_name)
 
 
 def version(request):

@@ -269,6 +269,11 @@
                         <form action="{% url 'manage-issue' topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
                             {% if has_token %}
                                 {% csrf_token %}
+                                <select name="repository">
+                                    {% for repo in repositories %}
+                                        <option value="{{repo.name}}">{{repo.name}}</option>
+                                    {% endfor %}
+                                </select>
                                 <p>
                                     {% trans 'Si vous voulez modifier ce qui sera envoyé sur GitHub, éditez ce formulaire.' %}
                                 </p>

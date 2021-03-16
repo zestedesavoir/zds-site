@@ -26,6 +26,7 @@ from zds.forum import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.featured.mixins import FeatureableMixin
 from zds.utils import old_slugify
+from zds.utils.context_processor import get_repository
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
@@ -205,6 +206,7 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         if hasattr(self.request.user, "profile"):
             context["is_dev"] = self.request.user.profile.is_dev()
             context["has_token"] = self.request.user.profile.github_token != ""
+            context["repositories"] = settings.ZDS_APP["repositories"]
 
         if self.request.user.has_perm("forum.change_topic"):
             context["user_can_modify"] = [post.pk for post in context["posts"]]
@@ -850,7 +852,7 @@ class ManageGitHubIssue(UpdateView):
                 )
                 try:
                     response = requests.post(
-                        settings.ZDS_APP["site"]["repository"]["api"] + "/issues",
+                        get_repository(request.POST["repository"])["api"] + "/issues",
                         timeout=10,
                         headers={"Authorization": f"Token {self.request.user.profile.github_token}"},
                         json={"title": request.POST["title"], "body": body},
@@ -860,6 +862,7 @@ class ManageGitHubIssue(UpdateView):
 
                     json_response = response.json()
                     self.object.github_issue = json_response["number"]
+                    self.object.github_repository_name = request.POST["repository"]
                     self.object.save()
 
                     messages.success(request, _("Le ticket a bien été créé."))
