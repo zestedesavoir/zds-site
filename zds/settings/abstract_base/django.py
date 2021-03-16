@@ -104,7 +104,7 @@ MIDDLEWARE = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "zds.utils.ThreadLocals",
     "zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware",
-    "zds.middlewares.enablematomomiddleware.EnableMatomoMiddleware",
+    "zds.middlewares.matomomiddleware.MatomoMiddleware",
     "zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware",
 )
 

@@ -68,8 +68,9 @@ ZDS_APP = {
         "la communauté.",
         "googleAnalyticsID": zds_config.get("google_analytics_id"),
         "googleTagManagerID": zds_config.get("google_tag_manager_id"),
-        "matomoID": zds_config.get("matomo_id", 3),
+        "matomoSiteID": zds_config.get("matomo_site_id", 3),
         "matomoUrl": zds_config.get("matomo_url", "https://matomo.firm1.eu"),
+        "matomoTokenAuth": zds_config.get("matomo_token_auth", "b8f815cd5ad1e90af9d03c1dd8a544d5"),
         "association": {
             "name": "Zeste de Savoir",
             "fee": zds_config.get("association_fee", "20 €"),
