@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forum', '0021_remove_post_is_potential_spam'),
+        ("forum", "0021_remove_post_is_potential_spam"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='topic',
-            name='github_repository_name',
-            field=models.CharField(blank=True, max_length=100, null=True, verbose_name='Nom du dépôt GitHub'),
+            model_name="topic",
+            name="github_repository_name",
+            field=models.CharField(blank=True, max_length=100, null=True, verbose_name="Nom du dépôt GitHub"),
         ),
     ]
