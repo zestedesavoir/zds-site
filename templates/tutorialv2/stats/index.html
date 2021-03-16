@@ -39,24 +39,19 @@
                     {% endblocktrans %}
             {% endif %}
         </h2>
-
         <!-- Tab links -->
         <div class="tab">
             <span class="tablinks" tabindex="0" id="tab-view-graph">{% trans "Pages vues" %}</span>
-            <span class="tablinks" tabindex="0" id="tab-visit-time-graph">{% trans "Temps de lecture" %}</span>
-            <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visiteurs" %}</span>
-            <span class="tablinks" tabindex="0" id="tab-new-users-graph">{% trans "Nombre de nouveaux visiteurs" %}</span>
-            <span class="tablinks" tabindex="0" id="tab-sessions-graph">{% trans "Nombre de sessions" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-visit-time-graph">{% trans "Temps moyen de lecture" %}</span>
+            <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visiteurs uniques" %}</span>
         </div>
         <!-- Tab content -->
-        {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" metric="pageviews" %}
-        {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps de lecture (en secondes)" canvas_id="visit-time-graph" metric="avgTimeOnPage" %}
-        {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs" canvas_id="users-graph" metric="users" %}
-        {% include "misc/graph.part.html" with tab_name="tab-new-users-graph-content" graph_title="Évolution du nombre de nouveaux visiteurs" canvas_id="new-users-graph" metric="newUsers" %}
-        {% include "misc/graph.part.html" with tab_name="tab-sessions-graph-content" graph_title="Évolution du nombre de sessions" canvas_id="sessions-graph" metric="sessions" %}
+        {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" report_key="nb_hits" %}
+        {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps moyen lecture (en secondes)" canvas_id="visit-time-graph" report_key="avg_time_on_page" %}
+        {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs uniques" canvas_id="users-graph" report_key="nb_uniq_visitors" %}
 
 
-        {% if cumulative_stats_by_url %}
+        {% if cumulative_stats %}
             {% if display == 'global' %}
                 {% if form.non_field_errors %}
                     <p class="content-wrapper alert-box warning">
@@ -71,23 +66,21 @@
                     <th>{% trans "Partie" %}</th>
                     <th>{% trans "Vues" %}</th>
                     <th>{% trans "Temps moyen sur la page" %}</th>
-                    <th>{% trans "Visiteurs (Nouveaux)" %}</th>
-                    <th>{% trans "Sessions" %}</th>
+                    <th>{% trans "Visiteurs uniques" %}</th>
                     {% if display == 'global' %}<th></th>{% endif %}
                 </thead>
                 <tbody>
-                    {% for view in cumulative_stats_by_url %}
+                    {% for url, view in cumulative_stats.items %}
                         <tr>
-                            <td class="level-{{view.url.level}}">
-                                <a href="{{ view.url.url }}">{{ view.url.name }}</a>
+                            <td class="level-{{url.level}}">
+                                <a href="{{ view.url.url }}">{{ url.name }}</a>
                                 {% if display != 'details' %}
-                                - <a href="?urls={{ view.url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
+                                - <a href="?urls={{ url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
                                 {% endif %}
                             </td>
-                            <td>{{ view.pageviews }}</td>
-                            <td>{{ view.avgTimeOnPage|seconds_to_duration }}</td>
-                            <td>{{ view.users }} ({{ view.newUsers }})</td>
-                            <td>{{ view.sessions }}</td>
+                            <td>{{ view.nb_hits }}</td>
+                            <td>{{ view.avg_time_on_page|seconds_to_duration }}</td>
+                            <td>{{ view.nb_uniq_visitors }}</td>
                             {% if display == 'global' %}
                                 <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ view.url.url }}" type="checkbox"></td>
                             {% endif %}
@@ -107,11 +100,28 @@
 
         <hr class="clearfix">
         <div>
-            <section class="content-col-2">
-                <h2>{% trans "Liens entrants vers ces pages" %}</h2>
+            <section class="content-col-3">
+                <h2>{% trans "Types de reférent vers ces pages" %}</h2>
+                <table class="stat-table fullwidth">
+                        <thead>
+                            <th>{% trans "Type" %}</th>
+                            <th>{% trans "Visites" %}</th>
+                        </thead>
+                        <tbody>
+                        {% for category, visits in type_referrers.items %}
+                            <tr>
+                                <td>{{ category }}</td>
+                                <td>{{ visits }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+            </section>
+            <section class="content-col-3">
+                <h2>{% trans "Sites entrants vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                     <thead>
-                        <th>{% trans "Liens" %}</th>
+                        <th>{% trans "Site" %}</th>
                         <th>{% trans "Visites" %}</th>
                     </thead>
                     <tbody>
@@ -124,8 +134,8 @@
                     </tbody>
                 </table>
             </section>
-            <section class="content-col-2">
-                <h2>{% trans "Mots-clés des moteurs de recherche vers ces pages" %}</h2>
+            <section class="content-col-3">
+                <h2>{% trans "Mots-clés vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                         <thead>
                             <th>{% trans "Mot-clés" %}</th>
@@ -148,10 +158,6 @@
             <h3>{% trans "Visiteurs" %}</h3>
             <p>
                 {% trans "Les Visiteurs, parfois appelé VU ou Visiteurs Uniques, correspondent au nombre d’utilisateurs uniques ayant consulté votre site. Un visiteur est considéré comme nouveau si c’est son premier passage sur la page. La mesure de Google est plutôt fiable sur le dédoublonnage grâce à ses outils de tracking poussés. Cependant elle ne doit pas être prise pour valeur exacte (l’outil n’étant par exemple pas considéré comme outil de mesure d’audience parfait par certains organismes officiels)." %}
-            </p>
-            <h3>{% trans "Sessions" %}</h3>
-            <p>
-                {% trans "Les sessions sont une mesure similaire au nombre de visites. Elles symbolisent le passage d’un visiteur. Tant que le visiteur est sur le site et actif, une seule session est comptée. Si l’utilisateur ne fait rien ou quitte le site pendant plus de 5 minutes, alors une nouvelle session démarre." %}
             </p>
             <h3>{% trans "Vues" %}</h3>
             <p>
