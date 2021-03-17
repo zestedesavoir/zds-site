@@ -130,7 +130,8 @@ def get_github_issue_url(topic):
             repository_name = topic.github_repository_name
         else:
             repository_name = "zds-site"
-        return "{}/{}".format(get_repository(repository_name)["bugtracker"], topic.github_issue)
+        bugtracker = get_repository(repository_name)["bugtracker"]
+        return f"{bugtracker}/{topic.github_issue}"
 
 
 @register.filter(name="waiting_count")
