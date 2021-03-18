@@ -113,20 +113,16 @@ ZDS_APP = {
         },
         "cnil": "1771020",
     },
-    "repositories": [
-        {
-            "name": "zds-site",
-            "url": "https://github.com/zestedesavoir/zds-site",
-            "bugtracker": "https://github.com/zestedesavoir/zds-site/issues",
-            "api": "https://api.github.com/repos/zestedesavoir/zds-site",
-        },
-        {
-            "name": "zmarkdown",
-            "url": "https://github.com/zestedesavoir/zmarkdown",
-            "bugtracker": "https://github.com/zestedesavoir/zmarkdown/issues",
-            "api": "https://api.github.com/repos/zestedesavoir/zmarkdown",
-        },
-    ],
+    "github_projects": {
+        "base_url": "https://github.com/{}".format,
+        "bugtracker": "https://github.com/{}/issues".format,
+        "issues_api": "https://api.github.com/repos/{}/issues".format,
+        "default_repository": "zestedesavoir/zds-site",
+        "repositories": [
+            "zestedesavoir/zds-site",
+            "zestedesavoir/zmarkdown",
+        ],
+    },
     "member": {
         "bot_account": zds_config.get("member_bot_username", "bot"),
         "anonymous_account": zds_config.get("member_anonymous_username", "anonymous"),

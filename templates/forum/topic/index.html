@@ -271,7 +271,7 @@
                                 {% csrf_token %}
                                 <select name="repository">
                                     {% for repo in repositories %}
-                                        <option value="{{ repo.name }}">{{ repo.name }}</option>
+                                        <option value="{{ repo }}">{{ repo }}</option>
                                     {% endfor %}
                                 </select>
                                 <p>
