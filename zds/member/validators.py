@@ -82,6 +82,8 @@ def validate_zds_username(value, check_username_available=True):
     skeleton_user_count = Profile.objects.filter(username_skeleton=Profile.find_username_skeleton(value)).count()
     if "," in value:
         msg = _("Le nom d'utilisateur ne peut contenir de virgules")
+    if "/" in value:
+        msg = _("Le nom d'utilisateur ne peut contenir de barres obliques")
     elif contains_utf8mb4(value):
         msg = _("Le nom d'utilisateur ne peut pas contenir des caractères utf8mb4")
     elif check_username_available and user_count > 0:
