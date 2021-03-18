@@ -6,13 +6,14 @@
 <div id="{{ tab_name }}" class="tabcontent">
     <div class="stat-graph">
         <h3>{% trans graph_title %}</h3>
-        {% for url, report in reports.items %}
         <canvas
             id="{{ canvas_id }}"
+                {% for url, report in reports.items %}
                 data-views-{{ forloop.counter0 }}="[{% for view in report|get_item:report_key|get_tuple_item:1 %}{{view}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                 data-label-views-{{ forloop.counter0 }}="{{url.name}}"
-            data-time='[{% for view in report|get_item:report_key|get_tuple_item:0 %}"{{view}}"{% if not forloop.last %},{% endif %} {% endfor %}]'>
+            data-time='[{% for view in report|get_item:report_key|get_tuple_item:0 %}"{{view}}"{% if not forloop.last %},{% endif %} {% endfor %}]'
+            {% endfor %}
+            >
         </canvas>
-        {% endfor %}
     </div>
 </div>
