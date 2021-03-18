@@ -299,8 +299,13 @@
                         <form action="{% url 'manage-issue' topic.pk %}" method="post" id="link-issue" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
-                                {% trans "Quel est le numéro du ticket GitHub que vous souhaitez associer ?" %}
+                                {% trans "Quel est le dépôt et le numéro du ticket GitHub que vous souhaitez associer ?" %}
                             </p>
+                            <select name="repository">
+                                {% for repo in repositories %}
+                                    <option value="{{ repo }}">{{ repo }}</option>
+                                {% endfor %}
+                            </select>
                             <input type="number" name="issue" min="1" placeholder="{% trans "Numéro du ticket (sans #)" %}" required>
                             <button type="submit" name="link" class="btn btn-submit">{% trans 'Associer' %}</button>
                         </form>

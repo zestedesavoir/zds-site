@@ -832,6 +832,9 @@ class ManageGitHubIssue(UpdateView):
                 self.object.github_issue = int(request.POST["issue"])
                 if self.object.github_issue < 1:
                     raise ValueError
+                self.object.github_repository_name = request.POST["repository"]
+                if request.POST["repository"] not in settings.ZDS_APP["github_projects"]["repositories"]:
+                    raise ValueError
                 self.object.save()
 
                 messages.success(request, _("Le ticket a bien été associé."))
