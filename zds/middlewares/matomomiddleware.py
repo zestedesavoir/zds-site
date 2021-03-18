@@ -77,7 +77,7 @@ class MatomoMiddleware:
             )
 
     def process_response(self, request, response):
-        if request.META.get("HTTP_SEC_FETCH_DEST") != "document" or response.status_code not in tracked_status_code:
+        if request.META.get("CONTENT_TYPE") != "text/plain" or response.status_code not in tracked_status_code:
             return response
         # only on get
         if request.method in tracked_methods:

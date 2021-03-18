@@ -73,7 +73,7 @@
                     {% for url, view in cumulative_stats.items %}
                         <tr>
                             <td class="level-{{url.level}}">
-                                <a href="{{ view.url.url }}">{{ url.name }}</a>
+                                <a href="{{ url.url }}">{{ url.name }}</a>
                                 {% if display != 'details' %}
                                 - <a href="?urls={{ url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
                                 {% endif %}
@@ -82,14 +82,14 @@
                             <td>{{ view.avg_time_on_page|seconds_to_duration }}</td>
                             <td>{{ view.nb_uniq_visitors }}</td>
                             {% if display == 'global' %}
-                                <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ view.url.url }}" type="checkbox"></td>
+                                <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ url.url }}" type="checkbox"></td>
                             {% endif %}
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
             {% if display == 'global' %}
-                <button type="submit" class="btn">{% trans "Comparer" %}</button>
+                <input type="submit" class="btn">{% trans "Comparer" %}</input>
                 </form>
             {% elif not content.has_extracts %}
                 <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
@@ -157,7 +157,7 @@
             <h2>{% trans "Lexique" %}</h2>
             <h3>{% trans "Visiteurs" %}</h3>
             <p>
-                {% trans "Les Visiteurs, parfois appelé VU ou Visiteurs Uniques, correspondent au nombre d’utilisateurs uniques ayant consulté votre site. Un visiteur est considéré comme nouveau si c’est son premier passage sur la page. La mesure de Google est plutôt fiable sur le dédoublonnage grâce à ses outils de tracking poussés. Cependant elle ne doit pas être prise pour valeur exacte (l’outil n’étant par exemple pas considéré comme outil de mesure d’audience parfait par certains organismes officiels)." %}
+                {% trans "Les Visiteurs, correspondent au nombre d’utilisateurs uniques ayant consulté votre site. La mesure de Matomo reste perfectible sur le dédoublonnage, autrement dit elle ne doit pas être prise pour valeur exacte (l’outil n’étant par exemple pas considéré comme outil de mesure d’audience parfait par certains organismes officiels)." %}
             </p>
             <h3>{% trans "Vues" %}</h3>
             <p>

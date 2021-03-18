@@ -63,7 +63,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         data_request = {
             "module": "API",
-            "method": "Referrers.getWebsites",
+            "method": method,
             "format": "json",
             "idSite": self.matomo_site_id,
             "date": date_ranges,
@@ -89,7 +89,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             "date": date_ranges,
             "period": "day",
             "pageUrl": absolute_url,
-            "segment": ",".join([param_url]),
+            # "segment": ",".join([param_url]),
         }
 
         response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
@@ -154,8 +154,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return "comparison"
 
     def get_cumulative(self, stats):
-        cumul = {}
+        cumul = {"total": 0}
         for info_date, infos_stat in stats.items():
+            cumul["total"] += len(infos_stat)
             for info_stat in infos_stat:
                 for key, val in info_stat.items():
                     if type(val) == str:
@@ -165,6 +166,27 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     else:
                         cumul[key] = int(val)
         return cumul
+
+    def merge_ref_to_data(self, metrics, refs):
+        for key, item in refs.items():
+            if key in metrics:
+                metrics[key] += item
+            else:
+                metrics[key] = item
+        return metrics
+
+    def merge_report_to_global(self, reports, fields):
+        metrics = {}
+        for key, item in reports.items():
+            for field, is_avg in fields:
+                if field in metrics:
+                    metrics[field] = (
+                        metrics[field][0],
+                        [i + j for (i, j) in zip(metrics[field][1], item.get(field)[1])],
+                    )
+                else:
+                    metrics[field] = item.get(field)
+        return metrics
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -179,6 +201,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         referrers = {}
         type_referrers = {}
         keywords = {}
+        report_field = [("nb_uniq_visitors", False), ("nb_hits", False), ("avg_time_on_page", True)]
+
         for url in urls:
             all_stats = self.get_all_stats(url, start_date, end_date)
             cumul_stats = self.get_cumulative(all_stats)
@@ -187,18 +211,22 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             all_keywords = self.get_all_refs(url, start_date, end_date, "Referrers.getKeywords")
             reports[url] = {}
             cumulative_stats[url] = {}
-            metrics = [("nb_uniq_visitors", False), ("nb_hits", False), ("avg_time_on_page", True)]
-            for item, is_avg in metrics:
+
+            for item, is_avg in report_field:
                 reports[url][item] = self.get_stat_metrics(all_stats, item)
                 if is_avg:
-                    count_dates = len(all_stats.keys())
-                    cumulative_stats[url][item] = cumul_stats.get(item, 0) / count_dates
+                    cumulative_stats[url][item] = 0
+                    if cumul_stats.get("total") > 0:
+                        cumulative_stats[url][item] = cumul_stats.get(item, 0) / cumul_stats.get("total")
                 else:
                     cumulative_stats[url][item] = cumul_stats.get(item, 0)
 
-            referrers = self.get_ref_metrics(all_referrers)
-            type_referrers = self.get_ref_metrics(all_type_referrers)
-            keywords = self.get_ref_metrics(all_keywords)
+            referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_referrers))
+            type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_type_referrers))
+            keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_keywords))
+
+        if display_mode.lower() == "global":
+            reports = {NamedUrl(display_mode, "", 0): self.merge_report_to_global(reports, report_field)}
 
         context.update(
             {
