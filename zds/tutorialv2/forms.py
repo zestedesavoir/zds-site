@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
 from zds.utils.forms import TagValidator, IncludeEasyMDE
+from zds.utils.validators import with_svg_validator
 
 
 class FormWithTitle(forms.Form):
@@ -237,10 +238,11 @@ class ContentForm(ContainerForm):
         required=False,
     )
 
-    image = forms.ImageField(
+    image = forms.FileField(
         label=_("Sélectionnez le logo du contenu (max. {} Ko).").format(
             str(settings.ZDS_APP["gallery"]["image_max_size"] / 1024)
         ),
+        validators=[with_svg_validator],
         required=False,
     )
 
