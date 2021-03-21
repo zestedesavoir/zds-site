@@ -97,11 +97,22 @@ RAVEN_CONFIG = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,
+    "formatters": {
+        "verbose": {"format": "[%(levelname)s] -- %(asctime)s -- %(name)s : %(message)s"},
+    },
     "handlers": {
         "sentry": {
             "level": "WARNING",
             "class": "raven.handlers.logging.SentryHandler",
             "dsn": RAVEN_CONFIG["dsn"],
+        },
+        "middlewares_log": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "maxBytes": 1024 * 1024 * 10,
+            "backupCount": 50,
+            "filename": "/var/log/zds/middlewares.log",
+            "formatter": "verbose",
         },
     },
     "loggers": {
@@ -109,6 +120,11 @@ LOGGING = {
             "handlers": ["sentry"],
             "propagate": True,
             "level": "DEBUG",
+        },
+        "zds.middlewares": {
+            "handlers": ["middlewares_log"],
+            "propagate": True,
+            "level": "INFO",
         },
         "zds.utils.templatetags.emarkdown": {
             "propagate": False,

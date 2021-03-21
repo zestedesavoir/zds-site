@@ -1,7 +1,5 @@
 import datetime
 from copy import deepcopy
-from random import randint, uniform, shuffle
-from unittest import mock
 
 from django.conf import settings
 from django.urls import reverse
@@ -19,150 +17,6 @@ overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
 overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
 overridden_zds_app["content"]["extra_content_generation_policy"] = "SYNC"
-
-
-class MockGAService:
-    def __init__(self):
-        self.graphs_data_report = None
-        self.table_data_report = None
-        self.referrer_report = None
-        self.keyword_report = None
-
-    def reports(self):
-        return self
-
-    def batchGet(self, body):
-        report_requests = body["reportRequests"]
-        self.graphs_data_report = report_requests[0]
-        self.table_data_report = report_requests[1]
-        self.referrer_report = report_requests[2]
-        self.keyword_report = report_requests[3]
-
-        return self
-
-    def get_metric_headers(self, metrics):
-        response = []
-        for metric in metrics:
-            if "time" in metric["expression"].lower():
-                h_type = "TIME"
-            else:
-                h_type = "INTEGER"
-
-            response.append({"name": metric["expression"], "type": h_type})
-        return response
-
-    def get_metric_values(self, metrics):
-        response = []
-        for metric in metrics:
-            if "time" in metric["expression"].lower():
-                response.append(uniform(0, 100))
-            else:
-                response.append(randint(0, 100))
-        return response
-
-    def init_empty_metrics(self, metrics):
-        empty = []
-        for metric in metrics:
-            if "time" in metric["expression"].lower():
-                empty.append(0.0)
-            else:
-                empty.append(0)
-        return empty
-
-    def get_total(self, rows, metrics):
-        total = self.init_empty_metrics(metrics)
-        for row in rows:
-            total = [x + y for x, y in zip(total, row["metrics"][0]["values"])]
-        return total
-
-    def get_minimum(self, rows, metrics):
-        minimum = self.init_empty_metrics(metrics)
-        for row in rows:
-            minimum = [min(x, y) for x, y in zip(minimum, row["metrics"][0]["values"])]
-        return minimum
-
-    def get_maximum(self, rows, metrics):
-        maximum = self.init_empty_metrics(metrics)
-        for row in rows:
-            maximum = [max(x, y) for x, y in zip(maximum, row["metrics"][0]["values"])]
-        return maximum
-
-    def gen_date_row(self, entry):
-        rows = []
-        dateRanges = entry["dateRanges"]
-        start_date = datetime.datetime.strptime(dateRanges["startDate"], "%Y-%m-%d")
-        end_date = datetime.datetime.strptime(dateRanges["endDate"], "%Y-%m-%d")
-        delta = end_date - start_date
-        for i in range(delta.days + 1):
-            rows.append(
-                {
-                    "dimensions": [(start_date + datetime.timedelta(i)).strftime("%Y%m%d")],
-                    "metrics": [{"values": self.get_metric_values(entry["metrics"])}],
-                }
-            )
-        return rows
-
-    def gen_page_path_row(self, entry):
-        rows = []
-        paths = entry["dimensionFilterClauses"][0]["filters"]
-        for path in paths:
-            rows.append(
-                {"dimensions": [path["expressions"]], "metrics": [{"values": self.get_metric_values(entry["metrics"])}]}
-            )
-        return rows
-
-    def gen_full_referrer_row(self, entry):
-        ref_src = ["google", "stackoverflow.com", "(direct)", "", None]
-        shuffle(ref_src)
-        nb_src = randint(0, len(ref_src))
-        rows = []
-        for src in ref_src[:nb_src]:
-            rows.append({"dimensions": [src], "metrics": [{"values": [randint(0, 100)]}]})
-        return rows
-
-    def gen_keyword_row(self, entry):
-        key_src = ["(not set)", "(not provided)", "apprendre", "", None]
-        shuffle(key_src)
-        nb_src = randint(0, len(key_src))
-        rows = []
-        for src in key_src[:nb_src]:
-            rows.append({"dimensions": [src], "metrics": [{"values": [randint(0, 100)]}]})
-        return rows
-
-    def execute(self):
-        reports = []
-        for entry in [self.graphs_data_report, self.table_data_report, self.referrer_report, self.keyword_report]:
-            if entry["dimensions"][0]["name"] == "ga:date":
-                rows = self.gen_date_row(entry)
-            elif entry["dimensions"][0]["name"] == "ga:pagePath":
-                rows = self.gen_page_path_row(entry)
-            elif entry["dimensions"][0]["name"] == "ga:fullReferrer":
-                rows = self.gen_full_referrer_row(entry)
-            elif entry["dimensions"][0]["name"] == "ga:keyword":
-                rows = self.gen_keyword_row(entry)
-            dims = []
-            for dim in entry["dimensions"]:
-                dims.append(dim["name"])
-            reports.append(
-                {
-                    "columnHeader": {
-                        "dimensions": dims,
-                        "metricHeader": {"metricHeaderEntries": self.get_metric_headers(entry["metrics"])},
-                    },
-                    "data": {
-                        "rows": rows,
-                        "totals": [{"values": self.get_total(rows, entry["metrics"])}],
-                        "rowCount": len(rows),
-                        "minimums": [{"values": self.get_minimum(rows, entry["metrics"])}],
-                        "maximums": [{"values": self.get_maximum(rows, entry["metrics"])}],
-                    },
-                }
-            )
-        return {"reports": reports}
-
-
-def fake_config_ga_credentials(view):
-    return MockGAService()
 
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
@@ -248,20 +102,16 @@ class StatTests(TestCase, TutorialTestMixin):
             resp = self.get_response_by_date(today, after_duration)
 
         self.assertEqual(resp.status_code, 200)
-        for k, v in resp.context_data["stats"][0]["stats"].items():
-            self.assertEqual(len(v), duration + 1)
+        for k, v in resp.context_data["reports"].items():
+            for metric, date_val in v.items():
+                self.assertEqual(len(date_val[0]), duration + 1)
         self.assertEqual(len(resp.context_data["urls"]), 1 + self.nb_part + self.nb_chapter)
-        self.assertEqual(len(resp.context_data["cumulative_stats_by_url"]), 1 + self.nb_part + self.nb_chapter)
-        for cum_stat in resp.context_data["cumulative_stats_by_url"]:
-            self.assertEqual(cum_stat["pageviews"] >= 0, True)
-            self.assertEqual(cum_stat["avgTimeOnPage"] >= 0, True)
-            self.assertEqual(cum_stat["users"] >= 0, True)
-            self.assertEqual(cum_stat["newUsers"] >= 0, True)
-            self.assertEqual(cum_stat["sessions"] >= 0, True)
+        self.assertEqual(len(resp.context_data["cumulative_stats"]), 1 + self.nb_part + self.nb_chapter)
+        for urls, cum_stat in resp.context_data["cumulative_stats"].items():
+            self.assertEqual(cum_stat["nb_hits"] >= 0, True)
+            self.assertEqual(cum_stat["avg_time_on_page"] >= 0, True)
+            self.assertEqual(cum_stat["nb_uniq_visitors"] >= 0, True)
 
-    @mock.patch(
-        "zds.tutorialv2.views.statistics.ContentStatisticsView.config_ga_credentials", fake_config_ga_credentials
-    )
     def test_query_date_parameter_duration(self):
         self.client.force_login(self.user_author)
         # By default we only have the last 7 days
@@ -272,9 +122,6 @@ class StatTests(TestCase, TutorialTestMixin):
         self.check_success_result_by_duration(30)
         self.check_success_result_by_duration(365)
 
-    @mock.patch(
-        "zds.tutorialv2.views.statistics.ContentStatisticsView.config_ga_credentials", fake_config_ga_credentials
-    )
     def test_query_string_parameter_duration(self):
 
         # By default we only have the last 7 days
@@ -287,12 +134,10 @@ class StatTests(TestCase, TutorialTestMixin):
         # If a weird value is given, we fallback on default case
         resp = self.client.get(url + "?start_date=weird")
         self.assertEqual(resp.status_code, 200)
-        for k, v in resp.context_data["stats"][0]["stats"].items():
-            self.assertEqual(len(v), default_duration + 1)
+        for k, v in resp.context_data["reports"].items():
+            for metric, date_val in v.items():
+                self.assertEqual(len(date_val[0]), default_duration + 1)
 
-    @mock.patch(
-        "zds.tutorialv2.views.statistics.ContentStatisticsView.config_ga_credentials", fake_config_ga_credentials
-    )
     def test_end_before_start_date_parameter_duration(self):
         today = datetime.datetime.today()
         before_seven_days = today - datetime.timedelta(days=7)
