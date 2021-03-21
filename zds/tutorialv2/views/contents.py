@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView
 
+from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery, Image
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.models import Profile
@@ -45,6 +46,15 @@ from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
 
 logger = logging.getLogger(__name__)
+
+
+def create_content_gallery(form):
+    gal = Gallery()
+    gal.title = form.cleaned_data["title"]
+    gal.slug = slugify(form.cleaned_data["title"])
+    gal.pubdate = datetime.now()
+    gal.save()
+    return gal
 
 
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
@@ -83,26 +93,23 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
-        gal = Gallery()
-        gal.title = form.cleaned_data["title"]
-        gal.slug = slugify(form.cleaned_data["title"])
-        gal.pubdate = datetime.now()
-        gal.save()
+        gal = create_content_gallery(form)
 
-        self.content.gallery = gal
-        self.content.save()
         # create image:
         if "image" in self.request.FILES:
-            img = Image()
-            img.physical = self.request.FILES["image"]
-            img.gallery = gal
-            img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"].name)
+            mixin = ImageCreateMixin()
+            mixin.gallery = gal
+            try:
+                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
+            except NotAnImage:
+                form.add_error("image", _("Image invalide"))
+                return super().form_invalid(form)
             img.pubdate = datetime.now()
-            img.save()
-            self.content.image = img
-
+        self.content.gallery = gal
         self.content.save()
+        if "image" in self.request.FILES:
+            self.content.image = img
+            self.content.save()
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
@@ -268,13 +275,15 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         gal.update(update=datetime.now())
 
         if "image" in self.request.FILES:
-            img = Image()
-            img.physical = self.request.FILES["image"]
-            img.gallery = publishable.gallery
-            img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"].name)
+            mixin = ImageCreateMixin()
+            # use .first because we need an instance of Gallery, not a queryset
+            mixin.gallery = gal.first() or create_content_gallery(form)
+            try:
+                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
+            except NotAnImage:
+                form.add_error("image", _("Image invalide"))
+                return super().form_invalid(form)
             img.pubdate = datetime.now()
-            img.save()
             publishable.image = img
 
         publishable.save(force_slug_update=title_is_changed)
