@@ -79,7 +79,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def get_all_stats(self, url, start, end):
         date_ranges = "{0},{1}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
         absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
-        param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
 
         data_request = {
             "module": "API",
@@ -89,7 +88,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             "date": date_ranges,
             "period": "day",
             "pageUrl": absolute_url,
-            # "segment": ",".join([param_url]),
         }
 
         response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
@@ -97,7 +95,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         data = response_matomo.json()
         return data
 
-    def get_stat_metrics(self, data, metric_name):
+    @staticmethod
+    def get_stat_metrics(data, metric_name):
         x = []
         y = []
         for key, val in data.items():
@@ -109,7 +108,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         return (x, y)
 
-    def get_ref_metrics(self, data):
+    @staticmethod
+    def get_ref_metrics(data):
         refs = {}
         for key, val in data.items():
             for item in val:
@@ -153,7 +153,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             return "global"
         return "comparison"
 
-    def get_cumulative(self, stats):
+    @staticmethod
+    def get_cumulative(stats):
         cumul = {"total": 0}
         for info_date, infos_stat in stats.items():
             cumul["total"] += len(infos_stat)
@@ -167,7 +168,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                         cumul[key] = int(val)
         return cumul
 
-    def merge_ref_to_data(self, metrics, refs):
+    @staticmethod
+    def merge_ref_to_data(metrics, refs):
         for key, item in refs.items():
             if key in metrics:
                 metrics[key] += item
@@ -175,7 +177,8 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 metrics[key] = item
         return metrics
 
-    def merge_report_to_global(self, reports, fields):
+    @staticmethod
+    def merge_report_to_global(reports, fields):
         metrics = {}
         for key, item in reports.items():
             for field, is_avg in fields:

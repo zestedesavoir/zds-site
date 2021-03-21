@@ -59,7 +59,7 @@ class MatomoMiddleware:
         client_user_agent = request.META.get("HTTP_USER_AGENT", "")
         client_referer = request.META.get("HTTP_REFERER", "")
         client_accept_language = request.META.get("HTTP_ACCEPT_LANGUAGE", "")
-        client_url = "{0}://{1}{2}".format(request.scheme, request.get_host(), request.path)
+        client_url = f"{request.scheme}://{request.get_host()}{request.path}"
         client_id = None
         if request.user.is_authenticated:
             client_id = request.user.id
@@ -84,7 +84,10 @@ class MatomoMiddleware:
             for p in excluded_paths:
                 if request.path.startswith(p):
                     return response
-            self.matomo_track(request)
+            try:
+                self.matomo_track(request)
+            except Exception as e:
+                logger.error(f"Something failed : {str(e)}")
 
         return response
 
