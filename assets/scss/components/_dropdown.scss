@@ -51,13 +51,12 @@ details.dropdown {
             content: " ";
             position: absolute;
             display: block;
-            width: 0;
-            height: 0;
+            width: #{$dropdown-arrow-height * 2};
+            height: #{$dropdown-arrow-height};
             top: -#{$dropdown-arrow-height};
             right: var(--dropdown-arrow-offset-right);
-            border: #{$dropdown-arrow-height} solid transparent;
-            border-top: 0;
-            border-bottom-color: $true-white;
+            background-color: $true-white;
+            clip-path: polygon(0 100%, 50% 0, 100% 100%);
         }
     }
 }
