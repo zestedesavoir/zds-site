@@ -44,28 +44,18 @@ details.dropdown {
         z-index: 21;
 
         background-color: $true-white;
-        border-top: 1px solid rgba($true-black, .1);
-        @include shadow-2;
+        filter: drop-shadow(0 3px 6px hsla(0, 0%, 0%, .15))
+                drop-shadow(0 2px 4px hsla(0, 0%, 0%, .12));
 
-        &::before,
-        &::after {
+        &::before {
             content: " ";
             position: absolute;
             display: block;
             width: 0;
             height: 0;
-        }
-        &::before {
             top: -#{$dropdown-arrow-height};
             right: var(--dropdown-arrow-offset-right);
             border: #{$dropdown-arrow-height} solid transparent;
-            border-top: 0;
-            border-bottom-color: rgba($true-black, .1);
-        }
-        &::after {
-            top: -#{$dropdown-arrow-height - 1px};
-            right: calc(var(--dropdown-arrow-offset-right) + 1px);
-            border: #{$dropdown-arrow-height - 1px} solid transparent;
             border-top: 0;
             border-bottom-color: $true-white;
         }
