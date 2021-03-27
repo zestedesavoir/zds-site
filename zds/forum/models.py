@@ -279,7 +279,13 @@ class Topic(AbstractESDjangoIndexable):
         """
         # we need the author prefetching as this method is widely used in templating directly or with
         # all the mess arround last_answer and last_read message
-        return Post.objects.filter(topic=self).select_related("author").order_by("position").first()
+        return (
+            Post.objects.filter(topic=self)
+            .select_related("topic")
+            .select_related("author")
+            .order_by("position")
+            .first()
+        )
 
     def add_tags(self, tag_collection):
         """
@@ -314,6 +320,9 @@ class Topic(AbstractESDjangoIndexable):
         except TopicRead.DoesNotExist:
             return self.first_post()
 
+    def resolve_first_post_absolute_url(self):
+        return self.first_post().get_absolute_url()
+
     def resolve_last_read_post_absolute_url(self):
         """resolve the url that leads to the last post the current user has read. If current user is \
         anonymous, just lead to the thread start.
@@ -322,17 +331,14 @@ class Topic(AbstractESDjangoIndexable):
         :rtype: str
         """
         user = get_current_user()
-        if user is None or not user.is_authenticated:
+        try:
+            pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
+            page_nb = 1
+            if pos > settings.ZDS_APP["forum"]["posts_per_page"]:
+                page_nb += (pos - 1) // settings.ZDS_APP["forum"]["posts_per_page"]
+            return f"{self.get_absolute_url()}?page={page_nb}#p{pk}"
+        except TopicRead.DoesNotExist:
             return self.first_unread_post().get_absolute_url()
-        else:
-            try:
-                pk, pos = self.resolve_last_post_pk_and_pos_read_by_user(user)
-                page_nb = 1
-                if pos > settings.ZDS_APP["forum"]["posts_per_page"]:
-                    page_nb += (pos - 1) // settings.ZDS_APP["forum"]["posts_per_page"]
-                return f"{self.get_absolute_url()}?page={page_nb}#p{pk}"
-            except TopicRead.DoesNotExist:
-                return self.first_unread_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
         """get the primary key and position of the last post the user read
