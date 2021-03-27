@@ -4,7 +4,6 @@ from django import template
 from django.utils.translation import gettext_lazy as _
 from django.db.models import F
 
-from zds.forum.models import is_read as topic_is_read
 from zds.tutorialv2.models.database import Validation
 from zds.notification.models import (
     TopicAnswerSubscription,
@@ -20,11 +19,6 @@ from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.member.models import NewEmailProvider
 
 register = template.Library()
-
-
-@register.filter("is_read")
-def is_read(topic):
-    return topic_is_read(topic)
 
 
 @register.filter("is_followed")

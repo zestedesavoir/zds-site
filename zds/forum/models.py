@@ -213,6 +213,7 @@ class Topic(AbstractESDjangoIndexable):
     tags = models.ManyToManyField(Tag, verbose_name="Tags du forum", blank=True, db_index=True)
 
     objects = TopicManager()
+    _first_post = None
 
     def __str__(self):
         return self.title
@@ -277,15 +278,17 @@ class Topic(AbstractESDjangoIndexable):
         """
         :return: the first post of a topic, written by topic's author.
         """
-        # we need the author prefetching as this method is widely used in templating directly or with
-        # all the mess arround last_answer and last_read message
-        return (
-            Post.objects.filter(topic=self)
-            .select_related("topic")
-            .select_related("author")
-            .order_by("position")
-            .first()
-        )
+        if not self._first_post:
+            # we need the author prefetching as this method is widely used in templating directly or with
+            # all the mess around last_answer and last_read message
+            self._first_post = (
+                Post.objects.filter(topic=self)
+                .select_related("topic")
+                .select_related("author")
+                .order_by("position")
+                .first()
+            )
+        return self._first_post
 
     def add_tags(self, tag_collection):
         """
@@ -338,7 +341,7 @@ class Topic(AbstractESDjangoIndexable):
                 page_nb += (pos - 1) // settings.ZDS_APP["forum"]["posts_per_page"]
             return f"{self.get_absolute_url()}?page={page_nb}#p{pk}"
         except TopicRead.DoesNotExist:
-            return self.first_unread_post().get_absolute_url()
+            return self.first_post().get_absolute_url()
 
     def resolve_last_post_pk_and_pos_read_by_user(self, user):
         """get the primary key and position of the last post the user read
@@ -417,6 +420,10 @@ class Topic(AbstractESDjangoIndexable):
 
         return False
 
+    @property
+    def is_read(self):
+        return TopicRead.objects.is_topic_last_message_read(self, get_current_user())
+
     @classmethod
     def get_es_mapping(cls):
         es_mapping = super().get_es_mapping()
@@ -468,7 +475,6 @@ class Topic(AbstractESDjangoIndexable):
         else:
             if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
                 Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
-
         return super().save(*args, **kwargs)
 
 
@@ -591,22 +597,6 @@ class TopicRead(models.Model):
 
     def __str__(self):
         return f"<Sujet '{self.topic}' lu par {self.user}, #{self.post.pk}>"
-
-
-def is_read(topic, user=None):
-    """
-    Checks if the user has read the **last post** of the topic.
-    Returns false if the user read the topic except its last post.
-    Technically this is done by checking if the user has a `TopicRead` object
-    for the last post of this topic.
-    :param topic: A topic
-    :param user: A user. If undefined, the current user is used.
-    :return:
-    """
-    if user is None:
-        user = get_current_user()
-
-    return TopicRead.objects.filter(post=topic.last_message, topic=topic, user=user).exists()
 
 
 def mark_read(topic, user=None):

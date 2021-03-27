@@ -19,7 +19,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import ForumCategory, Forum, Topic, Post, is_read, mark_read, TopicRead
+from zds.forum.models import ForumCategory, Forum, Topic, Post, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
 from zds.forum import signals
@@ -215,7 +215,7 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         if self.request.user.is_authenticated:
             for post in posts:
                 signals.post_read.send(sender=post.__class__, instance=post, user=self.request.user)
-            if not is_read(self.object):
+            if not self.object.is_read:
                 mark_read(self.object)
         return context
 

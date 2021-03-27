@@ -24,11 +24,7 @@
     <div class="content-wrapper topic-list topic-list-small forum-list navigable-list"
          itemscope
          itemtype="http://schema.org/ItemList">
-        {% if user.is_authenticated %}
-            {% include "forum/includes/forums.authenticated.part.html" %}
-        {% else %}
-            {% include "forum/includes/forums.part.html" %}
-        {% endif* %}
+        {% include "forum/includes/forums.part.html" %}
     </div>
 {% endblock %}
 

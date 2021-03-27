@@ -3,6 +3,8 @@ from django.db import models
 from django.db.models import Q, F
 from model_utils.managers import InheritanceManager
 
+from zds.utils import get_current_user
+
 
 class ForumManager(models.Manager):
     """
@@ -148,6 +150,22 @@ class PostManager(InheritanceManager):
 
 
 class TopicReadManager(models.Manager):
+    def is_topic_last_message_read(self, topic, user=None):
+        """
+        Checks if the user has read the **last post** of the topic.
+        Returns false if the user read the topic except its last post.
+        Technically this is done by checking if the user has a `TopicRead` object
+        for the last post of this topic.
+        :param topic: A topic
+        :param user: A user. If undefined, the current user is used.
+        :return: ``True`` if topic has been read by user
+        """
+        if user is None or not user.is_authenticated:
+            setattr(topic, "_is_read", False)
+        if not hasattr(topic, "_is_read"):
+            setattr(topic, "_is_read", self.filter(post=topic.last_message, topic=topic, user=user).exists())
+        return getattr(topic, "_is_read")
+
     def topic_read_by_user(self, user, topic_sub_list=None):
         """get all the topic that the user has already read.
 
