@@ -61,8 +61,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                                 "user": user.username,
                             },
                         ),
-                        send_by_mail=True,
-                        direct=False,
                         hat=get_hat_from_settings("validation"),
                     )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
@@ -135,8 +133,6 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
                                 "user": user.username,
                             },
                         ),
-                        send_by_mail=True,
-                        direct=False,
                         hat=get_hat_from_settings("validation"),
                     )
             else:  # if user is incorrect or alone
