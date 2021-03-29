@@ -13,7 +13,7 @@ matomo_api_version = 1
 logger = logging.getLogger(__name__)
 tracked_status_code = [200]
 tracked_methods = ["GET"]
-excluded_paths = ["/contenus", "/mp", "/munin"]
+excluded_paths = ["/contenus", "/mp", "/munin", "/api"]
 
 
 def _background_process(queue: Queue):
@@ -32,8 +32,6 @@ def _background_process(queue: Queue):
             "m": data["datetime"].minute,
             "s": data["datetime"].second,
         }
-        if data["client_id"] is not None:
-            params["_id"] = data["client_id"]
         requests.get(
             matomo_api_url,
             params=params,
@@ -60,9 +58,6 @@ class MatomoMiddleware:
         client_referer = request.META.get("HTTP_REFERER", "")
         client_accept_language = request.META.get("HTTP_ACCEPT_LANGUAGE", "")
         client_url = f"{request.scheme}://{request.get_host()}{request.path}"
-        client_id = None
-        if request.user.is_authenticated:
-            client_id = request.user.id
         if settings.ZDS_APP["site"].get("matomo_enabled", True):
             self.queue.put(
                 {
@@ -71,7 +66,6 @@ class MatomoMiddleware:
                     "client_accept_language": client_accept_language,
                     "client_url": client_url,
                     "datetime": datetime.now().time(),
-                    "client_id": client_id,
                     "r_path": request.path,
                 }
             )
