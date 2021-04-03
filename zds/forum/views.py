@@ -143,7 +143,12 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         return context
 
     def get_object(self, queryset=None):
-        forum = Forum.objects.select_related("category").filter(slug=self.kwargs.get("forum_slug")).first()
+        forum = (
+            Forum.objects.prefetch_related("groups")
+            .select_related("category")
+            .filter(slug=self.kwargs.get("forum_slug"))
+            .first()
+        )
         if forum is None:
             raise Http404("Forum with slug {} was not found".format(self.kwargs.get("forum_slug")))
         return forum

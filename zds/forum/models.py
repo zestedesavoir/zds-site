@@ -130,7 +130,9 @@ class Forum(models.Model):
         :return: the last message on the forum, if there are any.
         """
         try:
-            return Post.objects.filter(topic__forum=self).order_by("-pubdate").all()[0]
+            last_post = Post.objects.select_related("topic").filter(topic__forum=self).order_by("-pubdate").all()[0]
+            last_post.topic.forum = self
+            return last_post
         except IndexError:
             return None
 
