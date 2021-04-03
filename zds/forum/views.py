@@ -220,7 +220,14 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         return context
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Topic, pk=self.kwargs.get("topic_pk"))
+        if queryset is None:
+            queryset = Topic.objects
+        result = (
+            queryset.filter(pk=self.kwargs.get("topic_pk")).select_related("solved_by").select_related("author").first()
+        )
+        if result is None:
+            raise Http404(f"Pas de forum avec l'identifiant {self.kwargs.get('topic_pk')}")
+        return result
 
     def get_queryset(self):
         return Post.objects.get_messages_of_a_topic(self.object.pk)

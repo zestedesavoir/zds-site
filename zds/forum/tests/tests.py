@@ -1156,14 +1156,10 @@ class ManagerTests(TestCase):
         topic.last_post = post
         topic.save()
         TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
-        self.client.force_login(author.user)
         self.assertFalse(Topic.objects.get(pk=topic.pk).is_read)
-        self.client.logout()
-        self.client.force_login(self.staff.user)
-        self.assertTrue(Topic.objects.get(pk=topic.pk).is_read)
-        self.client.logout()
-        self.client.force_login(reader.user)
-        self.assertFalse(Topic.objects.get(pk=topic.pk).is_read)
+        self.assertFalse(topic.is_read_by_user(author.user, check_auth=False))
+        self.assertTrue(topic.is_read_by_user(self.staff.user, check_auth=False))
+        self.assertFalse(topic.is_read_by_user(reader.user, check_auth=False))
 
 
 class TestMixins(TestCase):

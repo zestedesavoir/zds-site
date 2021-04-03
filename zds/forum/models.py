@@ -281,13 +281,8 @@ class Topic(AbstractESDjangoIndexable):
         if not self._first_post:
             # we need the author prefetching as this method is widely used in templating directly or with
             # all the mess around last_answer and last_read message
-            self._first_post = (
-                Post.objects.filter(topic=self)
-                .select_related("topic")
-                .select_related("author")
-                .order_by("position")
-                .first()
-            )
+            self._first_post = Post.objects.filter(topic=self).select_related("author").order_by("position").first()
+            self._first_post.topic = self
         return self._first_post
 
     def add_tags(self, tag_collection):
@@ -422,7 +417,10 @@ class Topic(AbstractESDjangoIndexable):
 
     @property
     def is_read(self):
-        return TopicRead.objects.is_topic_last_message_read(self, get_current_user())
+        return self.is_read_by_user(get_current_user())
+
+    def is_read_by_user(self, user=None, check_auth=True):
+        return TopicRead.objects.is_topic_last_message_read(self, user, check_auth)
 
     @classmethod
     def get_es_mapping(cls):
