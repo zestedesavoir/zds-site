@@ -100,6 +100,6 @@ class NotificationListAPITest(APITestCase):
 
     def create_notification_for_pm(self, sender, target):
         topic = PrivateTopicFactory(author=sender)
-        topic.participants.add(target)
+        topic.add_participant(target, silent=True)
         send_message_mp(author=sender, n_topic=topic, text="Testing")
         return topic
