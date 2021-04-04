@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Paramètrer le moteur de Captcha &mdash; Documentation Zeste de Savoir dev</title>
@@ -182,12 +183,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="parametrer-le-moteur-de-captcha">
+  <section id="parametrer-le-moteur-de-captcha">
 <h1>Paramètrer le moteur de Captcha<a class="headerlink" href="#parametrer-le-moteur-de-captcha" title="Lien permanent vers ce titre">¶</a></h1>
 <p>ZdS utilise un moteur de captcha à l’inscription pour éviter la profusion de bot. Ce dernier s’appuie sur le système « Recaptcha Nocaptcha » de Google afin d’offrir à l’utilisateur une utilisation la moins contraignante possible.</p>
 <p>Cependant, il est possible d’activer ou désactiver de manière très simple cette sécurite. Pour cela, il suffit de changer le paramètre booléen <code class="docutils literal notranslate"><span class="pre">USE_CAPTCHA</span></code> dans le fichier <code class="docutils literal notranslate"><span class="pre">settings_prod.py</span></code>.</p>
 <p>Pour que le moteur de captcha fonctionne, il faut lui spécifier des paramètres pour communiquer avec le serveur de vérification. Ce paramètrage se fait là encore dans le fichier <code class="docutils literal notranslate"><span class="pre">settings_prod.py</span></code> avec les options <code class="docutils literal notranslate"><span class="pre">RECAPTCHA_PUBLIC_KEY</span></code> et <code class="docutils literal notranslate"><span class="pre">RECAPTCHA_PRIVATE_KEY</span></code>. Ces paramètres sont à récupérer sur <a class="reference external" href="https://www.google.com/recaptcha/admin">la page de google</a>.   .</p>
-</div>
+</section>
 
 
            </div>

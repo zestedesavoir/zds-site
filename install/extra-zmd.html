@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Installation et utilisation de zmarkdown &mdash; Documentation Zeste de Savoir dev</title>
@@ -182,11 +183,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation-et-utilisation-de-zmarkdown">
+  <section id="installation-et-utilisation-de-zmarkdown">
 <h1>Installation et utilisation de zmarkdown<a class="headerlink" href="#installation-et-utilisation-de-zmarkdown" title="Lien permanent vers ce titre">¶</a></h1>
 <p><a class="reference external" href="https://github.com/zestedesavoir/zmarkdown">zmarkdown</a> est l’outil permetant de transformer le <a class="reference external" href="https://daringfireball.net/projects/markdown/syntax">markdown (en)</a> (avec quelques additions spécifiques à ZdS) en HTML ou LaTeX.
 Celui-ci est utilisé via un <a class="reference external" href="https://github.com/zestedesavoir/zmarkdown/tree/master/packages/zmarkdown">serveur HTTP</a> (via <a class="reference external" href="https://pm2.keymetrics.io/">pm2</a>), qu’il est nécessaire de démarer (voir plus loin) et que ZdS interroge ensuite pour effectuer le rendu du markdown.</p>
-<div class="section" id="installation">
+<section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers ce titre">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -204,14 +205,14 @@ npm install zmarkdown --production
 <span class="nb">cd</span> ..
 </pre></div>
 </div>
-</div>
-<div class="section" id="utilisation">
+</section>
+<section id="utilisation">
 <h2>Utilisation<a class="headerlink" href="#utilisation" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Afin de pouvoir profiter de zmarkdown, vous devez lancer le serveur à l’aide de <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">zmd-start</span></code> (ou, sous Windows, <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">zmd/node_modules/zmarkdown</span> <span class="pre">&amp;&amp;</span> <span class="pre">npm</span> <span class="pre">run</span> <span class="pre">server</span></code> [non-testé]).
 Vous pouvez vérifier qu’il est bien lancé à l’aide de <code class="docutils literal notranslate"><span class="pre">zmd-check</span></code> (qui ne fonctionne pas sous Windows).
 On arrête le serveur en utilisant <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">zmd-stop</span></code>, ou bien <code class="docutils literal notranslate"><span class="pre">pm2</span> <span class="pre">kill</span></code>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

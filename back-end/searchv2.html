@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>La recherche &mdash; Documentation Zeste de Savoir dev</title>
@@ -195,11 +196,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="la-recherche">
+  <section id="la-recherche">
 <h1>La recherche<a class="headerlink" href="#la-recherche" title="Lien permanent vers ce titre">¶</a></h1>
-<div class="section" id="principe">
+<section id="principe">
 <h2>Principe<a class="headerlink" href="#principe" title="Lien permanent vers ce titre">¶</a></h2>
-<div class="section" id="comment-faire-une-recherche">
+<section id="comment-faire-une-recherche">
 <h3>Comment faire une recherche ?<a class="headerlink" href="#comment-faire-une-recherche" title="Lien permanent vers ce titre">¶</a></h3>
 <p>La recherche se découpe en deux parties distinctes :</p>
 <blockquote>
@@ -208,7 +209,7 @@
 <li><p>La recherche par l’utilisateur</p></li>
 </ul>
 </div></blockquote>
-<div class="section" id="l-indexation-des-donnees">
+<section id="l-indexation-des-donnees">
 <h4>L’indexation des données<a class="headerlink" href="#l-indexation-des-donnees" title="Lien permanent vers ce titre">¶</a></h4>
 <p><strong>L’indexation</strong> des données consiste à <strong>rassembler toutes les données</strong> dans lesquelles l’utilisateur va <strong>pouvoir rechercher</strong>. Elle est faite au préalable.
 Celle-ci est faite de telle façon qu’on puisse rechercher dans les éléments suivants :</p>
@@ -220,31 +221,31 @@ Celle-ci est faite de telle façon qu’on puisse rechercher dans les éléments
 </ul>
 </div></blockquote>
 <p>Cette indexation est réalisée à intervalle régulier (et de manière à n’indexer que les données qui ont changées).</p>
-</div>
-<div class="section" id="id1">
+</section>
+<section id="id1">
 <h4>La recherche<a class="headerlink" href="#id1" title="Lien permanent vers ce titre">¶</a></h4>
 <p>L’utilisateur peut utiliser la recherche, en utilisant la recherche de <a class="reference external" href="../front-end/structure-du-site.html#l-en-tete">l’en-tête</a>, ou par la page d’accueil, si elle est disponible.</p>
 <blockquote>
-<div><div class="figure align-center">
+<div><figure class="align-center">
 <img alt="../_images/en-tete.png" src="../_images/en-tete.png" />
-</div>
+</figure>
 </div></blockquote>
 <p>Des critères de recherche peuvent être ajoutés sur la page de recherche.
 Le seul critère de recherche disponible actuellement est le type de résultat (contenu, sujet du forum ou message du forum).</p>
 <blockquote>
-<div><div class="figure align-center">
+<div><figure class="align-center">
 <img alt="../_images/search-filters.png" src="../_images/search-filters.png" />
-</div>
+</figure>
 </div></blockquote>
-</div>
-</div>
-<div class="section" id="quelques-mots-sur-elasticsearch">
+</section>
+</section>
+<section id="quelques-mots-sur-elasticsearch">
 <h3>Quelques mots sur Elasticsearch<a class="headerlink" href="#quelques-mots-sur-elasticsearch" title="Lien permanent vers ce titre">¶</a></h3>
 <p><a class="reference external" href="https://www.elastic.co/">Elasticsearch</a> (ES) est un serveur utilisant <a class="reference external" href="https://lucene.apache.org/">Lucene</a> (bibliothèque d’indexation et de recherche de texte) et permet d’indexer et de rechercher des données.
 Il est possible de l’interroger à travers une interface de type REST à laquelle on communique via des requêtes écrites en JSON.
 Ce projet propose également des API <a class="reference external" href="https://github.com/elastic/elasticsearch-py">bas</a> et <a class="reference external" href="https://github.com/elastic/elasticsearch-dsl-py">plus haut</a> niveau en python pour interagir avec le serveur, maintenues par l’équipe d’Elasticsearch.</p>
 <p>Précédemment, ZdS utilisait <a class="reference external" href="https://django-haystack.readthedocs.io/">Haystack</a> pour communiquer avec <a class="reference external" href="http://lucene.apache.org/solr/">Solr</a> (équivalent à Elasticsearch) mais ces solutions ont été abandonnées par manque d’activité sur le dépôt de Haystack.</p>
-<div class="section" id="phase-d-indexation">
+<section id="phase-d-indexation">
 <h4>Phase d’indexation<a class="headerlink" href="#phase-d-indexation" title="Lien permanent vers ce titre">¶</a></h4>
 <p>ES classe ses données sous forme de documents, rassemblés dans un <em>index</em>. On peut avoir différent types de documents (<em>topics</em>, <em>posts</em>, contenus, chapitres dans ce cas-ci).</p>
 <p>Lorsque les documents sont indexés, ils sont analysés afin d’en extraire les termes importants et de les simplifier (par défaut, « table » et « tables » ne sont pas le même mot, mais il est possible de faire en sorte que si).
@@ -268,8 +269,8 @@ Par la suite, ES construit une table (un <em>index inversé</em>) reliant ces <e
 </ul>
 <p>Les différents <em>tokens</em> qui resortent de cette phase d’analyse sont alors indexés, et c’est de ces <em>tokens</em> dont ES se servira ensuite pour la recherche, plutôt que de réaliser des recherches <em>full-text</em>.</p>
 <p>La phase d’indexation est réalisée à l’aide de la commande <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">es_manager</span></code> (voir ci-dessous).</p>
-</div>
-<div class="section" id="phase-de-recherche">
+</section>
+<section id="phase-de-recherche">
 <h4>Phase de recherche<a class="headerlink" href="#phase-de-recherche" title="Lien permanent vers ce titre">¶</a></h4>
 <p>Durant la phase de recherche, les documents sont classés par <strong>score</strong>, valeur que ES calcule comme étant le produit <code class="docutils literal notranslate"><span class="pre">TF</span> <span class="pre">*</span> <span class="pre">IDF</span></code>, où la partie TF (<em>term frequencies</em>) est le nombre de fois qu’un terme apparait dans un document et IDF (<em>inverse document frequencies</em>) est la fréquence à laquelle ce terme apparait dans l’ensemble des documents indexés.</p>
 <p>C’est en fonction de ce score que seront ensuite classés les résultats, du plus important au plus faible.
@@ -280,12 +281,12 @@ Il est possible de manipuler ce score afin d’obtenir les résultats les plus p
 <li><p><em>Booster</em> un type de document par rapport à un autre : cas particulier du précédent.</p></li>
 </ul>
 <p>Ces facteurs de <em>boost</em> sont modifiables soit directement dans le code de ZdS pour ce qui concerne les facteurs de <em>boost</em> sur les champs (voir ci-dessous), soit dans le <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> en ce qui concerne les <em>boosts</em> à postériori (voir ci-dessous).</p>
-</div>
-</div>
-</div>
-<div class="section" id="en-pratique">
+</section>
+</section>
+</section>
+<section id="en-pratique">
 <h2>En pratique<a class="headerlink" href="#en-pratique" title="Lien permanent vers ce titre">¶</a></h2>
-<div class="section" id="configuration">
+<section id="configuration">
 <h3>Configuration<a class="headerlink" href="#configuration" title="Lien permanent vers ce titre">¶</a></h3>
 <p>La configuration de la connexion et de l”<em>index</em> se fait dans le <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>, à l’aide des trois variables suivantes :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ES_ENABLED</span> <span class="o">=</span> <span class="kc">True</span>
@@ -365,8 +366,8 @@ Ensuite, différentes situations peuvent modifier le score.</p>
 <p>Pour que les changements dans <code class="docutils literal notranslate"><span class="pre">'mark_keywords'</span></code> soient pris en compte, il est nécessaire de réindexer <strong>tout</strong> le contenu
 (grâce à <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">es_manager</span> <span class="pre">index_all</span></code>).</p>
 </div>
-</div>
-<div class="section" id="indexer-les-donnees-de-zds">
+</section>
+<section id="indexer-les-donnees-de-zds">
 <h3>Indexer les données de ZdS<a class="headerlink" href="#indexer-les-donnees-de-zds" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Une fois Elasticsearch <a class="reference external" href="../install/install-es.html">installé</a> puis configuré et lancé, la commande suivante est utilisée :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py es_manager &lt;action&gt;
@@ -385,11 +386,11 @@ Ensuite, différentes situations peuvent modifier le score.</p>
 <p>Le caractère « à indexer » est fonction des actions effectuées sur l’objet Django (par défaut, à chaque fois que la méthode <code class="docutils literal notranslate"><span class="pre">save()</span></code> du modèle est appelée, l’objet est marqué comme « à indexer »).
 Cette information est stockée dans la base de donnée MySQL.</p>
 </div>
-</div>
-</div>
-<div class="section" id="aspects-techniques">
+</section>
+</section>
+<section id="aspects-techniques">
 <h2>Aspects techniques<a class="headerlink" href="#aspects-techniques" title="Lien permanent vers ce titre">¶</a></h2>
-<div class="section" id="indexation-d-un-modele">
+<section id="indexation-d-un-modele">
 <h3>Indexation d’un modèle<a class="headerlink" href="#indexation-d-un-modele" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Afin d’être indexable, un modèle Django doit dériver de <code class="docutils literal notranslate"><span class="pre">AbstractESDjangoIndexable</span></code> (qui dérive de <code class="docutils literal notranslate"><span class="pre">models.Model</span></code> et de <code class="docutils literal notranslate"><span class="pre">AbstractESIndexable</span></code>). Par exemple,</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Post</span><span class="p">(</span><span class="n">Comment</span><span class="p">,</span> <span class="n">AbstractESDjangoIndexable</span><span class="p">):</span>
@@ -469,8 +470,8 @@ Cela s’effectue comme suit (par exemple pour la classe <code class="docutils l
 <p>À chaque fois que vous modifiez le <em>mapping</em> d’un document dans <code class="docutils literal notranslate"><span class="pre">get_es_mapping()</span></code>, tout l”<em>index</em> <strong>doit</strong> être reconstruit <strong>et</strong> indexé.
 N’oubliez donc pas de mentionner cette action à lancer manuellement dans le <em>update.md</em>.</p>
 </div>
-</div>
-<div class="section" id="le-cas-particulier-des-contenus">
+</section>
+<section id="le-cas-particulier-des-contenus">
 <h3>Le cas particulier des contenus<a class="headerlink" href="#le-cas-particulier-des-contenus" title="Lien permanent vers ce titre">¶</a></h3>
 <p>La plupart des informations des contenus, en particulier les textes, <a class="reference external" href="contents.html#aspects-techniques-et-fonctionnels">ne sont pas indexés dans la base de donnée</a>.</p>
 <p>Il a été choisi de n’inclure dans Elasticsearch que les chapitres de ces contenus (anciennement, les introductions et conclusions des parties étaient également incluses).
@@ -521,9 +522,9 @@ Ainsi, la méthode <code class="docutils literal notranslate"><span class="pre">
 <p>Dans ES, une relation de type parent-enfant (<a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/guide/2.x/parent-child.html">cf. documentation</a>) est définie entre les contenus et les chapitres correspondants.
 Cette relation est utilisée pour la suppression, mais il est possible de l’exploiter à d’autres fins.</p>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

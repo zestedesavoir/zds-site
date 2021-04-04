@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Helpers Javascript &mdash; Documentation Zeste de Savoir dev</title>
@@ -183,16 +184,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="helpers-javascript">
+  <section id="helpers-javascript">
 <h1>Helpers Javascript<a class="headerlink" href="#helpers-javascript" title="Lien permanent vers ce titre">¶</a></h1>
 <p>Quelques fonctions sont accessibles via jQuery pour manipuler les éléments du site.</p>
-<div class="section" id="tooltip">
+<section id="tooltip">
 <h2>$().tooltip()<a class="headerlink" href="#tooltip" title="Lien permanent vers ce titre">¶</a></h2>
 <p>La fonction <code class="docutils literal notranslate"><span class="pre">$(element).tooltip(contenu)</span></code> va ajouter une tooltip au survol de <code class="docutils literal notranslate"><span class="pre">element</span></code> avec comme contenu <code class="docutils literal notranslate"><span class="pre">contenu</span></code>. Si la tooltip existe déjà sur l’élément, la fonction va juste modifier le contenu.</p>
-<div class="figure align-center" id="id1">
+<figure class="align-center" id="id1">
 <img alt="../_images/tooltip.png" src="../_images/tooltip.png" />
-<p class="caption"><span class="caption-text">Exemple de tooltip utilisé pour les votes</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">Exemple de tooltip utilisé pour les votes</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
 <p>La tooltip sera par défaut au dessus de l’élément, mais ira automatiquement en dessous si le scroll de la fenêtre ne permet pas de l’afficher totalement au dessus.</p>
 <p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Tooltip</span></code> qui est définie dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/tooltips.js</span></code>, et qui est complètement documenté dans ce fichier.</p>
 <div class="admonition note">
@@ -200,14 +203,14 @@
 <p>Si vous n’avez besoin que d’infobulles simples, sans avoir à y mettre du contenu HTML riche ou à réagir au clic ou
 autre sur ces dernières, <a class="reference external" href="elements-specifiques-au-site.html#les-infobulles-css">préférez utiliser les plus simples et légères infobulles CSS, d’apparence identique</a>.</p>
 </div>
-</div>
-<div class="section" id="message-karma">
+</section>
+<section id="message-karma">
 <h2>$(message).karma()<a class="headerlink" href="#message-karma" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> qui permet de manipuler et mettre à jour les votes d’un message.</p>
 <p><code class="docutils literal notranslate"><span class="pre">$(&quot;#p42&quot;).karma().vote(&quot;like&quot;)</span></code> permet par exemple d’ajouter (ou de l’enlever si l’utilisateur a déjà voté) un +1 sur le post n°42 sur la page.</p>
 <p>L’API complète de l’objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> est documentée dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/karma.js</span></code>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

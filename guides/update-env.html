@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Mettre à jour son environnement de développement &mdash; Documentation Zeste de Savoir dev</title>
@@ -182,10 +183,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="mettre-a-jour-son-environnement-de-developpement">
+  <section id="mettre-a-jour-son-environnement-de-developpement">
 <h1>Mettre à jour son environnement de développement<a class="headerlink" href="#mettre-a-jour-son-environnement-de-developpement" title="Lien permanent vers ce titre">¶</a></h1>
 <p>Vous n’avez pas participé au projet depuis quelque temps ? Suivez ce guide pour mettre à jour votre environnement de développement !</p>
-<div class="section" id="recuperer-les-dernieres-modifications">
+<section id="recuperer-les-dernieres-modifications">
 <h2>Récupérer les dernières modifications<a class="headerlink" href="#recuperer-les-dernieres-modifications" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Il va falloir utiliser l’utilitaire Git pour :</p>
 <ol class="arabic simple">
@@ -197,16 +198,16 @@
 git checkout upstream/dev
 </pre></div>
 </td></tr></table></div>
-</div>
-<div class="section" id="activer-l-environnement">
+</section>
+<section id="activer-l-environnement">
 <h2>Activer l’environnement<a class="headerlink" href="#activer-l-environnement" title="Lien permanent vers ce titre">¶</a></h2>
 <p>La première chose à faire avant de pouvoir travailler sur le projet est de se déplacer dans le dossier du projet et d’activer l’environnement :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> zdsenv/bin/activate
 </pre></div>
 </div>
 <p>Cet environnement permet de ne pas polluer votre distribution avec les logiciels installés spécifiquement pour Zeste de Savoir et de ne pas interférer avec vos autres projets de développement.</p>
-</div>
-<div class="section" id="mettre-a-jour-les-dependances">
+</section>
+<section id="mettre-a-jour-les-dependances">
 <h2>Mettre à jour les dépendances<a class="headerlink" href="#mettre-a-jour-les-dependances" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Ces trois commandes permettent de mettre à jour :</p>
 <ol class="arabic simple">
@@ -221,30 +222,30 @@ make install-front
 make zmd-install
 </pre></div>
 </td></tr></table></div>
-</div>
-<div class="section" id="generer-les-elements-graphiques">
+</section>
+<section id="generer-les-elements-graphiques">
 <h2>Générer les éléments graphiques<a class="headerlink" href="#generer-les-elements-graphiques" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Les éléments graphiques ont probablement été modifiés, il va falloir les générer à nouveau :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make build-front
 </pre></div>
 </div>
-</div>
-<div class="section" id="appliquer-les-migrations-sur-la-base-de-donnees">
+</section>
+<section id="appliquer-les-migrations-sur-la-base-de-donnees">
 <h2>Appliquer les migrations sur la base de données<a class="headerlink" href="#appliquer-les-migrations-sur-la-base-de-donnees" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Il est possible que la structure de la base de données ait été légèrement modifiée, il nous faut donc appliquer ces changements :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make migrate-db
 </pre></div>
 </div>
-</div>
-<div class="section" id="aller-plus-loin">
+</section>
+<section id="aller-plus-loin">
 <h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Votre environnement de développement est maintenant à jour, vous pouvez donc <a class="reference external" href="run-linux.html">lancer Zeste de Savoir</a> !</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>N’hésitez pas à nous contacter !</strong> Si vous avez besoin d’aide ou si vous souhaitez simplement discuter du projet, contactez-nous sur le canal <code class="docutils literal notranslate"><span class="pre">#dev-de-zds</span></code> de <a class="reference external" href="https://discord.gg/ue5MTKq">notre serveur Discord</a> ou <a class="reference external" href="https://zestedesavoir.com/forums/communaute/dev-zone/">le forum Dev Zone</a>.</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

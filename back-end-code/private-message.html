@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Les messages privés (mp/) &mdash; Documentation Zeste de Savoir dev</title>
@@ -185,7 +186,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="les-messages-prives-mp">
+  <section id="les-messages-prives-mp">
 <h1><a class="toc-backref" href="#id1">Les messages privés (<code class="docutils literal notranslate"><span class="pre">mp/</span></code>)</a><a class="headerlink" href="#les-messages-prives-mp" title="Lien permanent vers ce titre">¶</a></h1>
 <p>Module situé dans <code class="docutils literal notranslate"><span class="pre">zds/mp/</span></code>.</p>
 <div class="contents topic" id="fichiers-documentes">
@@ -199,7 +200,7 @@
 </li>
 </ul>
 </div>
-<div class="section" id="module-zds.mp.models">
+<section id="module-zds.mp.models">
 <span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.mp.models" title="Lien permanent vers ce titre">¶</a></h2>
 <dl class="py exception">
 <dt id="zds.mp.models.NotParticipatingError">
@@ -295,13 +296,16 @@
 
 <dl class="py method">
 <dt id="zds.mp.models.PrivateTopic.add_participant">
-<code class="sig-name descname"><span class="pre">add_participant</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivateTopic.add_participant" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">add_participant</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivateTopic.add_participant" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Add a participant to the private topic.
-If the user is already participating, do not add it again.
+If the user is already participating, do nothing.
 Send the <cite>participant_added</cite> signal if successful.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>user</strong> – the user to add to the private topic</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user</strong> – the user to add to the private topic</p></li>
+<li><p><strong>silent</strong> – specify if the <cite>participant_added</cite> signal should be silent (e.g. no notification)</p></li>
+</ul>
 </dd>
 <dt class="field-even">Lève</dt>
 <dd class="field-even"><p><a class="reference internal" href="#zds.mp.models.NotReachableError" title="zds.mp.models.NotReachableError"><strong>NotReachableError</strong></a> – if the user cannot receive private messages (e.g. a bot)</p>
@@ -599,8 +603,8 @@ with older private topic, the slug is always re-calculated when we need one.
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-zds.mp.views">
+</section>
+<section id="module-zds.mp.views">
 <span id="vues-views-py"></span><h2><a class="toc-backref" href="#id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.mp.views" title="Lien permanent vers ce titre">¶</a></h2>
 <dl class="py class">
 <dt id="zds.mp.views.PrivatePostAnswer">
@@ -819,8 +823,8 @@ POST variables and then check if it’s valid.</p>
 
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

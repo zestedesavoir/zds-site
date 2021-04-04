@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Installation de Elasticsearch (pour la recherche) &mdash; Documentation Zeste de Savoir dev</title>
@@ -187,11 +188,11 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installation-de-elasticsearch-pour-la-recherche">
+  <section id="installation-de-elasticsearch-pour-la-recherche">
 <h1>Installation de Elasticsearch (pour la recherche)<a class="headerlink" href="#installation-de-elasticsearch-pour-la-recherche" title="Lien permanent vers ce titre">¶</a></h1>
 <p>Zeste de Savoir utilise <strong>Elasticsearch 5</strong>, un moteur de recherche très performant.
 Installer Elasticsearch est nécessaire pour faire fonctionner la recherche.</p>
-<div class="section" id="installation">
+<section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers ce titre">¶</a></h2>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
@@ -204,9 +205,9 @@ Par exemple, vous pouvez passer la valeur de ces variables à 512 Mio grâce à:
 </div>
 <p>Plus d’informations sont disponibles <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#jvm-options">dans la documentation officielle</a>.</p>
 </div>
-<div class="section" id="sous-linux">
+<section id="sous-linux">
 <h3>Sous Linux<a class="headerlink" href="#sous-linux" title="Lien permanent vers ce titre">¶</a></h3>
-<div class="section" id="installer-java-8">
+<section id="installer-java-8">
 <h4>Installer java 8<a class="headerlink" href="#installer-java-8" title="Lien permanent vers ce titre">¶</a></h4>
 <p>Il est nécessaire d’utiliser au moins <strong>la version 8</strong> de Java pour faire tourner Elasticsearch, mais ce n’est probablement pas la version par défaut de votre système d’exploitation.</p>
 <p><strong>Sous Debian et dérivés</strong>, le package à installer est <code class="docutils literal notranslate"><span class="pre">openjdk-8-jdk</span></code> :</p>
@@ -217,8 +218,8 @@ Par exemple, vous pouvez passer la valeur de ces variables à 512 Mio grâce à:
 <p>Une fois installé, passez sur la version 8 de java à l’aide de <code class="docutils literal notranslate"><span class="pre">update-alternatives</span> <span class="pre">--config</span> <span class="pre">java</span></code> (<strong>en root</strong>).</p>
 <p><strong>Sous Fedora et dérivés</strong> (CentOS, OpenSuse, …), le paquet à installer est <code class="docutils literal notranslate"><span class="pre">java-1.8.0-openjdk</span></code>.
 Passez ensuite à la version 8 de java à l’aide de la commande <code class="docutils literal notranslate"><span class="pre">alternatives</span> <span class="pre">--config</span> <span class="pre">java</span></code> (<strong>en root</strong>).</p>
-</div>
-<div class="section" id="installer-elasticsearch">
+</section>
+<section id="installer-elasticsearch">
 <h4>Installer Elasticsearch<a class="headerlink" href="#installer-elasticsearch" title="Lien permanent vers ce titre">¶</a></h4>
 <p>La procédure d’installation, si vous souhaitez utiliser Elasticsearch sans l’installer via le gestionnaire de paquets de votre distribution, est d’entrer les commandes suivantes dans votre <em>shell</em> préféré:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip
@@ -236,9 +237,9 @@ unzip elasticsearch-5.5.2.zip
 <p>Vous pouvez également installer Elasticsearch comme <em>daemon</em> de votre système.
 Rendez-vous <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html">sur la page d’installation d’Elasticsearch</a> pour plus d’informations</p>
 </div>
-</div>
-</div>
-<div class="section" id="sous-macos">
+</section>
+</section>
+<section id="sous-macos">
 <h3>Sous macOS<a class="headerlink" href="#sous-macos" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Utilisez les commandes suivantes pour installer Java 8 et Elasticsearch:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew update
@@ -255,8 +256,8 @@ brew install elasticsearch
 <p>Vous pouvez également le démarrer comme <em>daemon</em>, comme sous Linux.
 Plus d’infos <a class="reference external" href="https://gist.github.com/jpalala/ab3c33dd9ee5a6efbdae">ici</a>.</p>
 </div>
-</div>
-<div class="section" id="sous-windows">
+</section>
+<section id="sous-windows">
 <h3>Sous Windows<a class="headerlink" href="#sous-windows" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Elasticsearch requiert <strong>la version 8</strong> de Java, que vous pouvez trouver <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">sur la page officielle de java</a>. Prenez la version correspondante à votre système d’exploitation.</p>
 <p>Téléchargez ensuite Elasticsearch à l’adresse suivante : <a class="reference external" href="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip">https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip</a>, puis extrayez le dossier <code class="docutils literal notranslate"><span class="pre">elasticsearch-5.5.2</span></code> du zip à l’aide de votre outil préféré.</p>
@@ -271,9 +272,9 @@ Exécutez ensuite la commande suivante :</p>
 <p>Vous pouvez également le démarrer comme <em>daemon</em>, comme sous Linux.
 Plus d’informations <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/windows.html#windows-service">dans la documentation</a>.</p>
 </div>
-</div>
-</div>
-<div class="section" id="indexation-et-recherche">
+</section>
+</section>
+<section id="indexation-et-recherche">
 <h2>Indexation et recherche<a class="headerlink" href="#indexation-et-recherche" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez-vous sur la page <a class="reference external" href="http://localhost:9200/">http://localhost:9200/</a>.
 Vous devriez observer une réponse du même genre que celle-ci :</p>
@@ -299,17 +300,19 @@ Vous devriez observer une réponse du même genre que celle-ci :</p>
 </div>
 <p>Une fois que c’est fait, en vous rendant sur la page de recherche, <a class="reference external" href="http://localhost:8000/rechercher/">http://localhost:8000/rechercher/</a>, vous devriez être capable d’utiliser la recherche.
 En particulier, vous ne devriez pas observer de message d’erreur :</p>
-<div class="figure align-center" id="id1">
+<figure class="align-center" id="id1">
 <img alt="../_images/no-connection.png" src="../_images/no-connection.png" />
-<p class="caption"><span class="caption-text">Si Elasticsearch n’est pas démarré, le message suivant apparait.</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">Si Elasticsearch n’est pas démarré, le message suivant apparait.</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
+</figcaption>
+</figure>
 <p>Pour réindexer les nouvelles données, utilisez la commande suivante :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py es_manager index_flagged
 </pre></div>
 </div>
 <p>Plus d’informations sur la commande <code class="docutils literal notranslate"><span class="pre">es_manager</span></code> sont disponibles sur la page <a class="reference external" href="../back-end/searchv2.html#indexer-les-donnees-de-zds">concernant la recherche sur ZdS</a>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>

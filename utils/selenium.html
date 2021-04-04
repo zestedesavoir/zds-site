@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Selenium &mdash; Documentation Zeste de Savoir dev</title>
@@ -190,13 +191,13 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="selenium">
+  <section id="selenium">
 <h1>Selenium<a class="headerlink" href="#selenium" title="Lien permanent vers ce titre">¶</a></h1>
 <p>Selenium est utilisé pour réaliser les tests front-end. Il s’agit d’un outil très utilisé qui propose des interfaces dans différents languages dont Python. Il est donc possible de l’utiliser avec Django.</p>
 <p>Pour l’utiliser, il suffit au développeur d’installer Selenium et un webdriver.</p>
-<div class="section" id="les-tests-front-end">
+<section id="les-tests-front-end">
 <h2>Les tests front-end<a class="headerlink" href="#les-tests-front-end" title="Lien permanent vers ce titre">¶</a></h2>
-<div class="section" id="installation-du-webdriver">
+<section id="installation-du-webdriver">
 <h3>Installation du webdriver<a class="headerlink" href="#installation-du-webdriver" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Il est nécessaire d’installer deux choses pour utiliser Selenium avec Django : Selenium (présent dans <code class="docutils literal notranslate"><span class="pre">requirements-dev.txt</span></code>) et un webdriver. Pour ceci, il suffit d’exécuter :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Installation du webdriver</span>
@@ -212,8 +213,8 @@ tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
 <p class="admonition-title">Attention</p>
 <p>La version de geckodriver à installer dépend des versions de Selenium et de Firefox ! Par exemple, la version 19.0 de geckodriver fonctionne correctement avec Selenium 3.6.0 et Firefox 55.0 ou 56.0 mais peut ne pas fonctionner avec d’autres versions. En cas de problème lors de l’Installation, ne pas hésiter à demander de l’aide !</p>
 </div>
-</div>
-<div class="section" id="ecriture-des-tests">
+</section>
+<section id="ecriture-des-tests">
 <h3>Écriture des tests<a class="headerlink" href="#ecriture-des-tests" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Il est donc possible d’écrire des tests pour Django directement en utilisant la document de Selenium ici : &lt;<a class="reference external" href="http://selenium-python.readthedocs.io/">http://selenium-python.readthedocs.io/</a>&gt; et le <cite>StaticLiveServerTestCase</cite> de Django (&lt;<a class="reference external" href="https://docs.djangoproject.com/fr/2.1/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase">https://docs.djangoproject.com/fr/2.1/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase</a>&gt;).</p>
 <p>Il est aussi possible d’utiliser l’extension Firefox (&lt;<a class="reference external" href="https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/">https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/</a>&gt;) et d’exporter le test généré, cependant, il est nécessaire de le réécrire pour prendre en compte Django et Python 3. De plus, il est nécessaire d’ajouter un tag à la classe afin de pouvoir lancer les tests Selenium séparément.</p>
@@ -240,14 +241,14 @@ tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
         <span class="bp">self</span><span class="o">.</span><span class="n">selenium</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">live_server_url</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="lancement-des-tests">
+</section>
+<section id="lancement-des-tests">
 <h3>Lancement des tests<a class="headerlink" href="#lancement-des-tests" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Il suffit d’utiliser le Makefile et de lancer <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test-front</span></code>.</p>
 <p>Il est aussi possible d’éxecuter un test précis avec <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">zds.xxx.yyy</span></code> où <code class="docutils literal notranslate"><span class="pre">xxx</span></code> est le nom du module à tester et <code class="docutils literal notranslate"><span class="pre">yyy</span></code> est le nom du fichier de tests à lancer.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>

@@ -4,7 +4,8 @@
 <html class="writer-html5" lang="fr" >
 <head>
   <meta charset="utf-8" />
-  
+  <meta name="generator" content="Docutils 0.17: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>Installer Zeste de Savoir sur Linux &mdash; Documentation Zeste de Savoir dev</title>
@@ -189,12 +190,12 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="installer-zeste-de-savoir-sur-linux">
+  <section id="installer-zeste-de-savoir-sur-linux">
 <h1>Installer Zeste de Savoir sur Linux<a class="headerlink" href="#installer-zeste-de-savoir-sur-linux" title="Lien permanent vers ce titre">¶</a></h1>
 <p>Vous voulez installer Zeste de Savoir sur votre distribution GNU/Linux ? Vous êtes au bon endroit !</p>
-<div class="section" id="preparation">
+<section id="preparation">
 <h2>Préparation<a class="headerlink" href="#preparation" title="Lien permanent vers ce titre">¶</a></h2>
-<div class="section" id="preparation-pour-contribuer-au-projet">
+<section id="preparation-pour-contribuer-au-projet">
 <h3>Préparation pour contribuer au projet<a class="headerlink" href="#preparation-pour-contribuer-au-projet" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Toutes les contributions au projet prennent place sur le site web Github, un espace de travail très connu des projets <em>open-source</em>. La première étape est donc de <a class="reference external" href="https://github.com/join">se créer un compte Github</a> pour contribuer au projet !</p>
 <p>La deuxième étape est de créer <a class="reference external" href="https://help.github.com/en/github/getting-started-with-github/fork-a-repo">un fork</a>, votre copie personnelle du projet. Pour ce faire, une fois connecté à votre compte Github, rendez-vous sur <a class="reference external" href="https://github.com/zestedesavoir/zds-site">la page du dépôt zds-site</a> et cliquez sur le bouton <em>Fork</em> en haut à droite. Cette opération peut prendre quelques minutes, c’est tout à fait normal.</p>
@@ -208,8 +209,8 @@ git fetch upstream
 </div>
 <p>Bien entendu, <code class="docutils literal notranslate"><span class="pre">&lt;VOTRE_PSEUDO_GITHUB&gt;</span></code> doit être remplacé par votre pseudo sur Github.</p>
 <p>Voilà, vous avez maintenant une copie locale du projet, liée à votre copie personnelle (<em>origin</em>) et la copie officielle (<em>upstream</em>) sur Github !</p>
-</div>
-<div class="section" id="preparation-pour-simplement-tester-le-projet">
+</section>
+<section id="preparation-pour-simplement-tester-le-projet">
 <h3>Préparation pour simplement tester le projet<a class="headerlink" href="#preparation-pour-simplement-tester-le-projet" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Si vous ne souhaitez pas contribuer au projet mais simplement le tester, vous n’avez pas besoin de Git ! Il vous suffit de télécharger l’archive contenant le code source et extraire les fichiers :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://github.com/zestedesavoir/zds-site/archive/dev.zip
@@ -217,19 +218,19 @@ unzip dev.zip
 <span class="nb">cd</span> dev
 </pre></div>
 </div>
-</div>
-<div class="section" id="installation-de-l-utilitaire-make">
+</section>
+<section id="installation-de-l-utilitaire-make">
 <h3>Installation de l’utilitaire Make<a class="headerlink" href="#installation-de-l-utilitaire-make" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Nous utilisons l’utilitaire Make pour avoir des commandes simples à retenir. Celui-ci est très probablement déjà installé sur votre distribution, ce que vous pouvez vérifier tout simplement avec :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
 </pre></div>
 </div>
 <p>S’il est installé, cela vous affichera la liste des commandes de notre projet. Sinon, il vous faudra l’installer avec <code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">install</span> <span class="pre">build-essential</span></code> sur Ubuntu et ses dérivés ou <a class="reference external" href="https://www.gnu.org/software/make/#download">le télécharger sur cette page</a>.</p>
-</div>
-</div>
-<div class="section" id="installation">
+</section>
+</section>
+<section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers ce titre">¶</a></h2>
-<div class="section" id="installation-de-base">
+<section id="installation-de-base">
 <h3>Installation de base<a class="headerlink" href="#installation-de-base" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Si notre projet est assez complexe et a besoin de beaucoup d’outils différents pour fonctionner, ce n’est pas pour autant qu’il est difficile de l’installer ! Une seule commande suffit :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-linux
@@ -239,8 +240,8 @@ unzip dev.zip
 <p>Dès le lancement, cette commande vous demandera quelle est votre distribution Linux pour savoir quel gestionnaire de paquet utiliser et quels paquets installer. Votre mot de passe d’administrateur vous sera demandé pour pouvoir installer ces paquets.</p>
 <p>Ensuite, le reste de l’installation se fait tout seul sans rien vous demander ! En fonction de votre connexion Internet et de la puissance de votre ordinateur cela peut prendre du temps, soyez patient !</p>
 <p><strong>Si vous rencontrez un soucis, n’hésitez pas à nous contacter !</strong></p>
-</div>
-<div class="section" id="installation-complete">
+</section>
+<section id="installation-complete">
 <h3>Installation complète<a class="headerlink" href="#installation-complete" title="Lien permanent vers ce titre">¶</a></h3>
 <p>L’installation de base suffit grandement pour lancer le site web et découvrir le projet, mais elle est incomplète. Deux outils manquent à l’appel :</p>
 <ul class="simple">
@@ -251,21 +252,21 @@ unzip dev.zip
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-linux-full
 </pre></div>
 </div>
-</div>
-<div class="section" id="en-savoir-plus-sur-l-installation">
+</section>
+<section id="en-savoir-plus-sur-l-installation">
 <h3>En savoir plus sur l’installation<a class="headerlink" href="#en-savoir-plus-sur-l-installation" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Si le fonctionnement du script d’installation vous intéresse, je vous invite à lire <a class="reference external" href="../install/install-linux.html">cette page détaillée</a>.</p>
-</div>
-</div>
-<div class="section" id="aller-plus-loin">
+</section>
+</section>
+<section id="aller-plus-loin">
 <h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Vous avez réussi à installer Zeste de Savoir ? Il est maintenant temps de <a class="reference external" href="run-linux.html">le lancer</a> !</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p><strong>N’hésitez pas à nous contacter !</strong> Si vous avez besoin d’aide ou si vous souhaitez simplement discuter du projet, contactez-nous sur le canal <code class="docutils literal notranslate"><span class="pre">#dev-de-zds</span></code> de <a class="reference external" href="https://discord.gg/ue5MTKq">notre serveur Discord</a> ou <a class="reference external" href="https://zestedesavoir.com/forums/communaute/dev-zone/">le forum Dev Zone</a>.</p>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
