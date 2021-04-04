@@ -1,3 +1,4 @@
+from contextlib import suppress
 from datetime import datetime
 
 from django.conf import settings
@@ -118,12 +119,9 @@ def send_message_mp(author, n_topic, text, send_by_mail=True, direct=False, hat=
 
     # There's no need to inform of the new participant
     # because participants are already notified through the `message_added` signal.
-    try:
+    # If we tried to add the bot, that's fine (a better solution would be welcome though)
+    with suppress(NotReachableError):
         n_topic.add_participant(author, silent=True)
         n_topic.save()
-    except NotReachableError:
-        # we tried to add the bot, that's fine
-        # a better solution would be welcome though
-        pass
 
     return n_topic
