@@ -1,3 +1,4 @@
+from contextlib import suppress
 from datetime import datetime
 
 from django.conf import settings
@@ -5,7 +6,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 import logging
 
-from zds.mp.models import PrivateTopic, PrivatePost, mark_read
+from zds.mp.models import PrivateTopic, PrivatePost, mark_read, NotReachableError
 from zds.mp import signals
 from zds.utils.templatetags.emarkdown import emarkdown
 
@@ -21,7 +22,6 @@ def send_mp(
     send_by_mail=True,
     leave=True,
     direct=False,
-    mark_as_read=False,
     hat=None,
     automatically_read=None,
 ):
@@ -36,28 +36,16 @@ def send_mp(
     :param send_by_mail:
     :param direct: send a mail directly without mp (ex : ban members who wont connect again)
     :param leave: if True, do not add the sender to the topic
-    :param mark_as_read:
     :param hat: hat with which to send the private message
     :param automatically_read: a user or a list of users that will automatically be marked as having read of the mp
     :raise UnreachableUserError:
     """
 
-    # Creating the thread
-    limit = PrivateTopic._meta.get_field("title").max_length
-    n_topic = PrivateTopic()
-    n_topic.title = title[:limit]
-    n_topic.subtitle = subtitle
-    n_topic.pubdate = datetime.now()
-    n_topic.author = author
-    n_topic.save()
-
-    # Add all participants on the MP.
-    for participants in users:
-        n_topic.participants.add(participants)
+    n_topic = PrivateTopic.create(title=title, subtitle=subtitle, author=author, recipients=users)
+    signals.topic_created.send(sender=PrivateTopic, topic=n_topic, by_email=send_by_mail)
 
     topic = send_message_mp(author, n_topic, text, send_by_mail, direct, hat)
-    if mark_as_read:
-        mark_read(topic, author)
+
     if automatically_read:
         if not isinstance(automatically_read, list):
             automatically_read = [automatically_read]
@@ -105,7 +93,7 @@ def send_message_mp(author, n_topic, text, send_by_mail=True, direct=False, hat=
 
     if not direct:
         signals.message_added.send(
-            sender=post.__class__, instance=post, by_email=send_by_mail, no_notification_for=no_notification_for
+            sender=post.__class__, post=post, by_email=send_by_mail, no_notification_for=no_notification_for
         )
 
     if send_by_mail and direct:
@@ -128,8 +116,12 @@ def send_message_mp(author, n_topic, text, send_by_mail=True, direct=False, hat=
             no_notification_for = [no_notification_for]
         for not_notified_user in no_notification_for:
             mark_read(n_topic, not_notified_user)
-    if author.pk not in [p.pk for p in n_topic.participants.all()] and author.pk != n_topic.author.pk:
-        n_topic.participants.add(author)
+
+    # There's no need to inform of the new participant
+    # because participants are already notified through the `message_added` signal.
+    # If we tried to add the bot, that's fine (a better solution would be welcome though)
+    with suppress(NotReachableError):
+        n_topic.add_participant(author, silent=True)
         n_topic.save()
 
     return n_topic
