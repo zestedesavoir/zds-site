@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="89.362396mm"
+   height="103.18681mm"
+   viewBox="0 0 89.362396 103.18681"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2-2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="informatique.svg">
+  <title
+     id="title883">icône catégorie informatique</title>
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="228.02035"
+     inkscape:cy="277.16597"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     inkscape:document-rotation="0"
+     showgrid="true"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
+    <inkscape:grid
+       type="xygrid"
+       id="grid881"
+       originx="-0.22008178"
+       originy="-0.79142758" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>icône catégorie informatique</dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Calque 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-0.22008179,-0.79142761)">
+    <path
+       sodipodi:type="star"
+       style="fill:#0b5a7f;fill-opacity:1;fill-rule:evenodd;stroke-width:0.264583"
+       id="path12"
+       sodipodi:sides="6"
+       sodipodi:cx="44.901279"
+       sodipodi:cy="52.38483"
+       sodipodi:r1="51.593403"
+       sodipodi:r2="44.681198"
+       sodipodi:arg1="0.52359878"
+       sodipodi:arg2="1.0471976"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="M 89.582477,78.181532 44.901279,103.97823 0.22008179,78.181532 0.22008202,26.588129 44.90128,0.79142761 89.582477,26.588129 Z" />
+    <rect
+       style="fill:#0b5a7f;fill-opacity:1;stroke:#fafafa;stroke-width:1.465;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.5;stroke-dasharray:none;stroke-opacity:1"
+       id="rect839"
+       width="40.357697"
+       height="26.994225"
+       x="23.786976"
+       y="33.665218" />
+    <rect
+       style="fill:#fafafa;fill-opacity:1;stroke:#fafafa;stroke-width:0.0725672;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.5;stroke-dasharray:none;stroke-opacity:1"
+       id="rect839-9"
+       width="0.37803647"
+       height="7.0707955"
+       x="44.311478"
+       y="60.865818" />
+    <rect
+       style="fill:#fafafa;fill-opacity:1;stroke:#fafafa;stroke-width:0.190427;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:3.5;stroke-dasharray:none;stroke-opacity:1"
+       id="rect839-9-8"
+       width="20.701799"
+       height="0.88915032"
+       x="34.776554"
+       y="67.819183" />
+  </g>
+</svg>

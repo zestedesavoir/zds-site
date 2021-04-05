@@ -290,7 +290,7 @@ class ContentForm(ContainerForm):
             ),
             Field("last_hash"),
             Field("source"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
+            Field("subcategory", template="crispy/checkboxselectmultiple_details.html"),
         )
 
         self.helper.layout.append(Field("msg_commit"))

@@ -143,6 +143,7 @@
     }
 }
 
+
 @include desktop {
     .content-wrapper,
     .full-content-wrapper {
@@ -155,6 +156,29 @@
         .content-wrapper {
             max-width: none;
             margin: 0;
+            .control-group .control-col {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                grid-auto-rows: fit-content(100%);
+                grid-gap: $length-4;
+                summary {
+                    &:hover {
+                        background-color: $grey-200;
+                    }
+                    &::-webkit-details-marker {
+                        display: none;
+                        content: '';
+                    }
+                    &::marker {
+                        display: none;
+                        content: '';
+                    }
+                }
+                div {
+                    width: 80%;
+                    margin: auto;
+                }
+            }
         }
     }
 }
@@ -211,6 +235,12 @@
             .license {
                 margin-right: $length-6;
             }
+            .control-group .control-col {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                grid-auto-rows: fit-content(100%);
+                grid-gap: $length-1;
+            }
         }
     }
 }
@@ -219,5 +249,11 @@
     .main .content-container .article-content .btn {
         float: none;
         text-align: center;
+    }
+    .control-group .control-col {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        grid-auto-rows: fit-content(100%);
+        grid-gap: $length-1;
     }
 }

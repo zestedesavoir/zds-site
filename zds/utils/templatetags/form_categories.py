@@ -22,6 +22,6 @@ def order_categories(choices):
         subcat = SubCategory.objects.get(pk=choice[0])
         parent = subcat.get_parent_category()
         if parent:
-            ch = {"choice": choice, "parent": parent.title, "order": parent.pk}
+            ch = {"choice": choice, "parent": (parent.title, parent.slug, parent.description), "order": parent.pk}
             new_choices.append(ch)
     return new_choices

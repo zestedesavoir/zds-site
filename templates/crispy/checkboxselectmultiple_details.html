@@ -1,13 +1,12 @@
-
-
 {# This tempate is used by Django Crispy Form #}
 {# We only add a templatetag (order_categories line 24) to sort categories in the "new content" page #}
 
 {% load crispy_forms_filters %}
 {% load form_categories %}
 {% load l10n %}
-
+{% load captureas %}
 {% load crispy_forms_field %}
+{% load static %}
 
 {% if field.is_hidden %}
     {{ field }}
@@ -35,13 +34,21 @@
         {% endif %}
 
         {% if field|is_checkboxselectmultiple %}
-            <div class="controls"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
+            <div class="controls control-col"{% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
                 {% include 'bootstrap/layout/field_errors_block.html' %}
 
                 {% regroup field.field.choices|order_categories|dictsort:"order" by parent as categories_list %}
 
                 {% for category in categories_list %}
-                    <strong>{{ category.grouper }}</strong>
+                    <details class="zds-group-form">
+                    <summary>
+                        {% captureas img_cat%}images/categories/{{ category.grouper.1 }}.svg{% endcaptureas %}
+
+                        <img src="{% static img_cat %}" width="75px"/>
+                        <strong>{{ category.grouper.0 }}</strong>
+
+                    </summary>
+                    <div class="subcategories">
 
                     {% for item in category.list %}
                         <label class="checkbox {% if inline_class %}{{ inline_class }}{% endif %} checkbox-new-content">
@@ -56,7 +63,10 @@
 
                             {{ item.choice.1|unlocalize }}
                         </label>
+
                     {% endfor %}
+                    </div>
+                    </details>
                 {% endfor %}
 
                 {% include 'bootstrap/layout/help_text.html' %}
