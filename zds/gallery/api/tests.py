@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.cache import caches
 from django.urls import reverse
 from django.conf import settings
@@ -279,6 +281,25 @@ class ImageListAPITest(APITestCase):
     def test_post_fail_add_image_not_an_image(self):
         title = "un super titre pour une image"
         legend = "une super legende aussi"
+        file_id = str(uuid4())
+        # generate a bare empty file so that the test continues and sends error message
+        with open(file_id + ".svgz", "w"):
+            pass
+        response = self.client.post(
+            reverse("api:gallery:list-images", kwargs={"pk_gallery": self.gallery.pk}),
+            {
+                "title": title,
+                "legend": legend,
+                "physical": open(file_id + ".svgz", "rb"),
+            },
+            format="multipart",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
+
+    def test_post_can_add_image_svg_image(self):
+        title = "un super titre pour une image svg"
+        legend = "une super legende aussi"
 
         response = self.client.post(
             reverse("api:gallery:list-images", kwargs={"pk_gallery": self.gallery.pk}),
@@ -289,9 +310,11 @@ class ImageListAPITest(APITestCase):
             },
             format="multipart",
         )
+        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 2)
 
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
+        image = Image.objects.filter(gallery=self.gallery).order_by("pk").last()
+        self.assertEqual(image.title, title)
+        self.assertEqual(image.legend, legend)
 
     def test_post_fail_add_image_no_permissions(self):
         title = "un super titre pour une image"

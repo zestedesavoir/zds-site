@@ -318,7 +318,6 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                         send_by_mail=True,
                         leave=False,
                         direct=False,
-                        mark_as_read=True,
                         hat=get_hat_from_settings("validation"),
                     )
                     validation.content.save()

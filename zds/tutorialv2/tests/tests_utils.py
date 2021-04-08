@@ -478,7 +478,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         """
 
         # 1. With user connected
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # go to whatever page, if not, `get_current_user()` does not work at all
         result = self.client.get(reverse("pages-index"))

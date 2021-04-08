@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
 from zds.utils.forms import TagValidator, IncludeEasyMDE
+from zds.utils.validators import with_svg_validator
 
 
 class FormWithTitle(forms.Form):
@@ -237,10 +238,11 @@ class ContentForm(ContainerForm):
         required=False,
     )
 
-    image = forms.ImageField(
+    image = forms.FileField(
         label=_("Sélectionnez le logo du contenu (max. {} Ko).").format(
             str(settings.ZDS_APP["gallery"]["image_max_size"] / 1024)
         ),
+        validators=[with_svg_validator],
         required=False,
     )
 
@@ -677,7 +679,9 @@ class AskValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=False,
-        widget=forms.Textarea(attrs={"placeholder": _("Commentaire pour votre demande."), "rows": "3"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Commentaire pour votre demande."), "rows": "3", "id": "ask_validation_text"}
+        ),
     )
 
     version = forms.CharField(widget=forms.HiddenInput(), required=True)
@@ -810,7 +814,9 @@ class CancelValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4", "id": "cancel_text"}
+        ),
     )
 
     def __init__(self, validation, *args, **kwargs):
@@ -856,7 +862,9 @@ class CancelValidationForm(forms.Form):
 class RejectValidationForm(forms.Form):
 
     text = forms.CharField(
-        label="", required=True, widget=forms.Textarea(attrs={"placeholder": _("Commentaire de rejet."), "rows": "6"})
+        label="",
+        required=True,
+        widget=forms.Textarea(attrs={"placeholder": _("Commentaire de rejet."), "rows": "6", "id": "reject_text"}),
     )
 
     def __init__(self, validation, *args, **kwargs):
@@ -912,7 +920,9 @@ class RevokeValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6", "id": "up_text"}
+        ),
     )
 
     def __init__(self, content, *args, **kwargs):
@@ -1009,7 +1019,9 @@ class MoveElementForm(forms.Form):
 class WarnTypoForm(forms.Form):
 
     text = forms.CharField(
-        label="", required=True, widget=forms.Textarea(attrs={"placeholder": _("Expliquez la faute"), "rows": "3"})
+        label="",
+        required=True,
+        widget=forms.Textarea(attrs={"placeholder": _("Expliquez la faute"), "rows": "3", "id": "warn_text"}),
     )
 
     target = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -1154,7 +1166,9 @@ class UnpublicationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6", "id": "up_reason"}
+        ),
     )
 
     def __init__(self, content, *args, **kwargs):
