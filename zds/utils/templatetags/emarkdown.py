@@ -60,8 +60,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
             },
             timeout=timeout,
         )
-    except HTTPError as e:
-
+    except HTTPError:
         logger.exception("An HTTP error happened, markdown rendering failed")
         log_args()
         return "", {}, []
