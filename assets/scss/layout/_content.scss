@@ -162,18 +162,34 @@
                 grid-auto-rows: fit-content(100%);
                 grid-gap: $length-4;
                 summary {
+                    display: block;
                     &:hover {
                         background-color: $grey-200;
                     }
                     &::-webkit-details-marker {
                         display: none;
-                        content: '';
+
                     }
                     &::marker {
                         display: none;
-                        content: '';
+                    }
+                    &:before {
+                        content: '...';
+                        position: relative;
+                        display: block;
+                        top: 65px;
+                        height: 0px;
+                        text-align: center;
                     }
                 }
+                details[open] summary:before {
+                    content: '';
+                    position: relative;
+                    display: block;
+                    top: 90px;
+                    text-align: center;
+                }
+
                 div {
                     width: 80%;
                     margin: auto;
