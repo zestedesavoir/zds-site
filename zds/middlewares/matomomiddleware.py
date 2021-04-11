@@ -38,9 +38,8 @@ def _background_process(queue: Queue):
                 params=params,
             )
             logger.info(f'Matomo tracked this link : {data["client_url"]}')
-        except Exception as e:
+        except Exception:
             logger.error(f'Something went wrong with the tracking of the link {data["client_url"]}')
-            logger.error(f"{str(e)}")
 
         data = queue.get(block=True)
 
