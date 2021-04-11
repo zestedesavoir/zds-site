@@ -28,6 +28,7 @@ from zds.gallery.mixins import (
     ImageCreateMixin,
     UserAlreadyInGallery,
     UserNotInGallery,
+    NotAnImage,
 )
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.utils.paginator import ZdSPagingListView
@@ -328,11 +329,13 @@ class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithRea
     must_write = True  # only allowed users can insert images
 
     def form_valid(self, form):
-
-        self.perform_create(
-            form.cleaned_data.get("title"), self.request.FILES.get("physical"), form.cleaned_data.get("legend")
-        )
-
+        try:
+            self.perform_create(
+                form.cleaned_data.get("title"), self.request.FILES.get("physical"), form.cleaned_data.get("legend")
+            )
+        except NotAnImage:
+            form.add_error("physical", _("Image invalide"))
+            return super().form_invalid(form)
         self.success_url = reverse("gallery-image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
 
         return super().form_valid(form)

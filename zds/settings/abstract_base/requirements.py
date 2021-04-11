@@ -5,7 +5,7 @@ from .config import config
 # so let's use 95
 THUMBNAIL_QUALITY = 95
 # Let's use the default value BUT if we want to let png in lossless format, we have tu use (png,) instead of None
-THUMBNAIL_PRESERVE_EXTENSIONS = None
+THUMBNAIL_PRESERVE_EXTENSIONS = ("svg",)
 
 
 social_auth_config = config.get("social_auth", {})

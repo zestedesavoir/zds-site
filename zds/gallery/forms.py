@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from zds.gallery.models import Gallery, Image, UserGallery
+from zds.utils.validators import with_svg_validator
 
 
 class GalleryForm(forms.ModelForm):
@@ -115,10 +116,11 @@ class ImageForm(forms.ModelForm):
         }
         fields = ["title", "legend"]
 
-    physical = forms.ImageField(
+    physical = forms.FileField(
         label=_("Sélectionnez votre image"),
         required=True,
         help_text=_("Taille maximum : {0} Ko").format(settings.ZDS_APP["gallery"]["image_max_size"] / 1024),
+        validators=[with_svg_validator],
     )
 
     def __init__(self, *args, **kwargs):
