@@ -7,7 +7,7 @@ import logging
 from django.conf import settings
 from threading import Thread
 
-matomo_api_url = "{0}/matomo.php".format(settings.ZDS_APP["site"]["matomoUrl"])
+matomo_api_url = "{}/matomo.php".format(settings.ZDS_APP["site"]["matomoUrl"])
 matomo_site_id = settings.ZDS_APP["site"]["matomoSiteID"]
 matomo_api_version = 1
 logger = logging.getLogger(__name__)
@@ -32,11 +32,15 @@ def _background_process(queue: Queue):
             "m": data["datetime"].minute,
             "s": data["datetime"].second,
         }
-        requests.get(
-            matomo_api_url,
-            params=params,
-        )
-        logger.info(f'Matomo tracked this link : {data["client_url"]}')
+        try:
+            requests.get(
+                matomo_api_url,
+                params=params,
+            )
+            logger.info(f'Matomo tracked this link : {data["client_url"]}')
+        except Exception as e:
+            logger.error(f'Something went wrong with the tracking of the link {data["client_url"]}')
+            logger.error(f"{str(e)}")
 
         data = queue.get(block=True)
 
