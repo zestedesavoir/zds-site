@@ -20,11 +20,10 @@ def get_version():
 
 
 def get_repository_url(repository_name, url_type):
-    for repository in settings.ZDS_APP["github_projects"]["repositories"]:
-        if repository == repository_name:
-            return settings.ZDS_APP["github_projects"][url_type](repository_name)
+    if repository_name not in settings.ZDS_APP["github_projects"]["repositories"]:
+        raise Exception("Incorrect repository_name: " + repository_name)
 
-    raise Exception("Incorrect repository_name: " + repository_name)
+    return settings.ZDS_APP["github_projects"][url_type](repository_name)
 
 
 def version(request):
