@@ -35,8 +35,7 @@ class MpUtilTest(TestCase):
         self.user5.profile.save()
 
         # Login as profile1
-        login_check = self.client.login(username=self.user1.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.user1)
 
         # Save bot group
         bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
@@ -60,7 +59,7 @@ class MpUtilTest(TestCase):
             follow=True,
         )
 
-        # Assert MP have been sent
+        # Assert MP have been sent
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, PrivateTopic.objects.all().count())
 
@@ -97,8 +96,7 @@ class MpUtilTest(TestCase):
 
         mail.outbox = []
         self.client.logout()
-        login_check = self.client.login(username=self.user2.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.user2)
 
         # Add an answer
         topic1 = PrivateTopic.objects.get()
@@ -123,5 +121,4 @@ class MpUtilTest(TestCase):
         PrivateTopic.objects.all().delete()
 
         self.client.logout()
-        login_check = self.client.login(username=self.user1.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.user1)

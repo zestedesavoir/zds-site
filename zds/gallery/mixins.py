@@ -8,6 +8,7 @@ from PIL import Image as ImagePIL
 from easy_thumbnails.files import get_thumbnailer
 
 from django.conf import settings
+from svglib.svglib import load_svg_file
 
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
 from zds.tutorialv2.models.database import PublishableContent
@@ -234,7 +235,10 @@ class ImageCreateMixin(ImageMixin):
             raise ImageTooLarge(title, physical.size)
 
         try:
-            ImagePIL.open(physical)
+            if not physical.name.endswith(".svg"):
+                ImagePIL.open(physical)
+            elif load_svg_file(physical) is None:
+                raise NotAnImage(physical)
         except OSError:
             raise NotAnImage(physical)
 
@@ -286,20 +290,15 @@ class ImageCreateMixin(ImageMixin):
             f_im = open(ph_temp, "wb")
             f_im.write(zfile.read(i))
             f_im.close()
-
-            # if it's not an image, pass
             try:
-                ImagePIL.open(ph_temp)
-            except OSError:
+                # create picture:
+                f_im = get_thumbnailer(open(ph_temp, "rb"), relative_name=ph_temp)
+                f_im.name = basename
+                self.perform_create(name, f_im)
+                f_im.close()
+            except NotAnImage:
                 error_files.append(i)
                 continue
-
-            # create picture:
-            f_im = get_thumbnailer(open(ph_temp, "rb"), relative_name=ph_temp)
-            f_im.name = basename
-            self.perform_create(name, f_im)
-            f_im.close()
-
             if os.path.exists(ph_temp):
                 os.remove(ph_temp)
 

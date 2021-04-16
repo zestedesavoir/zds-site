@@ -1,9 +1,10 @@
 import factory
+
 from zds.forum.models import ForumCategory, Forum, Topic, Post
 from zds.utils.models import Tag
 
 
-class ForumCategoryFactory(factory.DjangoModelFactory):
+class ForumCategoryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = ForumCategory
 
@@ -11,7 +12,7 @@ class ForumCategoryFactory(factory.DjangoModelFactory):
     slug = factory.Sequence("category{}".format)
 
 
-class ForumFactory(factory.DjangoModelFactory):
+class ForumFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Forum
 
@@ -20,7 +21,7 @@ class ForumFactory(factory.DjangoModelFactory):
     slug = factory.Sequence("forum{}".format)
 
 
-class TagFactory(factory.DjangoModelFactory):
+class TagFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Tag
 
@@ -28,7 +29,7 @@ class TagFactory(factory.DjangoModelFactory):
     slug = factory.Sequence("tag{}".format)
 
 
-class TopicFactory(factory.DjangoModelFactory):
+class TopicFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Topic
 
@@ -36,7 +37,7 @@ class TopicFactory(factory.DjangoModelFactory):
     subtitle = factory.Sequence("Sous Titre du sujet No{}".format)
 
 
-class PostFactory(factory.DjangoModelFactory):
+class PostFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Post
 
@@ -45,9 +46,9 @@ class PostFactory(factory.DjangoModelFactory):
     text_html = text
 
     @classmethod
-    def _prepare(cls, create, **kwargs):
-        post = super()._prepare(create, **kwargs)
-        topic = kwargs.pop("topic", None)
+    def _generate(cls, create, attrs):
+        post = super()._generate(create, attrs)
+        topic = attrs.get("topic", None)
         if topic:
             post.save()
             topic.last_message = post

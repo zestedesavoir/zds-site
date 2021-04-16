@@ -10,8 +10,6 @@ from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    LicenceFactory,
-    SubCategoryFactory,
     PublishedContentFactory,
     ValidationFactory,
 )
@@ -19,7 +17,7 @@ from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.gallery.factories import UserGalleryFactory
 from zds.forum.factories import ForumFactory, ForumCategoryFactory
-from zds.utils.factories import CategoryFactory as ContentCategoryFactory
+from zds.utils.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
 
 
 @override_for_contents()
@@ -105,7 +103,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto_1.save()
 
     def test_list_categories(self):
-        category_1 = ContentCategoryFactory()
+        category_1 = CategoryFactory()
         subcategory_1 = SubCategoryFactory(category=category_1)
         subcategory_2 = SubCategoryFactory(category=category_1)
         # Not in context if nothing published inside this subcategory
@@ -128,7 +126,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tutorial_unpublished = PublishableContentFactory(author_list=[self.user_author])
         article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
         article_unpublished = PublishableContentFactory(author_list=[self.user_author], type="ARTICLE")
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         resp = self.client.get(reverse("tutorial:find-tutorial", args=[self.user_author.username]))
         self.assertContains(resp, tutorial.title)
         self.assertContains(resp, tutorial_unpublished.title)
@@ -175,7 +173,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)  # get 302 → redirection to login
 
         # connect with author:
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         result = self.client.get(reverse("validation:list"), follow=False)
         self.assertEqual(result.status_code, 403)  # get 403 not allowed
@@ -183,7 +181,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         # connect with staff:
-        self.assertEqual(self.client.login(username=self.user_staff.username, password="hostel77"), True)
+        self.client.force_login(self.user_staff)
 
         response = self.client.get(reverse("validation:list"), follow=False)
         self.assertEqual(response.status_code, 200)  # OK

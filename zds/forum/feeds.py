@@ -2,13 +2,21 @@ from django.contrib.syndication.views import Feed
 
 from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
+from django.utils.timezone import make_aware
+from pytz import AmbiguousTimeError, NonExistentTimeError
 
 from .models import Post, Topic
 
 
 class ItemMixin:
     def item_pubdate(self, item):
-        return item.pubdate
+        try:
+            return make_aware(item.pubdate)
+        except AmbiguousTimeError:
+            try:
+                return make_aware(item.pubdate, is_dst=True)
+            except NonExistentTimeError:
+                return make_aware(item.pubdate, is_dst=False)
 
     def item_author_name(self, item):
         return item.author.username

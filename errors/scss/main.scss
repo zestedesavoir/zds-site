@@ -17,11 +17,12 @@ html,
 body {
     width: 100%;
     min-height: 100%;
+    font-family: sans-serif;
 }
 
 body {
     background: #19516b;
-    background-image: radial-gradient(top center, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0));
+    background: #19516b radial-gradient(at top center, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0));
     background-repeat: no-repeat;
     color: #FFF;
     text-align: center;
@@ -53,7 +54,7 @@ h2 {
     max-width: 90%;
     margin: 0 5%;
 }
-.clem-blasee, {
+.clem-blasee, .clem-is-lost, .clem-bodygard, .clem-burn {
     margin-top: -150px;
 }
 .clem-dodo {
@@ -63,6 +64,18 @@ h2 {
 p {
     margin: 15px 5% 50px;
     font-size: 14px;
+
+    &.small {
+        font-size: 12px;
+    }
+
+    a {
+        color: inherit;
+        
+        &:hover {
+            text-decoration: none;
+        }
+    }
 }
 
 
@@ -84,6 +97,10 @@ p {
 
     p {
         font-size: 18px;
+
+        &.small {
+            font-size: 14px;
+        }
     }
 }
 @media only screen and (min-width: 550px) {
@@ -93,6 +110,10 @@ p {
 
     p {
         font-size: 24px;
+
+        &.small {
+            font-size: 18px;
+        }
     }
 }
 @media only screen and (min-width: 800px) {
@@ -107,5 +128,10 @@ p {
     p {
         margin-top: 80px;
         font-size: 28px;
+
+        &.small {
+            margin-top: 0;
+            font-size: 22px;
+        }
     }
 }

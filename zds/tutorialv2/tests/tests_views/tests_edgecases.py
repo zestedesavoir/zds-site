@@ -3,9 +3,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishedContentFactory, LicenceFactory, SubCategoryFactory
+from zds.tutorialv2.factories import PublishedContentFactory
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
+from zds.utils.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()
@@ -33,7 +34,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             type="ARTICLE", title="title", author_list=[self.author.user], licence=self.licence
         )
         # login with author
-        self.assertEqual(self.client.login(username=self.author.user.username, password="hostel77"), True)
+        self.client.force_login(self.author.user)
         result = self.client.post(
             reverse("content:edit", args=[opinion.pk, opinion.slug]),
             {

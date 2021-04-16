@@ -14,14 +14,13 @@ from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    LicenceFactory,
     PublishedContentFactory,
-    SubCategoryFactory,
 )
 from zds.gallery.factories import UserGalleryFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.utils.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.models import Tag
 from django.template.defaultfilters import date
 
@@ -450,7 +449,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         old_description = article.public_version.description()
         article.licence = LicenceFactory()
         article.save()
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
         self.client.post(
             reverse("content:edit", args=[article.pk, article.slug]),
             {
