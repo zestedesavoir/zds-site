@@ -1,3 +1,4 @@
+from datetime import datetime
 from math import ceil
 
 from django.conf import settings
@@ -12,8 +13,6 @@ from zds.utils import get_current_user, old_slugify
 
 class NotReachableError(Exception):
     """Raised when a user cannot be reached using private messages (e.g. bots)."""
-
-    pass
 
 
 class NotParticipatingError(Exception):
@@ -57,6 +56,22 @@ class PrivateTopic(models.Model):
     )
     pubdate = models.DateTimeField("Date de création", auto_now_add=True, db_index=True)
     objects = PrivateTopicManager()
+
+    @staticmethod
+    def create(title, subtitle, author, recipients):
+        limit = PrivateTopic._meta.get_field("title").max_length
+        topic = PrivateTopic()
+        topic.title = title[:limit]
+        topic.subtitle = subtitle
+        topic.pubdate = datetime.now()
+        topic.author = author
+        topic.save()
+
+        for participant in recipients:
+            topic.add_participant(participant, silent=True)
+        topic.save()
+
+        return topic
 
     def __str__(self):
         """
@@ -182,7 +197,7 @@ class PrivateTopic(models.Model):
             page_nb = 1
             if pos > settings.ZDS_APP["forum"]["posts_per_page"]:
                 page_nb += (pos - 1) // settings.ZDS_APP["forum"]["posts_per_page"]
-            return "{}?page={}#p{}".format(self.get_absolute_url(), page_nb, pk)
+            return f"{self.get_absolute_url()}?page={page_nb}#p{pk}"
         except PrivateTopicRead.DoesNotExist:
             return self.first_unread_post().get_absolute_url()
 
@@ -263,20 +278,21 @@ class PrivateTopic(models.Model):
         """
         return self.is_author(user) or user in self.participants.all()
 
-    def add_participant(self, user):
+    def add_participant(self, user, silent=False):
         """
         Add a participant to the private topic.
-        If the user is already participating, do not add it again.
+        If the user is already participating, do nothing.
         Send the `participant_added` signal if successful.
 
         :param user: the user to add to the private topic
+        :param silent: specify if the `participant_added` signal should be silent (e.g. no notification)
         :raise NotReachableError: if the user cannot receive private messages (e.g. a bot)
         """
         if not is_reachable(user):
             raise NotReachableError
-        if not self.is_participant(user):  # avoid adding the same participant twice
+        if not self.is_participant(user):
             self.participants.add(user)
-            signals.participant_added.send(sender=PrivateTopic, topic=self)
+            signals.participant_added.send(sender=PrivateTopic, topic=self, silent=silent)
 
     def remove_participant(self, user):
         """
@@ -346,7 +362,7 @@ class PrivatePost(models.Model):
         :return: PrivatePost description
         :rtype: unicode
         """
-        return "<Post pour « {0} », #{1}>".format(self.privatetopic, self.pk)
+        return f"<Post pour « {self.privatetopic} », #{self.pk}>"
 
     def get_absolute_url(self):
         """
@@ -357,7 +373,7 @@ class PrivatePost(models.Model):
         """
         page = int(ceil(float(self.position_in_topic) / settings.ZDS_APP["forum"]["posts_per_page"]))
 
-        return "{0}?page={1}#p{2}".format(self.privatetopic.get_absolute_url(), page, self.pk)
+        return f"{self.privatetopic.get_absolute_url()}?page={page}#p{self.pk}"
 
     def is_author(self, user):
         """
@@ -421,7 +437,7 @@ class PrivateTopicRead(models.Model):
         :return: PrivateTopicRead description
         :rtype: unicode
         """
-        return "<Sujet « {0} » lu par {1}, #{2}>".format(self.privatetopic, self.user, self.privatepost.pk)
+        return f"<Sujet « {self.privatetopic} » lu par {self.user}, #{self.privatepost.pk}>"
 
 
 def is_privatetopic_unread(privatetopic, user=None):

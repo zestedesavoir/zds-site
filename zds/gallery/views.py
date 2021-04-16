@@ -28,6 +28,7 @@ from zds.gallery.mixins import (
     ImageCreateMixin,
     UserAlreadyInGallery,
     UserNotInGallery,
+    NotAnImage,
 )
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.utils.paginator import ZdSPagingListView
@@ -46,7 +47,7 @@ class ListGallery(LoginRequiredMixin, ZdSPagingListView):
         return Gallery.objects.galleries_of_user(self.request.user).order_by("pk")
 
     def get_context_data(self, **kwargs):
-        context = super(ListGallery, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # fetch content linked to galleries:
         linked_contents = {}
@@ -97,7 +98,7 @@ class GalleryDetails(LoginRequiredMixin, GalleryMixin, ZdSPagingListView):
         return self.gallery.get_images().order_by("title")
 
     def get_context_data(self, **kwargs):
-        context = super(GalleryDetails, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["permissions"] = self.users_and_permissions[self.request.user.pk]
         context["form"] = UserGalleryForm(gallery=self.gallery)
@@ -328,11 +329,13 @@ class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithRea
     must_write = True  # only allowed users can insert images
 
     def form_valid(self, form):
-
-        self.perform_create(
-            form.cleaned_data.get("title"), self.request.FILES.get("physical"), form.cleaned_data.get("legend")
-        )
-
+        try:
+            self.perform_create(
+                form.cleaned_data.get("title"), self.request.FILES.get("physical"), form.cleaned_data.get("legend")
+            )
+        except NotAnImage:
+            form.add_error("physical", _("Image invalide"))
+            return super().form_invalid(form)
         self.success_url = reverse("gallery-image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
 
         return super().form_valid(form)
@@ -364,7 +367,7 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(EditImage, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["as_avatar_form"] = ImageAsAvatarForm()
         context["image"] = self.image

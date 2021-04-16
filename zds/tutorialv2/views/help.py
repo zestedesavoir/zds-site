@@ -48,7 +48,7 @@ class ContentsWithHelps(ZdSPagingListView):
 
     def get_context_data(self, **kwargs):
         """Add all HelpWriting objects registered to the context so that the template can use it"""
-        context = super(ContentsWithHelps, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         queryset = kwargs.pop("object_list", self.object_list)
 
         helps = HelpWriting.objects

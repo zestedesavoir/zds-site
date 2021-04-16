@@ -39,7 +39,7 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
     )
 
     def __init__(self, username, *args, **kwargs):
-        super(PrivateTopicForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -54,7 +54,7 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
         )
 
     def clean(self):
-        cleaned_data = super(PrivateTopicForm, self).clean()
+        cleaned_data = super().clean()
 
         self.validate_participants(cleaned_data.get("participants"), self.username)
         self.validate_title(cleaned_data.get("title"))
@@ -72,7 +72,7 @@ class PrivateTopicEditForm(forms.ModelForm, TitleValidator):
         fields = ["title", "subtitle"]
 
     def __init__(self, *args, **kwargs):
-        super(PrivateTopicEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -86,7 +86,7 @@ class PrivateTopicEditForm(forms.ModelForm, TitleValidator):
         )
 
     def clean(self):
-        cleaned_data = super(PrivateTopicEditForm, self).clean()
+        cleaned_data = super().clean()
         self.validate_title(cleaned_data.get("title"))
         return cleaned_data
 
@@ -101,7 +101,7 @@ class PrivatePostForm(forms.Form):
     )
 
     def __init__(self, topic, *args, **kwargs):
-        super(PrivatePostForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("private-posts-new", args=[topic.pk, topic.slug()])
         self.helper.form_method = "post"
@@ -120,7 +120,7 @@ class PrivatePostForm(forms.Form):
             )
 
     def clean(self):
-        cleaned_data = super(PrivatePostForm, self).clean()
+        cleaned_data = super().clean()
 
         text = cleaned_data.get("text")
 

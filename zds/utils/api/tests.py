@@ -92,7 +92,7 @@ class TagListAPITest(APITestCase):
         self.create_multiple_tags(REST_PAGE_SIZE * 2)
 
         page_size = "page_size"
-        response = self.client.get(reverse("api:utils:tags-list") + "?{}=20".format(page_size))
+        response = self.client.get(reverse("api:utils:tags-list") + f"?{page_size}=20")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), 20)
         self.assertEqual(len(response.data.get("results")), 20)
@@ -108,7 +108,7 @@ class TagListAPITest(APITestCase):
         page_size_value = REST_MAX_PAGE_SIZE + 1
         self.create_multiple_tags(page_size_value)
 
-        response = self.client.get(reverse("api:utils:tags-list") + "?page_size={}".format(page_size_value))
+        response = self.client.get(reverse("api:utils:tags-list") + f"?page_size={page_size_value}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("count"), page_size_value)
         self.assertIsNotNone(response.data.get("next"))

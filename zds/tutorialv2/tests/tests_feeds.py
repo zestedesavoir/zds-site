@@ -10,14 +10,13 @@ from zds.forum.factories import ForumFactory, ForumCategoryFactory, TagFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.tutorialv2.factories import (
-    LicenceFactory,
-    SubCategoryFactory,
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
 )
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
+from zds.utils.factories import SubCategoryFactory, LicenceFactory
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)

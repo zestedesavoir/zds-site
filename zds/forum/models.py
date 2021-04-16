@@ -21,7 +21,7 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group("start")
     end = tag.group("end")
-    return "{0}".format(start + end)
+    return "{}".format(start + end)
 
 
 class ForumCategory(models.Model):
@@ -343,7 +343,7 @@ class Topic(AbstractESDjangoIndexable):
                 page_nb = 1
                 if pos > settings.ZDS_APP["forum"]["posts_per_page"]:
                     page_nb += (pos - 1) // settings.ZDS_APP["forum"]["posts_per_page"]
-                return "{}?page={}#p{}".format(self.get_absolute_url(), page_nb, pk)
+                return f"{self.get_absolute_url()}?page={page_nb}#p{pk}"
             except TopicRead.DoesNotExist:
                 return self.first_unread_post().get_absolute_url()
 
@@ -426,7 +426,7 @@ class Topic(AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_mapping(cls):
-        es_mapping = super(Topic, cls).get_es_mapping()
+        es_mapping = super().get_es_mapping()
 
         es_mapping.field("title", Text(boost=1.5))
         es_mapping.field("tags", Text(boost=2.0))
@@ -448,7 +448,7 @@ class Topic(AbstractESDjangoIndexable):
     def get_es_django_indexable(cls, force_reindexing=False):
         """Overridden to prefetch tags and forum"""
 
-        query = super(Topic, cls).get_es_django_indexable(force_reindexing)
+        query = super().get_es_django_indexable(force_reindexing)
         return query.prefetch_related("tags").select_related("forum")
 
     def get_es_document_source(self, excluded_fields=None):
@@ -457,7 +457,7 @@ class Topic(AbstractESDjangoIndexable):
         excluded_fields = excluded_fields or []
         excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url"])
 
-        data = super(Topic, self).get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_es_document_source(excluded_fields=excluded_fields)
         data["tags"] = [tag.title for tag in self.tags.all()]
         data["forum_pk"] = self.forum.pk
         data["forum_title"] = self.forum.title
@@ -476,7 +476,7 @@ class Topic(AbstractESDjangoIndexable):
             if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
                 Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
 
-        return super(Topic, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)
 
 
 @receiver(pre_delete, sender=Topic)
@@ -500,7 +500,7 @@ class Post(Comment, AbstractESDjangoIndexable):
     objects = PostManager()
 
     def __str__(self):
-        return "<Post pour '{0}', #{1}>".format(self.topic, self.pk)
+        return f"<Post pour '{self.topic}', #{self.pk}>"
 
     def get_absolute_url(self):
         """
@@ -508,14 +508,14 @@ class Post(Comment, AbstractESDjangoIndexable):
         """
         page = int(ceil(float(self.position) / settings.ZDS_APP["forum"]["posts_per_page"]))
 
-        return "{0}?page={1}#p{2}".format(self.topic.get_absolute_url(), page, self.pk)
+        return f"{self.topic.get_absolute_url()}?page={page}#p{self.pk}"
 
     def get_notification_title(self):
         return self.topic.title
 
     @classmethod
     def get_es_mapping(cls):
-        es_mapping = super(Post, cls).get_es_mapping()
+        es_mapping = super().get_es_mapping()
 
         es_mapping.field("text_html", Text())
         es_mapping.field("is_useful", Boolean())
@@ -538,12 +538,7 @@ class Post(Comment, AbstractESDjangoIndexable):
     def get_es_django_indexable(cls, force_reindexing=False):
         """Overridden to prefetch stuffs"""
 
-        q = (
-            super(Post, cls)
-            .get_es_django_indexable(force_reindexing)
-            .prefetch_related("topic")
-            .prefetch_related("topic__forum")
-        )
+        q = super().get_es_django_indexable(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
 
         return q
 
@@ -555,7 +550,7 @@ class Post(Comment, AbstractESDjangoIndexable):
             ["like_dislike_ratio", "topic_title", "topic_pk", "forum_title", "forum_pk", "forum_get_absolute_url"]
         )
 
-        data = super(Post, self).get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_es_document_source(excluded_fields=excluded_fields)
 
         data["like_dislike_ratio"] = (
             (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
@@ -573,7 +568,7 @@ class Post(Comment, AbstractESDjangoIndexable):
     def hide_comment_by_user(self, user, text_hidden):
         """Overridden to directly hide the post in ES as well"""
 
-        super(Post, self).hide_comment_by_user(user, text_hidden)
+        super().hide_comment_by_user(user, text_hidden)
 
         index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
         index_manager.update_single_document(self, {"is_visible": False})
@@ -602,7 +597,7 @@ class TopicRead(models.Model):
     objects = TopicReadManager()
 
     def __str__(self):
-        return "<Sujet '{0}' lu par {1}, #{2}>".format(self.topic, self.user, self.post.pk)
+        return f"<Sujet '{self.topic}' lu par {self.user}, #{self.post.pk}>"
 
 
 def is_read(topic, user=None):

@@ -247,7 +247,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(response.hits.total, 0)
 
         # 3. Connect with user (not a member of the group), search, and get no result
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
@@ -257,7 +257,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # 4. Connect with staff, search, and get the topic and the post
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
@@ -618,7 +618,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(response[0].topic_title, topic_1.title)  # title was changed
 
         # 4. connect with staff and move topic
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
 
         data = {"move": "", "forum": hidden_forum.pk, "topic": topic_1.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)

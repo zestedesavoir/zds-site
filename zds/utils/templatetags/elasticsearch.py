@@ -48,7 +48,7 @@ class HighlightNode(template.Node):
             field = template.Variable(self.field).resolve(context)
 
         if field not in search_result:
-            raise template.VariableDoesNotExist("field {} is not a member of the search result".format(field))
+            raise template.VariableDoesNotExist(f"field {field} is not a member of the search result")
 
         text = ""
 

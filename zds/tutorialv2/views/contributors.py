@@ -28,7 +28,7 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
     authorized_for_staff = True
 
     def get_form_kwargs(self):
-        kwargs = super(AddContributorToContent, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs.update({"content": self.object})
         return kwargs
 
@@ -94,12 +94,12 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
             )
             self.success_url = self.object.get_absolute_url()
 
-            return super(AddContributorToContent, self).form_valid(form)
+            return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, form.errors)
         self.success_url = self.object.get_absolute_url()
-        return super(AddContributorToContent, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -125,12 +125,12 @@ class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFor
         )
         self.success_url = self.object.get_absolute_url()
 
-        return super(RemoveContributorFromContent, self).form_valid(form)
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les contributeurs sélectionnés n'existent pas."))
         self.success_url = self.object.get_absolute_url()
-        return super(RemoveContributorFromContent, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class ContentOfContributors(ZdSPagingListView):
@@ -153,7 +153,7 @@ class ContentOfContributors(ZdSPagingListView):
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, username=self.kwargs["username"])
-        return super(ContentOfContributors, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         if self.type == "ALL":
@@ -174,7 +174,7 @@ class ContentOfContributors(ZdSPagingListView):
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(ContentOfContributors, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["sorts"] = []
         context["sort"] = self.sort.lower()
         context["subscriber_count"] = NewPublicationSubscription.objects.get_subscriptions(self.user).count()

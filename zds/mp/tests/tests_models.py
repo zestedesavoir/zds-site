@@ -223,7 +223,7 @@ class PrivatePostTest(TestCase):
     def test_absolute_url(self):
         page = int(ceil(float(self.post1.position_in_topic) / settings.ZDS_APP["forum"]["posts_per_page"]))
 
-        url = "{0}?page={1}#p{2}".format(self.post1.privatetopic.get_absolute_url(), page, self.post1.pk)
+        url = f"{self.post1.privatetopic.get_absolute_url()}?page={page}#p{self.post1.pk}"
 
         self.assertEqual(url, self.post1.get_absolute_url())
 

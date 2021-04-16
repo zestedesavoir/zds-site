@@ -45,7 +45,7 @@ class ZdSEmailValidator(EmailValidator):
         # check if provider is blacklisted
         blacklist = BannedEmailProvider.objects.values_list("provider", flat=True)
         for provider in blacklist:
-            if "@{}".format(provider) in value.lower():
+            if f"@{provider}" in value.lower():
                 raise ValidationError(_("Ce fournisseur ne peut pas être utilisé."), code=self.code)
 
         # check if email is used by another user
@@ -82,6 +82,8 @@ def validate_zds_username(value, check_username_available=True):
     skeleton_user_count = Profile.objects.filter(username_skeleton=Profile.find_username_skeleton(value)).count()
     if "," in value:
         msg = _("Le nom d'utilisateur ne peut contenir de virgules")
+    if "/" in value:
+        msg = _("Le nom d'utilisateur ne peut contenir de barres obliques")
     elif contains_utf8mb4(value):
         msg = _("Le nom d'utilisateur ne peut pas contenir des caractères utf8mb4")
     elif check_username_available and user_count > 0:

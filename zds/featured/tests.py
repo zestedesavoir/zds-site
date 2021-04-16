@@ -22,8 +22,7 @@ stringof2001chars += "12.jpg"
 class FeaturedResourceListViewTest(TestCase):
     def test_success_list_of_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         response = self.client.get(reverse("featured-resource-list"))
 
@@ -36,8 +35,7 @@ class FeaturedResourceListViewTest(TestCase):
 
     def test_failure_list_of_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(profile.user)
 
         response = self.client.get(reverse("featured-resource-list"))
 
@@ -48,9 +46,8 @@ class FeaturedResourceListViewTest(TestCase):
 class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
     def test_success_create_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
+        self.client.force_login(staff.user)
 
-        self.assertTrue(login_check)
         self.assertEqual(0, FeaturedResource.objects.all().count())
 
         pubdate = date(2016, 1, 1).strftime("%d/%m/%Y %H:%M:%S")
@@ -73,7 +70,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
 
         for field, value in list(fields.items()):
             if field != "pubdate":
-                self.assertEqual(value, getattr(featured, field), msg="Error on {}".format(field))
+                self.assertEqual(value, getattr(featured, field), msg=f"Error on {field}")
             else:
                 self.assertEqual(value, featured.pubdate.strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -94,8 +91,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
 
     def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(profile.user)
 
         response = self.client.get(reverse("featured-resource-create"))
 
@@ -103,8 +99,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
 
     def test_failure_too_long_url(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         self.assertEqual(0, FeaturedResource.objects.all().count())
         response = self.client.post(
@@ -146,18 +141,17 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         tutorial.image = image
         tutorial.save()
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
         response = self.client.get(
             "{}{}".format(
-                reverse("featured-resource-create"), "?content_type=published_content&content_id={}".format(tutorial.pk)
+                reverse("featured-resource-create"), f"?content_type=published_content&content_id={tutorial.pk}"
             )
         )
         initial_dict = response.context["form"].initial
         self.assertEqual(initial_dict["title"], tutorial.title)
-        self.assertEqual(initial_dict["authors"], "{}, {}".format(author, author2))
+        self.assertEqual(initial_dict["authors"], f"{author}, {author2}")
         self.assertEqual(initial_dict["type"], _("Un tutoriel"))
-        self.assertEqual(initial_dict["url"], "http://testserver{}".format(tutorial.get_absolute_url_online()))
+        self.assertEqual(initial_dict["url"], f"http://testserver{tutorial.get_absolute_url_online()}")
         self.assertEqual(initial_dict["image_url"], "http://testserver{}".format(image.physical["featured"].url))
 
     def test_success_initial_content_topic(self):
@@ -166,8 +160,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         forum = ForumFactory(category=category, position_in_category=1)
         topic = TopicFactory(forum=forum, author=author)
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
         response = self.client.get(
             "{}?content_type=topic&content_id={}".format(reverse("featured-resource-create"), topic.id)
         )
@@ -175,12 +168,11 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
         self.assertEqual(initial_dict["title"], topic.title)
         self.assertEqual(initial_dict["authors"], str(author))
         self.assertEqual(initial_dict["type"], _("Un sujet"))
-        self.assertEqual(initial_dict["url"], "http://testserver{}".format(topic.get_absolute_url()))
+        self.assertEqual(initial_dict["url"], f"http://testserver{topic.get_absolute_url()}")
 
     def test_failure_initial_content_not_found(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         response = self.client.get(
             "{}?content_type=published_content&content_id=42".format(reverse("featured-resource-create"))
@@ -191,8 +183,7 @@ class FeaturedResourceCreateViewTest(TutorialTestMixin, TestCase):
 class FeaturedResourceUpdateViewTest(TestCase):
     def test_success_update_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         news = FeaturedResourceFactory()
         self.assertEqual(1, FeaturedResource.objects.all().count())
@@ -221,7 +212,7 @@ class FeaturedResourceUpdateViewTest(TestCase):
             self.assertNotEqual(getattr(featured, field), getattr(old_featured, field))
 
             if field != "pubdate":
-                self.assertEqual(value, getattr(featured, field), msg="Error on {}".format(field))
+                self.assertEqual(value, getattr(featured, field), msg=f"Error on {field}")
             else:
                 self.assertEqual(value, featured.pubdate.strftime("%d/%m/%Y %H:%M:%S"))
 
@@ -242,8 +233,7 @@ class FeaturedResourceUpdateViewTest(TestCase):
 
     def test_failure_create_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(profile.user)
 
         response = self.client.get(reverse("featured-resource-update", args=[42]))
 
@@ -253,8 +243,7 @@ class FeaturedResourceUpdateViewTest(TestCase):
 class FeaturedResourceDeleteViewTest(TestCase):
     def test_success_delete_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         news = FeaturedResourceFactory()
         self.assertEqual(1, FeaturedResource.objects.all().count())
@@ -271,8 +260,7 @@ class FeaturedResourceDeleteViewTest(TestCase):
 
     def test_failure_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(profile.user)
 
         news = FeaturedResourceFactory()
         response = self.client.get(reverse("featured-resource-delete", args=[news.pk]))
@@ -283,8 +271,7 @@ class FeaturedResourceDeleteViewTest(TestCase):
 class FeaturedResourceListDeleteViewTest(TestCase):
     def test_success_list_delete_featured(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         news = FeaturedResourceFactory()
         news2 = FeaturedResourceFactory()
@@ -304,8 +291,7 @@ class FeaturedResourceListDeleteViewTest(TestCase):
 
     def test_failure_list_delete_featured_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(profile.user)
 
         response = self.client.get(reverse("featured-resource-list-delete"))
 
@@ -315,8 +301,7 @@ class FeaturedResourceListDeleteViewTest(TestCase):
 class FeaturedMessageCreateUpdateViewTest(TestCase):
     def test_success_list_create_message(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         response = self.client.post(
             reverse("featured-message-create"),
@@ -332,8 +317,7 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
 
     def test_create_only_one_message_in_system(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         response = self.client.post(
             reverse("featured-message-create"),
@@ -364,8 +348,7 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
 class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
     def test_success_list(self):
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         response = self.client.get(reverse("featured-resource-requests"))
 
@@ -378,8 +361,7 @@ class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
 
     def test_failure_list_with_user_not_staff(self):
         profile = ProfileFactory()
-        login_check = self.client.login(username=profile.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(profile.user)
 
         response = self.client.get(reverse("featured-resource-requests"))
 
@@ -404,8 +386,7 @@ class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
 
         # without filter
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         response = self.client.get(reverse("featured-resource-requests"))
         self.assertEqual(200, response.status_code)
@@ -477,8 +458,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
 
         # ignore
         staff = StaffProfileFactory()
-        login_check = self.client.login(username=staff.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(staff.user)
 
         content_type = ContentType.objects.get_for_model(topic)
         q = FeaturedRequested.objects.get(object_id=topic.pk, content_type__pk=content_type.pk)
@@ -517,8 +497,7 @@ class FeaturedRequestUpdateViewTest(TestCase):
 class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
     def test_toggle(self):
         author = ProfileFactory()
-        login_check = self.client.login(username=author.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(author.user)
 
         # create topic and toggle request
         category = ForumCategoryFactory(position=1)
@@ -526,7 +505,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic = TopicFactory(forum=forum, author=author.user)
 
         response = self.client.post(
-            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {"request_featured": 1},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
@@ -542,7 +521,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic.save()
 
         response = self.client.post(
-            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {"request_featured": 1},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
@@ -608,8 +587,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
 
         # upvote with other user
         other = ProfileFactory()
-        login_check = self.client.login(username=other.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(other.user)
 
         response = self.client.post(
             reverse("content:request-featured", kwargs={"pk": tutorial.pk}),

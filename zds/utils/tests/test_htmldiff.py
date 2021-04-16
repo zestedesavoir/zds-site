@@ -5,11 +5,11 @@ from zds.utils.templatetags.htmldiff import htmldiff
 
 class HtmlDiffTests(TestCase):
     def test_empty(self):
-        self.assertEquals(htmldiff("essai".encode(), "essai".encode()), "<p>Pas de changements.</p>")
+        self.assertEquals(htmldiff(b"essai", b"essai"), "<p>Pas de changements.</p>")
 
     def test_nominal(self):
-        self.assertIn("Agrume", htmldiff("Agrume".encode(), "".encode()))
+        self.assertIn("Agrume", htmldiff(b"Agrume", b""))
 
     def test_encoding(self):
         # Regression test for issue #4824
-        self.assertIn("Étrange caractère", htmldiff("Étrange caractère".encode(), "".encode()))
+        self.assertIn("Étrange caractère", htmldiff("Étrange caractère".encode(), b""))

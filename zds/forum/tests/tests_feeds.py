@@ -19,8 +19,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.forum2 = ForumFactory(category=self.category1, position_in_category=2)
 
         self.user = ProfileFactory().user
-        log = self.client.login(username=self.user.username, password="hostel77")
-        self.assertEqual(log, True)
+        self.client.force_login(self.user)
 
         self.tag = TagFactory()
         self.topic1 = TopicFactory(forum=self.forum, author=self.user)
@@ -103,7 +102,7 @@ class LastTopicsFeedRSSTest(TestCase):
     def test_get_title(self):
         """ test the return value of title """
 
-        ref = "{} dans {}".format(self.topic2.title, self.topic2.forum.title)
+        ref = f"{self.topic2.title} dans {self.topic2.forum.title}"
         topics = self.topicfeed.items(obj={"tag": self.tag.pk})
         ret = self.topicfeed.item_title(item=topics[0])
         self.assertEqual(ret, ref)
@@ -153,8 +152,7 @@ class LastPostFeedTest(TestCase):
         self.forum3 = ForumFactory(category=self.category1, position_in_category=3)
 
         self.user = ProfileFactory().user
-        log = self.client.login(username=self.user.username, password="hostel77")
-        self.assertEqual(log, True)
+        self.client.force_login(self.user)
 
         self.tag = TagFactory()
         self.topic1 = TopicFactory(forum=self.forum, author=self.user)
@@ -250,7 +248,7 @@ class LastPostFeedTest(TestCase):
     def test_get_title(self):
         """ test the return value of title """
 
-        ref = "{}, message #{}".format(self.post3.topic.title, self.post3.pk)
+        ref = f"{self.post3.topic.title}, message #{self.post3.pk}"
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_title(item=posts[0])
         self.assertEqual(ret, ref)

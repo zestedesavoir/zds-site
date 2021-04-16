@@ -97,7 +97,7 @@ class MemberList(ZdSPagingListView):
 
     def get_queryset(self):
         self.queryset = Profile.objects.contactable_members()
-        return super(MemberList, self).get_queryset()
+        return super().get_queryset()
 
 
 class MemberDetail(DetailView):
@@ -202,7 +202,7 @@ class MemberDetail(DetailView):
         return summaries
 
     def get_context_data(self, **kwargs):
-        context = super(MemberDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         usr = context["usr"]
         profile = usr.profile
         context["profile"] = profile
@@ -263,7 +263,7 @@ class UpdateMember(UpdateView):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(UpdateMember, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
@@ -354,7 +354,7 @@ class UpdateGitHubToken(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.profile.is_dev():
             raise PermissionDenied
-        return super(UpdateGitHubToken, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
@@ -493,9 +493,7 @@ class UpdateUsernameEmailMember(UpdateMember):
             provider = provider = new_email.split("@")[-1].lower()
             if (
                 not NewEmailProvider.objects.filter(provider=provider).exists()
-                and not User.objects.filter(email__iendswith="@{}".format(provider))
-                .exclude(pk=profile.user.pk)
-                .exists()
+                and not User.objects.filter(email__iendswith=f"@{provider}").exclude(pk=profile.user.pk).exists()
             ):
                 NewEmailProvider.objects.create(user=profile.user, provider=provider, use=EMAIL_EDIT)
 
@@ -512,7 +510,7 @@ class RegisterView(CreateView, ProfileCreate, TokenGenerator):
     template_name = "member/register/index.html"
 
     def dispatch(self, *args, **kwargs):
-        return super(RegisterView, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
@@ -848,7 +846,7 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
         return get_object_or_404(BannedEmailProvider, pk=self.kwargs["provider_pk"])
 
     def get_context_data(self, **kwargs):
-        context = super(MembersWithProviderList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["provider"] = self.get_object()
         return context
 
@@ -857,7 +855,7 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
         return (
             Profile.objects.select_related("user")
             .order_by("-last_visit")
-            .filter(user__email__icontains="@{}".format(provider.provider))
+            .filter(user__email__icontains=f"@{provider.provider}")
         )
 
 
@@ -874,7 +872,7 @@ class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, Create
     def form_valid(self, form):
         form.instance.moderator = self.request.user
         messages.success(self.request, _("Le fournisseur a été banni."))
-        return super(AddBannedEmailProvider, self).form_valid(form)
+        return super().form_valid(form)
 
 
 @require_POST
@@ -912,7 +910,7 @@ class HatDetail(DetailView):
     template_name = "member/hat.html"
 
     def get_context_data(self, **kwargs):
-        context = super(HatDetail, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         hat = context["hat"]
         if self.request.user.is_authenticated:
             context["is_required"] = HatRequest.objects.filter(
@@ -935,7 +933,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
     form_class = HatRequestForm
 
     def get_initial(self):
-        initial = super(HatsSettings, self).get_initial()
+        initial = super().get_initial()
         if "ask" in self.request.GET:
             try:
                 hat = Hat.objects.get(pk=int(self.request.GET["ask"]))
@@ -949,12 +947,12 @@ class HatsSettings(LoginRequiredMixin, CreateView):
             content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
             return StreamingHttpResponse(content)
 
-        return super(HatsSettings, self).post(request, *args, **kwargs)
+        return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.user = self.request.user
         messages.success(self.request, _("Votre demande a bien été envoyée."))
-        return super(HatsSettings, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         # To remove #send-request HTML-anchor.
@@ -999,7 +997,7 @@ class HatRequestDetail(LoginRequiredMixin, DetailView):
     template_name = "member/admin/hat_request.html"
 
     def get_object(self, queryset=None):
-        request = super(HatRequestDetail, self).get_object()
+        request = super().get_object()
         if request.user != self.request.user and not self.request.user.has_perm("utils.change_hat"):
             raise PermissionDenied
         return request
@@ -1314,7 +1312,7 @@ def activate_account(request):
         provider = usr.email.split("@")[-1].lower()
         if (
             not NewEmailProvider.objects.filter(provider=provider).exists()
-            and not User.objects.filter(email__iendswith="@{}".format(provider)).exclude(pk=usr.pk).exists()
+            and not User.objects.filter(email__iendswith=f"@{provider}").exclude(pk=usr.pk).exists()
         ):
             NewEmailProvider.objects.create(user=usr, provider=provider, use=NEW_ACCOUNT)
 
@@ -1436,7 +1434,7 @@ def settings_promote(request, user_pk):
         if len(usergroups) > 0:
             msg = format_lazy("{}{}", msg, _("Voici la liste des groupes dont vous faites dorénavant partie :\n\n"))
             for group in usergroups:
-                msg += "* {0}\n".format(group.name)
+                msg += f"* {group.name}\n"
         else:
             msg = format_lazy("{}{}", msg, _("* Vous ne faites partie d'aucun groupe"))
         send_mp(
@@ -1491,13 +1489,13 @@ def modify_karma(request):
         if not note.note:
             raise ValueError("note cannot be empty")
         elif note.karma > 100 or note.karma < -100:
-            raise ValueError("Max karma amount has to be between -100 and 100, you entered {}".format(note.karma))
+            raise ValueError(f"Max karma amount has to be between -100 and 100, you entered {note.karma}")
         else:
             note.save()
             profile.karma += note.karma
             profile.save()
     except ValueError as e:
-        logging.getLogger(__name__).warn("ValueError: modifying karma failed because {}".format(e))
+        logging.getLogger(__name__).warn(f"ValueError: modifying karma failed because {e}")
 
     return redirect(reverse("member-detail", args=[profile.user.username]))
 

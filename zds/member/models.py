@@ -122,7 +122,7 @@ class Profile(models.Model):
             else:
                 return self.avatar_url
         else:
-            return "https://secure.gravatar.com/avatar/{0}?d=identicon".format(
+            return "https://secure.gravatar.com/avatar/{}?d=identicon".format(
                 md5(self.user.email.lower().encode("utf-8")).hexdigest()
             )
 
@@ -536,10 +536,10 @@ class TokenForgotPassword(models.Model):
         """
         :return: The absolute URL of the "New password" page, including the correct token.
         """
-        return reverse("member-new-password") + "?token={0}".format(self.token)
+        return reverse("member-new-password") + f"?token={self.token}"
 
     def __str__(self):
-        return "{0} - {1}".format(self.user.username, self.date_end)
+        return f"{self.user.username} - {self.date_end}"
 
 
 class TokenRegister(models.Model):
@@ -561,10 +561,10 @@ class TokenRegister(models.Model):
         """
         :return: the absolute URL of the account validation page, including the token.
         """
-        return reverse("member-active-account") + "?token={0}".format(self.token)
+        return reverse("member-active-account") + f"?token={self.token}"
 
     def __str__(self):
-        return "{0} - {1}".format(self.user.username, self.date_end)
+        return f"{self.user.username} - {self.date_end}"
 
 
 # Used by SOCIAL_AUTH_PIPELINE to create a profile on first login via social auth
@@ -578,7 +578,7 @@ def save_profile(backend, user, response, *args, **kwargs):
 
 def user_readable_forums(user):
     """Returns a set of forums to which a user can access."""
-    return set([f for f in Forum.objects.all() if f.can_read(user)])
+    return {f for f in Forum.objects.all() if f.can_read(user)}
 
 
 class NewEmailProvider(models.Model):
@@ -596,7 +596,7 @@ class NewEmailProvider(models.Model):
     date = models.DateTimeField("Date de l'alerte", auto_now_add=True, db_index=True, db_column="alert_date")
 
     def __str__(self):
-        return "Alert about the new provider {}".format(self.provider)
+        return f"Alert about the new provider {self.provider}"
 
 
 class BannedEmailProvider(models.Model):
@@ -616,7 +616,7 @@ class BannedEmailProvider(models.Model):
     date = models.DateTimeField("Date du bannissement", auto_now_add=True, db_index=True, db_column="ban_date")
 
     def __str__(self):
-        return "Ban of the {} provider".format(self.provider)
+        return f"Ban of the {self.provider} provider"
 
 
 class Ban(models.Model):
@@ -639,7 +639,7 @@ class Ban(models.Model):
     pubdate = models.DateTimeField("Date de publication", blank=True, null=True, db_index=True)
 
     def __str__(self):
-        return "{0} - ban : {1} ({2}) ".format(self.user.username, self.note, self.pubdate)
+        return f"{self.user.username} - ban : {self.note} ({self.pubdate}) "
 
 
 class KarmaNote(models.Model):
@@ -666,4 +666,4 @@ class KarmaNote(models.Model):
     pubdate = models.DateTimeField("Date d'ajout", auto_now_add=True)
 
     def __str__(self):
-        return "{0} - note : {1} ({2}) ".format(self.user.username, self.note, self.pubdate)
+        return f"{self.user.username} - note : {self.note} ({self.pubdate}) "

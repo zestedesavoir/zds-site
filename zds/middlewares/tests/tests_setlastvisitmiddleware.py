@@ -23,7 +23,7 @@ class SetLastVisitMiddlewareTest(TestCase):
         profile_pk = self.user.pk
 
         # login
-        self.assertEqual(self.client.login(username=self.user.user.username, password="hostel77"), True)
+        self.client.force_login(self.user.user)
 
         # set last login to a recent date
         self.user.last_visit = datetime.now() - timedelta(seconds=10)

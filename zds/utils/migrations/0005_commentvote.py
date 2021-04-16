@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="commentvote",
-            unique_together=set([("user", "comment")]),
+            unique_together={("user", "comment")},
         ),
         migrations.RunSQL(
             (

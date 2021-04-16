@@ -20,13 +20,12 @@ from zds.notification.models import (
 from zds.tutorialv2 import signals
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
-    LicenceFactory,
-    SubCategoryFactory,
     PublishedContentFactory,
     ContentReactionFactory,
 )
 from zds.tutorialv2.publication_utils import publish_content, notify_update
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.utils.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.header_notifications import get_header_notifications
 
@@ -50,9 +49,9 @@ class ForumNotification(TestCase):
 
     def test_ping_unknown(self):
         overridden_zds_app["comment"]["enable_pings"] = True
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -68,13 +67,13 @@ class ForumNotification(TestCase):
 
     def test_no_auto_ping(self):
         overridden_zds_app["comment"]["enable_pings"] = True
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged, not @{}".format(self.user1.username, self.user2.username),
+                "text": f"@{self.user1.username} is pinged, not @{self.user2.username}",
                 "tags": "",
             },
             follow=False,
@@ -88,9 +87,9 @@ class ForumNotification(TestCase):
         overridden_zds_app["comment"]["max_pings"] = 2
         overridden_zds_app["comment"]["enable_pings"] = True
         pinged_users = [ProfileFactory(), ProfileFactory(), ProfileFactory(), ProfileFactory()]
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -107,7 +106,7 @@ class ForumNotification(TestCase):
         self.assertFalse(PingSubscription.objects.get_existing(pinged_users[2].user, post, True))
         self.assertFalse(PingSubscription.objects.get_existing(pinged_users[3].user, post, True))
         self.client.post(
-            reverse("topic-edit") + "?topic={}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -125,13 +124,13 @@ class ForumNotification(TestCase):
         to be more accurate : on edition, only ping **new** members
         """
         overridden_zds_app["comment"]["enable_pings"] = True
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged".format(self.user1.username),
+                "text": f"@{self.user1.username} is pinged",
                 "tags": "",
             },
             follow=False,
@@ -144,11 +143,11 @@ class ForumNotification(TestCase):
         user3 = ProfileFactory().user
         post = Topic.objects.last().last_message
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post.pk),
+            reverse("post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged even twice @{}".format(self.user1.username, self.user1.username),
+                "text": f"@{self.user1.username} is pinged even twice @{self.user1.username}",
                 "tags": "",
             },
             follow=False,
@@ -157,7 +156,7 @@ class ForumNotification(TestCase):
         self.assertEqual(1, PingSubscription.objects.count(), "No added subscription.")
         self.assertEqual(1, Notification.objects.count())
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post.pk),
+            reverse("post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -177,13 +176,13 @@ class ForumNotification(TestCase):
         to be more accurate : on edition, only ping **new** members
         """
         overridden_zds_app["comment"]["enable_pings"] = True
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} is pinged".format(self.user1.username),
+                "text": f"@{self.user1.username} is pinged",
                 "tags": "",
             },
             follow=False,
@@ -195,11 +194,11 @@ class ForumNotification(TestCase):
         self.assertEqual(1, Notification.objects.count())
         post = Topic.objects.last().last_message
         result = self.client.post(
-            reverse("post-edit") + "?message={0}".format(post.pk),
+            reverse("post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@ {} is no more pinged ".format(self.user1.username),
+                "text": f"@ {self.user1.username} is no more pinged ",
                 "tags": "",
             },
             follow=False,
@@ -212,9 +211,9 @@ class ForumNotification(TestCase):
 
     def test_no_dead_notif_on_moving(self):
         NewTopicSubscription.objects.get_or_create_active(self.user1, self.forum11)
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -231,7 +230,7 @@ class ForumNotification(TestCase):
         self.assertIsNotNone(subscription.last_notification, "There must be a notification for now")
         self.assertFalse(subscription.last_notification.is_read)
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
@@ -244,13 +243,13 @@ class ForumNotification(TestCase):
         self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
 
     def test_no_ping_on_private_forum(self):
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "ping @{}".format(self.user1.username),
+                "text": f"ping @{self.user1.username}",
                 "tags": "",
             },
             follow=False,
@@ -262,13 +261,13 @@ class ForumNotification(TestCase):
         self.assertIsNone(subscription, "There must be no active subscription for now")
 
     def test_no_dead_ping_notif_on_moving_to_private_forum(self):
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum11.pk),
+            reverse("topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "ping @{}".format(self.user1.username),
+                "text": f"ping @{self.user1.username}",
                 "tags": "",
             },
             follow=False,
@@ -281,7 +280,7 @@ class ForumNotification(TestCase):
         self.assertIsNotNone(subscription.last_notification, "There must be a notification for now")
         self.assertFalse(subscription.last_notification.is_read)
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
@@ -295,9 +294,9 @@ class ForumNotification(TestCase):
 
     def test_no_more_notif_on_losing_all_groups(self):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -316,9 +315,9 @@ class ForumNotification(TestCase):
 
     def test_no_more_notif_on_losing_one_group(self):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -362,7 +361,7 @@ class ContentNotification(TestCase, TutorialTestMixin):
         self.tuto.public_version = self.published
         self.tuto.save()
 
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
 
     def test_no_persistant_notif_on_revoke(self):
         from zds.tutorialv2.publication_utils import unpublish_content

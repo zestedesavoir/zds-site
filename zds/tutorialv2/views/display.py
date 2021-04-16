@@ -51,7 +51,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
 
     def get_context_data(self, **kwargs):
         """Show the given tutorial if exists."""
-        context = super(DisplayOnlineContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if context["is_staff"]:
             if self.current_content_type == "OPINION":
@@ -208,7 +208,7 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
     current_content_type = "TUTORIAL"  # obviously, an article cannot have container !
 
     def get_context_data(self, **kwargs):
-        context = super(DisplayOnlineContainer, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         container = search_container_or_404(self.versioned_object, self.kwargs)
 
         context["container"] = container
@@ -254,7 +254,7 @@ class DisplayBetaContent(DisplayContent):
 
     def get_object(self, queryset=None):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
-        obj = super(DisplayBetaContent, self).get_object(queryset)
+        obj = super().get_object(queryset)
 
         if not obj.sha_beta:
             raise Http404("Aucune bêta n'existe pour ce contenu.")
@@ -268,7 +268,7 @@ class DisplayBetaContent(DisplayContent):
         return obj
 
     def get_context_data(self, **kwargs):
-        context = super(DisplayBetaContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["pm_link"] = self.object.get_absolute_contact_url()
         return context
 
@@ -280,7 +280,7 @@ class DisplayBetaContainer(DisplayContainer):
 
     def get_object(self, queryset=None):
         """rewritten to ensure that the version is set to beta, raise Http404 if there is no such version"""
-        obj = super(DisplayBetaContainer, self).get_object(queryset)
+        obj = super().get_object(queryset)
 
         if not obj.sha_beta:
             raise Http404("Aucune bêta n'existe pour ce contenu.")
@@ -294,6 +294,6 @@ class DisplayBetaContainer(DisplayContainer):
         return obj
 
     def get_context_data(self, **kwargs):
-        context = super(DisplayBetaContainer, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["pm_link"] = self.object.get_absolute_contact_url()
         return context

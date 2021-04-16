@@ -38,7 +38,7 @@ class ForumPostKarmaAPITest(APITestCase):
         profile.can_write = False
         profile.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:forum:post-karma", args=(post.pk,)))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -53,7 +53,7 @@ class ForumPostKarmaAPITest(APITestCase):
         category, forum = create_category_and_forum(group)
         topic = create_topic_in_forum(forum, profile)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:forum:post-karma", args=(topic.last_message.pk,)), {"vote": "like"})
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -64,7 +64,7 @@ class ForumPostKarmaAPITest(APITestCase):
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:forum:post-karma", args=(post.pk,)), {"vote": "like"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=post, positive=True).exists())
@@ -76,7 +76,7 @@ class ForumPostKarmaAPITest(APITestCase):
         another_profile = ProfileFactory()
         post = PostFactory(topic=topic, author=another_profile.user, position=2)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:forum:post-karma", args=(post.pk,)), {"vote": "dislike"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(CommentVote.objects.filter(user=profile.user, comment=post, positive=False).exists())
@@ -92,7 +92,7 @@ class ForumPostKarmaAPITest(APITestCase):
         vote.save()
 
         self.assertTrue(CommentVote.objects.filter(pk=vote.pk).exists())
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:forum:post-karma", args=(post.pk,)), {"vote": "neutral"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(CommentVote.objects.filter(pk=vote.pk).exists())
@@ -107,7 +107,7 @@ class ForumPostKarmaAPITest(APITestCase):
         vote = CommentVote(user=profile.user, comment=post, positive=False)
         vote.save()
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
         response = self.client.put(reverse("api:forum:post-karma", args=(post.pk,)), {"vote": "like"})
         vote.refresh_from_db()
 
@@ -141,7 +141,7 @@ class ForumPostKarmaAPITest(APITestCase):
         CommentVote.objects.create(user=profile.user, comment=equal_answer, positive=True)
         CommentVote.objects.create(user=profile2.user, comment=equal_answer, positive=False)
 
-        self.assertTrue(self.client.login(username=profile.user.username, password="hostel77"))
+        self.client.force_login(profile.user)
 
         # on first message we should see 2 likes and 0 anonymous
         response = self.client.get(reverse("api:forum:post-karma", args=[upvoted_answer.pk]))

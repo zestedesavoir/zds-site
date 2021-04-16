@@ -11,7 +11,6 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
-    LicenceFactory,
     ExtractFactory,
     PublishedContentFactory,
     ContentReactionFactory,
@@ -35,6 +34,7 @@ from django.core.management import call_command
 from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds import json_handler
+from zds.utils.factories import LicenceFactory
 from zds.utils.models import Alert
 from zds.utils.header_notifications import get_header_notifications
 
@@ -168,9 +168,9 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         # populate with 2 chapters (1 extract each)
         midsize_tuto_draft = midsize_tuto.load_version()
-        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto)
         ExtractFactory(container=chapter1, db_object=midsize_tuto)
-        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_objet=midsize_tuto)
+        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto)
         ExtractFactory(container=chapter2, db_object=midsize_tuto)
 
         # publish it
@@ -213,11 +213,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         # populate with 2 part (1 chapter with 1 extract each)
         bigtuto_draft = bigtuto.load_version()
-        part1 = ContainerFactory(parent=bigtuto_draft, db_objet=bigtuto)
-        chapter1 = ContainerFactory(parent=part1, db_objet=bigtuto)
+        part1 = ContainerFactory(parent=bigtuto_draft, db_object=bigtuto)
+        chapter1 = ContainerFactory(parent=part1, db_object=bigtuto)
         ExtractFactory(container=chapter1, db_object=bigtuto)
-        part2 = ContainerFactory(parent=bigtuto_draft, db_objet=bigtuto)
-        chapter2 = ContainerFactory(parent=part2, db_objet=bigtuto)
+        part2 = ContainerFactory(parent=bigtuto_draft, db_object=bigtuto)
+        chapter2 = ContainerFactory(parent=part2, db_object=bigtuto)
         ExtractFactory(container=chapter2, db_object=bigtuto)
 
         # publish it
@@ -375,7 +375,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         os.remove(pdf_path2)
         self.assertFalse(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))
-        call_command("generate_pdf", "id={}".format(tuto.pk))
+        call_command("generate_pdf", f"id={tuto.pk}")
         self.assertTrue(os.path.exists(pdf_path))
         self.assertFalse(os.path.exists(pdf_path2))  # only the first PDF is generated
 
@@ -478,7 +478,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         """
 
         # 1. With user connected
-        self.assertEqual(self.client.login(username=self.user_author.username, password="hostel77"), True)
+        self.client.force_login(self.user_author)
 
         # go to whatever page, if not, `get_current_user()` does not work at all
         result = self.client.get(reverse("pages-index"))

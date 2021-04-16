@@ -68,7 +68,7 @@ class SingleContentViewMixin:
             else:
                 raise Http404("Impossible de trouver le paramètre 'pk'.")
         except ValueError as badvalue:
-            raise Http404("La valeur du paramètre pk '{}' n'est pas un entier valide.".format(badvalue))
+            raise Http404(f"La valeur du paramètre pk '{badvalue}' n'est pas un entier valide.")
 
         queryset = queryset or PublishableContent.objects
 
@@ -144,7 +144,7 @@ class SingleContentPostMixin(SingleContentViewMixin):
     versioned = True
 
     def get_object(self, queryset=None):
-        self.object = super(SingleContentPostMixin, self).get_object()
+        self.object = super().get_object()
 
         if self.versioned and "version" in self.request.POST["version"]:
             self.object.load_version_or_404(sha=self.request.POST["version"])
@@ -164,7 +164,7 @@ class ModalFormView(FormView):
         The redirection is made to `form.previous_page_url`, if exists, `content:view` otherwise."""
 
         if not self.modal_form:
-            return super(ModalFormView, self).form_invalid(form)
+            return super().form_invalid(form)
         else:
             errors = form.errors.as_data()
             if len(errors) > 0:
@@ -210,10 +210,10 @@ class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
         if self.object.sha_public:
             self.public_content_object = self.get_public_object()
 
-        return super(SingleContentFormViewMixin, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(SingleContentFormViewMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["content"] = self.versioned_object
         context["is_staff"] = self.is_staff
         return context
@@ -251,7 +251,7 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
-        context = super(SingleContentDetailViewMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["helps"] = list(HelpWriting.objects.all())
         context["content_helps"] = list(self.object.helps.all())
         context["content"] = self.versioned_object
@@ -281,7 +281,7 @@ class ContentTypeMixin:
     current_content_type = None
 
     def get_context_data(self, **kwargs):
-        context = super(ContentTypeMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         v_type_name = _("contenu")
         v_type_name_plural = _("contenus")
@@ -316,7 +316,7 @@ class MustRedirect(Exception):
         :param args: exception *args
         :param kwargs: exception **kwargs
         """
-        super(MustRedirect, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.url = url
 
 
@@ -363,7 +363,7 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
             else:
                 raise Http404("Impossible de trouver le paramètre 'pk'.")
         except ValueError as badvalue:
-            raise Http404("La valeur du paramètre pk '{}' n'est pas un entier valide.".format(badvalue))
+            raise Http404(f"La valeur du paramètre pk '{badvalue}' n'est pas un entier valide.")
         queryset = (
             PublishedContent.objects.filter(content_pk=pk)
             .prefetch_related("content")
@@ -451,7 +451,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
 
     def get_context_data(self, **kwargs):
 
-        context = super(SingleOnlineContentDetailViewMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["content"] = self.versioned_object
         context["is_obsolete"] = self.object.is_obsolete
@@ -490,10 +490,10 @@ class SingleOnlineContentFormViewMixin(SingleOnlineContentViewMixin, ModalFormVi
         if self.denied_if_lock and self.object.is_locked:
             raise PermissionDenied
 
-        return super(SingleOnlineContentFormViewMixin, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(SingleOnlineContentFormViewMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["content"] = self.versioned_object
         context["public_object"] = self.public_content_object
@@ -553,7 +553,7 @@ class SingleContentDownloadViewMixin(SingleContentViewMixin, DownloadViewMixin):
 
         self.versioned_object = self.get_versioned_object()
 
-        return super(SingleContentDownloadViewMixin, self).get(context, **response_kwargs)
+        return super().get(context, **response_kwargs)
 
 
 class RequiresValidationViewMixin(SingleContentDetailViewMixin):
@@ -564,7 +564,7 @@ class RequiresValidationViewMixin(SingleContentDetailViewMixin):
     def get(self, request, *args, **kwargs):
         if not self.get_object().requires_validation():
             raise PermissionDenied
-        return super(RequiresValidationViewMixin, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 class DoesNotRequireValidationFormViewMixin(SingleContentFormViewMixin):
@@ -575,4 +575,4 @@ class DoesNotRequireValidationFormViewMixin(SingleContentFormViewMixin):
     def get_form_kwargs(self):
         if self.versioned_object.requires_validation():
             raise PermissionDenied
-        return super(DoesNotRequireValidationFormViewMixin, self).get_form_kwargs()
+        return super().get_form_kwargs()

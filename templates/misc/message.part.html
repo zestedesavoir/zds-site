@@ -267,7 +267,7 @@
                         <p>
                             {% trans "Pour quelle raison souhaitez-vous masquer ce message ?" %}
                         </p>
-                        <input type="text" name="text_hidden" placeholder="{% if perms_change and message.author != user %}Flood, Troll, Hors sujet, ...{% else %}Erreur, mauvaise compréhension, changement d'avis, ...{% endif %}">
+                        <input maxlength="80" type="text" name="text_hidden" placeholder="{% if perms_change and message.author != user %}Flood, Troll, Hors sujet, ...{% else %}Erreur, mauvaise compréhension, changement d'avis, ...{% endif %}">
 
                         {% if not perms_change  %}
                             <p>

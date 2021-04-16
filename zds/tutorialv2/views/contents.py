@@ -12,6 +12,7 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView
 
+from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery, Image
 from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
 from zds.member.models import Profile
@@ -47,6 +48,15 @@ from zds.utils.uuslug_wrapper import slugify
 logger = logging.getLogger(__name__)
 
 
+def create_content_gallery(form):
+    gal = Gallery()
+    gal.title = form.cleaned_data["title"]
+    gal.slug = slugify(form.cleaned_data["title"])
+    gal.pubdate = datetime.now()
+    gal.save()
+    return gal
+
+
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     """
     Handle content creation. Since v22 a licence must be explicitly selected
@@ -61,12 +71,12 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     created_content_type = "TUTORIAL"
 
     def get_form(self, form_class=ContentForm):
-        form = super(CreateContent, self).get_form(form_class)
+        form = super().get_form(form_class)
         form.initial["type"] = self.created_content_type
         return form
 
     def get_context_data(self, **kwargs):
-        context = super(CreateContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["editorial_line_link"] = settings.ZDS_APP["content"]["editorial_line_link"]
         context["site_name"] = settings.ZDS_APP["site"]["literal_name"]
         return context
@@ -83,26 +93,23 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.creation_date = datetime.now()
 
         # Creating the gallery
-        gal = Gallery()
-        gal.title = form.cleaned_data["title"]
-        gal.slug = slugify(form.cleaned_data["title"])
-        gal.pubdate = datetime.now()
-        gal.save()
+        gal = create_content_gallery(form)
 
-        self.content.gallery = gal
-        self.content.save()
         # create image:
         if "image" in self.request.FILES:
-            img = Image()
-            img.physical = self.request.FILES["image"]
-            img.gallery = gal
-            img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"].name)
+            mixin = ImageCreateMixin()
+            mixin.gallery = gal
+            try:
+                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
+            except NotAnImage:
+                form.add_error("image", _("Image invalide"))
+                return super().form_invalid(form)
             img.pubdate = datetime.now()
-            img.save()
-            self.content.image = img
-
+        self.content.gallery = gal
         self.content.save()
+        if "image" in self.request.FILES:
+            self.content.image = img
+            self.content.save()
 
         # We need to save the content before changing its author list since it's a many-to-many relationship
         self.content.authors.add(self.request.user)
@@ -123,7 +130,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
             form.cleaned_data["msg_commit"],
         )
 
-        return super(CreateContent, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse("content:view", args=[self.content.pk, self.content.slug])
@@ -175,7 +182,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             context["formPublication"] = None
 
     def get_context_data(self, **kwargs):
-        context = super(DisplayContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # check whether this tuto support js fiddle
         if self.object.js_support:
@@ -210,7 +217,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
-        initial = super(EditContent, self).get_initial()
+        initial = super().get_initial()
         versioned = self.versioned_object
 
         initial["title"] = versioned.title
@@ -225,7 +232,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(EditContent, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if "preview" not in self.request.POST:
             context["gallery"] = self.object.gallery
 
@@ -268,13 +275,15 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         gal.update(update=datetime.now())
 
         if "image" in self.request.FILES:
-            img = Image()
-            img.physical = self.request.FILES["image"]
-            img.gallery = publishable.gallery
-            img.title = self.request.FILES["image"]
-            img.slug = slugify(self.request.FILES["image"].name)
+            mixin = ImageCreateMixin()
+            # use .first because we need an instance of Gallery, not a queryset
+            mixin.gallery = gal.first() or create_content_gallery(form)
+            try:
+                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
+            except NotAnImage:
+                form.add_error("image", _("Image invalide"))
+                return super().form_invalid(form)
             img.pubdate = datetime.now()
-            img.save()
             publishable.image = img
 
         publishable.save(force_slug_update=title_is_changed)
@@ -311,7 +320,7 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
     success_message_profile_update = _("Votre licence préférée a bien été mise à jour.")
 
     def get_form_kwargs(self):
-        kwargs = super(EditContentLicense, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["versioned_content"] = self.versioned_object
         return kwargs
 
@@ -358,7 +367,7 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(DeleteContent, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """rewrite delete() function to ensure repository deletion"""

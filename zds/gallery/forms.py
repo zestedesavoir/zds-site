@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from zds.gallery.models import Gallery, Image, UserGallery
+from zds.utils.validators import with_svg_validator
 
 
 class GalleryForm(forms.ModelForm):
@@ -18,7 +19,7 @@ class GalleryForm(forms.ModelForm):
         fields = ["title", "subtitle"]
 
     def __init__(self, *args, **kwargs):
-        super(GalleryForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "clearfix"
         self.helper.form_action = reverse("gallery-new")
@@ -33,7 +34,7 @@ class GalleryForm(forms.ModelForm):
         )
 
     def clean(self):
-        cleaned_data = super(GalleryForm, self).clean()
+        cleaned_data = super().clean()
 
         title = cleaned_data.get("title")
 
@@ -47,7 +48,7 @@ class GalleryForm(forms.ModelForm):
 
 class UpdateGalleryForm(GalleryForm):
     def __init__(self, *args, **kwargs):
-        super(UpdateGalleryForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "clearfix"
         self.helper.form_method = "post"
@@ -82,7 +83,7 @@ class UserGalleryForm(forms.Form):
     def __init__(self, *args, **kwargs):
         gallery = kwargs.pop("gallery")
 
-        super(UserGalleryForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = "add-user-modal"
@@ -97,7 +98,7 @@ class UserGalleryForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(UserGalleryForm, self).clean()
+        cleaned_data = super().clean()
 
         user = cleaned_data.get("user")
 
@@ -115,14 +116,15 @@ class ImageForm(forms.ModelForm):
         }
         fields = ["title", "legend"]
 
-    physical = forms.ImageField(
+    physical = forms.FileField(
         label=_("Sélectionnez votre image"),
         required=True,
         help_text=_("Taille maximum : {0} Ko").format(settings.ZDS_APP["gallery"]["image_max_size"] / 1024),
+        validators=[with_svg_validator],
     )
 
     def __init__(self, *args, **kwargs):
-        super(ImageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "clearfix"
         self.helper.form_method = "post"
@@ -137,7 +139,7 @@ class ImageForm(forms.ModelForm):
         )
 
     def clean(self):
-        cleaned_data = super(ImageForm, self).clean()
+        cleaned_data = super().clean()
 
         physical = cleaned_data.get("physical")
 
@@ -154,7 +156,7 @@ class ImageForm(forms.ModelForm):
 
 class UpdateImageForm(ImageForm):
     def __init__(self, *args, **kwargs):
-        super(UpdateImageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.fields["physical"].required = False
 
@@ -176,7 +178,7 @@ class ArchiveImageForm(forms.Form):
     file = forms.FileField(label=_("Sélectionnez l'archive contenant les images à charger"), required=True)
 
     def __init__(self, *args, **kwargs):
-        super(ArchiveImageForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "clearfix"
         self.helper.form_method = "post"
@@ -190,7 +192,7 @@ class ArchiveImageForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(ArchiveImageForm, self).clean()
+        cleaned_data = super().clean()
 
         zip_file = cleaned_data.get("file", None)
         if not zip_file:
@@ -211,7 +213,7 @@ class ImageAsAvatarForm(forms.Form):
     """"Form to add current image as avatar"""
 
     def __init__(self, *args, **kwargs):
-        super(ImageAsAvatarForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "clearfix"
         self.helper.form_action = reverse("update-avatar-member")

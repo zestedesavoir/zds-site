@@ -38,10 +38,10 @@ class Command(BaseCommand):
                     current_tag, created = Tag.objects.get_or_create(title=cat_name)
                     content.tags.add(current_tag)
                     if created:
-                        self.stdout.write('[ZEP-25] : Tag "{}" added'.format(current_tag))
+                        self.stdout.write(f'[ZEP-25] : Tag "{current_tag}" added')
                         n += 1
             content.save()
-        self.stdout.write("[ZEP-25] : {} new tag(s)".format(n))
+        self.stdout.write(f"[ZEP-25] : {n} new tag(s)")
 
     def update_categories(self):
         """
@@ -50,10 +50,10 @@ class Command(BaseCommand):
         :return: None
         """
         for cat in SubCategory.objects.all():
-            self.stdout.write('[ZEP-25] : Old category "{}" deleted'.format(cat))
+            self.stdout.write(f'[ZEP-25] : Old category "{cat}" deleted')
             cat.delete()
         for cat in Category.objects.all():
-            self.stdout.write('[ZEP-25] : Old subcategory "{}" deleted'.format(cat))
+            self.stdout.write(f'[ZEP-25] : Old subcategory "{cat}" deleted')
             cat.delete()
         for cat in CategorySubCategory.objects.all():
             cat.delete()
@@ -114,21 +114,21 @@ class Command(BaseCommand):
             cat.title = category
             cat.description = category
             cat.position = i
-            cat.slug = slugify("{}".format(category))
+            cat.slug = slugify(f"{category}")
             cat.save()
-            self.stdout.write('[ZEP-25] : New category "{}" added'.format(cat))
+            self.stdout.write(f'[ZEP-25] : New category "{cat}" added')
             for subcategory in subcategories[i]:
                 sub = SubCategory()
                 sub.title = subcategory[0]
                 sub.subtitle = subcategory[1]
                 sub.slug = slugify("{}".format(subcategory[0]))
                 sub.save()
-                self.stdout.write('[ZEP-25] : New subcategory "{}" added'.format(sub))
+                self.stdout.write(f'[ZEP-25] : New subcategory "{sub}" added')
                 catsubcat = CategorySubCategory()
                 catsubcat.category = cat
                 catsubcat.subcategory = sub
                 catsubcat.save()
-                self.stdout.write('[ZEP-25] : Relation "{}" <--> "{}" added'.format(cat, sub))
+                self.stdout.write(f'[ZEP-25] : Relation "{cat}" <--> "{sub}" added')
             i += 1
 
     def alert_authors(self):
@@ -169,7 +169,7 @@ class Command(BaseCommand):
                 "Ce qui change pour vous en tant qu'auteur",
                 msg,
             )
-            self.stdout.write("[ZEP-25] : PM send to {}".format(user))
+            self.stdout.write(f"[ZEP-25] : PM send to {user}")
 
     def migrate_zds(self):
         """
@@ -442,7 +442,7 @@ class Command(BaseCommand):
                     except ValueError:
                         # contents with more than one category
                         pass
-                    self.stdout.write('[ZEP-25] : New category "{}" for content "{}"'.format(subcategory, content))
+                    self.stdout.write(f'[ZEP-25] : New category "{subcategory}" for content "{content}"')
                     success += 1
                 except PublishableContent.DoesNotExist:
                     self.stdout.write(
@@ -454,8 +454,8 @@ class Command(BaseCommand):
 
         # migration details
         self.stdout.write("\n================================================================================\n")
-        self.stdout.write("{} content(s) migrated with succes".format(success))
-        self.stdout.write("{} content(s) failed".format(fail))
+        self.stdout.write(f"{success} content(s) migrated with succes")
+        self.stdout.write(f"{fail} content(s) failed")
         if fail != 0:
             self.stdout.write("\nPLEASE CHECKS LOGS.")
         self.stdout.write("\n================================================================================\n")
