@@ -61,8 +61,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                                 "user": user.username,
                             },
                         ),
-                        send_by_mail=True,
-                        direct=False,
                         hat=get_hat_from_settings("validation"),
                     )
                 UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
@@ -111,22 +109,38 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
         current_user = False
         users = form.cleaned_data["users"]
 
-        _type = _("cet article")
+        _type = (_("cet article"), _("de l'article"))
         if self.object.is_tutorial:
-            _type = _("ce tutoriel")
+            _type = (_("ce tutoriel"), _("du tutoriel"))
         elif self.object.is_opinion:
-            _type = _("ce billet")
+            _type = (_("ce billet"), _("du billet"))
 
+        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
         for user in users:
             if RemoveAuthorFromContent.remove_author(self.object, user):
                 if user.pk == self.request.user.pk:
                     current_user = True
+                else:
+                    send_mp(
+                        bot,
+                        [user],
+                        format_lazy("{}{}", _("Retrait de la rédaction "), _type[1]),
+                        self.versioned_object.title,
+                        render_to_string(
+                            "tutorialv2/messages/remove_author_pm.md",
+                            {
+                                "content": self.object,
+                                "user": user.username,
+                            },
+                        ),
+                        hat=get_hat_from_settings("validation"),
+                    )
             else:  # if user is incorrect or alone
                 messages.error(
                     self.request,
                     _(
                         "Vous êtes le seul auteur de {} ou le membre sélectionné " "en a déjà quitté la rédaction."
-                    ).format(_type),
+                    ).format(_type[0]),
                 )
                 return redirect(self.object.get_absolute_url())
 
@@ -144,11 +158,11 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
 
         if not current_user:  # if the removed author is not current user
             messages.success(
-                self.request, _("Vous avez enlevé {} de la liste des auteurs de {}.").format(authors_list, _type)
+                self.request, _("Vous avez enlevé {} de la liste des auteurs de {}.").format(authors_list, _type[0])
             )
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
-            messages.success(self.request, _("Vous avez bien quitté la rédaction de {}.").format(_type))
+            messages.success(self.request, _("Vous avez bien quitté la rédaction de {}.").format(_type[0]))
             self.success_url = reverse(
                 self.object.type.lower() + ":find-" + self.object.type.lower(), args=[self.request.user.username]
             )

@@ -288,7 +288,6 @@ class HatRequest(models.Model):
             "",
             message,
             leave=solved_by_bot,
-            mark_as_read=True,
             hat=get_hat_from_settings("hats_management"),
         )
 
