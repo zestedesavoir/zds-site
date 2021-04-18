@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from django import template
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from django.db.models import F
 
@@ -13,8 +14,8 @@ from zds.notification.models import (
 )
 from zds.tutorialv2.models.database import PublishableContent, PickListOperation
 from zds.utils import get_current_user
+from zds.utils.context_processor import get_repository_url
 from zds.utils.models import HatRequest
-from django.conf import settings
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.member.models import NewEmailProvider
 
@@ -120,7 +121,12 @@ def get_github_issue_url(topic):
     if not topic.github_issue:
         return None
     else:
-        return "{}/{}".format(settings.ZDS_APP["site"]["repository"]["bugtracker"], topic.github_issue)
+        if topic.github_repository_name:
+            repository_name = topic.github_repository_name
+        else:
+            repository_name = settings.ZDS_APP["github_projects"]["default_repository"]
+        bugtracker = get_repository_url(repository_name, "bugtracker")
+        return f"{bugtracker}/{topic.github_issue}"
 
 
 @register.filter(name="waiting_count")

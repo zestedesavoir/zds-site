@@ -6,19 +6,19 @@ social-auth-app-django==4.0.0
 
 # Explicit dependencies (references in code)
 beautifulsoup4==4.9.3
-django-crispy-forms==1.11.1
+django-crispy-forms==1.11.2
 django-model-utils==4.1.1
 django-munin==0.2.1
 django-recaptcha==2.0.6
-Django==2.2.19
+Django==2.2.20
 easy-thumbnails==2.8rc0
 factory-boy==3.2.0
 geoip2==4.1.0
-GitPython==3.1.13
+GitPython==3.1.14
 google-api-python-client==1.12.8
 homoglyphs==2.0.4
-lxml==4.6.2
-Pillow==8.1.2
+lxml==4.6.3
+Pillow==8.2.0
 python-memcached==1.59
 requests==2.25.1
 toml==0.10.2
@@ -26,10 +26,10 @@ toml==0.10.2
 # Api dependencies
 django-cors-headers==3.7.0
 django-filter==2.4.0
-django-oauth-toolkit==1.4.0
+django-oauth-toolkit==1.5.0
 django-rest-swagger==2.2.0
 djangorestframework-xml==2.0.0
-djangorestframework==3.12.2
+djangorestframework==3.12.4
 drf-extensions==0.7.0
 dry-rest-permissions==0.1.10
 oauth2client==4.1.3

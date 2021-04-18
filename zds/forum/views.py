@@ -26,6 +26,7 @@ from zds.forum import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.featured.mixins import FeatureableMixin
 from zds.utils import old_slugify
+from zds.utils.context_processor import get_repository_url
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
@@ -209,8 +210,8 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         context["subscriber_count"] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         if hasattr(self.request.user, "profile"):
             context["is_dev"] = self.request.user.profile.is_dev()
-            context["tags"] = settings.ZDS_APP["site"]["repository"]["tags"]
             context["has_token"] = self.request.user.profile.github_token != ""
+            context["repositories"] = settings.ZDS_APP["github_projects"]["repositories"]
 
         if self.request.user.has_perm("forum.change_topic"):
             context["user_can_modify"] = [post.pk for post in context["posts"]]
@@ -843,6 +844,9 @@ class ManageGitHubIssue(UpdateView):
                 self.object.github_issue = int(request.POST["issue"])
                 if self.object.github_issue < 1:
                     raise ValueError
+                self.object.github_repository_name = request.POST["repository"]
+                if request.POST["repository"] not in settings.ZDS_APP["github_projects"]["repositories"]:
+                    raise ValueError
                 self.object.save()
 
                 messages.success(request, _("Le ticket a bien été associé."))
@@ -856,7 +860,6 @@ class ManageGitHubIssue(UpdateView):
                 messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
 
             else:
-                tags = [value.strip() for key, value in list(request.POST.items()) if key.startswith("tag-")]
                 body = _("{}\n\nSujet : {}\n*Envoyé depuis {}*").format(
                     request.POST["body"],
                     settings.ZDS_APP["site"]["url"] + self.object.get_absolute_url(),
@@ -864,16 +867,17 @@ class ManageGitHubIssue(UpdateView):
                 )
                 try:
                     response = requests.post(
-                        settings.ZDS_APP["site"]["repository"]["api"] + "/issues",
+                        get_repository_url(request.POST["repository"], "issues_api"),
                         timeout=10,
                         headers={"Authorization": f"Token {self.request.user.profile.github_token}"},
-                        json={"title": request.POST["title"], "body": body, "labels": tags},
+                        json={"title": request.POST["title"], "body": body},
                     )
                     if response.status_code != 201:
                         raise Exception
 
                     json_response = response.json()
                     self.object.github_issue = json_response["number"]
+                    self.object.github_repository_name = request.POST["repository"]
                     self.object.save()
 
                     messages.success(request, _("Le ticket a bien été créé."))

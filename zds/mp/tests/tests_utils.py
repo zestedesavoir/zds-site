@@ -59,7 +59,7 @@ class MpUtilTest(TestCase):
             follow=True,
         )
 
-        # Assert MP have been sent
+        # Assert MP have been sent
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, PrivateTopic.objects.all().count())
 
