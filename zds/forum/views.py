@@ -19,7 +19,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import ForumCategory, Forum, Topic, Post, is_read, mark_read, TopicRead
+from zds.forum.models import ForumCategory, Forum, Topic, Post, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
 from zds.forum import signals
@@ -144,7 +144,12 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         return context
 
     def get_object(self, queryset=None):
-        forum = Forum.objects.select_related("category").filter(slug=self.kwargs.get("forum_slug")).first()
+        forum = (
+            Forum.objects.prefetch_related("groups")
+            .select_related("category")
+            .filter(slug=self.kwargs.get("forum_slug"))
+            .first()
+        )
         if forum is None:
             raise Http404("Forum with slug {} was not found".format(self.kwargs.get("forum_slug")))
         return forum
@@ -216,12 +221,19 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         if self.request.user.is_authenticated:
             for post in posts:
                 signals.post_read.send(sender=post.__class__, instance=post, user=self.request.user)
-            if not is_read(self.object):
+            if not self.object.is_read:
                 mark_read(self.object)
         return context
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Topic, pk=self.kwargs.get("topic_pk"))
+        if queryset is None:
+            queryset = Topic.objects
+        result = (
+            queryset.filter(pk=self.kwargs.get("topic_pk")).select_related("solved_by").select_related("author").first()
+        )
+        if result is None:
+            raise Http404(f"Pas de forum avec l'identifiant {self.kwargs.get('topic_pk')}")
+        return result
 
     def get_queryset(self):
         return Post.objects.get_messages_of_a_topic(self.object.pk)
