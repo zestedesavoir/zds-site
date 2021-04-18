@@ -109,18 +109,7 @@ class ExportView(APIView):
             publishable_content = self.get_object()
             if not publishable_content.public_version:
                 raise Http404("Not public content")
-
-            tmp_dir, _ = self.ensure_directories(publishable_content)
-            versioned = publishable_content.load_version(public=True)
-            base_name = str(Path(tmp_dir, versioned.slug))
-            md_file_path = str(Path(tmp_dir, versioned.slug + ".md"))
-
-            PublicatorRegistry.get("md").publish(
-                md_file_path,
-                base_name,
-                versioned=versioned,
-                cur_language=translation.get_language(),
-            )
+            self.ensure_directories(publishable_content)
             PublicatorRegistry.get("watchdog").publish_from_published_content(publishable_content.public_version)
         except ValueError:
             return Response({}, status=status.HTTP_400_BAD_REQUEST, headers={})

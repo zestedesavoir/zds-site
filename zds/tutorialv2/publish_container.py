@@ -21,7 +21,7 @@ def publish_use_manifest(db_object, base_dir, versionable_content: VersionedCont
         base_content, disable_jsfiddle=not db_object.js_support, full_json=True, stats=True
     )
     publish_container_new(db_object, base_dir, versionable_content, md)
-    return metadata.get("stats", {}).get("words", 0)
+    return metadata.get("stats", {}).get("signs", 0)
 
 
 def publish_container_new(

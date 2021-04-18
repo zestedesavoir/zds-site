@@ -289,7 +289,7 @@ class Publicator:
 
 @PublicatorRegistry.register("md")
 class MarkdownPublicator(Publicator):
-    def publish(self, md_file_path, base_name, *, cur_language, **kwargs):
+    def publish(self, md_file_path, base_name, *, cur_language=settings.LANGUAGE_CODE, **kwargs):
         published_content_entity = self.get_published_content_entity(md_file_path)
         versioned = kwargs.pop("versioned", None) or published_content_entity.load_public_version()
         try:
