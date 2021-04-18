@@ -9,7 +9,7 @@ from django.db import IntegrityError
 
 from django.conf import settings
 from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
-from zds.forum.models import Topic, is_read
+from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
@@ -918,7 +918,7 @@ class NotificationTest(TestCase):
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(1, len(notifications))
 
-        self.assertFalse(is_read(topic, self.user1))
+        self.assertFalse(topic.is_read)
 
         result = self.client.post(reverse("mark-notifications-as-read"), follow=False)
         self.assertEqual(result.status_code, 302)
@@ -926,4 +926,4 @@ class NotificationTest(TestCase):
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(0, len(notifications))
 
-        self.assertTrue(is_read(topic, self.user1))
+        self.assertTrue(Topic.objects.get(pk=topic.pk).is_read)

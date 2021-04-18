@@ -211,17 +211,6 @@ Le module ``interventions``
 
 Les filtres de ce module sont utilisés pour récupérer et traiter la liste des interventions de l'utilisateur.
 
-``is_read``
------------
-
-Employé sur un *topic*, renvoit si l'utilisateur courant a lu ou non le topic considéré. Par exemple, le code suivant mettra la classe "unread" si le *topic* n'as pas été lu par l'utilisateur :
-
-.. sourcecode:: html+django
-
-    {% load interventions %}
-    <span class="{% if not topic|is_read %}unread{% endif %}">{{ topic.title}}</span>
-
-
 
 ``humane_delta``
 ----------------

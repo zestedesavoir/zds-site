@@ -327,7 +327,7 @@ def load_categories_content(cli, size, fake, *_, **__):
     for i in range(0, nb_categories):
         ttl = str(i) + " " + fake.job()
         cat = TCategory(
-            title=ttl, description=fake.sentence(nb_words=15, variable_nb_words=True), slug=old_slugify(ttl)
+            title=ttl[:80], description=fake.sentence(nb_words=15, variable_nb_words=True), slug=old_slugify(ttl[:80])
         )
         cat.save()
         categories.append(cat)
