@@ -13,10 +13,17 @@ def get_version():
     """
     if git_version is not None:
         name = "{}/{}".format(__version__, git_version[:7])
-        url = settings.ZDS_APP["site"]["repository"]["url"]
+        url = get_repository_url(settings.ZDS_APP["github_projects"]["default_repository"], "base_url")
         return {"name": name, "url": f"{url}/tree/{git_version}"}
     else:
         return {"name": __version__, "url": None}
+
+
+def get_repository_url(repository_name, url_type):
+    if repository_name not in settings.ZDS_APP["github_projects"]["repositories"]:
+        raise Exception("Incorrect repository_name: " + repository_name)
+
+    return settings.ZDS_APP["github_projects"][url_type](repository_name)
 
 
 def version(request):
