@@ -576,18 +576,6 @@ Technically it is a simple joint [user, topic, last read post].</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.forum.models.is_read">
-<code class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></code><code class="sig-name descname"><span class="pre">is_read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.is_read" title="Lien permanent vers cette définition">¶</a></dt>
-<dd><p>Checks if the user has read the <strong>last post</strong> of the topic.
-Returns false if the user read the topic except its last post.
-Technically this is done by checking if the user has a <cite>TopicRead</cite> object
-for the last post of this topic.
-:param topic: A topic
-:param user: A user. If undefined, the current user is used.
-:return:</p>
-</dd></dl>
-
-<dl class="py function">
 <dt id="zds.forum.models.mark_read">
 <code class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></code><code class="sig-name descname"><span class="pre">mark_read</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.mark_read" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Mark the last message of a topic as read for the current user.

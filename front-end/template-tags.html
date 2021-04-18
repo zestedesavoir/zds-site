@@ -128,7 +128,6 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#le-module-htmldiff">Le module <code class="docutils literal notranslate"><span class="pre">htmldiff</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#le-module-interventions">Le module <code class="docutils literal notranslate"><span class="pre">interventions</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#is-read"><code class="docutils literal notranslate"><span class="pre">is_read</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#humane-delta"><code class="docutils literal notranslate"><span class="pre">humane_delta</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#followed-topics"><code class="docutils literal notranslate"><span class="pre">followed_topics</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#interventions-topics"><code class="docutils literal notranslate"><span class="pre">interventions_topics</span></code></a></li>
@@ -398,14 +397,6 @@ génération des fichiers PDF et EPUB des tutos :</p>
 <div class="section" id="le-module-interventions">
 <h2>Le module <code class="docutils literal notranslate"><span class="pre">interventions</span></code><a class="headerlink" href="#le-module-interventions" title="Lien permanent vers ce titre">¶</a></h2>
 <p>Les filtres de ce module sont utilisés pour récupérer et traiter la liste des interventions de l’utilisateur.</p>
-<div class="section" id="is-read">
-<h3><code class="docutils literal notranslate"><span class="pre">is_read</span></code><a class="headerlink" href="#is-read" title="Lien permanent vers ce titre">¶</a></h3>
-<p>Employé sur un <em>topic</em>, renvoit si l’utilisateur courant a lu ou non le topic considéré. Par exemple, le code suivant mettra la classe « unread » si le <em>topic</em> n’as pas été lu par l’utilisateur :</p>
-<div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
-<span class="p">&lt;</span><span class="nt">span</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;</span><span class="cp">{%</span> <span class="k">if</span> <span class="k">not</span> <span class="nv">topic</span><span class="o">|</span><span class="nf">is_read</span> <span class="cp">%}</span><span class="s">unread</span><span class="cp">{%</span> <span class="k">endif</span> <span class="cp">%}</span><span class="s">&quot;</span><span class="p">&gt;</span><span class="cp">{{</span> <span class="nv">topic.title</span><span class="cp">}}</span><span class="p">&lt;/</span><span class="nt">span</span><span class="p">&gt;</span>
-</pre></div>
-</div>
-</div>
 <div class="section" id="humane-delta">
 <h3><code class="docutils literal notranslate"><span class="pre">humane_delta</span></code><a class="headerlink" href="#humane-delta" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Ce filtre renvoit le texte correspondant à une période donnée, si utilisé comme suis :</p>
