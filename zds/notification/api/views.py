@@ -84,6 +84,9 @@ class NotificationListAPI(ListAPIView):
             - name: subscription_type
               description: Filters by subscription type.
               paramType: query
+            - name: is_read
+              description: Filters by read status.
+              paramType: query
             - name: expand
               description: Returns an object instead of an identifier representing the given field.
               required: false
@@ -104,4 +107,9 @@ class NotificationListAPI(ListAPIView):
         _type = self.request.query_params.get("type", None)
         if _type:
             queryset = queryset.filter(content_type__model=_type)
+        is_read = str(self.request.query_params.get("is_read", None)).lower()
+        if is_read == "true":
+            queryset = queryset.filter(is_read=True)
+        elif is_read == "false":
+            queryset = queryset.filter(is_read=False)
         return queryset
