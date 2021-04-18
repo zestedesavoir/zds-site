@@ -230,6 +230,7 @@ class PublicatorRegistry:
             "html": 2,
             "epub": 3,
             "pdf": 4,
+            "md": 5,
         }
         for key, value in sorted(cls.registry.items(), key=lambda k: order_key.get(k[0], 42)):
             if key not in exclude:
