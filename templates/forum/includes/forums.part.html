@@ -26,33 +26,31 @@
             </span>
         </p>
         <p class="topic-last-answer">
-            {% block last_message %}
-                {% with last_message=forum.get_last_message %}
-                    {% if last_message %}
-                        {% captureas last_message_url %}{% spaceless %}
-                            {% if user.is_authenticated %}
-                                {{ last_message.topic.resolve_last_read_post_absolute_url }}
-                            {% else %}
-                                {{ last_message.topic.resolve_first_post_absolute_url }}
-                            {% endif %}
-                        {% endspaceless %}{% endcaptureas %}
-                        {# if you are not connected, you get the first message of topic as "first non read" #}
-                        <a href="{{ last_message_url }}">
-                            <span class="forum-last-message">
-                                <span class="forum-last-message-long">
-                                    {{ last_message.pubdate|format_date|capfirst }}
-                                </span>
-                                <span class="forum-last-message-short">
-                                    {{ last_message.pubdate|format_date:True|capfirst }}
-                                </span>
+            {% with last_message=forum.get_last_message %}
+                {% if last_message %}
+                    {% captureas last_message_url %}{% spaceless %}
+                        {% if user.is_authenticated %}
+                            {{ last_message.topic.resolve_last_read_post_absolute_url }}
+                        {% else %}
+                            {{ last_message.topic.resolve_first_post_absolute_url }}
+                        {% endif %}
+                    {% endspaceless %}{% endcaptureas %}
+                    {# if you are not connected, you get the first message of topic as "first non read" #}
+                    <a href="{{ last_message_url }}">
+                        <span class="forum-last-message">
+                            <span class="forum-last-message-long">
+                                {{ last_message.pubdate|format_date|capfirst }}
                             </span>
-                            <span class="forum-last-message-title">{{ last_message.topic.title }}</span>
-                        </a>
-                    {% else %}
-                        <span class="topic-no-last-answer">{% trans "Aucun sujet" %}</span>
-                    {% endif %}
-                {% endwith %}
-        {% endblock %}
+                            <span class="forum-last-message-short">
+                                {{ last_message.pubdate|format_date:True|capfirst }}
+                            </span>
+                        </span>
+                        <span class="forum-last-message-title">{{ last_message.topic.title }}</span>
+                    </a>
+                {% else %}
+                    <span class="topic-no-last-answer">{% trans "Aucun sujet" %}</span>
+                {% endif %}
+            {% endwith %}
         </p>
     </div>
 {% endfor %}
