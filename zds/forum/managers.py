@@ -84,7 +84,7 @@ class TopicManager(models.Manager):
         """
         return (
             self.filter(is_locked=False, forum__groups__isnull=True)
-            .select_related("forum", "author", "last_message")
+            .select_related("forum", "author", "author__profile", "last_message")
             .prefetch_related("tags")
             .order_by("-pubdate")
             .all()[: settings.ZDS_APP["topic"]["home_number"]]

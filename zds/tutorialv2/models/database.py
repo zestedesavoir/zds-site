@@ -343,6 +343,57 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             .values_list("date_validation", flat=True)[0]
         )
 
+    def load_manifest(self, sha=None, public=None):
+        """Using git, load a specific version of the manifest. if ``sha`` is ``None``,
+        the draft/public version is used (if ``public`` is ``True``).
+
+        :param sha: version
+        :param public: if set with the right object, return the public version
+        :type public: PublishedContent
+        :raise BadObject: if sha is not None and related version could not be found
+        :raise OSError: if the path to the repository is wrong
+        :raise NotAPublicVersion: if the sha does not correspond to a public version
+        :return: the manifest
+        :rtype: dict
+        """
+
+        # load the good manifest.json
+        if sha is None:
+            if not public:
+                sha = self.sha_draft
+            else:
+                sha = self.sha_public
+
+        if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
+            path = public.get_prod_path()
+
+            if not os.path.isdir(path):
+                raise OSError(path)
+
+            if sha != public.sha_public:
+                raise NotAPublicVersion
+
+            with open(os.path.join(path, "manifest.json"), encoding="utf-8") as manifest:
+                json = json_handler.loads(manifest.read())
+
+        else:  # draft version, use the repository (slower, but allows manipulation)
+            path = self.get_repo_path()
+
+            if not os.path.isdir(path):
+                raise OSError(path)
+
+            repo = Repo(path)
+            data = get_blob(repo.commit(sha).tree, "manifest.json")
+            try:
+                json = json_handler.loads(data)
+                logger.debug("loaded json")
+            except ValueError:
+                raise BadManifestError(
+                    _("Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?")
+                )
+
+        return json
+
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
         the draft/public version is used (if ``public`` is ``True``).
@@ -367,44 +418,20 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
                 sha = self.sha_draft
             else:
                 sha = self.sha_public
+
         max_title_length = PublishableContent._meta.get_field("title").max_length
-        if public and isinstance(public, PublishedContent):  # use the public (altered and not versioned) repository
-            path = public.get_prod_path()
-            slug = public.content_public_slug
+        json = self.load_manifest(sha=sha, public=public)
 
-            if not os.path.isdir(path):
-                raise OSError(path)
-
-            if sha != public.sha_public:
-                raise NotAPublicVersion
-
-            with open(os.path.join(path, "manifest.json"), encoding="utf-8") as manifest:
-                json = json_handler.loads(manifest.read())
-                versioned = get_content_from_json(
-                    json,
-                    public.sha_public,
-                    slug,
-                    public=True,
-                    max_title_len=max_title_length,
-                    hint_licence=self.licence,
-                )
-
-        else:  # draft version, use the repository (slower, but allows manipulation)
-            path = self.get_repo_path()
-
-            if not os.path.isdir(path):
-                raise OSError(path)
-
-            repo = Repo(path)
-            data = get_blob(repo.commit(sha).tree, "manifest.json")
-            try:
-                json = json_handler.loads(data)
-                logger.debug("loaded json")
-            except ValueError:
-                raise BadManifestError(
-                    _("Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?")
-                )
-
+        if public and isinstance(public, PublishedContent):
+            versioned = get_content_from_json(
+                json,
+                public.sha_public,
+                public.content_public_slug,
+                public=True,
+                max_title_len=max_title_length,
+                hint_licence=self.licence,
+            )
+        else:
             versioned = get_content_from_json(json, sha, self.slug, max_title_len=max_title_length)
 
         self.insert_data_in_versioned(versioned)
@@ -668,13 +695,15 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         if self.versioned_model:
             return self.versioned_model.title
         else:
-            return self.load_public_version().title
+            manifest = self.content.load_manifest(sha=self.sha_public, public=self)
+            return manifest.get("title", "Default title")
 
     def description(self):
         if self.versioned_model:
             return self.versioned_model.description
         else:
-            return self.load_public_version().description
+            manifest = self.content.load_manifest(sha=self.sha_public, public=self)
+            return manifest.get("description", "Default description")
 
     def meta_description(self):
         """Generate a description for the HTML tag <meta name='description'>"""
