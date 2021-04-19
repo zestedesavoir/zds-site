@@ -65,7 +65,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
 
         context["formWarnTypo"] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
-        queryset_reactions = (
+        reactions = list(
             ContentReaction.objects.select_related("author")
             .select_related("author__profile")
             .select_related("hat")
@@ -120,7 +120,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
         make_pagination(
             context,
             self.request,
-            queryset_reactions,
+            reactions,
             settings.ZDS_APP["content"]["notes_per_page"],
             context_list_name="reactions",
             with_previous_item=True,
@@ -132,16 +132,14 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             context["is_js"] = False
 
         # optimize requests:
-        votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=queryset_reactions).all()
+        votes = CommentVote.objects.filter(user_id=self.request.user.id, comment__in=reactions).all()
         context["user_like"] = [vote.comment_id for vote in votes if vote.positive]
         context["user_dislike"] = [vote.comment_id for vote in votes if not vote.positive]
 
         if self.request.user.has_perm("tutorialv2.change_contentreaction"):
-            context["user_can_modify"] = [reaction.pk for reaction in queryset_reactions]
+            context["user_can_modify"] = [reaction.pk for reaction in reactions]
         else:
-            context["user_can_modify"] = [
-                reaction.pk for reaction in queryset_reactions if reaction.author == self.request.user
-            ]
+            context["user_can_modify"] = [reaction.pk for reaction in reactions if reaction.author == self.request.user]
 
         context["is_antispam"] = self.object.antispam()
         context["pm_link"] = self.object.get_absolute_contact_url(_("À propos de"))
