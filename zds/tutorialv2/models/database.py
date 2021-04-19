@@ -373,8 +373,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             if sha != public.sha_public:
                 raise NotAPublicVersion
 
-            with open(os.path.join(path, "manifest.json"), encoding="utf-8") as manifest:
-                json = json_handler.loads(manifest.read())
+            with open(os.path.join(path, "manifest.json"), encoding="utf-8") as f:
+                manifest = json_handler.loads(f.read())
 
         else:  # draft version, use the repository (slower, but allows manipulation)
             path = self.get_repo_path()
@@ -385,14 +385,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             repo = Repo(path)
             data = get_blob(repo.commit(sha).tree, "manifest.json")
             try:
-                json = json_handler.loads(data)
+                manifest = json_handler.loads(data)
                 logger.debug("loaded json")
             except ValueError:
                 raise BadManifestError(
                     _("Une erreur est survenue lors de la lecture du manifest.json, est-ce du JSON ?")
                 )
 
-        return json
+        return manifest
 
     def load_version(self, sha=None, public=None):
         """Using git, load a specific version of the content. if ``sha`` is ``None``,
@@ -683,6 +683,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     # sizes contain a python dict (as a string in database) with all information about file sizes
     sizes = models.CharField("Tailles des fichiers téléchargeables", max_length=512, default="{}")
     _meta_description = None
+    _manifest = None
 
     @staticmethod
     def get_slug_from_file_path(file_path):
@@ -695,15 +696,15 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         if self.versioned_model:
             return self.versioned_model.title
         else:
-            manifest = self.content.load_manifest(sha=self.sha_public, public=self)
-            return manifest.get("title", "Default title")
+            self._manifest = self._manifest or self.content.load_manifest(sha=self.sha_public, public=self)
+            return self._manifest.get("title", "Default title")
 
     def description(self):
         if self.versioned_model:
             return self.versioned_model.description
         else:
-            manifest = self.content.load_manifest(sha=self.sha_public, public=self)
-            return manifest.get("description", "Default description")
+            self._manifest = self._manifest or self.content.load_manifest(sha=self.sha_public, public=self)
+            return self._manifest.get("description", "Default description")
 
     def meta_description(self):
         """Generate a description for the HTML tag <meta name='description'>"""
