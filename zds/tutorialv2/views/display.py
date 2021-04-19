@@ -157,8 +157,10 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             logger.warning("could not compute reading time: setting characters_per_minute is set to zero (error=%s)", e)
 
         if self.request.user.is_authenticated:
-            for reaction in context["reactions"]:
-                signals.content_read.send(sender=reaction.__class__, instance=reaction, user=self.request.user)
+            if len(context["reactions"]) > 0:
+                signals.content_read.send(
+                    sender=context["reactions"][0].__class__, instances=context["reactions"], user=self.request.user
+                )
             signals.content_read.send(
                 sender=self.object.__class__, instance=self.object, user=self.request.user, target=PublishableContent
             )

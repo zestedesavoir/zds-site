@@ -231,12 +231,14 @@ def clean_subscriptions(sender, *, topic, **__):
 
 @receiver(tuto_signals.content_read, sender=ContentReaction)
 @receiver(forum_signals.post_read, sender=Post)
-def mark_comment_read(sender, *, instance, user, **__):
-    comment = instance
+def mark_comments_read(sender, *, instances, user, **__):
+    comments = {}
+    for comment in instances:
+        comments[comment.pk] = comment
 
-    subscription = PingSubscription.objects.get_existing(user, comment, is_active=True)
-    if subscription:
-        subscription.mark_notification_read(comment)
+    subscriptions = PingSubscription.objects.filter(user=user, is_active=True, object_id__in=comments.keys())
+    for subscription in subscriptions:
+        subscription.mark_notification_read(comments[subscription.object_id])
 
 
 @receiver(forum_signals.topic_moved, sender=Topic)
