@@ -1,15 +1,13 @@
-{% load emarkdown %}
 
 {# this template will be used to generate the HTML file for each container ! #}
 
-
 {% if container.introduction %}
-    {{ container.get_introduction|emarkdown:is_js }}
+    {{ container.introduction|safe }}
 {% endif %}
 
-{% if container.children|length != 0 %}
+{% if versioned_object.children|length != 0 %}
     <ul>
-        {% for extract in container.children %}
+        {% for extract in versioned_object.children %}
             <li>
                 <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
                     {{ extract.title }}
@@ -19,15 +17,15 @@
     </ul>
 {% endif %}
 
-{% for extract in container.children %}
-    <h2 id="{{ extract.position_in_parent }}-{{ extract.slug }}">
-        <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
-            {{ extract.title }}
+{% for rendered_extract, model_extract in container.children %}
+    <h2 id="{{ model_extract.position_in_parent }}-{{ model_extract.slug }}">
+        <a href="#{{ model_extract.position_in_parent }}-{{ model_extract.slug }}">
+            {{ model_extract.title }}
         </a>
     </h2>
-    {% if extract.text %}
+    {% if rendered_extract.text %}
         <div class="extract-wrapper">
-            {{ extract.get_text|emarkdown:is_js }}
+            {{ rendered_extract.text|safe }}
         </div>
     {% endif %}
 {% endfor %}
@@ -35,5 +33,5 @@
 <hr />
 
 {% if container.conclusion %}
-    {{ container.get_conclusion|emarkdown:is_js }}
+    {{ container.conclusion|safe }}
 {% endif %}
