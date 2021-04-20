@@ -69,7 +69,7 @@ ZDS_APP = {
         "googleAnalyticsID": zds_config.get("google_analytics_id"),
         "googleTagManagerID": zds_config.get("google_tag_manager_id"),
         "matomoSiteID": zds_config.get("matomo_site_id", 3),
-        "matomoUrl": zds_config.get("matomo_url", "https://matomo.firm1.eu"),
+        "matomoUrl": zds_config.get("matomo_url", "https://matomo.zestedesavoir.com"),
         "matomoTokenAuth": zds_config.get("matomo_token_auth", "b8f815cd5ad1e90af9d03c1dd8a544d5"),
         "association": {
             "name": "Zeste de Savoir",
