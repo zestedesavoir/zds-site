@@ -292,7 +292,11 @@ class Publicator:
 class MarkdownPublicator(Publicator):
     def publish(self, md_file_path, base_name, *, cur_language=settings.LANGUAGE_CODE, **kwargs):
         published_content_entity = self.get_published_content_entity(md_file_path)
-        versioned = kwargs.pop("versioned", None) or published_content_entity.load_public_version()
+        versioned = kwargs.pop("versioned", None)
+        if not versioned:
+            # do not use load_public_version as it lacks of information to get the content
+            # if you use it you will only get titles, without the text
+            versioned = published_content_entity.content.load_version(sha=published_content_entity.sha_public)
         try:
             translation.activate(settings.LANGUAGE_CODE)
             parsed = render_to_string("tutorialv2/export/content.md", {"content": versioned})
