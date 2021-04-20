@@ -207,8 +207,6 @@ ZDS_APP = {
     },
     "comment": {
         "max_pings": 15,
-        # allow to mention (and notify) members in messages
-        "enable_pings": True,
     },
     "featured_resource": {
         "featured_per_page": 100,
