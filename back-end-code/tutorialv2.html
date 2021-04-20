@@ -721,6 +721,34 @@ If a tag is unknown, it is added to the system.
 </dd></dl>
 
 <dl class="py method">
+<dt id="zds.tutorialv2.models.database.PublishableContent.load_manifest">
+<code class="sig-name descname"><span class="pre">load_manifest</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.load_manifest" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Using git, load a specific version of the manifest. if <code class="docutils literal notranslate"><span class="pre">sha</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+the draft/public version is used (if <code class="docutils literal notranslate"><span class="pre">public</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Paramètres</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sha</strong> – version</p></li>
+<li><p><strong>public</strong> (<a class="reference internal" href="#zds.tutorialv2.models.database.PublishedContent" title="zds.tutorialv2.models.database.PublishedContent"><em>PublishedContent</em></a>) – if set with the right object, return the public version</p></li>
+</ul>
+</dd>
+<dt class="field-even">Lève</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>BadObject</strong> – if sha is not None and related version could not be found</p></li>
+<li><p><strong>OSError</strong> – if the path to the repository is wrong</p></li>
+<li><p><a class="reference internal" href="#zds.tutorialv2.models.versioned.NotAPublicVersion" title="zds.tutorialv2.models.versioned.NotAPublicVersion"><strong>NotAPublicVersion</strong></a> – if the sha does not correspond to a public version</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Renvoie</dt>
+<dd class="field-odd"><p>the manifest</p>
+</dd>
+<dt class="field-even">Type renvoyé</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt id="zds.tutorialv2.models.database.PublishableContent.load_version">
 <code class="sig-name descname"><span class="pre">load_version</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.load_version" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Using git, load a specific version of the content. if <code class="docutils literal notranslate"><span class="pre">sha</span></code> is <code class="docutils literal notranslate"><span class="pre">None</span></code>,
