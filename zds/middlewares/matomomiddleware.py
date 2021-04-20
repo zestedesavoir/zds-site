@@ -7,6 +7,8 @@ import logging
 from django.conf import settings
 from threading import Thread
 
+from zds.member.views import get_client_ip
+
 matomo_api_url = "{}/matomo.php".format(settings.ZDS_APP["site"]["matomoUrl"])
 matomo_site_id = settings.ZDS_APP["site"]["matomoSiteID"]
 matomo_api_version = 1
@@ -33,6 +35,8 @@ def _background_process(queue: Queue):
             "s": data["datetime"].second,
         }
         try:
+            if data["address_ip"] != "0.0.0.0":
+                params["cip"] = data["address_ip"]
             requests.get(
                 matomo_api_url,
                 params=params,
@@ -70,6 +74,7 @@ class MatomoMiddleware:
                     "client_url": client_url,
                     "datetime": datetime.now().time(),
                     "r_path": request.path,
+                    "address_ip": get_client_ip(request),
                 }
             )
 
@@ -83,8 +88,8 @@ class MatomoMiddleware:
                     return response
             try:
                 self.matomo_track(request)
-            except Exception as e:
-                logger.error(f"Something failed : {str(e)}")
+            except Exception:
+                logger.exception(f"Something failed with Matomo tracking system.")
 
         return response
 

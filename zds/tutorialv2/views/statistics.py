@@ -1,3 +1,4 @@
+import logging
 import urllib.parse
 from datetime import timedelta, datetime, date
 
@@ -18,8 +19,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     form_class = ContentCompareStatsURLForm
     urls = []
     matomo_token_auth = settings.ZDS_APP["site"]["matomoTokenAuth"]
-    matomo_api_url = "{0}/index.php?token_auth={1}".format(settings.ZDS_APP["site"]["matomoUrl"], matomo_token_auth)
+    matomo_api_url = "{}/index.php?token_auth={}".format(settings.ZDS_APP["site"]["matomoUrl"], matomo_token_auth)
     matomo_site_id = settings.ZDS_APP["site"]["matomoSiteID"]
+    logger = logging.getLogger(__name__)
 
     def post(self, request, *args, **kwargs):
         self.public_content_object = self.get_public_object()
@@ -57,7 +59,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return urls
 
     def get_all_refs(self, url, start, end, method):
-        date_ranges = "{0},{1}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
+        date_ranges = "{},{}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
         absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
         param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
 
@@ -71,13 +73,18 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             "segment": ",".join([param_url]),
         }
 
-        response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
+        try:
+            response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
+            data = response_matomo.json()
+        except Exception:
+            data = {}
+            self.logger.exception(f"Something failed with Matomo reporting system")
+            messages.error(self.request, _(f"Impossible de récupérer les référents du site."))
 
-        data = response_matomo.json()
         return data
 
     def get_all_stats(self, url, start, end):
-        date_ranges = "{0},{1}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
+        date_ranges = "{},{}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
         absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
 
         data_request = {
@@ -90,9 +97,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             "pageUrl": absolute_url,
         }
 
-        response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
+        try:
+            response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
+            data = response_matomo.json()
+        except Exception:
+            data = {}
+            self.logger.exception(f"Something failed with Matomo reporting system")
+            messages.error(self.request, _(f"Impossible de récupérer les statistiques du site."))
 
-        data = response_matomo.json()
         return data
 
     @staticmethod
