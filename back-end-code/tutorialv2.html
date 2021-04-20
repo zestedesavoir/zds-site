@@ -3366,7 +3366,7 @@ association with the field named “__all__”.</p>
 
 <dl class="py function">
 <dt id="zds.tutorialv2.utils.export_container">
-<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></code><code class="sig-name descname"><span class="pre">export_container</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_container" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></code><code class="sig-name descname"><span class="pre">export_container</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_container" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Export a container to a dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -3383,7 +3383,7 @@ association with the field named “__all__”.</p>
 
 <dl class="py function">
 <dt id="zds.tutorialv2.utils.export_content">
-<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></code><code class="sig-name descname"><span class="pre">export_content</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_content" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></code><code class="sig-name descname"><span class="pre">export_content</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_content" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Export a content to dictionary in order to store them in a JSON file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -3400,7 +3400,7 @@ association with the field named “__all__”.</p>
 
 <dl class="py function">
 <dt id="zds.tutorialv2.utils.export_extract">
-<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></code><code class="sig-name descname"><span class="pre">export_extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extract</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_extract" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></code><code class="sig-name descname"><span class="pre">export_extract</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extract</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_extract" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Export an extract to a dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -3724,7 +3724,7 @@ is raised.</p>
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.publication_utils.</span></code><code class="sig-name descname"><span class="pre">MarkdownPublicator</span></code><a class="headerlink" href="#zds.tutorialv2.publication_utils.MarkdownPublicator" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><dl class="py method">
 <dt id="zds.tutorialv2.publication_utils.MarkdownPublicator.publish">
-<code class="sig-name descname"><span class="pre">publish</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">md_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cur_language</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">versioned</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.publication_utils.MarkdownPublicator.publish" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">publish</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">md_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_name</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cur_language</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fr-fr'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.publication_utils.MarkdownPublicator.publish" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Function called to generate a content export</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -3745,7 +3745,7 @@ is raised.</p>
 <dd><p>Publicator base object, all methods must be overridden</p>
 <dl class="py method">
 <dt id="zds.tutorialv2.publication_utils.Publicator.get_published_content_entity">
-<code class="sig-name descname"><span class="pre">get_published_content_entity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">md_file_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.publication_utils.Publicator.get_published_content_entity" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">get_published_content_entity</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">md_file_path</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#zds.tutorialv2.models.database.PublishedContent" title="zds.tutorialv2.models.database.PublishedContent"><span class="pre">zds.tutorialv2.models.database.PublishedContent</span></a><a class="headerlink" href="#zds.tutorialv2.publication_utils.Publicator.get_published_content_entity" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>Retrieve the db entity from mdfile path</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -3939,7 +3939,7 @@ is raised.</p>
 
 <dl class="py function">
 <dt id="zds.tutorialv2.publication_utils.generate_external_content">
-<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.publication_utils.</span></code><code class="sig-name descname"><span class="pre">generate_external_content</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_contents_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overload_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.publication_utils.generate_external_content" title="Lien permanent vers cette définition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">zds.tutorialv2.publication_utils.</span></code><code class="sig-name descname"><span class="pre">generate_external_content</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extra_contents_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">md_file_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overload_settings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">excluded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.publication_utils.generate_external_content" title="Lien permanent vers cette définition">¶</a></dt>
 <dd><p>generate all static file that allow offline access to content</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
