@@ -104,12 +104,12 @@
                                                      {% if first_unread %}
                                                          {{ first_unread.get_absolute_url }}
                                                      {% else %}
-                                                         {{ topic.resolve_last_read_post_absolute_url }}
+                                                         {{ topic.resolve_first_post_absolute_url }}
                                                      {% endif %}
                                                  {% endwith %}
                                              {% endspaceless %}"
 
-                                       class="{% if not topic|is_read %}unread{% endif %}
+                                       class="{% if not topic.is_read %}unread{% endif %}
 
                                               ico-after
 
@@ -132,7 +132,7 @@
                                                         {% endspaceless %}"
                                        {% endif %}>
 
-                                        {% if not topic|is_read %}
+                                        {% if not topic.is_read %}
                                             <span class="a11y">{% trans "Non-lu" %} :</span>
                                         {% endif %}
                                         {{ topic.title }}
