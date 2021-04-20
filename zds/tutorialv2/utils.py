@@ -674,7 +674,7 @@ def get_commit_author():
     return {"author": Actor(aut_user, aut_email), "committer": Actor(aut_user, aut_email)}
 
 
-def export_extract(extract):
+def export_extract(extract, with_text):
     """Export an extract to a dictionary
 
     :param extract: extract to export
@@ -686,13 +686,17 @@ def export_extract(extract):
     dct["slug"] = extract.slug
     dct["title"] = extract.title
 
-    if extract.text:
+    if extract.text and not with_text:
         dct["text"] = extract.text
+    elif extract.text:
+        dct["text"] = extract.get_text()
+    elif with_text:
+        dct["text"] = ""
 
     return dct
 
 
-def export_container(container):
+def export_container(container, with_text=False):
     """Export a container to a dictionary
 
     :param container: the container
@@ -705,32 +709,40 @@ def export_container(container):
     dct["slug"] = container.slug
     dct["title"] = container.title
 
-    if container.introduction:
+    if container.introduction and not with_text:
         dct["introduction"] = str(container.introduction)
+    elif container.introduction:
+        dct["introduction"] = container.get_introduction()
+    elif with_text:
+        dct["introduction"] = ""
 
-    if container.conclusion:
+    if container.conclusion and not with_text:
         dct["conclusion"] = str(container.conclusion)
+    elif container.conclusion:
+        dct["conclusion"] = container.get_conclusion()
+    elif with_text:
+        dct["conclusion"] = ""
 
     dct["children"] = []
     dct["ready_to_publish"] = container.ready_to_publish
     if container.has_sub_containers():
         for child in container.children:
-            dct["children"].append(export_container(child))
+            dct["children"].append(export_container(child, with_text))
     elif container.has_extracts():
         for child in container.children:
-            dct["children"].append(export_extract(child))
+            dct["children"].append(export_extract(child, with_text))
 
     return dct
 
 
-def export_content(content):
+def export_content(content, with_text=False):
     """Export a content to dictionary in order to store them in a JSON file
 
     :param content: content to be exported
     :return: dictionary containing the information
     :rtype: dict
     """
-    dct = export_container(content)
+    dct = export_container(content, with_text)
 
     # append metadata :
     dct["version"] = 2.1
@@ -738,7 +750,6 @@ def export_content(content):
     dct["type"] = content.type
     if content.licence:
         dct["licence"] = content.licence.code
-
     return dct
 
 
