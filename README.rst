@@ -42,8 +42,8 @@ Conseils pour débuter
 -  `Workflow et détails pratiques <https://docs.zestedesavoir.com/workflow.html>`__
 -  `Un mélange des deux <https://zestedesavoir.com/forums/sujet/324/comment-contribuer-comprendre-comment-suivre-le-workflow/>`__
 
-.. |Build Status| image:: https://travis-ci.org/zestedesavoir/zds-site.svg?branch=dev
-   :target: https://travis-ci.org/zestedesavoir/zds-site
+.. |Build Status| image:: https://github.com/zestedesavoir/zds-site/actions/workflows/ci.yml/badge.svg
+   :target: https://github.com/zestedesavoir/zds-site/actions
 .. |Coverage Status| image:: https://coveralls.io/repos/github/zestedesavoir/zds-site/badge.svg?branch=dev
    :target: https://coveralls.io/github/zestedesavoir/zds-site?branch=dev
 .. |Requirements Status| image:: https://requires.io/github/zestedesavoir/zds-site/requirements.svg?branch=dev
