@@ -147,7 +147,7 @@ $content-item-padding-vertical: $length-14;
 
                 // This width will not be respected but it will prevent the block
                 // to push against the other flex item (the comments bubble).
-                width: 10%;
+                min-width: 10%;
 
                 color: $accent-800;
 
