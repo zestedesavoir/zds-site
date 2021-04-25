@@ -40,7 +40,7 @@
                 {% regroup field.field.choices|order_categories|dictsort:"order" by parent as categories_list %}
 
                 {% for category in categories_list %}
-                    <details class="zds-group-form">
+                    <details class="zds-group-form" open>
                     <summary>
                         {% captureas img_cat%}images/categories/{{ category.grouper.1 }}.svg{% endcaptureas %}
 
