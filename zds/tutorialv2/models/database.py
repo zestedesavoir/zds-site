@@ -189,6 +189,14 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         if update_date:
             self.update_date = datetime.now()
         super().save(*args, **kwargs)
+        if hasattr(self, "_authors"):
+            delattr(self, "_authors")
+
+    @property
+    def redacting_authors(self):
+        if not hasattr(self, "_authors"):
+            setattr(self, "_authors", list(self.authors.all()))
+        return getattr(self, "_authors")
 
     def get_absolute_url_beta(self):
         """NOTE: it's better to use the version contained in `VersionedContent`, if possible !
@@ -221,7 +229,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         get = "?" + urlencode({"title": f"{title} - {self.title}"})
 
-        for author in self.authors.all():
+        for author in self.redacting_authors:
             get += "&" + urlencode({"username": author.username})
 
         return reverse("mp:create") + get
@@ -243,10 +251,10 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """
         ensure all authors subscribe to gallery
         """
-        author_set = UserGallery.objects.filter(user__in=list(self.authors.all()), gallery=self.gallery).values_list(
+        author_set = UserGallery.objects.filter(user__in=self.redacting_authors, gallery=self.gallery).values_list(
             "user__pk", flat=True
         )
-        for author in self.authors.all():
+        for author in self.redacting_authors:
             if author.pk in author_set:
                 continue
             user_gallery = UserGallery()
@@ -551,6 +559,25 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
 
         return self.first_note()
 
+    def __user_last_note(self, user):
+        """
+        Get last note posted by a user
+        :param user: user to test
+        :type user: django.contrib.auth.models.User
+        :return: ``None`` if user has not posted yet on this content, the last note otherwise
+        """
+        if not hasattr(self, "_last_note_map"):
+            setattr(self, "_last_note_map", {})
+        note_map = getattr(self, "_last_note_map")
+        try:
+            return note_map[user.pk]
+        except KeyError:
+            last_user_notes = (
+                ContentReaction.objects.filter(related_content=self).filter(author=user.pk).order_by("-position")
+            )
+            note_map[user.pk] = last_user_notes.first()
+            return note_map[user.pk]
+
     def antispam(self, user=None):
         """Check if the user is allowed to post in an tutorial according to the SPAM_LIMIT_SECONDS value.
 
@@ -562,15 +589,13 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             user = get_current_user()
 
         if user and user.is_authenticated:
-            last_user_notes = (
-                ContentReaction.objects.filter(related_content=self).filter(author=user.pk).order_by("-position")
-            )
 
-            if last_user_notes and last_user_notes[0] == self.last_note:
-                last_user_note = last_user_notes[0]
+            last_user_note = self.__user_last_note(user)
+            if last_user_note and last_user_note == self.last_note:
                 t = datetime.now() - last_user_note.pubdate
                 if t.total_seconds() < settings.ZDS_APP["forum"]["spam_limit_seconds"]:
                     return True
+        return False
 
     def repo_delete(self):
         """
@@ -664,12 +689,23 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     _meta_description = None
     _manifest = None
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if hasattr(self, "_authors"):
+            delattr(self, "_authors")
+
     @staticmethod
     def get_slug_from_file_path(file_path):
         return os.path.splitext(os.path.split(file_path)[1])[0]
 
     def __str__(self):
         return _('Version publique de "{}"').format(self.content.title)
+
+    @property
+    def public_authors(self):
+        if not hasattr(self, "_authors"):
+            setattr(self, "_authors", list(self.authors.all()))
+        return getattr(self, "_authors")
 
     def title(self):
         if self.versioned_model:
@@ -1244,7 +1280,7 @@ class ContentRead(models.Model):
         """
         Save this model but check that if we have not a related note it is because the user is content author.
         """
-        if self.user not in self.content.authors.all() and self.note is None:
+        if self.user not in self.content.redacting_authors and self.note is None:
             raise ValueError(_("La note doit exister ou l'utilisateur doit être l'un des auteurs."))
 
         return super().save(force_insert, force_update, using, update_fields)

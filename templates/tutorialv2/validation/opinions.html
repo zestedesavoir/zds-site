@@ -48,7 +48,7 @@
                                     </a>
                                 </td>
                                 <td>
-                                    {% for author in content.authors.all %}
+                                    {% for author in content.redacting_authors %}
                                         {% include 'misc/member_item.part.html' with member=author avatar=True %}
                                     {% endfor %}
                                 </td>

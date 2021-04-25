@@ -409,7 +409,9 @@ class Profile(models.Model):
         """
         Return all hats the user is allowed to use.
         """
-        profile_hats = list(self.hats.all())
+        if not hasattr(self, "_hats"):
+            setattr(self, "_hats", list(self.hats.all()))
+        profile_hats = getattr(self, "_hats")
         groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
         hats = profile_hats + groups_hats
 

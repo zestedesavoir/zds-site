@@ -103,7 +103,7 @@
 
 {% block sidebar_actions %}
 
-    {% if not user in content.authors.all and user.is_authenticated %}
+    {% if not user in content.redacting_authors and user.is_authenticated %}
     <li>
         <a href="{{ pm_link }}" class="ico-after cite blue">
         {% blocktrans count counter=content.authors.all|length %}

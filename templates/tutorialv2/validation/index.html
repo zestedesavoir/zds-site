@@ -98,7 +98,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    {% for author in validation.content.authors.all %}
+                                    {% for author in validation.content.redacting_authors %}
                                         {% include 'misc/member_item.part.html' with member=author avatar=True %}
                                     {% endfor %}
                                 </td>

@@ -159,7 +159,7 @@ def mark_content_reactions_read(sender, *, instance, user=None, target, **__):
             if subscription:
                 subscription.mark_notification_read()
     elif target == PublishableContent:
-        authors = list(instance.authors.all())
+        authors = instance.redacting_authors
         for author in authors:
             subscription = NewPublicationSubscription.objects.get_existing(user, author)
             # a subscription has to be handled only if it is active OR if it was triggered from the publication

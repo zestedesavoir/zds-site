@@ -112,7 +112,8 @@ class Forum(models.Model):
         try:
             return self.thread_count
         except AttributeError:
-            return Topic.objects.filter(forum=self).count()
+            setattr(self, "thread_count", Topic.objects.filter(forum=self).count())
+            return self.thread_count
 
     def get_post_count(self):
         """Retrieve or aggregate the number of posts in this forum. If this number already exists, it must be stored \
