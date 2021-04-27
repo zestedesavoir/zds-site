@@ -299,7 +299,7 @@ def normalize_unicode_url(unicode_url):
 
 
 class BadManifestError(Exception):
-    """ The exception that is raised when the manifest.json contains errors """
+    """The exception that is raised when the manifest.json contains errors"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -797,7 +797,7 @@ def get_blob(tree, path):
 
 
 class BadArchiveError(Exception):
-    """ The exception that is raised when a bad archive is sent """
+    """The exception that is raised when a bad archive is sent"""
 
     message = ""
 
