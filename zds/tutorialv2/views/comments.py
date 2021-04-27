@@ -34,7 +34,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
     new_note = False
 
     def get_form_kwargs(self):
-        kwargs = super(SendNoteFormView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs["content"] = self.object
         kwargs["reaction"] = None
 
@@ -52,7 +52,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         return kwargs
 
     def get_initial(self):
-        initial = super(SendNoteFormView, self).get_initial()
+        initial = super().get_initial()
 
         if self.quoted_reaction_text:
             initial["text"] = self.quoted_reaction_text
@@ -60,7 +60,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(SendNoteFormView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # handle the case were there is a new message in the discussion
         if self.new_note:
@@ -96,14 +96,14 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                     raise PermissionDenied
 
                 text = "\n".join("> " + line for line in reaction.text.split("\n"))
-                text += "\nSource: [{}]({})".format(reaction.author.username, reaction.get_absolute_url())
+                text += f"\nSource: [{reaction.author.username}]({reaction.get_absolute_url()})"
 
                 if self.request.is_ajax():
                     return StreamingHttpResponse(json_handler.dumps({"text": text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
         try:
-            return super(SendNoteFormView, self).get(request, *args, **kwargs)
+            return super().get(request, *args, **kwargs)
         except MustRedirect:
             # if someone changed the pk argument, and reached a 'must redirect' public object
             raise Http404(
@@ -116,7 +116,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
             return StreamingHttpResponse(content)
         else:
-            return super(SendNoteFormView, self).post(request, *args, **kwargs)
+            return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
 
@@ -167,7 +167,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             self.object.save(update_date=False)
 
         self.success_url = self.reaction.get_absolute_url()
-        return super(SendNoteFormView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class UpdateNoteView(SendNoteFormView):
@@ -176,7 +176,7 @@ class UpdateNoteView(SendNoteFormView):
     form_class = NoteEditForm
 
     def get_form_kwargs(self):
-        kwargs = super(UpdateNoteView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         if "message" in self.request.GET and self.request.GET["message"].isdigit():
             self.reaction = (
                 ContentReaction.objects.prefetch_related("author").filter(pk=int(self.request.GET["message"])).first()
@@ -192,7 +192,7 @@ class UpdateNoteView(SendNoteFormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(UpdateNoteView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if self.reaction:
             context["reaction"] = self.reaction
@@ -211,7 +211,7 @@ class UpdateNoteView(SendNoteFormView):
                 if alerts.count():
                     msg_alert = _(
                         "Attention, en éditant ce message vous résolvez également " "les alertes suivantes : {}"
-                    ).format(", ".join(["« {} » (signalé par {})".format(a.text, a.author.username) for a in alerts]))
+                    ).format(", ".join([f"« {a.text} » (signalé par {a.author.username})" for a in alerts]))
                     messages.warning(self.request, msg_alert)
 
         return context
@@ -230,7 +230,7 @@ class UpdateNoteView(SendNoteFormView):
             messages.error(self.request, _("Oh non ! Une erreur est survenue dans la requête !"))
             return self.form_invalid(form)
 
-        return super(UpdateNoteView, self).form_valid(form)
+        return super().form_valid(form)
 
 
 class HideReaction(FormView, LoginRequiredMixin):
@@ -238,7 +238,7 @@ class HideReaction(FormView, LoginRequiredMixin):
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(HideReaction, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         try:
@@ -265,7 +265,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(ShowReaction, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         try:
@@ -285,7 +285,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(SendNoteAlert, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         try:
@@ -314,7 +314,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
 class SolveNoteAlert(FormView, LoginRequiredMixin):
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(SolveNoteAlert, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if not request.user.has_perm("tutorialv2.change_contentreaction"):

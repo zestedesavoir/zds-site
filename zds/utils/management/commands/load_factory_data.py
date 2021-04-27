@@ -25,7 +25,7 @@ class Command(BaseCommand):
             os.mkdir(settings.MEDIA_ROOT)
 
         for filename in glob.glob(files):
-            stream = open(filename, "r")
+            stream = open(filename)
             fixture_list = yaml.load(stream, Loader=yaml.FullLoader)
             for fixture in fixture_list:
                 splitted = str(fixture["factory"]).split(".")

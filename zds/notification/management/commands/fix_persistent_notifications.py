@@ -20,4 +20,4 @@ class Command(BaseCommand):
                 notification.save()
                 print(notification)
                 count += 1
-        print("{} notifications have been fixed".format(count))
+        print(f"{count} notifications have been fixed")

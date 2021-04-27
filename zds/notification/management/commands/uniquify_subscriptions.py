@@ -26,4 +26,4 @@ class Command(BaseCommand):
             for pk in pks:
                 Subscription.objects.filter(pk=pk).delete()
 
-        self.stdout.write("Deleted {} duplicates".format(count))
+        self.stdout.write(f"Deleted {count} duplicates")

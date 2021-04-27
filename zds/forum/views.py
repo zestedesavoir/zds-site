@@ -39,7 +39,7 @@ class CategoriesForumsListView(ListView):
     queryset = ForumCategory.objects.all()
 
     def get_context_data(self, **kwargs):
-        context = super(CategoriesForumsListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         for category in context.get("categories"):
             category.forums = category.get_forums(self.request.user, with_count=True)
         return context
@@ -52,7 +52,7 @@ class ForumCategoryForumsDetailView(DetailView):
     queryset = ForumCategory.objects.all()
 
     def get_context_data(self, **kwargs):
-        context = super(ForumCategoryForumsDetailView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["forums"] = context.get("category").get_forums(self.request.user)
         return context
 
@@ -75,7 +75,7 @@ class LastTopicsListView(ListView):
         return topics
 
     def get_context_data(self, **kwargs):
-        context = super(LastTopicsListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context.update({"topic_read": TopicRead.objects.list_read_topic_pk(self.request.user, context["topics"])})
 
@@ -113,10 +113,10 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type="application/json")
-        return redirect("{}?page={}".format(self.object.get_absolute_url(), self.page))
+        return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
     def get_context_data(self, **kwargs):
-        context = super(ForumTopicsListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["topics"] = list(context["topics"].all())
         sticky = list(
             self.filter_queryset(
@@ -150,7 +150,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
     def get_queryset(self):
         self.queryset = Topic.objects.get_all_topics_of_a_forum(self.object.pk)
-        return super(ForumTopicsListView, self).get_queryset()
+        return super().get_queryset()
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == "solve":
@@ -175,13 +175,13 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
             raise PermissionDenied
         if not self.kwargs.get("topic_slug") == old_slugify(self.object.title):
             return redirect(self.object.get_absolute_url())
-        return super(TopicPostsListView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def featured_request_allowed(self):
         return not self.object.is_locked
 
     def get_context_data(self, **kwargs):
-        context = super(TopicPostsListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
         form.helper.form_action = reverse("post-new") + "?sujet=" + str(self.object.pk)
 
@@ -238,7 +238,7 @@ class TopicNew(CreateView, SingleObjectMixin):
         with transaction.atomic():
             self.object = self.get_object()
             if self.object.can_read(request.user):
-                return super(TopicNew, self).dispatch(request, *args, **kwargs)
+                return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied
 
     def get_object(self, queryset=None):
@@ -316,7 +316,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
                 self.page = int(request.POST.get("page"))
             except (KeyError, ValueError, TypeError):
                 self.page = 1
-        return super(TopicEdit, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         is_staff = request.user.has_perm("forum.change_topic")
@@ -335,7 +335,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
                 "subtitle": self.object.subtitle,
                 "text": self.object.first_post().text,
                 "tags": ", ".join(self.object.tags.values_list("title", flat=True)),
-            }
+            },
         )
         return render(request, self.template_name, {"topic": self.object, "form": form, "is_staff": is_staff})
 
@@ -358,7 +358,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
                             "subtitle": request.POST.get("subtitle"),
                             "text": request.POST.get("text"),
                             "tags": request.POST.get("tags"),
-                        }
+                        },
                     )
             elif form.is_valid():
                 return self.form_valid(form)
@@ -384,7 +384,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type="application/json")
-        return redirect("{}?page={}".format(self.object.get_absolute_url(), self.page))
+        return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
     def get_object(self, queryset=None):
         try:
@@ -400,12 +400,12 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
 
     def create_form(self, form_class, **kwargs):
         form = form_class(initial=kwargs)
-        form.helper.form_action = reverse("topic-edit") + "?topic={}".format(self.object.pk)
+        form.helper.form_action = reverse("topic-edit") + f"?topic={self.object.pk}"
         return form
 
     def get_form(self, form_class=TopicForm):
         form = form_class(self.request.POST)
-        form.helper.form_action = reverse("topic-edit") + "?topic={}".format(self.object.pk)
+        form.helper.form_action = reverse("topic-edit") + f"?topic={self.object.pk}"
         return form
 
     def form_valid(self, form):
@@ -423,10 +423,10 @@ class FindTopic(ZdSPagingListView, SingleObjectMixin):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return super(FindTopic, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(FindTopic, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context.update(
             {
                 "usr": self.object,
@@ -451,14 +451,14 @@ class FindFollowedTopic(ZdSPagingListView, SingleObjectMixin):
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(FindFollowedTopic, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return super(FindFollowedTopic, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(FindFollowedTopic, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         topics_count = self.object.profile.get_followed_topic_count()
         context.update(
             {
@@ -489,7 +489,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
         if self.kwargs.get("tag_pk"):
             return redirect("topic-tag-find", tag_slug=self.kwargs.get("tag_slug"), permanent=True)
         self.object = self.get_object()
-        return super(FindTopicByTag, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
@@ -506,10 +506,10 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
         self.object.save()
         if request.is_ajax():
             return HttpResponse(json.dumps(response), content_type="application/json")
-        return redirect("{}?page={}".format(self.object.get_absolute_url(), self.page))
+        return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
     def get_context_data(self, *args, **kwargs):
-        context = super(FindTopicByTag, self).get_context_data(*args, **kwargs)
+        context = super().get_context_data(*args, **kwargs)
         context["topics"] = list(context["topics"].all())
         # we need to load it in memory because later we will get the
         # "already read topic" set out of this list and MySQL does not support that type of subquery
@@ -527,7 +527,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
     def get_queryset(self):
         self.queryset = Topic.objects.get_all_topics_of_a_tag(self.object, self.request.user)
-        return super(FindTopicByTag, self).get_queryset()
+        return super().get_queryset()
 
     def filter_queryset(self, queryset, filter_param):
         if filter_param == "solve":
@@ -561,7 +561,7 @@ class PostNew(CreatePostView):
                     .prefetch_related()
                     .order_by("-position")[: settings.ZDS_APP["forum"]["posts_per_page"]]
                 )
-                return super(PostNew, self).dispatch(request, *args, **kwargs)
+                return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied
 
     def create_forum(self, form_class, **kwargs):
@@ -600,7 +600,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
             can_read = self.object.topic.forum.can_read(request.user)
             is_visible = self.object.is_visible
             if can_read and ((is_author and is_visible) or request.user.has_perm("forum.change_post")):
-                return super(PostEdit, self).dispatch(request, *args, **kwargs)
+                return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied
 
     def get(self, request, *args, **kwargs):
@@ -684,7 +684,7 @@ class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
             self.object = self.get_object()
             can_read = self.object.topic.forum.can_read(request.user)
             if can_read:
-                return super(PostSignal, self).dispatch(request, *args, **kwargs)
+                return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied
 
     def post(self, request, *args, **kwargs):
@@ -708,7 +708,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
         if self.object.topic.author != request.user:
             if not request.user.has_perm("forum.change_post"):
                 raise PermissionDenied
-        return super(PostUseful, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.perform_useful(self.object)
@@ -727,7 +727,7 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.object = self.get_object()
         if not self.object.topic.forum.can_read(request.user):
             raise PermissionDenied
-        return super(PostUnread, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.perform_unread_message(self.object, self.request.user)
@@ -747,10 +747,10 @@ class FindPost(ZdSPagingListView, SingleObjectMixin):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        return super(FindPost, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(FindPost, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context.update(
             {
@@ -816,7 +816,7 @@ class ManageGitHubIssue(UpdateView):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.profile.is_dev():
             raise PermissionDenied
-        return super(ManageGitHubIssue, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -854,7 +854,7 @@ class ManageGitHubIssue(UpdateView):
                     response = requests.post(
                         settings.ZDS_APP["site"]["repository"]["api"] + "/issues",
                         timeout=10,
-                        headers={"Authorization": "Token {}".format(self.request.user.profile.github_token)},
+                        headers={"Authorization": f"Token {self.request.user.profile.github_token}"},
                         json={"title": request.POST["title"], "body": body, "labels": tags},
                     )
                     if response.status_code != 201:

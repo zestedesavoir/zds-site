@@ -14,8 +14,7 @@ from zds.utils.templatetags.emarkdown import render_markdown
 class PagesMemberTests(TestCase):
     def setUp(self):
         self.user1 = ProfileFactory().user
-        log = self.client.login(username=self.user1.username, password="hostel77")
-        self.assertEqual(log, True)
+        self.client.force_login(self.user1)
 
     def test_url_home(self):
         """Test: check that home page is alive."""
@@ -75,8 +74,7 @@ class PagesMemberTests(TestCase):
 class PagesStaffTests(TestCase):
     def setUp(self):
         self.staff = StaffProfileFactory().user
-        log = self.client.login(username=self.staff.username, password="hostel77")
-        self.assertEqual(log, True)
+        self.client.force_login(self.staff)
 
     def test_url_home(self):
         """Test: check that home page is alive."""
@@ -206,14 +204,14 @@ class CommentEditsHistoryTests(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, self.user.profile)
 
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
         data = {"text": "A new post!"}
-        self.client.post(reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False)
+        self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.post = topic.last_message
         self.edit = CommentEdit.objects.latest("date")
 
     def test_history_with_wrong_pk(self):
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
         response = self.client.get(reverse("comment-edits-history", args=[self.post.pk + 1]))
         self.assertEqual(response.status_code, 404)
         response = self.client.get(reverse("edit-detail", args=[self.edit.pk + 1]))
@@ -229,21 +227,21 @@ class CommentEditsHistoryTests(TestCase):
 
         # Login with another user and check that the history can't be displayed
         other_user = ProfileFactory().user
-        self.assertTrue(self.client.login(username=other_user.username, password="hostel77"))
+        self.client.force_login(other_user)
         response = self.client.get(reverse("comment-edits-history", args=[self.post.pk]))
         self.assertEqual(response.status_code, 403)
         response = self.client.get(reverse("edit-detail", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 403)
 
         # Login as staff and check that the history can be displayed
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         response = self.client.get(reverse("comment-edits-history", args=[self.post.pk]))
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse("edit-detail", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 200)
 
         # And finally, check that the post author can see the history
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
         response = self.client.get(reverse("comment-edits-history", args=[self.post.pk]))
         self.assertEqual(response.status_code, 200)
         response = self.client.get(reverse("edit-detail", args=[self.edit.pk]))
@@ -251,7 +249,7 @@ class CommentEditsHistoryTests(TestCase):
 
     def test_history_content(self):
         # Login as staff
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
 
         # Check that there is a row on the history
         response = self.client.get(reverse("comment-edits-history", args=[self.post.pk]))
@@ -263,13 +261,13 @@ class CommentEditsHistoryTests(TestCase):
 
         # And not when we're logged as author
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
         response = self.client.get(reverse("comment-edits-history", args=[self.post.pk]))
         self.assertNotContains(response, _("Supprimer"))
 
     def test_edit_detail(self):
         # Login as staff
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
 
         # Check that the original content is displayed
         response = self.client.get(reverse("edit-detail", args=[self.edit.pk]))
@@ -281,20 +279,20 @@ class CommentEditsHistoryTests(TestCase):
 
         # Test that this option is only available for author and staff
         other_user = ProfileFactory().user
-        self.assertTrue(self.client.login(username=other_user.username, password="hostel77"))
+        self.client.force_login(other_user)
         response = self.client.post(reverse("restore-edit", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 403)
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
         response = self.client.post(reverse("restore-edit", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 302)
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         response = self.client.post(reverse("restore-edit", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 302)
 
         # Test that a sanctionned user can't do this
         self.user.profile.can_write = False
         self.user.profile.save()
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
         response = self.client.post(reverse("restore-edit", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 403)
 
@@ -307,10 +305,10 @@ class CommentEditsHistoryTests(TestCase):
 
     def test_delete_original_content(self):
         # This option should only be available for staff
-        self.assertTrue(self.client.login(username=self.user.username, password="hostel77"))
+        self.client.force_login(self.user)
         response = self.client.post(reverse("delete-edit-content", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 403)
-        self.assertTrue(self.client.login(username=self.staff.username, password="hostel77"))
+        self.client.force_login(self.staff)
         response = self.client.post(reverse("delete-edit-content", args=[self.edit.pk]))
         self.assertEqual(response.status_code, 302)
 

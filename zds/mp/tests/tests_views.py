@@ -23,8 +23,7 @@ class IndexViewTest(TestCase):
 
     def test_success_delete_topic_no_participants(self):
         topic = PrivateTopicFactory(author=self.profile1.user)
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
         response = self.client.post(reverse("mp-list-delete"), {"items": [topic.pk]})
@@ -34,8 +33,7 @@ class IndexViewTest(TestCase):
 
     def test_success_delete_topic_as_author(self):
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(reverse("mp-list-delete"), {"items": [self.topic1.pk]})
 
@@ -47,8 +45,7 @@ class IndexViewTest(TestCase):
 
     def test_success_delete_topic_as_participant(self):
 
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         response = self.client.post(reverse("mp-list-delete"), {"items": [self.topic1.pk]})
 
@@ -64,8 +61,7 @@ class IndexViewTest(TestCase):
 
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
-        login_check = self.client.login(username=self.profile2.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile2.user)
 
         self.client.post(reverse("mp-list-delete"), {"items": [topic.pk]})
 
@@ -74,8 +70,7 @@ class IndexViewTest(TestCase):
     def test_topic_get_weird_page(self):
         """ get a page that can't exist (like page=abc)"""
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(reverse("mp-list") + "?page=abc")
         self.assertEqual(response.status_code, 404)
@@ -83,8 +78,7 @@ class IndexViewTest(TestCase):
     def test_topic_get_page_too_far(self):
         """ get a page that is too far yet"""
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         # create many subjects (at least two pages)
         for i in range(1, settings.ZDS_APP["forum"]["topics_per_page"] + 5):
@@ -109,8 +103,7 @@ class TopicViewTest(TestCase):
 
     def test_fail_topic_no_exist(self):
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(reverse("private-posts-list", args=[12, "private-topic"]))
         self.assertEqual(404, response.status_code)
@@ -118,8 +111,7 @@ class TopicViewTest(TestCase):
     def test_fail_topic_no_permission(self):
         """Check that a member not participating in a private topic is forbidden to view it."""
 
-        login_check = self.client.login(username=self.profile3.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile3.user)
 
         response = self.client.get(reverse("private-posts-list", args=[self.topic1.pk, self.topic1.slug]), follow=True)
 
@@ -128,8 +120,7 @@ class TopicViewTest(TestCase):
     def test_get_weird_page(self):
         """ get a page that can't exist (like page=abc)"""
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(
             reverse(
@@ -146,8 +137,7 @@ class TopicViewTest(TestCase):
     def test_get_page_too_far(self):
         """ get a page that can't exist (like page=42)"""
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(
             reverse(
@@ -164,7 +154,7 @@ class TopicViewTest(TestCase):
     def test_available_actions(self):
         """we should be able to cite, but not hide or alert"""
 
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(
             reverse(
@@ -186,8 +176,7 @@ class TopicViewTest(TestCase):
     def test_more_than_one_message(self):
         """ test get second page """
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
         # create many subjects (at least two pages)
         post = None
@@ -219,8 +208,7 @@ class NewTopicViewTest(TestCase):
         self.hat, _ = Hat.objects.get_or_create(name__iexact="A hat", defaults={"name": "A hat"})
         self.profile1.hats.add(self.hat)
 
-        login_check = self.client.login(username=self.profile1.user.username, password="hostel77")
-        self.assertTrue(login_check)
+        self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
 
@@ -311,7 +299,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.post(
             reverse("mp-new"),
             {
-                "participants": "{}".format(profile_inactive.user.username),
+                "participants": f"{profile_inactive.user.username}",
                 "title": "title",
                 "subtitle": "subtitle",
                 "text": "text",
@@ -393,7 +381,7 @@ class AnswerViewTest(TestCase):
 
         self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
 
@@ -427,7 +415,7 @@ class AnswerViewTest(TestCase):
         another_post = PrivatePostFactory(privatetopic=another_topic, author=self.profile2.user, position_in_topic=1)
 
         response = self.client.get(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + "?cite={}".format(another_post.pk)
+            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={another_post.pk}"
         )
 
         self.assertEqual(403, response.status_code)
@@ -442,7 +430,7 @@ class AnswerViewTest(TestCase):
     def test_success_cite_post(self):
 
         response = self.client.get(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + "?cite={}".format(self.post2.pk)
+            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={self.post2.pk}"
         )
 
         self.assertEqual(200, response.status_code)
@@ -486,7 +474,7 @@ class AnswerViewTest(TestCase):
     def test_fail_answer_with_no_right(self):
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.profile3.user.username, password="hostel77"))
+        self.client.force_login(self.profile3.user)
 
         response = self.client.post(
             reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug]),
@@ -537,7 +525,7 @@ class EditPostViewTest(TestCase):
 
         self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
 
@@ -550,7 +538,7 @@ class EditPostViewTest(TestCase):
 
     def test_succes_get_edit_post_page(self):
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.profile2.user.username, password="hostel77"))
+        self.client.force_login(self.profile2.user)
 
         response = self.client.get(
             reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk])
@@ -581,7 +569,7 @@ class EditPostViewTest(TestCase):
     def test_success_edit_post(self):
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.profile2.user.username, password="hostel77"))
+        self.client.force_login(self.profile2.user)
 
         response = self.client.post(
             reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk]),
@@ -638,7 +626,7 @@ class LeaveViewTest(TestCase):
 
         self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
 
@@ -677,7 +665,7 @@ class LeaveViewTest(TestCase):
     def test_success_leave_topic_as_participant(self):
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.profile2.user.username, password="hostel77"))
+        self.client.force_login(self.profile2.user)
 
         response = self.client.post(reverse("mp-delete", args=[self.topic1.pk, self.topic1.slug]), follow=True)
 
@@ -704,7 +692,7 @@ class AddParticipantViewTest(TestCase):
 
         self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
 
@@ -723,7 +711,7 @@ class AddParticipantViewTest(TestCase):
 
     def test_test_fail_add_bot_as_participant(self):
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
         self.client.post(
             reverse("mp-edit-participant", args=[self.topic1.pk, self.topic1.slug]),
@@ -747,7 +735,7 @@ class AddParticipantViewTest(TestCase):
         profile3 = ProfileFactory()
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=profile3.user.username, password="hostel77"))
+        self.client.force_login(profile3.user)
 
         response = self.client.post(
             reverse("mp-edit-participant", args=[self.topic1.pk, self.topic1.slug]),
@@ -825,7 +813,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertEqual("super subtitle", topic.subtitle)
 
     def test_success_edit_topic(self):
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
@@ -845,7 +833,7 @@ class PrivateTopicEditTest(TestCase):
         self.topic1.subtitle = "super subtitle"
         self.topic1.save()
 
-        self.assertTrue(self.client.login(username=self.profile2.user.username, password="hostel77"))
+        self.client.force_login(self.profile2.user)
 
         response = self.client.get(reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]), follow=True)
         self.assertEqual(403, response.status_code)
@@ -863,7 +851,7 @@ class PrivateTopicEditTest(TestCase):
         self.assertEqual("super subtitle", topic.subtitle)
 
     def test_fail_topic_doesnt_exist(self):
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
         response = self.client.get(reverse("mp-edit-topic", args=[91, "private-topic"]), follow=True)
         self.assertEqual(404, response.status_code)
@@ -879,7 +867,7 @@ class PrivateTopicEditTest(TestCase):
         self.topic1.subtitle = "super subtitle"
         self.topic1.save()
 
-        self.assertTrue(self.client.login(username=self.profile1.user.username, password="hostel77"))
+        self.client.force_login(self.profile1.user)
 
         response = self.client.post(
             reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
@@ -918,7 +906,7 @@ class PrivatePostUnreadTest(TestCase):
 
     def test_failing_unread_post(self):
         """Test cases of invalid unread requests by an authenticated user."""
-        self.assertTrue(self.client.login(username=self.author.user.username, password="hostel77"))
+        self.client.force_login(self.author.user)
 
         # parameter is missing
         result = self.client.get(reverse("private-post-unread"), follow=False)
@@ -938,13 +926,13 @@ class PrivatePostUnreadTest(TestCase):
 
     def test_user_not_participating(self):
         """Test the case of a user not participating in a private topic attempting to unread a post. """
-        self.assertTrue(self.client.login(username=self.outsider.user.username, password="hostel77"))
+        self.client.force_login(self.outsider.user)
         result = self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=False)
         self.assertEqual(result.status_code, 403)
 
     @patch("zds.mp.signals.message_unread")
     def test_unread_first_post(self, message_unread):
-        self.assertTrue(self.client.login(username=self.participant.user.username, password="hostel77"))
+        self.client.force_login(self.participant.user)
         result = self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
         self.assertRedirects(result, reverse("mp-list"))
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
@@ -953,7 +941,7 @@ class PrivatePostUnreadTest(TestCase):
 
     @patch("zds.mp.signals.message_unread")
     def test_unread_normal_post(self, message_unread):
-        self.assertTrue(self.client.login(username=self.participant.user.username, password="hostel77"))
+        self.client.force_login(self.participant.user)
         self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=True)
         topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
         self.assertEqual(topic_read.privatetopic, self.topic1)
@@ -963,7 +951,7 @@ class PrivatePostUnreadTest(TestCase):
 
     @patch("zds.mp.signals.message_unread")
     def test_multiple_unread1(self, message_unread):
-        self.assertTrue(self.client.login(username=self.participant.user.username, password="hostel77"))
+        self.client.force_login(self.participant.user)
         self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
         self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=True)
         topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
@@ -974,7 +962,7 @@ class PrivatePostUnreadTest(TestCase):
 
     @patch("zds.mp.signals.message_unread")
     def test_multiple_unread2(self, message_unread):
-        self.assertTrue(self.client.login(username=self.participant.user.username, password="hostel77"))
+        self.client.force_login(self.participant.user)
         self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
         self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
@@ -984,7 +972,7 @@ class PrivatePostUnreadTest(TestCase):
     def test_no_interference(self):
         mark_read(self.topic1, self.author.user)
         topic_read_old = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
-        self.assertTrue(self.client.login(username=self.participant.user.username, password="hostel77"))
+        self.client.force_login(self.participant.user)
         self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=True)
         topic_read_new = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
         self.assertQuerysetEqual(topic_read_old, [repr(t) for t in topic_read_new])

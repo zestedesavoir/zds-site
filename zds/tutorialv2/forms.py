@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
 from zds.utils.forms import TagValidator, IncludeEasyMDE
+from zds.utils.validators import with_svg_validator
 
 
 class FormWithTitle(forms.Form):
@@ -24,7 +25,7 @@ class FormWithTitle(forms.Form):
     )
 
     def clean(self):
-        cleaned_data = super(FormWithTitle, self).clean()
+        cleaned_data = super().clean()
 
         title = cleaned_data.get("title")
 
@@ -83,10 +84,10 @@ class ContributionForm(forms.Form):
                 StrictButton(_("Ajouter"), type="submit", css_class="btn-submit"),
             ),
         )
-        super(ContributionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean_username(self):
-        cleaned_data = super(ContributionForm, self).clean()
+        cleaned_data = super().clean()
         if cleaned_data.get("username"):
             username = cleaned_data.get("username")
             user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower()).first()
@@ -114,7 +115,7 @@ class AuthorForm(forms.Form):
     username = forms.CharField(label=_("Auteurs à ajouter séparés d'une virgule."), required=True)
 
     def __init__(self, *args, **kwargs):
-        super(AuthorForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -130,7 +131,7 @@ class AuthorForm(forms.Form):
 
         :return: a dictionary of all treated data with the users key added
         """
-        cleaned_data = super(AuthorForm, self).clean()
+        cleaned_data = super().clean()
         users = []
         if cleaned_data.get("username"):
             for username in cleaned_data.get("username").split(","):
@@ -146,7 +147,7 @@ class AuthorForm(forms.Form):
         return cleaned_data
 
     def is_valid(self):
-        return super(AuthorForm, self).is_valid() and "users" in self.clean()
+        return super().is_valid() and "users" in self.clean()
 
 
 class RemoveAuthorForm(AuthorForm):
@@ -197,7 +198,7 @@ class ContainerForm(FormWithTitle):
     last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super(ContainerForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -237,10 +238,11 @@ class ContentForm(ContainerForm):
         required=False,
     )
 
-    image = forms.ImageField(
+    image = forms.FileField(
         label=_("Sélectionnez le logo du contenu (max. {} Ko).").format(
             str(settings.ZDS_APP["gallery"]["image_max_size"] / 1024)
         ),
+        validators=[with_svg_validator],
         required=False,
     )
 
@@ -295,7 +297,7 @@ class ContentForm(ContainerForm):
         self.helper.layout.append(ButtonHolder(StrictButton("Valider", type="submit")))
 
     def __init__(self, *args, **kwargs):
-        super(ContentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
@@ -306,7 +308,7 @@ class ContentForm(ContainerForm):
             self.helper["type"].wrap(Field, disabled=True)
 
     def clean(self):
-        cleaned_data = super(ContentForm, self).clean()
+        cleaned_data = super().clean()
         image = cleaned_data.get("image", None)
         if image is not None and image.size > settings.ZDS_APP["gallery"]["image_max_size"]:
             self._errors["image"] = self.error_class(
@@ -398,10 +400,10 @@ class EditContentLicenseForm(forms.Form):
     def _create_layout(self):
         self.helper.layout = Layout(
             HTML(
-                """<p>{0} encourage l'utilisation de licences facilitant le partage,
+                """<p>{} encourage l'utilisation de licences facilitant le partage,
                     telles que les licences <a href="https://creativecommons.org/">Creative Commons</a>.</p>
                     <p>Pour choisir la licence de votre publication, aidez-vous de la
-                    <a href="{1}" alt="{2}">présentation
+                    <a href="{}" alt="{}">présentation
                     des différentes licences proposées sur le site</a>.</p>""".format(
                     settings.ZDS_APP["site"]["literal_name"],
                     settings.ZDS_APP["site"]["licenses"]["licence_info_title"],
@@ -432,7 +434,7 @@ class ExtractForm(FormWithTitle):
     last_hash = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-        super(ExtractForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -461,10 +463,10 @@ class ImportForm(forms.Form):
             Field("images"),
             Submit("import-tuto", _("Importer le .tuto")),
         )
-        super(ImportForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def clean(self):
-        cleaned_data = super(ImportForm, self).clean()
+        cleaned_data = super().clean()
 
         # Check that the files extensions are correct
         tuto = cleaned_data.get("file")
@@ -498,7 +500,7 @@ class ImportContentForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
-        super(ImportContentForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -513,7 +515,7 @@ class ImportContentForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(ImportContentForm, self).clean()
+        cleaned_data = super().clean()
 
         # Check that the files extensions are correct
         archive = cleaned_data.get("archive")
@@ -597,9 +599,9 @@ class NoteForm(forms.Form):
 
         last_note = kwargs.pop("last_note", 0)
 
-        super(NoteForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse("content:add-reaction") + "?pk={}".format(content.pk)
+        self.helper.form_action = reverse("content:add-reaction") + f"?pk={content.pk}"
         self.helper.form_method = "post"
 
         self.helper.layout = Layout(
@@ -631,7 +633,7 @@ class NoteForm(forms.Form):
         self.content = content
 
     def clean(self):
-        cleaned_data = super(NoteForm, self).clean()
+        cleaned_data = super().clean()
 
         text = cleaned_data.get("text")
 
@@ -659,7 +661,7 @@ class NoteForm(forms.Form):
 
 class NoteEditForm(NoteForm):
     def __init__(self, *args, **kwargs):
-        super(NoteEditForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         content = kwargs["content"]
         reaction = kwargs["reaction"]
@@ -677,7 +679,9 @@ class AskValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=False,
-        widget=forms.Textarea(attrs={"placeholder": _("Commentaire pour votre demande."), "rows": "3"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Commentaire pour votre demande."), "rows": "3", "id": "ask_validation_text"}
+        ),
     )
 
     version = forms.CharField(widget=forms.HiddenInput(), required=True)
@@ -693,7 +697,7 @@ class AskValidationForm(forms.Form):
         :param kwargs:
         :return:
         """
-        super(AskValidationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url() + "?version=" + content.current_version
@@ -733,7 +737,7 @@ class AskValidationForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(AskValidationForm, self).clean()
+        cleaned_data = super().clean()
 
         text = cleaned_data.get("text")
 
@@ -789,7 +793,7 @@ class AcceptValidationForm(forms.Form):
             + validation.version
         )
 
-        super(AcceptValidationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # if content is already published, it's probably a minor change, so do not check `is_major`
         self.fields["is_major"].initial = not validation.content.sha_public
@@ -810,11 +814,13 @@ class CancelValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi annuler la validation ?"), "rows": "4", "id": "cancel_text"}
+        ),
     )
 
     def __init__(self, validation, *args, **kwargs):
-        super(CancelValidationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = (
@@ -836,7 +842,7 @@ class CancelValidationForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(CancelValidationForm, self).clean()
+        cleaned_data = super().clean()
 
         text = cleaned_data.get("text")
 
@@ -856,7 +862,9 @@ class CancelValidationForm(forms.Form):
 class RejectValidationForm(forms.Form):
 
     text = forms.CharField(
-        label="", required=True, widget=forms.Textarea(attrs={"placeholder": _("Commentaire de rejet."), "rows": "6"})
+        label="",
+        required=True,
+        widget=forms.Textarea(attrs={"placeholder": _("Commentaire de rejet."), "rows": "6", "id": "reject_text"}),
     )
 
     def __init__(self, validation, *args, **kwargs):
@@ -868,7 +876,7 @@ class RejectValidationForm(forms.Form):
         :param kwargs:
         :return:
         """
-        super(RejectValidationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = (
@@ -888,7 +896,7 @@ class RejectValidationForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(RejectValidationForm, self).clean()
+        cleaned_data = super().clean()
 
         text = cleaned_data.get("text")
 
@@ -912,11 +920,13 @@ class RevokeValidationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6", "id": "up_text"}
+        ),
     )
 
     def __init__(self, content, *args, **kwargs):
-        super(RevokeValidationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -932,7 +942,7 @@ class RevokeValidationForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(RevokeValidationForm, self).clean()
+        cleaned_data = super().clean()
 
         text = cleaned_data.get("text")
 
@@ -954,7 +964,7 @@ class JsFiddleActivationForm(forms.Form):
     js_support = forms.BooleanField(label="À cocher pour activer JSFiddle.", required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
-        super(JsFiddleActivationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("content:activate-jsfiddle")
         self.helper.form_method = "post"
@@ -970,7 +980,7 @@ class JsFiddleActivationForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(JsFiddleActivationForm, self).clean()
+        cleaned_data = super().clean()
         if "js_support" not in cleaned_data:
             cleaned_data["js_support"] = False
         if "pk" in self.data and self.data["pk"].isdigit():
@@ -993,7 +1003,7 @@ class MoveElementForm(forms.Form):
     MOVE_BEFORE = "before"
 
     def __init__(self, *args, **kwargs):
-        super(MoveElementForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("content:move-element")
         self.helper.form_method = "post"
@@ -1009,14 +1019,16 @@ class MoveElementForm(forms.Form):
 class WarnTypoForm(forms.Form):
 
     text = forms.CharField(
-        label="", required=True, widget=forms.Textarea(attrs={"placeholder": _("Expliquez la faute"), "rows": "3"})
+        label="",
+        required=True,
+        widget=forms.Textarea(attrs={"placeholder": _("Expliquez la faute"), "rows": "3", "id": "warn_text"}),
     )
 
     target = forms.CharField(widget=forms.HiddenInput(), required=False)
     version = forms.CharField(widget=forms.HiddenInput(), required=True)
 
     def __init__(self, content, targeted, public=True, *args, **kwargs):
-        super(WarnTypoForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.content = content
         self.targeted = targeted
@@ -1057,7 +1069,7 @@ class WarnTypoForm(forms.Form):
 
         # create form
         self.helper = FormHelper()
-        self.helper.form_action = reverse("content:warn-typo") + "?pk={}".format(content.pk)
+        self.helper.form_action = reverse("content:warn-typo") + f"?pk={content.pk}"
         self.helper.form_method = "post"
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = "warn-typo-modal"
@@ -1071,7 +1083,7 @@ class WarnTypoForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(WarnTypoForm, self).clean()
+        cleaned_data = super().clean()
 
         text = cleaned_data.get("text")
 
@@ -1094,7 +1106,7 @@ class PublicationForm(forms.Form):
     """
 
     def __init__(self, content, *args, **kwargs):
-        super(PublicationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.previous_page_url = content.get_absolute_url()
 
@@ -1132,7 +1144,7 @@ class PublicationForm(forms.Form):
         )
 
     def clean(self):
-        cleaned_data = super(PublicationForm, self).clean()
+        cleaned_data = super().clean()
 
         base_error_msg = "La publication n'a pas été effectuée. "
 
@@ -1154,11 +1166,13 @@ class UnpublicationForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
-        widget=forms.Textarea(attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6"}),
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi dépublier ce contenu ?"), "rows": "6", "id": "up_reason"}
+        ),
     )
 
     def __init__(self, content, *args, **kwargs):
-        super(UnpublicationForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -1182,7 +1196,7 @@ class PickOpinionForm(forms.Form):
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
-        super(PickOpinionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -1208,7 +1222,7 @@ class DoNotPickOpinionForm(forms.Form):
     redirect = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, content, *args, **kwargs):
-        super(DoNotPickOpinionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -1226,7 +1240,7 @@ class DoNotPickOpinionForm(forms.Form):
         )
 
     def clean(self):
-        cleaned = super(DoNotPickOpinionForm, self).clean()
+        cleaned = super().clean()
         cleaned["operation"] = (
             self.data["operation"] if self.data["operation"] in ["NO_PICK", "REJECT", "REMOVE_PUB"] else None
         )
@@ -1234,7 +1248,7 @@ class DoNotPickOpinionForm(forms.Form):
         return cleaned
 
     def is_valid(self):
-        base = super(DoNotPickOpinionForm, self).is_valid()
+        base = super().is_valid()
         if not self["operation"]:
             self._errors["operation"] = _("Opération invalide, NO_PICK, REJECT ou REMOVE_PUB attendu.")
             return False
@@ -1254,7 +1268,7 @@ class UnpickOpinionForm(forms.Form):
     )
 
     def __init__(self, content, *args, **kwargs):
-        super(UnpickOpinionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -1275,7 +1289,7 @@ class PromoteOpinionToArticleForm(forms.Form):
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
-        super(PromoteOpinionToArticleForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
         self.previous_page_url = content.get_absolute_url_online()
@@ -1344,7 +1358,7 @@ class SearchSuggestionForm(forms.Form):
         self.helper.layout = Layout(
             Field("suggestion_pk"), Field("excluded_pk"), StrictButton(_("Ajouter"), type="submit")
         )
-        super(SearchSuggestionForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class RemoveSuggestionForm(forms.Form):

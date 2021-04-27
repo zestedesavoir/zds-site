@@ -53,7 +53,7 @@ class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):
         if self.requested_file == "md":
             self.mimetype += "; charset=utf-8"
 
-        return super(DownloadOnlineContent, self).get(context, **response_kwargs)
+        return super().get(context, **response_kwargs)
 
     def get_filename(self):
         return self.public_content_object.content_public_slug + "." + self.requested_file

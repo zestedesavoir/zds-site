@@ -43,7 +43,7 @@ class TopicForm(forms.Form, FieldValidatorMixin):
     )
 
     def __init__(self, *args, **kwargs):
-        super(TopicForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -54,8 +54,8 @@ class TopicForm(forms.Form, FieldValidatorMixin):
             Field("tags"),
             HTML(
                 """<div id="topic-suggest" style="display:none;"  url="/rechercher/sujets-similaires/">
-  <label>{0}</label>
-  <div id="topic-result-container" data-neither="{1}"></div>
+  <label>{}</label>
+  <div id="topic-result-container" data-neither="{}"></div>
 </div>""".format(
                     _("Sujets similaires au vôtre :"), _("Aucun résultat")
                 )
@@ -69,7 +69,7 @@ class TopicForm(forms.Form, FieldValidatorMixin):
             self.helper.layout.append(HTML("{% include 'misc/hat_choice.html' %}"))
 
     def clean(self):
-        cleaned_data = super(TopicForm, self).clean()
+        cleaned_data = super().clean()
 
         self.get_non_empty_field_or_error(cleaned_data, "title", lambda: _("Le champ titre ne peut être vide"))
         text = self.get_non_empty_field_or_error(cleaned_data, "text", lambda: _("Le champ text ne peut être vide"))
@@ -100,7 +100,7 @@ class PostForm(forms.Form, FieldValidatorMixin):
     )
 
     def __init__(self, topic, user, *args, **kwargs):
-        super(PostForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = "post"
 
@@ -130,7 +130,7 @@ class PostForm(forms.Form, FieldValidatorMixin):
                 self.helper["text"].wrap(Field, placeholder=_("Ce topic est verrouillé."), disabled=True)
 
     def clean(self):
-        cleaned_data = super(PostForm, self).clean()
+        cleaned_data = super().clean()
 
         text = self.get_non_empty_field_or_error(cleaned_data, "text", lambda: _("Vous devez écrire une réponse !"))
 
@@ -152,7 +152,7 @@ class MoveTopicForm(forms.Form):
     )
 
     def __init__(self, topic, *args, **kwargs):
-        super(MoveTopicForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_action = reverse("topic-edit")
         self.helper.form_class = "modal modal-flex"

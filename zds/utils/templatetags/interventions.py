@@ -126,7 +126,7 @@ def get_github_issue_url(topic):
     if not topic.github_issue:
         return None
     else:
-        return "{0}/{1}".format(settings.ZDS_APP["site"]["repository"]["bugtracker"], topic.github_issue)
+        return "{}/{}".format(settings.ZDS_APP["site"]["repository"]["bugtracker"], topic.github_issue)
 
 
 @register.filter(name="waiting_count")

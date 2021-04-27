@@ -29,7 +29,7 @@ class DJRF3xPaginationKeyBit(QueryParamsKeyBit):
             rqp_pv = rqp.get(pqp, 1)
             kwargs["params"].append(rqp_pv)
 
-        return super(DJRF3xPaginationKeyBit, self).get_data(**kwargs)
+        return super().get_data(**kwargs)
 
 
 class UpdatedAtKeyBit(KeyBitBase):
@@ -43,7 +43,7 @@ class UpdatedAtKeyBit(KeyBitBase):
     update_key = None
 
     def __init__(self, update_key, params=None):
-        super(UpdatedAtKeyBit, self).__init__(params)
+        super().__init__(params)
         self.update_key = update_key
 
     def get_data(self, **kwargs):

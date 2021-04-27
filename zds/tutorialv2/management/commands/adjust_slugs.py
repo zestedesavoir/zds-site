@@ -20,7 +20,7 @@ class Command(BaseCommand):
                 if c.slug != good_slug:
                     if os.path.isdir(os.path.join(settings.ZDS_APP["content"]["repo_private_path"], good_slug)):
                         # this content was created before v16 and is probably broken
-                        self.stdout.write("Fixing pre-v16 content #{} (« {} ») ... ".format(c.pk, c.title), ending="")
+                        self.stdout.write(f"Fixing pre-v16 content #{c.pk} (« {c.title} ») ... ", ending="")
                         c.save()
                         if os.path.isdir(c.get_repo_path()):
                             self.stdout.write("[OK]")
@@ -28,7 +28,7 @@ class Command(BaseCommand):
                             self.stdout.write("[KO]")
                     elif os.path.isdir(os.path.join(settings.ZDS_APP["content"]["repo_private_path"], c.slug)):
                         # this content was created during v16 and will be broken if nothing is done
-                        self.stdout.write("Fixing in-v16 content #{} (« {} ») ... ".format(c.pk, c.title), ending="")
+                        self.stdout.write(f"Fixing in-v16 content #{c.pk} (« {c.title} ») ... ", ending="")
                         try:
                             versioned = c.load_version()
                         except OSError:

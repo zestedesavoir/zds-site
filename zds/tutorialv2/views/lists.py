@@ -80,7 +80,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         return queryset.order_by("-publication_date")
 
     def get_context_data(self, **kwargs):
-        context = super(ListOnlineContents, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         for public_content in context["public_contents"]:
             if public_content.content.last_note is not None:
                 public_content.content.last_note.related_content = public_content.content
@@ -167,7 +167,7 @@ class ViewPublications(TemplateView):
             AND `tutorialv2_publishablecontent_subcategory`.`subcategory_id` =
               `utils_categorysubcategory`.`subcategory_id`)
         """.format(
-            ", ".join("'{}'".format(t) for t in handle_types)
+            ", ".join(f"'{t}'" for t in handle_types)
         )
 
         queryset = (
@@ -187,7 +187,7 @@ class ViewPublications(TemplateView):
         return subcategories
 
     def get_context_data(self, **kwargs):
-        context = super(ViewPublications, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         if self.kwargs.get("slug", False):
             self.level = 2
@@ -258,7 +258,7 @@ class ViewPublications(TemplateView):
                     content_type = _type
                     context["type"] = TYPE_CHOICES_DICT[_type]
                 else:
-                    raise Http404("wrong type {}".format(_type))
+                    raise Http404(f"wrong type {_type}")
 
             tag = self.request.GET.get("tag", None)
             tags = None
@@ -307,13 +307,13 @@ class TagsListView(ListView):
         if "type" in self.request.GET:
             t = self.request.GET.get("type").upper()
             if t not in CONTENT_TYPE_LIST:
-                raise Http404("type {} unknown".format(t))
+                raise Http404(f"type {t} unknown")
             self.displayed_types = [t]
 
         return PublishedContent.objects.get_top_tags(self.displayed_types)
 
     def get_context_data(self, **kwargs):
-        context = super(TagsListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context["tags_to_display"] = "publications"
 
@@ -358,7 +358,7 @@ class ContentOfAuthor(ZdSPagingListView):
                     raise PermissionDenied
             else:
                 raise Http404("Le filtre n'est pas autorisé.")
-        return super(ContentOfAuthor, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         profile = self.user.profile
@@ -399,7 +399,7 @@ class ContentOfAuthor(ZdSPagingListView):
         return queryset
 
     def get_context_data(self, **kwargs):
-        context = super(ContentOfAuthor, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["sorts"] = []
         context["filters"] = []
         context["sort"] = self.sort.lower()
@@ -434,13 +434,13 @@ class ListContentReactions(ZdSPagingListView):
 
     def dispatch(self, request, *args, **kwargs):
         self.user = get_object_or_404(User, pk=self.kwargs["pk"])
-        return super(ListContentReactions, self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         return ContentReaction.objects.get_all_messages_of_a_user(self.user)
 
     def get_context_data(self, **kwargs):
-        context = super(ListContentReactions, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         context.update(
             {

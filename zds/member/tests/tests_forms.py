@@ -176,6 +176,17 @@ class RegisterFormTest(TestCase):
         form = RegisterForm(data=data)
         self.assertFalse(form.is_valid())
 
+    def test_username_slash_register_form(self):
+        ProfileFactory()
+        data = {
+            "email": "test@gmail.com",
+            "username": "Ze/Tester",
+            "password": "ZePassword",
+            "password_confirm": "ZePassword",
+        }
+        form = RegisterForm(data=data)
+        self.assertFalse(form.is_valid())
+
 
 class MiniProfileFormTest(TestCase):
     """
@@ -310,6 +321,15 @@ class ChangeUserFormTest(TestCase):
         ProfileFactory()
         data = {
             "username": "Ze,Tester",
+            "email": self.user1.user.email,
+        }
+        form = ChangeUserForm(data=data, user=self.user1.user)
+        self.assertFalse(form.is_valid())
+
+    def test_username_slash_changeuser_form(self):
+        ProfileFactory()
+        data = {
+            "username": "Ze/Tester",
             "email": self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)

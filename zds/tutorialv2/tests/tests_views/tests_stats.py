@@ -10,9 +10,10 @@ from django.test.utils import override_settings
 
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, LicenceFactory
+from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import Validation, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin
+from zds.utils.factories import LicenceFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
@@ -194,7 +195,7 @@ class StatTests(TestCase, TutorialTestMixin):
             "content:stats-content",
             kwargs={"pk": self.published.content_pk, "slug": self.published.content_public_slug},
         )
-        self.client.login(username=self.user_guest.username, password="hostel77")
+        self.client.force_login(self.user_guest)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 403)
 
@@ -204,7 +205,7 @@ class StatTests(TestCase, TutorialTestMixin):
             "content:stats-content",
             kwargs={"pk": self.published.content_pk, "slug": self.published.content_public_slug},
         )
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context_data["display"], "global")
@@ -218,7 +219,7 @@ class StatTests(TestCase, TutorialTestMixin):
             "content:stats-content",
             kwargs={"pk": self.published.content_pk, "slug": self.published.content_public_slug},
         )
-        self.client.login(username=self.user_staff.username, password="hostel77")
+        self.client.force_login(self.user_staff)
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 
@@ -262,7 +263,7 @@ class StatTests(TestCase, TutorialTestMixin):
         "zds.tutorialv2.views.statistics.ContentStatisticsView.config_ga_credentials", fake_config_ga_credentials
     )
     def test_query_date_parameter_duration(self):
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         # By default we only have the last 7 days
         self.check_success_result_by_duration()
         self.check_success_result_by_duration(0)
@@ -278,7 +279,7 @@ class StatTests(TestCase, TutorialTestMixin):
 
         # By default we only have the last 7 days
         default_duration = 7
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
         url = reverse(
             "content:stats-content",
             kwargs={"pk": self.published.content_pk, "slug": self.published.content_public_slug},
@@ -296,7 +297,7 @@ class StatTests(TestCase, TutorialTestMixin):
         today = datetime.datetime.today()
         before_seven_days = today - datetime.timedelta(days=7)
 
-        self.client.login(username=self.user_author.username, password="hostel77")
+        self.client.force_login(self.user_author)
 
         resp = self.get_response_by_date(today, before_seven_days)
 
@@ -320,7 +321,7 @@ class StatTests(TestCase, TutorialTestMixin):
                     ExtractFactory(container=chapter, db_object=bigtuto)
 
         # connect with author:
-        self.client.login(username=author, password="hostel77")
+        self.client.force_login(author)
 
         # ask validation
         self.client.post(
@@ -330,7 +331,7 @@ class StatTests(TestCase, TutorialTestMixin):
         )
 
         # login with staff and publish
-        self.client.login(username=user_staff.username, password="hostel77")
+        self.client.force_login(user_staff)
 
         validation = Validation.objects.filter(content=bigtuto).last()
 

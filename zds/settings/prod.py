@@ -84,7 +84,7 @@ def _get_version():
     if git_version is None:
         return __version__
     else:
-        return "{0}/{1}".format(__version__, git_version[:7])
+        return "{}/{}".format(__version__, git_version[:7])
 
 
 # Sentry (+ raven, the Python Client)

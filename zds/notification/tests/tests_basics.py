@@ -24,14 +24,13 @@ from zds.notification.models import (
 )
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
-    LicenceFactory,
     ContentReactionFactory,
-    SubCategoryFactory,
     PublishedContentFactory,
 )
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import old_slugify
+from zds.utils.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.mps import send_mp, send_message_mp
 
 
@@ -47,14 +46,14 @@ class NotificationForumTest(TestCase):
         self.tag1 = TagFactory(title="Linux")
         self.tag2 = TagFactory(title="Windows")
 
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
 
     def test_creation_topic(self):
         """
         When we create a topic, the author follows it.
         """
         result = self.client.post(
-            reverse("topic-new") + "?forum={0}".format(self.forum12.pk),
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -118,7 +117,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {
                 "last_post": topic1.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -151,7 +150,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse("post-new") + "?sujet={0}".format(topic1.pk),
+            reverse("post-new") + f"?sujet={topic1.pk}",
             {
                 "last_post": topic1.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -165,7 +164,7 @@ class NotificationForumTest(TestCase):
         self.assertEqual(notification.is_read, False)
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"), True)
+        self.client.force_login(self.user2)
 
         result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, old_slugify(topic1.title)]), follow=True)
         self.assertEqual(result.status_code, 200)
@@ -190,7 +189,7 @@ class NotificationForumTest(TestCase):
         forum_not_read = ForumFactory(category=self.category1, position_in_category=2)
         forum_not_read.groups.add(Group.objects.create(name="DummyGroup_1"))
 
-        self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password="hostel77"))
+        self.client.force_login(StaffProfileFactory().user)
         data = {"move": "", "forum": forum_not_read.pk, "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
 
@@ -209,7 +208,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user1, position=2)
         post = PostFactory(topic=topic1, author=self.user2, position=3)
 
-        result = self.client.get(reverse("post-unread") + "?message={}".format(post.pk), follow=False)
+        result = self.client.get(reverse("post-unread") + f"?message={post.pk}", follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -231,10 +230,8 @@ class NotificationForumTest(TestCase):
 
         # hide last post
         data = {"delete_message": ""}
-        self.assertTrue(self.client.login(username=StaffProfileFactory().user.username, password="hostel77"))
-        response = self.client.post(
-            reverse("post-edit") + "?message={}".format(topic.last_message.pk), data, follow=False
-        )
+        self.client.force_login(StaffProfileFactory().user)
+        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.assertEqual(302, response.status_code)
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
@@ -338,7 +335,7 @@ class NotificationForumTest(TestCase):
         # Move the topic to another forum.
         self.client.logout()
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        self.client.force_login(staff.user)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
@@ -348,7 +345,7 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False).all()))
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
         response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
@@ -357,11 +354,11 @@ class NotificationForumTest(TestCase):
     def test_ping_on_tuto(self):
         """Error from #4904"""
         content = PublishedContentFactory(author_list=[self.user1])
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"))
+        self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(content.pk),
+            reverse("content:add-reaction") + f"?pk={content.pk}",
             {
-                "text": "@{}".format(self.user1.username),
+                "text": f"@{self.user1.username}",
                 "last_note": 0,
             },
             follow=True,
@@ -380,7 +377,7 @@ class NotificationForumTest(TestCase):
         # Move the topic to another forum.
         self.client.logout()
         staff = StaffProfileFactory()
-        self.assertTrue(self.client.login(username=staff.user.username, password="hostel77"))
+        self.client.force_login(staff.user)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
         response = self.client.post(reverse("topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
@@ -390,7 +387,7 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=False, is_dead=False).all()))
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
         response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
@@ -446,7 +443,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic, author=self.user1, position=1)
 
         self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein ete",
@@ -473,7 +470,7 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(notifications))
 
         self.client.post(
-            reverse("topic-edit") + "?topic={0}".format(topic.pk),
+            reverse("topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein été",
@@ -509,7 +506,7 @@ class NotificationPublishableContentTest(TestCase):
         self.tuto.public_version = self.published
         self.tuto.save()
 
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
 
     def test_follow_content_at_publication(self):
         """
@@ -549,7 +546,7 @@ class NotificationPublishableContentTest(TestCase):
         self.assertIsNone(subscription)
 
         result = self.client.post(
-            reverse("content:add-reaction") + "?pk={}".format(self.tuto.pk),
+            reverse("content:add-reaction") + f"?pk={self.tuto.pk}",
             {"text": "message", "last_note": "0"},
             follow=True,
         )
@@ -585,7 +582,7 @@ class NotificationPublishableContentTest(TestCase):
         self.assertEqual(result.status_code, 403)
 
         self.client.logout()
-        self.assertTrue(self.client.login(username=self.user2.username, password="hostel77"), True)
+        self.client.force_login(self.user2)
 
         result = self.client.post(
             reverse("content:follow", args=[self.user1.pk]),
@@ -662,7 +659,7 @@ class NotificationPrivateTopicTest(TestCase):
         self.user2.profile.save()
         self.user3.profile.save()
 
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
 
     def test_creation_private_topic(self):
         """
@@ -843,7 +840,7 @@ class NotificationTest(TestCase):
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user
 
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
 
     def test_reuse_old_notification(self):
         """
@@ -916,7 +913,7 @@ class NotificationTest(TestCase):
         PostFactory(topic=topic, author=self.user1, position=1)
         PostFactory(topic=topic, author=self.user2, position=2)
 
-        self.assertTrue(self.client.login(username=self.user1.username, password="hostel77"))
+        self.client.force_login(self.user1)
 
         notifications = Notification.objects.get_unread_notifications_of(self.user1)
         self.assertEqual(1, len(notifications))

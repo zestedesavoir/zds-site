@@ -13,15 +13,15 @@ class RemoveUrlSchemeTests(TestCase):
         return {
             "no scheme, no hostname": {"input": "/bla.html", "expected_output": "/bla.html"},
             "http scheme, internal hostname": {
-                "input": "http://{}/media/gallery/1/1.png".format(internal_hostname),
+                "input": f"http://{internal_hostname}/media/gallery/1/1.png",
                 "expected_output": "/media/gallery/1/1.png",
             },
             "https scheme, internal hostname": {
-                "input": "https://{}/media/gallery/1/1.png".format(internal_hostname),
+                "input": f"https://{internal_hostname}/media/gallery/1/1.png",
                 "expected_output": "/media/gallery/1/1.png",
             },
             "no scheme, internal hostname": {
-                "input": "{}/media/gallery/1/1.png".format(internal_hostname),
+                "input": f"{internal_hostname}/media/gallery/1/1.png",
                 "expected_output": "/media/gallery/1/1.png",
             },
             "no scheme, external hostname": {
@@ -29,8 +29,8 @@ class RemoveUrlSchemeTests(TestCase):
                 "expected_output": "example.com/media/gallery/1/1.png",
             },
             "http scheme, external hostname, internal hostname in query": {
-                "input": "http://example.com/?q=http://{}".format(internal_hostname),
-                "expected_output": "http://example.com/?q=http://{}".format(internal_hostname),
+                "input": f"http://example.com/?q=http://{internal_hostname}",
+                "expected_output": f"http://example.com/?q=http://{internal_hostname}",
             },
         }
 

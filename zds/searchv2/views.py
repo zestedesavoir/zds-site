@@ -29,7 +29,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
-        super(SimilarTopicsView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
@@ -81,7 +81,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
-        super(SuggestionContentView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
@@ -151,7 +151,7 @@ class SearchView(ZdSPagingListView):
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
-        super(SearchView, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
@@ -165,7 +165,7 @@ class SearchView(ZdSPagingListView):
         if self.search_query and not self.search_form.is_valid():
             raise PermissionDenied("research form is invalid")
 
-        return super(SearchView, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         if not self.index_manager.connected_to_es:
@@ -205,7 +205,7 @@ class SearchView(ZdSPagingListView):
             models = reduce(operator.concat, models)
 
             for model in models:
-                part_querysets.append(getattr(self, "get_queryset_{}s".format(model))())
+                part_querysets.append(getattr(self, f"get_queryset_{model}s")())
 
             queryset = part_querysets[0]
             for query in part_querysets[1:]:
@@ -348,7 +348,7 @@ class SearchView(ZdSPagingListView):
         return scored_query
 
     def get_context_data(self, **kwargs):
-        context = super(SearchView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context["form"] = self.search_form
         context["query"] = self.search_query is not None
 

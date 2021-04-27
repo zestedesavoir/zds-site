@@ -37,7 +37,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     def _create_beta_topic(self, msg, beta_version, _type, tags):
         topic_title = beta_version.title
-        _tags = "[beta][{}]".format(_type)
+        _tags = f"[beta][{_type}]"
         i = 0
         max_len = Topic._meta.get_field("title").max_length
 
@@ -50,7 +50,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
             author=self.request.user,
             forum=forum,
             title=topic_title,
-            subtitle="{}".format(beta_version.description),
+            subtitle=f"{beta_version.description}",
             text=msg,
             related_publishable_content=self.object,
         )
@@ -64,7 +64,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
-        return super(ManageBetaContent, self).dispatch(*args, **kwargs)
+        return super().dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         beta_version = self.versioned_object
@@ -196,4 +196,4 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
         if self.object.is_beta(sha_beta):
             self.success_url = self.versioned_object.get_absolute_url_beta()
 
-        return super(ManageBetaContent, self).form_valid(form)
+        return super().form_valid(form)

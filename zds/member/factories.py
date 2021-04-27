@@ -7,58 +7,39 @@ from zds.member.models import Profile
 from zds.utils.models import Hat
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     """
-    This factory creates User.
-    WARNING: Don't try to directly use `UserFactory`, this didn't create associated Profile then don't work!
+    Factory that creates a standard User.
+
+    WARNING: Don't try to directly use `UserFactory` because it won't create the associated Profile.
     Use `ProfileFactory` instead.
     """
 
     class Meta:
         model = User
 
-    username = factory.Sequence("firm{0}".format)
-    email = factory.Sequence("firm{0}@zestedesavoir.com".format)
-    password = "hostel77"
+    username = factory.Sequence("firm{}".format)
+    email = factory.Sequence("firm{}@zestedesavoir.com".format)
+    password = factory.PostGenerationMethodCall("set_password", "hostel77")
 
     is_active = True
 
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        password = kwargs.pop("password", None)
-        user = super(UserFactory, cls)._prepare(create, **kwargs)
-        if password:
-            user.set_password(password)
-            if create:
-                user.save()
-        return user
 
-
-class StaffFactory(factory.DjangoModelFactory):
+class StaffFactory(UserFactory):
     """
-    This factory creates staff User.
-    WARNING: Don't try to directly use `StaffFactory`, this didn't create associated Profile then don't work!
+    Factory that creates a Staff User (within the Staff group and with change_* permissions).
+
+    WARNING: Don't try to directly use `StaffFactory` because it won't create the associated Profile.
     Use `StaffProfileFactory` instead.
     """
 
-    class Meta:
-        model = User
+    username = factory.Sequence("firmstaff{}".format)
+    email = factory.Sequence("firmstaff{}@zestedesavoir.com".format)
 
-    username = factory.Sequence("firmstaff{0}".format)
-    email = factory.Sequence("firmstaff{0}@zestedesavoir.com".format)
-    password = "hostel77"
-
-    is_active = True
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        password = kwargs.pop("password", None)
-        user = super(StaffFactory, cls)._prepare(create, **kwargs)
-        if password:
-            user.set_password(password)
-            if create:
-                user.save()
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
         group_staff = Group.objects.filter(name="staff").first()
+
         if group_staff is None:
             group_staff = Group(name="staff")
             group_staff.save()
@@ -69,50 +50,46 @@ class StaffFactory(factory.DjangoModelFactory):
         perms = Permission.objects.filter(codename__startswith="change_").all()
         for perm in perms:
             group_staff.permissions.add(perm)
-        user.groups.add(group_staff)
 
-        user.save()
-        return user
+        self.groups.add(group_staff)
 
 
-class DevFactory(factory.DjangoModelFactory):
+class DevFactory(UserFactory):
     """
-    This factory creates dev User.
-    WARNING: Don't try to directly use `DevFactory`, this didn't create associated Profile then don't work!
+    Factory that creates a Dev User (within the Dev group).
+
+    WARNING: Don't try to directly use `DevFactory` because it won't create the associated Profile.
     Use `DevProfileFactory` instead.
     """
 
-    class Meta:
-        model = User
+    username = factory.Sequence("firmdev{}".format)
+    email = factory.Sequence("firmdev{}@zestedesavoir.com".format)
 
-    username = factory.Sequence("firmdev{0}".format)
-    email = factory.Sequence("firmdev{0}@zestedesavoir.com".format)
-    password = "hostel77"
-
-    is_active = True
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        password = kwargs.pop("password", None)
-        user = super(DevFactory, cls)._prepare(create, **kwargs)
-        if password:
-            user.set_password(password)
-            if create:
-                user.save()
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
         group_dev = Group.objects.filter(name=settings.ZDS_APP["member"]["dev_group"]).first()
+
         if group_dev is None:
             group_dev = Group(name=settings.ZDS_APP["member"]["dev_group"])
             group_dev.save()
 
-        user.groups.add(group_dev)
-
-        user.save()
-        return user
+        self.groups.add(group_dev)
 
 
-class ProfileFactory(factory.DjangoModelFactory):
+class NonAsciiUserFactory(UserFactory):
     """
-    Use this factory when you need a complete Profile for a standard user.
+    Factory that creates a User with non-ASCII characters in their username.
+
+    WARNING: Don't try to directly use `NonAsciiUserFactory` because it won't create the associated Profile.
+    Use `NonAsciiProfileFactory` instead.
+    """
+
+    username = factory.Sequence("ïéàçÊÀ{}".format)
+
+
+class ProfileFactory(factory.django.DjangoModelFactory):
+    """
+    Use this factory when you need a complete Profile for a standard User.
     """
 
     class Meta:
@@ -125,78 +102,38 @@ class ProfileFactory(factory.DjangoModelFactory):
 
     @factory.lazy_attribute
     def biography(self):
-        return "My name is {0} and I i'm the guy who kill the bad guys ".format(self.user.username.lower())
+        return f"My name is {self.user.username.lower()} and I i'm the guy who kill the bad guys "
 
     sign = "Please look my flavour"
 
 
 class ProfileNotSyncFactory(ProfileFactory):
     """
-    Use this factory when you want a user with wrong identifiers.
+    Use this factory when you need a complete Profile for a User with wrong identifiers.
     """
 
     id = factory.Sequence(lambda n: n + 99999)
 
 
-class StaffProfileFactory(factory.DjangoModelFactory):
+class StaffProfileFactory(ProfileFactory):
     """
-    Use this factory when you need a complete Profile for a staff user.
+    Use this factory when you need a complete Profile for a Staff User.
     """
-
-    class Meta:
-        model = Profile
 
     user = factory.SubFactory(StaffFactory)
 
-    last_ip_address = "192.168.2.1"
-    site = "www.zestedesavoir.com"
 
-    @factory.lazy_attribute
-    def biography(self):
-        return "My name is {0} and I i'm the guy who kill the bad guys ".format(self.user.username.lower())
-
-    sign = "Please look my flavour"
-
-
-class DevProfileFactory(factory.DjangoModelFactory):
+class DevProfileFactory(ProfileFactory):
     """
-    Use this factory when you need a complete Profile for a dev user.
+    Use this factory when you need a complete Profile for a Dev User.
     """
-
-    class Meta:
-        model = Profile
 
     user = factory.SubFactory(DevFactory)
-
-    last_ip_address = "192.168.2.1"
-    site = "www.zestedesavoir.com"
-
-    @factory.lazy_attribute
-    def biography(self):
-        return "My name is {0} and I i'm the guy who kill the bad guys ".format(self.user.username.lower())
-
-    sign = "Please look my flavour"
-
-
-class NonAsciiUserFactory(UserFactory):
-    """
-    This factory creates standard user with non-ASCII characters in its username.
-    WARNING: Don't try to directly use `NonAsciiUserFactory`, this didn't create associated Profile then don't work!
-    Use `NonAsciiProfileFactory` instead.
-    """
-
-    class Meta:
-        model = User
-
-    username = factory.Sequence("ïéàçÊÀ{0}".format)
 
 
 class NonAsciiProfileFactory(ProfileFactory):
     """
-    Use this factory to create a standard user with non-ASCII characters in its username.
+    Use this factory when you need a complete Profile for a User with non-ASCII characters in their username.
     """
-
-    class Meta:
-        model = Profile
 
     user = factory.SubFactory(NonAsciiUserFactory)

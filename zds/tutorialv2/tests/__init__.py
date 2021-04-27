@@ -79,22 +79,22 @@ class TutorialFrontMixin:
         find_element = self.selenium.find_element_by_css_selector
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         find_element('a[href="#ask-validation"]').click()
-        find_element("#id_text").send_keys("Coucou.")
+        find_element("#ask-validation textarea").send_keys("Coucou.")
         find_element('#ask-validation button[type="submit"]').click()
 
     def take_reservation(self):
         find_element = self.selenium.find_element_by_css_selector
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         validation = Validation.objects.filter(content=self.content).first()
-        find_element('form[action="/validations/reserver/{}/"] button'.format(validation.pk)).click()
+        find_element(f'form[action="/validations/reserver/{validation.pk}/"] button').click()
 
     def validate(self):
         find_element = self.selenium.find_element_by_css_selector
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         validation = Validation.objects.filter(content=self.content).first()
         find_element('a[href="#valid-publish"]').click()
-        find_element("form#valid-publish #id_text").send_keys("Coucou.")
-        find_element('form[action="/validations/accepter/{}/"] button'.format(validation.pk)).click()
+        find_element("form#valid-publish textarea").send_keys("Coucou.")
+        find_element(f'form[action="/validations/accepter/{validation.pk}/"] button').click()
 
     def wait_element_attribute_change(self, locator, attribute, initial_value, time):
         return WebDriverWait(self.selenium, time).until(AttributeHasChanged(locator, attribute, initial_value))

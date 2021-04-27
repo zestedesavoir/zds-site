@@ -12,9 +12,9 @@ def get_version():
     Retrieve version informations from `zds/_version.py`.
     """
     if git_version is not None:
-        name = "{0}/{1}".format(__version__, git_version[:7])
+        name = "{}/{}".format(__version__, git_version[:7])
         url = settings.ZDS_APP["site"]["repository"]["url"]
-        return {"name": name, "url": "{}/tree/{}".format(url, git_version)}
+        return {"name": name, "url": f"{url}/tree/{git_version}"}
     else:
         return {"name": __version__, "url": None}
 
