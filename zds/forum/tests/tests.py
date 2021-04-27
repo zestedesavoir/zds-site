@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin
 from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
-from zds.forum.models import Forum, TopicRead, Post, Topic, is_read
+from zds.forum.models import Forum, TopicRead, Post, Topic
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import old_slugify
@@ -1151,14 +1151,15 @@ class ManagerTests(TestCase):
     def test_is_read(self):
         author = ProfileFactory()
         reader = ProfileFactory()
-        topic = TopicFactory(author=author.user, forum=self.forum1)
+        topic: Topic = TopicFactory(author=author.user, forum=self.forum1)
         post = PostFactory(topic=topic, position=1, author=author.user)
         topic.last_post = post
         topic.save()
         TopicRead(post=topic.last_post, user=self.staff.user, topic=topic).save()
-        self.assertFalse(is_read(topic, author.user))
-        self.assertTrue(is_read(topic, self.staff.user))
-        self.assertFalse(is_read(topic, reader.user))
+        self.assertFalse(Topic.objects.get(pk=topic.pk).is_read)
+        self.assertFalse(topic.is_read_by_user(author.user, check_auth=False))
+        self.assertTrue(topic.is_read_by_user(self.staff.user, check_auth=False))
+        self.assertFalse(topic.is_read_by_user(reader.user, check_auth=False))
 
 
 class TestMixins(TestCase):

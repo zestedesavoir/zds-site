@@ -68,7 +68,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
     def test_topic_get_weird_page(self):
-        """ get a page that can't exist (like page=abc)"""
+        """get a page that can't exist (like page=abc)"""
 
         self.client.force_login(self.profile1.user)
 
@@ -76,7 +76,7 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_topic_get_page_too_far(self):
-        """ get a page that is too far yet"""
+        """get a page that is too far yet"""
 
         self.client.force_login(self.profile1.user)
 
@@ -118,7 +118,7 @@ class TopicViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_get_weird_page(self):
-        """ get a page that can't exist (like page=abc)"""
+        """get a page that can't exist (like page=abc)"""
 
         self.client.force_login(self.profile1.user)
 
@@ -135,7 +135,7 @@ class TopicViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_get_page_too_far(self):
-        """ get a page that can't exist (like page=42)"""
+        """get a page that can't exist (like page=42)"""
 
         self.client.force_login(self.profile1.user)
 
@@ -174,7 +174,7 @@ class TopicViewTest(TestCase):
         self.assertNotContains(response, "Masquer")
 
     def test_more_than_one_message(self):
-        """ test get second page """
+        """test get second page"""
 
         self.client.force_login(self.profile1.user)
 
@@ -583,7 +583,7 @@ class EditPostViewTest(TestCase):
         self.assertEqual("update post", PrivatePost.objects.get(pk=self.post2.pk).text)
 
     def test_text_absent(self):
-        """ test what happens if the text is not sent """
+        """test what happens if the text is not sent"""
 
         response = self.client.post(
             reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk]),
@@ -595,7 +595,7 @@ class EditPostViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_preview_no_text(self):
-        """ test what happens when we preview with no text """
+        """test what happens when we preview with no text"""
 
         response = self.client.post(
             reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk]),
@@ -925,7 +925,7 @@ class PrivatePostUnreadTest(TestCase):
         self.assertEqual(result.status_code, 404)
 
     def test_user_not_participating(self):
-        """Test the case of a user not participating in a private topic attempting to unread a post. """
+        """Test the case of a user not participating in a private topic attempting to unread a post."""
         self.client.force_login(self.outsider.user)
         result = self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=False)
         self.assertEqual(result.status_code, 403)

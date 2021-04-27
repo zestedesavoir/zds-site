@@ -76,21 +76,6 @@ ZDS_APP = {
             "forum_ca_pk": 25,
             "subscribe_link": zds_config.get("association_subscribe_link", DEFAULT_ASSO_LINK),
         },
-        "repository": {
-            "url": "https://github.com/zestedesavoir/zds-site",
-            "bugtracker": "https://github.com/zestedesavoir/zds-site/issues",
-            "api": "https://api.github.com/repos/zestedesavoir/zds-site",
-            "tags": [
-                "C-Back",
-                "C-Front",
-                "C-API",
-                "C-Documentation",
-                "C-Infra",
-                "S-Bug",
-                "S-Régression",
-                "S-Évolution",
-            ],
-        },
         "licenses": {
             "logo": {
                 "code": "CC-BY",
@@ -127,6 +112,16 @@ ZDS_APP = {
             # 'github': 'https://github.com/zestedesavoir/zds-site'
         },
         "cnil": "1771020",
+    },
+    "github_projects": {
+        "base_url": "https://github.com/{}".format,
+        "bugtracker": "https://github.com/{}/issues".format,
+        "issues_api": "https://api.github.com/repos/{}/issues".format,
+        "default_repository": "zestedesavoir/zds-site",
+        "repositories": [
+            "zestedesavoir/zds-site",
+            "zestedesavoir/zmarkdown",
+        ],
     },
     "member": {
         "bot_account": zds_config.get("member_bot_username", "bot"),
@@ -212,8 +207,6 @@ ZDS_APP = {
     },
     "comment": {
         "max_pings": 15,
-        # allow to mention (and notify) members in messages
-        "enable_pings": True,
     },
     "featured_resource": {
         "featured_per_page": 100,
