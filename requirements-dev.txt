@@ -1,6 +1,6 @@
 -r requirements.txt
 
-black==20.8b1
+black==21.4b1  # penser à mettre à jour aussi .github/workflows/ci.yml
 colorlog==4.8.0
 django-debug-toolbar==3.2
 django-extensions==3.1.2
