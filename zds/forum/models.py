@@ -229,8 +229,9 @@ class Topic(AbstractESDjangoIndexable):
         return Topic.__remove_greetings(first_post)[: settings.ZDS_APP["forum"]["description_size"]]
 
     @property
-    def update(self):
-        return self.get_last_visible_post().update_index_date
+    def last_update(self):
+        last_visible_post = self.get_last_visible_post()
+        return last_visible_post.update or last_visible_post.pubdate
 
     @staticmethod
     def __remove_greetings(post):

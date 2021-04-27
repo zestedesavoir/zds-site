@@ -10,4 +10,4 @@ def topics_sort(topics):
     """
     :return: the topics sorted by last update (last updated first)
     """
-    return sorted(topics, key=lambda topic: topic.update, reverse=True)
+    return sorted(topics, key=lambda topic: topic.last_update, reverse=True)
