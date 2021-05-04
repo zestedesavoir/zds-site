@@ -1,6 +1,4 @@
-(function($) {
-  'use strict'
-
+(function() {
   /**
    * HSV to RGB color conversion
    *
@@ -78,14 +76,19 @@
   }
 
   var charts = []
-  function setupChart($object, formatter) {
-    var $dataX = $object.data('time')
+  var chartFormatters = {
+    'view-graph': null,
+    'visit-time-graph': Math.round,
+    'users-graph': null
+  }
+  function setupChart(chartEl, formatter) {
+    var dataX = JSON.parse(chartEl.getAttribute('data-time'))
     var times = []
-    $dataX.forEach(function(element) {
+    dataX.forEach(function(element) {
       times.push(window.moment(element).format('DD/MM/YYYY'))
     })
 
-    var allObjectData = $object.data()
+    var allObjectData = chartEl.dataset
     var data = []
     // Count how many graphs are displayed
     var nbColors = 0
@@ -97,11 +100,12 @@
     var n = 0
     for (var o in allObjectData) {
       if (o.indexOf('views') > -1) {
-        var label = $object.data('label-' + o)
+        var label = chartEl.getAttribute('data-label-' + o)
         var color = hsvToRgb(n, 100, 80)
+        var d = JSON.parse(allObjectData[o])
         data.push({
           label: label,
-          data: formatter ? allObjectData[o].map(formatter) : allObjectData[o],
+          data: formatter ? d.map(formatter) : d,
           fill: false,
           backgroundColor: 'rgba(' + color.join(',') + ', 1)',
           borderColor: 'rgba(' + color.join(',') + ', 0.70)',
@@ -119,7 +123,7 @@
       },
       options: basicOptions
     }
-    charts.push(new window.Chart($object, config))
+    charts.push(new window.Chart(chartEl, config))
   }
 
   // Switching between a graph with lines and a graph with bars
@@ -130,18 +134,21 @@
     localStorage.setItem('graphType', 'line') // default value
   }
 
-  $('#graph_type_toogle').click(function() {
-    if (localStorage.getItem('graphType') === 'line') {
-      localStorage.setItem('graphType', 'bar')
-      $(this).text(switchToLine)
-    } else {
-      localStorage.setItem('graphType', 'line')
-      $(this).text(switchToBar)
-    }
-    clearCharts()
-    drawCharts()
-  })
-  $('#graph_type_toogle').text(localStorage.getItem('graphType') === 'line' ? switchToBar : switchToLine)
+  var graphTypeToggleEl = document.getElementById('graph_type_toggle')
+  if (graphTypeToggleEl !== null) {
+    graphTypeToggleEl.addEventListener('click', function() {
+      if (localStorage.getItem('graphType') === 'line') {
+        localStorage.setItem('graphType', 'bar')
+        graphTypeToggleEl.textContent = switchToLine
+      } else {
+        localStorage.setItem('graphType', 'line')
+        graphTypeToggleEl.textContent = switchToBar
+      }
+      clearCharts()
+      drawCharts()
+    })
+    graphTypeToggleEl.textContent = localStorage.getItem('graphType') === 'line' ? switchToBar : switchToLine
+  }
 
   // Clearing charts
   function clearCharts() {
@@ -152,43 +159,37 @@
 
   // Drawing charts
   function drawCharts() {
-    if ($('#view-graph').length) {
-      setupChart($('#view-graph'))
-    }
-    if ($('#visit-time-graph').length) {
-      setupChart($('#visit-time-graph'), Math.round)
-    }
-    if ($('#users-graph').length) {
-      setupChart($('#users-graph'))
-    }
-    if ($('#new-users-graph').length) {
-      setupChart($('#new-users-graph'))
-    }
-    if ($('#sessions-graph').length) {
-      setupChart($('#sessions-graph'))
+    for (var g in chartFormatters) {
+      var el = document.getElementById(g)
+      if (el !== null) {
+        setupChart(el, chartFormatters[g])
+      }
     }
   }
   drawCharts()
 
   // Tab management
-  function displayTab(tab) {
+  function displayTab(tabEl) {
+    if (tabEl === null) {
+      return
+    }
     // Hide all the tabs
-    $('.tabcontent').each(function() {
-      $(this).hide()
+    document.querySelectorAll('.tabcontent').forEach(function(el) {
+      el.style.display = 'none'
     })
     // Remove "active" info from links
-    $('.tablinks').each(function() {
-      $(this).removeClass('active')
+    document.querySelectorAll('.tablinks').forEach(function(el) {
+      el.classList.remove('active')
     })
     // Show current tab and add "active" class to the link
-    $('#' + $(tab).attr('id') + '-content').show()
-    $(tab).addClass('active')
+    document.getElementById(tabEl.getAttribute('id') + '-content').style.display = 'block'
+    tabEl.classList.add('active')
   }
 
-  $('.tablinks').each(function() {
-    $(this).click(function() {
-      displayTab($(this))
+  document.querySelectorAll('.tablinks').forEach(function(el) {
+    el.addEventListener('click', function(e) {
+      displayTab(el)
     })
   })
-  displayTab($('.tablinks').first())
-})(jQuery)
+  displayTab(document.querySelector('.tablinks'))
+})()
