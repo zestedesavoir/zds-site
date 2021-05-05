@@ -52,10 +52,11 @@
 
   var basicOptions = {
     scales: {
-      xAxes: [{
+      x: {
         type: 'time',
         time: {
           parser: 'DD/MM/YYYY',
+          tooltipFormat: 'DD/MM/YYYY',
           displayFormats: {
             hour: 'DD MMM',
             day: 'DD MMM',
@@ -65,12 +66,10 @@
             year: 'YYYY'
           }
         }
-      }],
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
+      },
+      y: {
+        beginAtZero: true
+      }
     },
     responsive: true
   }
