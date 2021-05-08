@@ -127,6 +127,7 @@ function jsPackages() {
 function js() {
   return gulp.src([
     // Used by other scripts, must be first
+    'assets/js/ajax.js',
     'assets/js/modal.js',
     'assets/js/tooltips.js',
     // All the scripts

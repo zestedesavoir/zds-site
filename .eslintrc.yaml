@@ -12,3 +12,5 @@ rules:
     - error
     - never
   jsdoc/check-alignment: error
+globals:
+  ZDSAjax: readonly
