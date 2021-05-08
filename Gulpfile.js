@@ -118,7 +118,7 @@ function jsPackages() {
     require.resolve('moment/min/moment.min.js'),
     require.resolve('moment/locale/fr.js'),
     require.resolve('chart.js/dist/Chart.min.js'),
-    require.resolve('easymde/dist/easymde.min.js'),
+    require.resolve('easymde/dist/easymde.min.js')
   ])
     .pipe(gulp.dest('dist/js/'))
 }
