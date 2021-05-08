@@ -27,19 +27,28 @@ class ZDSAjax {
   }
 
   put(url, jsonOrFormData, dataCallback, errorCallback) {
+    return this._sendRequestWithData(jsonOrFormData, 'PUT', url, dataCallback, errorCallback)
+  }
+
+  post(url, jsonOrFormData, dataCallback, errorCallback) {
+    return this._sendRequestWithData(jsonOrFormData, 'POST', url, dataCallback, errorCallback)
+  }
+
+  _sendRequestWithData(jsonOrFormData, method, url, dataCallback, errorCallback) {
     const headers = new Headers()
     headers.append('Accept', 'application/json')
     headers.append('X-CSRFToken', this._crsf)
     headers.append('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest')
     const init = {
-      method: 'PUT',
+      method: method,
       headers: headers,
       mode: 'cors',
       cache: 'default',
       body: jsonOrFormData
     }
-    fetch(url, init).then(response => {
-      return response.json().then(dataCallback).catch(errorCallback)
-    })
+    return fetch(url, init).then(response => {
+      return response.json()
+    }).then(dataCallback).catch(errorCallback)
   }
 }
+window.ajax = new ZDSAjax()

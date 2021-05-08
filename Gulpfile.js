@@ -118,7 +118,7 @@ function jsPackages() {
     require.resolve('moment/min/moment.min.js'),
     require.resolve('moment/locale/fr.js'),
     require.resolve('chart.js/dist/Chart.min.js'),
-    require.resolve('easymde/dist/easymde.min.js')
+    require.resolve('easymde/dist/easymde.min.js'),
   ])
     .pipe(gulp.dest('dist/js/'))
 }
@@ -127,9 +127,7 @@ function jsPackages() {
 function js() {
   return gulp.src([
     // Used by other scripts, must be first
-    'assets/js/ajax.js',
-    'assets/js/modal.js',
-    'assets/js/tooltips.js',
+    'assets/js/common/*.js',
     // All the scripts
     'assets/js/*.js'
   ], { base: '.', sourcemaps: true })

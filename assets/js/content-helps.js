@@ -1,37 +1,36 @@
-(function($) {
-  function changeHelpButtonState($helpButton, state) {
-    const helpButtonClasses = $helpButton[0].classList
+(function(ajax) {
+  function changeHelpButtonState(helpButton, state) {
+    const helpButtonClasses = helpButton.classList
 
     helpButtonClasses.toggle('selected', state)
     helpButtonClasses.toggle('ico-after', state)
     helpButtonClasses.toggle('tick', state)
     helpButtonClasses.toggle('green', state)
 
-    $helpButton.attr('data-activated', state.toString())
-    $helpButton.blur()
+    helpButton.setAttribute('data-activated', state.toString())
 
-    $helpButton.parent().find('input[name="activated"]').val((!state).toString())
+    // helpButton.blur()
+
+    helpButton.parentNode.querySelector('input[name="activated"]')
+      .setAttribute('value', (!state).toString())
   }
 
-  $('.help-toggle').click((e) => {
-    e.preventDefault()
+  document.querySelectorAll('.help-toggle')
+    .forEach((element) => element.addEventListener('click', e => {
+      const current = e.target
 
-    const $current = $(e.target)
-    const $form = $current.parent()
-    const data = $form.serialize()
-    const newActivation = $current.attr('data-activated') !== 'true'
+      const form = current.parentElement
+      const data = new FormData(form)
+      const newActivation = current.getAttribute('data-activated') !== 'true'
+      // Change status before request for instant feeling.
+      // Will be changed back on error.
+      changeHelpButtonState(current, newActivation)
+      e.preventDefault()
+      e.stopPropagation()
 
-    // Change status before request for instant feeling.
-    // Will be changed back on error.
-    // This update the form so serialize must be called before/
-    changeHelpButtonState($current, newActivation)
-
-    $.ajax($form.attr('action'), {
-      method: 'POST',
-      data,
-      success: resultData => changeHelpButtonState($current,
-        resultData.help_wanted),
-      error: () => changeHelpButtonState($current, !newActivation)
-    })
-  })
-})(jQuery)
+      ajax.post(form.getAttribute('action'), data,
+        resultData => changeHelpButtonState(current, resultData.help_wanted),
+        () => changeHelpButtonState(current, !newActivation)
+      )
+    }))
+})(window.ajax)
