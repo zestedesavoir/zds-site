@@ -9,7 +9,8 @@ from threading import Thread
 
 from zds.member.views import get_client_ip
 
-matomo_api_url = "{}/matomo.php".format(settings.ZDS_APP["site"]["matomoUrl"])
+matomo_token_auth = settings.ZDS_APP["site"]["matomoTokenAuth"]
+matomo_api_url = "{}/matomo.php?token_auth={}".format(settings.ZDS_APP["site"]["matomoUrl"], matomo_token_auth)
 matomo_site_id = settings.ZDS_APP["site"]["matomoSiteID"]
 matomo_api_version = 1
 logger = logging.getLogger(__name__)
