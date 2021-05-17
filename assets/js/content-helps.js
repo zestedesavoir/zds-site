@@ -29,7 +29,7 @@
       e.stopPropagation()
 
       ajax.post(form.getAttribute('action'), data,
-        resultData => changeHelpButtonState(current, resultData.help_wanted),
+        (result) => changeHelpButtonState(current, result.help_wanted),
         () => changeHelpButtonState(current, !newActivation)
       )
     }))

@@ -7,11 +7,12 @@ class ZDSAjax {
   constructor() {
     this._crsf = document.querySelector("input[name='csrfmiddlewaretoken']").getAttribute('value')
   }
+
   get(url, dataCallback, errorCallback = (error) => console.error(error)) {
     const headers = new Headers()
     headers.append('Accept', 'application/json')
     headers.append('X-CSRFToken', this._crsf)
-    headers.append('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest')
+    headers.append('X-REQUESTED-WITH', 'XMLHttpRequest')
     const init = {
       method: 'GET',
       headers: headers,
@@ -20,7 +21,7 @@ class ZDSAjax {
     }
     fetch(new Request(url, init), init).then(response => {
       if (response.ok) {
-        return response.json()
+        return Promise.resolve(response.json())
       }
       throw response.error()
     }).then(dataCallback).catch(errorCallback)
@@ -38,7 +39,7 @@ class ZDSAjax {
     const headers = new Headers()
     headers.append('Accept', 'application/json')
     headers.append('X-CSRFToken', this._crsf)
-    headers.append('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest')
+    headers.append('X-REQUESTED-WITH', 'XMLHttpRequest')
     const init = {
       method: method,
       headers: headers,
@@ -47,7 +48,7 @@ class ZDSAjax {
       body: jsonOrFormData
     }
     return fetch(url, init).then(response => {
-      return response.json()
+      return Promise.resolve(response.json())
     }).then(dataCallback).catch(errorCallback)
   }
 }
