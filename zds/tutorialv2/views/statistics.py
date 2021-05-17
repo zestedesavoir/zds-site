@@ -76,6 +76,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         try:
             response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
             data = response_matomo.json()
+            if data.get("result", "") == "error":
+                data = {}
+                self.logger.error(data.get("message", "Something failed with Matomo reporting system"))
+                messages.error(self.request, data.get("message", _(f"Impossible de récupérer les référents du site.")))
+
         except Exception:
             data = {}
             self.logger.exception(f"Something failed with Matomo reporting system")
@@ -100,6 +105,12 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         try:
             response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
             data = response_matomo.json()
+            if data.get("result", "") == "error":
+                data = {}
+                self.logger.error(data.get("message", "Something failed with Matomo reporting system"))
+                messages.error(
+                    self.request, data.get("message", _(f"Impossible de récupérer les statistiques du site."))
+                )
         except Exception:
             data = {}
             self.logger.exception(f"Something failed with Matomo reporting system")
