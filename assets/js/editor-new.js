@@ -283,7 +283,7 @@
   }
 
   function toggleEmoji(cm, str) {
-    cm.replaceSelection(str+" ")
+    cm.replaceSelection(str + ' ')
     cm.focus()
   }
 
@@ -597,65 +597,65 @@
             {
               name: 'char1',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":)")
+                toggleEmoji(e.codemirror, ':)')
               },
-              className: "emoji smile",
+              className: 'emoji smile',
               title: ':)'
             },
             {
               name: 'char2',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":D")
+                toggleEmoji(e.codemirror, ':D')
               },
-              className: "emoji heureux",
+              className: 'emoji heureux',
               title: ':D'
             },
             {
               name: 'char3',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":)")
+                toggleEmoji(e.codemirror, ':)')
               },
-              className: "emoji clin",
+              className: 'emoji clin',
               title: ':)'
             },
             {
               name: 'char8',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":soleil:")
+                toggleEmoji(e.codemirror, ':soleil:')
               },
-              className: "emoji soleil",
+              className: 'emoji soleil',
               title: ':soleil:'
             },
             {
               name: 'char4',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":p")
+                toggleEmoji(e.codemirror, ':p')
               },
-              className: "emoji langue",
+              className: 'emoji langue',
               title: ':P'
             },
             {
               name: 'char5',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":lol:")
+                toggleEmoji(e.codemirror, ':lol:')
               },
-              className: "emoji rire",
+              className: 'emoji rire',
               title: ':lol:'
             },
             {
               name: 'char6',
               action: (e) => {
-                toggleEmoji(e.codemirror, "^^")
+                toggleEmoji(e.codemirror, '^^')
               },
-              className: "emoji hihi",
+              className: 'emoji hihi',
               title: '^^'
             },
             {
               name: 'char7',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":ange:")
+                toggleEmoji(e.codemirror, ':ange:')
               },
-              className: "emoji ange",
+              className: 'emoji ange',
               title: ':ange:'
             }
           ]
@@ -671,49 +671,49 @@
             {
               name: 'char1',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":(")
+                toggleEmoji(e.codemirror, ':(')
               },
-              className: "emoji triste",
+              className: 'emoji triste',
               title: ':('
             },
             {
               name: 'char2',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":colere:")
+                toggleEmoji(e.codemirror, ':colere:')
               },
-              className: "emoji angry",
+              className: 'emoji angry',
               title: ':colere:'
             },
             {
               name: 'char3',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":colere2:")
+                toggleEmoji(e.codemirror, ':colere2:')
               },
-              className: "emoji mechant",
+              className: 'emoji mechant',
               title: ':colere2:'
             },
             {
               name: 'char4',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":diable:")
+                toggleEmoji(e.codemirror, ':diable:')
               },
-              className: "emoji diable",
+              className: 'emoji diable',
               title: ':diable:'
             },
             {
               name: 'char5',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":'(")
+                toggleEmoji(e.codemirror, ':\'(')
               },
-              className: "emoji pleure",
+              className: 'emoji pleure',
               title: ':\'('
             },
             {
               name: 'char6',
               action: (e) => {
-                toggleEmoji(e.codemirror, ">_<")
+                toggleEmoji(e.codemirror, '>_<')
               },
-              className: "emoji pinch",
+              className: 'emoji pinch',
               title: '>_<'
             }
           ]
@@ -729,89 +729,89 @@
             {
               name: 'char1',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":euh:")
+                toggleEmoji(e.codemirror, ':euh:')
               },
-              className: "emoji unsure",
+              className: 'emoji unsure',
               title: ':euh:'
             },
             {
               name: 'char2',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":o")
+                toggleEmoji(e.codemirror, ':o')
               },
-              className: "emoji huh",
+              className: 'emoji huh',
               title: ':o'
             },
             {
               name: 'char3',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":B")
+                toggleEmoji(e.codemirror, ':B')
               },
-              className: "emoji b",
+              className: 'emoji b',
               title: ':B'
             },
             {
               name: 'char4',
               action: (e) => {
-                toggleEmoji(e.codemirror, "o_O")
+                toggleEmoji(e.codemirror, 'o_O')
               },
-              className: "emoji blink",
+              className: 'emoji blink',
               title: 'o_O'
             },
             {
               name: 'char5',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":-°")
+                toggleEmoji(e.codemirror, ':-°')
               },
-              className: "emoji siffle",
+              className: 'emoji siffle',
               title: ':-°'
             },
             {
               name: 'char6',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":magicien:")
+                toggleEmoji(e.codemirror, ':magicien:')
               },
-              className: "emoji magicien",
+              className: 'emoji magicien',
               title: ':magicien:'
             },
             {
               name: 'char8',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":pirate:")
+                toggleEmoji(e.codemirror, ':pirate:')
               },
-              className: "emoji pirate",
+              className: 'emoji pirate',
               title: ':pirate:'
             },
             {
               name: 'char9',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":honte:")
+                toggleEmoji(e.codemirror, ':honte:')
               },
-              className: "emoji rouge",
+              className: 'emoji rouge',
               title: ':honte:'
             },
             {
               name: 'char10',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":waw:")
+                toggleEmoji(e.codemirror, ':waw:')
               },
-              className: "emoji waw",
+              className: 'emoji waw',
               title: ':waw:'
             },
             {
               name: 'char11',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":zorro:")
+                toggleEmoji(e.codemirror, ':zorro:')
               },
-              className: "emoji zorro",
+              className: 'emoji zorro',
               title: ':zorro:'
             },
             {
               name: 'char7',
               action: (e) => {
-                toggleEmoji(e.codemirror, ":ninja:")
+                toggleEmoji(e.codemirror, ':ninja:')
               },
-              className: "emoji ninja",
+              className: 'emoji ninja',
               title: ':ninja:'
             }
           ]
