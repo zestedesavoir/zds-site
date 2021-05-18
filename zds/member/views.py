@@ -1,3 +1,4 @@
+import ipaddress
 import uuid
 from datetime import datetime, timedelta
 from urllib.parse import unquote
@@ -1457,10 +1458,19 @@ def settings_promote(request, user_pk):
 @login_required
 @permission_required("member.change_profile", raise_exception=True)
 def member_from_ip(request, ip_address):
-    """List users connected from a particular IP."""
+    """List users connected from a particular IP, and an IPV6 subnetwork."""
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by("-last_visit")
-    return render(request, "member/admin/memberip.html", {"members": members, "ip": ip_address})
+    members_and_ip = {"members": members, "ip": ip_address}
+
+    if ":" in ip_address:  # Check if it's an IPV6
+        network_ip = ipaddress.ip_network(ip_address + "/64", strict=False).network_address  # Get the network / block
+        # Remove the additional ":" at the end of the network adresse, so we can filter the IP adresses on this network
+        network_ip = str(network_ip)[:-1]
+        network_members = Profile.objects.filter(last_ip_address__startswith=network_ip).order_by("-last_visit")
+        members_and_ip.update({"network_members": network_members, "network_ip": network_ip})
+
+    return render(request, "member/admin/memberip.html", members_and_ip)
 
 
 @login_required

@@ -14,6 +14,7 @@ from django.test import TestCase, override_settings
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
+from zds.member.views import member_from_ip
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import (
     ProfileFactory,
@@ -1723,3 +1724,100 @@ class RegisterTest(TestCase):
         )
         self.assertEqual(result.status_code, 200)
         self.assertIn(escape("Impossible d'envoyer l'email."), result.content.decode("utf-8"))
+
+
+class IpListingsTests(TestCase):
+    """Test the member_from_ip function : listing users from a same IPV4/IPV6 address or same IPV6 network."""
+
+    def setUp(self) -> None:
+        # self.regular_user = ProfileFactory()
+        # # settings.ZDS_APP["member"]["bot_account"] = self.mas.user.username
+        # self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.staff = StaffProfileFactory().user
+
+        self.user_ipv4_same_ip_1 = ProfileFactory(last_ip_address="155.128.92.54")
+        self.user_ipv4_same_ip_1.user.username = "user_ipv4_same_ip_1"
+        self.user_ipv4_same_ip_1.user.save()
+
+        self.user_ipv4_same_ip_2 = ProfileFactory(last_ip_address="155.128.92.54")
+        self.user_ipv4_same_ip_2.user.username = "user_ipv4_same_ip_2"
+        self.user_ipv4_same_ip_2.user.save()
+
+        self.user_ipv4_different_ip = ProfileFactory(last_ip_address="155.128.92.55")
+        self.user_ipv4_different_ip.user.username = "user_ipv4_different_ip"
+        self.user_ipv4_different_ip.user.save()
+
+        self.user_ipv6_same_ip_1 = ProfileFactory(last_ip_address="2001:8f8:1425:60a0:7981:9852:1493:3721")
+        self.user_ipv6_same_ip_1.user.username = "user_ipv6_same_ip_1"
+        self.user_ipv6_same_ip_1.user.save()
+
+        self.user_ipv6_same_ip_2 = ProfileFactory(last_ip_address="2001:8f8:1425:60a0:7981:9852:1493:3721")
+        self.user_ipv6_same_ip_2.user.username = "user_ipv6_same_ip_2"
+        self.user_ipv6_same_ip_2.user.save()
+
+        self.user_ipv6_same_network = ProfileFactory(last_ip_address="2001:8f8:1425:60a0:9852:7981:3721:1493")
+        self.user_ipv6_same_network.user.username = "user_ipv6_same_network"
+        self.user_ipv6_same_network.user.save()
+
+        self.user_ipv6_different_network = ProfileFactory(last_ip_address="8f8:60a0:3721:1425:7981:1493:2001:9852")
+        self.user_ipv6_different_network.user.username = "user_ipv6_different_network"
+        self.user_ipv6_different_network.user.save()
+
+    def test_same_ipv4(self) -> None:
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse(member_from_ip, args=[self.user_ipv4_same_ip_1.last_ip_address]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "member/admin/memberip.html")
+        self.assertContains(response, self.user_ipv4_same_ip_1.user.username)
+        self.assertContains(response, self.user_ipv4_same_ip_2.user.username)
+        self.assertContains(response, self.user_ipv4_same_ip_1.last_ip_address)
+        self.assertNotContains(response, self.user_ipv4_different_ip.user.username)
+
+    def test_different_ipv4(self) -> None:
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse(member_from_ip, args=[self.user_ipv4_different_ip.last_ip_address]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "member/admin/memberip.html")
+        self.assertContains(response, self.user_ipv4_different_ip.user.username)
+        self.assertContains(response, self.user_ipv4_different_ip.last_ip_address)
+        self.assertNotContains(response, self.user_ipv6_same_ip_1.user.username)
+
+    def test_same_ipv6_and_same_ipv6_network(self) -> None:
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse(member_from_ip, args=[self.user_ipv6_same_ip_1.last_ip_address]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "member/admin/memberip.html")
+        self.assertContains(response, self.user_ipv6_same_ip_1.user.username)
+        self.assertContains(response, self.user_ipv6_same_ip_2.user.username)
+        self.assertContains(response, self.user_ipv6_same_network.user.username)
+        self.assertNotContains(response, self.user_ipv6_different_network.user.username)
+
+    def test_same_ipv6_network_but_different_ip(self) -> None:
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse(member_from_ip, args=[self.user_ipv6_same_network.last_ip_address]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "member/admin/memberip.html")
+        self.assertContains(response, self.user_ipv6_same_network.user.username)
+        self.assertContains(response, self.user_ipv6_same_ip_1.user.username)
+        self.assertContains(response, self.user_ipv6_same_ip_2.user.username)
+        self.assertNotContains(response, self.user_ipv6_different_network.user.username)
+
+    def test_different_ipv6_network(self) -> None:
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse(member_from_ip, args=[self.user_ipv6_different_network.last_ip_address]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "member/admin/memberip.html")
+        self.assertContains(response, self.user_ipv6_different_network.user.username)
+        self.assertNotContains(response, self.user_ipv6_same_ip_1.user.username)
+        self.assertNotContains(response, self.user_ipv6_same_ip_2.user.username)
+        self.assertNotContains(response, self.user_ipv6_same_network.user.username)
+
+    def test_access_rights_to_ip_page(self) -> None:
+        regular_user = ProfileFactory()
+        regular_user.user.save()
+        self.client.force_login(regular_user.user)
+        reponse = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
+        self.assertEqual(reponse.status_code, 403)
+        self.client.logout()
+        reponse = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
+        self.assertEqual(reponse.status_code, 302)
