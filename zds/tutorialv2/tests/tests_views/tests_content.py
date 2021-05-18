@@ -3213,7 +3213,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(os.path.exists(published.get_extra_contents_directory()))
         self.assertTrue(os.path.exists(os.path.join(published.get_extra_contents_directory(), "images")))
 
-        avail_extra = ["md", "html", "pdf", "epub", "zip"]
+        avail_extra = ["md", "pdf", "epub", "zip"]
 
         # test existence and access for admin
         for extra in avail_extra:
@@ -3239,6 +3239,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
 
         for extra in avail_extra:
+
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
         # test for visitor:
@@ -3247,11 +3248,11 @@ class ContentTests(TutorialTestMixin, TestCase):
         # get 404 on markdown:
         result = self.client.get(published.get_absolute_url_to_extra_content("md"))
         self.assertEqual(result.status_code, 404)
-
+        # md is for staff, html is not really supported
         # get 200 for the rest !
-        avail_extra = avail_extra[1:]  # remove 'md' from the list
-
         for extra in avail_extra:
+            if extra == "md":
+                continue
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
@@ -3266,8 +3267,10 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # get 200 for the rest !
         for extra in avail_extra:
+            if extra == "md":
+                continue
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
-            self.assertEqual(result.status_code, 200)
+            self.assertEqual(result.status_code, 200, msg="Could not read {} export".format(extra))
 
     def test_publication_give_pubdate_if_no_major(self):
         """if a content has never been published and `is_major` is not checked, still gives a publication date"""

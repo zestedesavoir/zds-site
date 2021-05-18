@@ -30,7 +30,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.topicfeed = LastTopicsFeedRSS()
 
     def test_is_well_setup(self):
-        """ Test that base parameters are Ok """
+        """Test that base parameters are Ok"""
 
         self.assertEqual(self.topicfeed.link, "/forums/")
         reftitle = "Derniers sujets sur {}".format(settings.ZDS_APP["site"]["literal_name"])
@@ -44,7 +44,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(atom.subtitle, refdescription)
 
     def test_getobjects(self):
-        """ Get object should return the given parameteres in an object """
+        """Get object should return the given parameteres in an object"""
 
         factory = RequestFactory()
         request = factory.get(reverse("topic-feed-rss") + "?forum=fofo&tag=tatag")
@@ -53,7 +53,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(obj["tag"], "tatag")
 
     def test_items_success(self):
-        """ test that right items are sent back according to obj """
+        """test that right items are sent back according to obj"""
 
         # test empty obj
         obj = {}
@@ -74,7 +74,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(len(topics), 0)
 
     def test_items_bad_cases(self):
-        """ test that right items are sent back according to obj """
+        """test that right items are sent back according to obj"""
 
         # test empty values, return value shoulb be empty
         obj = {"forum": -1, "tag": -1}
@@ -92,7 +92,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(len(topics), 0)
 
     def test_get_pubdate(self):
-        """ test the return value of pubdate """
+        """test the return value of pubdate"""
 
         ref = self.topic2.pubdate
         topics = self.topicfeed.items(obj={"tag": self.tag.pk})
@@ -100,7 +100,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
-        """ test the return value of title """
+        """test the return value of title"""
 
         ref = f"{self.topic2.title} dans {self.topic2.forum.title}"
         topics = self.topicfeed.items(obj={"tag": self.tag.pk})
@@ -108,7 +108,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_description(self):
-        """ test the return value of description """
+        """test the return value of description"""
 
         ref = self.topic2.subtitle
         topics = self.topicfeed.items(obj={"tag": self.tag.pk})
@@ -116,7 +116,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_author_name(self):
-        """ test the return value of author name """
+        """test the return value of author name"""
 
         ref = self.topic2.author.username
         topics = self.topicfeed.items(obj={"tag": self.tag.pk})
@@ -124,7 +124,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_author_link(self):
-        """ test the return value of author link """
+        """test the return value of author link"""
 
         ref = self.topic2.author.get_absolute_url()
         topics = self.topicfeed.items(obj={"tag": self.tag.pk})
@@ -132,7 +132,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_item_link(self):
-        """ test the return value of item link """
+        """test the return value of item link"""
 
         ref = self.topic2.get_absolute_url()
         topics = self.topicfeed.items(obj={"tag": self.tag.pk})
@@ -176,7 +176,7 @@ class LastPostFeedTest(TestCase):
         self.postfeed = LastPostsFeedRSS()
 
     def test_is_well_setup(self):
-        """ Test that base parameters are Ok """
+        """Test that base parameters are Ok"""
 
         self.assertEqual(self.postfeed.link, "/forums/")
         reftitle = "Derniers messages sur {}".format(settings.ZDS_APP["site"]["literal_name"])
@@ -190,7 +190,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(atom.subtitle, refdescription)
 
     def test_getobjects(self):
-        """ Get object should return the given parameteres in an object """
+        """Get object should return the given parameteres in an object"""
 
         factory = RequestFactory()
         request = factory.get(reverse("post-feed-rss") + "?forum=fofo&tag=tatag")
@@ -199,7 +199,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(obj["tag"], "tatag")
 
     def test_items_success(self):
-        """ test that right items are sent back according to obj """
+        """test that right items are sent back according to obj"""
 
         # test empty obj
         obj = {}
@@ -220,7 +220,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(len(topics), 0)
 
     def test_items_bad_cases(self):
-        """ test that right items are sent back according to obj """
+        """test that right items are sent back according to obj"""
 
         # test empty values, return value shoulb be empty
         obj = {"forum": -1, "tag": -1}
@@ -238,7 +238,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(len(topics), 0)
 
     def test_get_pubdate(self):
-        """ test the return value of pubdate """
+        """test the return value of pubdate"""
 
         ref = self.post3.pubdate
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
@@ -246,7 +246,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
-        """ test the return value of title """
+        """test the return value of title"""
 
         ref = f"{self.post3.topic.title}, message #{self.post3.pk}"
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
@@ -254,7 +254,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_description(self):
-        """ test the return value of description """
+        """test the return value of description"""
 
         ref = self.post3.text_html
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
@@ -262,7 +262,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_author_name(self):
-        """ test the return value of author name """
+        """test the return value of author name"""
 
         ref = self.post3.author.username
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
@@ -270,7 +270,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_author_link(self):
-        """ test the return value of author link """
+        """test the return value of author link"""
 
         ref = self.post3.author.get_absolute_url()
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
@@ -278,7 +278,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_item_link(self):
-        """ test the return value of item link """
+        """test the return value of item link"""
 
         ref = self.post3.get_absolute_url()
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})

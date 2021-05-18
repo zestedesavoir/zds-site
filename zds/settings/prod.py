@@ -164,10 +164,6 @@ ZDS_APP["content"]["repo_private_path"] = "/opt/zds/data/contents-private"
 ZDS_APP["content"]["repo_public_path"] = "/opt/zds/data/contents-public"
 ZDS_APP["content"]["extra_content_generation_policy"] = "WATCHDOG"
 
-# allow to mention (and notify) members in messages
-# still a beta feature, keep it disabled for the time being
-ZDS_APP["comment"]["enable_pings"] = False
-
 ZDS_APP["visual_changes"] = zds_config.get("visual_changes", [])
 
 ZDS_APP["very_top_banner"] = config.get("very_top_banner", False)

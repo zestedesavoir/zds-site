@@ -200,18 +200,21 @@ def unread_private_topic_event(sender, *, user, instance, **__):
 
 
 @receiver(mp_signals.participant_added, sender=PrivateTopic)
-def notify_participants(sender, *, topic, **__):
+def notify_participants(sender, *, topic, silent, **__):
     """
-    Show a notification to all participants of a private topic except the author.
+    Subscribe participants to the private topic if not already subscribed.
+    If not silent, send a notification to all participants except the author.
     The notification uses the last message of the private topic and respects email preferences.
     """
     for participant in topic.participants.all():
         subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(participant, topic)
-        subscription.send_notification(
-            content=topic.last_message,
-            sender=topic.last_message.author,
-            send_email=participant.profile.email_for_answer,
-        )
+        subscription.activate_email()
+        if not silent:
+            subscription.send_notification(
+                content=topic.last_message,
+                sender=topic.last_message.author,
+                send_email=participant.profile.email_for_answer,
+            )
 
 
 @receiver(mp_signals.participant_removed, sender=PrivateTopic)
@@ -228,12 +231,14 @@ def clean_subscriptions(sender, *, topic, **__):
 
 @receiver(tuto_signals.content_read, sender=ContentReaction)
 @receiver(forum_signals.post_read, sender=Post)
-def mark_comment_read(sender, *, instance, user, **__):
-    comment = instance
+def mark_comments_read(sender, *, instances, user, **__):
+    comments = {}
+    for comment in instances:
+        comments[comment.pk] = comment
 
-    subscription = PingSubscription.objects.get_existing(user, comment, is_active=True)
-    if subscription:
-        subscription.mark_notification_read(comment)
+    subscriptions = PingSubscription.objects.filter(user=user, is_active=True, object_id__in=comments.keys())
+    for subscription in subscriptions:
+        subscription.mark_notification_read(comments[subscription.object_id])
 
 
 @receiver(forum_signals.topic_moved, sender=Topic)
@@ -402,33 +407,33 @@ def content_published_event(*__, instance, by_email, **___):
             subscription.send_notification(content=content, sender=user, send_email=by_email)
 
 
+@receiver(mp_signals.topic_created, sender=PrivateTopic)
+@disable_for_loaddata
+def create_private_topic_event(sender, *, topic, by_email, **__):
+    """
+    Subscribe the author to the answers to the topic.
+
+    :param topic: the new post.
+    :param by_email: Send or not an email for this subscription.
+    """
+    subscription = PrivateTopicAnswerSubscription.objects.get_or_create_active(topic.author, topic)
+    if by_email:
+        subscription.activate_email()
+    else:
+        subscription.deactivate_email()
+
+
 @receiver(mp_signals.message_added, sender=PrivatePost)
 @disable_for_loaddata
-def answer_private_topic_event(sender, *, instance, by_email, no_notification_for=None, **__):
+def answer_private_topic_event(sender, *, post, by_email, no_notification_for=None, **__):
     """
     Sends PrivateTopicAnswerSubscription to the subscribers to the topic and subscribe
     the author to the following answers to the topic.
 
-    :param instance: the new post.
+    :param post: the new post.
     :param by_email: Send or not an email.
     :param no_notification_for: user or group of user to ignore, really usefull when dealing with moderation message.
     """
-    post = instance
-
-    if post.position_in_topic == 1:
-        # Subscribe the author.
-        if by_email:
-            PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author, by_email=by_email)
-        else:
-            PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, post.author)
-        # Subscribe at the new private topic all participants.
-        for participant in post.privatetopic.participants.all():
-            if no_notification_for and (participant == no_notification_for or participant in no_notification_for):
-                continue
-            if by_email:
-                PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, participant, by_email=by_email)
-            else:
-                PrivateTopicAnswerSubscription.objects.toggle_follow(post.privatetopic, participant)
 
     subscription_list = PrivateTopicAnswerSubscription.objects.get_subscriptions(post.privatetopic)
     for subscription in subscription_list:

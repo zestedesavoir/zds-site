@@ -49,7 +49,7 @@ class GalleryDetailViewTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_fail_gallery_details_no_permission(self):
-        """ fail when a user has no permission at all """
+        """fail when a user has no permission at all"""
         gallery = GalleryFactory()
         UserGalleryFactory(gallery=gallery, user=self.profile1.user)
 
@@ -81,7 +81,7 @@ class NewGalleryViewTest(TestCase):
         self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("gallery-new"))
 
     def test_access_member(self):
-        """ just verify with get request that everythings is ok """
+        """just verify with get request that everythings is ok"""
         self.client.force_login(self.profile1.user)
 
         response = self.client.get(reverse("gallery-new"))
@@ -138,7 +138,7 @@ class ModifyGalleryViewTest(TestCase):
         self.image3.delete()
 
     def test_fail_delete_multi_read_permission(self):
-        """ when user wants to delete a list of galleries just with a read permission """
+        """when user wants to delete a list of galleries just with a read permission"""
         self.client.force_login(self.profile2.user)
 
         self.assertEqual(4, Gallery.objects.all().count())
@@ -172,7 +172,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(0, Image.objects.all().count())
 
     def test_fail_delete_read_permission(self):
-        """ when user wants to delete a gallery just with a read permission """
+        """when user wants to delete a gallery just with a read permission"""
         self.client.force_login(self.profile2.user)
 
         self.assertEqual(4, Gallery.objects.all().count())
@@ -583,7 +583,7 @@ class ModifyImageTest(TestCase):
         self.assertTrue(403, response.status_code)
 
     def test_delete_image_from_other_user(self):
-        """ if user try to remove images from another user without permission"""
+        """if user try to remove images from another user without permission"""
         profile4 = ProfileFactory()
         gallery4 = GalleryFactory()
         image4 = ImageFactory(gallery=gallery4)

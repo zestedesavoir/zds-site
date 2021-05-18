@@ -19,13 +19,14 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
 from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import ForumCategory, Forum, Topic, Post, is_read, mark_read, TopicRead
+from zds.forum.models import ForumCategory, Forum, Topic, Post, mark_read, TopicRead
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
 from zds.forum import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
 from zds.featured.mixins import FeatureableMixin
 from zds.utils import old_slugify
+from zds.utils.context_processor import get_repository_url
 from zds.utils.forums import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
@@ -143,7 +144,12 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
         return context
 
     def get_object(self, queryset=None):
-        forum = Forum.objects.select_related("category").filter(slug=self.kwargs.get("forum_slug")).first()
+        forum = (
+            Forum.objects.prefetch_related("groups")
+            .select_related("category")
+            .filter(slug=self.kwargs.get("forum_slug"))
+            .first()
+        )
         if forum is None:
             raise Http404("Forum with slug {} was not found".format(self.kwargs.get("forum_slug")))
         return forum
@@ -204,8 +210,8 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         context["subscriber_count"] = TopicAnswerSubscription.objects.get_subscriptions(self.object).count()
         if hasattr(self.request.user, "profile"):
             context["is_dev"] = self.request.user.profile.is_dev()
-            context["tags"] = settings.ZDS_APP["site"]["repository"]["tags"]
             context["has_token"] = self.request.user.profile.github_token != ""
+            context["repositories"] = settings.ZDS_APP["github_projects"]["repositories"]
 
         if self.request.user.has_perm("forum.change_topic"):
             context["user_can_modify"] = [post.pk for post in context["posts"]]
@@ -213,14 +219,21 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
             context["user_can_modify"] = [post.pk for post in context["posts"] if post.author == self.request.user]
 
         if self.request.user.is_authenticated:
-            for post in posts:
-                signals.post_read.send(sender=post.__class__, instance=post, user=self.request.user)
-            if not is_read(self.object):
+            if len(posts) > 0:
+                signals.post_read.send(sender=posts[0].__class__, instances=posts, user=self.request.user)
+            if not self.object.is_read:
                 mark_read(self.object)
         return context
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Topic, pk=self.kwargs.get("topic_pk"))
+        if queryset is None:
+            queryset = Topic.objects
+        result = (
+            queryset.filter(pk=self.kwargs.get("topic_pk")).select_related("solved_by").select_related("author").first()
+        )
+        if result is None:
+            raise Http404(f"Pas de forum avec l'identifiant {self.kwargs.get('topic_pk')}")
+        return result
 
     def get_queryset(self):
         return Post.objects.get_messages_of_a_topic(self.object.pk)
@@ -831,6 +844,9 @@ class ManageGitHubIssue(UpdateView):
                 self.object.github_issue = int(request.POST["issue"])
                 if self.object.github_issue < 1:
                     raise ValueError
+                self.object.github_repository_name = request.POST["repository"]
+                if request.POST["repository"] not in settings.ZDS_APP["github_projects"]["repositories"]:
+                    raise ValueError
                 self.object.save()
 
                 messages.success(request, _("Le ticket a bien été associé."))
@@ -844,7 +860,6 @@ class ManageGitHubIssue(UpdateView):
                 messages.error(request, _("Aucun token d'identification GitHub n'a été renseigné."))
 
             else:
-                tags = [value.strip() for key, value in list(request.POST.items()) if key.startswith("tag-")]
                 body = _("{}\n\nSujet : {}\n*Envoyé depuis {}*").format(
                     request.POST["body"],
                     settings.ZDS_APP["site"]["url"] + self.object.get_absolute_url(),
@@ -852,16 +867,17 @@ class ManageGitHubIssue(UpdateView):
                 )
                 try:
                     response = requests.post(
-                        settings.ZDS_APP["site"]["repository"]["api"] + "/issues",
+                        get_repository_url(request.POST["repository"], "issues_api"),
                         timeout=10,
                         headers={"Authorization": f"Token {self.request.user.profile.github_token}"},
-                        json={"title": request.POST["title"], "body": body, "labels": tags},
+                        json={"title": request.POST["title"], "body": body},
                     )
                     if response.status_code != 201:
                         raise Exception
 
                     json_response = response.json()
                     self.object.github_issue = json_response["number"]
+                    self.object.github_repository_name = request.POST["repository"]
                     self.object.save()
 
                     messages.success(request, _("Le ticket a bien été créé."))

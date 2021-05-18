@@ -288,7 +288,6 @@ class HatRequest(models.Model):
             "",
             message,
             leave=solved_by_bot,
-            mark_as_read=True,
             hat=get_hat_from_settings("hats_management"),
         )
 
@@ -548,7 +547,7 @@ class Comment(models.Model):
         self.save()
 
     def get_user_vote(self, user):
-        """ Get a user vote (like, dislike or neutral) """
+        """Get a user vote (like, dislike or neutral)"""
         if user.is_authenticated:
             try:
                 user_vote = "like" if CommentVote.objects.get(user=user, comment=self).positive else "dislike"
@@ -560,7 +559,7 @@ class Comment(models.Model):
         return user_vote
 
     def set_user_vote(self, user, vote):
-        """ Set a user vote (like, dislike or neutral) """
+        """Set a user vote (like, dislike or neutral)"""
         if vote == "neutral":
             CommentVote.objects.filter(user=user, comment=self).delete()
         else:
@@ -570,7 +569,7 @@ class Comment(models.Model):
         self.dislike = CommentVote.objects.filter(positive=False, comment=self).count()
 
     def get_votes(self, type=None):
-        """ Get the non-anonymous votes """
+        """Get the non-anonymous votes"""
         if not hasattr(self, "votes"):
             self.votes = (
                 CommentVote.objects.filter(comment=self, id__gt=settings.VOTES_ID_LIMIT).select_related("user").all()
@@ -579,11 +578,11 @@ class Comment(models.Model):
         return self.votes
 
     def get_likers(self):
-        """ Get the list of the users that liked this Comment """
+        """Get the list of the users that liked this Comment"""
         return [vote.user for vote in self.get_votes() if vote.positive]
 
     def get_dislikers(self):
-        """ Get the list of the users that disliked this Comment """
+        """Get the list of the users that disliked this Comment"""
         return [vote.user for vote in self.get_votes() if not vote.positive]
 
     def get_absolute_url(self):

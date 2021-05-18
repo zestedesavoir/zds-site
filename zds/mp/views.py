@@ -122,7 +122,7 @@ class PrivateTopicNew(CreateView):
 
 
 class PrivateTopicEdit(UpdateView):
-    """ Update mp informations """
+    """Update mp informations"""
 
     model = PrivateTopic
     template_name = "mp/topic/edit.html"
