@@ -51,8 +51,85 @@
                 vertical-align: middle;
 
                 &.emoji {
-                    color: #fb8c00;
-                    font-size: 1.3em;
+                    zoom: 100%;
+                    width: 48px;
+                    height: 32px;
+
+                    &.smile {
+                        background: url(/static/smileys/svg/smile.svg) no-repeat;
+                    }
+                    &.heureux {
+                        background: url(/static/smileys/svg/heureux.svg) no-repeat;
+                    }
+                    &.clin {
+                        background: url(/static/smileys/svg/clin.svg) no-repeat;
+                    }
+                    &.langue {
+                        background: url(/static/smileys/svg/langue.svg) no-repeat;
+                    }
+                    &.rire {
+                        background: url(/static/smileys/svg/rire.svg) no-repeat;
+                    }
+                    &.unsure {
+                        background: url(/static/smileys/svg/unsure.svg) no-repeat;
+                    }
+                    &.triste {
+                        background: url(/static/smileys/svg/triste.svg) no-repeat;
+                    }
+                    &.huh {
+                        background: url(/static/smileys/svg/huh.svg) no-repeat;
+                    }
+                    &.b {
+                        background: url(/static/smileys/svg/b.svg) no-repeat;
+                    }
+                    &.mechant {
+                        background: url(/static/smileys/svg/mechant.svg) no-repeat;
+                    }
+                    &.blink {
+                        background: url(/static/smileys/svg/blink.svg) no-repeat;
+                    }
+                    &.hihi {
+                        background: url(/static/smileys/svg/hihi.svg) no-repeat;
+                    }
+                    &.siffle {
+                        background: url(/static/smileys/svg/siffle.svg) no-repeat;
+                    }
+                    &.ange {
+                        background: url(/static/smileys/svg/ange.svg) no-repeat;
+                    }
+                    &.angry {
+                        background: url(/static/smileys/svg/angry.svg) no-repeat;
+                    }
+                    &.diable {
+                        background: url(/static/smileys/svg/diable.svg) no-repeat;
+                    }
+                    &.magicien {
+                        background: url(/static/smileys/svg/magicien.svg) no-repeat;
+                    }
+                    &.ninja {
+                        background: url(/static/smileys/svg/ninja.svg) no-repeat;
+                    }
+                    &.pinch {
+                        background: url(/static/smileys/svg/pinch.svg) no-repeat;
+                    }
+                    &.pirate {
+                        background: url(/static/smileys/svg/pirate.svg) no-repeat;
+                    }
+                    &.pleure {
+                        background: url(/static/smileys/svg/pleure.svg) no-repeat;
+                    }
+                    &.rouge {
+                        background: url(/static/smileys/svg/rouge.svg) no-repeat;
+                    }
+                    &.soleil {
+                        background: url(/static/smileys/svg/soleil.svg) no-repeat;
+                    }
+                    &.waw {
+                        background: url(/static/smileys/svg/waw.svg) no-repeat;
+                    }
+                    &.zorro {
+                        background: url(/static/smileys/svg/zorro.svg) no-repeat;
+                    }
                 }
                 &.bloc_information {
                     color: #03a9f4;
@@ -69,8 +146,8 @@
             }
 
             button.blocMenu {
-                border-color: $true-white;
-                background-image: linear-gradient(to right bottom, $true-white 0px, $true-white 84%, $grey-800 50%, $grey-800 100%);
+                border-color: $color-body-background;
+                background-image: linear-gradient(to right bottom, $color-body-background 0px, $color-body-background 84%, $grey-800 50%, $grey-800 100%);
             }
 
             .easymde-dropdown-content {

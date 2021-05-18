@@ -589,9 +589,240 @@
         {
           name: 'blocMenu',
           action: (e) => {
+
+          },
+          className: 'fa fa-smile',
+          title: 'Emojis heureux',
+          children: [
+            {
+              name: 'char1',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":)")
+              },
+              className: "emoji smile",
+              title: ':)'
+            },
+            {
+              name: 'char2',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":D")
+              },
+              className: "emoji heureux",
+              title: ':D'
+            },
+            {
+              name: 'char3',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":)")
+              },
+              className: "emoji clin",
+              title: ':)'
+            },
+            {
+              name: 'char8',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":soleil:")
+              },
+              className: "emoji soleil",
+              title: ':soleil:'
+            },
+            {
+              name: 'char4',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":p")
+              },
+              className: "emoji langue",
+              title: ':P'
+            },
+            {
+              name: 'char5',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":lol:")
+              },
+              className: "emoji rire",
+              title: ':lol:'
+            },
+            {
+              name: 'char6',
+              action: (e) => {
+                toggleEmoji(e.codemirror, "^^")
+              },
+              className: "emoji hihi",
+              title: '^^'
+            },
+            {
+              name: 'char7',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":ange:")
+              },
+              className: "emoji ange",
+              title: ':ange:'
+            }
+          ]
+        },
+        {
+          name: 'blocMenu',
+          action: (e) => {
+
+          },
+          className: 'fa fa-frown',
+          title: 'Emojis mécontents',
+          children: [
+            {
+              name: 'char1',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":(")
+              },
+              className: "emoji triste",
+              title: ':('
+            },
+            {
+              name: 'char2',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":colere:")
+              },
+              className: "emoji angry",
+              title: ':colere:'
+            },
+            {
+              name: 'char3',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":colere2:")
+              },
+              className: "emoji mechant",
+              title: ':colere2:'
+            },
+            {
+              name: 'char4',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":diable:")
+              },
+              className: "emoji diable",
+              title: ':diable:'
+            },
+            {
+              name: 'char5',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":'(")
+              },
+              className: "emoji pleure",
+              title: ':\'('
+            },
+            {
+              name: 'char6',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ">_<")
+              },
+              className: "emoji pinch",
+              title: '>_<'
+            }
+          ]
+        },
+        {
+          name: 'blocMenu',
+          action: (e) => {
+
+          },
+          className: 'fa fa-meh',
+          title: 'Emojis autres',
+          children: [
+            {
+              name: 'char1',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":euh:")
+              },
+              className: "emoji unsure",
+              title: ':euh:'
+            },
+            {
+              name: 'char2',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":o")
+              },
+              className: "emoji huh",
+              title: ':o'
+            },
+            {
+              name: 'char3',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":B")
+              },
+              className: "emoji b",
+              title: ':B'
+            },
+            {
+              name: 'char4',
+              action: (e) => {
+                toggleEmoji(e.codemirror, "o_O")
+              },
+              className: "emoji blink",
+              title: 'o_O'
+            },
+            {
+              name: 'char5',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":-°")
+              },
+              className: "emoji siffle",
+              title: ':-°'
+            },
+            {
+              name: 'char6',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":magicien:")
+              },
+              className: "emoji magicien",
+              title: ':magicien:'
+            },
+            {
+              name: 'char8',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":pirate:")
+              },
+              className: "emoji pirate",
+              title: ':pirate:'
+            },
+            {
+              name: 'char9',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":honte:")
+              },
+              className: "emoji rouge",
+              title: ':honte:'
+            },
+            {
+              name: 'char10',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":waw:")
+              },
+              className: "emoji waw",
+              title: ':waw:'
+            },
+            {
+              name: 'char11',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":zorro:")
+              },
+              className: "emoji zorro",
+              title: ':zorro:'
+            },
+            {
+              name: 'char7',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ":ninja:")
+              },
+              className: "emoji ninja",
+              title: ':ninja:'
+            }
+          ]
+        },
+        '|',
+        {
+          name: 'blocMenu',
+          action: (e) => {
             _toggleBlockZmd(e, 'blocInformation', '| ')
           },
-          className: 'fa fa-info bloc_information',
+          className: 'fa fa-info',
           title: 'Bloc spéciaux',
           children: [
             {
@@ -642,106 +873,6 @@
               className: 'fa fa-sticky-note',
               title: 'Bloc neutre'
             }
-          ]
-        },
-        {
-          name: 'blocMenu',
-          action: (e) => {
-
-          },
-          className: 'fa fa-laugh emoji',
-          title: 'Emojis',
-          children: [
-            {
-              name: 'char1',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":)")
-              },
-              className: "fa fa-smile emoji",
-              title: ':)'
-            },
-            {
-              name: 'char2',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":D")
-              },
-              className: "fa fa-laugh-beam emoji",
-              title: ':D'
-            },
-            {
-              name: 'char3',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":)")
-              },
-              className: "fa fa-smile-wink emoji",
-              title: ':)'
-            },
-            {
-              name: 'char4',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":P")
-              },
-              className: "fa fa-grin-tongue emoji",
-              title: ':P'
-            },
-            {
-              name: 'char5',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":lol:")
-              },
-              className: "fa fa-grin-tears emoji",
-              title: ':lol:'
-            },
-            {
-              name: 'char6',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":euh:")
-              },
-              className: "fa fa-flushed emoji",
-              title: ':euh:'
-            },
-            {
-              name: 'char7',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":o")
-              },
-              className: "fa fa-surprise emoji",
-              title: ':o'
-            }
-          ]
-        },
-        {
-          name: 'blocMenu',
-          action: (e) => {
-
-          },
-          className: 'fa fa-frown emoji',
-          title: 'Emojis',
-          children: [
-            {
-              name: 'char1',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":(")
-              },
-              className: "fa fa-frown emoji",
-              title: ':('
-            },
-            {
-              name: 'char2',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":colere:")
-              },
-              className: "fa fa-angry emoji",
-              title: ':colere:'
-            },
-            {
-              name: 'char3',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ":'(")
-              },
-              className: "fa fa-sad-cry emoji",
-              title: ':\'('
-            },
           ]
         },
         '|',
