@@ -26,42 +26,38 @@
 
     if (radioInput.getAttribute('name') === 'compare-from') {
       prevAll(row).forEach(
-        r => Array.from(r.querySelectorAll('[name="compare-to"]')).forEach(item => item.removeAttribute('disabled'))
+        r => Array.prototype.forEach.call(r.querySelectorAll('[name="compare-to"]'), elem => elem.removeAttribute('disabled'))
       )
       nextAll(row).forEach(
-        r => Array.from(r.querySelectorAll('[name="compare-to"]')).forEach(item => item.setAttribute('disabled', true))
+        r => Array.prototype.forEach.call(r.querySelectorAll('[name="compare-to"]'), elem => elem.setAttribute('disabled', true))
       )
-      Array.from(row.querySelectorAll('[name="compare-to"]')).forEach(item => item.setAttribute('disabled', true))
+      Array.prototype.forEach.call(row.querySelectorAll('[name="compare-to"]'), elem => elem.setAttribute('disabled', true))
     } else {
       prevAll(row).forEach(
-        r => Array.from(r.querySelectorAll('[name="compare-from"]')).forEach(item => item.setAttribute('disabled', true))
+        r => Array.prototype.forEach.call(r.querySelectorAll('[name="compare-from"]'), elem => elem.setAttribute('disabled', true))
       )
       nextAll(row).forEach(
-        r => Array.from(r.querySelectorAll('[name="compare-from"]')).forEach(item => item.removeAttribute('disabled'))
+        r => Array.prototype.forEach.call(r.querySelectorAll('[name="compare-from"]'), elem => elem.removeAttribute('disabled'))
       )
-      Array.from(row.querySelectorAll('[name="compare-from"]')).forEach(item => item.setAttribute('disabled', true))
+      Array.prototype.forEach.call(row.querySelectorAll('[name="compare-from"]'), elem => elem.setAttribute('disabled', true))
     }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
-    Array.from(document.querySelectorAll('.commits-list input[name^="compare"]:checked')).forEach(radioElement => toogleRadioInput(radioElement))
-
-    Array.from(document.querySelectorAll('.commits-list input[name^="compare"]')).forEach((el) => {
-      el.addEventListener('change', function() {
+    Array.prototype.forEach.call(document.querySelectorAll('.commits-list input[name^="compare"]:checked'), elem => toogleRadioInput(elem))
+    Array.prototype.forEach.call(document.querySelectorAll('.commits-list input[name^="compare"]'), elem =>
+      elem.addEventListener('change', function() {
         toogleRadioInput(this)
       })
-    })
-
-    Array.from(document.querySelectorAll('.commits-compare-form')).forEach((el) => {
-      el.addEventListener('submit', function(e) {
-        const fromInput = this.querySelector("input[name='from']")
-        const toInput = this.querySelector("input[name='to']")
+    )
+    Array.prototype.forEach.call(document.querySelectorAll('.commits-compare-form'), elem =>
+      elem.addEventListener('submit', function(e) {
         const compareFrom = document.querySelector(".commits-list input[name='compare-from']:checked").value
         const compareTo = document.querySelector(".commits-list input[name='compare-to']:checked").value
 
-        fromInput.value = compareFrom
-        toInput.value = compareTo
+        this.querySelector("input[name='from']").value = compareFrom
+        this.querySelector("input[name='to']").value = compareTo
       })
-    })
+    )
   })
 })()
