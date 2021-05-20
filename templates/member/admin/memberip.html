@@ -26,7 +26,7 @@
 {% block content %}
     <p>
         {% blocktrans %}
-            Liste des membres dont la dernière IP connue est {{ ip }}
+            Liste des membres dont la dernière IP connue est <code>{{ ip }}</code>
         {% endblocktrans %}
     </p>
 
@@ -41,7 +41,7 @@
     {% if ":" in ip %}
     <p>
         {% blocktrans %}
-            Liste des membres dont la dernière IP connue fait partie du bloc {{ network_ip }}
+            Liste des membres dont la dernière IP connue fait partie du bloc <code>{{ network_ip }}</code>
         {% endblocktrans %}
     </p>
 
