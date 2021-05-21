@@ -1732,7 +1732,6 @@ class IpListingsTests(TestCase):
     def setUp(self) -> None:
         self.staff = StaffProfileFactory().user
         self.regular_user = ProfileFactory()
-        self.regular_user.user.save()
 
         self.user_ipv4_same_ip_1 = ProfileFactory(last_ip_address="155.128.92.54")
         self.user_ipv4_same_ip_1.user.username = "user_ipv4_same_ip_1"
