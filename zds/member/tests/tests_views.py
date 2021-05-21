@@ -1806,7 +1806,7 @@ class IpListingsTests(TestCase):
         response = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
         self.assertEqual(response.status_code, 403)
 
-    def test_access_rights_to_ip_page_as_non_user(self) -> None:
+    def test_access_rights_to_ip_page_as_anonymous(self) -> None:
         response = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
         self.assertEqual(response.status_code, 302)
 
