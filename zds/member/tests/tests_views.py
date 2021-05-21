@@ -1730,10 +1730,9 @@ class IpListingsTests(TestCase):
     """Test the member_from_ip function : listing users from a same IPV4/IPV6 address or same IPV6 network."""
 
     def setUp(self) -> None:
-        # self.regular_user = ProfileFactory()
-        # # settings.ZDS_APP["member"]["bot_account"] = self.mas.user.username
-        # self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
         self.staff = StaffProfileFactory().user
+        self.regular_user = ProfileFactory()
+        self.regular_user.user.save()
 
         self.user_ipv4_same_ip_1 = ProfileFactory(last_ip_address="155.128.92.54")
         self.user_ipv4_same_ip_1.user.username = "user_ipv4_same_ip_1"
@@ -1766,8 +1765,6 @@ class IpListingsTests(TestCase):
     def test_same_ipv4(self) -> None:
         self.client.force_login(self.staff)
         response = self.client.get(reverse(member_from_ip, args=[self.user_ipv4_same_ip_1.last_ip_address]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "member/admin/memberip.html")
         self.assertContains(response, self.user_ipv4_same_ip_1.user.username)
         self.assertContains(response, self.user_ipv4_same_ip_2.user.username)
         self.assertContains(response, self.user_ipv4_same_ip_1.last_ip_address)
@@ -1776,8 +1773,6 @@ class IpListingsTests(TestCase):
     def test_different_ipv4(self) -> None:
         self.client.force_login(self.staff)
         response = self.client.get(reverse(member_from_ip, args=[self.user_ipv4_different_ip.last_ip_address]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "member/admin/memberip.html")
         self.assertContains(response, self.user_ipv4_different_ip.user.username)
         self.assertContains(response, self.user_ipv4_different_ip.last_ip_address)
         self.assertNotContains(response, self.user_ipv6_same_ip_1.user.username)
@@ -1785,8 +1780,6 @@ class IpListingsTests(TestCase):
     def test_same_ipv6_and_same_ipv6_network(self) -> None:
         self.client.force_login(self.staff)
         response = self.client.get(reverse(member_from_ip, args=[self.user_ipv6_same_ip_1.last_ip_address]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "member/admin/memberip.html")
         self.assertContains(response, self.user_ipv6_same_ip_1.user.username)
         self.assertContains(response, self.user_ipv6_same_ip_2.user.username)
         self.assertContains(response, self.user_ipv6_same_network.user.username)
@@ -1795,8 +1788,6 @@ class IpListingsTests(TestCase):
     def test_same_ipv6_network_but_different_ip(self) -> None:
         self.client.force_login(self.staff)
         response = self.client.get(reverse(member_from_ip, args=[self.user_ipv6_same_network.last_ip_address]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "member/admin/memberip.html")
         self.assertContains(response, self.user_ipv6_same_network.user.username)
         self.assertContains(response, self.user_ipv6_same_ip_1.user.username)
         self.assertContains(response, self.user_ipv6_same_ip_2.user.username)
@@ -1805,19 +1796,26 @@ class IpListingsTests(TestCase):
     def test_different_ipv6_network(self) -> None:
         self.client.force_login(self.staff)
         response = self.client.get(reverse(member_from_ip, args=[self.user_ipv6_different_network.last_ip_address]))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "member/admin/memberip.html")
         self.assertContains(response, self.user_ipv6_different_network.user.username)
         self.assertNotContains(response, self.user_ipv6_same_ip_1.user.username)
         self.assertNotContains(response, self.user_ipv6_same_ip_2.user.username)
         self.assertNotContains(response, self.user_ipv6_same_network.user.username)
 
-    def test_access_rights_to_ip_page(self) -> None:
-        regular_user = ProfileFactory()
-        regular_user.user.save()
-        self.client.force_login(regular_user.user)
-        reponse = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
-        self.assertEqual(reponse.status_code, 403)
-        self.client.logout()
-        reponse = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
-        self.assertEqual(reponse.status_code, 302)
+    def test_access_rights_to_ip_page_as_regular_user(self) -> None:
+        self.client.force_login(self.regular_user.user)
+        response = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_access_rights_to_ip_page_as_non_user(self) -> None:
+        response = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
+        self.assertEqual(response.status_code, 302)
+
+    def test_access_rights_to_ip_page_as_staff(self) -> None:
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
+        self.assertEqual(response.status_code, 200)
+
+    def test_template_used_by_ip_page(self) -> None:
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse(member_from_ip, args=["0.0.0.0"]))
+        self.assertTemplateUsed(response, "member/admin/memberip.html")
