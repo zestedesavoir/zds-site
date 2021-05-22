@@ -114,7 +114,6 @@ function jsLint() {
 function jsPackages() {
   return gulp.src([
     require.resolve('jquery/dist/jquery.min.js'),
-    require.resolve('cookies-eu-banner/dist/cookies-eu-banner.min.js'),
     require.resolve('moment/min/moment.min.js'),
     require.resolve('moment/locale/fr.js'),
     require.resolve('chart.js/dist/Chart.min.js'),

@@ -27,7 +27,6 @@
   "dependencies": {
     "autoprefixer": "10.1.0",
     "chart.js": "2.9.4",
-    "cookies-eu-banner": "2.0.1",
     "cssnano": "4.1.10",
     "del": "6.0.0",
     "easymde": "2.10.2-360.0",
