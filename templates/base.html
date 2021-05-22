@@ -177,15 +177,6 @@
             </li>
         </ul>
 
-        <div id="cookies-eu-banner">
-            <p>
-                {% trans "Nous souhaitons déposer des cookies à des fins de mesure d'audience avec Google Analytics. Vous êtes libre d'accepter ou de refuser." %}
-            </p>
-            <a href="/pages/cookies" id="cookies-eu-more">{% trans "En savoir plus" %}</a>
-            <button id="cookies-eu-accept">{% trans "Accepter" %}</button>
-            <button id="cookies-eu-reject">{% trans "Refuser" %}</button>
-        </div>
-
         <div class="header-container">
             {% include "header.html" %}
 
@@ -263,25 +254,6 @@
     {% block extra_js %}
     {% endblock %}
     <script src="{% static "js/script.js" %}"></script>
-
-
-    {# Google Analytics #}
-    {% if debug or app.google_analytics_enabled %}
-    <script src="{% static "js/cookies-eu-banner.min.js" %}"></script>
-    <script>
-        new CookiesEuBanner(function(){
-            {% if app.google_analytics_enabled %}
-            dataLayer = [{'gaTrackingId': '{{ app.site.googleAnalyticsID }}'}];
-            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-            '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer','{{ app.site.googleTagManagerID }}');
-            {% endif %}
-        }, true);
-    </script>
-    {% endif %}
-
 
     {% include "mathjax_config.html" %}
 </body>
