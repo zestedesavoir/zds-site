@@ -1515,4 +1515,27 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     PublishedContent.objects.transfer_paternity(instance, external)
 
 
+class Clap(models.Model):
+    class Meta:
+        verbose_name = "Clap"
+        verbose_name_plural = "Claps"
+
+    related_content = models.ForeignKey(
+        PublishableContent,
+        verbose_name="Contenu",
+        on_delete=models.CASCADE,
+        related_name="related_content_note",
+        db_index=True,
+    )
+    user = models.ForeignKey(User, db_index=True, on_delete=models.SET_NULL, null=True)
+    hash_ip_address = models.CharField(db_index=True, max_length=40)
+    claps_count = models.IntegerField()
+    date = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def hash_ip(request) -> str:
+        ip_address = request.META.get("HTTP_X_FORWARDED_FOR") or request.META.get("REMOTE_ADDR")
+        return str(hashlib.sha256(bytes(settings.SECRET_KEY + ip_address, "utf-8")).hexdigest())
+
+
 import zds.tutorialv2.receivers  # noqa
