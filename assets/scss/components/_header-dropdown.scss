@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .header-dropdown {
     display: none;
 
@@ -45,7 +47,7 @@
         @for $i from 1 through 4 {
             &:first-child:nth-last-child(#{$i}),
             &:first-child:nth-last-child(#{$i}) ~ li {
-                width: 100% / $i;
+                width: math.div(100%, $i);
             }
         }
     }

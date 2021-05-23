@@ -1,3 +1,5 @@
+@use "sass:math";
+
 .home {
     .home-row {
         display: flex;
@@ -293,11 +295,11 @@
         $gap: $length-20;
 
         .home-row {
-            margin-right: -($gap/2);
-            margin-left: -($gap/2);
+            margin-right: -(math.div($gap, 2));
+            margin-left: -(math.div($gap, 2));
 
             > section {
-                margin: 0 $gap/2;
+                margin: 0 math.div($gap, 2);
                 flex: 1;
                 min-width: $length-384; // must be specified to have the elements correctely sized
             }
