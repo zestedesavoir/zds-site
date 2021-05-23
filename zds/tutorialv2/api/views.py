@@ -1,13 +1,15 @@
 import contextlib
 from pathlib import Path
 
+from django.conf import settings
+from django.db.models import Sum
 from django.db.models.query import prefetch_related_objects
 from django.http import Http404
 from django.utils import translation
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.fields import empty
-from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404, CreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
@@ -26,6 +28,7 @@ from zds.tutorialv2.models.database import (
     ContentReaction,
     PublishableContent,
     PublicationEvent,
+    Clap,
 )
 
 
@@ -154,3 +157,33 @@ class ExportsView(ListAPIView):
         prefetch_related_objects(exports, "published_object")
 
         return exports
+
+
+class ClapView(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            claps_count = int(request.data["claps_count"])
+
+            if claps_count < 0:
+                raise ValueError
+        except (ValueError, KeyError):
+            return Response(None, status=status.HTTP_400_BAD_REQUEST)
+
+        content = get_object_or_404(PublishableContent.objects, pk=kwargs["pk"])
+        user = request.user if request.user.is_authenticated else None
+        hash_ip_address = Clap.hash_ip(request) if request.user.is_anonymous else ""
+
+        claps_by_user = (
+            Clap.objects.filter(content=content, user=user, hash_ip_address=hash_ip_address).aggregate(
+                Sum("claps_count")
+            )["claps_count__sum"]
+        ) or 0
+
+        if claps_by_user + claps_count > settings.ZDS_APP["content"]["max_claps_per_content"]:
+            claps_count = settings.ZDS_APP["content"]["max_claps_per_content"] - claps_by_user
+
+        if claps_count > 0:
+            clap = Clap(content=content, user=user, hash_ip_address=hash_ip_address, claps_count=claps_count)
+            clap.save()
+
+        return Response({"claps": claps_by_user + claps_count}, status=status.HTTP_201_CREATED)
