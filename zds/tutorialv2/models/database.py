@@ -1,4 +1,5 @@
 import contextlib
+import hashlib
 import logging
 import os
 import shutil
@@ -1520,11 +1521,11 @@ class Clap(models.Model):
         verbose_name = "Clap"
         verbose_name_plural = "Claps"
 
-    related_content = models.ForeignKey(
+    content = models.ForeignKey(
         PublishableContent,
         verbose_name="Contenu",
         on_delete=models.CASCADE,
-        related_name="related_content_note",
+        related_name="claps",
         db_index=True,
     )
     user = models.ForeignKey(User, db_index=True, on_delete=models.SET_NULL, null=True)
