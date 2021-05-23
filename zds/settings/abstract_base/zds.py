@@ -175,6 +175,7 @@ ZDS_APP = {
         "suggestions_per_page": 2,
         "feed_length": 5,
         "user_page_number": 5,
+        "max_claps_per_content": 100,
         "default_image": BASE_DIR / "fixtures" / "noir_black.png",
         "import_image_prefix": "archive",
         "build_pdf_when_published": True,
