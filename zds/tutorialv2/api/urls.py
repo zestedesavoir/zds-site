@@ -5,6 +5,7 @@ from zds.tutorialv2.api.views import (
     ContainerPublicationReadinessView,
     ExportView,
     ExportsView,
+    ClapView,
 )
 
 urlpatterns = [
@@ -20,4 +21,5 @@ urlpatterns = [
     ),
     path("export/<int:pk>/", ExportView.as_view(), name="generate_export"),
     path("exports/<int:pk>/", ExportsView.as_view(), name="list_exports"),
+    path("claps/<int:pk>/", ClapView.as_view(), name="add_claps"),
 ]
