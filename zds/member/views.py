@@ -1166,6 +1166,8 @@ def login_view(request):
             return response
 
     if next_page is not None:
+        if request.user.is_authenticated:
+            return redirect(next_page)
         form.helper.form_action += "?next=" + next_page
     csrf_tk["error"] = error
     csrf_tk["form"] = form
