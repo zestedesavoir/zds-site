@@ -162,9 +162,9 @@ class ExportsView(ListAPIView):
 class ClapView(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            claps_count = int(request.data["claps_count"])
+            additional_claps = int(request.data["claps_count"])
 
-            if claps_count < 0:
+            if additional_claps < 0:
                 raise ValueError
         except (ValueError, KeyError):
             return Response(None, status=status.HTTP_400_BAD_REQUEST)
@@ -173,17 +173,17 @@ class ClapView(APIView):
         user = request.user if request.user.is_authenticated else None
         hash_ip_address = Clap.hash_ip(request) if request.user.is_anonymous else ""
 
-        claps_by_user = (
+        current_claps = (
             Clap.objects.filter(content=content, user=user, hash_ip_address=hash_ip_address).aggregate(
                 Sum("claps_count")
             )["claps_count__sum"]
         ) or 0
 
-        if claps_by_user + claps_count > settings.ZDS_APP["content"]["max_claps_per_content"]:
-            claps_count = settings.ZDS_APP["content"]["max_claps_per_content"] - claps_by_user
+        if current_claps + additional_claps > settings.ZDS_APP["content"]["max_claps_per_content"]:
+            additional_claps = settings.ZDS_APP["content"]["max_claps_per_content"] - current_claps
 
-        if claps_count > 0:
-            clap = Clap(content=content, user=user, hash_ip_address=hash_ip_address, claps_count=claps_count)
+        if additional_claps > 0:
+            clap = Clap(content=content, user=user, hash_ip_address=hash_ip_address, claps_count=additional_claps)
             clap.save()
 
-        return Response({"claps": claps_by_user + claps_count}, status=status.HTTP_201_CREATED)
+        return Response({"claps": current_claps + additional_claps}, status=status.HTTP_201_CREATED)
