@@ -1529,7 +1529,7 @@ class Clap(models.Model):
         db_index=True,
     )
     user = models.ForeignKey(User, db_index=True, on_delete=models.SET_NULL, null=True)
-    hash_ip_address = models.CharField(db_index=True, max_length=40)
+    hash_ip_address = models.CharField(db_index=True, max_length=64)
     claps_count = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
 
