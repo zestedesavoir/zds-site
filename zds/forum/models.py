@@ -240,7 +240,7 @@ class Topic(AbstractESDjangoIndexable):
     @property
     def last_update(self):
         last_visible_post = self.get_last_visible_post()
-        return last_visible_post.update or last_visible_post.pubdate
+        return last_visible_post.pubdate
 
     @staticmethod
     def __remove_greetings(post):
