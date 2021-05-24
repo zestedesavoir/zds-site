@@ -1536,7 +1536,7 @@ class Clap(models.Model):
     @staticmethod
     def hash_ip(request) -> str:
         ip_address = request.META.get("HTTP_X_FORWARDED_FOR") or request.META.get("REMOTE_ADDR")
-        return str(hashlib.sha256(bytes(settings.SECRET_KEY + ip_address, "utf-8")).hexdigest())
+        return hashlib.sha256(bytes(settings.SECRET_KEY + ip_address, "utf-8")).hexdigest()
 
 
 import zds.tutorialv2.receivers  # noqa
