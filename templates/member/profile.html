@@ -308,7 +308,7 @@
                     {% endif %}
                 </div>
 
-                {% captureas messages_count %}{% if perms.member.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
+                {% captureas messages_count %}{% if perms.forum.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
 
                 {% with topics_count=profile.get_topic_count followed_topics_count=profile.get_followed_topic_count messages_count=messages_count|add:"0" %}
                     {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or messages_count > 0 %}
