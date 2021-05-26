@@ -25,6 +25,7 @@ from gitdb.exc import BadName
 from zds import json_handler
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
+from zds.member.views import get_client_ip
 from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
     AbstractESDjangoIndexable,
@@ -1535,7 +1536,8 @@ class Clap(models.Model):
 
     @staticmethod
     def hash_ip(request) -> str:
-        ip_address = request.META.get("HTTP_X_FORWARDED_FOR") or request.META.get("REMOTE_ADDR")
+        # ip_address = request.META.get("HTTP_X_FORWARDED_FOR") or request.META.get("REMOTE_ADDR")
+        ip_address = get_client_ip(request)
         return hashlib.sha256(bytes(settings.SECRET_KEY + ip_address, "utf-8")).hexdigest()
 
 
