@@ -20,6 +20,7 @@ from zds.member.api.permissions import (
     IsNotOwnerOrReadOnly,
     IsAuthorOrStaff,
 )
+from zds.member.views import get_client_ip
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
@@ -171,7 +172,7 @@ class ClapView(APIView):
 
         content = get_object_or_404(PublishableContent.objects, pk=kwargs["pk"])
         user = request.user if request.user.is_authenticated else None
-        hash_ip_address = Clap.hash_ip(request) if request.user.is_anonymous else ""
+        hash_ip_address = Clap.hash_ip(get_client_ip(request)) if request.user.is_anonymous else ""
 
         current_claps = (
             Clap.objects.filter(content=content, user=user, hash_ip_address=hash_ip_address).aggregate(
