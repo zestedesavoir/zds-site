@@ -66,6 +66,7 @@ ZDS_APP = {
         "sur lequel vous trouverez des tutoriels de tous niveaux, "
         "des articles et des forums d’entraide animés par et pour "
         "la communauté.",
+        "matomo_tracking_enabled": zds_config.get("matomo_tracking_enabled", False),
         "matomo_site_id": zds_config.get("matomo_site_id", 4),
         "matomo_url": zds_config.get("matomo_url", "https://matomo.zestedesavoir.com"),
         "matomo_token_auth": zds_config.get("matomo_token_auth", ""),

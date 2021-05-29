@@ -53,7 +53,7 @@ class MatomoMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.queue = Queue()
-        if settings.ZDS_APP["site"].get("matomo_enabled", True):
+        if settings.ZDS_APP["site"]["matomo_tracking_enabled"]:
             self.worker = Thread(target=_background_process, args=(self.queue,))
             self.worker.setDaemon(True)
             self.worker.start()
@@ -66,7 +66,7 @@ class MatomoMiddleware:
         client_referer = request.META.get("HTTP_REFERER", "")
         client_accept_language = request.META.get("HTTP_ACCEPT_LANGUAGE", "")
         client_url = f"{request.scheme}://{request.get_host()}{request.path}"
-        if settings.ZDS_APP["site"].get("matomo_enabled", True):
+        if settings.ZDS_APP["site"]["matomo_tracking_enabled"]:
             self.queue.put(
                 {
                     "client_user_agent": client_user_agent,
@@ -95,6 +95,6 @@ class MatomoMiddleware:
         return response
 
     def __del__(self):
-        if settings.ZDS_APP["site"].get("matomo_enabled", True):
+        if settings.ZDS_APP["site"]["matomo_tracking_enabled"]:
             self.queue.put(False)
             self.worker.join(timeout=2)
