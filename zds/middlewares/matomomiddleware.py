@@ -16,7 +16,7 @@ matomo_api_version = 1
 logger = logging.getLogger(__name__)
 tracked_status_code = [200]
 tracked_methods = ["GET"]
-excluded_paths = ["/contenus", "/mp", "/munin", "/api"]
+excluded_paths = ["/contenus", "/mp", "/munin", "/api", "/static", "/media"]
 
 
 def _background_process(queue: Queue):
