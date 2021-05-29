@@ -18,9 +18,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = "tutorialv2/stats/index.html"
     form_class = ContentCompareStatsURLForm
     urls = []
-    matomo_token_auth = settings.ZDS_APP["site"]["matomoTokenAuth"]
-    matomo_api_url = "{}/index.php?token_auth={}".format(settings.ZDS_APP["site"]["matomoUrl"], matomo_token_auth)
-    matomo_site_id = settings.ZDS_APP["site"]["matomoSiteID"]
+    matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]
+    matomo_api_url = "{}/index.php?token_auth={}".format(settings.ZDS_APP["site"]["matomo_url"], matomo_token_auth)
+    matomo_site_id = settings.ZDS_APP["site"]["matomo_site_id"]
     logger = logging.getLogger(__name__)
 
     def post(self, request, *args, **kwargs):
