@@ -38,7 +38,7 @@
         </ul>
     </div>
 
-    {% if ":" in ip %}
+    {% if ":" in ip %} <!--Checks if it's an IPV6 to show the members from the same IPV6 network-->
     <p>
         {% blocktrans %}
             Liste des membres dont la dernière IP connue fait partie du bloc <code>{{ network_ip }}</code>
