@@ -480,9 +480,9 @@ Pour afficher une liste d'alertes de modération, utilisez le gabari ``misc/aler
 ``alerts``, qui doit être un itérable d'``Alert`` à afficher, ainsi que l'un ou l'autre de ces paramètres pour préciser
 vers quoi le formulaire de résolution d'alerte doit être envoyé :
 
-- ``alert_solve_url`` : un **nom** d'URL (qui doit accepter un unique paramètre ``pk`` qui sera celui de l'alerte à
+- ``alerts_solve_url`` : un **nom** d'URL (qui doit accepter un unique paramètre ``pk`` qui sera celui de l'alerte à
   résoudre et qui doit être appelable en ``POST``) ; ou
-- ``alert_solve_link`` : une URL qui sera utilisée telle quelle pour toutes les alertes, et qui doit être appelable en
+- ``alerts_solve_link`` : une URL qui sera utilisée telle quelle pour toutes les alertes, et qui doit être appelable en
   ``POST`` également.
 
 Si aucun de ces paramètres n'est renseigné, le formulaire sera envoyé en ``POST`` vers la page courante.
@@ -496,7 +496,7 @@ Le formulaire transmettra les champs suivants :
 .. sourcecode:: html+django
 
    <h2>{% trans "Signalements du profil" %}</h2>
-   {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='solve-profile-alert' %}
+   {% include "misc/alerts.part.html" with alerts=alerts alerts_solve_url='solve-profile-alert' %}
 
 .. figure:: ../images/design/alerts.png
    :align: center
