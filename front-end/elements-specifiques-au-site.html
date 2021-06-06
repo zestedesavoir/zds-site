@@ -606,9 +606,9 @@ pour ce cas d’usage (retirant les parenthèses autour du bloc info).</p>
 <code class="docutils literal notranslate"><span class="pre">alerts</span></code>, qui doit être un itérable d”<code class="docutils literal notranslate"><span class="pre">Alert</span></code> à afficher, ainsi que l’un ou l’autre de ces paramètres pour préciser
 vers quoi le formulaire de résolution d’alerte doit être envoyé :</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">alert_solve_url</span></code> : un <strong>nom</strong> d’URL (qui doit accepter un unique paramètre <code class="docutils literal notranslate"><span class="pre">pk</span></code> qui sera celui de l’alerte à
+<li><p><code class="docutils literal notranslate"><span class="pre">alerts_solve_url</span></code> : un <strong>nom</strong> d’URL (qui doit accepter un unique paramètre <code class="docutils literal notranslate"><span class="pre">pk</span></code> qui sera celui de l’alerte à
 résoudre et qui doit être appelable en <code class="docutils literal notranslate"><span class="pre">POST</span></code>) ; ou</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">alert_solve_link</span></code> : une URL qui sera utilisée telle quelle pour toutes les alertes, et qui doit être appelable en
+<li><p><code class="docutils literal notranslate"><span class="pre">alerts_solve_link</span></code> : une URL qui sera utilisée telle quelle pour toutes les alertes, et qui doit être appelable en
 <code class="docutils literal notranslate"><span class="pre">POST</span></code> également.</p></li>
 </ul>
 <p>Si aucun de ces paramètres n’est renseigné, le formulaire sera envoyé en <code class="docutils literal notranslate"><span class="pre">POST</span></code> vers la page courante.</p>
@@ -619,7 +619,7 @@ résoudre et qui doit être appelable en <code class="docutils literal notransla
 a été ouverte automatiquement).</p></li>
 </ul>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span><span class="cp">{%</span> <span class="k">trans</span> <span class="s2">&quot;Signalements du profil&quot;</span> <span class="cp">%}</span><span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
-<span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/alerts.part.html&quot;</span> <span class="k">with</span> <span class="nv">alerts</span><span class="o">=</span><span class="nv">alerts</span> <span class="nv">alert_solve_url</span><span class="o">=</span><span class="s1">&#39;solve-profile-alert&#39;</span> <span class="cp">%}</span>
+<span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;misc/alerts.part.html&quot;</span> <span class="k">with</span> <span class="nv">alerts</span><span class="o">=</span><span class="nv">alerts</span> <span class="nv">alerts_solve_url</span><span class="o">=</span><span class="s1">&#39;solve-profile-alert&#39;</span> <span class="cp">%}</span>
 </pre></div>
 </div>
 <div class="figure align-center">
