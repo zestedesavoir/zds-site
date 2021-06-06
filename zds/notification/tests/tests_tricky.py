@@ -48,7 +48,6 @@ class ForumNotification(TestCase):
         self.forum12.save()
 
     def test_ping_unknown(self):
-        overridden_zds_app["comment"]["enable_pings"] = True
         self.client.force_login(self.user2)
         result = self.client.post(
             reverse("topic-new") + f"?forum={self.forum11.pk}",
@@ -66,7 +65,6 @@ class ForumNotification(TestCase):
         )
 
     def test_no_auto_ping(self):
-        overridden_zds_app["comment"]["enable_pings"] = True
         self.client.force_login(self.user2)
         result = self.client.post(
             reverse("topic-new") + f"?forum={self.forum11.pk}",
@@ -85,7 +83,6 @@ class ForumNotification(TestCase):
 
     def test_edit_with_more_than_max_ping(self):
         overridden_zds_app["comment"]["max_pings"] = 2
-        overridden_zds_app["comment"]["enable_pings"] = True
         pinged_users = [ProfileFactory(), ProfileFactory(), ProfileFactory(), ProfileFactory()]
         self.client.force_login(self.user2)
         self.client.post(
@@ -123,7 +120,6 @@ class ForumNotification(TestCase):
         """
         to be more accurate : on edition, only ping **new** members
         """
-        overridden_zds_app["comment"]["enable_pings"] = True
         self.client.force_login(self.user2)
         result = self.client.post(
             reverse("topic-new") + f"?forum={self.forum11.pk}",
@@ -175,7 +171,6 @@ class ForumNotification(TestCase):
         """
         to be more accurate : on edition, only ping **new** members
         """
-        overridden_zds_app["comment"]["enable_pings"] = True
         self.client.force_login(self.user2)
         result = self.client.post(
             reverse("topic-new") + f"?forum={self.forum11.pk}",

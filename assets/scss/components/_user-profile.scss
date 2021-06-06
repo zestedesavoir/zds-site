@@ -1,3 +1,5 @@
+@use "sass:math";
+
 body.userprofilepage {
     .flexpage-title-tool .actions button.is-following,
     .flexpage-title-tool .actions button.is-following[disabled] {
@@ -308,7 +310,7 @@ html.js body.userprofilepage .user-bio-and-activity .bio-container {
             );
 
             p {
-                padding-top: $biography-overflow-link-height * (3/4);
+                padding-top: $biography-overflow-link-height * math.div(3, 4);
                 text-align: center;
 
                 font-size: $font-size-8;

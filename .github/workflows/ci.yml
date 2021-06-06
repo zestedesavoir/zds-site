@@ -7,6 +7,7 @@ env:
   PYTHON_VERSION: "3.7"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "2.2.0"
+  BLACK_VERSION: "21.4b1"
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
@@ -32,7 +33,7 @@ jobs:
           python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Install python dependencies
-        run: pip install black
+        run: pip install black==${{ env.BLACK_VERSION }}
 
       - name: Lint back-end
         run: make lint-back

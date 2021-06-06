@@ -66,8 +66,10 @@ ZDS_APP = {
         "sur lequel vous trouverez des tutoriels de tous niveaux, "
         "des articles et des forums d’entraide animés par et pour "
         "la communauté.",
-        "googleAnalyticsID": zds_config.get("google_analytics_id"),
-        "googleTagManagerID": zds_config.get("google_tag_manager_id"),
+        "matomo_tracking_enabled": zds_config.get("matomo_tracking_enabled", False),
+        "matomo_site_id": zds_config.get("matomo_site_id", 4),
+        "matomo_url": zds_config.get("matomo_url", "https://matomo.zestedesavoir.com"),
+        "matomo_token_auth": zds_config.get("matomo_token_auth", ""),
         "association": {
             "name": "Zeste de Savoir",
             "fee": zds_config.get("association_fee", "20 €"),
@@ -207,8 +209,6 @@ ZDS_APP = {
     },
     "comment": {
         "max_pings": 15,
-        # allow to mention (and notify) members in messages
-        "enable_pings": True,
     },
     "featured_resource": {
         "featured_per_page": 100,
