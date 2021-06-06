@@ -331,7 +331,7 @@
         </div>
 
         {% if perms_change %}
-            {% include "misc/alerts.part.html" with alerts=message.alerts_on_this_comment.all alert_solve_link=alert_solve_link %}
+            {% include "misc/alerts.part.html" with alerts=message.alerts_on_this_comment.all alerts_solve_link=alerts_solve_link %}
         {% endif %}
 
         <div class="message-bottom">
