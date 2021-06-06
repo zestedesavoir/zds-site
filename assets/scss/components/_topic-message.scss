@@ -1,3 +1,5 @@
+$message-arrow-width: 20px;
+
 div.msg-are-hidden {
     position: relative;
     z-index: 1;
@@ -43,8 +45,8 @@ div.msg-are-hidden {
                 background: $grey-000;
             }
 
-            &:after {
-                border-right-color: $grey-000;
+            &::after {
+               background-color: $grey-000;
             }
         }
     }
@@ -56,8 +58,8 @@ div.msg-are-hidden {
                 background: $color-helpful;
             }
 
-            &:after {
-                border-right-color: $color-helpful;
+            &::after {
+                background-color: $color-helpful;
             }
         }
         &.repeated {
@@ -77,8 +79,8 @@ div.msg-are-hidden {
                 background: $color-potential-spam;
             }
 
-            &:after {
-                border-right-color: $color-potential-spam;
+            &::after {
+                background-color: $color-potential-spam;
             }
         }
         &.repeated {
@@ -97,8 +99,8 @@ div.msg-are-hidden {
             .is-author {
                 background: $grey-100;
             }
-            &:after {
-                border-right-color: $grey-100;
+            &::after {
+                background-color: $grey-100;
             }
 
             // Messages like “this reply was useful” are not displayed for hidden messages.
@@ -121,25 +123,6 @@ div.msg-are-hidden {
         }
     }
 
-    @include desktop {
-        .user,
-        .message {
-            &:after {
-                content: " ";
-
-                position: absolute;
-                top: $length-10;
-
-                display: block;
-                width: 0;
-                height: 0;
-
-                border: $length-20 solid transparent;
-                border-left: 0;
-            }
-        }
-    }
-
     .user {
         @include until-desktop {
             display: none;
@@ -153,13 +136,6 @@ div.msg-are-hidden {
             left: 0;
 
             padding-top: $length-48;
-
-            &:after {
-                top: $length-4;
-                left: $length-48;
-
-                border-right-color: $grey-200;
-            }
         }
 
         .avatar-link {
@@ -247,12 +223,30 @@ div.msg-are-hidden {
             // Avatar' size + arrow' size
             margin-left: $length-48 + $length-20;
 
-            &:after {
-                // Arrow alignment, must be exact
-                top: 9px;
-                left: -19px;
+            &::before,
+            &::after {
+                content: " ";
 
-                border-right-color: $true-white;
+                position: absolute;
+                right: 100%;
+                box-sizing: border-box;
+
+                display: block;
+
+                clip-path: polygon(100% 0, 0 50%, 100% 100%);
+            }
+            &::before {
+                top: 10px;
+                width: #{$message-arrow-width};
+                height: #{($message-arrow-width) * 2};
+                background-color: $grey-200;
+            }
+            &::after {
+                // Arrow alignment, must be exact
+                top: 11px;
+                width: #{$message-arrow-width - 1px};
+                height: #{($message-arrow-width) * 2 - 2px};
+                background-color: $true-white;
             }
         }
 
@@ -498,7 +492,7 @@ div.msg-are-hidden {
                         &:first-child {
                             padding-right: 0;
 
-                            &:after {
+                            &::after {
                                 display: none;
                             }
                         }
@@ -547,7 +541,7 @@ div.msg-are-hidden {
                 &.ico-after {
                     text-indent: $length-20;
 
-                    &:after {
+                    &::after {
                         margin: $length-2 0;
                     }
                 }
@@ -560,7 +554,7 @@ div.msg-are-hidden {
                     color: $grey-500;
                 }
 
-                &:after {
+                &::after {
                     opacity: .5;
                 }
             }
@@ -757,7 +751,7 @@ div.msg-are-hidden {
                     transition-property: opacity, border;
 
                     &.voted:hover {
-                        &:after {
+                        &::after {
                             opacity: .5;
                         }
                     }
@@ -765,10 +759,10 @@ div.msg-are-hidden {
 
                 .upvote,
                 .downvote {
-                    &:after {
+                    &::after {
                         left: $length-10;
                     }
-                    &.voted:after {
+                    &.voted::after {
                         opacity: 1;
                     }
 
@@ -818,7 +812,7 @@ div.msg-are-hidden {
                     &.active {
                         color: $green-800;
 
-                        &:after {
+                        &::after {
                             opacity: 1;
                         }
                     }
@@ -858,7 +852,7 @@ div.msg-are-hidden {
                     line-height: 2.3;
                 }
 
-                &:after {
+                &::after {
                     top: $length-8;
                     left: $length-8;
                     opacity: .5;
@@ -898,7 +892,7 @@ div.msg-are-hidden {
                     transition-timing-function: ease;
                     transition-duration: $transition-duration;
 
-                    &:after {
+                    &::after {
                         opacity: 1;
                     }
                 }

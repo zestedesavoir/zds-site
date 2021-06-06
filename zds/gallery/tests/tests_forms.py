@@ -15,7 +15,7 @@ class GalleryFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_invalid_gallery_form_empty_title(self):
-        """ Test when title contains only whitespace """
+        """Test when title contains only whitespace"""
         data = {"title": " ", "subtitle": "Test Subtitle"}
         form = GalleryForm(data=data)
 

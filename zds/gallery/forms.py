@@ -210,7 +210,7 @@ class ArchiveImageForm(forms.Form):
 
 class ImageAsAvatarForm(forms.Form):
 
-    """"Form to add current image as avatar"""
+    """Form to add current image as avatar"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -28,21 +28,21 @@ class TopicFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_invalid_topic_form_missing_title(self):
-        """ Test when title is missing """
+        """Test when title is missing"""
         data = {"subtitle": "Test Topic Subtitle", "tags": "test,topic,tags", "text": "Test Topic Text"}
         form = TopicForm(data=data)
 
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_empty_title(self):
-        """ Test when title contains only whitespace """
+        """Test when title contains only whitespace"""
         data = {"title": " ", "subtitle": "Test Topic Subtitle", "tags": "test,topic,tags", "text": "Test Topic Text"}
         form = TopicForm(data=data)
 
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_missing_text(self):
-        """ Test when text is missing """
+        """Test when text is missing"""
         data = {
             "title": "Test Topic Title",
             "subtitle": "Test Topic Subtitle",
@@ -53,14 +53,14 @@ class TopicFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_empty_text(self):
-        """ Test when text contains only whitespace """
+        """Test when text contains only whitespace"""
         data = {"title": "Test Topic Title", "subtitle": "Test Topic Subtitle", "tags": "test,topic,tags", "text": " "}
         form = TopicForm(data=data)
 
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_text_too_long(self):
-        """ Test when text runs over the length limit """
+        """Test when text runs over the length limit"""
         data = {
             "title": "Test Topic Title",
             "subtitle": "Test Topic Subtitle",
@@ -83,7 +83,7 @@ class PostFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_invalid_post_form_missing_text(self):
-        """ Test when text is missing """
+        """Test when text is missing"""
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
@@ -93,7 +93,7 @@ class PostFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_post_form_empty_text(self):
-        """ Test when text contains only whitespace """
+        """Test when text contains only whitespace"""
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
@@ -103,7 +103,7 @@ class PostFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_post_form_text_too_long(self):
-        """ Test when text runs over the length limit """
+        """Test when text runs over the length limit"""
         profile = ProfileFactory()
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)

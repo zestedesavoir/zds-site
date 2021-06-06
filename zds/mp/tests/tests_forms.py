@@ -16,7 +16,7 @@ class PrivateTopicFormTest(TestCase):
         bot.save()
 
     def test_valid_topic_form(self):
-        """  Reference valid case """
+        """Reference valid case"""
         data = {
             "participants": self.profile1.user.username + "," + self.staff1.user.username,
             "title": "Test title",
@@ -27,7 +27,7 @@ class PrivateTopicFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_invalid_topic_form_user_notexist(self):
-        """ Case when we write to non-existing member """
+        """Case when we write to non-existing member"""
         data = {
             "participants": self.profile2.user.username + ", toto, tata",
             "title": "Test title",
@@ -38,25 +38,25 @@ class PrivateTopicFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_no_participants(self):
-        """ Case when we write to no-one """
+        """Case when we write to no-one"""
         data = {"title": "Test title", "subtitle": "Test subtitle", "text": "blabla"}
         form = PrivateTopicForm(self.profile1.user.username, data=data)
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_empty_participants(self):
-        """ Case when we write to an empty list (spaces) """
+        """Case when we write to an empty list (spaces)"""
         data = {"participants": " ", "title": "Test title", "subtitle": "Test subtitle", "text": "blabla"}
         form = PrivateTopicForm(self.profile1.user.username, data=data)
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_no_title(self):
-        """ Case when title is absent """
+        """Case when title is absent"""
         data = {"participants": self.profile2.user.username, "subtitle": "Test subtitle", "text": "blabla"}
         form = PrivateTopicForm(self.profile1.user.username, data=data)
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_empty_title(self):
-        """ Case when title is spaces only """
+        """Case when title is spaces only"""
         data = {
             "participants": self.profile2.user.username,
             "title": " ",
@@ -67,7 +67,7 @@ class PrivateTopicFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_no_text(self):
-        """ Case when there is no text """
+        """Case when there is no text"""
         data = {
             "participants": self.profile2.user.username,
             "title": "Test title",
@@ -77,7 +77,7 @@ class PrivateTopicFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_empty_text(self):
-        """ Case when there is no text (spaces) """
+        """Case when there is no text (spaces)"""
         data = {
             "participants": self.profile2.user.username,
             "title": "Test title",
@@ -88,7 +88,7 @@ class PrivateTopicFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_self_message(self):
-        """ Case when the sender is in the receiver list """
+        """Case when the sender is in the receiver list"""
         data = {
             "participants": self.profile1.user.username,
             "title": "Test title",
@@ -99,7 +99,7 @@ class PrivateTopicFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_self_message_2(self):
-        """ Same as above but with case difference"""
+        """Same as above but with case difference"""
         data = {
             "participants": self.profile1.user.username.upper(),
             "title": "Test title",
@@ -110,7 +110,7 @@ class PrivateTopicFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
     def test_invalid_topic_form_comma(self):
-        """ Cas when participants is only a comma """
+        """Cas when participants is only a comma"""
         data = {"participants": ",", "title": "Test title", "subtitle": "Test subtitle", "text": "Test text"}
         form = PrivateTopicForm(self.profile1.user.username, data=data)
         self.assertFalse(form.is_valid())

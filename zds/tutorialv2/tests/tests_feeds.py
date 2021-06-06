@@ -83,7 +83,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.tutofeed = LastTutorialsFeedRSS()
 
     def test_is_well_setup(self):
-        """ Test that base parameters are Ok """
+        """Test that base parameters are Ok"""
 
         self.assertEqual(self.tutofeed.link, "/tutoriels/")
         reftitle = "Tutoriels sur {}".format(overridden_zds_app["site"]["literal_name"])
@@ -95,13 +95,13 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(atom.subtitle, refdescription)
 
     def test_get_items(self):
-        """ basic test sending back the tutorial """
+        """basic test sending back the tutorial"""
 
         ret = list(self.tutofeed.items())
         self.assertEqual(ret[0].content, self.tuto)
 
     def test_get_pubdate(self):
-        """ test the return value of pubdate """
+        """test the return value of pubdate"""
 
         ref = PublishedContent.objects.get(content__pk=self.tuto.pk).publication_date
         tuto = list(self.tutofeed.items())[0]
@@ -109,7 +109,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
-        """ test the return value of title """
+        """test the return value of title"""
 
         ref = self.tuto.title
         tuto = list(self.tutofeed.items())[0]
@@ -117,7 +117,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_description(self):
-        """ test the return value of description """
+        """test the return value of description"""
 
         ref = self.tuto.description
         tuto = list(self.tutofeed.items())[0]
@@ -125,7 +125,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_author_name(self):
-        """ test the return value of author name """
+        """test the return value of author name"""
 
         ref = self.user_author.username
         tuto = list(self.tutofeed.items())[0]
@@ -133,7 +133,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_item_link(self):
-        """ test the return value of item link """
+        """test the return value of item link"""
 
         ref = self.tuto.get_absolute_url_online()
         tuto = list(self.tutofeed.items())[0]
@@ -141,7 +141,7 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_filters(self):
-        """ Test filtering by category & tag """
+        """Test filtering by category & tag"""
         subcategory2 = SubCategoryFactory()
         subcategory3 = SubCategoryFactory()
         tag2 = TagFactory()
@@ -266,7 +266,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.articlefeed = LastArticlesFeedRSS()
 
     def test_is_well_setup(self):
-        """ Test that base parameters are Ok """
+        """Test that base parameters are Ok"""
 
         self.assertEqual(self.articlefeed.link, "/articles/")
         reftitle = "Articles sur {}".format(overridden_zds_app["site"]["literal_name"])
@@ -278,13 +278,13 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(atom.subtitle, refdescription)
 
     def test_get_items(self):
-        """ basic test sending back the article """
+        """basic test sending back the article"""
 
         ret = list(self.articlefeed.items())
         self.assertEqual(ret[0].content, self.article)
 
     def test_get_pubdate(self):
-        """ test the return value of pubdate """
+        """test the return value of pubdate"""
 
         ref = PublishedContent.objects.get(content__pk=self.article.pk).publication_date
         article = list(self.articlefeed.items())[0]
@@ -292,7 +292,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret.date(), ref.date())
 
     def test_get_title(self):
-        """ test the return value of title """
+        """test the return value of title"""
 
         ref = self.article.title
         article = list(self.articlefeed.items())[0]
@@ -300,7 +300,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_description(self):
-        """ test the return value of description """
+        """test the return value of description"""
 
         ref = self.article.description
         article = list(self.articlefeed.items())[0]
@@ -308,7 +308,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_author_name(self):
-        """ test the return value of author name """
+        """test the return value of author name"""
 
         ref = self.user_author.username
         article = list(self.articlefeed.items())[0]
@@ -316,7 +316,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_get_item_link(self):
-        """ test the return value of item link """
+        """test the return value of item link"""
 
         ref = self.article.get_absolute_url_online()
         article = list(self.articlefeed.items())[0]
@@ -324,7 +324,7 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
         self.assertEqual(ret, ref)
 
     def test_filters(self):
-        """ Test filtering by category & tag """
+        """Test filtering by category & tag"""
         subcategory2 = SubCategoryFactory()
         subcategory3 = SubCategoryFactory()
         tag2 = TagFactory()
