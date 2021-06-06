@@ -37,6 +37,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         logger.error(f"kwargs: {kwargs!r}")
 
     inline = kwargs.get("inline", False) is True
+    full_json = kwargs.pop("full_json", False)
 
     if settings.ZDS_APP["zmd"]["disable_pings"] is True:
         kwargs["disable_ping"] = True
@@ -45,14 +46,17 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
 
     try:
         timeout = 10
-        if output_format.startswith("tex"):
+        real_input = str(md_input)
+        if output_format.startswith("tex") or full_json:
             # latex may be really long to generate but it is also restrained by server configuration
             timeout = 120
+            # use manifest renderer
+            real_input = md_input
         response = post(
             "{}{}".format(settings.ZDS_APP["zmd"]["server"], endpoint),
             json={
                 "opts": kwargs,
-                "md": str(md_input),
+                "md": real_input,
             },
             timeout=timeout,
         )
@@ -74,9 +78,12 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         logger.debug("Result %s, %s, %s", content, metadata, messages)
         if messages:
             logger.error("Markdown errors %s", json.dumps(messages))
-        content = content.strip()
+        if isinstance(content, str):
+            content = content.strip()
         if inline:
             content = content.replace("</p>\n", "\n\n").replace("\n<p>", "\n")
+        if full_json:
+            return content, metadata, messages
         return mark_safe(content), metadata, messages
     except:  # noqa
         logger.exception("Unexpected exception raised")
@@ -155,13 +162,12 @@ def emarkdown(md_input, use_jsfiddle="", **kwargs):
     :rtype: str
     """
     disable_jsfiddle = use_jsfiddle != "js"
-
     content, metadata, messages = render_markdown(
         md_input,
         on_error=lambda m: logger.error("Markdown errors %s", str(m)),
         **dict(kwargs, disable_jsfiddle=disable_jsfiddle),
     )
-
+    kwargs.get("metadata", {}).update(metadata)
     return content or ""
 
 

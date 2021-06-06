@@ -1,3 +1,7 @@
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import ignore_logger
+import sentry_sdk
+
 from .abstract_base import *
 
 # For secrets, prefer `config[key]` over `config.get(key)` in this
@@ -27,11 +31,6 @@ DATABASES = {
         },
     },
 }
-
-INSTALLED_APPS += (
-    # Sentry client (errors reporting)
-    "raven.contrib.django.raven_compat",
-)
 
 ALLOWED_HOSTS = [
     "beta.zestedesavoir.com",
@@ -87,35 +86,27 @@ def _get_version():
         return "{}/{}".format(__version__, git_version[:7])
 
 
-# Sentry (+ raven, the Python Client)
-# https://docs.getsentry.com/hosted/clients/python/integrations/django/
-RAVEN_CONFIG = {
-    "dsn": config["raven"]["dsn"],
-    "release": _get_version(),
-}
+sentry_sdk.init(
+    dsn=config["sentry"]["dsn"],
+    integrations=[DjangoIntegration()],
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production,
+    traces_sample_rate=1.0,
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True,
+    # By default the SDK will try to use the SENTRY_RELEASE
+    # environment variable, or infer a git commit
+    # SHA as release, however you may want to set
+    # something more human-readable.
+    release=_get_version().replace("/", "#"),
+    # /!\ It cannot contain slashes
+    environment=config["sentry"]["environment"],
+)
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": True,
-    "handlers": {
-        "sentry": {
-            "level": "WARNING",
-            "class": "raven.handlers.logging.SentryHandler",
-            "dsn": RAVEN_CONFIG["dsn"],
-        },
-    },
-    "loggers": {
-        "zds": {
-            "handlers": ["sentry"],
-            "propagate": True,
-            "level": "DEBUG",
-        },
-        "zds.utils.templatetags.emarkdown": {
-            "propagate": False,
-            "level": "NOTSET",
-        },
-    },
-}
+# Ignoring emarkdown logging because it is too noisy
+ignore_logger("zds.utils.templatetags.emarkdown")
 
 
 ###############################################################################
@@ -163,10 +154,6 @@ ZDS_APP["article"]["repo_path"] = "/opt/zds/data/articles-data"
 ZDS_APP["content"]["repo_private_path"] = "/opt/zds/data/contents-private"
 ZDS_APP["content"]["repo_public_path"] = "/opt/zds/data/contents-public"
 ZDS_APP["content"]["extra_content_generation_policy"] = "WATCHDOG"
-
-# allow to mention (and notify) members in messages
-# still a beta feature, keep it disabled for the time being
-ZDS_APP["comment"]["enable_pings"] = False
 
 ZDS_APP["visual_changes"] = zds_config.get("visual_changes", [])
 
