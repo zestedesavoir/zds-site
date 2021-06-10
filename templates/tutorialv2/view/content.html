@@ -181,6 +181,13 @@
         {% include "tutorialv2/includes/sidebar/contributors_management.part.html" %}
     {% endif %}
 
+    {% if display_config.draft_actions.show_shareable_link_management %}
+        <li>
+            {% url "content:import" content.pk content.slug as import_url %}
+            <a href="{% url "content:list-shareable-links" content.pk %}" class="ico-after gear blue">{% trans "Gérer les liens de partage" %}</a>
+        </li>
+    {% endif %}
+
 {% endblock %}
 
 
