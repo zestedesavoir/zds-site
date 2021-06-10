@@ -1,0 +1,98 @@
+{% extends "tutorialv2/base.html" %}
+{% load set %}
+{% load thumbnail %}
+{%  load emarkdown %}
+{% load i18n %}
+{% load times %}
+{% load feminize %}
+{% load pluralize_fr %}
+
+{% block title %}
+    {{ container.title }} - {{ content.title }}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+
+    {%  if container.parent.parent %}
+        <li>
+            <a href="{{ container.parent.parent.get_absolute_url }}">{{ container.parent.parent.title }}</a>
+        </li>
+    {% endif %}
+
+    {%  if container.parent %}
+        <li>
+            <a href="{{ container.parent.get_absolute_url }}">{{ container.parent.title }}</a>
+        </li>
+    {% endif %}
+
+    <li>{{ container.title }}</li>
+
+{% endblock %}
+
+
+{% block headline %}
+
+    {% if content.licence %}
+        <p class="license">{{ content.licence }}</p>
+    {% endif %}
+
+    <h1>{{ container.title }}</h1>
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' with publishablecontent=content online=False %}
+
+{% endblock %}
+
+
+{% block content %}
+
+    {% include "tutorialv2/includes/chapter_pager.part.html" with position="top" %}
+
+    {% if container.introduction and container.get_introduction %}
+        {{ container.get_introduction|emarkdown:is_js }}
+    {% endif %}
+
+     {% if container.has_extracts %}
+        <ul>
+            {% for extract in container.children %}
+                <li>
+                    <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
+                        {{ extract.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% for child in container.children %}
+        {%  include "tutorialv2/includes/shared_content_child.html" with child=child %}
+    {% empty %}
+        {% if not container.is_chapter %}
+            <div class="ico-after warning">
+                <p>
+                    {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est actuellement vide." %}
+                </p>
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <hr />
+
+    {% if container.conclusion and container.get_conclusion %}
+        {{ container.get_conclusion|emarkdown }}
+    {% endif %}
+
+    {% include "tutorialv2/includes/chapter_pager.part.html" with position="bottom" %}
+
+    {% if content.is_beta and container.has_extracts %}
+        {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
+    {% endif %}
+{% endblock %}
+
+
+{% block sidebar_blocks %}
+
+    {%   include "tutorialv2/includes/summary.part.html" with current_container=container %}
+
+{% endblock %}

@@ -18,6 +18,15 @@ from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
 from zds.tutorialv2.views.licence import EditContentLicense
+from zds.tutorialv2.views.shared_content import DisplaySharedContent, DisplaySharedContainer
+from zds.tutorialv2.views.shareable_links import (
+    ListShareableLinks,
+    CreateShareableLink,
+    DeactivateShareableLink,
+    EditShareableLink,
+    ReactivateShareableLink,
+    DeleteShareableLink,
+)
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -265,5 +274,23 @@ urlpatterns = (
         # Label-based classification
         path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
         path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
+        # Shareable links
+        path("partage/gerer/<int:pk>/", ListShareableLinks.as_view(), name="list-shareable-links"),
+        path("partage/creer/<int:pk>/", CreateShareableLink.as_view(), name="create-shareable-link"),
+        path("partage/modifier/<slug:id>/", EditShareableLink.as_view(), name="edit-shareable-link"),
+        path("partage/desactiver/<slug:id>/", DeactivateShareableLink.as_view(), name="deactivate-shareable-link"),
+        path("partage/reactiver/<slug:id>/", ReactivateShareableLink.as_view(), name="reactivate-shareable-link"),
+        path("partage/supprimer/<slug:id>/", DeleteShareableLink.as_view(), name="delete-shareable-link"),
+        path("partage/<slug:id>/", DisplaySharedContent.as_view(), name="shareable-link"),
+        path(
+            "partage/<slug:id>/<slug:parent_container_slug>/<slug:container_slug>/",
+            DisplaySharedContainer.as_view(),
+            name="shareable-link-container",
+        ),
+        path(
+            "partage/<slug:id>/<slug:container_slug>/",
+            DisplaySharedContainer.as_view(),
+            name="shareable-link-container",
+        ),
     ]
 )

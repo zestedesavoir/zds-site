@@ -62,3 +62,8 @@ STATUS_CHOICES = (
     ("REJECT", _("Rejeté")),
     ("CANCEL", _("Annulé")),
 )
+
+SHAREABLE_LINK_TYPES = (
+    ("DRAFT", _("Lien vers le dernier brouillon")),
+    ("BETA", _("Lien vers la dernière bêta")),
+)

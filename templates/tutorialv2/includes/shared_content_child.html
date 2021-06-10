@@ -1,0 +1,63 @@
+{% load emarkdown %}
+{% load i18n %}
+{% load times %}
+{% load target_tree %}
+
+{% if not hide_title %}
+    <h2 id="{{ child.position_in_parent }}-{{ child.slug }}">
+        <a href="{{ child.get_relative_url }}">
+            {{ child.title }}
+        </a>
+    </h2>
+{% endif %}
+{% if child.text %}
+    {# child is an extract #}
+    {% if child.get_text.strip|length == 0 %}
+        <p class="ico-after warning">
+            {% trans "Cette section est actuellement vide." %}
+        </p>
+    {% else %}
+        <div class="extract-wrapper">
+            {{ child.get_text|emarkdown }}
+        </div>
+    {% endif %}
+{% else %}
+    {# child is a container #}
+
+    {% if child.has_extracts %}
+        <ol>
+            {% for extract in child.children %}
+                <li>
+                    <a href="{{ extract.container.get_relative_url }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                </li>
+            {% endfor %}
+        </ol>
+    {%  elif child.has_sub_containers %}
+        <ol class="summary-part">
+            {% for subchild in child.children %}
+            <li>
+                <h3>
+                    <a
+                        href="{{ subchild.get_relative_url }}"
+
+                    >{{ subchild.title }}</a>
+                </h3>
+                <ol class="summary-part">
+                    {% for extract in subchild.children %}
+                        <li>
+                            <h4>
+                                <a href="{{ extract.container.get_relative_url }}#{{ extract.position_in_parent }}-{{ extract.slug }}">{{ extract.title }}</a>
+                            </h4>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+{% endif %}
+
+
+{% if not child.has_sub_containers %}
+    </li>
+{% endif %}

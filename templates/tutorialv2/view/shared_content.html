@@ -1,0 +1,97 @@
+{% extends "tutorialv2/base_online.html" %}
+{% load i18n %}
+{% load captureas %}
+
+{% block title %}
+    {{ content.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{{ content.title }}</li>
+{% endblock %}
+
+{% block headline %}
+    {% if content.licence %}
+        <span class="license" itemprop="license">
+            {{ content.licence }}
+        </span>
+    {% endif %}
+
+    <h1 {% if content.image %}class="illu"{% endif %} itemprop="name">
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
+        {% endif %}
+        {{ content.title }}
+    </h1>
+
+    {% if content.description %}
+        <h2 class="subtitle" itemprop="description">
+            {{ content.description }}
+        </h2>
+    {% endif %}
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' with publishablecontent=content online=False %}
+    {% if content.is_opinion %}
+        {% if content.converted_to %}
+            {% if content.converted_to.get_absolute_url_online %}
+                <div class="alert-box info">
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url_online %}
+                        Ce billet a été promu en <a href="{{ url_article }}">article</a>.
+                    {% endblocktrans %}
+                </div>
+            {% elif is_staff %}
+                <div class="alert-box info">
+                    {% blocktrans with url_article=content.converted_to.get_absolute_url %}
+                        Ce billet a fait l’objet d’une demande de publication <a href="{{ url_article }}">en tant qu’article</a>. Il est donc présent dans la zone de validation en attente de prise en charge par un validateur.
+                    {% endblocktrans %}
+                </div>
+            {% endif %}
+        {% endif %}
+    {% endif %}
+
+{% endblock %}
+
+{% block content %}
+
+    {% captureas content_pager %}
+        {% include "tutorialv2/includes/content_pager.part.html" with content=content %}
+    {% endcaptureas %}
+
+    {{ content_pager }}
+
+    {% if content.has_extracts %}
+        {{ content.get_content_online|safe }}
+    {% else %}
+        {% if content.introduction %}
+            {{ content.get_introduction|default:""|safe }}
+        {% endif %}
+
+        {% if not content.has_sub_containers %}
+            <ol class="summary-part">
+        {% endif %}
+
+        {% captureas url %}
+            {% url "content:shareable-link" link.id %}
+        {% endcaptureas %}
+
+        {% for child in content.children %}
+            {%  include "tutorialv2/includes/shared_content_child.html" with url=url child=child %}
+        {% endfor %}
+
+        {% if not content.has_sub_containers %}
+            </ol>
+        {% endif %}
+
+        <hr class="clearfix" />
+        <hr />
+
+        {% if content.conclusion %}
+            {{ content.get_conclusion_online|default:""|safe }}
+        {% endif %}
+
+    {% endif %}
+    {{ content_pager }}
+    {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
+    {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
+
+{% endblock %}
