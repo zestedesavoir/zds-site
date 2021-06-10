@@ -1,0 +1,76 @@
+{% load i18n %}
+
+<li class="shareable-link">
+    <h3>{{ link.description }}</h3>
+    <input value="{{ link.full_url }}" />
+    <p>
+        {% if link.type == "DRAFT" %}
+            {% trans "Lien vers <em>le dernier brouillon</em>" %}
+        {% elif link.type == "BETA" %}
+            {% trans "Lien vers <em>la dernière bêta</em>" %}
+        {% else %}
+            {% trans "Lien de <em>type inconnu</em>" %}
+        {% endif %}
+    </p>
+    <p>
+        <p>
+            {% if link.expiration and link.expired %}
+                {% blocktrans with date=link.expiration %}
+                    Lien <em>expiré</em> depuis le {{ date }}
+                {% endblocktrans %}
+            {% elif link.expiration and not link.expired %}
+                {% blocktrans with date=link.expiration %}
+                    Valide <em>jusqu'au {{ date }}</em>
+                {% endblocktrans %}
+            {% else %}
+                {% trans "Valide <em>indéfiniment</em>" %}
+            {% endif %}
+        </p>
+    </p>
+    <a href="#edit-shareable-link-{{ link.id }}" class="open-modal">
+        {% trans "Modifier" %}
+    </a>
+
+    <form
+        action="{% url 'content:edit-shareable-link' link.id %}"
+        method="post"
+        id="edit-shareable-link-{{ link.id }}"
+        class="modal modal-flex">
+        {% csrf_token %}
+        {{ edit_form.as_p }}
+        <button type="submit" class="btn-submit">{% trans "Modifier" %}</button>
+    </form>
+
+
+    <a href="#delete-shareable-link-{{ link.id }}" class="open-modal">
+        {% trans "Supprimer" %}
+    </a>
+
+    <form
+        action="{% url 'content:delete-shareable-link' link.id %}"
+        method="post"
+        id="delete-shareable-link-{{ link.id }}"
+        class="modal modal-flex">
+        {% csrf_token %}
+        <p>
+        {% blocktrans %}
+            <b>Attention, ce lien sera supprimé définitivement.</b>
+               Vous ne pourrez pas le récupérer.
+               Si vous souhaitez réutiliser ce lien plus tard, désactivez-le.
+        {% endblocktrans %}
+        </p>
+        <button type="submit" class="btn-submit">{% trans "Supprimer" %}</button>
+    </form>
+
+    {% if section == "active" or section == "expired" %}
+        <form action="{% url 'content:deactivate-shareable-link' link.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-cancel">{% trans "Désactiver" %}</button>
+        </form>
+    {% else %}
+        <form action="{% url 'content:reactivate-shareable-link' link.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-submit">{% trans "Réactiver" %}</button>
+        </form>
+    {% endif %}
+</li>
