@@ -58,25 +58,32 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online(), 2))
         return urls
 
-    def get_all_refs(self, url, start, end, method):
+    def get_all_refs(self, urls, start, end, method):
         date_ranges = "{},{}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
-        absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
-        param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
+        data_request = {"module": "API", "method": "API.getBulkRequest", "format": "json"}
 
-        data_request = {
-            "module": "API",
-            "method": method,
-            "format": "json",
-            "idSite": self.matomo_site_id,
-            "date": date_ranges,
-            "period": "day",
-            "segment": ",".join([param_url]),
-        }
+        for index, url in enumerate(urls):
+            absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
+            param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
+
+            data_request.update(
+                {
+                    f"urls[{index}]": urllib.parse.urlencode(
+                        {
+                            "method": method,
+                            "idSite": self.matomo_site_id,
+                            "date": date_ranges,
+                            "period": "day",
+                            "segment": ",".join([param_url]),
+                        }
+                    )
+                }
+            )
 
         try:
             response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
             data = response_matomo.json()
-            if data.get("result", "") == "error":
+            if type(data) == dict and data.get("result", "") == "error":
                 data = {}
                 self.logger.error(data.get("message", "Something failed with Matomo reporting system"))
                 messages.error(self.request, data.get("message", _(f"Impossible de récupérer les référents du site.")))
@@ -88,24 +95,31 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         return data
 
-    def get_all_stats(self, url, start, end):
+    def get_all_stats(self, urls, start, end):
         date_ranges = "{},{}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
-        absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
+        data_request = {"module": "API", "method": "API.getBulkRequest", "format": "json"}
 
-        data_request = {
-            "module": "API",
-            "method": "Actions.getPageUrl",
-            "format": "json",
-            "idSite": self.matomo_site_id,
-            "date": date_ranges,
-            "period": "day",
-            "pageUrl": absolute_url,
-        }
+        for index, url in enumerate(urls):
+            absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
+
+            data_request.update(
+                {
+                    f"urls[{index}]": urllib.parse.urlencode(
+                        {
+                            "method": "Actions.getPageUrl",
+                            "idSite": self.matomo_site_id,
+                            "date": date_ranges,
+                            "period": "day",
+                            "pageUrl": absolute_url,
+                        }
+                    )
+                }
+            )
 
         try:
             response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
             data = response_matomo.json()
-            if data.get("result", "") == "error":
+            if type(data) == dict and data.get("result", "") == "error":
                 data = {}
                 self.logger.error(data.get("message", "Something failed with Matomo reporting system"))
                 messages.error(
@@ -229,17 +243,20 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         keywords = {}
         report_field = [("nb_uniq_visitors", False), ("nb_hits", False), ("avg_time_on_page", True)]
 
-        for url in urls:
-            all_stats = self.get_all_stats(url, start_date, end_date)
-            cumul_stats = self.get_cumulative(all_stats)
-            all_referrers = self.get_all_refs(url, start_date, end_date, "Referrers.getWebsites")
-            all_type_referrers = self.get_all_refs(url, start_date, end_date, "Referrers.getReferrerType")
-            all_keywords = self.get_all_refs(url, start_date, end_date, "Referrers.getKeywords")
+        # Each function sends only one bulk request for all the urls
+        # Each variable is a list of dictionnaries (one for each url)
+        all_stats = self.get_all_stats(urls, start_date, end_date)
+        all_referrers = self.get_all_refs(urls, start_date, end_date, "Referrers.getWebsites")
+        all_type_referrers = self.get_all_refs(urls, start_date, end_date, "Referrers.getReferrerType")
+        all_keywords = self.get_all_refs(urls, start_date, end_date, "Referrers.getKeywords")
+
+        for index, url in enumerate(urls):
+            cumul_stats = self.get_cumulative(all_stats[index])
             reports[url] = {}
             cumulative_stats[url] = {}
 
             for item, is_avg in report_field:
-                reports[url][item] = self.get_stat_metrics(all_stats, item)
+                reports[url][item] = self.get_stat_metrics(all_stats[index], item)
                 if is_avg:
                     cumulative_stats[url][item] = 0
                     if cumul_stats.get("total") > 0:
@@ -247,9 +264,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 else:
                     cumulative_stats[url][item] = cumul_stats.get(item, 0)
 
-            referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_referrers))
-            type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_type_referrers))
-            keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_keywords))
+            referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_referrers[index]))
+            type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_type_referrers[index]))
+            keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_keywords[index]))
 
         if display_mode.lower() == "global":
             reports = {NamedUrl(display_mode, "", 0): self.merge_report_to_global(reports, report_field)}
