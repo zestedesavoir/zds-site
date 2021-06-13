@@ -41,7 +41,18 @@ class StatTests(TestCase, TutorialTestMixin):
             self.user_author, self.user_staff, self.nb_part, self.nb_chapter, self.nb_section
         )
 
+    def count_urls(self):
+        cpt = 1
+        if self.published.content.load_version().has_extracts():
+            return 1
+        for child in self.published.content.load_version().children:
+            cpt += 1
+            if not child.has_extracts():
+                cpt += len(child.children)
+        return cpt
+
     def _mock_response(self, start_date=None, end_date=None, duration=7, status=200, raise_for_status=None):
+        methods = ["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords", "Actions.getPageUrl"]
 
         if end_date is None:
             end_date = datetime.datetime.today()
@@ -56,29 +67,53 @@ class StatTests(TestCase, TutorialTestMixin):
         # set status code and content
         mock_resp.status_code = status
         # add json data if provided
-        json_data = {}
-        for single_date in daterange(start_date, end_date):
-            fuzzy_item = {
-                "label": r"\/index",
-                "nb_visits": randint(0, 1000),
-                "nb_uniq_visitors": randint(0, 1000),
-                "nb_hits": randint(0, 1000),
-                "sum_time_spent": randint(0, 1000),
-                "nb_hits_following_search": randint(0, 1000),
-                "entry_nb_uniq_visitors": randint(0, 1000),
-                "entry_nb_visits": randint(0, 1000),
-                "entry_nb_actions": randint(0, 1000),
-                "entry_sum_visit_length": randint(0, 1000),
-                "entry_bounce_count": randint(0, 1000),
-                "exit_nb_uniq_visitors": randint(0, 1000),
-                "exit_nb_visits": randint(0, 1000),
-                "avg_time_on_page": randint(0, 1000),
-                "bounce_rate": f"{randint(0, 1000)}\u00a0%",
-                "exit_rate": f"{randint(0, 1000)}\u00a0%",
-                "url": r"https:\/\/zestedesavoir.com",
-            }
-            json_data[single_date.strftime("%Y-%m-%d")] = [fuzzy_item]
-        mock_resp.json = mock.Mock(return_value=json_data)
+        response_data = []
+        count_urls = self.count_urls()
+        for method in methods:
+            for counter in range(count_urls):
+                json_data = {}
+                for single_date in daterange(start_date, end_date):
+                    if method == "Actions.getPageUrl":
+                        fuzzy_item = {
+                            "label": r"\/index",
+                            "nb_visits": randint(0, 1000),
+                            "nb_uniq_visitors": randint(0, 1000),
+                            "nb_hits": randint(0, 1000),
+                            "sum_time_spent": randint(0, 1000),
+                            "nb_hits_following_search": randint(0, 1000),
+                            "entry_nb_uniq_visitors": randint(0, 1000),
+                            "entry_nb_visits": randint(0, 1000),
+                            "entry_nb_actions": randint(0, 1000),
+                            "entry_sum_visit_length": randint(0, 1000),
+                            "entry_bounce_count": randint(0, 1000),
+                            "exit_nb_uniq_visitors": randint(0, 1000),
+                            "exit_nb_visits": randint(0, 1000),
+                            "avg_time_on_page": randint(0, 1000),
+                            "bounce_rate": f"{randint(0, 1000)}\u00a0%",
+                            "exit_rate": f"{randint(0, 1000)}\u00a0%",
+                            "url": r"https:\/\/zestedesavoir.com",
+                        }
+                    else:
+                        fuzzy_item = {
+                            "label": "Reseaux sociaux",
+                            "nb_uniq_visitors": randint(0, 1000),
+                            "nb_visits": randint(0, 1000),
+                            "nb_actions": randint(0, 1000),
+                            "nb_users": randint(0, 1000),
+                            "max_actions": randint(0, 1000),
+                            "sum_visit_length": randint(0, 1000),
+                            "bounce_count": randint(0, 1000),
+                            "nb_visits_converted": randint(0, 1000),
+                            "goals": {},
+                            "nb_conversions": randint(0, 1000),
+                            "revenue": 0,
+                            "segment": "referrerType==social",
+                            "referrer_type": 7,
+                            "idsubdatatable": 7,
+                        }
+                    json_data[single_date.strftime("%Y-%m-%d")] = [fuzzy_item]
+                response_data.append(json_data)
+        mock_resp.json = mock.Mock(return_value=response_data)
         return mock_resp
 
     @mock.patch("requests.post")
