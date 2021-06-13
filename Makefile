@@ -58,7 +58,7 @@ clean-back: ## Remove Python bytecode files (*.pyc)
 ## ~ Frontend
 
 install-front: ## Install the Node.js packages for the frontend
-	yarn install
+	yarn install --frozen-lockfile
 
 build-front: ## Build the frontend assets (CSS, JS, images)
 	yarn run build
