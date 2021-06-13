@@ -20,7 +20,7 @@
     border-color: var(--very-top-banner-border-color);
     color: var(--very-top-banner-color);
 
-    z-index: 21;
+    z-index: 21; /* needs to be below .editor-toolbar (_editor-new.scss) */
 
     span {
         flex: 12;
