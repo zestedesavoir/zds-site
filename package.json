@@ -32,7 +32,7 @@
     "easymde": "2.10.2-360.0",
     "gulp": "4.0.2",
     "gulp-concat": "2.6.1",
-    "gulp-dart-sass": "^1.0.2",
+    "gulp-dart-sass": "1.0.2",
     "gulp-if": "3.0.0",
     "gulp-imagemin": "7.1.0",
     "gulp-options": "1.1.1",
