@@ -9,8 +9,6 @@
 
     helpButton.setAttribute('data-activated', state.toString())
 
-    // helpButton.blur()
-
     helpButton.parentNode.querySelector('input[name="activated"]')
       .setAttribute('value', (!state).toString())
   }
