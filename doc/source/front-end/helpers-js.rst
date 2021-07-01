@@ -42,7 +42,7 @@ nous avons créé un helper ajax qui vous permettra de manipuler rapidement les
 requêtes vers les fonctionnalités du site qui prennent un formulaire ou du json en entrée
 et retournent un json en réponse.
 
-Cet objet est défini dans  ``assets/js/common/ZDSAjax.js``. Il vous permet d'appeler nativement
+Cet objet est défini dans  ``assets/js/common/ajax.js``. Il vous permet d'appeler nativement
 les méthodes get/post/put et sera vu par django comme un appel ajax.
 Vous pourrez à chaque fois définir une méthode à appeler en cas de succès de la **communication**
 (c'est-à-dire si la requête a pe être envoyée au serveur et obtenir un retour au format json, peu importe son code de retour)
