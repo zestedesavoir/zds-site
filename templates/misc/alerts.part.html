@@ -1,16 +1,19 @@
 {% load date %}
 {% load i18n %}
+{% load set %}
 
 {# Parameters #}
 {# alerts - an iterable of alerts to display #}
 {# then one of: #}
-{# alert_solve_url - the *name* of the URL to solve the alert; must accept a single pk argument #}
-{# alert_solve_link - the link (already resolved) where the form should be sent (an hidden field with the alert pk will be available) #}
+{# alerts_solve_url - the *name* of the URL to solve the alert; must accept a single pk argument #}
+{# alerts_solve_link - the link (already resolved) where the form should be sent (an hidden field with the alert pk will be available) #}
 {# if none of them are set, the solve form action will be the current page #}
 
 {% for alert in alerts %}
-    {% if alert_solve_url and not alert_solve_link %}
-        {% url alert_solve_url alert.pk as alert_solve_link %}
+    {% if alerts_solve_url and not alerts_solve_link %}
+        {% url alerts_solve_url alert.pk as alert_solve_link %}
+    {% else %}
+        {% set alerts_solve_link as alert_solve_link %}
     {% endif %}
 
     <aside class="moderation-alert{% if alert.solved %} is-solved{% endif %}">

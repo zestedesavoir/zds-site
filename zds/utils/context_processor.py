@@ -49,8 +49,6 @@ def app_settings(request):
     """
     app = deepcopy(settings.ZDS_APP)
 
-    app["google_analytics_enabled"] = "googleAnalyticsID" in app["site"] and "googleTagManagerID" in app["site"]
-
     return {
         "app": app,
     }

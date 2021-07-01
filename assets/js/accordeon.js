@@ -1,34 +1,29 @@
 /* ===== Zeste de Savoir ====================================================
    Accordeon for sidebar
    ---------------------------------
-   Author: Alex-D
+   Author: Alex-D, firm1
    ========================================================================== */
 
-(function($) {
-  'use strict'
+(function() {
+  function accordeon(element) {
+    const nextSearchElt = ['OL', 'UL']
 
-  function accordeon($elem) {
-    $('h4 + ul, h4 + ol', $elem).each(function() {
-      if (!$(this).hasClass('unfolded')) {
-        if ($('.current', $(this)).length === 0) { $(this).hide() }
-      }
-    })
+    Array.from(element.querySelectorAll('h4 + ul:not(.unfolded), h4 + ol:not(.unfolded)'))
+      .filter(item => item.querySelectorAll('.current').length === 0)
+      .forEach(item => item.classList.add('hidden'))
 
-    $('h4', $elem).click(function(e) {
-      $('+ ul, + ol', $(this)).slideToggle(100)
 
-      e.preventDefault()
-      e.stopPropagation()
-    })
+    Array.from(element.querySelectorAll('h4'))
+      .filter(item => nextSearchElt.includes(item.nextElementSibling.nodeName))
+      .forEach(item => item.addEventListener('click', (e) => {
+        item.nextElementSibling.classList.toggle('hidden')
+
+        e.preventDefault()
+        e.stopPropagation()
+      }))
   }
 
-  $(document).ready(function() {
-    $('.main .sidebar.accordeon, .main .sidebar .accordeon')
-      .each(function() {
-        accordeon($(this))
-      })
-      .on('DOMNodeInserted', function(e) {
-        accordeon($(e.target))
-      })
+  window.addEventListener('DOMContentLoaded', () => {
+    Array.from(document.querySelectorAll('.main .sidebar.accordeon, .main .sidebar .accordeon')).forEach(item => accordeon(item))
   })
-})(jQuery)
+})()
