@@ -126,8 +126,7 @@ function jsPackages() {
 function js() {
   return gulp.src([
     // Used by other scripts, must be first
-    'assets/js/modal.js',
-    'assets/js/tooltips.js',
+    'assets/js/common/*.js',
     // All the scripts
     'assets/js/*.js'
   ], { base: '.', sourcemaps: true })
