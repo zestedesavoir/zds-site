@@ -103,6 +103,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Helpers Javascript</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#tooltip">$().tooltip()</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#message-karma">$(message).karma()</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#window-ajax"><code class="docutils literal notranslate"><span class="pre">window.ajax</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="helpers-scss.html">Mixins SCSS</a></li>
@@ -206,6 +207,28 @@ autre sur ces dernières, <a class="reference external" href="elements-specifiqu
 <p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> qui permet de manipuler et mettre à jour les votes d’un message.</p>
 <p><code class="docutils literal notranslate"><span class="pre">$(&quot;#p42&quot;).karma().vote(&quot;like&quot;)</span></code> permet par exemple d’ajouter (ou de l’enlever si l’utilisateur a déjà voté) un +1 sur le post n°42 sur la page.</p>
 <p>L’API complète de l’objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> est documentée dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/karma.js</span></code>.</p>
+</div>
+<div class="section" id="window-ajax">
+<h2><code class="docutils literal notranslate"><span class="pre">window.ajax</span></code><a class="headerlink" href="#window-ajax" title="Lien permanent vers ce titre">¶</a></h2>
+<p>Afin de faciliter la migration du code JS du site pour ne plus utiliser JQuery,
+nous avons créé un helper ajax qui vous permettra de manipuler rapidement les
+requêtes vers les fonctionnalités du site qui prennent un formulaire ou du json en entrée
+et retournent un json en réponse.</p>
+<p>Cet objet est défini dans  <code class="docutils literal notranslate"><span class="pre">assets/js/common/ajax.js</span></code>. Il vous permet d’appeler nativement
+les méthodes get/post/put et sera vu par django comme un appel ajax.
+Vous pourrez à chaque fois définir une méthode à appeler en cas de succès de la <strong>communication</strong>
+(c’est-à-dire si la requête a pu être envoyée au serveur et obtenir un retour au format json, peu importe son code de retour)
+et en cas d’erreur.</p>
+<p>La première méthode prend en argument un objet issu de la désérialisation du JSON.</p>
+<p>Exemple:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span>    <span class="kd">const</span> <span class="nx">form</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.monFormulaire&#39;</span><span class="p">)</span>
+<span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">FormData</span><span class="p">(</span><span class="nx">form</span><span class="p">)</span>
+<span class="nx">ajax</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">),</span> <span class="nx">data</span><span class="p">,</span>
+  <span class="nx">result</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="nx">maFonctionEnCasDeSucces</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">une_valeur_retournee_par_le_serveur</span><span class="p">),</span>
+  <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">maFonctionEnCasDEchec</span><span class="p">()</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </div>
 </div>
 
