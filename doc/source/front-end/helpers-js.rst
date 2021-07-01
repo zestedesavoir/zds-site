@@ -45,7 +45,7 @@ et retournent un json en réponse.
 Cet objet est défini dans  ``assets/js/common/ajax.js``. Il vous permet d'appeler nativement
 les méthodes get/post/put et sera vu par django comme un appel ajax.
 Vous pourrez à chaque fois définir une méthode à appeler en cas de succès de la **communication**
-(c'est-à-dire si la requête a pe être envoyée au serveur et obtenir un retour au format json, peu importe son code de retour)
+(c'est-à-dire si la requête a pu être envoyée au serveur et obtenir un retour au format json, peu importe son code de retour)
 et en cas d'erreur.
 
 La première méthode prend en argument un objet issu de la désérialisation du JSON.
