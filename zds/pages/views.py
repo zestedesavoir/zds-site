@@ -17,6 +17,7 @@ from zds.member.decorator import can_write_and_read_now
 from zds.pages.models import GroupContact
 from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.utils.context_processor import get_repository_url
 from zds.utils.models import Alert, CommentEdit, Comment
 
 
@@ -58,7 +59,15 @@ def index(request):
 
 def about(request):
     """Display many informations about the website."""
-    return render(request, "pages/about.html")
+    return render(
+        request,
+        "pages/about.html",
+        {
+            "default_repository_url": get_repository_url(
+                settings.ZDS_APP["github_projects"]["default_repository"], "base_url"
+            ),
+        },
+    )
 
 
 def association(request):
