@@ -80,9 +80,11 @@ class SubCategoryFactory(factory.django.DjangoModelFactory):
 
         subcategory = super()._generate(create, attrs)
 
-        if category is not None:
-            relation = CategorySubCategory(category=category, subcategory=subcategory)
-            relation.save()
+        if category is None:
+            category = CategoryFactory()
+
+        relation = CategorySubCategory(category=category, subcategory=subcategory)
+        relation.save()
 
         return subcategory
 
