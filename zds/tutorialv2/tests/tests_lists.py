@@ -119,7 +119,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         context_categories = list(resp.context_data["categories"])
         self.assertEqual(context_categories[0].contents_count, 10)
         self.assertEqual(context_categories[0].subcategories, [subcategory_1, subcategory_2])
-        self.assertEqual(context_categories, [category_1])
+        self.assertIn(category_1, context_categories)
 
     def test_private_lists(self):
         tutorial = PublishedContentFactory(author_list=[self.user_author])
