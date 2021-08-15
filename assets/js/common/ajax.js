@@ -5,13 +5,21 @@
  */
 class ZDSAjax {
   constructor() {
-    this._crsf = document.querySelector("input[name='csrfmiddlewaretoken']").getAttribute('value')
+    const csrfInput = document.querySelector("input[name='csrfmiddlewaretoken']")
+    if (csrfInput !== null) {
+      this._crsf = csrfInput.getAttribute('value')
+    }
+    else {
+      this._csrf = null
+    }
   }
 
   get(url, dataCallback, errorCallback = (error) => console.error(error)) {
     const headers = new Headers()
     headers.append('Accept', 'application/json')
-    headers.append('X-CSRFToken', this._crsf)
+    if (this._csrf !== null) {
+      headers.append('X-CSRFToken', this._crsf)
+    }
     headers.append('X-REQUESTED-WITH', 'XMLHttpRequest')
     const init = {
       method: 'GET',
@@ -38,7 +46,9 @@ class ZDSAjax {
   _sendRequestWithData(jsonOrFormData, method, url, dataCallback, errorCallback) {
     const headers = new Headers()
     headers.append('Accept', 'application/json')
-    headers.append('X-CSRFToken', this._crsf)
+    if (this._csrf !== null) {
+      headers.append('X-CSRFToken', this._crsf)
+    }
     headers.append('X-REQUESTED-WITH', 'XMLHttpRequest')
     const init = {
       method: method,
