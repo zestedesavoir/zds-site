@@ -66,7 +66,7 @@ LOGGING = {
             "propagate": False,
         },
         "zds": {
-            "level": "DEBUG",  # Important because the default level is 'WARNING' or something like that
+            "level": "INFO",
             "handlers": ["console"],
         },
     },
