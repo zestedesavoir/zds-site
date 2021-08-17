@@ -109,6 +109,8 @@
           ret.blocInformation = true
         } else if (_type === 'q' || _type === 'question') {
           ret.blocQuestion = true
+        } else if (_type === 'a' || _type === 'attention') {
+          ret.blocWarning = true
         } else if (_type === 'e' || _type === 'erreur') {
           ret.blocError = true
         } else if (_type === 's' || _type === 'secret') {
@@ -167,7 +169,7 @@
     start = text.slice(0, startPoint.ch)
     end = text.slice(startPoint.ch)
     var offset = 0
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
+    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
       unShiftLines(cm, startPoint.line, endPoint.line)
       startPoint.ch = 0
     } else if (type === 'checklist') {
@@ -226,7 +228,7 @@
 
   function enableBlockZmd(cm, type, start, end, startPoint, endPoint) {
     let i, text
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
+    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
       // blocs
       for (i = startPoint.line; i <= endPoint.line; i++) {
         text = start + cm.getLine(i)
@@ -236,6 +238,8 @@
         shiftLines(cm, startPoint.line, '[[information]]')
       } else if (type === 'blocQuestion') {
         shiftLines(cm, startPoint.line, '[[question]]')
+      } else if (type === 'blocWarning') {
+        shiftLines(cm, startPoint.line, '[[attention]]')
       } else if (type === 'blocError') {
         shiftLines(cm, startPoint.line, '[[erreur]]')
       } else if (type === 'blocSecret') {
@@ -276,6 +280,11 @@
       startPoint.ch += start.length
       endPoint.ch = startPoint.ch + text.length
     }
+  }
+
+  function toggleEmoji(cm, str) {
+    cm.replaceSelection(str + ' ')
+    cm.focus()
   }
 
   function _toggleBlockZmd(editor, type, startChars, endChars) {
@@ -580,17 +589,248 @@
         {
           name: 'blocMenu',
           action: (e) => {
+
+          },
+          className: 'fa fa-smile',
+          title: 'Emojis heureux',
+          children: [
+            {
+              name: 'char1',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':)')
+              },
+              className: 'emoji smile',
+              title: ':)'
+            },
+            {
+              name: 'char2',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':D')
+              },
+              className: 'emoji heureux',
+              title: ':D'
+            },
+            {
+              name: 'char3',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':)')
+              },
+              className: 'emoji clin',
+              title: ':)'
+            },
+            {
+              name: 'char8',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':soleil:')
+              },
+              className: 'emoji soleil',
+              title: ':soleil:'
+            },
+            {
+              name: 'char4',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':p')
+              },
+              className: 'emoji langue',
+              title: ':P'
+            },
+            {
+              name: 'char5',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':lol:')
+              },
+              className: 'emoji rire',
+              title: ':lol:'
+            },
+            {
+              name: 'char6',
+              action: (e) => {
+                toggleEmoji(e.codemirror, '^^')
+              },
+              className: 'emoji hihi',
+              title: '^^'
+            },
+            {
+              name: 'char7',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':ange:')
+              },
+              className: 'emoji ange',
+              title: ':ange:'
+            }
+          ]
+        },
+        {
+          name: 'blocMenu',
+          action: (e) => {
+
+          },
+          className: 'fa fa-frown',
+          title: 'Emojis mécontents',
+          children: [
+            {
+              name: 'char1',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':(')
+              },
+              className: 'emoji triste',
+              title: ':('
+            },
+            {
+              name: 'char2',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':colere:')
+              },
+              className: 'emoji angry',
+              title: ':colere:'
+            },
+            {
+              name: 'char3',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':colere2:')
+              },
+              className: 'emoji mechant',
+              title: ':colere2:'
+            },
+            {
+              name: 'char4',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':diable:')
+              },
+              className: 'emoji diable',
+              title: ':diable:'
+            },
+            {
+              name: 'char5',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':\'(')
+              },
+              className: 'emoji pleure',
+              title: ':\'('
+            },
+            {
+              name: 'char6',
+              action: (e) => {
+                toggleEmoji(e.codemirror, '>_<')
+              },
+              className: 'emoji pinch',
+              title: '>_<'
+            }
+          ]
+        },
+        {
+          name: 'blocMenu',
+          action: (e) => {
+
+          },
+          className: 'fa fa-meh',
+          title: 'Emojis autres',
+          children: [
+            {
+              name: 'char1',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':euh:')
+              },
+              className: 'emoji unsure',
+              title: ':euh:'
+            },
+            {
+              name: 'char2',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':o')
+              },
+              className: 'emoji huh',
+              title: ':o'
+            },
+            {
+              name: 'char3',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':B')
+              },
+              className: 'emoji b',
+              title: ':B'
+            },
+            {
+              name: 'char4',
+              action: (e) => {
+                toggleEmoji(e.codemirror, 'o_O')
+              },
+              className: 'emoji blink',
+              title: 'o_O'
+            },
+            {
+              name: 'char5',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':-°')
+              },
+              className: 'emoji siffle',
+              title: ':-°'
+            },
+            {
+              name: 'char6',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':magicien:')
+              },
+              className: 'emoji magicien',
+              title: ':magicien:'
+            },
+            {
+              name: 'char8',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':pirate:')
+              },
+              className: 'emoji pirate',
+              title: ':pirate:'
+            },
+            {
+              name: 'char9',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':honte:')
+              },
+              className: 'emoji rouge',
+              title: ':honte:'
+            },
+            {
+              name: 'char10',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':waw:')
+              },
+              className: 'emoji waw',
+              title: ':waw:'
+            },
+            {
+              name: 'char11',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':zorro:')
+              },
+              className: 'emoji zorro',
+              title: ':zorro:'
+            },
+            {
+              name: 'char7',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':ninja:')
+              },
+              className: 'emoji ninja',
+              title: ':ninja:'
+            }
+          ]
+        },
+        '|',
+        {
+          name: 'blocMenu',
+          action: (e) => {
             _toggleBlockZmd(e, 'blocInformation', '| ')
           },
           className: 'fa fa-info',
-          title: 'Bloc information',
+          title: 'Bloc spéciaux',
           children: [
             {
               name: 'blocInformation',
               action: (e) => {
                 _toggleBlockZmd(e, 'blocInformation', '| ')
               },
-              className: 'fa fa-info',
+              className: 'fa fa-info bloc_information',
               title: 'Bloc information'
             },
             {
@@ -598,15 +838,23 @@
               action: (e) => {
                 _toggleBlockZmd(e, 'blocQuestion', '| ')
               },
-              className: 'fa fa-question',
+              className: 'fa fa-question bloc_question',
               title: 'Bloc question'
+            },
+            {
+              name: 'blocWarning',
+              action: (e) => {
+                _toggleBlockZmd(e, 'blocWarning', '| ')
+              },
+              className: 'fas fa-exclamation-triangle bloc_warning',
+              title: 'Bloc attention'
             },
             {
               name: 'blocError',
               action: (e) => {
                 _toggleBlockZmd(e, 'blocError', '| ')
               },
-              className: 'fas fa-times-circle',
+              className: 'fas fa-times-circle bloc_error',
               title: 'Bloc erreur'
             },
             {

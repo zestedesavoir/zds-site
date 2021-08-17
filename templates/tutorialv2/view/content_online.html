@@ -108,7 +108,7 @@
 {% block content %}
     {% if is_staff %}
         <div class="opinion-alerts">
-            {% include "misc/alerts.part.html" with alerts=alerts alert_solve_url='content:resolve-content' %}
+            {% include "misc/alerts.part.html" with alerts=alerts alerts_solve_url='content:resolve-content' %}
         </div>
     {% endif %}
 
@@ -387,7 +387,7 @@
             {% url "api:content:reaction-karma" message.pk %}
         {% endcaptureas %}
 
-        {% captureas alert_solve_link %}
+        {% captureas alerts_solve_link %}
             {% url "content:resolve-reaction" %}
         {% endcaptureas %}
         {% captureas alert_link %}

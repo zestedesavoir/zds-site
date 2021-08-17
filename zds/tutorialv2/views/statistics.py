@@ -1,3 +1,4 @@
+import itertools
 import logging
 import urllib.parse
 from datetime import timedelta, datetime, date
@@ -18,9 +19,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = "tutorialv2/stats/index.html"
     form_class = ContentCompareStatsURLForm
     urls = []
-    matomo_token_auth = settings.ZDS_APP["site"]["matomoTokenAuth"]
-    matomo_api_url = "{}/index.php?token_auth={}".format(settings.ZDS_APP["site"]["matomoUrl"], matomo_token_auth)
-    matomo_site_id = settings.ZDS_APP["site"]["matomoSiteID"]
+    matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]
+    matomo_api_url = "{}/index.php?token_auth={}".format(settings.ZDS_APP["site"]["matomo_url"], matomo_token_auth)
+    matomo_site_id = settings.ZDS_APP["site"]["matomo_site_id"]
     logger = logging.getLogger(__name__)
 
     def post(self, request, *args, **kwargs):
@@ -58,62 +59,46 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online(), 2))
         return urls
 
-    def get_all_refs(self, url, start, end, method):
+    def get_all_statistics(self, urls, start, end, methods):
         date_ranges = "{},{}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
-        absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
-        param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
+        data_request = {"module": "API", "method": "API.getBulkRequest", "format": "json", "filter_limit": -1}
+        data_structured = {}
 
-        data_request = {
-            "module": "API",
-            "method": method,
-            "format": "json",
-            "idSite": self.matomo_site_id,
-            "date": date_ranges,
-            "period": "day",
-            "segment": ",".join([param_url]),
-        }
+        for method in methods:
+            data_structured[method] = []
+
+        for index, method_url in enumerate(itertools.product(methods, urls)):
+            method = method_url[0]
+            url = method_url[1]
+            absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
+            param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
+
+            request_params = {"method": method, "idSite": self.matomo_site_id, "date": date_ranges, "period": "day"}
+            if method.startswith("Referrers"):  # referrers requests use segment for define url
+                request_params["segment"] = ",".join([param_url])
+            elif method == "Actions.getPageUrl":
+                request_params["pageUrl"] = absolute_url
+
+            data_request.update({f"urls[{index}]": urllib.parse.urlencode(request_params)})
 
         try:
             response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
             data = response_matomo.json()
-            if data.get("result", "") == "error":
+            if isinstance(data, dict) and data.get("result", "") == "error":
                 data = {}
-                self.logger.error(data.get("message", "Something failed with Matomo reporting system"))
-                messages.error(self.request, data.get("message", _(f"Impossible de récupérer les référents du site.")))
-
-        except Exception:
-            data = {}
-            self.logger.exception(f"Something failed with Matomo reporting system")
-            messages.error(self.request, _(f"Impossible de récupérer les référents du site."))
-
-        return data
-
-    def get_all_stats(self, url, start, end):
-        date_ranges = "{},{}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
-        absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
-
-        data_request = {
-            "module": "API",
-            "method": "Actions.getPageUrl",
-            "format": "json",
-            "idSite": self.matomo_site_id,
-            "date": date_ranges,
-            "period": "day",
-            "pageUrl": absolute_url,
-        }
-
-        try:
-            response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
-            data = response_matomo.json()
-            if data.get("result", "") == "error":
-                data = {}
-                self.logger.error(data.get("message", "Something failed with Matomo reporting system"))
+                self.logger.error(data.get("message", "Something failed with Matomo reporting system."))
                 messages.error(
                     self.request, data.get("message", _(f"Impossible de récupérer les statistiques du site."))
                 )
+
+            for index, method_url in enumerate(itertools.product(methods, urls)):
+                method = method_url[0]
+                data_structured[method].append(data[index])
+
+            return data_structured
         except Exception:
             data = {}
-            self.logger.exception(f"Something failed with Matomo reporting system")
+            self.logger.exception(f"Something failed with Matomo reporting system.")
             messages.error(self.request, _(f"Impossible de récupérer les statistiques du site."))
 
         return data
@@ -229,17 +214,27 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         keywords = {}
         report_field = [("nb_uniq_visitors", False), ("nb_hits", False), ("avg_time_on_page", True)]
 
-        for url in urls:
-            all_stats = self.get_all_stats(url, start_date, end_date)
-            cumul_stats = self.get_cumulative(all_stats)
-            all_referrers = self.get_all_refs(url, start_date, end_date, "Referrers.getWebsites")
-            all_type_referrers = self.get_all_refs(url, start_date, end_date, "Referrers.getReferrerType")
-            all_keywords = self.get_all_refs(url, start_date, end_date, "Referrers.getKeywords")
+        # Each function sends only one bulk request for all the urls
+        # Each variable is a list of dictionnaries (one for each url)
+        all = self.get_all_statistics(
+            urls,
+            start_date,
+            end_date,
+            ["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords", "Actions.getPageUrl"],
+        )
+
+        all_stats = all["Actions.getPageUrl"]
+        all_ref_websites = all["Referrers.getWebsites"]
+        all_ref_types = all["Referrers.getReferrerType"]
+        all_ref_keyword = all["Referrers.getKeywords"]
+
+        for index, url in enumerate(urls):
+            cumul_stats = self.get_cumulative(all_stats[index])
             reports[url] = {}
             cumulative_stats[url] = {}
 
             for item, is_avg in report_field:
-                reports[url][item] = self.get_stat_metrics(all_stats, item)
+                reports[url][item] = self.get_stat_metrics(all_stats[index], item)
                 if is_avg:
                     cumulative_stats[url][item] = 0
                     if cumul_stats.get("total") > 0:
@@ -247,9 +242,9 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 else:
                     cumulative_stats[url][item] = cumul_stats.get(item, 0)
 
-            referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_referrers))
-            type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_type_referrers))
-            keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_keywords))
+            referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_ref_websites[index]))
+            type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_ref_types[index]))
+            keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_ref_keyword[index]))
 
         if display_mode.lower() == "global":
             reports = {NamedUrl(display_mode, "", 0): self.merge_report_to_global(reports, report_field)}
