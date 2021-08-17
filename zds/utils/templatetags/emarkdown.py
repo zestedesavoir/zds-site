@@ -91,7 +91,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         return "", {}, []
 
 
-def render_markdown(md_input, *, on_error=None, **kwargs):
+def render_markdown(md_input, *, on_error=None, disable_jsfiddle=True, **kwargs):
     """Render a markdown string.
 
     Returns a tuple ``(rendered_content, metadata)``, where
@@ -102,7 +102,9 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
     (without any technical details).
 
     """
-    content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    opts = {"disable_jsfiddle": disable_jsfiddle}
+    opts.update(kwargs)
+    content, metadata, messages = _render_markdown_once(md_input, **opts)
     if messages and on_error:
         on_error([m["message"] for m in messages])
     if content is not None:
