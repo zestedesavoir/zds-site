@@ -32,3 +32,31 @@ Cette fonction retourne un objet ``Karma`` qui permet de manipuler et mettre à 
 ``$("#p42").karma().vote("like")`` permet par exemple d'ajouter (ou de l'enlever si l'utilisateur a déjà voté) un +1 sur le post n°42 sur la page.
 
 L'API complète de l'objet ``Karma`` est documentée dans le fichier ``assets/js/karma.js``.
+
+
+``window.ajax``
+===============
+
+Afin de faciliter la migration du code JS du site pour ne plus utiliser JQuery,
+nous avons créé un helper ajax qui vous permettra de manipuler rapidement les
+requêtes vers les fonctionnalités du site qui prennent un formulaire ou du json en entrée
+et retournent un json en réponse.
+
+Cet objet est défini dans  ``assets/js/common/ajax.js``. Il vous permet d'appeler nativement
+les méthodes get/post/put et sera vu par django comme un appel ajax.
+Vous pourrez à chaque fois définir une méthode à appeler en cas de succès de la **communication**
+(c'est-à-dire si la requête a pu être envoyée au serveur et obtenir un retour au format json, peu importe son code de retour)
+et en cas d'erreur.
+
+La première méthode prend en argument un objet issu de la désérialisation du JSON.
+
+Exemple: 
+
+.. sourcecode:: javascript
+
+	const form = document.querySelector('.monFormulaire')
+    const data = new FormData(form)
+    ajax.post(form.getAttribute('action'), data,
+      result) => maFonctionEnCasDeSucces(result.une_valeur_retournee_par_le_serveur),
+      () => maFonctionEnCasDEchec()
+    )

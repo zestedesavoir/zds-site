@@ -8,21 +8,29 @@
 
         .editor-toolbar {
             border: 0;
+            background-color: $color-body-background;
 
+            /* Let the toolbar stay on screen when writing long texts */
+            /* Disabled on mobile or when the editor is fullscreen */
             @include tablet {
-                position: sticky;
-                top: 0;
-                z-index: 2;
-                background-color: $color-body-background;
-                border-bottom: $length-1 solid $grey-200;
+                &:not(.fullscreen) {
+                    position: sticky;
+                    z-index: 2;
 
-                @at-root body.has-top-banner & {
-                    top: $length-24;
-                }
+                    top: 0;
+                    @at-root body.has-top-banner & {
+                        top: $length-24;
+                    }
 
-                ~ .CodeMirror {
-                    border-top: 0;
+                    border-bottom: $length-1 solid $grey-200;
+                    ~ .CodeMirror {
+                        border-top: 0;
+                    }
                 }
+            }
+
+            &.fullscreen {
+                z-index: 22; /* needs to be above #very-top-banner (_very-top-banner.scss) */
             }
 
             &.disabled-for-textarea-mode {
