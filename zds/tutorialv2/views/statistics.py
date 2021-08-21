@@ -81,27 +81,19 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
             data_request.update({f"urls[{index}]": urllib.parse.urlencode(request_params)})
 
-        try:
-            response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
-            data = response_matomo.json()
-            if isinstance(data, dict) and data.get("result", "") == "error":
-                data = {}
-                self.logger.error(data.get("message", "Something failed with Matomo reporting system."))
-                messages.error(
-                    self.request, data.get("message", _(f"Impossible de récupérer les statistiques du site."))
-                )
-
+        response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
+        data = response_matomo.json()
+        if isinstance(data, dict) and data.get("result", "") == "error":
+            raise Exception(self.logger.error, data.get("message", _("Pas de message d'erreur")))
+        else:
             for index, method_url in enumerate(itertools.product(methods, urls)):
+                if isinstance(data[index], dict) and data[index].get("result", "") == "error":
+                    raise Exception(self.logger.error, data[index].get("message", _("Pas de message d'erreur")))
+
                 method = method_url[0]
                 data_structured[method].append(data[index])
 
             return data_structured
-        except Exception:
-            data = {}
-            self.logger.exception(f"Something failed with Matomo reporting system.")
-            messages.error(self.request, _(f"Impossible de récupérer les statistiques du site."))
-
-        return data
 
     @staticmethod
     def get_stat_metrics(data, metric_name):
@@ -214,40 +206,47 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         keywords = {}
         report_field = [("nb_uniq_visitors", False), ("nb_hits", False), ("avg_time_on_page", True)]
 
-        # Each function sends only one bulk request for all the urls
-        # Each variable is a list of dictionnaries (one for each url)
-        all = self.get_all_statistics(
-            urls,
-            start_date,
-            end_date,
-            ["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords", "Actions.getPageUrl"],
-        )
+        try:
+            # Each function sends only one bulk request for all the urls
+            # Each variable is a list of dictionnaries (one for each url)
+            all_statistics = self.get_all_statistics(
+                urls,
+                start_date,
+                end_date,
+                ["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords", "Actions.getPageUrl"],
+            )
+        except Exception as e:
+            all_statistics = {}
+            logger_method, msg = e.args
+            logger_method(f"Something failed with Matomo reporting system: {msg}")
+            messages.error(self.request, _("Impossible de récupérer les statistiques du site ({}).").format(msg))
 
-        all_stats = all["Actions.getPageUrl"]
-        all_ref_websites = all["Referrers.getWebsites"]
-        all_ref_types = all["Referrers.getReferrerType"]
-        all_ref_keyword = all["Referrers.getKeywords"]
+        if all_statistics != {}:
+            all_stats = all_statistics["Actions.getPageUrl"]
+            all_ref_websites = all_statistics["Referrers.getWebsites"]
+            all_ref_types = all_statistics["Referrers.getReferrerType"]
+            all_ref_keyword = all_statistics["Referrers.getKeywords"]
 
-        for index, url in enumerate(urls):
-            cumul_stats = self.get_cumulative(all_stats[index])
-            reports[url] = {}
-            cumulative_stats[url] = {}
+            for index, url in enumerate(urls):
+                cumul_stats = self.get_cumulative(all_stats[index])
+                reports[url] = {}
+                cumulative_stats[url] = {}
 
-            for item, is_avg in report_field:
-                reports[url][item] = self.get_stat_metrics(all_stats[index], item)
-                if is_avg:
-                    cumulative_stats[url][item] = 0
-                    if cumul_stats.get("total") > 0:
-                        cumulative_stats[url][item] = cumul_stats.get(item, 0) / cumul_stats.get("total")
-                else:
-                    cumulative_stats[url][item] = cumul_stats.get(item, 0)
+                for item, is_avg in report_field:
+                    reports[url][item] = self.get_stat_metrics(all_stats[index], item)
+                    if is_avg:
+                        cumulative_stats[url][item] = 0
+                        if cumul_stats.get("total") > 0:
+                            cumulative_stats[url][item] = cumul_stats.get(item, 0) / cumul_stats.get("total")
+                    else:
+                        cumulative_stats[url][item] = cumul_stats.get(item, 0)
 
-            referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_ref_websites[index]))
-            type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_ref_types[index]))
-            keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_ref_keyword[index]))
+                referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_ref_websites[index]))
+                type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_ref_types[index]))
+                keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_ref_keyword[index]))
 
-        if display_mode.lower() == "global":
-            reports = {NamedUrl(display_mode, "", 0): self.merge_report_to_global(reports, report_field)}
+            if display_mode.lower() == "global":
+                reports = {NamedUrl(display_mode, "", 0): self.merge_report_to_global(reports, report_field)}
 
         context.update(
             {
