@@ -222,7 +222,16 @@ if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpat
         echo "   - If you don't have other choice, use \`--force-skip-activating\`."
         exit 1
     fi
-else 
+
+    # Some dependencies (like rust ones) require a recent pip:
+    print_info "* upgrading pip"
+    pip install --upgrade pip; exVal=$?
+
+    if [[ $exVal != 0 ]]; then
+        print_error "!! Failed to upgrade pip"
+        exit 1
+    fi
+
     print_info "!! Add \`$(realpath $ZDS_VENV)\` in your PATH."
 
     if [ ! -d $ZDS_VENV ]; then
