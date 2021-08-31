@@ -147,7 +147,7 @@ def render_markdown_stats(md_input, **kwargs):
 
 @register.filter(name="epub_markdown", needs_autoescape=False)
 def epub_markdown(md_input, image_directory):
-    media_root = settings.MEDIA_ROOT
+    media_root = str(settings.MEDIA_ROOT)
     if not media_root.endswith("/"):
         media_root += "/"
     replaced_media_url = settings.MEDIA_URL
