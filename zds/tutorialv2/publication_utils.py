@@ -402,7 +402,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             licence_logo = licences["copyright"]
             licence_url = ""
 
-        replacement_image_url = str(settings.MEDIA_ROOT)
+        replacement_image_url = str(settings.MEDIA_ROOT.parent)
         if not replacement_image_url.endswith("/"):
             replacement_image_url += "/"
         replaced_media_url = settings.MEDIA_URL
