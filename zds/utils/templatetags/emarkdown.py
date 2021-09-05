@@ -91,7 +91,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         return "", {}, []
 
 
-def render_markdown(md_input, *, on_error=None, **kwargs):
+def render_markdown(md_input, *, on_error=None, disable_jsfiddle=True, **kwargs):
     """Render a markdown string.
 
     Returns a tuple ``(rendered_content, metadata)``, where
@@ -102,7 +102,9 @@ def render_markdown(md_input, *, on_error=None, **kwargs):
     (without any technical details).
 
     """
-    content, metadata, messages = _render_markdown_once(md_input, **kwargs)
+    opts = {"disable_jsfiddle": disable_jsfiddle}
+    opts.update(kwargs)
+    content, metadata, messages = _render_markdown_once(md_input, **opts)
     if messages and on_error:
         on_error([m["message"] for m in messages])
     if content is not None:
@@ -145,11 +147,21 @@ def render_markdown_stats(md_input, **kwargs):
 
 @register.filter(name="epub_markdown", needs_autoescape=False)
 def epub_markdown(md_input, image_directory):
-    return emarkdown(
-        md_input,
-        output_format="epub",
-        images_download_dir=image_directory.absolute,
-        local_url_to_local_path=[settings.MEDIA_URL + "galleries/[0-9]+", image_directory.relative],
+    media_root = str(settings.MEDIA_ROOT)
+    if not media_root.endswith("/"):
+        media_root += "/"
+    replaced_media_url = settings.MEDIA_URL
+    if replaced_media_url.startswith("/"):
+        replaced_media_url = replaced_media_url[1:]
+    return (
+        emarkdown(
+            md_input,
+            output_format="epub",
+            images_download_dir=image_directory.absolute,
+            local_url_to_local_path=[settings.MEDIA_URL + "galleries/[0-9]+", image_directory.relative],
+        )
+        .replace('src"/', f'src="{media_root}')
+        .replace(f'src="{media_root}{replaced_media_url}', f'src="{media_root}')
     )
 
 
