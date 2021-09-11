@@ -402,11 +402,12 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             licence_logo = licences["copyright"]
             licence_url = ""
 
-        replacement_image_url = str(settings.MEDIA_ROOT)
-        if not replacement_image_url.endswith("/") and settings.MEDIA_URL.endswith("/"):
+        replacement_image_url = str(settings.MEDIA_ROOT.parent)
+        if not replacement_image_url.endswith("/"):
             replacement_image_url += "/"
-        elif replacement_image_url.endswith("/") and not settings.MEDIA_URL.endswith("/"):
-            replacement_image_url = replacement_image_url[:-1]
+        replaced_media_url = settings.MEDIA_URL
+        if replaced_media_url.startswith("/"):
+            replaced_media_url = replaced_media_url[1:]
         exported = export_content(public_versionned_source, with_text=True)
         # no title to avoid zmd to put it on the final latex
         del exported["title"]
@@ -423,13 +424,13 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             license_url=licence_url,
             smileys_directory=str(SMILEYS_BASE_PATH / "svg"),
             images_download_dir=str(base_directory / "images"),
-            local_url_to_local_path=[settings.MEDIA_URL, replacement_image_url],
+            local_url_to_local_path=["/", replacement_image_url],
             heading_shift=-1,
         )
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
         zmd_class_dir_path = Path(settings.ZDS_APP["content"]["latex_template_repo"])
-
+        content.replace(replacement_image_url + replaced_media_url, replacement_image_url)
         if zmd_class_dir_path.exists() and zmd_class_dir_path.is_dir():
             with contextlib.suppress(FileExistsError):
                 zmd_class_link = base_directory / "zmdocument.cls"
