@@ -479,13 +479,13 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """Count all the reactions to this content. Warning, if you did not pre process this number, \
         a query will be sent
 
-        :return: number of notes in the tutorial.
+        :return: number of notes in the content.
         :rtype: int
         """
         try:
             return self.count_note
         except AttributeError:
-            self.count_note = ContentReaction.objects.filter(related_content__pk=self.pk).count()
+            self.count_note = ContentReaction.objects.filter(related_content__pk=self.pk, is_visible=True).count()
             return self.count_note
 
     def get_last_note(self):
