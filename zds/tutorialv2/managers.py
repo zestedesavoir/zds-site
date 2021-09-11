@@ -52,8 +52,10 @@ class PublishedContentManager(models.Manager):
             # TODO: check if we can use ORM to do that
             sub_query = """
                 SELECT COUNT(*)
-                FROM tutorialv2_contentreaction
+                FROM tutorialv2_contentreaction,utils_comment
                 WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
+                AND utils_comment.id=tutorialv2_contentreaction.comment_ptr_id
+                AND utils_comment.is_visible = TRUE
             """
 
             queryset = queryset.extra(select={"count_note": sub_query})
@@ -235,10 +237,12 @@ class PublishableContentManager(models.Manager):
         :return: list of last articles expanded with 'count_note' property that prefetches number of comments
         :rtype: list
         """
-        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={}".format(
-            "tutorialv2_contentreaction",
+        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={} AND {}={} AND utils_comment.is_visible=TRUE".format(
+            "tutorialv2_contentreaction,utils_comment",
             "tutorialv2_contentreaction.related_content_id",
             "tutorialv2_publishedcontent.content_pk",
+            "utils_comment.id",
+            "tutorialv2_contentreaction.comment_ptr_id",
         )
         number = number or settings.ZDS_APP["article"]["home_number"]
         all_contents = (
@@ -252,6 +256,7 @@ class PublishableContentManager(models.Manager):
             .extra(select={"count_note": sub_query})
             .order_by("-public_version__publication_date")[:number]
         )
+
         published = []
         for content in all_contents:
             content.public_version.content = content
