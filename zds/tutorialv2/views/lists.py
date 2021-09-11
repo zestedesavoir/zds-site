@@ -38,10 +38,12 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         :return: list of contents with the right type
         :rtype: list of zds.tutorialv2.models.database.PublishedContent
         """
-        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={}".format(
-            "tutorialv2_contentreaction",
+        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={} AND {}={} AND utils_comment.is_visible=TRUE".format(
+            "tutorialv2_contentreaction,utils_comment",
             "tutorialv2_contentreaction.related_content_id",
             "tutorialv2_publishablecontent.id",
+            "utils_comment.id",
+            "tutorialv2_contentreaction.comment_ptr_id",
         )
         queryset = PublishedContent.objects.filter(must_redirect=False)
         # this condition got more complexe with development of zep13
