@@ -5,7 +5,7 @@ repos:
     -   id: pyupgrade
         args: [--py36-plus]
   - repo: https://github.com/psf/black
-    rev: 20.8b1
+    rev: 21.8b0 # needs to be also updated in requirements-dev.txt and .github/workflows/ci.yml
     hooks:
       - id: black
         language_version: python3
