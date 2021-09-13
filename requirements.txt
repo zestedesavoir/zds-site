@@ -19,7 +19,7 @@ google-api-python-client==1.12.8
 homoglyphs==2.0.4
 lxml==4.6.3
 Pillow==8.3.2
-python-memcached==1.59
+pymemcache==3.5.0
 requests==2.26.0
 toml==0.10.2
 
