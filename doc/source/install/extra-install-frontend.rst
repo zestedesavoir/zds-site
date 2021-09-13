@@ -8,7 +8,7 @@ Vous voulez nous aider au développement du frontend ? Installez Node.js et Yarn
 Installation de Node.js et Yarn
 ===============================
 
-Le frontend de Zeste de Savoir repose sur la version actuelle de Node.js supportée à long terme, la version 8. Vous pouvez installer Node.js 8 via `votre gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_ (``apt``, ``yum``, …) ou en téléchargeant une `archive <https://nodejs.org/en/download/>`_.
+Le frontend de Zeste de Savoir repose sur la version de Node JS spécifiée dans ``.nvmrc``. Vous pouvez installer la version adéquate de Node.js via `votre gestionnaire de paquet <https://nodejs.org/en/download/package-manager/>`_ (``apt``, ``yum``, …) ou en téléchargeant une `archive <https://nodejs.org/en/download/>`_.
 
 Dans le cas où vous avez besoin de faire cohabiter sur votre système différentes versions de Node.js pour des projets différents, à l’instar de virtualenv ou rvm, il existe `nvm <https://github.com/creationix/nvm>`_ (Node Version Manager) qui permet d’installer plusieurs version de Node.js et de basculer d’une version à l’autre facilement.
 
@@ -17,14 +17,14 @@ Le gestionnaire de paquet ``npm`` (Node.js Package Manager) est fourni avec Node
 Vérifier que les bonnes versions sont installées
 ------------------------------------------------
 
-Pour vérifier que Node.js et yarn sont installés (et que vous avez les bonnes versions) :
+Pour vérifier que Node.js et yarn sont installés et que vous avez les bonnes versions (``X.Y.Z`` désigne la version spécifiée dans ``.nvmrc``) :
 
 .. sourcecode:: bash
 
     $ node -v
-    v8.x.x
+    vX.Y.Z
     $ yarn -v
-    0.27.x
+    X.Y.Z
 
 Si ``yarn`` n’est pas installé ou pas à jour, utilisez ``npm i -g yarn``.
 
