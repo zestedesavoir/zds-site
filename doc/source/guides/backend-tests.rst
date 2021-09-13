@@ -7,38 +7,44 @@ Lors du développement, il est souvent nécessaire de lancer les tests automatiq
 Lancer tous les tests
 =====================
 
-La commande suivante permet de lancer tous les tests du *backend*. La découverte des tests est automatique : tous ce qui est identifié comme un test Django dans le projet sera lancé.
+Si vous ne l'avez pas déjà fait, lancez le serveur zmarkdown avec la commande ci-dessous. Une fois le serveur est lancé, il n'y a pas besoin de répéter cette étape.
 
 .. sourcecode:: bash
 
-   ./manage.py test
+   make zmd-start
+
+La commande suivante permet de lancer tous les tests du *backend*. La découverte des tests est automatique : tous ce qui est identifié comme un test Django dans le projet sera lancé. Les tests utilisent aussi une configuration légèrement différente, donc il faut l'indiquer pour que tous les tests fonctionnent correctement.
+
+.. sourcecode:: bash
+
+   ./manage.py test --settings zds.settings.test
 
 Comme cette commande peut prendre beaucoup de temps, il est en général préférable d'utiliser une commande plus ciblée.
 
 Lancer des tests de manière ciblée
 ==================================
 
-Django permet de cibler plus précisément les tests à lancer en ajoutant des  arguments à la commande. C'est très pratique pendant le développement pour lancer et relancer des tests sur un morceau de code sans attendre pendant de longues minutes à chaque fois.
+Django permet de cibler plus précisément les tests à lancer en ajoutant des arguments à la commande. C'est très pratique pendant le développement pour lancer et relancer des tests sur un morceau de code sans attendre pendant de longues minutes à chaque fois.
 
 La commande ci-dessous lancera tous les tests trouvés dans le *package* passé en argument.
 
 .. sourcecode:: bash
 
-   ./manage.py test zds.tutorialv2.tests.tests_views
+   ./manage.py test zds.tutorialv2.tests.tests_views --settings zds.settings.test
 
 On peut cibler encore plus en indiquant un module, une classe ou une fonction de test.
 
 .. sourcecode:: bash
 
-   ./manage.py test zds.tutorialv2.tests.tests_views.tests_editcontentlicense
-   ./manage.py test zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests
-   ./manage.py test zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests.test_not_authenticated
+   ./manage.py test zds.tutorialv2.tests.tests_views.tests_editcontentlicense --settings zds.settings.test
+   ./manage.py test zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests --settings zds.settings.test
+   ./manage.py test zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests.test_not_authenticated --settings zds.settings.test
 
 On peut aussi indiquer plusieurs arguments à la suite pour lancer plusieurs groupes de tests. La commande ci-dessous lancera les tests pour les trois *packages* mentionnés.
 
 .. sourcecode:: bash
 
-   ./manage.py test zds.mp zds.pages zds.tutorialv2
+   ./manage.py test zds.mp zds.pages zds.tutorialv2 --settings zds.settings.test
 
 Interpréter les résultats
 =========================
