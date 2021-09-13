@@ -95,7 +95,7 @@ Composant ``node``
 
 Installe ``nvm`` et l'utilise pour installer ``node``, puis ``yarn``.
 Ajoute ensuite un ``.nvmrc`` dans le dossier et ajoute ``node use`` au script d'activation du *virtualenv* (pour qu'il soit automatiquement utilisé au chargement).
-La version de node installée est controlée par la variable d'environement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut ``10.8.0``).
+La version de node installée est controlée par la variable d'environement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut celle spécifiée dans ``.nvmrc``).
 
 Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur `la documentation dédiée au frontend <frontend-install.html>`_.
 
@@ -154,7 +154,7 @@ Composant ``elastic-local``
 
 Installe une version **locale** d'Elasticsearch dans un dossier ``.local`` situé dans le dossier de ZdS.
 La commande ``elasticsearch`` est ensuite ajoutée dans le *virtualenv*, de telle sorte à ce que ce soit cette version locale qui soit utilisée.
-La version d'Elasticsearch installée est controlée par la variable d'environement ``ZDS_ELASTIC_VERSION`` (dont la valeur est par défaut ``5.5.2``).
+La version d'Elasticsearch installée est controlée par la variable d'environement ``ZDS_ELASTIC_VERSION`` (voir ``scripts/define_variable.sh`` pour la valeur par défaut).
 
 Notez que vous pouvez choisir d'installer Elasticsearch manuellement, `comme décrit ici <./extra-install-es.html#sous-linux>`_.
 
