@@ -44,13 +44,13 @@ Passez ensuite à la version 8 de java à l'aide de la commande ``alternatives -
 Installer Elasticsearch
 +++++++++++++++++++++++
 
-La procédure d'installation, si vous souhaitez utiliser Elasticsearch sans l'installer via le gestionnaire de paquets de votre distribution, est d'entrer les commandes suivantes dans votre *shell* préféré:
+La procédure d'installation, si vous souhaitez utiliser Elasticsearch sans l'installer via le gestionnaire de paquets de votre distribution, est d'entrer les commandes suivantes dans votre *shell* préféré. Remplacez ``X.Y.Z`` par la version spécifiée dans ``requirements.txt`` !
 
 .. sourcecode:: bash
 
-    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip
-    unzip elasticsearch-5.5.2.zip
-    cd elasticsearch-5.5.2/
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-X.Y.Z.zip
+    unzip elasticsearch-X.Y.Z.zip
+    cd elasticsearch-X.Y.Z/
 
 Pour démarrer Elasticsearch, utilisez
 
@@ -93,9 +93,14 @@ Sous Windows
 
 Elasticsearch requiert **la version 8** de Java, que vous pouvez trouver `sur la page officielle de java <http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html>`_. Prenez la version correspondante à votre système d'exploitation.
 
-Téléchargez ensuite Elasticsearch à l'adresse suivante : `https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip <https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip>`_, puis extrayez le dossier ``elasticsearch-5.5.2`` du zip à l'aide de votre outil préféré.
+Pour télécharger Elasticsearch :
 
-Pour démarer Elasticsearch, ouvrez un *shell* (ou un *powershell*) et rendez-vous dans le dossier ``elasticsearch-5.5.2``.
+* rendez-vous à l'adresse suivante : `https://www.elastic.co/fr/downloads/past-releases#elasticsearch <https://www.elastic.co/fr/downloads/past-releases#elasticsearch>`_ ;
+* choisissez la version spécifiée dans le fichier `requirements.txt` (désignée ci-après par ``X.Y.Z``);
+* téléchargez la version Windows ;
+* extrayez le dossier ``elasticsearch-X.Y.Z`` du zip à l'aide de votre outil préféré.
+
+Pour démarer Elasticsearch, ouvrez un *shell* (ou un *powershell*) et rendez-vous dans le dossier ``elasticsearch-X.Y.Z``.
 Exécutez ensuite la commande suivante :
 
 .. sourcecode:: bash
@@ -123,7 +128,7 @@ Vous devriez observer une réponse du même genre que celle-ci :
       "cluster_name" : "elasticsearch",
       "cluster_uuid" : "649S5bMUQOyRzYmQFVPA1A",
       "version" : {
-        "number" : "5.5.2",
+        "number" : "X.Y.Z",
         "build_hash" : "19c13d0",
         "build_date" : "2017-07-18T20:44:24.823Z",
         "build_snapshot" : false,
