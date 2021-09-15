@@ -55,7 +55,7 @@ class PublishedContentManager(models.Manager):
                 FROM tutorialv2_contentreaction,utils_comment
                 WHERE tutorialv2_contentreaction.related_content_id=`tutorialv2_publishablecontent`.`id`
                 AND utils_comment.id=tutorialv2_contentreaction.comment_ptr_id
-                AND utils_comment.is_visible = TRUE
+                AND utils_comment.is_visible = 1
             """
 
             queryset = queryset.extra(select={"count_note": sub_query})
@@ -237,7 +237,7 @@ class PublishableContentManager(models.Manager):
         :return: list of last articles expanded with 'count_note' property that prefetches number of comments
         :rtype: list
         """
-        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={} AND {}={} AND utils_comment.is_visible=TRUE".format(
+        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={} AND {}={} AND utils_comment.is_visible=1".format(
             "tutorialv2_contentreaction,utils_comment",
             "tutorialv2_contentreaction.related_content_id",
             "tutorialv2_publishedcontent.content_pk",
