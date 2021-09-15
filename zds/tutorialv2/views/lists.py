@@ -38,7 +38,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
         :return: list of contents with the right type
         :rtype: list of zds.tutorialv2.models.database.PublishedContent
         """
-        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={} AND {}={} AND utils_comment.is_visible=TRUE".format(
+        sub_query = "SELECT COUNT(*) FROM {} WHERE {}={} AND {}={} AND utils_comment.is_visible=1".format(
             "tutorialv2_contentreaction,utils_comment",
             "tutorialv2_contentreaction.related_content_id",
             "tutorialv2_publishablecontent.id",
