@@ -55,10 +55,12 @@ LOGGING = {
             "formatter": "django.server",
         },
     },
+    "root": {
+        "handlers": ["console"],
+    },
     "loggers": {
         "django": {
             "level": "INFO",
-            "handlers": ["console"],
         },
         "django.server": {
             "level": "INFO",
@@ -67,7 +69,6 @@ LOGGING = {
         },
         "zds": {
             "level": "INFO",
-            "handlers": ["console"],
         },
     },
 }
