@@ -81,21 +81,21 @@ La liste des packages vous est donnée ci-dessous (pour Debian), si vous utilise
 Composant ``virtualenv``
 ========================
 
-Installe le *virtualenv* qui est un environement python cloisonné prévu pour ne pas interférer avec d'autres installation de python (`plus d'infos ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_).
+Installe le *virtualenv* qui est un environnement python cloisonné prévu pour ne pas interférer avec d'autres installation de python (`plus d'infos ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_).
 Ce que fait ce composant est tout simplement:
 
 .. sourcecode:: bash
 
     python3 -m venv $ZDS_VENV
 
-Le nom du *virtualenv* est donc controlé par la variable d'environement ``ZDS_VENV`` (dont la valeur est par défaut ``zdsenv``).
+Le nom du *virtualenv* est donc controlé par la variable d'environnement ``ZDS_VENV`` (dont la valeur est par défaut ``zdsenv``).
 
 Composant ``node``
 ==================
 
 Installe ``nvm`` et l'utilise pour installer ``node``, puis ``yarn``.
 Ajoute ensuite un ``.nvmrc`` dans le dossier et ajoute ``node use`` au script d'activation du *virtualenv* (pour qu'il soit automatiquement utilisé au chargement).
-La version de node installée est controlée par la variable d'environement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut ``10.8.0``).
+La version de node installée est controlée par la variable d'environnement ``ZDS_NODE_VERSION`` (dont la valeur est par défaut celle spécifiée dans ``.nvmrc``).
 
 Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur `la documentation dédiée au frontend <frontend-install.html>`_.
 
@@ -154,7 +154,7 @@ Composant ``elastic-local``
 
 Installe une version **locale** d'Elasticsearch dans un dossier ``.local`` situé dans le dossier de ZdS.
 La commande ``elasticsearch`` est ensuite ajoutée dans le *virtualenv*, de telle sorte à ce que ce soit cette version locale qui soit utilisée.
-La version d'Elasticsearch installée est controlée par la variable d'environement ``ZDS_ELASTIC_VERSION`` (dont la valeur est par défaut ``5.5.2``).
+La version d'Elasticsearch installée est controlée par la variable d'environnement ``ZDS_ELASTIC_VERSION`` (voir ``scripts/define_variable.sh`` pour la valeur par défaut).
 
 Notez que vous pouvez choisir d'installer Elasticsearch manuellement, `comme décrit ici <./extra-install-es.html#sous-linux>`_.
 
@@ -171,7 +171,7 @@ Indépendament, le composant composant ``latex-template`` installe (ou met à jo
 Ce composant peut donc être utilisé même si vous avez installé TeX Live par d'autres moyens.
 
 Ces deux composants reposent sur des scripts situés dans `le dépot du template LaTeX <https://github.com/zestedesavoir/latex-template>`_.
-Le dépot installé est controlé par la variable d'environement ``ZDS_LATEX_REPO`` (dont la valeur est l'url actuelle du dépôt sur Github).
+Le dépot installé est controlé par la variable d'environnement ``ZDS_LATEX_REPO`` (dont la valeur est l'url actuelle du dépôt sur Github).
 
 .. note::
 
