@@ -1,94 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="fr" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Helpers Javascript &mdash; Documentation Zeste de Savoir dev</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
     <link rel="next" title="Mixins SCSS" href="helpers-scss.html" />
     <link rel="prev" title="Eléments spécifiques au site" href="elements-specifiques-au-site.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Zeste de Savoir
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 dev
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Rechercher docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -117,83 +69,43 @@
 <li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Zeste de Savoir</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../front-end.html">Le <em>front-end</em></a> &raquo;</li>
-        
       <li>Helpers Javascript</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-            <a href="../_sources/front-end/helpers-js.rst.txt" rel="nofollow"> View page source</a>
-          
-        
+            <a href="../_sources/front-end/helpers-js.rst.txt" rel="nofollow"> Afficher la source de la page</a>
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="helpers-javascript">
-<h1>Helpers Javascript<a class="headerlink" href="#helpers-javascript" title="Lien permanent vers ce titre">¶</a></h1>
+             
+  <section id="helpers-javascript">
+<h1>Helpers Javascript<a class="headerlink" href="#helpers-javascript" title="Lien permanent vers ce titre"></a></h1>
 <p>Quelques fonctions sont accessibles via jQuery pour manipuler les éléments du site.</p>
-<div class="section" id="tooltip">
-<h2>$().tooltip()<a class="headerlink" href="#tooltip" title="Lien permanent vers ce titre">¶</a></h2>
+<section id="tooltip">
+<h2>$().tooltip()<a class="headerlink" href="#tooltip" title="Lien permanent vers ce titre"></a></h2>
 <p>La fonction <code class="docutils literal notranslate"><span class="pre">$(element).tooltip(contenu)</span></code> va ajouter une tooltip au survol de <code class="docutils literal notranslate"><span class="pre">element</span></code> avec comme contenu <code class="docutils literal notranslate"><span class="pre">contenu</span></code>. Si la tooltip existe déjà sur l’élément, la fonction va juste modifier le contenu.</p>
-<div class="figure align-center" id="id1">
+<figure class="align-center" id="id1">
 <img alt="../_images/tooltip.png" src="../_images/tooltip.png" />
-<p class="caption"><span class="caption-text">Exemple de tooltip utilisé pour les votes</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image">¶</a></p>
-</div>
+<figcaption>
+<p><span class="caption-text">Exemple de tooltip utilisé pour les votes</span><a class="headerlink" href="#id1" title="Lien permanent vers cette image"></a></p>
+</figcaption>
+</figure>
 <p>La tooltip sera par défaut au dessus de l’élément, mais ira automatiquement en dessous si le scroll de la fenêtre ne permet pas de l’afficher totalement au dessus.</p>
 <p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Tooltip</span></code> qui est définie dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/tooltips.js</span></code>, et qui est complètement documenté dans ce fichier.</p>
 <div class="admonition note">
@@ -201,15 +113,15 @@
 <p>Si vous n’avez besoin que d’infobulles simples, sans avoir à y mettre du contenu HTML riche ou à réagir au clic ou
 autre sur ces dernières, <a class="reference external" href="elements-specifiques-au-site.html#les-infobulles-css">préférez utiliser les plus simples et légères infobulles CSS, d’apparence identique</a>.</p>
 </div>
-</div>
-<div class="section" id="message-karma">
-<h2>$(message).karma()<a class="headerlink" href="#message-karma" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="message-karma">
+<h2>$(message).karma()<a class="headerlink" href="#message-karma" title="Lien permanent vers ce titre"></a></h2>
 <p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> qui permet de manipuler et mettre à jour les votes d’un message.</p>
 <p><code class="docutils literal notranslate"><span class="pre">$(&quot;#p42&quot;).karma().vote(&quot;like&quot;)</span></code> permet par exemple d’ajouter (ou de l’enlever si l’utilisateur a déjà voté) un +1 sur le post n°42 sur la page.</p>
 <p>L’API complète de l’objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> est documentée dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/karma.js</span></code>.</p>
-</div>
-<div class="section" id="window-ajax">
-<h2><code class="docutils literal notranslate"><span class="pre">window.ajax</span></code><a class="headerlink" href="#window-ajax" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="window-ajax">
+<h2><code class="docutils literal notranslate"><span class="pre">window.ajax</span></code><a class="headerlink" href="#window-ajax" title="Lien permanent vers ce titre"></a></h2>
 <p>Afin de faciliter la migration du code JS du site pour ne plus utiliser JQuery,
 nous avons créé un helper ajax qui vous permettra de manipuler rapidement les
 requêtes vers les fonctionnalités du site qui prennent un formulaire ou du json en entrée
@@ -229,55 +141,38 @@ et en cas d’erreur.</p>
 <span class="p">)</span>
 </pre></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="helpers-scss.html" class="btn btn-neutral float-right" title="Mixins SCSS" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="elements-specifiques-au-site.html" class="btn btn-neutral float-left" title="Eléments spécifiques au site" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="elements-specifiques-au-site.html" class="btn btn-neutral float-left" title="Eléments spécifiques au site" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="helpers-scss.html" class="btn btn-neutral float-right" title="Mixins SCSS" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2014-2021, Zeste de Savoir.
-
-    </p>
+    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

@@ -1,94 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="fr" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Les utilitaires (utils/) &mdash; Documentation Zeste de Savoir dev</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
     <link rel="next" title="Le front-end" href="../front-end.html" />
     <link rel="prev" title="Les tutoriels v2 (ZEP12) (tutorialv2/)" href="tutorialv2.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Zeste de Savoir
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 dev
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Rechercher docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -123,75 +75,33 @@
 <li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Zeste de Savoir</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../back-end-code.html">Documentation technique du <em>back-end</em></a> &raquo;</li>
-        
       <li>Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils/</span></code>)</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-            <a href="../_sources/back-end-code/utils.rst.txt" rel="nofollow"> View page source</a>
-          
-        
+            <a href="../_sources/back-end-code/utils.rst.txt" rel="nofollow"> Afficher la source de la page</a>
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="les-utilitaires-utils">
-<h1><a class="toc-backref" href="#id1">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils/</span></code>)</a><a class="headerlink" href="#les-utilitaires-utils" title="Lien permanent vers ce titre">¶</a></h1>
+             
+  <section id="les-utilitaires-utils">
+<h1><a class="toc-backref" href="#id1">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils/</span></code>)</a><a class="headerlink" href="#les-utilitaires-utils" title="Lien permanent vers ce titre"></a></h1>
 <p>Module situé dans <code class="docutils literal notranslate"><span class="pre">zds/utils/</span></code>. Il regroupe certaines fonctions et objets utiles à tout les autres modules.</p>
 <div class="contents topic" id="fichiers-documentes">
 <p class="topic-title">Fichiers documentés :</p>
@@ -209,25 +119,25 @@
 </li>
 </ul>
 </div>
-<div class="section" id="module-zds.utils.models">
-<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.models" title="Lien permanent vers ce titre">¶</a></h2>
+<section id="module-zds.utils.models">
+<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.models" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
-<dt id="zds.utils.models.Alert">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">Alert</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Alert">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">Alert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Alerts on all kinds of Comments and PublishedContents.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.Alert.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.Alert.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Alert.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.Alert.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.Alert.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.Alert.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Alert.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.Alert.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Alert.get_comment_subclass">
-<code class="sig-name descname"><span class="pre">get_comment_subclass</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert.get_comment_subclass" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Alert.get_comment_subclass">
+<span class="sig-name descname"><span class="pre">get_comment_subclass</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert.get_comment_subclass" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Used to retrieve comment URLs (simple call to get_absolute_url
 doesn’t work: objects are retrived as Comment and not subclasses) As
 real Comment implementation (subclasses) can’t be hard-coded due to
@@ -236,14 +146,14 @@ utils.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Alert.is_automated">
-<code class="sig-name descname"><span class="pre">is_automated</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert.is_automated" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Alert.is_automated">
+<span class="sig-name descname"><span class="pre">is_automated</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert.is_automated" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Returns true if this alert was opened automatically.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Alert.solve">
-<code class="sig-name descname"><span class="pre">solve</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moderator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_reason</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert.solve" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Alert.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">moderator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resolve_reason</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">msg_content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Alert.solve" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Solve the alert and send a private message to the author if a reason is given</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -255,79 +165,79 @@ utils.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.Category">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">Category</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Category" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Category">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">Category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Category" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Common category for several concepts of the application.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.Category.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.Category.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Category.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.Category.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.Category.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.Category.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Category.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.Category.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.CategorySubCategory">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">CategorySubCategory</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.CategorySubCategory" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CategorySubCategory">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">CategorySubCategory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.CategorySubCategory" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>ManyToMany between Category and SubCategory but save a boolean to know
 if category is his main category.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.CategorySubCategory.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.CategorySubCategory.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CategorySubCategory.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.CategorySubCategory.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.CategorySubCategory.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.CategorySubCategory.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CategorySubCategory.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.CategorySubCategory.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.Comment">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">Comment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">Comment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Comment in forum, articles, tutorial, chapter, etc.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.Comment.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.Comment.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.Comment.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.Comment.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.Comment.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.Comment.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.get_dislikers">
-<code class="sig-name descname"><span class="pre">get_dislikers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_dislikers" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.get_dislikers">
+<span class="sig-name descname"><span class="pre">get_dislikers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_dislikers" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Get the list of the users that disliked this Comment</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.get_likers">
-<code class="sig-name descname"><span class="pre">get_likers</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_likers" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.get_likers">
+<span class="sig-name descname"><span class="pre">get_likers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_likers" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Get the list of the users that liked this Comment</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.get_user_vote">
-<code class="sig-name descname"><span class="pre">get_user_vote</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_user_vote" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.get_user_vote">
+<span class="sig-name descname"><span class="pre">get_user_vote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_user_vote" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Get a user vote (like, dislike or neutral)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.get_votes">
-<code class="sig-name descname"><span class="pre">get_votes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_votes" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.get_votes">
+<span class="sig-name descname"><span class="pre">get_votes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.get_votes" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Get the non-anonymous votes</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.hide_comment_by_user">
-<code class="sig-name descname"><span class="pre">hide_comment_by_user</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_hidden</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.hide_comment_by_user" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.hide_comment_by_user">
+<span class="sig-name descname"><span class="pre">hide_comment_by_user</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_hidden</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.hide_comment_by_user" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Hide a comment and save it</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -343,8 +253,8 @@ if category is his main category.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.save">
-<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.save" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.save" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>We override the save method for two tasks:
 1. we want to analyze the pings in the message to know if notifications</p>
 <blockquote>
@@ -357,14 +267,14 @@ in case of update by its author.</p></li>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.set_user_vote">
-<code class="sig-name descname"><span class="pre">set_user_vote</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vote</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.set_user_vote" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.set_user_vote">
+<span class="sig-name descname"><span class="pre">set_user_vote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vote</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.set_user_vote" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Set a user vote (like, dislike or neutral)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Comment.update_content">
-<code class="sig-name descname"><span class="pre">update_content</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.update_content" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Comment.update_content">
+<span class="sig-name descname"><span class="pre">update_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Comment.update_content" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Updates the content of this comment.</p>
 <p>This method will render the new comment to HTML, store the rendered
 version, and store data to later analyze pings and spam.</p>
@@ -384,40 +294,40 @@ See render_markdown.</p></li>
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.CommentEdit">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">CommentEdit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.CommentEdit" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CommentEdit">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">CommentEdit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.CommentEdit" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Archive for editing a comment.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.CommentEdit.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.CommentEdit.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CommentEdit.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.CommentEdit.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.CommentEdit.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.CommentEdit.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CommentEdit.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.CommentEdit.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.CommentVote">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">CommentVote</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.CommentVote" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CommentVote">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">CommentVote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.CommentVote" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Set of comment votes.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.CommentVote.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.CommentVote.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CommentVote.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.CommentVote.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.CommentVote.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.CommentVote.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.CommentVote.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.CommentVote.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.Hat">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">Hat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Hat" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Hat">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">Hat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Hat" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Hats are labels that users can add to their messages.
 Each member can be allowed to use several hats.
 A hat may also be linked to a group, which
@@ -425,53 +335,53 @@ allows all members of the group to use it.
 It can be used for exemple to allow members to identify
 that a moderation message was posted by a staff member.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.Hat.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.Hat.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Hat.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.Hat.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.Hat.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.Hat.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Hat.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.Hat.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Hat.get_users">
-<code class="sig-name descname"><span class="pre">get_users</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Hat.get_users" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Hat.get_users">
+<span class="sig-name descname"><span class="pre">get_users</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Hat.get_users" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return all users being allowed to use this hat.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.HatRequest">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">HatRequest</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HatRequest">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">HatRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A hat requested by a user.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.HatRequest.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.HatRequest.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HatRequest.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.HatRequest.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.HatRequest.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.HatRequest.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HatRequest.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.HatRequest.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.HatRequest.get_hat">
-<code class="sig-name descname"><span class="pre">get_hat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest.get_hat" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HatRequest.get_hat">
+<span class="sig-name descname"><span class="pre">get_hat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">create</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest.get_hat" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Get hat that matches this request. If it doesn’t exist, it is created
 or <cite>None</cite> is returned according to the <cite>create</cite> parameter.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.HatRequest.notify_member">
-<code class="sig-name descname"><span class="pre">notify_member</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest.notify_member" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HatRequest.notify_member">
+<span class="sig-name descname"><span class="pre">notify_member</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest.notify_member" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Notify the request author about the decision that has been made.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.HatRequest.solve">
-<code class="sig-name descname"><span class="pre">solve</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_granted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest.solve" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HatRequest.solve">
+<span class="sig-name descname"><span class="pre">solve</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_granted</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">moderator</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">comment</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HatRequest.solve" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Solve a hat request by granting or denying the requested hat according
 to the <cite>is_granted</cite> parameter.</p>
 </dd></dl>
@@ -479,22 +389,22 @@ to the <cite>is_granted</cite> parameter.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.HelpWriting">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">HelpWriting</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HelpWriting" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HelpWriting">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">HelpWriting</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HelpWriting" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Tutorial Help</p>
 <dl class="py exception">
-<dt id="zds.utils.models.HelpWriting.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.HelpWriting.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HelpWriting.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.HelpWriting.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.HelpWriting.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.HelpWriting.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HelpWriting.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.HelpWriting.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.HelpWriting.save">
-<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HelpWriting.save" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.HelpWriting.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.HelpWriting.save" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Save the current instance. Override this in a subclass if you want to
 control the saving process.</p>
 <p>The “force_insert” and “force_update” parameters can be used to insist
@@ -505,38 +415,38 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.Licence">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">Licence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Licence" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Licence">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">Licence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Licence" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Publication licence.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.Licence.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.Licence.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Licence.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.Licence.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.Licence.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.Licence.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Licence.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.Licence.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.SubCategory">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">SubCategory</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.SubCategory" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.SubCategory">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">SubCategory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.SubCategory" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Common subcategory for several concepts of the application.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.SubCategory.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.SubCategory.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.SubCategory.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.SubCategory.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.SubCategory.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.SubCategory.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.SubCategory.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.SubCategory.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.SubCategory.get_parent_category">
-<code class="sig-name descname"><span class="pre">get_parent_category</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.SubCategory.get_parent_category" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.SubCategory.get_parent_category">
+<span class="sig-name descname"><span class="pre">get_parent_category</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.SubCategory.get_parent_category" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Get the parent of the category.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Renvoie</dt>
@@ -551,22 +461,22 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.models.Tag">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">Tag</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Tag" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Tag">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">Tag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Tag" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Set of tags.</p>
 <dl class="py exception">
-<dt id="zds.utils.models.Tag.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">DoesNotExist</span></code><a class="headerlink" href="#zds.utils.models.Tag.DoesNotExist" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Tag.DoesNotExist">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.utils.models.Tag.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
-<dt id="zds.utils.models.Tag.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></code><a class="headerlink" href="#zds.utils.models.Tag.MultipleObjectsReturned" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Tag.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.utils.models.Tag.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.models.Tag.save">
-<code class="sig-name descname"><span class="pre">save</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Tag.save" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.Tag.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.Tag.save" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Save the current instance. Override this in a subclass if you want to
 control the saving process.</p>
 <p>The “force_insert” and “force_update” parameters can be used to insist
@@ -577,55 +487,55 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.models.get_hat_from_request">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">get_hat_from_request</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.get_hat_from_request" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.get_hat_from_request">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">get_hat_from_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.get_hat_from_request" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return a hat that will be used for a post.
 This checks that the user is allowed to use this hat.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.models.get_hat_to_add">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">get_hat_to_add</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hat_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.get_hat_to_add" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.get_hat_to_add">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">get_hat_to_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hat_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.get_hat_to_add" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return a hat that will be added to a user.
 This function creates the hat if it does not exist,
 so be sure you will need it!</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.models.image_path_category">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">image_path_category</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.image_path_category" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.image_path_category">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">image_path_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.image_path_category" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return path to an image.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.models.image_path_help">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">image_path_help</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.image_path_help" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.image_path_help">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">image_path_help</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.image_path_help" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return path to an image.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.models.prevent_users_getting_hat_linked_to_group">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></code><code class="sig-name descname"><span class="pre">prevent_users_getting_hat_linked_to_group</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.prevent_users_getting_hat_linked_to_group" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.models.prevent_users_getting_hat_linked_to_group">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.models.</span></span><span class="sig-name descname"><span class="pre">prevent_users_getting_hat_linked_to_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.models.prevent_users_getting_hat_linked_to_group" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>When a hat is saved with a linked group, all users that have gotten it by another way
 lose it to prevent a hat from being linked to a user through their profile and one of their groups.
 Hat requests for this hat are also canceled.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-zds.utils.forums">
-<span id="forums-forums-py"></span><h2><a class="toc-backref" href="#id3">Forums (<code class="docutils literal notranslate"><span class="pre">forums.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.forums" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="module-zds.utils.forums">
+<span id="forums-forums-py"></span><h2><a class="toc-backref" href="#id3">Forums (<code class="docutils literal notranslate"><span class="pre">forums.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.forums" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
-<dt id="zds.utils.forums.CreatePostView">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.forums.</span></code><code class="sig-name descname"><span class="pre">CreatePostView</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.CreatePostView" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forums.CreatePostView">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.forums.</span></span><span class="sig-name descname"><span class="pre">CreatePostView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.CreatePostView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
-<dt id="zds.utils.forums.CreatePostView.get">
-<code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.CreatePostView.get" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forums.CreatePostView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.CreatePostView.get" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Handle GET requests: instantiate a blank version of the form.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.forums.CreatePostView.post">
-<code class="sig-name descname"><span class="pre">post</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.CreatePostView.post" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forums.CreatePostView.post">
+<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.CreatePostView.post" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Handle POST requests: instantiate a form instance with the passed
 POST variables and then check if it’s valid.</p>
 </dd></dl>
@@ -633,14 +543,14 @@ POST variables and then check if it’s valid.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.forums.create_topic">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.forums.</span></code><code class="sig-name descname"><span class="pre">create_topic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_publishable_content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.create_topic" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forums.create_topic">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.forums.</span></span><span class="sig-name descname"><span class="pre">create_topic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_publishable_content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.create_topic" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>create topic in forum</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.forums.get_tag_by_title">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.forums.</span></code><code class="sig-name descname"><span class="pre">get_tag_by_title</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.get_tag_by_title" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forums.get_tag_by_title">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.forums.</span></span><span class="sig-name descname"><span class="pre">get_tag_by_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forums.get_tag_by_title" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Extract tags from title.
 In a title, tags can be set this way:
 &gt; [Tag 1][Tag 2] There is the real title
@@ -653,15 +563,15 @@ Rules to detect tags:
 :return: A tuple: (the tag list, the title without the tags).</p>
 </dd></dl>
 
-</div>
-<div class="section" id="messages-prives-mps-py">
-<h2><a class="toc-backref" href="#id4">Messages privés (<code class="docutils literal notranslate"><span class="pre">mps.py</span></code>)</a><a class="headerlink" href="#messages-prives-mps-py" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="messages-prives-mps-py">
+<h2><a class="toc-backref" href="#id4">Messages privés (<code class="docutils literal notranslate"><span class="pre">mps.py</span></code>)</a><a class="headerlink" href="#messages-prives-mps-py" title="Lien permanent vers ce titre"></a></h2>
 <p>Ce module ajoute des fonctions utiles permettant de gérer l’ajout et la réponse à des messages privés.</p>
 <p>Il est important d’utiliser ces méthodes pour réaliser ces actions sous peine d’oublier des actions.</p>
 <p>Ces méthodes permettent un lien direct avec le module « notifications ».</p>
 <span class="target" id="module-zds.utils.mps"></span><dl class="py function">
-<dt id="zds.utils.mps.send_message_mp">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.mps.</span></code><code class="sig-name descname"><span class="pre">send_message_mp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_by_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_notification_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.mps.send_message_mp" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.mps.send_message_mp">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.mps.</span></span><span class="sig-name descname"><span class="pre">send_message_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_by_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_notification_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.mps.send_message_mp" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Send a post in an MP.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -679,8 +589,8 @@ Rules to detect tags:
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.mps.send_mp">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.mps.</span></code><code class="sig-name descname"><span class="pre">send_mp</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">users</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_by_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatically_read</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.mps.send_mp" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.mps.send_mp">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.mps.</span></span><span class="sig-name descname"><span class="pre">send_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">users</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_by_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatically_read</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.mps.send_mp" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Send a private message in a new private topic.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -703,12 +613,12 @@ Rules to detect tags:
 </dl>
 </dd></dl>
 
-</div>
-<div class="section" id="module-zds.utils.tutorials">
-<span id="tutoriels-tutorials-py"></span><h2><a class="toc-backref" href="#id5">Tutoriels (<code class="docutils literal notranslate"><span class="pre">tutorials.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.tutorials" title="Lien permanent vers ce titre">¶</a></h2>
-</div>
-<div class="section" id="les-processeurs-de-contexte-context-processor-py">
-<h2><a class="toc-backref" href="#id6">Les processeurs de contexte (<code class="docutils literal notranslate"><span class="pre">context_processor.py</span></code>)</a><a class="headerlink" href="#les-processeurs-de-contexte-context-processor-py" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="module-zds.utils.tutorials">
+<span id="tutoriels-tutorials-py"></span><h2><a class="toc-backref" href="#id5">Tutoriels (<code class="docutils literal notranslate"><span class="pre">tutorials.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.tutorials" title="Lien permanent vers ce titre"></a></h2>
+</section>
+<section id="les-processeurs-de-contexte-context-processor-py">
+<h2><a class="toc-backref" href="#id6">Les processeurs de contexte (<code class="docutils literal notranslate"><span class="pre">context_processor.py</span></code>)</a><a class="headerlink" href="#les-processeurs-de-contexte-context-processor-py" title="Lien permanent vers ce titre"></a></h2>
 <p>La doc de Django explique le principe des <em>context_processors</em> comme suit :</p>
 <div class="line-block">
 <div class="line">Un processeur de contexte possède une interface très simple : ce n’est qu’une fonction Python acceptant un paramètre, un objet HttpRequest, et renvoyant un dictionnaire qui est ensuite ajouté au contexte de gabarit. Chaque processeur de contexte doit renvoyer un dictionnaire.</div>
@@ -718,49 +628,49 @@ Rules to detect tags:
 </div>
 <p>(pour plus de détails, <a class="reference external" href="https://docs.djangoproject.com/fr/1.8/ref/templates/api/#subclassing-context-requestcontext">voir la documenation de Django à ce sujet</a>)</p>
 <span class="target" id="module-zds.utils.context_processor"></span><dl class="py function">
-<dt id="zds.utils.context_processor.app_settings">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.context_processor.</span></code><code class="sig-name descname"><span class="pre">app_settings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.context_processor.app_settings" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.context_processor.app_settings">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.context_processor.</span></span><span class="sig-name descname"><span class="pre">app_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.context_processor.app_settings" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A context processor with all APP settings.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.context_processor.get_version">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.context_processor.</span></code><code class="sig-name descname"><span class="pre">get_version</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.context_processor.get_version" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.context_processor.get_version">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.context_processor.</span></span><span class="sig-name descname"><span class="pre">get_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.context_processor.get_version" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Retrieve version informations from <cite>zds/_version.py</cite>.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.context_processor.version">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.context_processor.</span></code><code class="sig-name descname"><span class="pre">version</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.context_processor.version" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.context_processor.version">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.context_processor.</span></span><span class="sig-name descname"><span class="pre">version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.context_processor.version" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A context processor to include the app version on all pages.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="module-zds.utils.forms">
-<span id="utilitaires-pour-formulaires-forms-py"></span><h2><a class="toc-backref" href="#id7">Utilitaires pour formulaires (<code class="docutils literal notranslate"><span class="pre">forms.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.forms" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="module-zds.utils.forms">
+<span id="utilitaires-pour-formulaires-forms-py"></span><h2><a class="toc-backref" href="#id7">Utilitaires pour formulaires (<code class="docutils literal notranslate"><span class="pre">forms.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.forms" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
-<dt id="zds.utils.forms.CommonLayoutEditor">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></code><code class="sig-name descname"><span class="pre">CommonLayoutEditor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.CommonLayoutEditor" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.CommonLayoutEditor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></span><span class="sig-name descname"><span class="pre">CommonLayoutEditor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.CommonLayoutEditor" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.forms.CommonLayoutVersionEditor">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></code><code class="sig-name descname"><span class="pre">CommonLayoutVersionEditor</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Envoyer'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.CommonLayoutVersionEditor" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.CommonLayoutVersionEditor">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></span><span class="sig-name descname"><span class="pre">CommonLayoutVersionEditor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Envoyer'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.CommonLayoutVersionEditor" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.forms.IncludeEasyMDE">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></code><code class="sig-name descname"><span class="pre">IncludeEasyMDE</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.IncludeEasyMDE" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.IncludeEasyMDE">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></span><span class="sig-name descname"><span class="pre">IncludeEasyMDE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.IncludeEasyMDE" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Include EasyMDE JS File for this form</p>
 </dd></dl>
 
 <dl class="py class">
-<dt id="zds.utils.forms.TagValidator">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></code><code class="sig-name descname"><span class="pre">TagValidator</span></code><a class="headerlink" href="#zds.utils.forms.TagValidator" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.TagValidator">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></span><span class="sig-name descname"><span class="pre">TagValidator</span></span><a class="headerlink" href="#zds.utils.forms.TagValidator" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>validate tags</p>
 <dl class="py method">
-<dt id="zds.utils.forms.TagValidator.validate_length">
-<code class="sig-name descname"><span class="pre">validate_length</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_length" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.TagValidator.validate_length">
+<span class="sig-name descname"><span class="pre">validate_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_length" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Check the length is in correct range. See <code class="docutils literal notranslate"><span class="pre">Tag.label</span></code> max length to have the true upper bound.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -773,8 +683,8 @@ Rules to detect tags:
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.forms.TagValidator.validate_no_empty_slug">
-<code class="sig-name descname"><span class="pre">validate_no_empty_slug</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_no_empty_slug" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.TagValidator.validate_no_empty_slug">
+<span class="sig-name descname"><span class="pre">validate_no_empty_slug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_no_empty_slug" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Validate whether the tag slug is good</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -787,8 +697,8 @@ Rules to detect tags:
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.forms.TagValidator.validate_raw_string">
-<code class="sig-name descname"><span class="pre">validate_raw_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_raw_string" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.TagValidator.validate_raw_string">
+<span class="sig-name descname"><span class="pre">validate_raw_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_string</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_raw_string" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>validate a string composed as <code class="docutils literal notranslate"><span class="pre">tag1,tag2</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -801,8 +711,8 @@ Rules to detect tags:
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.forms.TagValidator.validate_string_list">
-<code class="sig-name descname"><span class="pre">validate_string_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_string_list" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.TagValidator.validate_string_list">
+<span class="sig-name descname"><span class="pre">validate_string_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">string_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_string_list" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Same as <code class="docutils literal notranslate"><span class="pre">validate_raw_string</span></code> but with a list of tag labels.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -815,8 +725,8 @@ Rules to detect tags:
 </dd></dl>
 
 <dl class="py method">
-<dt id="zds.utils.forms.TagValidator.validate_utf8mb4">
-<code class="sig-name descname"><span class="pre">validate_utf8mb4</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_utf8mb4" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.forms.TagValidator.validate_utf8mb4">
+<span class="sig-name descname"><span class="pre">validate_utf8mb4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.TagValidator.validate_utf8mb4" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Checks the tag does not contain utf8mb4 chars.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -830,83 +740,66 @@ Rules to detect tags:
 
 </dd></dl>
 
-</div>
-<div class="section" id="module-zds.utils.misc">
-<span id="autres-misc-py"></span><h2><a class="toc-backref" href="#id8">Autres (<code class="docutils literal notranslate"><span class="pre">misc.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.misc" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="module-zds.utils.misc">
+<span id="autres-misc-py"></span><h2><a class="toc-backref" href="#id8">Autres (<code class="docutils literal notranslate"><span class="pre">misc.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.misc" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py function">
-<dt id="zds.utils.misc.compute_hash">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></code><code class="sig-name descname"><span class="pre">compute_hash</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.compute_hash" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.misc.compute_hash">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></span><span class="sig-name descname"><span class="pre">compute_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.compute_hash" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>returns a md5 hexdigest of group of files to check if they have change</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.misc.contains_utf8mb4">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></code><code class="sig-name descname"><span class="pre">contains_utf8mb4</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.contains_utf8mb4" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.misc.contains_utf8mb4">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></span><span class="sig-name descname"><span class="pre">contains_utf8mb4</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.contains_utf8mb4" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>This string contains at least one character of more than 3 bytes</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.misc.convert_camel_to_underscore">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></code><code class="sig-name descname"><span class="pre">convert_camel_to_underscore</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camel_case</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.convert_camel_to_underscore" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.misc.convert_camel_to_underscore">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></span><span class="sig-name descname"><span class="pre">convert_camel_to_underscore</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">camel_case</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.convert_camel_to_underscore" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Converts a name in camel case to underscore.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="zds.utils.misc.has_changed">
-<code class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></code><code class="sig-name descname"><span class="pre">has_changed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'objects'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.has_changed" title="Lien permanent vers cette définition">¶</a></dt>
+<dt class="sig sig-object py" id="zds.utils.misc.has_changed">
+<span class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></span><span class="sig-name descname"><span class="pre">has_changed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'objects'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.has_changed" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Returns true if a field has changed in a model May be used in a
 model.save() method.</p>
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../front-end.html" class="btn btn-neutral float-right" title="Le front-end" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="tutorialv2.html" class="btn btn-neutral float-left" title="Les tutoriels v2 (ZEP12) (tutorialv2/)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="tutorialv2.html" class="btn btn-neutral float-left" title="Les tutoriels v2 (ZEP12) (tutorialv2/)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="../front-end.html" class="btn btn-neutral float-right" title="Le front-end" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2014-2021, Zeste de Savoir.
-
-    </p>
+    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

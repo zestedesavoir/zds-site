@@ -1,94 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="fr" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Installation de LaTeX et de la template &mdash; Documentation Zeste de Savoir dev</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
     <link rel="next" title="Installation et utilisation de zmarkdown" href="extra-zmd.html" />
     <link rel="prev" title="Installation du frontend" href="extra-install-frontend.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Zeste de Savoir
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 dev
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Rechercher docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../install.html">Installation</a><ul class="current">
@@ -116,75 +68,33 @@
 <li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Zeste de Savoir</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../install.html">Installation</a> &raquo;</li>
-        
       <li>Installation de LaTeX et de la <em>template</em></li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-            <a href="../_sources/install/extra-install-latex.rst.txt" rel="nofollow"> View page source</a>
-          
-        
+            <a href="../_sources/install/extra-install-latex.rst.txt" rel="nofollow"> Afficher la source de la page</a>
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="installation-de-latex-et-de-la-template">
-<h1>Installation de LaTeX et de la <em>template</em><a class="headerlink" href="#installation-de-latex-et-de-la-template" title="Lien permanent vers ce titre">¶</a></h1>
+             
+  <section id="installation-de-latex-et-de-la-template">
+<h1>Installation de LaTeX et de la <em>template</em><a class="headerlink" href="#installation-de-latex-et-de-la-template" title="Lien permanent vers ce titre"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>La procédure peut ne pas fonctionner sous Windows (probable) et macOS (moins probable), où elle n’a pas été testée.
@@ -196,17 +106,17 @@ Une fois le code généré, il est nécessaire de le compiler, donc d’installe
 <li><p>Un compilateur LaTeX (en fait, c’est LuaLaTeX qui est employé, mais peu importe ici) ;</p></li>
 <li><p>La <em>template</em>, qui permet, entre autres choses, la mise en forme du document (couleurs, page de garde, blocs …). Celle-ci est située dans un <a class="reference external" href="https://github.com/zestedesavoir/latex-template">dépot séparé (en)</a>, où vous trouverez plus d’informations.</p></li>
 </ul>
-<div class="section" id="prerequis">
-<h2>Prérequis<a class="headerlink" href="#prerequis" title="Lien permanent vers ce titre">¶</a></h2>
+<section id="prerequis">
+<h2>Prérequis<a class="headerlink" href="#prerequis" title="Lien permanent vers ce titre"></a></h2>
 <p>Avant toutes choses, vous devez installer les parties suivantes (peu importe votre système d’exploitation):</p>
 <ul class="simple">
 <li><p>Les polices <a class="reference external" href="https://www.fontsquirrel.com/fonts/source-code-pro">Source Code Pro</a> et <a class="reference external" href="https://www.fontsquirrel.com/fonts/source-sans-pro">Source Sans Pro</a>. Une fois téléchargées et décompressées, le programme permetant de visualiser les polices sur votre système d’exploitation propose généralement un bouton d’installation. Sous Linux, vous pouvez simplement employer <a class="reference external" href="https://github.com/zestedesavoir/latex-template/blob/master/scripts/install_font.sh">ce script</a>.</p></li>
 <li><p>Le package <a class="reference external" href="http://pygments.org/">Pygments</a>: vous pouvez l’installer via <code class="docutils literal notranslate"><span class="pre">pip</span></code> (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">Pygments</span></code>, peu importe l’OS) ou via le gestionnaire de package de votre distribution (Linux et macOS). Notez que c’est également une dépendance de ZdS, donc il est déjà installé dans le <em>virtualenv</em>.</p></li>
 <li><p>(<em>optionnel</em>, Linux seulement) Pour utiliser des formats d’images tels que le GIF ou le SVG, deux outils supplémentaires sont nécessaires: <a class="reference external" href="https://github.com/GNOME/librsvg">librsvg</a> (souvent disponible sous le nom <code class="docutils literal notranslate"><span class="pre">librsvg2-bin</span></code> dans votre gestionnaire de paquets) et <a class="reference external" href="http://www.imagemagick.org/">imagemagick</a> (probablement disponible via le package du même nom).</p></li>
 </ul>
-</div>
-<div class="section" id="installer-une-distribution-latex">
-<h2>Installer une distribution LaTeX<a class="headerlink" href="#installer-une-distribution-latex" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="installer-une-distribution-latex">
+<h2>Installer une distribution LaTeX<a class="headerlink" href="#installer-une-distribution-latex" title="Lien permanent vers ce titre"></a></h2>
 <ul class="simple">
 <li><p>Sous Windows, vous pouvez installer <a class="reference external" href="https://miktex.org/download">MikTeX</a> ou <a class="reference external" href="https://www.tug.org/texlive/">TexLive</a>.</p></li>
 <li><p>Sous macOS, vous pouvez installer <a class="reference external" href="https://www.tug.org/mactex/mactex-download.html">MacTex</a>.</p></li>
@@ -214,9 +124,9 @@ Une fois le code généré, il est nécessaire de le compiler, donc d’installe
 </ul>
 <p>Si vous n’êtes pas famillier avec LaTeX, choisissez d’installer la version <strong>complète</strong>.
 La liste des packages nécessaire <a class="reference external" href="https://github.com/zestedesavoir/latex-template/blob/master/scripts/packages">est disponible ici</a>, mais n’est peut être pas exhaustive.</p>
-</div>
-<div class="section" id="installer-la-template">
-<h2>Installer la <em>template</em><a class="headerlink" href="#installer-la-template" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="installer-la-template">
+<h2>Installer la <em>template</em><a class="headerlink" href="#installer-la-template" title="Lien permanent vers ce titre"></a></h2>
 <p>Vous pouvez <a class="reference external" href="https://github.com/zestedesavoir/latex-template/archive/master.zip">télécharger l’archive</a> et en décompresser le contenu (ou alors cloner le dépot) dans <code class="docutils literal notranslate"><span class="pre">&lt;TEXMFHOME&gt;/tex/latex</span></code>, où la valeur de <code class="docutils literal notranslate"><span class="pre">&lt;TEXMFHOME&gt;</span></code> peut être obtenue en entrant la commande suivante:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kpsewhich -var-value TEXMFHOME
 </pre></div>
@@ -224,55 +134,38 @@ La liste des packages nécessaire <a class="reference external" href="https://gi
 <p>et ce <strong>quelque soit votre système d’exploitation</strong> (ou la distribution installée).
 Créez les sous dossiers <code class="docutils literal notranslate"><span class="pre">tex</span></code> puis <code class="docutils literal notranslate"><span class="pre">latex</span></code> si ce n’est pas le cas.
 Notez que l’utilisation de <code class="docutils literal notranslate"><span class="pre">texhash</span></code> n’est pas nécessaire.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="extra-zmd.html" class="btn btn-neutral float-right" title="Installation et utilisation de zmarkdown" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="extra-install-frontend.html" class="btn btn-neutral float-left" title="Installation du frontend" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="extra-install-frontend.html" class="btn btn-neutral float-left" title="Installation du frontend" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="extra-zmd.html" class="btn btn-neutral float-right" title="Installation et utilisation de zmarkdown" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2014-2021, Zeste de Savoir.
-
-    </p>
+    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

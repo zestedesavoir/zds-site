@@ -1,94 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="fr" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Arborescence du back-end &mdash; Documentation Zeste de Savoir dev</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
     <link rel="next" title="Les outils de mises en avant (featured/)" href="featured.html" />
     <link rel="prev" title="Documentation technique du back-end" href="../back-end-code.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Zeste de Savoir
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 dev
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Rechercher docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -125,78 +77,36 @@
 <li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Zeste de Savoir</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../back-end-code.html">Documentation technique du <em>back-end</em></a> &raquo;</li>
-        
       <li>Arborescence du <em>back-end</em></li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-            <a href="../_sources/back-end-code/arborescence-back.rst.txt" rel="nofollow"> View page source</a>
-          
-        
+            <a href="../_sources/back-end-code/arborescence-back.rst.txt" rel="nofollow"> Afficher la source de la page</a>
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="arborescence-du-back-end">
-<h1>Arborescence du <em>back-end</em><a class="headerlink" href="#arborescence-du-back-end" title="Lien permanent vers ce titre">¶</a></h1>
+             
+  <section id="arborescence-du-back-end">
+<h1>Arborescence du <em>back-end</em><a class="headerlink" href="#arborescence-du-back-end" title="Lien permanent vers ce titre"></a></h1>
 <p>Le <em>back-end</em> est divisé en différents modules qui assurent chacun une tâche du site. Ceux-ci sont intégralement localisés dans le dossier <code class="docutils literal notranslate"><span class="pre">zds/</span></code>.</p>
-<div class="section" id="arborescence-generale-de-zds">
-<h2>Arborescence générale de <code class="docutils literal notranslate"><span class="pre">zds/</span></code><a class="headerlink" href="#arborescence-generale-de-zds" title="Lien permanent vers ce titre">¶</a></h2>
+<section id="arborescence-generale-de-zds">
+<h2>Arborescence générale de <code class="docutils literal notranslate"><span class="pre">zds/</span></code><a class="headerlink" href="#arborescence-generale-de-zds" title="Lien permanent vers ce titre"></a></h2>
 <p>On retrouve un dossier pour chaque module du site :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zds/
 ├── article/ <span class="c1"># module des articles</span>
@@ -233,9 +143,9 @@
 └── wsgi.py
 </pre></div>
 </div>
-</div>
-<div class="section" id="contenu-d-un-module">
-<h2>Contenu d’un module<a class="headerlink" href="#contenu-d-un-module" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="contenu-d-un-module">
+<h2>Contenu d’un module<a class="headerlink" href="#contenu-d-un-module" title="Lien permanent vers ce titre"></a></h2>
 <p>Chacun des modules possède dans son dossier une arborescence fort semblable, et dans laquelle il est possible de trouver:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module/
 ├── migrations/
@@ -257,21 +167,21 @@
 └── views.py
 </pre></div>
 </div>
-<div class="section" id="fichiers-principaux">
-<h3>Fichiers principaux<a class="headerlink" href="#fichiers-principaux" title="Lien permanent vers ce titre">¶</a></h3>
+<section id="fichiers-principaux">
+<h3>Fichiers principaux<a class="headerlink" href="#fichiers-principaux" title="Lien permanent vers ce titre"></a></h3>
 <p>Django étant basé sur une architecture de type Modèle-Vue-Template, on retrouve les modèles dans le fichier <code class="docutils literal notranslate"><span class="pre">models.py</span></code> et les contrôles associés à celles-ci dans <code class="docutils literal notranslate"><span class="pre">views.py</span></code>. Ces dernières peuvent employer des classes formulaires qui sont définis dans <code class="docutils literal notranslate"><span class="pre">forms.py</span></code>. Les URLs associées au module et permetant d’accéder aux vues sont définies dans <code class="docutils literal notranslate"><span class="pre">urls.py</span></code>. On retrouve finalement des vues spécifiques associées aux fils RSS et Atom dans <code class="docutils literal notranslate"><span class="pre">feeds.py</span></code>.</p>
 <p>On retrouve également des validateurs dans le fichier <code class="docutils literal notranslate"><span class="pre">commons.py</span></code> (voir à ce sujet <a class="reference external" href="https://docs.djangoproject.com/fr/1.8/ref/validators/">la documentation de Django</a>).</p>
-</div>
-<div class="section" id="tests-unitaires">
-<h3>Tests unitaires<a class="headerlink" href="#tests-unitaires" title="Lien permanent vers ce titre">¶</a></h3>
+</section>
+<section id="tests-unitaires">
+<h3>Tests unitaires<a class="headerlink" href="#tests-unitaires" title="Lien permanent vers ce titre"></a></h3>
 <p>Une partie importante du développement est basée sur les tests unitaires : afin d’éviter qu’un développement futur ne brise une fonctionnalité, une série de test associé à chaque module est écrite dans des fichiers situés dans le dossier <code class="docutils literal notranslate"><span class="pre">tests/</span></code> de chaque module. Cette série de test peut être lancée en utilisant la commande suivante :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py <span class="nb">test</span> zds.module
 </pre></div>
 </div>
 <p>où il est nécéssaire de remplacer <code class="docutils literal notranslate"><span class="pre">module</span></code> par le nom du module associé. Ces tests utilisent des données de tests générées par des <em>factories</em> (usines) qui sont définies dans <code class="docutils literal notranslate"><span class="pre">factories.py</span></code>.</p>
-</div>
-<div class="section" id="gestion-de-la-base-de-donnees">
-<h3>Gestion de la base de données<a class="headerlink" href="#gestion-de-la-base-de-donnees" title="Lien permanent vers ce titre">¶</a></h3>
+</section>
+<section id="gestion-de-la-base-de-donnees">
+<h3>Gestion de la base de données<a class="headerlink" href="#gestion-de-la-base-de-donnees" title="Lien permanent vers ce titre"></a></h3>
 <p>Le dossier <code class="docutils literal notranslate"><span class="pre">migrations/</span></code> permet à Django de consigner les changements effectués à des modèles qui modifient également la structure de la base de donnée. Son contenu ne devrait pas être modifié manuelement, il l’est cependant de manière automatique lorsque la commande suivante est utilisée :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py makemigrations
 </pre></div>
@@ -281,66 +191,49 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py migrate --fake-initial
 </pre></div>
 </div>
-</div>
-<div class="section" id="api">
-<h3>API<a class="headerlink" href="#api" title="Lien permanent vers ce titre">¶</a></h3>
+</section>
+<section id="api">
+<h3>API<a class="headerlink" href="#api" title="Lien permanent vers ce titre"></a></h3>
 <p>Une description fonctionnelle de l’API est faite <a class="reference external" href="../api.html">sur la page correspondante</a>.</p>
 <p>Les fichiers correspondants à une API du module (si elle existe) se situent dans le dossier <code class="docutils literal notranslate"><span class="pre">api/</span></code>. Dans celui-ci, se trouvent principalement de nouvelles vues (<code class="docutils literal notranslate"><span class="pre">api/views.py</span></code>), URLs (<code class="docutils literal notranslate"><span class="pre">api/urls.py</span></code>) et tests (<code class="docutils literal notranslate"><span class="pre">api/tests.py</span></code>). On retrouve également des <em>serializers</em> dans <code class="docutils literal notranslate"><span class="pre">api/serializers.py</span></code>, nécessaires à la création de l’API (voir à ce sujet <a class="reference external" href="http://www.django-rest-framework.org/api-guide/serializers/">la documentation du REST framework (en)</a>).</p>
-</div>
-<div class="section" id="autres">
-<h3>Autres<a class="headerlink" href="#autres" title="Lien permanent vers ce titre">¶</a></h3>
+</section>
+<section id="autres">
+<h3>Autres<a class="headerlink" href="#autres" title="Lien permanent vers ce titre"></a></h3>
 <p>Le fichier <code class="docutils literal notranslate"><span class="pre">search_index.py</span></code> est utilisé par Django pour générer les <em>index</em> de recherche pour <a class="reference external" href="../install/install-solr.html">Solr</a>.</p>
 <p>Le fichier <code class="docutils literal notranslate"><span class="pre">admin.py</span></code> est quand à lui employé par Django pour la partie administration (accessible en local via <code class="docutils literal notranslate"><span class="pre">/admin/</span></code>).</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="featured.html" class="btn btn-neutral float-right" title="Les outils de mises en avant (featured/)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="../back-end-code.html" class="btn btn-neutral float-left" title="Documentation technique du back-end" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="../back-end-code.html" class="btn btn-neutral float-left" title="Documentation technique du back-end" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="featured.html" class="btn btn-neutral float-right" title="Les outils de mises en avant (featured/)" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2014-2021, Zeste de Savoir.
-
-    </p>
+    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

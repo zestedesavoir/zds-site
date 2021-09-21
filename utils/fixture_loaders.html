@@ -1,94 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="fr" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Le chargement de jeux de données (fixtures) &mdash; Documentation Zeste de Savoir dev</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
     <link rel="next" title="Générer les PDFs des différents contenus" href="generate_pdf.html" />
     <link rel="prev" title="Paramètrer le moteur de Captcha" href="captcha.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Zeste de Savoir
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 dev
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Rechercher docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -121,80 +73,38 @@
 <li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Zeste de Savoir</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../utils.html">Makefile et autres outils</a> &raquo;</li>
-        
       <li>Le chargement de jeux de données (fixtures)</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-            <a href="../_sources/utils/fixture_loaders.rst.txt" rel="nofollow"> View page source</a>
-          
-        
+            <a href="../_sources/utils/fixture_loaders.rst.txt" rel="nofollow"> Afficher la source de la page</a>
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="le-chargement-de-jeux-de-donnees-fixtures">
-<h1>Le chargement de jeux de données (fixtures)<a class="headerlink" href="#le-chargement-de-jeux-de-donnees-fixtures" title="Lien permanent vers ce titre">¶</a></h1>
+             
+  <section id="le-chargement-de-jeux-de-donnees-fixtures">
+<h1>Le chargement de jeux de données (fixtures)<a class="headerlink" href="#le-chargement-de-jeux-de-donnees-fixtures" title="Lien permanent vers ce titre"></a></h1>
 <p>Zeste de Savoir étant un projet très complet il est nécessaire de pouvoir charger un ensemble de jeux de données
 de manière automatique pour créer une nouvelle instance à des fins de test ou pour forker le site.</p>
 <p>Pour faciliter la tâche, des outils sont mis à disposition des développeurs, testeurs et utilisateurs.</p>
-<div class="section" id="chargement-du-jeu-de-donnees-standard">
-<h2>Chargement du jeu de données standard<a class="headerlink" href="#chargement-du-jeu-de-donnees-standard" title="Lien permanent vers ce titre">¶</a></h2>
+<section id="chargement-du-jeu-de-donnees-standard">
+<h2>Chargement du jeu de données standard<a class="headerlink" href="#chargement-du-jeu-de-donnees-standard" title="Lien permanent vers ce titre"></a></h2>
 <p>En l’absence d’exigences particulières, le moyen le plus simple de charger un jeu de données est d’utiliser la
 commande suivante :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make generate-fixtures
@@ -212,9 +122,9 @@ commande suivante :</p>
 </ul>
 <p>Ces trois opérations correspondent à des appels aux outils décrits ci-après. Les paramètres exacts sont
 disponibles dans le fichier <cite>Makefile</cite> à la racine de l’environnement de développement.</p>
-</div>
-<div class="section" id="les-donnees-serialisables-pour-une-base-fonctionnelle">
-<h2>Les données sérialisables pour une base fonctionnelle<a class="headerlink" href="#les-donnees-serialisables-pour-une-base-fonctionnelle" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="les-donnees-serialisables-pour-une-base-fonctionnelle">
+<h2>Les données sérialisables pour une base fonctionnelle<a class="headerlink" href="#les-donnees-serialisables-pour-une-base-fonctionnelle" title="Lien permanent vers ce titre"></a></h2>
 <p>Un premier ensemble de données simples est accessible par la commande intégrée à django <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">loaddata</span></code>.</p>
 <p>Cette commande s’attend à une liste de fichiers au format yaml et supporte les <em>wildcards</em>.
 Nous possédons un ensemble de données sérialisées dans le dossier fixtures :</p>
@@ -247,9 +157,9 @@ Nous possédons un ensemble de données sérialisées dans le dossier fixtures 
 </li>
 <li><p><code class="docutils literal notranslate"><span class="pre">group.yaml</span></code>: crée les descriptions de deux groupes de la page d’accueil (staff et groupe technique).</p></li>
 </ul>
-</div>
-<div class="section" id="les-donnees-complexes-voire-les-scenarios">
-<h2>Les données complexes voire les scénarios<a class="headerlink" href="#les-donnees-complexes-voire-les-scenarios" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="les-donnees-complexes-voire-les-scenarios">
+<h2>Les données complexes voire les scénarios<a class="headerlink" href="#les-donnees-complexes-voire-les-scenarios" title="Lien permanent vers ce titre"></a></h2>
 <p>Certaines données, pour exister, ont besoin de ressources supplémentaires qui ne sont pas forcément sérialisables.
 Par exemple un tutoriel a besoin d’un dépôt git, une option d’aide (ZEP 03) a besoin d’une icône qui sera accessible depuis
 le web…</p>
@@ -281,9 +191,9 @@ par exemple, avec la zds.utils.HelpWrittingFactory, utiliser <code class="docuti
 </ul>
 <p>Bien que ce module soit optionnel, si vous désirez qu’il soit possible de demander de l’aide sur les tutoriels et articles,
 il vous faudra utiliser <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">load_factory_data</span> <span class="pre">fixtures/advanced/aide_tuto_media.yaml</span></code>.</p>
-</div>
-<div class="section" id="tester-sur-un-jeu-de-donnees-massif">
-<h2>Tester sur un jeu de données massif<a class="headerlink" href="#tester-sur-un-jeu-de-donnees-massif" title="Lien permanent vers ce titre">¶</a></h2>
+</section>
+<section id="tester-sur-un-jeu-de-donnees-massif">
+<h2>Tester sur un jeu de données massif<a class="headerlink" href="#tester-sur-un-jeu-de-donnees-massif" title="Lien permanent vers ce titre"></a></h2>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>L’utilisation de la commande qui suit peut prendre du temps</p>
@@ -379,55 +289,38 @@ Ce coefficient sera à multiplier par le <em>coefficient de taille</em> dirrigé
 <dd><p>Ce nombre est une moyenne, le nombre réel est choisi au hasard autour de cette moyenne.</p>
 </dd>
 </dl>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="generate_pdf.html" class="btn btn-neutral float-right" title="Générer les PDFs des différents contenus" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="captcha.html" class="btn btn-neutral float-left" title="Paramètrer le moteur de Captcha" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="captcha.html" class="btn btn-neutral float-left" title="Paramètrer le moteur de Captcha" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="generate_pdf.html" class="btn btn-neutral float-right" title="Générer les PDFs des différents contenus" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2014-2021, Zeste de Savoir.
-
-    </p>
+    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

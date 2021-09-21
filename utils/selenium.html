@@ -1,94 +1,46 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="fr" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Selenium &mdash; Documentation Zeste de Savoir dev</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
     <link rel="next" title="Problème de lenteur lors du dev ?" href="../delay-issue.html" />
     <link rel="prev" title="Générer les rapports de release" href="release_generator.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> Zeste de Savoir
-          
-
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 dev
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Rechercher docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
@@ -123,81 +75,39 @@
 <li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">Zeste de Savoir</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../utils.html">Makefile et autres outils</a> &raquo;</li>
-        
       <li>Selenium</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
-            <a href="../_sources/utils/selenium.rst.txt" rel="nofollow"> View page source</a>
-          
-        
+            <a href="../_sources/utils/selenium.rst.txt" rel="nofollow"> Afficher la source de la page</a>
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="selenium">
-<h1>Selenium<a class="headerlink" href="#selenium" title="Lien permanent vers ce titre">¶</a></h1>
+             
+  <section id="selenium">
+<h1>Selenium<a class="headerlink" href="#selenium" title="Lien permanent vers ce titre"></a></h1>
 <p>Selenium est utilisé pour réaliser les tests front-end. Il s’agit d’un outil très utilisé qui propose des interfaces dans différents languages dont Python. Il est donc possible de l’utiliser avec Django.</p>
 <p>Pour l’utiliser, il suffit au développeur d’installer Selenium et un webdriver.</p>
-<div class="section" id="les-tests-front-end">
-<h2>Les tests front-end<a class="headerlink" href="#les-tests-front-end" title="Lien permanent vers ce titre">¶</a></h2>
-<div class="section" id="installation-du-webdriver">
-<h3>Installation du webdriver<a class="headerlink" href="#installation-du-webdriver" title="Lien permanent vers ce titre">¶</a></h3>
+<section id="les-tests-front-end">
+<h2>Les tests front-end<a class="headerlink" href="#les-tests-front-end" title="Lien permanent vers ce titre"></a></h2>
+<section id="installation-du-webdriver">
+<h3>Installation du webdriver<a class="headerlink" href="#installation-du-webdriver" title="Lien permanent vers ce titre"></a></h3>
 <p>Il est nécessaire d’installer deux choses pour utiliser Selenium avec Django : Selenium (présent dans <code class="docutils literal notranslate"><span class="pre">requirements-dev.txt</span></code>) et un webdriver. Pour ceci, il suffit d’exécuter :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Installation du webdriver</span>
 wget https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz
@@ -212,9 +122,9 @@ tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
 <p class="admonition-title">Attention</p>
 <p>La version de geckodriver à installer dépend des versions de Selenium et de Firefox ! Par exemple, la version 19.0 de geckodriver fonctionne correctement avec Selenium 3.6.0 et Firefox 55.0 ou 56.0 mais peut ne pas fonctionner avec d’autres versions. En cas de problème lors de l’Installation, ne pas hésiter à demander de l’aide !</p>
 </div>
-</div>
-<div class="section" id="ecriture-des-tests">
-<h3>Écriture des tests<a class="headerlink" href="#ecriture-des-tests" title="Lien permanent vers ce titre">¶</a></h3>
+</section>
+<section id="ecriture-des-tests">
+<h3>Écriture des tests<a class="headerlink" href="#ecriture-des-tests" title="Lien permanent vers ce titre"></a></h3>
 <p>Il est donc possible d’écrire des tests pour Django directement en utilisant la document de Selenium ici : &lt;<a class="reference external" href="http://selenium-python.readthedocs.io/">http://selenium-python.readthedocs.io/</a>&gt; et le <cite>StaticLiveServerTestCase</cite> de Django (&lt;<a class="reference external" href="https://docs.djangoproject.com/fr/2.1/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase">https://docs.djangoproject.com/fr/2.1/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase</a>&gt;).</p>
 <p>Il est aussi possible d’utiliser l’extension Firefox (&lt;<a class="reference external" href="https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/">https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/</a>&gt;) et d’exporter le test généré, cependant, il est nécessaire de le réécrire pour prendre en compte Django et Python 3. De plus, il est nécessaire d’ajouter un tag à la classe afin de pouvoir lancer les tests Selenium séparément.</p>
 <p>Voici le contenu d’un test :</p>
@@ -240,61 +150,44 @@ tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
         <span class="bp">self</span><span class="o">.</span><span class="n">selenium</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">live_server_url</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="lancement-des-tests">
-<h3>Lancement des tests<a class="headerlink" href="#lancement-des-tests" title="Lien permanent vers ce titre">¶</a></h3>
+</section>
+<section id="lancement-des-tests">
+<h3>Lancement des tests<a class="headerlink" href="#lancement-des-tests" title="Lien permanent vers ce titre"></a></h3>
 <p>Il suffit d’utiliser le Makefile et de lancer <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test-front</span></code>.</p>
 <p>Il est aussi possible d’éxecuter un test précis avec <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">zds.xxx.yyy</span></code> où <code class="docutils literal notranslate"><span class="pre">xxx</span></code> est le nom du module à tester et <code class="docutils literal notranslate"><span class="pre">yyy</span></code> est le nom du fichier de tests à lancer.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="../delay-issue.html" class="btn btn-neutral float-right" title="Problème de lenteur lors du dev ?" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-        <a href="release_generator.html" class="btn btn-neutral float-left" title="Générer les rapports de release" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="release_generator.html" class="btn btn-neutral float-left" title="Générer les rapports de release" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="../delay-issue.html" class="btn btn-neutral float-right" title="Problème de lenteur lors du dev ?" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2014-2021, Zeste de Savoir.
-
-    </p>
+    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
-    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
