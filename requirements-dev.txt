@@ -8,5 +8,5 @@ Faker==8.12.1
 pre-commit==2.15.0
 PyYAML==5.4.1
 selenium==3.141.0
-Sphinx==3.5.3
-sphinx_rtd_theme==0.5.2
+Sphinx==4.2.0
+sphinx_rtd_theme==1.0.0
