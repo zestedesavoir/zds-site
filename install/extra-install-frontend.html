@@ -200,16 +200,16 @@
 <p>Vous voulez nous aider au développement du frontend ? Installez Node.js et Yarn grâce aux instructions qui suivent !</p>
 <div class="section" id="installation-de-node-js-et-yarn">
 <h2>Installation de Node.js et Yarn<a class="headerlink" href="#installation-de-node-js-et-yarn" title="Lien permanent vers ce titre">¶</a></h2>
-<p>Le frontend de Zeste de Savoir repose sur la version actuelle de Node.js supportée à long terme, la version 8. Vous pouvez installer Node.js 8 via <a class="reference external" href="https://nodejs.org/en/download/package-manager/">votre gestionnaire de paquet</a> (<code class="docutils literal notranslate"><span class="pre">apt</span></code>, <code class="docutils literal notranslate"><span class="pre">yum</span></code>, …) ou en téléchargeant une <a class="reference external" href="https://nodejs.org/en/download/">archive</a>.</p>
+<p>Le frontend de Zeste de Savoir repose sur la version de Node JS spécifiée dans <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code>. Vous pouvez installer la version adéquate de Node.js via <a class="reference external" href="https://nodejs.org/en/download/package-manager/">votre gestionnaire de paquet</a> (<code class="docutils literal notranslate"><span class="pre">apt</span></code>, <code class="docutils literal notranslate"><span class="pre">yum</span></code>, …) ou en téléchargeant une <a class="reference external" href="https://nodejs.org/en/download/">archive</a>.</p>
 <p>Dans le cas où vous avez besoin de faire cohabiter sur votre système différentes versions de Node.js pour des projets différents, à l’instar de virtualenv ou rvm, il existe <a class="reference external" href="https://github.com/creationix/nvm">nvm</a> (Node Version Manager) qui permet d’installer plusieurs version de Node.js et de basculer d’une version à l’autre facilement.</p>
 <p>Le gestionnaire de paquet <code class="docutils literal notranslate"><span class="pre">npm</span></code> (Node.js Package Manager) est fourni avec Node.js, mais nous préferons utiliser Yarn qui est plus rapide et plus sûr. Yarn n’est strictement nécessaire qu’en production mais nous recommandons également de s’en servir lors du développement. <a class="reference external" href="https://yarnpkg.com/fr/docs/install/">Installer Yarn</a>.</p>
 <div class="section" id="verifier-que-les-bonnes-versions-sont-installees">
 <h3>Vérifier que les bonnes versions sont installées<a class="headerlink" href="#verifier-que-les-bonnes-versions-sont-installees" title="Lien permanent vers ce titre">¶</a></h3>
-<p>Pour vérifier que Node.js et yarn sont installés (et que vous avez les bonnes versions) :</p>
+<p>Pour vérifier que Node.js et yarn sont installés et que vous avez les bonnes versions (<code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> désigne la version spécifiée dans <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code>) :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ node -v
-v8.x.x
+vX.Y.Z
 $ yarn -v
-<span class="m">0</span>.27.x
+X.Y.Z
 </pre></div>
 </div>
 <p>Si <code class="docutils literal notranslate"><span class="pre">yarn</span></code> n’est pas installé ou pas à jour, utilisez <code class="docutils literal notranslate"><span class="pre">npm</span> <span class="pre">i</span> <span class="pre">-g</span> <span class="pre">yarn</span></code>.</p>

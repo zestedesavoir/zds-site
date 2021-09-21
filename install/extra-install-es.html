@@ -220,10 +220,10 @@ Passez ensuite à la version 8 de java à l’aide de la commande <code class="d
 </div>
 <div class="section" id="installer-elasticsearch">
 <h4>Installer Elasticsearch<a class="headerlink" href="#installer-elasticsearch" title="Lien permanent vers ce titre">¶</a></h4>
-<p>La procédure d’installation, si vous souhaitez utiliser Elasticsearch sans l’installer via le gestionnaire de paquets de votre distribution, est d’entrer les commandes suivantes dans votre <em>shell</em> préféré:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip
-unzip elasticsearch-5.5.2.zip
-<span class="nb">cd</span> elasticsearch-5.5.2/
+<p>La procédure d’installation, si vous souhaitez utiliser Elasticsearch sans l’installer via le gestionnaire de paquets de votre distribution, est d’entrer les commandes suivantes dans votre <em>shell</em> préféré. Remplacez <code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> par la version spécifiée dans <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> !</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-X.Y.Z.zip
+unzip elasticsearch-X.Y.Z.zip
+<span class="nb">cd</span> elasticsearch-X.Y.Z/
 </pre></div>
 </div>
 <p>Pour démarrer Elasticsearch, utilisez</p>
@@ -259,8 +259,14 @@ Plus d’infos <a class="reference external" href="https://gist.github.com/jpala
 <div class="section" id="sous-windows">
 <h3>Sous Windows<a class="headerlink" href="#sous-windows" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Elasticsearch requiert <strong>la version 8</strong> de Java, que vous pouvez trouver <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">sur la page officielle de java</a>. Prenez la version correspondante à votre système d’exploitation.</p>
-<p>Téléchargez ensuite Elasticsearch à l’adresse suivante : <a class="reference external" href="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip">https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.5.2.zip</a>, puis extrayez le dossier <code class="docutils literal notranslate"><span class="pre">elasticsearch-5.5.2</span></code> du zip à l’aide de votre outil préféré.</p>
-<p>Pour démarer Elasticsearch, ouvrez un <em>shell</em> (ou un <em>powershell</em>) et rendez-vous dans le dossier <code class="docutils literal notranslate"><span class="pre">elasticsearch-5.5.2</span></code>.
+<p>Pour télécharger Elasticsearch :</p>
+<ul class="simple">
+<li><p>rendez-vous à l’adresse suivante : <a class="reference external" href="https://www.elastic.co/fr/downloads/past-releases#elasticsearch">https://www.elastic.co/fr/downloads/past-releases#elasticsearch</a> ;</p></li>
+<li><p>choisissez la version spécifiée dans le fichier <cite>requirements.txt</cite> (désignée ci-après par <code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code>);</p></li>
+<li><p>téléchargez la version Windows ;</p></li>
+<li><p>extrayez le dossier <code class="docutils literal notranslate"><span class="pre">elasticsearch-X.Y.Z</span></code> du zip à l’aide de votre outil préféré.</p></li>
+</ul>
+<p>Pour démarer Elasticsearch, ouvrez un <em>shell</em> (ou un <em>powershell</em>) et rendez-vous dans le dossier <code class="docutils literal notranslate"><span class="pre">elasticsearch-X.Y.Z</span></code>.
 Exécutez ensuite la commande suivante :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>bin<span class="se">\e</span>lasticsearch
 </pre></div>
@@ -282,7 +288,7 @@ Vous devriez observer une réponse du même genre que celle-ci :</p>
   &quot;cluster_name&quot; : &quot;elasticsearch&quot;,
   &quot;cluster_uuid&quot; : &quot;649S5bMUQOyRzYmQFVPA1A&quot;,
   &quot;version&quot; : {
-    &quot;number&quot; : &quot;5.5.2&quot;,
+    &quot;number&quot; : &quot;X.Y.Z&quot;,
     &quot;build_hash&quot; : &quot;19c13d0&quot;,
     &quot;build_date&quot; : &quot;2017-07-18T20:44:24.823Z&quot;,
     &quot;build_snapshot&quot; : false,

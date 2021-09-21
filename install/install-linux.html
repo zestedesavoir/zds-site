@@ -257,18 +257,18 @@ De même que pour <a class="reference external" href="#composants-base">base</a>
 </div>
 <div class="section" id="composant-virtualenv">
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code><a class="headerlink" href="#composant-virtualenv" title="Lien permanent vers ce titre">¶</a></h3>
-<p>Installe le <em>virtualenv</em> qui est un environement python cloisonné prévu pour ne pas interférer avec d’autres installation de python (<a class="reference external" href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">plus d’infos ici</a>).
+<p>Installe le <em>virtualenv</em> qui est un environnement python cloisonné prévu pour ne pas interférer avec d’autres installation de python (<a class="reference external" href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">plus d’infos ici</a>).
 Ce que fait ce composant est tout simplement:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m venv <span class="nv">$ZDS_VENV</span>
 </pre></div>
 </div>
-<p>Le nom du <em>virtualenv</em> est donc controlé par la variable d’environement <code class="docutils literal notranslate"><span class="pre">ZDS_VENV</span></code> (dont la valeur est par défaut <code class="docutils literal notranslate"><span class="pre">zdsenv</span></code>).</p>
+<p>Le nom du <em>virtualenv</em> est donc controlé par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_VENV</span></code> (dont la valeur est par défaut <code class="docutils literal notranslate"><span class="pre">zdsenv</span></code>).</p>
 </div>
 <div class="section" id="composant-node">
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">node</span></code><a class="headerlink" href="#composant-node" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Installe <code class="docutils literal notranslate"><span class="pre">nvm</span></code> et l’utilise pour installer <code class="docutils literal notranslate"><span class="pre">node</span></code>, puis <code class="docutils literal notranslate"><span class="pre">yarn</span></code>.
 Ajoute ensuite un <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code> dans le dossier et ajoute <code class="docutils literal notranslate"><span class="pre">node</span> <span class="pre">use</span></code> au script d’activation du <em>virtualenv</em> (pour qu’il soit automatiquement utilisé au chargement).
-La version de node installée est controlée par la variable d’environement <code class="docutils literal notranslate"><span class="pre">ZDS_NODE_VERSION</span></code> (dont la valeur est par défaut <code class="docutils literal notranslate"><span class="pre">10.8.0</span></code>).</p>
+La version de node installée est controlée par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_NODE_VERSION</span></code> (dont la valeur est par défaut celle spécifiée dans <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code>).</p>
 <p>Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur <a class="reference external" href="frontend-install.html">la documentation dédiée au frontend</a>.</p>
 </div>
 <div class="section" id="composant-back">
@@ -314,7 +314,7 @@ Strictement équivalent à la commande suivantes:</p>
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">elastic-local</span></code><a class="headerlink" href="#composant-elastic-local" title="Lien permanent vers ce titre">¶</a></h3>
 <p>Installe une version <strong>locale</strong> d’Elasticsearch dans un dossier <code class="docutils literal notranslate"><span class="pre">.local</span></code> situé dans le dossier de ZdS.
 La commande <code class="docutils literal notranslate"><span class="pre">elasticsearch</span></code> est ensuite ajoutée dans le <em>virtualenv</em>, de telle sorte à ce que ce soit cette version locale qui soit utilisée.
-La version d’Elasticsearch installée est controlée par la variable d’environement <code class="docutils literal notranslate"><span class="pre">ZDS_ELASTIC_VERSION</span></code> (dont la valeur est par défaut <code class="docutils literal notranslate"><span class="pre">5.5.2</span></code>).</p>
+La version d’Elasticsearch installée est controlée par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_ELASTIC_VERSION</span></code> (voir <code class="docutils literal notranslate"><span class="pre">scripts/define_variable.sh</span></code> pour la valeur par défaut).</p>
 <p>Notez que vous pouvez choisir d’installer Elasticsearch manuellement, <a class="reference external" href="./extra-install-es.html#sous-linux">comme décrit ici</a>.</p>
 </div>
 <div class="section" id="composant-tex-local-et-latex-template">
@@ -326,7 +326,7 @@ Les commandes spécifiques à TeX sont ensuite ajoutées dans le <em>virtualenv<
 <p>Indépendament, le composant composant <code class="docutils literal notranslate"><span class="pre">latex-template</span></code> installe (ou met à jour) la template LaTeX (nécessaire à la génération des PDFs) dans le dossier <code class="docutils literal notranslate"><span class="pre">TEXMFHOME/tex/latex</span></code>.
 Ce composant peut donc être utilisé même si vous avez installé TeX Live par d’autres moyens.</p>
 <p>Ces deux composants reposent sur des scripts situés dans <a class="reference external" href="https://github.com/zestedesavoir/latex-template">le dépot du template LaTeX</a>.
-Le dépot installé est controlé par la variable d’environement <code class="docutils literal notranslate"><span class="pre">ZDS_LATEX_REPO</span></code> (dont la valeur est l’url actuelle du dépôt sur Github).</p>
+Le dépot installé est controlé par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_LATEX_REPO</span></code> (dont la valeur est l’url actuelle du dépôt sur Github).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Notez qu’une fois TeX Live installé, le composant <code class="docutils literal notranslate"><span class="pre">tex-local</span></code> peut être réutilisé pour mettre à jour les packages spécifiques à la <em>template</em> LaTeX.
