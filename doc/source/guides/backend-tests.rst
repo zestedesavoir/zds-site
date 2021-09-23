@@ -76,11 +76,6 @@ Il suffit alors de remonter la sortie de la console et chercher des lignes de la
    Test that on form submission, staffs are redirected to the content page.
    ----------------------------------------------------------------------
 
-On rencontre en général deux types de soucis :
-
-* ERROR : une erreur est survenue pendant le test (par exemple une exception qui conduit à un crash) ;
-* FAIL : une assertion a échoué dans le test, mais il n'y a pas eu d'erreur.
-
 Il ne vous reste alors plus qu'à corriger votre code ou mettre à jour les tests concernés. :-)
 
 Pour en savoir plus sur les tests avec Django, consultez la `documentation officielle <https://docs.djangoproject.com/en/dev/topics/testing/overview/>`_.
