@@ -13,7 +13,7 @@ Si vous ne l'avez pas déjà fait, lancez le serveur zmarkdown avec la commande 
 
    make zmd-start
 
-La commande suivante permet de lancer tous les tests du *backend*. La découverte des tests est automatique : tous ce qui est identifié comme un test Django dans le projet sera lancé. Les tests utilisent aussi une configuration légèrement différente, donc il faut l'indiquer pour que tous les tests fonctionnent correctement.
+La commande suivante permet de lancer tous les tests du *backend*. La découverte des tests est automatique : tout ce qui est identifié comme un test Django dans le projet sera lancé. Les tests utilisent aussi une configuration légèrement différente, donc il faut l'indiquer pour que tous les tests fonctionnent correctement.
 
 .. sourcecode:: bash
 
