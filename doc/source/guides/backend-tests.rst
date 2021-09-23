@@ -67,7 +67,7 @@ Quand certains tests échouent vous verrez un message ressemblant à :
 
    FAILED (errors=2)
 
-Il suffit alors de remonter la sortie console et chercher des lignes de la forme suivante, afin d'identifier quels tests échouent et pourquoi.
+Il suffit alors de remonter la sortie de la console et chercher des lignes de la forme suivante, afin d'identifier quels tests échouent et pourquoi.
 
 .. sourcecode:: console
 
