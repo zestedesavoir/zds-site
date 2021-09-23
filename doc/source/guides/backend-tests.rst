@@ -7,7 +7,7 @@ Lors du développement, il est souvent nécessaire de lancer les tests automatiq
 Lancer tous les tests
 =====================
 
-Si vous ne l'avez pas déjà fait, lancez le serveur zmarkdown avec la commande ci-dessous. Une fois le serveur est lancé, il n'y a pas besoin de répéter cette étape.
+Si vous ne l'avez pas déjà fait, lancez le serveur zmarkdown avec la commande ci-dessous. Une fois que le serveur est lancé, il n'est pas nécessaire de répéter cette étape.
 
 .. sourcecode:: bash
 
