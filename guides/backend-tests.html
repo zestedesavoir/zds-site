@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lancer les tests du backend &mdash; Documentation Zeste de Savoir dev</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/translations.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Installation" href="../install.html" />
+    <link rel="prev" title="Lancer Zeste de Savoir sur Linux" href="run-linux.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Zeste de Savoir
+          </a>
+              <div class="version">
+                dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install-linux.html">Installer Zeste de Savoir sur Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="update-env.html">Mettre à jour son environnement de développement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="run-linux.html">Lancer Zeste de Savoir sur Linux</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Lancer les tests du <em>backend</em></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#lancer-tous-les-tests">Lancer tous les tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lancer-des-tests-de-maniere-ciblee">Lancer des tests de manière ciblée</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#interpreter-les-resultats">Interpréter les résultats</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../guides.html">Guides pas-à-pas</a> &raquo;</li>
+      <li>Lancer les tests du <em>backend</em></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/guides/backend-tests.rst.txt" rel="nofollow"> Afficher la source de la page</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="lancer-les-tests-du-backend">
+<h1>Lancer les tests du <em>backend</em><a class="headerlink" href="#lancer-les-tests-du-backend" title="Lien permanent vers ce titre"></a></h1>
+<p>Lors du développement, il est souvent nécessaire de lancer les tests automatiques en local afin de vérifier que tout fonctionne comme prévu. Ce guide décrit l’essentiel à savoir pour utiliser les outils de gestion des tests fournis par Django.</p>
+<section id="lancer-tous-les-tests">
+<h2>Lancer tous les tests<a class="headerlink" href="#lancer-tous-les-tests" title="Lien permanent vers ce titre"></a></h2>
+<p>Si vous ne l’avez pas déjà fait, lancez le serveur zmarkdown avec la commande ci-dessous. Une fois que le serveur est lancé, il n’est pas nécessaire de répéter cette étape.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make zmd-start
+</pre></div>
+</div>
+<p>La commande suivante permet de lancer tous les tests du <em>backend</em>. La découverte des tests est automatique : tout ce qui est identifié comme un test Django dans le projet sera lancé. Les tests utilisent aussi une configuration légèrement différente, donc il faut l’indiquer pour que tous les tests fonctionnent correctement.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> --settings zds.settings.test
+</pre></div>
+</div>
+<p>Comme cette commande peut prendre beaucoup de temps, il est en général préférable d’utiliser une commande plus ciblée.</p>
+</section>
+<section id="lancer-des-tests-de-maniere-ciblee">
+<h2>Lancer des tests de manière ciblée<a class="headerlink" href="#lancer-des-tests-de-maniere-ciblee" title="Lien permanent vers ce titre"></a></h2>
+<p>Django permet de cibler plus précisément les tests à lancer en ajoutant des arguments à la commande. C’est très pratique pendant le développement pour lancer et relancer des tests sur un morceau de code sans attendre pendant de longues minutes à chaque fois.</p>
+<p>La commande ci-dessous lancera tous les tests trouvés dans le <em>package</em> passé en argument.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views --settings zds.settings.test
+</pre></div>
+</div>
+<p>On peut cibler encore plus en indiquant un module, une classe ou une fonction de test.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views.tests_editcontentlicense --settings zds.settings.test
+./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests --settings zds.settings.test
+./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests.test_not_authenticated --settings zds.settings.test
+</pre></div>
+</div>
+<p>On peut aussi indiquer plusieurs arguments à la suite pour lancer plusieurs groupes de tests. La commande ci-dessous lancera les tests pour les trois <em>packages</em> mentionnés.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> zds.mp zds.pages zds.tutorialv2 --settings zds.settings.test
+</pre></div>
+</div>
+</section>
+<section id="interpreter-les-resultats">
+<h2>Interpréter les résultats<a class="headerlink" href="#interpreter-les-resultats" title="Lien permanent vers ce titre"></a></h2>
+<p>Quand on lance des tests, Django renvoit beaucoup d’informations. Les plus importantes sont affichées en dernier.</p>
+<p>Quand tous les tests passent vous verrez un message ressemblant à :</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Ran 1 test in 0.515s</span>
+
+<span class="go">OK</span>
+</pre></div>
+</div>
+<p>Quand certains tests échouent vous verrez un message ressemblant à :</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">Ran 4 tests in 2.609s</span>
+
+<span class="go">FAILED (errors=2)</span>
+</pre></div>
+</div>
+<p>Il suffit alors de remonter la sortie de la console et chercher des lignes de la forme suivante, afin d’identifier quels tests échouent et pourquoi.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">======================================================================</span>
+<span class="go">ERROR: test_authenticated_staff (zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests)</span>
+<span class="go">Test that on form submission, staffs are redirected to the content page.</span>
+<span class="go">----------------------------------------------------------------------</span>
+</pre></div>
+</div>
+<p>Il ne vous reste alors plus qu’à corriger votre code ou mettre à jour les tests concernés. :-)</p>
+<p>Pour en savoir plus sur les tests avec Django, consultez la <a class="reference external" href="https://docs.djangoproject.com/en/dev/topics/testing/overview/">documentation officielle</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="run-linux.html" class="btn btn-neutral float-left" title="Lancer Zeste de Savoir sur Linux" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="../install.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
