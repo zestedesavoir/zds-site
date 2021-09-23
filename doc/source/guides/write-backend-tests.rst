@@ -57,7 +57,7 @@ le comportement dans différentes situations, etc. Pour faciliter les tests, con
 
 * les droits d'accès peuvent souvent être vérifiés sans tester le fonctionnel du tout (erreur ou pas d'erreur) ;
 * les redirections peuvent se vérifier souvent indépendamment du fonctionnel (redirigé ou non) ;
-* le fonctionnel n'a pas par exemple pas besoin de s'entremêler avec la gestion des droits dans de nombreux cas.
+* le fonctionnel n'a par exemple pas besoin de s'entremêler avec la gestion des droits dans de nombreux cas.
 
 On peut observer un découpage dans cet esprit dans ``./zds/tutorialv2/tests/tests_views/tests_editcontentlicense.py``.
 
