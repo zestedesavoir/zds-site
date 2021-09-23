@@ -9,7 +9,7 @@ Numéro du ticket concerné :
 
 ### Contrôle qualité
 
-<!-- (optionnel) Donnez des instructions pour nous aider à vérifier vos changements.
+<!-- Donnez des instructions pour nous aider à vérifier vos changements.
 
 Par exemple :
 
