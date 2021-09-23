@@ -120,11 +120,17 @@
         labels: times,
         datasets: data
       },
-      options: basicOptions
-    }
-    config.options.scales.y.title = {
-      display: true,
-      text: chartEl.getAttribute('data-y-label')
+      options: {
+        ...basicOptions,
+        scales: {
+          y: {
+            title: {
+              display: true,
+              text: chartEl.getAttribute('data-y-label')
+            }
+          }
+        }
+      }
     }
     charts.push(new window.Chart(chartEl, config))
   }
