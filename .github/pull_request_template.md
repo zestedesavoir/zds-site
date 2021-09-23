@@ -1,16 +1,15 @@
-<!-- Veuillez décrire vos changements à l’emplacement de ce commentaire (inutile dans le cas de tout petits changements). -->
+<!-- Décrivez vos changements ici (optionnel pour les tous petits changements). -->
 
-<!-- Indiquez ci-dessous les numéros des tickets (avec le # au début) corrigés par vos changements : -->
-Numéro du ticket concerné (optionnel) :
+<!-- Indiquez ci-dessous les numéros des éventuels tickets (avec le # au début) corrigés par vos changements. Suivez ces instructions pour profiter de la gestion automatique des tickets liés : https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue. -->
+Numéro du ticket concerné :
 
-<!-- Si certains de vos commits corrigent des bugs, il est préférable de les indiquer également dans les messages de commit en suivant ces instructions : https://help.github.com/articles/closing-issues-using-keywords/ -->
+<!-- Si votre PR modifie du code Python, mettez à jour ou créez les tests unitaires associés. Signalez vos éventuelles difficultés afin que des contributeurs expérimentés puissent vous aider. -->
 
-<!-- Si votre pull request nécessite d’effectuer des actions particulières lors de la mise en production, renseignez-les ici afin qu’elles soient ajoutées au changelog lors du merge. -->
-
+<!-- Si votre pull request requiert des actions particulières lors de la mise en production, renseignez-les ici afin qu’elles soient ajoutées au changelog lors du merge. -->
 
 ### Contrôle qualité
 
-<!-- Écrivez éventuellement ici quelques instructions pour nous aider à vérifier vos changement.
+<!-- Donnez des instructions pour nous aider à vérifier vos changements.
 
 Par exemple :
 
