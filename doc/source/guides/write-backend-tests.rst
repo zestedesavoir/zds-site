@@ -55,7 +55,7 @@ Séparer les niveaux d'abstraction
 On peut se retrouver à tout vouloir tester en même temps : les droits d'accès, les redirections,
 le comportement dans différentes situations, etc. Pour faciliter les tests, considérez de séparer suivant différents aspects :
 
-* les droits d'accès peuvent souvent être vérifiés sans tester le fonctionnel du tout (erreur ou pas d'erreur) ;
+* les droits d'accès peuvent souvent être vérifiés sans aucunement tester le fonctionnel (erreur ou pas d'erreur) ;
 * les redirections peuvent se vérifier souvent indépendamment du fonctionnel (redirigé ou non) ;
 * le fonctionnel n'a par exemple pas besoin de s'entremêler avec la gestion des droits dans de nombreux cas.
 
