@@ -4,7 +4,7 @@
 
 Zeste de Savoir aspire à avoir une base de code aussi qualitative et maintenable que possible, notamment grâce à une suite de tests automatisés pour le *backend* Python. Lorsqu'on développe pour Zeste de Savoir, on est ainsi amené à modifier cette suite de tests et ainsi contribuer à la qualité du code.
 
-Ce guide est destiné aux contributeurs qui recherchent des conseils pour la mise en œuvre des tests *backend* sur Zeste de Savoir. Si vous souhaitez simplement lancer les tests existants, référez-vous au guide correspondant.
+Ce guide est destiné aux contributeurs qui recherchent des conseils pour la mise en œuvre des tests *backend* sur Zeste de Savoir. Si vous souhaitez simplement lancer les tests existants, référez-vous au `guide correspondant <./backend-tests.html>`_.
 
 Comprendre la politique de tests
 ================================
