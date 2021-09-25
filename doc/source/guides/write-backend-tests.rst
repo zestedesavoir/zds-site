@@ -52,7 +52,7 @@ Cette section donne quelques conseils généraux pour vous aider à organiser vo
 Séparer les niveaux d'abstraction
 ---------------------------------
 
-On peut se retrouver à tous vouloir tester en même temps : les droits d'accès, les redirections,
+On peut se retrouver à tout vouloir tester en même temps : les droits d'accès, les redirections,
 le comportement dans différentes situations, etc. Pour faciliter les tests, considérez de séparer suivant différents aspects :
 
 * les droits d'accès peuvent souvent être vérifiés sans tester le fonctionnel du tout (erreur ou pas d'erreur) ;
