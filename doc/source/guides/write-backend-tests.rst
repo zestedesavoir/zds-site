@@ -11,7 +11,7 @@ Comprendre la politique de tests
 
 La politique actuelle pour les tests du *backend* est que tout ce qui est écrit en Python doit être testé. Ce n'est pas entièrement le cas actuellement, mais c'est l'objectif vers lequel on tend.
 
-En conséquence, toute mise à jour du code doit s'accompagner de la création de tests pour au minimum couvrir le comportement ajouté ou modifié. L'ajout de tests manquants mais hors du périmètre de la modification n'est pas requis.
+En conséquence, toute mise à jour du code doit s'accompagner de la création (ou adaptation) de tests pour au minimum couvrir le comportement ajouté ou modifié. L'ajout de tests manquants mais hors du périmètre de la modification n'est pas requis.
 
 La présence de tests adéquats est vérifiée lors de l'assurance qualité des PR. Toute fusion de PR sans tests associés est exceptionnelle et cantonnée à des situations où la balance bénéfices-risques est acceptable.
 
