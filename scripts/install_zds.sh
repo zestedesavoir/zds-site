@@ -31,7 +31,7 @@ function progressfilt {
 }
 
 
-# Hack for "-q --show-progress" (at least v1.16) and travis uses (travis uses wget 1.15)
+# Hack for "-q --show-progress" (at least v1.16)
 function wget_nv {
     wget "$@" --progress=bar:force 2>&1 | progressfilt
 }
