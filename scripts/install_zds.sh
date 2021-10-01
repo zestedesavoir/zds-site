@@ -10,34 +10,6 @@ function load_nvm {
 }
 
 
-## start quiet mode
-function progressfilt {
-    local flag=false c count cr=$'\r' nl=$'\n'
-    while IFS='' read -d '' -rn 1 c
-    do
-        if $flag; then
-            printf '%s' "$c"
-        else
-            if [[ $c != $cr && $c != $nl ]]; then
-                count=0
-            else
-                ((count++))
-                if ((count > 1)); then
-                    flag=true
-                fi
-            fi
-        fi
-    done
-}
-
-
-# Hack for "-q --show-progress" (at least v1.16)
-function wget_nv {
-    wget "$@" --progress=bar:force 2>&1 | progressfilt
-}
-## end
-
-
 # zds-site root folder
 ZDSSITE_DIR=$(pwd)
 
@@ -279,7 +251,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
     folderPATH="${foldername}/OpenJDK11U-jdk_x64_linux_hotspot_${ZDS_JDK_VERSION}_${ZDS_JDK_REV}.tar.gz"
 
     echo "GET ${baseURL}${folderPATH}"
-    wget_nv -O ${foldername}.tar.gz ${baseURL}${folderPATH}
+    wget -O ${foldername}.tar.gz ${baseURL}${folderPATH} -q --show-progress
     tar xf ${foldername}.tar.gz
 
     if [[ $? == 0 ]]; then
@@ -320,7 +292,7 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         rm -r "$es_path"
     fi
 
-    wget_nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip -q --show-progress
     if [[ $? == 0 ]]; then
         unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip 
         rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
@@ -373,7 +345,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
         sed -i 's@.texlive@texlive@' texlive.profile  # change directory
         sed -i "s@\$HOME@$LOCAL@" texlive.profile  # change destination
 
-        wget_nv -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+        wget -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz -q --show-progress
         if [[ $? == 0 ]]; then
             if [[ ! -f ./bin/x86_64-linux/tlmgr ]]; then # install texlive
                 tar xzf install-tl.tar.gz
