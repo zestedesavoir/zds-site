@@ -58,13 +58,15 @@
 
     <div>
         {% for message in posts %}
-            {% captureas edit_link %}
-                {% url "private-posts-edit" topic.pk topic.slug message.pk %}
-            {% endcaptureas %}
+            {% if not topic.one_participant_remaining %}
+                {% captureas edit_link %}
+                    {% url "private-posts-edit" topic.pk topic.slug message.pk %}
+                {% endcaptureas %}
 
-            {% captureas cite_link %}
-                {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
-            {% endcaptureas %}
+                {% captureas cite_link %}
+                    {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
+                {% endcaptureas %}
+            {% endif %}
 
             {% captureas unread_link %}
                 {% url "private-post-unread" %}?message={{ message.pk }}
