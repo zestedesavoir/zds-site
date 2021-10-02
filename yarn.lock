@@ -983,7 +983,7 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@^2.19.0, commander@^2.20.0, commander@^2.8.1:
+commander@^2.20.0, commander@^2.8.1:
   version "2.20.3"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33"
   integrity sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==
@@ -3648,13 +3648,6 @@ just-debounce@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/just-debounce/-/just-debounce-1.1.0.tgz#2f81a3ad4121a76bc7cb45dbf704c0d76a8e5ddf"
   integrity sha512-qpcRocdkUmf+UTNBYx5w6dexX5J31AKK1OmPwH630a83DdVVUIngk55RSAiIGpQyoH0dlr872VHfPjnQnK1qDQ==
-
-katex@0.11.1:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.11.1.tgz#df30ca40c565c9df01a466a00d53e079e84ffaa2"
-  integrity sha512-5oANDICCTX0NqYIyAiFCCwjQ7ERu3DQG2JFHLbYOf+fXaMoH8eg/zOq5WSYJsKMi/QebW+Eh3gSM+oss1H/bww==
-  dependencies:
-    commander "^2.19.0"
 
 keyv@3.0.0:
   version "3.0.0"
