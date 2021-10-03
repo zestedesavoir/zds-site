@@ -627,7 +627,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         beta_topic = Topic.objects.get(pk=beta_topic.pk)
         self.assertTrue(beta_topic.is_locked)
 
-    def test_beta_workflow(self):
+    @patch("zds.tutorialv2.signals.beta_management")
+    def test_beta_workflow(self, beta_management):
         """Test beta workflow (access and update)"""
 
         # login with guest and test the non-access
@@ -657,15 +658,19 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(result.status_code, 302)
 
-        # check if there is a new topic and a pm corresponding to the tutorial in beta
+        # check if there is a pm corresponding to the tutorial in beta
         self.assertEqual(Topic.objects.filter(forum=self.beta_forum).count(), 1)
         self.assertTrue(PublishableContent.objects.get(pk=self.tuto.pk).beta_topic is not None)
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
+        # check if there is a new topic
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user_author, beta_topic, is_active=True))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, sometag.title)
+        # check signal is emitted
+        self.assertEqual(beta_management.send.call_count, 1)
+        self.assertEqual(beta_management.send.call_args[1]["action"], "activate")
 
         # test if second author follow the topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(second_author, beta_topic, is_active=True))
@@ -792,6 +797,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
         self.assertTrue(Topic.objects.get(pk=beta_topic.pk).is_locked)  # beta was inactived, so topic is locked !
+        # check signal is emitted
+        self.assertEqual(beta_management.send.call_count, 3)
+        self.assertEqual(beta_management.send.call_args[1]["action"], "deactivate")
 
         # then test for guest
         self.client.logout()
