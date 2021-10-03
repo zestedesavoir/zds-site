@@ -157,7 +157,7 @@ INSTALLED_APPS = (
     "munin",
     "social_django",
     "rest_framework",
-    "rest_framework_swagger",
+    "drf_yasg",
     "dry_rest_permissions",
     "corsheaders",
     "oauth2_provider",
@@ -220,14 +220,11 @@ REST_FRAMEWORK_EXTENSIONS = {
 
 
 SWAGGER_SETTINGS = {
-    "APIS_SORTER": "alpha",
     "OPERATIONS_SORTER": "alpha",
-    "SHOW_REQUEST_HEADERS": True,
     "SUPPORTED_SUBMIT_METHODS": [
         "get",
         "post",
         "put",
-        "delete",
     ],
 }
 
