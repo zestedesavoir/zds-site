@@ -90,7 +90,7 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         echo ""
 
         if ! [ "$REPLY" -eq "$REPLY" ] 2> /dev/null; then # check $REPLY contains a number
-            print_error "!! You have to pick a number !"
+            print_error "!! You have to pick a number!"
             exit 1
         fi
 
