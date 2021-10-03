@@ -26,11 +26,11 @@ toml==0.10.2
 django-cors-headers==3.8.0
 django-filter==2.4.0
 django-oauth-toolkit==1.5.0
-django-rest-swagger==2.2.0
 djangorestframework-xml==2.0.0
 djangorestframework==3.12.4
 drf-extensions==0.7.1
 dry-rest-permissions==0.1.10
+drf_yasg==1.20.0
 
 # Dependencies for slug generation, please be extra careful with those
 django-uuslug==1.2.0

@@ -1,4 +1,5 @@
 import datetime
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models.signals import post_save, post_delete
@@ -503,6 +504,8 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
             return PrivatePostSerializer
         elif self.request.method == "PUT":
             return PrivatePostActionSerializer
+        else:  # used only for API documentation
+            return PrivatePostSerializer
 
     def get_permissions(self):
         permission_classes = [
@@ -517,7 +520,7 @@ class PrivatePostDetailAPI(RetrieveUpdateAPIView):
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
-        return super().get_queryset().filter(privatetopic__pk=self.kwargs["pk_ptopic"])
+        return super().get_queryset().filter(privatetopic__pk=self.kwargs.get("pk_ptopic"))
 
 
 class PrivateTopicReadAPI(ListAPIView):
