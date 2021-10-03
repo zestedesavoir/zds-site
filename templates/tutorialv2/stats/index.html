@@ -19,7 +19,8 @@
     {{ block.super }}
     <script src="{% static 'js/moment.min.js' %}"></script>
     <script src="{% static 'js/fr.js' %}"></script>
-    <script src="{% static 'js/Chart.min.js' %}"></script>
+    <script src="{% static 'js/chart.min.js' %}"></script>
+    <script src="{% static 'js/chartjs-adapter-moment.min.js' %}"></script>
 {% endblock %}
 
 {% block content_out %}
@@ -46,9 +47,9 @@
             <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visiteurs uniques" %}</span>
         </div>
         <!-- Tab content -->
-        {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" report_key="nb_hits" %}
-        {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps moyen lecture (en secondes)" canvas_id="visit-time-graph" report_key="avg_time_on_page" %}
-        {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs uniques" canvas_id="users-graph" report_key="nb_uniq_visitors" %}
+        {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" report_key="nb_hits" y_label="Nombre de pages" %}
+        {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps moyen lecture (en secondes)" canvas_id="visit-time-graph" report_key="avg_time_on_page" y_label="Secondes" %}
+        {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs uniques" canvas_id="users-graph" report_key="nb_uniq_visitors" y_label="Nombre de visiteurs" %}
 
 
         {% if cumulative_stats %}
@@ -237,7 +238,7 @@
             <h3>Type de graphe</h3>
             <ul>
                 <li>
-                    <button id="graph_type_toogle">-</button>
+                    <button id="graph_type_toggle">-</button>
                 </li>
             </ul>
         </div>

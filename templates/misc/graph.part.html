@@ -8,6 +8,7 @@
         <h3>{% trans graph_title %}</h3>
         <canvas
             id="{{ canvas_id }}"
+                data-y-label="{{ y_label}}"
                 {% for url, report in reports.items %}
                 data-views-{{ forloop.counter0 }}="[{% for view in report|get_item:report_key|get_tuple_item:1 %}{{view}} {% if not forloop.last %},{% endif %}{% endfor %}]"
                 data-label-views-{{ forloop.counter0 }}="{{url.name}}"

@@ -9,5 +9,6 @@ Guides pas-à-pas
    guides/install-linux.rst
    guides/update-env.rst
    guides/run-linux.rst
+   guides/backend-tests.rst
 
 .. include:: /includes/contact-us.rst

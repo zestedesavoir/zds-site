@@ -38,7 +38,7 @@
 
 /* Style the tab content */
 .tabcontent {
-    display: none;
+    /* Tab has to be displayed by default, otherwise Chart.js doesn't render the graph. */
 
     padding: $length-6 $length-12;
 
