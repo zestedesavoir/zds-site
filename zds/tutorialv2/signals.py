@@ -31,7 +31,7 @@ validation_management = Signal()
 # For the signal below, the arguments "performer" and "content"  shall be provided.
 tags_management = Signal()
 
-# Suggestion management
+# Suggestions management
 # For the signals below, the arguments "performer" and "content"  shall be provided.
 suggestions_management = Signal()
 

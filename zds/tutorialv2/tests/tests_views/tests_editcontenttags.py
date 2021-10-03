@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
@@ -145,9 +147,10 @@ class EditContentTagsFunctionalTests(TutorialTestMixin, TestCase):
         test_cases = self.get_test_cases()
         for case_name, case in test_cases.items():
             with self.subTest(msg=case_name):
-                self.enforce_preconditions(case["preconditions"])
-                self.post_form(case["inputs"])
-                self.check_effects(case["expected_outputs"])
+                with patch("zds.tutorialv2.signals.tags_management") as tags_management:
+                    self.enforce_preconditions(case["preconditions"])
+                    self.post_form(case["inputs"])
+                    self.check_effects(case["expected_outputs"], tags_management)
 
     def get_test_cases(self):
         """List test cases for the license editing form."""
@@ -156,17 +159,21 @@ class EditContentTagsFunctionalTests(TutorialTestMixin, TestCase):
             "nothing": {
                 "preconditions": {"all_tags": self.tags_name, "content_tags": []},
                 "inputs": {"tags": ""},
-                "expected_outputs": {"all_tags": self.tags_name, "content_tags": []},
+                "expected_outputs": {"all_tags": self.tags_name, "content_tags": [], "call_count": 1},
             },
             "existing_tag": {
                 "preconditions": {"all_tags": self.tags_name, "content_tags": []},
                 "inputs": {"tags": self.tag_1.title},
-                "expected_outputs": {"all_tags": self.tags_name, "content_tags": [self.tag_1.title]},
+                "expected_outputs": {"all_tags": self.tags_name, "content_tags": [self.tag_1.title], "call_count": 1},
             },
             "new_tag": {
                 "preconditions": {"all_tags": self.tags_name, "content_tags": []},
                 "inputs": {"tags": new_tag_name},
-                "expected_outputs": {"all_tags": self.tags_name + [new_tag_name], "content_tags": [new_tag_name]},
+                "expected_outputs": {
+                    "all_tags": self.tags_name + [new_tag_name],
+                    "content_tags": [new_tag_name],
+                    "call_count": 1,
+                },
             },
         }
 
@@ -183,10 +190,11 @@ class EditContentTagsFunctionalTests(TutorialTestMixin, TestCase):
         form_data = {"tags": inputs["tags"]}
         self.client.post(self.form_url, form_data)
 
-    def check_effects(self, expected_outputs):
+    def check_effects(self, expected_outputs, tags_management):
         """Check the effects of having sent the form."""
         updated_content = PublishableContent.objects.get(pk=self.content.pk)
         content_tags_as_string = [tag.title for tag in updated_content.tags.all()]
         all_tags_as_string = [tag.title for tag in Tag.objects.all()]
         self.assertEqual(content_tags_as_string, expected_outputs["content_tags"])
         self.assertEqual(all_tags_as_string, expected_outputs["all_tags"])
+        self.assertEqual(tags_management.send.call_count, expected_outputs["call_count"])
