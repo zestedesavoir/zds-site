@@ -5,6 +5,7 @@ import zipfile
 
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib import messages
@@ -2661,7 +2662,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0], tutoriel_1)
         self.assertEqual(contents[1], tutoriel_2)
 
-    def test_add_author(self):
+    @patch("zds.tutorialv2.signals.authors_management")
+    def test_add_author(self, authors_management):
         self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": self.user_guest.username}, follow=False
@@ -2671,14 +2673,18 @@ class ContentTests(TutorialTestMixin, TestCase):
         gallery = UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first()
         self.assertIsNotNone(gallery)
         self.assertEqual(GALLERY_WRITE, gallery.mode)
+        self.assertEqual(authors_management.send.call_count, 1)
+        self.assertEqual(authors_management.send.call_args[1]["action"], "add")
         # add unexisting user
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": "unknown"}, follow=False
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
+        self.assertEqual(authors_management.send.call_count, 1)
 
-    def test_remove_author(self):
+    @patch("zds.tutorialv2.signals.authors_management")
+    def test_remove_author(self, authors_management):
         self.client.force_login(self.user_author)
         tuto = PublishableContentFactory(author_list=[self.user_author, self.user_guest])
         result = self.client.post(
@@ -2686,6 +2692,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        self.assertEqual(authors_management.send.call_count, 1)
+        self.assertEqual(authors_management.send.call_args[1]["action"], "remove")
 
         self.assertIsNone(UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first())
         # remove unexisting user
@@ -2694,14 +2702,17 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        self.assertEqual(authors_management.send.call_count, 1)
+
         # remove last author must lead to no change
         result = self.client.post(
             reverse("content:remove-author", args=[tuto.pk]), {"username": self.user_author.username}, follow=False
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        self.assertEqual(authors_management.send.call_count, 1)
 
-        # re-add quest
+        # re-add guest
         result = self.client.post(
             reverse("content:add-author", args=[tuto.pk]), {"username": self.user_guest.username}, follow=False
         )
