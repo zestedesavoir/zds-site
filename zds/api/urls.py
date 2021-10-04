@@ -1,12 +1,24 @@
 from django.urls import re_path, include
 
-from rest_framework_swagger.views import get_swagger_view
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
 
-
-schema_view = get_swagger_view()
+schema_view = get_schema_view(
+    openapi.Info(
+        title="",
+        default_version="",
+        description="",
+        terms_of_service="",
+        contact=openapi.Contact(email=""),
+        license=openapi.License(name=""),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
-    re_path(r"^$", schema_view, name="docs"),
+    re_path(r"^$", schema_view.with_ui("swagger", cache_timeout=0), name="docs"),
     re_path(r"^contenus/", include(("zds.tutorialv2.api.urls", "zds.tutorialv2.api"), namespace="content")),
     re_path(r"^forums/", include(("zds.forum.api.urls", "zds.forum.api"), namespace="forum")),
     re_path(r"^galeries/", include(("zds.gallery.api.urls", "zds.gallery.api"), namespace="gallery")),

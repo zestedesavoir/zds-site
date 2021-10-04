@@ -58,7 +58,7 @@ urlpatterns = [
         name="download-tex",
     ),
     #  Old beta url compatibility
-    re_path(r"^beta/(?P<pk>\d+)/(?P<slug>.+)", RedirectOldBetaTuto.as_view(), name="old-beta-url"),
+    re_path(r"^beta/(?P<pk>\d+)/(?P<slug>.+)/$", RedirectOldBetaTuto.as_view(), name="old-beta-url"),
     # Listing
     re_path(r"^$", RedirectView.as_view(pattern_name="publication:list", permanent=True)),
     re_path(r"tags/$", TagsListView.as_view(displayed_types=["TUTORIAL"]), name="tags"),
