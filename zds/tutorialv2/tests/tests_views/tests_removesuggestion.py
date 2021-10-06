@@ -5,8 +5,10 @@ from django.utils.html import escape
 
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory
+from zds.tutorialv2.forms import RemoveSuggestionForm
 from zds.tutorialv2.models.database import ContentSuggestion
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.views.editorialization import RemoveSuggestion
 
 
 @override_for_contents()
@@ -52,7 +54,7 @@ class RemoveSuggestionPermissionTests(TutorialTestMixin, TestCase):
         self.content.type = "TUTORIAL"
         self.content.save()
         response = self.client.post(self.form_url, self.form_data)
-        self.assertRedirects(response, self.content_url)
+        self.assertEqual(response.status_code, 403)
 
     def test_authenticated_staff_tutorial(self):
         self.client.force_login(self.staff)
@@ -96,8 +98,8 @@ class RemoveSuggestionWorkflowTests(TutorialTestMixin, TestCase):
         # Get information to be reused in tests
         self.form_url = reverse("content:remove-suggestion", kwargs={"pk": self.content.pk})
         self.success_message_fragment = _("Vous avez enlevé")
-        self.error_message_fragment = _("Les suggestions sélectionnées n'existent pas.")
-
+        self.error_messages = RemoveSuggestionForm.declared_fields["pk_suggestion"].error_messages
+        print(self.error_messages)
         # Log in with an authorized user to perform the tests
         self.client.force_login(self.staff)
 
@@ -112,9 +114,12 @@ class RemoveSuggestionWorkflowTests(TutorialTestMixin, TestCase):
 
     def test_empty(self):
         response = self.client.post(self.form_url, {"pk_suggestion": ""}, follow=True)
-        self.assertContains(response, escape(self.error_message_fragment))
+        self.assertContains(response, escape(self.error_messages["required"]))
 
     def test_invalid(self):
-        # TODO: There is a 404, but an error message would be more appropriate
-        response = self.client.post(self.form_url, {"pk_suggestion": "420"})  # pk must not exist
-        self.assertEqual(response.status_code, 404)
+        response = self.client.post(self.form_url, {"pk_suggestion": "420"}, follow=True)  # pk must not exist
+        self.assertContains(response, escape(self.error_messages["does_not_exist"]))
+
+    def test_not_integer(self):
+        response = self.client.post(self.form_url, {"pk_suggestion": "abcd"}, follow=True)
+        self.assertContains(response, escape(self.error_messages["invalid"]))
