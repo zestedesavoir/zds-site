@@ -17,9 +17,6 @@ La présence de tests adéquats est vérifiée lors de l'assurance qualité des 
 
 Les contributions destinées purement à l'amélioration des tests sont les bienvenues. En effet, l'historique du projet fait que certaines parties du projet sont peu, mal, ou pas testées automatiquement.
 
-Quoi qu'il en soit, l'équipe est disponible sur le canal ``#dev-de-zds`` de `notre serveur Discord <https://discord.gg/ue5MTKq>`_ ou `le forum Dev Zone <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ pour vous aider si vous avez des doutes, questions ou difficultés.
-
-
 Identifier ce qu'il faut tester
 ===============================
 
