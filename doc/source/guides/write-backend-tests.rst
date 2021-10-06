@@ -81,8 +81,8 @@ Connaître les outils pratiques
 
 Quelques lectures en lien avec Django :
 
-* `l'aperçu global des tests avec Django <https://docs.djangoproject.com/en/2.2/topics/testing/overview/>`_ ;
-* `la documentation sur les outils de test fournis par Django <https://docs.djangoproject.com/en/2.2/topics/testing/tools/>`_.
+* `l'aperçu global des tests avec Django <https://docs.djangoproject.com/fr/2.2/topics/testing/overview/>`_ ;
+* `la documentation sur les outils de test fournis par Django <https://docs.djangoproject.com/fr/2.2/topics/testing/tools/>`_.
 
 Une tâche qui revient très souvent lors des tests est la création d'utilisateurs, sujets de forum, messages, tutoriels, articles, etc.
 Il existe des outils de développement pour faciliter leur création appelés *Factory* et qu'on retrouve dans les fichiers `factories.py` de chaque module. L'usage est simple, il suffit d'appeler le constructeur pour recevoir un objet du type souhaité :

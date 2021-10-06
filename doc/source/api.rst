@@ -60,7 +60,7 @@ Par défaut, le serveur renvoie les réponses au format ``JSON`` mais il gère a
 
     $ curl -H "Accept: application/xml" https://zestedesavoir.com/api/membres/
 
-Les `formats de sortie (en) <http://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
+Les `formats de sortie (en) <https://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
 
 .. sourcecode:: python
 
@@ -78,7 +78,7 @@ Plusieurs formats d'entrées sont supportés par le serveur, à savoir le ``JSON
 
     $ curl -H "Content-Type: application/xml" https://zestedesavoir.com/api/membres/
 
-Les `formats d'entrée (en) <http://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats d'entrée sont des ``parser``.
+Les `formats d'entrée (en) <https://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats d'entrée sont des ``parser``.
 
 .. sourcecode:: python
 
@@ -94,9 +94,9 @@ Les `formats d'entrée (en) <http://www.django-rest-framework.org/api-guide/pars
 Cache
 -----
 
-Un cache spécifique à l'API est mis en place pour mettre en cache toutes les méthodes ``GET``. Le système n'est pas spécifique à Django Rest Framework mais est disponible via une librairie tierce qui a été développée spécialement pour fonctionner avec DRF, `DRF-Extensions (en) <http://chibisov.github.io/drf-extensions/docs/>`_.
+Un cache spécifique à l'API est mis en place pour mettre en cache toutes les méthodes ``GET``. Le système n'est pas spécifique à Django Rest Framework mais est disponible via une librairie tierce qui a été développée spécialement pour fonctionner avec DRF, `DRF-Extensions (en) <https://chibisov.github.io/drf-extensions/docs/>`_.
 
-Pour placer un cache, il suffit d'annoter la méthode ``GET`` voulue avec l'annotation ``@cache_response()`` (comme le mentionne la `documentation à ce sujet (en) <http://chibisov.github.io/drf-extensions/docs/#caching>`_
+Pour placer un cache, il suffit d'annoter la méthode ``GET`` voulue avec l'annotation ``@cache_response()`` (comme le mentionne la `documentation à ce sujet (en) <https://chibisov.github.io/drf-extensions/docs/#caching>`_
 ). Par exemple, la méthode ``GET`` pour récupérer la liste paginée des membres ressemblerait au code ci-dessous.
 
 .. sourcecode:: python
@@ -111,14 +111,14 @@ Pour placer un cache, il suffit d'annoter la méthode ``GET`` voulue avec l'anno
 
 Dans le contexte de Zeste de Savoir, ce n'est pas suffisant. Comme la plupart des routes ``GET`` peuvent prendre des paramètres, il faut permettre au cache de distinguer une URL X avec des paramètres et une URL Y avec d'autres paramètres. Ceci se fait en spécifiant une clé au cache de la méthode. Par exemple, pour la pagination, si aucune clé n'est renseignée, le cache renverra toujours le même résultat peu importe la page souhaitée.
 
-Pour enrichir la clé d'un cache, DRF-Extensions propose les ``KeyConstructor``. Toutes les informations et les possibilités à ce sujet sont disponibles dans la `documentation de cette librairie (en) <http://chibisov.github.io/drf-extensions/docs/#key-constructor>`_.
+Pour enrichir la clé d'un cache, DRF-Extensions propose les ``KeyConstructor``. Toutes les informations et les possibilités à ce sujet sont disponibles dans la `documentation de cette librairie (en) <https://chibisov.github.io/drf-extensions/docs/#key-constructors>`_.
 
 ETag
 ----
 
 Un ETag est un identifiant unique assigné par le serveur à chaque version d'une ressource accessible via une URL. Si la ressource accessible via cette URL change, un nouvel ETag sera assigné. Lorsque le client utilise cet en-tête, cela permet d'alléger le serveur : il suffit au serveur de comparer l'ETag de la ressource et celui fourni par le client pour décider si une requête en base de données est nécessaire.
 
-Le calcul de l'ETag n'est pas natif à Django Rest Framework mais est accessible via la `bibliothèque DRF-Extensions (en) <http://chibisov.github.io/drf-extensions/docs/#conditional-requests>`_. Le calcul est ajouté sur toutes les méthodes ``GET`` et ``PUT``. Il est inutile de calculer des ETags pour des requêtes ``POST`` et ``DELETE`` puisque ces deux méthodes ont pour objectif de créer et supprimer des ressources.
+Le calcul de l'ETag n'est pas natif à Django Rest Framework mais est accessible via la `bibliothèque DRF-Extensions (en) <https://chibisov.github.io/drf-extensions/docs/#conditional-requests>`_. Le calcul est ajouté sur toutes les méthodes ``GET`` et ``PUT``. Il est inutile de calculer des ETags pour des requêtes ``POST`` et ``DELETE`` puisque ces deux méthodes ont pour objectif de créer et supprimer des ressources.
 
 Pour placer un ETag, il suffit d'annoter la méthode voulue avec l'annotation ``@etag()``. Par exemple, la méthode ``GET`` pour récupérer la liste paginée des membres ressemblerait au code ci-dessous.
 
@@ -134,7 +134,7 @@ Pour placer un ETag, il suffit d'annoter la méthode voulue avec l'annotation ``
 
 Dans le contexte de Zeste de Savoir, ce n'est pas suffisant. Comme la plupart des routes ``GET`` et ``PUT`` peuvent prendre des paramètres, il faut permettre au cache de distinguer une URL X avec des paramètres et une URL Y avec d'autres paramètres. Ceci se fait en spécifiant une clé à l'ETag de la méthode. Par exemple, pour la pagination, si aucune clé n'est renseignée, l'ETag ne sera jamais recalculé peu importe la page souhaitée.
 
-Pour enrichir la clé de l'ETag, DRF-Extensions propose les ``KeyConstructor``. Toutes les informations et les possibilités à ce sujet sont disponibles dans la `documentation de cette librairie (en) <http://chibisov.github.io/drf-extensions/docs/#key-constructor>`_.
+Pour enrichir la clé de l'ETag, DRF-Extensions propose les ``KeyConstructor``. Toutes les informations et les possibilités à ce sujet sont disponibles dans la `documentation de cette librairie (en) <https://chibisov.github.io/drf-extensions/docs/#key-constructors>`_.
 
 **Note :** L'ETag et le cache peuvent fonctionner ensemble. Une méthode peut être annotée avec ``@etag()`` et ``@cache_response()``.
 
@@ -164,7 +164,7 @@ Le `throttling` permet d'imposer des limites au nombre de requêtes possibles po
         }
     }
 
-Il existe d'autres configurations possibles. Pour en prendre conscience, rendez-vous dans la `documentation du throttling (en) <http://www.django-rest-framework.org/api-guide/throttling/>`_.
+Il existe d'autres configurations possibles. Pour en prendre conscience, rendez-vous dans la `documentation du throttling (en) <https://www.django-rest-framework.org/api-guide/throttling/>`_.
 
 Pagination
 ----------
@@ -181,7 +181,7 @@ La pagination peut être configurée directement dans les vues de l'API mais aus
         'MAX_PAGINATE_BY': 100,             # Maximum limit allowed when using `?page_size=xxx`.
     }
 
-Toutes les informations complémentaires à ce sujet sont disponibles dans la `documentation de la pagination (en) <http://www.django-rest-framework.org/api-guide/pagination/>`_.
+Toutes les informations complémentaires à ce sujet sont disponibles dans la `documentation de la pagination (en) <https://www.django-rest-framework.org/api-guide/pagination/>`_.
 
 Son utilisation est simple, il suffit de renseigner la page avec le paramètre ``page`` et, optionnellement, ``page_size`` pour renseigner la taille de la page. Par exemple, récupérer la page 2 d'une page de taille 3 ressemblera à la requête suivante.
 
@@ -219,11 +219,11 @@ Authentification
 Bibliothèque tierce choisie
 ---------------------------
 
-Django Rest Framework supporte plusieurs systèmes d'authentification (comme en témoigne la `documentation sur l'authentification (en) <http://www.django-rest-framework.org/api-guide/authentication/>`_). Sur Zeste de Savoir, il a été décidé d'utiliser OAuth2 (dont la spécification du protocole est disponible via `ce lien (en) <http://tools.ietf.org/html/rfc6749>`_) pour tenter d'avoir le système le plus sécurisé possible.
+Django Rest Framework supporte plusieurs systèmes d'authentification (comme en témoigne la `documentation sur l'authentification (en) <https://www.django-rest-framework.org/api-guide/authentication/>`_). Sur Zeste de Savoir, il a été décidé d'utiliser OAuth2 (dont la spécification du protocole est disponible via `ce lien (en) <https://datatracker.ietf.org/doc/html/rfc6749>`_) pour tenter d'avoir le système le plus sécurisé possible.
 
-L'authentification n'est pas directement dans Django Rest Framework, il ne fait que supporter des librairies tierces qui s'en occupent. La librairie choisie est `Django OAuth Toolkit <https://django-oauth-toolkit.readthedocs.org/en/0.7.0/>`_ pour sa forte compatibilité avec Django Rest Framework, sa maintenance et sa compatibilité Python 3 et Django 1.7 (ou plus).
+L'authentification n'est pas directement dans Django Rest Framework, il ne fait que supporter des librairies tierces qui s'en occupent. La librairie choisie est `Django OAuth Toolkit <https://django-oauth-toolkit.readthedocs.io/en/stable/>`_ pour sa forte compatibilité avec Django Rest Framework et sa maintenance.
 
-Toute sa configuration est détaillée dans la `documentation de cette bibliothèque <https://django-oauth-toolkit.readthedocs.org/en/0.7.0/rest-framework/getting_started.html>`_.
+Toute sa configuration est détaillée dans la `documentation de cette bibliothèque <https://django-oauth-toolkit.readthedocs.io/en/stable/rest-framework/getting_started.html>`_.
 
 Utilisation
 -----------
@@ -312,12 +312,12 @@ A la suite de cela, de nouveaux tokens seront renvoyés et devront être sauvega
 Documentation (utilisation)
 ============================
 
-Django REST Swagger est une bibliothèque qui génère automatiquement la documentation d'une API Django basée sur la bibliothèque Django REST framework.
+Yet another Swagger generator (``drf-yasg``) est une bibliothèque qui génère automatiquement la documentation d'une API Django basée sur la bibliothèque Django REST framework.
 
-Cette documentation est accessible par l'url ``http://zestedesavoir.com/api/`` et, via cette page, il est possible de :
+Cette documentation est accessible par l'url ``https://zestedesavoir.com/api/`` et, via cette page, il est possible de :
 
 - Lister toutes les APIs pour toutes les ressources.
 - Connaitre les paramètres, les codes d'erreur et un exemple de réponse.
 - Exécuter toutes les routes disponibles dans l'API.
 
-Pour maintenir cette documentation, rendez-vous sur `sa documentation (en) <http://django-rest-swagger.readthedocs.org/en/latest/>`_ qui explique sur quoi se base la bibliothèque pour générer la documentation et comment y rajouter de l'information.
+Pour maintenir cette documentation, rendez-vous sur `sa documentation (en) <https://drf-yasg.readthedocs.io/en/stable/>`_ qui explique sur quoi se base la bibliothèque pour générer la documentation et comment y rajouter de l'information.

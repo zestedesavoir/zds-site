@@ -3,7 +3,7 @@ Elements de templates personnalisés
 ===================================
 
 Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres personnalisés pouvant être utilisés dans les gabarits (*templates*),
-`voir à ce sujet la documentation de Django <https://docs.djangoproject.com/fr/1.8/howto/custom-template-tags/>`_.
+`voir à ce sujet la documentation de Django <https://docs.djangoproject.com/fr/2.2/howto/custom-template-tags/>`_.
 
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.
@@ -198,7 +198,7 @@ génération des fichiers PDF et EPUB des tutos :
 Le module ``htmldiff``
 ======================
 
-Ce module définit le tag ``htmldiff`` qui affiche la différence entre deux chaînes de caractères, en utilisant `difflib (en) <https://docs.python.org/2/library/difflib.html>`__. Le code généré est un tableau HTML à l'intérieur d'une div. Il est employé pour afficher le *diff* des tutoriels et des articles.
+Ce module définit le tag ``htmldiff`` qui affiche la différence entre deux chaînes de caractères, en utilisant `difflib (en) <https://docs.python.org/3/library/difflib.html>`__. Le code généré est un tableau HTML à l'intérieur d'une div. Il est employé pour afficher le *diff* des tutoriels et des articles.
 
 .. sourcecode:: html+django
 
@@ -344,7 +344,7 @@ Le module ``profiles``
 ``user``
 --------
 
-Pour un objet de type ``Profile`` (`voir son implémentation <../back-end-code/member.html#zds.member.models.Profile>`__), ce filtre récupère son objet ``User`` correspondant (`voir les informations sur cet objet dans la documentation de Django <https://docs.djangoproject.com/fr/1.8/topics/auth/default/#user-objects>`__).
+Pour un objet de type ``Profile`` (`voir son implémentation <../back-end-code/member.html#zds.member.models.Profile>`__), ce filtre récupère son objet ``User`` correspondant (`voir les informations sur cet objet dans la documentation de Django <https://docs.djangoproject.com/fr/2.2/topics/auth/default/#user-objects>`__).
 
 Par exemple, le code suivant affichera le nom de l'utilisateur :
 

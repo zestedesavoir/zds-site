@@ -18,7 +18,7 @@ Contribuer à Zeste De Savoir
 1. Créez une branche pour contenir votre travail.
 2. Faites vos modifications.
 3. Ajoutez un test pour votre modification. Seules les modifications de documentation et les réusinages n'ont pas besoin de nouveaux tests.
-4. Assurez-vous que vos tests passent en utilisant la commande ``python manage.py test`` (`voir la documentation <https://docs.djangoproject.com/fr/1.10/topics/testing/overview/#running-tests>`_). Lancer la commande sur tous les tests du site risque de prendre un certain temps et n'est pas nécessaire : les tests seront de toute manière lancés de manière automatisée sur votre *pull request*.
+4. Assurez-vous que vos tests passent en utilisant la commande ``python manage.py test`` (`voir la documentation <https://docs.djangoproject.com/fr/2.2/topics/testing/overview/#running-tests>`_). Lancer la commande sur tous les tests du site risque de prendre un certain temps et n'est pas nécessaire : les tests seront de toute manière lancés de manière automatisée sur votre *pull request*.
 5. Si vous avez fait des modifications du _frontend_, jouez les tests associés : ``yarn test``.
 6. Si vous modifiez les modèles (les fichiers ``models.py``), n'oubliez pas de créer les fichiers de migration : ``python manage.py makemigrations``.
 7. Poussez votre travail et faites une *pull request*.
@@ -27,9 +27,9 @@ Contribuer à Zeste De Savoir
 Quelques bonnes pratiques
 -------------------------
 
-* Respectez `les conventions de code de Django <https://docs.djangoproject.com/en/2.1/internals/contributing/writing-code/coding-style/>`_, ce qui inclut la `PEP 8 de Python <http://legacy.python.org/dev/peps/pep-0008/>`_.
+* Respectez `les conventions de code de Django <https://docs.djangoproject.com/fr/2.2/internals/contributing/writing-code/coding-style/>`_, ce qui inclut la `PEP 8 de Python <http://legacy.python.org/dev/peps/pep-0008/>`_.
 * Le code et les commentaires sont en anglais.
-* Le *workflow* Git utilisé est le `Git flow <http://nvie.com/posts/a-successful-git-branching-model/>`_, qui est `détaillé ici <./workflow.html>`_. En résumé :
+* Le *workflow* Git utilisé est le `Git flow <https://nvie.com/posts/a-successful-git-branching-model/>`_, qui est `détaillé ici <./workflow.html>`_. En résumé :
     * Les arrivées fonctionnalités et corrections de gros bugs hors release se font via des PR.
     * Ces PR sont unitaires. Aucune PR qui corrige plusieurs problèmes ou apporte plusieurs fonctionnalité ne sera accepté ; la règle est : une fonctionnalité ou une correction = une PR.
     * Ces PR sont mergées dans la branche ``dev`` (appelée ``develop`` dans le git flow standard), après une QA légère.

@@ -81,7 +81,7 @@ La liste des packages vous est donnée ci-dessous (pour Debian), si vous utilise
 Composant ``virtualenv``
 ========================
 
-Installe le *virtualenv* qui est un environnement python cloisonné prévu pour ne pas interférer avec d'autres installation de python (`plus d'infos ici <http://docs.python-guide.org/en/latest/dev/virtualenvs/>`_).
+Installe le *virtualenv* qui est un environnement python cloisonné prévu pour ne pas interférer avec d'autres installation de python (`plus d'infos ici <https://python-guide-fr.readthedocs.io/fr/latest/dev/virtualenvs.html#virtualenv>`_).
 Ce que fait ce composant est tout simplement:
 
 .. sourcecode:: bash
