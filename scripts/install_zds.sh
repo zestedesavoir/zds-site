@@ -59,6 +59,11 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         read -n 1
         echo ""
 
+        if ! [ "$REPLY" -eq "$REPLY" ] 2> /dev/null; then # check $REPLY contains a number
+            print_error "!! You have to pick a number!"
+            exit 1
+        fi
+
         filepath="${arr[$REPLY]}"
         if [[ $filepath == "" ]]; then
             print_error "!! You don't pick the right choice."

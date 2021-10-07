@@ -76,10 +76,11 @@ class ContainerPublicationReadinessView(UpdateAPIView):
     permission_classes = (IsAuthorOrStaff,)
     serializer_class = ContainerReadinessSerializer
 
+    def get_queryset(self):
+        return PublishableContent.objects.prefetch_related("authors").filter(pk=int(self.kwargs.get("pk", 0))).first()
+
     def get_object(self):
-        content = (
-            PublishableContent.objects.prefetch_related("authors").filter(pk=int(self.kwargs.get("pk", 0))).first()
-        )
+        content = self.get_queryset()
         if not content:
             raise Http404()
         self.check_object_permissions(self.request, object)

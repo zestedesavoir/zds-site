@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{# Based on https://github.com/axnsan12/drf-yasg/blob/b99306f71c6a5779b62189df7d9c1f5ea1c794ef/src/drf_yasg/templates/drf-yasg/swagger-ui.html #}
+
+{% load static %}
+{% load i18n %}
+
+
+
+{% block title %}
+    {% trans "Documentation de l’API" %}
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <li>{% trans "Documentation de l’API" %}</li>
+{% endblock %}
+
+
+{% block body_class %}swagger-body{% endblock %}
+
+
+{% block doc_api %}
+    <div class="wrapper">
+        <div id="swagger-ui"></div>
+        {% csrf_token %}
+    </div>
+{% endblock %}
+
+
+{% block extra_css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'drf-yasg/style.css' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static 'drf-yasg/swagger-ui-dist/swagger-ui.css' %}">
+{% endblock %}
+
+
+{% block extra_js %}
+    <script id="swagger-settings" type="application/json">{{ swagger_settings | safe }}</script>
+    <script id="oauth2-config" type="application/json">{{ oauth2_config | safe }}</script>
+
+    <script src="{% static 'drf-yasg/swagger-ui-dist/swagger-ui-bundle.js' %}"></script>
+    <script src="{% static 'drf-yasg/swagger-ui-dist/swagger-ui-standalone-preset.js' %}"></script>
+    <script src="{% static 'drf-yasg/insQ.min.js' %}"></script>
+    <script src="{% static 'drf-yasg/immutable.min.js' %}"></script>
+    <script src="{% static 'drf-yasg/url-polyfill.min.js' %}"></script>
+    <script src="{% static 'drf-yasg/swagger-ui-init.js' %}"></script>
+{% endblock %}
