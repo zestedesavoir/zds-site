@@ -98,7 +98,6 @@ class RemoveSuggestionWorkflowTests(TutorialTestMixin, TestCase):
         self.form_url = reverse("content:remove-suggestion", kwargs={"pk": self.content.pk})
         self.success_message_fragment = _("Vous avez enlevé")
         self.error_messages = RemoveSuggestionForm.declared_fields["pk_suggestion"].error_messages
-        print(self.error_messages)
         # Log in with an authorized user to perform the tests
         self.client.force_login(self.staff)
 
