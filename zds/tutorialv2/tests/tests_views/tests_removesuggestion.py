@@ -49,7 +49,6 @@ class RemoveSuggestionPermissionTests(TutorialTestMixin, TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_authenticated_author(self):
-        # TODO: this behavior is actually wrong, it should be only authorized for staff.
         self.client.force_login(self.author)
         self.content.type = "TUTORIAL"
         self.content.save()
