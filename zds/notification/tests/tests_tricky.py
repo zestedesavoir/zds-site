@@ -5,13 +5,15 @@ from django.urls import reverse
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.contrib.contenttypes.models import ContentType
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory
+from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.notification.models import (
     NewTopicSubscription,
+    TopicAnswerSubscription,
     Notification,
     NewPublicationSubscription,
     ContentReactionAnswerSubscription,
@@ -287,7 +289,7 @@ class ForumNotification(TestCase):
         self.assertEqual(subscription.last_notification, Notification.objects.filter(sender=self.user2).first())
         self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
 
-    def test_no_more_notif_on_losing_all_groups(self):
+    def test_no_more_new_topic_notif_on_losing_all_groups(self):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
         self.client.force_login(self.staff)
         self.client.post(
@@ -302,13 +304,18 @@ class ForumNotification(TestCase):
         )
         subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, True)
         self.assertIsNotNone(subscription, "There must be an active subscription for now")
+        self.assertIsNotNone(subscription.last_notification, "There must be a notification.")
+        self.assertFalse(subscription.last_notification.is_read, "The notification has not been read yet")
+
         self.to_be_changed_staff.groups.clear()
         self.to_be_changed_staff.save()
-        subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, False)
-        self.assertIsNotNone(subscription, "There must be an active subscription for now")
-        self.assertFalse(subscription.is_active)
 
-    def test_no_more_notif_on_losing_one_group(self):
+        subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, False)
+        self.assertIsNotNone(subscription, "The subscription should now be inactive")
+        self.assertFalse(subscription.is_active)
+        self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
+
+    def test_no_more_new_topic_notif_on_losing_one_group(self):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
         self.client.force_login(self.staff)
         self.client.post(
@@ -323,11 +330,98 @@ class ForumNotification(TestCase):
         )
         subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, True)
         self.assertIsNotNone(subscription, "There must be an active subscription for now")
+        self.assertIsNotNone(subscription.last_notification, "There must be a notification.")
+        self.assertFalse(subscription.last_notification.is_read, "The notification has not been read yet")
+
         self.to_be_changed_staff.groups.remove(list(self.to_be_changed_staff.groups.all())[0])
         self.to_be_changed_staff.save()
+
         subscription = NewTopicSubscription.objects.get_existing(self.to_be_changed_staff, self.forum12, False)
-        self.assertIsNotNone(subscription, "There must be an active subscription for now")
+        self.assertIsNotNone(subscription, "There must be an inactive subscription now")
         self.assertFalse(subscription.is_active)
+        self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
+
+    def test_no_more_topic_answer_notif_on_losing_all_groups(self):
+        self.client.force_login(self.to_be_changed_staff)
+        self.client.post(
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            {
+                "title": "Super sujet",
+                "subtitle": "Pour tester les notifs",
+                "text": "En tout cas l'un abonnement",
+                "tags": "",
+            },
+            follow=False,
+        )
+        topic = Topic.objects.filter(title="Super sujet").first()
+
+        self.client.force_login(self.staff)
+        self.client.post(
+            reverse("post-new") + f"?sujet={topic.pk}",
+            {
+                "last_post": topic.last_message.pk,
+                "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
+            },
+            follow=False,
+        )
+
+        subscription = TopicAnswerSubscription.objects.get_existing(
+            content_object=topic, user=self.to_be_changed_staff, is_active=True
+        )
+        self.assertIsNotNone(subscription, "There must be an active subscription for now")
+        self.assertIsNotNone(subscription.last_notification, "There must be a notification.")
+        self.assertFalse(subscription.last_notification.is_read, "The notification has not been read yet")
+
+        self.to_be_changed_staff.groups.clear()
+        self.to_be_changed_staff.save()
+
+        subscription = TopicAnswerSubscription.objects.get_existing(
+            content_object=topic, user=self.to_be_changed_staff, is_active=False
+        )
+        self.assertIsNotNone(subscription, "The subscription must now be inactive")
+        self.assertFalse(subscription.is_active)
+        self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
+
+    def test_no_more_topic_answer_notif_on_losing_one_group(self):
+        self.client.force_login(self.to_be_changed_staff)
+        self.client.post(
+            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            {
+                "title": "Super sujet",
+                "subtitle": "Pour tester les notifs",
+                "text": "En tout cas l'un abonnement",
+                "tags": "",
+            },
+            follow=False,
+        )
+        topic = Topic.objects.filter(title="Super sujet").first()
+
+        self.client.force_login(self.staff)
+        self.client.post(
+            reverse("post-new") + f"?sujet={topic.pk}",
+            {
+                "last_post": topic.last_message.pk,
+                "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
+            },
+            follow=False,
+        )
+
+        subscription = TopicAnswerSubscription.objects.get_existing(
+            content_object=topic, user=self.to_be_changed_staff, is_active=True
+        )
+        self.assertIsNotNone(subscription, "There must be an active subscription for now")
+        self.assertIsNotNone(subscription.last_notification, "There must be a notification.")
+        self.assertFalse(subscription.last_notification.is_read, "The notification has not been read yet")
+
+        self.to_be_changed_staff.groups.remove(list(self.to_be_changed_staff.groups.all())[0])
+        self.to_be_changed_staff.save()
+
+        subscription = TopicAnswerSubscription.objects.get_existing(
+            content_object=topic, user=self.to_be_changed_staff, is_active=False
+        )
+        self.assertIsNotNone(subscription, "The subscription must now be inactive")
+        self.assertFalse(subscription.is_active)
+        self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
 
 
 @override_for_contents()
