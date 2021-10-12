@@ -20,7 +20,6 @@ class RemoveSuggestionPermissionTests(TutorialTestMixin, TestCase):
         self.author = ProfileFactory().user
         self.staff = StaffProfileFactory().user
         self.outsider = ProfileFactory().user
-        self.other = ProfileFactory().user
 
         # Create contents and suggestion
         self.content = PublishableContentFactory(author_list=[self.author])
