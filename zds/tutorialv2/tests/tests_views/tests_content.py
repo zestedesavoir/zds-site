@@ -1648,7 +1648,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # clean up
         os.remove(draft_zip_path)
 
-    def import_with_bad_title(self):
+    def test_import_with_bad_title(self):
         """Tests an error case that happen when someone sends an archive that modify the content title
         with a string that cannont be properly slugified"""
         new_article = PublishableContentFactory(type="ARTICLE", title="extension", authors=[self.user_author])
@@ -3270,7 +3270,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             if extra == "md":
                 continue
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
-            self.assertEqual(result.status_code, 200, msg="Could not read {} export".format(extra))
+            self.assertEqual(result.status_code, 200, msg=f"Could not read {extra} export")
 
     def test_publication_give_pubdate_if_no_major(self):
         """if a content has never been published and `is_major` is not checked, still gives a publication date"""
@@ -3352,7 +3352,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         self.assertEqual(tuto.pubdate, current_pubdate)  # `is_major` in False → no update of the publication date
 
-    def no_form_not_allowed(self):
+    def test_no_form_not_allowed(self):
         """Check that author cannot access to form that he is not allowed to in the creation process, because
         - The container already have child container and author ask to add a child extract ;
         - The container already contains child extract and author ask to add a container."""
