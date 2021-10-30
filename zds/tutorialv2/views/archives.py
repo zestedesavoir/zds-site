@@ -198,6 +198,8 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                         raise BadArchiveError(_(f"Le fichier « {child.conclusion} » n'est pas encodé en UTF-8"))
 
                 copy_to.repo_add_container(child.title, introduction, conclusion, do_commit=False, slug=child.slug)
+                copy_to.children[-1].ready_to_publish = child.ready_to_publish
+                copy_to.repo_update(copy_to.title, introduction, conclusion, do_commit=False)
                 UpdateContentWithArchive.update_from_new_version_in_zip(copy_to.children[-1], child, zip_file)
 
             elif isinstance(child, Extract):
@@ -381,6 +383,7 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 if new_version.conclusion:
                     conclusion = str(zfile.read(new_version.conclusion), "utf-8")
 
+                versioned.ready_to_publish = new_version.ready_to_publish
                 versioned.repo_update_top_container(
                     new_version.title, new_version.slug, introduction, conclusion, do_commit=False
                 )
