@@ -1634,7 +1634,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # ensure the content
         self.assertEqual(versioned.get_introduction(), some_text)
-        self.assertEqual(versioned.get_introduction(), some_text)
+        self.assertEqual(versioned.get_conclusion(), some_text)
         self.assertEqual(len(versioned.children), 1)
 
         new_chapter = versioned.children[-1]
