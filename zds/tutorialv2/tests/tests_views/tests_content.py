@@ -1651,14 +1651,13 @@ class ContentTests(TutorialTestMixin, TestCase):
     def test_import_with_bad_title(self):
         """Tests an error case that happen when someone sends an archive that modify the content title
         with a string that cannont be properly slugified"""
-        new_article = PublishableContentFactory(type="ARTICLE", title="extension", authors=[self.user_author])
+        new_article = PublishableContentFactory(type="ARTICLE", title="extension", author_list=[self.user_author])
         self.client.force_login(self.user_author)
         archive_path = settings.BASE_DIR / "fixtures" / "tuto" / "BadArchive.zip"
         answer = self.client.post(
             reverse("content:import", args=[new_article.pk, new_article.slug]),
             {
                 "archive": archive_path.open("rb"),
-                "image_archive": None,
                 "msg_commit": "let it go, let it goooooooo ! can't hold it back anymoooooore!",
             },
         )
