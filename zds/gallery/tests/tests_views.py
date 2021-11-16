@@ -514,7 +514,7 @@ class EditImageViewTest(TestCase):
 
             self.client.post(
                 reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]),
-                {"title": "modify with no perms", "legend": "test legend", "slug": "test-slug", "physical": fp},
+                {"title": "modify with no perms", "legend": "test legend", "physical": fp},
                 follow=True,
             )
 
@@ -535,7 +535,7 @@ class EditImageViewTest(TestCase):
                 with open(filename, "rb") as fp:
                     response = self.client.post(
                         reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]),
-                        {"title": "edit title", "legend": "dit legend", "slug": "edit-slug", "physical": fp},
+                        {"title": "edit title", "legend": "dit legend", "physical": fp},
                         follow=True,
                     )
                 self.assertEqual(200, response.status_code)
@@ -666,7 +666,7 @@ class NewImageViewTest(TestCase):
                 with open(filename, "rb") as fp:
                     response = self.client.post(
                         reverse("gallery-image-new", args=[self.gallery.pk]),
-                        {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
+                        {"title": "Test title", "legend": "Test legend", "physical": fp},
                         follow=True,
                     )
 
@@ -682,7 +682,7 @@ class NewImageViewTest(TestCase):
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
                 reverse("gallery-image-new", args=[self.gallery.pk]),
-                {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
+                {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
 
@@ -696,7 +696,7 @@ class NewImageViewTest(TestCase):
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
                 reverse("gallery-image-new", args=[self.gallery.pk]),
-                {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
+                {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
 
@@ -709,7 +709,7 @@ class NewImageViewTest(TestCase):
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
                 reverse("gallery-image-new", args=[156]),
-                {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
+                {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
 
