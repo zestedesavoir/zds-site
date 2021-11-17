@@ -115,16 +115,16 @@
 <span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.models" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.models.Forum">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">Forum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Forum" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">Forum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Forum" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A Forum, containing Topics. It can be public or restricted to some groups.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.Forum.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.Forum.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.Forum.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.Forum.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.Forum.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.Forum.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -172,7 +172,7 @@ The forum can be read if:
 
 <dl class="py property">
 <dt class="sig sig-object py" id="zds.forum.models.Forum.has_group">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">has_group</span></span><a class="headerlink" href="#zds.forum.models.Forum.has_group" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">has_group</span></span><a class="headerlink" href="#zds.forum.models.Forum.has_group" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Checks if this forum belongs to at least one group</p>
 <dl class="field-list simple">
 <dt class="field-odd">Renvoie</dt>
@@ -188,17 +188,17 @@ The forum can be read if:
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.models.ForumCategory">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">ForumCategory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.ForumCategory" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">ForumCategory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.ForumCategory" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A ForumCategory is a simple container for Forums.
 There is no kind of logic in a ForumCategory. It simply here for Forum presentation in a predefined order.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.ForumCategory.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.ForumCategory.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.ForumCategory.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.ForumCategory.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.ForumCategory.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.ForumCategory.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -225,18 +225,18 @@ There is no kind of logic in a ForumCategory. It simply here for Forum presentat
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.models.Post">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">Post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Post" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">Post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Post" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A forum post written by a user.
 A post can be marked as useful: topic’s author (or admin) can declare any topic as « useful », and this post is
 displayed as is on front.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.Post.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.Post.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.Post.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.Post.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.Post.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.Post.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -251,7 +251,7 @@ displayed as is on front.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.models.Post.get_es_django_indexable">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_django_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Post.get_es_django_indexable" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_django_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Post.get_es_django_indexable" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Overridden to prefetch stuffs</p>
 </dd></dl>
 
@@ -259,6 +259,20 @@ displayed as is on front.</p>
 <dt class="sig sig-object py" id="zds.forum.models.Post.get_es_document_source">
 <span class="sig-name descname"><span class="pre">get_es_document_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Post.get_es_document_source" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Overridden to handle the information of the topic</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.forum.models.Post.get_es_mapping">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Post.get_es_mapping" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Overridden to add pk into mapping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Renvoie</dt>
+<dd class="field-odd"><p>mapping object</p>
+</dd>
+<dt class="field-even">Type renvoyé</dt>
+<dd class="field-even"><p>elasticsearch_dsl.Mapping</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -271,7 +285,7 @@ displayed as is on front.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.models.Topic">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">Topic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">Topic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A Topic is a thread of posts.
 A topic has several states, witch are all independent:
 - Solved: it was a question, and this question has been answered. The « solved » state is set at author’s discretion.
@@ -279,12 +293,12 @@ A topic has several states, witch are all independent:
 - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.Topic.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.Topic.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.Topic.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.Topic.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.Topic.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.Topic.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -329,7 +343,7 @@ post, the anti-spam is active and the user cannot post.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.models.Topic.get_es_django_indexable">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_django_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic.get_es_django_indexable" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_django_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic.get_es_django_indexable" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Overridden to prefetch tags and forum</p>
 </dd></dl>
 
@@ -337,6 +351,20 @@ post, the anti-spam is active and the user cannot post.
 <dt class="sig sig-object py" id="zds.forum.models.Topic.get_es_document_source">
 <span class="sig-name descname"><span class="pre">get_es_document_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excluded_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic.get_es_document_source" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Overridden to handle the case of tags (M2M field)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.forum.models.Topic.get_es_mapping">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic.get_es_mapping" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Overridden to add pk into mapping.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Renvoie</dt>
+<dd class="field-odd"><p>mapping object</p>
+</dd>
+<dt class="field-even">Type renvoyé</dt>
+<dd class="field-even"><p>elasticsearch_dsl.Mapping</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -430,17 +458,17 @@ value.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.models.TopicRead">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">TopicRead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.TopicRead" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">TopicRead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.TopicRead" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>This model tracks the last post read in a topic by a user.
 Technically it is a simple joint [user, topic, last read post].</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.TopicRead.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.TopicRead.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.forum.models.TopicRead.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.forum.models.TopicRead.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.TopicRead.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.forum.models.TopicRead.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -469,7 +497,7 @@ Technically it is a simple joint [user, topic, last read post].</p>
 <span id="les-managers-managers-py"></span><h2><a class="toc-backref" href="#id3">Les managers (<code class="docutils literal notranslate"><span class="pre">managers.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.managers" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.managers.ForumManager">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.managers.</span></span><span class="sig-name descname"><span class="pre">ForumManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.managers.ForumManager" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.managers.</span></span><span class="sig-name descname"><span class="pre">ForumManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.managers.ForumManager" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Custom forum manager.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.managers.ForumManager.get_public_forums_of_category">
@@ -489,7 +517,7 @@ Technically it is a simple joint [user, topic, last read post].</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.managers.PostManager">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.managers.</span></span><span class="sig-name descname"><span class="pre">PostManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.managers.PostManager" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.managers.</span></span><span class="sig-name descname"><span class="pre">PostManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.managers.PostManager" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Custom post manager.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.managers.PostManager.visibility_check_query">
@@ -503,7 +531,7 @@ Technically it is a simple joint [user, topic, last read post].</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.managers.TopicManager">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.managers.</span></span><span class="sig-name descname"><span class="pre">TopicManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.managers.TopicManager" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.managers.</span></span><span class="sig-name descname"><span class="pre">TopicManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.managers.TopicManager" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Custom topic manager.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.managers.TopicManager.get_last_topics">
@@ -539,7 +567,7 @@ for the request user.
 <span id="vues-views-py"></span><h2><a class="toc-backref" href="#id4">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.views" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.CategoriesForumsListView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">CategoriesForumsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.CategoriesForumsListView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">CategoriesForumsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.CategoriesForumsListView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.CategoriesForumsListView.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.CategoriesForumsListView.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -550,7 +578,7 @@ for the request user.
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.FindFollowedTopic">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindFollowedTopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindFollowedTopic" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindFollowedTopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindFollowedTopic" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.FindFollowedTopic.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindFollowedTopic.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -578,7 +606,7 @@ Subclasses can override this to return any object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.FindPost">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindPost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindPost" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindPost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindPost" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.FindPost.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindPost.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -606,7 +634,7 @@ Subclasses can override this to return any object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.FindTopic">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindTopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindTopic" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindTopic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindTopic" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.FindTopic.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindTopic.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -634,7 +662,7 @@ Subclasses can override this to return any object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.FindTopicByTag">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindTopicByTag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindTopicByTag" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">FindTopicByTag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindTopicByTag" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.FindTopicByTag.filter_queryset">
 <span class="sig-name descname"><span class="pre">filter_queryset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_param</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.FindTopicByTag.filter_queryset" title="Lien permanent vers cette définition"></a></dt>
@@ -669,7 +697,7 @@ Subclasses can override this to return any object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.ForumCategoryForumsDetailView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">ForumCategoryForumsDetailView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ForumCategoryForumsDetailView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">ForumCategoryForumsDetailView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ForumCategoryForumsDetailView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.ForumCategoryForumsDetailView.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ForumCategoryForumsDetailView.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -680,7 +708,7 @@ Subclasses can override this to return any object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.ForumTopicsListView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">ForumTopicsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ForumTopicsListView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">ForumTopicsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ForumTopicsListView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.ForumTopicsListView.filter_queryset">
 <span class="sig-name descname"><span class="pre">filter_queryset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filter_param</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ForumTopicsListView.filter_queryset" title="Lien permanent vers cette définition"></a></dt>
@@ -728,7 +756,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.LastTopicsListView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">LastTopicsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.LastTopicsListView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">LastTopicsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.LastTopicsListView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.LastTopicsListView.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.LastTopicsListView.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -747,7 +775,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.ManageGitHubIssue">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">ManageGitHubIssue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ManageGitHubIssue" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">ManageGitHubIssue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ManageGitHubIssue" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.ManageGitHubIssue.post">
 <span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.ManageGitHubIssue.post" title="Lien permanent vers cette définition"></a></dt>
@@ -759,7 +787,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.PostEdit">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostEdit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostEdit" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostEdit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostEdit" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.PostEdit.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.forum.views.PostEdit.form_class" title="Lien permanent vers cette définition"></a></dt>
@@ -780,7 +808,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.PostEdit.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.PostForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostEdit.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.PostForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostEdit.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -795,7 +823,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.PostNew">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostNew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostNew" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostNew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostNew" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.PostNew.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.forum.views.PostNew.form_class" title="Lien permanent vers cette définition"></a></dt>
@@ -810,7 +838,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.PostNew.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.PostForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostNew.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.PostForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostNew.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -832,7 +860,7 @@ Subclasses can override this to return any object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.PostSignal">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostSignal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostSignal" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostSignal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostSignal" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.PostSignal.post">
 <span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostSignal.post" title="Lien permanent vers cette définition"></a></dt>
@@ -844,7 +872,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.PostUnread">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostUnread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostUnread" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostUnread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostUnread" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.PostUnread.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostUnread.get" title="Lien permanent vers cette définition"></a></dt>
@@ -855,7 +883,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.PostUseful">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostUseful</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostUseful" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">PostUseful</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostUseful" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.PostUseful.post">
 <span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.PostUseful.post" title="Lien permanent vers cette définition"></a></dt>
@@ -867,7 +895,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.TopicEdit">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">TopicEdit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicEdit" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">TopicEdit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicEdit" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.TopicEdit.featured_request_allowed">
 <span class="sig-name descname"><span class="pre">featured_request_allowed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicEdit.featured_request_allowed" title="Lien permanent vers cette définition"></a></dt>
@@ -899,7 +927,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.TopicEdit.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.TopicForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicEdit.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.TopicForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicEdit.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -922,7 +950,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.TopicNew">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">TopicNew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicNew" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">TopicNew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicNew" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.TopicNew.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.forum.views.TopicNew.form_class" title="Lien permanent vers cette définition"></a></dt>
@@ -943,7 +971,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.TopicNew.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.TopicForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicNew.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.forum.forms.TopicForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicNew.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -966,7 +994,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.TopicPostsListView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">TopicPostsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicPostsListView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">TopicPostsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicPostsListView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.views.TopicPostsListView.featured_request_allowed">
 <span class="sig-name descname"><span class="pre">featured_request_allowed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.TopicPostsListView.featured_request_allowed" title="Lien permanent vers cette définition"></a></dt>

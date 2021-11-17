@@ -117,42 +117,42 @@
 <span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.member.models" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.models.Ban">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">Ban</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.Ban" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">Ban</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.Ban" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>This model stores all sanctions (not only bans).
 It stores sanctioned user, the moderator, the type of sanctions, the reason and the date.
 Note this stores also un-sanctions.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.Ban.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.Ban.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.Ban.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.Ban.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.Ban.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.Ban.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.models.BannedEmailProvider">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">BannedEmailProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.BannedEmailProvider" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">BannedEmailProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.BannedEmailProvider" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A email provider which has been banned by a staff member.
 It cannot be used for registration.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.BannedEmailProvider.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.BannedEmailProvider.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.BannedEmailProvider.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.BannedEmailProvider.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.BannedEmailProvider.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.BannedEmailProvider.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.models.KarmaNote">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">KarmaNote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.KarmaNote" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">KarmaNote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.KarmaNote" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Karma notes are a way of annotating members profiles. They are only visible
 to the staff.</p>
 <p>Fields are:
@@ -161,44 +161,44 @@ to the staff.</p>
 - some amount of karma, negative values being… negative</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.KarmaNote.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.KarmaNote.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.KarmaNote.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.KarmaNote.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.KarmaNote.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.KarmaNote.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.models.NewEmailProvider">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">NewEmailProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.NewEmailProvider" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">NewEmailProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.NewEmailProvider" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A new-used email provider which should be checked by a staff member.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.NewEmailProvider.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.NewEmailProvider.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.NewEmailProvider.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.NewEmailProvider.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.NewEmailProvider.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.NewEmailProvider.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.models.Profile">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">Profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.Profile" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">Profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.Profile" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>A user profile. Complementary data of standard Django <cite>auth.user</cite>.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.Profile.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.Profile.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.Profile.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.Profile.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.Profile.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.Profile.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -622,18 +622,18 @@ A draft tutorial is a tutorial which is not published, in validation or in beta.
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.models.TokenForgotPassword">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">TokenForgotPassword</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.TokenForgotPassword" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">TokenForgotPassword</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.TokenForgotPassword" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>When a user forgot its password, the website sends it an email with a token (embedded in a URL).
 If the user has the correct token, it can choose a new password on the dedicated page.
 This model stores the tokens for the users that have forgot their passwords, with an expiration date.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.TokenForgotPassword.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.TokenForgotPassword.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.TokenForgotPassword.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.TokenForgotPassword.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.TokenForgotPassword.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.TokenForgotPassword.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -650,18 +650,18 @@ This model stores the tokens for the users that have forgot their passwords, wit
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.models.TokenRegister">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">TokenRegister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.TokenRegister" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">TokenRegister</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.TokenRegister" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>On registration, a token is send by mail to the user. It must use this token (by clicking on a link) to activate its
 account (and prove the email address is correct) and connect itself.
 This model stores the registration token for each user, with an expiration date.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.TokenRegister.DoesNotExist">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.TokenRegister.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.member.models.TokenRegister.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.member.models.TokenRegister.MultipleObjectsReturned">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.TokenRegister.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.member.models.TokenRegister.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -737,7 +737,7 @@ linked to a group. In this case, the relevant hat will be removed from the user.
 <span id="vues-views-py"></span><h2><a class="toc-backref" href="#id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.member.views" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.AddBannedEmailProvider">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">AddBannedEmailProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.AddBannedEmailProvider" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">AddBannedEmailProvider</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.AddBannedEmailProvider" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Add an email provider to the banned list.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.AddBannedEmailProvider.form_class">
@@ -761,7 +761,7 @@ linked to a group. In this case, the relevant hat will be removed from the user.
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.BannedEmailProvidersList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">BannedEmailProvidersList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.BannedEmailProvidersList" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">BannedEmailProvidersList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.BannedEmailProvidersList" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>List the banned email providers.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.BannedEmailProvidersList.model">
@@ -773,12 +773,12 @@ linked to a group. In this case, the relevant hat will be removed from the user.
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.CreateProfileReportView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">CreateProfileReportView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.CreateProfileReportView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">CreateProfileReportView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.CreateProfileReportView" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.HatDetail">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatDetail" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatDetail" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.HatDetail.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatDetail.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -795,7 +795,7 @@ linked to a group. In this case, the relevant hat will be removed from the user.
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.HatRequestDetail">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatRequestDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatRequestDetail" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatRequestDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatRequestDetail" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.HatRequestDetail.get_object">
 <span class="sig-name descname"><span class="pre">get_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatRequestDetail.get_object" title="Lien permanent vers cette définition"></a></dt>
@@ -814,13 +814,13 @@ Subclasses can override this to return any object.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.HatsList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatsList" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatsList" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Display the list of hats.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.HatsSettings">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatsSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatsSettings" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">HatsSettings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.HatsSettings" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.HatsSettings.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.member.views.HatsSettings.form_class" title="Lien permanent vers cette définition"></a></dt>
@@ -862,7 +862,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.MemberDetail">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">MemberDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.MemberDetail" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">MemberDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.MemberDetail" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Display details about a profile.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.MemberDetail.get_context_data">
@@ -905,7 +905,7 @@ Each tuple is (link url, count, displayed name of the item), where the link url 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.MemberList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">MemberList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.MemberList" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">MemberList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.MemberList" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Display the list of registered users.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.MemberList.get_queryset">
@@ -919,7 +919,7 @@ Each tuple is (link url, count, displayed name of the item), where the link url 
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.MembersWithProviderList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">MembersWithProviderList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.MembersWithProviderList" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">MembersWithProviderList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.MembersWithProviderList" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>List users using a banned email provider.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.MembersWithProviderList.get_context_data">
@@ -946,7 +946,7 @@ and information given at the template.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.NewEmailProvidersList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">NewEmailProvidersList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.NewEmailProvidersList" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">NewEmailProvidersList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.NewEmailProvidersList" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.NewEmailProvidersList.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.member.views.NewEmailProvidersList.model" title="Lien permanent vers cette définition"></a></dt>
@@ -957,7 +957,7 @@ and information given at the template.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.RegisterView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">RegisterView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.RegisterView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">RegisterView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.RegisterView" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Create a profile.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.RegisterView.form_class">
@@ -973,7 +973,7 @@ and information given at the template.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.RegisterView.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.RegisterForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.RegisterView.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.RegisterForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.RegisterView.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -996,7 +996,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.RequestedHatsList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">RequestedHatsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.RequestedHatsList" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">RequestedHatsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.RequestedHatsList" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.RequestedHatsList.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.member.views.RequestedHatsList.model" title="Lien permanent vers cette définition"></a></dt>
@@ -1007,7 +1007,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.SendValidationEmailView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">SendValidationEmailView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SendValidationEmailView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">SendValidationEmailView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SendValidationEmailView" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Send a validation email on demand.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.SendValidationEmailView.form_class">
@@ -1023,7 +1023,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.SendValidationEmailView.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.UsernameAndEmailForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SendValidationEmailView.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.UsernameAndEmailForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SendValidationEmailView.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -1038,12 +1038,12 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.SolveProfileReportView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">SolveProfileReportView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SolveProfileReportView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">SolveProfileReportView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SolveProfileReportView" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.SolvedHatRequestsList">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">SolvedHatRequestsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SolvedHatRequestsList" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">SolvedHatRequestsList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.SolvedHatRequestsList" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.SolvedHatRequestsList.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.member.views.SolvedHatRequestsList.model" title="Lien permanent vers cette définition"></a></dt>
@@ -1054,7 +1054,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.UpdateAvatarMember">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateAvatarMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateAvatarMember" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateAvatarMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateAvatarMember" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Update the avatar of a logged in user.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.UpdateAvatarMember.form_class">
@@ -1064,7 +1064,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.UpdateAvatarMember.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.gallery.forms.ImageAsAvatarForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateAvatarMember.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.gallery.forms.ImageAsAvatarForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateAvatarMember.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -1078,7 +1078,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.UpdateGitHubToken">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateGitHubToken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateGitHubToken" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateGitHubToken</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateGitHubToken" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Update the GitHub token.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.UpdateGitHubToken.form_class">
@@ -1094,7 +1094,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.UpdateGitHubToken.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.GitHubTokenForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateGitHubToken.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.GitHubTokenForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateGitHubToken.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -1123,7 +1123,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.UpdateMember">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateMember" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateMember" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Update a profile.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.UpdateMember.form_class">
@@ -1139,7 +1139,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.UpdateMember.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.ProfileForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateMember.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.ProfileForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateMember.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -1168,7 +1168,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.UpdatePasswordMember">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdatePasswordMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdatePasswordMember" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdatePasswordMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdatePasswordMember" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Password-related user settings.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.UpdatePasswordMember.form_class">
@@ -1178,7 +1178,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.UpdatePasswordMember.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.ChangePasswordForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdatePasswordMember.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.ChangePasswordForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdatePasswordMember.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -1199,7 +1199,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.views.UpdateUsernameEmailMember">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateUsernameEmailMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateUsernameEmailMember" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.views.</span></span><span class="sig-name descname"><span class="pre">UpdateUsernameEmailMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateUsernameEmailMember" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Settings related to username and email.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.member.views.UpdateUsernameEmailMember.form_class">
@@ -1209,7 +1209,7 @@ POST variables and then check if it’s valid.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.views.UpdateUsernameEmailMember.get_form">
-<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.ChangeUserForm'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateUsernameEmailMember.get_form" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">get_form</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">form_class=&lt;class</span> <span class="pre">'zds.member.forms.ChangeUserForm'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.views.UpdateUsernameEmailMember.get_form" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return an instance of the form to be used in this view.</p>
 </dd></dl>
 
@@ -1345,7 +1345,7 @@ unregisters.</p>
 <span id="les-utilitaires-utils-py"></span><h2><a class="toc-backref" href="#id4">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a><a class="headerlink" href="#module-zds.member.utils" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.utils.</span></span><span class="sig-name descname"><span class="pre">ZDSCustomizeSocialAuthExceptionMiddleware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">get_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.utils.</span></span><span class="sig-name descname"><span class="pre">ZDSCustomizeSocialAuthExceptionMiddleware</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">get_response</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>For more information,     see <a class="reference external" href="http://python-social-auth.readthedocs.io/en/latest/configuration/django.html#exceptions-middleware">http://python-social-auth.readthedocs.io/en/latest/configuration/django.html#exceptions-middleware</a>.</p>
 </dd></dl>
 
@@ -1354,7 +1354,7 @@ unregisters.</p>
 <span id="les-objets-commun-pour-l-authentification-avec-api-commons-py"></span><h2><a class="toc-backref" href="#id5">Les objets commun pour l’authentification avec API (<code class="docutils literal notranslate"><span class="pre">commons.py</span></code>)</a><a class="headerlink" href="#module-zds.member.commons" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.commons.BanSanction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">BanSanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.BanSanction" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">BanSanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.BanSanction" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>State of the sanction ban.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.commons.BanSanction.apply_sanction">
@@ -1423,7 +1423,7 @@ and saves these objects.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.commons.DeleteBanSanction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">DeleteBanSanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.DeleteBanSanction" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">DeleteBanSanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.DeleteBanSanction" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>State of the un-sanction ban.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.commons.DeleteBanSanction.apply_sanction">
@@ -1492,7 +1492,7 @@ and saves these objects.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.commons.DeleteReadingOnlySanction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">DeleteReadingOnlySanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.DeleteReadingOnlySanction" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">DeleteReadingOnlySanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.DeleteReadingOnlySanction" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>State of the un-sanction reading only.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.commons.DeleteReadingOnlySanction.apply_sanction">
@@ -1561,7 +1561,7 @@ and saves these objects.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.commons.MemberSanctionState">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">MemberSanctionState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.MemberSanctionState" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">MemberSanctionState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.MemberSanctionState" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Super class of the enumeration to know which sanction it is.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.commons.MemberSanctionState.apply_sanction">
@@ -1698,7 +1698,7 @@ and saves these objects.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.commons.ReadingOnlySanction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">ReadingOnlySanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.ReadingOnlySanction" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">ReadingOnlySanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.ReadingOnlySanction" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>State of the sanction reading only.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.commons.ReadingOnlySanction.apply_sanction">
@@ -1767,7 +1767,7 @@ and saves these objects.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.commons.TemporaryBanSanction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">TemporaryBanSanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.TemporaryBanSanction" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">TemporaryBanSanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.TemporaryBanSanction" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>State of the sanction ban temporary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.commons.TemporaryBanSanction.apply_sanction">
@@ -1836,7 +1836,7 @@ and saves these objects.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.member.commons.TemporaryReadingOnlySanction">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">TemporaryReadingOnlySanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.TemporaryReadingOnlySanction" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.member.commons.</span></span><span class="sig-name descname"><span class="pre">TemporaryReadingOnlySanction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array_infos</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.commons.TemporaryReadingOnlySanction" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>State of the sanction reading only temporary.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.member.commons.TemporaryReadingOnlySanction.apply_sanction">

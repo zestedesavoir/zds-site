@@ -113,7 +113,7 @@
 <span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.searchv2.models" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESDjangoIndexable">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">AbstractESDjangoIndexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">AbstractESDjangoIndexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Version of AbstractESIndexable for a Django object, with some improvements :</p>
 <ul class="simple">
 <li><p>Already include <code class="docutils literal notranslate"><span class="pre">pk</span></code> in mapping ;</p></li>
@@ -125,7 +125,7 @@
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESDjangoIndexable.get_es_django_indexable">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_django_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable.get_es_django_indexable" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_django_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable.get_es_django_indexable" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Method that can be overridden to filter django objects from database based on any criterion.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
@@ -142,7 +142,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESDjangoIndexable.get_es_indexable">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable.get_es_indexable" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable.get_es_indexable" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Override <code class="docutils literal notranslate"><span class="pre">get_es_indexable()</span></code> in order to use the Django querysets and batch objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Renvoie</dt>
@@ -156,7 +156,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESDjangoIndexable.get_es_mapping">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable.get_es_mapping" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESDjangoIndexable.get_es_mapping" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Overridden to add pk into mapping.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Renvoie</dt>
@@ -183,7 +183,7 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESIndexable">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">AbstractESIndexable</span></span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">AbstractESIndexable</span></span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Mixin for indexable objects.</p>
 <p>Define a number of different functions that can be overridden to tune the behavior of indexing into elasticsearch.</p>
 <p>You (may) need to override :</p>
@@ -237,13 +237,13 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESIndexable.get_es_document_type">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_document_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable.get_es_document_type" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_document_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable.get_es_document_type" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>value of the <code class="docutils literal notranslate"><span class="pre">_type</span></code> field in the index</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESIndexable.get_es_indexable">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable.get_es_indexable" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_indexable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">force_reindexing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable.get_es_indexable" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return objects to index.</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
@@ -261,7 +261,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.models.AbstractESIndexable.get_es_mapping">
-<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">get_es_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable.get_es_mapping" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_es_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.AbstractESIndexable.get_es_mapping" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Setup mapping (data scheme).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -287,7 +287,7 @@ Also consider the <code class="docutils literal notranslate"><span class="pre">i
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.searchv2.models.ESIndexManager">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">ESIndexManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_alias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.ESIndexManager" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">ESIndexManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shards</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replicas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_alias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.models.ESIndexManager" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Manage a given index with different taylor-made functions</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.models.ESIndexManager.analyze_sentence">
@@ -468,7 +468,7 @@ other stuffs intact (in order to keep « c++ » or « c# », for example).</
 
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.searchv2.models.NeedIndex">
-<em class="property"><span class="pre">exception</span> </em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">NeedIndex</span></span><a class="headerlink" href="#zds.searchv2.models.NeedIndex" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.models.</span></span><span class="sig-name descname"><span class="pre">NeedIndex</span></span><a class="headerlink" href="#zds.searchv2.models.NeedIndex" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Raised when an action requires an index, but it is not created (yet).</p>
 </dd></dl>
 
@@ -495,7 +495,7 @@ Must be implemented by all classes that derive from AbstractESDjangoIndexable.</
 <span id="vues-views-py"></span><h2><a class="toc-backref" href="#id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.searchv2.views" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.searchv2.views.SearchView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.views.</span></span><span class="sig-name descname"><span class="pre">SearchView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SearchView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.views.</span></span><span class="sig-name descname"><span class="pre">SearchView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SearchView" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Search view.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.views.SearchView.get">
@@ -564,7 +564,7 @@ and information given at the template.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.searchv2.views.SimilarTopicsView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.views.</span></span><span class="sig-name descname"><span class="pre">SimilarTopicsView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SimilarTopicsView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.views.</span></span><span class="sig-name descname"><span class="pre">SimilarTopicsView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SimilarTopicsView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.views.SimilarTopicsView.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SimilarTopicsView.get" title="Lien permanent vers cette définition"></a></dt>
@@ -575,7 +575,7 @@ and information given at the template.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.searchv2.views.SuggestionContentView">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.views.</span></span><span class="sig-name descname"><span class="pre">SuggestionContentView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SuggestionContentView" title="Lien permanent vers cette définition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.searchv2.views.</span></span><span class="sig-name descname"><span class="pre">SuggestionContentView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SuggestionContentView" title="Lien permanent vers cette définition"></a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="zds.searchv2.views.SuggestionContentView.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.searchv2.views.SuggestionContentView.get" title="Lien permanent vers cette définition"></a></dt>
