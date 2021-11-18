@@ -324,9 +324,12 @@ class ImageUpdateOrDeleteMixin(ImageMixin):
                 raise ImageTooLarge(self.image.title, physical.size)
 
             try:
-                ImagePIL.open(physical)
+                if not physical.name.endswith(".svg"):
+                    ImagePIL.open(physical)
+                elif load_svg_file(physical) is None:
+                    raise NotAnImage(physical)
             except OSError:
-                raise NotAnImage(self.image.title)
+                raise NotAnImage(physical)
 
             self.image.physical = physical
 
