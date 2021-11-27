@@ -134,6 +134,15 @@ make run-back <span class="c1"># démarer le serveur django</span>
 </div>
 <p>Stoppez le serveur à l’aide de ctrl+c. Pour sortir de votre environnement, tapez <code class="docutils literal notranslate"><span class="pre">deactivate</span></code>.</p>
 <p>Vous pouvez également <a class="reference external" href="../utils/git-pre-hook.html">indiquer à Git de ne pas effectuer de commit s’il y a des erreurs de formatage dans le code</a>.</p>
+<p>Si vous utilisez un shell autre que bash, et que vous avez l’erreur suivante quand vous activez <code class="docutils literal notranslate"><span class="pre">zdsenv</span></code> :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>…/zds-site/zdsenv/bin/activate:67: <span class="nb">command</span> not found: nvm
+</pre></div>
+</div>
+<p>Alors c’est très probablement dû au script d’installation de nvm qui ne gère que Bash. Pour corriger ce problème, ouvrez votre fichier <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> et copiez les lignes concernant nvm dans le fichier de configuration de votre shell. Ces fichiers se trouvent dans votre répertoire utilisateur, par exemple :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>~/.bashrc
+~/.zshrc
+</pre></div>
+</div>
 <section id="plus-d-informations">
 <h2>Plus d’informations<a class="headerlink" href="#plus-d-informations" title="Lien permanent vers ce titre"></a></h2>
 <p>La commande <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install-linux[-full]</span></code> appelle en fait le script <code class="docutils literal notranslate"><span class="pre">scripts/install_zds.sh</span></code> avec <code class="docutils literal notranslate"><span class="pre">+base</span></code> (ou <code class="docutils literal notranslate"><span class="pre">+full</span></code>).
