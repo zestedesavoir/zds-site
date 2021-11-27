@@ -1468,7 +1468,8 @@ def member_from_ip(request, ip_address):
         # Remove the additional ":" at the end of the network adresse, so we can filter the IP adresses on this network
         network_ip = str(network_ip)[:-1]
         network_members = Profile.objects.filter(last_ip_address__startswith=network_ip).order_by("-last_visit")
-        members_and_ip.update({"network_members": network_members, "network_ip": network_ip})
+        members_and_ip["network_members"] = network_members
+        members_and_ip["network_ip"] = network_ip
 
     return render(request, "member/admin/memberip.html", members_and_ip)
 
