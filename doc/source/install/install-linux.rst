@@ -39,13 +39,13 @@ Stoppez le serveur à l'aide de ctrl+c. Pour sortir de votre environnement, tape
 
 Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.
 
-Si vous utilisez un shell autre que bash, et que vous avez l’erreur suivante quand vous activez zdsenv :
+Si vous utilisez un shell autre que bash, et que vous avez l’erreur suivante quand vous activez ``zdsenv`` :
 
 .. sourcecode:: bash
 
-    …/ZesteDeSavoir/zds-site/zdsenv/bin/activate:67: command not found: nvm
+    …/zds-site/zdsenv/bin/activate:67: command not found: nvm
 
-Alors c’est très probablement dû au script d’installation de nvm qui ne gère que bash. Pour corriger ce problème, ouvrez votre fichier bashrc et copiez les lignes concernant nvm dans le fichier de configuration de votre shell. Ces fichiers se trouvent dans votre répertoire utilisateur, par exemple :
+Alors c’est très probablement dû au script d’installation de nvm qui ne gère que Bash. Pour corriger ce problème, ouvrez votre fichier ``.bashrc`` et copiez les lignes concernant nvm dans le fichier de configuration de votre shell. Ces fichiers se trouvent dans votre répertoire utilisateur, par exemple :
 
 .. sourcecode:: bash
 
