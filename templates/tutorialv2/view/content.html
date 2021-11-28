@@ -498,27 +498,54 @@
         {# END ONLINE VERSION #}
 
         {% if content.sha_public %}
-            <li>
-                <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_public }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
-                    {% trans "Comparer avec la version en ligne" %}
-                </a>
-            </li>
+            {# interpreted as:  (version and (content.sha_public != version)) or ((not version) and (content.sha_public != content.sha_draft)) #}
+            {% if version and content.sha_public != version or not version and content.sha_public != content.sha_draft %}
+                <li>
+                    <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_public }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
+                        {% trans "Comparer avec la version en ligne" %}
+                    </a>
+                </li>
+            {% else %}
+                <li class="inactive">
+                    <span class="ico-after history disabled">
+                        {% trans "Comparer avec la version en ligne (identique)" %}
+                    </a>
+                </li>
+            {% endif %}
         {% endif %}
 
         {% if content.sha_beta %}
-            <li>
-                <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_beta }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
-                    {% trans "Comparer avec la bêta" %}
-                </a>
-            </li>
+            {# interpreted as:  (version and (content.sha_beta != version)) or ((not version) and (content.sha_beta != content.sha_draft)) #}
+            {% if version and content.sha_beta != version or not version and content.sha_beta != content.sha_draft %}
+                <li>
+                    <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_beta }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
+                        {% trans "Comparer avec la bêta" %}
+                    </a>
+                </li>
+            {% else %}
+                <li class="inactive">
+                    <span class="ico-after history disabled">
+                        {% trans "Comparer avec la bêta (identique)" %}
+                    </a>
+                </li>
+            {% endif %}
         {% endif %}
 
         {% if content.in_validation %}
-            <li>
-                <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ validation.version }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
-                    {% trans "Comparer avec la version en validation" %}
-                </a>
-            </li>
+            {# interpreted as:  (version and (validation.version != version)) or ((not version) and (validation.version != content.sha_draft)) #}
+            {% if version and validation.version != version or not version and validation.version != content.sha_draft %}
+                <li>
+                    <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ validation.version }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
+                        {% trans "Comparer avec la version en validation" %}
+                    </a>
+                </li>
+            {% else %}
+                <li class="inactive">
+                    <span class="ico-after history disabled">
+                        {% trans "Comparer avec la version en validation (identique)" %}
+                    </a>
+                </li>
+            {% endif %}
         {% endif %}
 
         {# HISTORY #}
