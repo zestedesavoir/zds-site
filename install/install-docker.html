@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation et utilisation de zmarkdown &mdash; Documentation Zeste de Savoir dev</title>
+  <title>Installation dans Docker &mdash; Documentation Zeste de Savoir dev</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Recherche" href="../search.html" />
-    <link rel="next" title="Contribuer à Zeste de Savoir" href="../contributing.html" />
-    <link rel="prev" title="Installation de LaTeX et de la template" href="extra-install-latex.html" /> 
+    <link rel="next" title="Installation sous Linux" href="install-linux.html" />
+    <link rel="prev" title="Installation" href="../install.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -44,18 +44,14 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../install.html">Installation</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="install-docker.html">Installation dans Docker</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation dans Docker</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install-linux.html">Installation sous Linux</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install-osx.html">Installation sous macOS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="install-windows.html">Installation sous Windows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-install-es.html">Installation de Elasticsearch (pour la recherche)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-install-frontend.html">Installation du frontend</a></li>
 <li class="toctree-l2"><a class="reference internal" href="extra-install-latex.html">Installation de LaTeX et de la <em>template</em></a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation et utilisation de zmarkdown</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#utilisation">Utilisation</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="extra-zmd.html">Installation et utilisation de zmarkdown</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
@@ -83,9 +79,9 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="../install.html">Installation</a> &raquo;</li>
-      <li>Installation et utilisation de zmarkdown</li>
+      <li>Installation dans Docker</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/install/extra-zmd.rst.txt" rel="nofollow"> Afficher la source de la page</a>
+            <a href="../_sources/install/install-docker.rst.txt" rel="nofollow"> Afficher la source de la page</a>
       </li>
   </ul>
   <hr/>
@@ -93,43 +89,57 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="installation-et-utilisation-de-zmarkdown">
-<h1>Installation et utilisation de zmarkdown<a class="headerlink" href="#installation-et-utilisation-de-zmarkdown" title="Lien permanent vers ce titre"></a></h1>
-<p><a class="reference external" href="https://github.com/zestedesavoir/zmarkdown">zmarkdown</a> est l’outil permetant de transformer le <a class="reference external" href="https://daringfireball.net/projects/markdown/syntax">markdown (en)</a> (avec quelques additions spécifiques à ZdS) en HTML ou LaTeX.
-Celui-ci est utilisé via un <a class="reference external" href="https://github.com/zestedesavoir/zmarkdown/tree/master/packages/zmarkdown">serveur HTTP</a> (via <a class="reference external" href="https://pm2.keymetrics.io/">pm2</a>), qu’il est nécessaire de démarer (voir plus loin) et que ZdS interroge ensuite pour effectuer le rendu du markdown.</p>
-<section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers ce titre"></a></h2>
+  <section id="installation-dans-docker">
+<h1>Installation dans Docker<a class="headerlink" href="#installation-dans-docker" title="Lien permanent vers ce titre"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>L’utilisation de zmarkdown requiere d’avoir installé node et npm, qui est déjà utilisé <a class="reference external" href="extra-install-frontend.html">par le front-end</a>.
-L’installation de ces outils peut être faite via <a class="reference external" href="https://github.com/creationix/nvm">nvm</a>.</p>
+<p>Par manque de développeurs utilisant Docker au sein de l’équipe de
+développement de ZdS, cette section n’est guère fournie. Les instructions
+données ici ne le sont qu’à titre indicatif. N’hésitez pas à signaler tout
+problème ou proposer des améliorations !</p>
 </div>
-<p>L’installation se fait simplement à l’aide de</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make zmd-install
+<p>L’installation de l’environnement de développement dans Docker se base sur <a class="reference external" href="install-linux.html">l’installation sous Linux</a>.</p>
+<p>Lancez un shell interactif dans un conteneur basé sur Debian :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -it -p <span class="m">8000</span>:8000 debian:buster
 </pre></div>
 </div>
-<p>ou, sous Windows (non testé):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> zmarkdown
-npm -g install pm2
-npm install zmarkdown --production
-<span class="nb">cd</span> ..
+<p>Une fois dans le conteneur, saisissez les commandes suivantes :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># On se place dans le $HOME</span>
+<span class="nb">cd</span>
+
+<span class="c1"># Permet d&#39;utiliser correctement apt</span>
+<span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive
+
+<span class="c1"># Installez les paquets minimaux requis</span>
+apt update
+apt install sudo make vim git
+
+<span class="c1"># Clonez le dépôt de ZdS</span>
+git clone https://github.com/&lt;votre login&gt;/zds-site.git
+<span class="nb">cd</span> zds-site/
+
+<span class="c1"># Installez ZdS</span>
+make install-linux
+
+<span class="c1"># Nécessaire pour avoir nvm dans le PATH</span>
+<span class="nb">source</span> ../.bashrc
+
+<span class="c1"># À partir de maintenant, les commandes ne sont plus spécifiques à l&#39;utilisation de Docker.</span>
+
+<span class="c1"># Lancement de ZdS</span>
+<span class="nb">source</span> zdsenv/bin/activate
+make zmd-start
+make run-back
 </pre></div>
 </div>
-</section>
-<section id="utilisation">
-<h2>Utilisation<a class="headerlink" href="#utilisation" title="Lien permanent vers ce titre"></a></h2>
-<p>Afin de pouvoir profiter de zmarkdown, vous devez lancer le serveur à l’aide de <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">zmd-start</span></code> (ou, sous Windows, <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">zmd/node_modules/zmarkdown</span> <span class="pre">&amp;&amp;</span> <span class="pre">npm</span> <span class="pre">run</span> <span class="pre">server</span></code> [non-testé]).
-Vous pouvez vérifier qu’il est bien lancé à l’aide de <code class="docutils literal notranslate"><span class="pre">zmd-check</span></code> (qui ne fonctionne pas sous Windows).
-On arrête le serveur en utilisant <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">zmd-stop</span></code>, ou bien <code class="docutils literal notranslate"><span class="pre">pm2</span> <span class="pre">kill</span></code>.</p>
-</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
-        <a href="extra-install-latex.html" class="btn btn-neutral float-left" title="Installation de LaTeX et de la template" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
-        <a href="../contributing.html" class="btn btn-neutral float-right" title="Contribuer à Zeste de Savoir" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../install.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="install-linux.html" class="btn btn-neutral float-right" title="Installation sous Linux" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
