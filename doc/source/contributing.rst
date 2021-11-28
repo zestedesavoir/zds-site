@@ -18,11 +18,10 @@ Contribuer à Zeste De Savoir
 1. Créez une branche pour contenir votre travail.
 2. Faites vos modifications.
 3. Ajoutez un test pour votre modification. Seules les modifications de documentation et les réusinages n'ont pas besoin de nouveaux tests.
-4. Assurez-vous que vos tests passent en utilisant la commande ``python manage.py test`` (`voir la documentation <https://docs.djangoproject.com/fr/1.10/topics/testing/overview/#running-tests>`_). Lancer la commande sur tous les tests du site risque de prendre un certain temps et n'est pas nécessaire : les tests seront de toute manière lancés de manière automatisée sur votre *pull request*.
-5. Si vous avez fait des modifications du _frontend_, jouez les tests associés : ``yarn test``.
-6. Si vous modifiez les modèles (les fichiers ``models.py``), n'oubliez pas de créer les fichiers de migration : ``python manage.py makemigrations``.
-7. Poussez votre travail et faites une *pull request*.
-8. Si votre travail nécessite des actions spécifiques lors du déploiement, précisez-les dans le corps de votre *pull request*. Elles seront ajoutées au *changelog* par le mainteneur qui effectuera le *merge*.
+4. Assurez-vous que vos tests passent en utilisant la commande ``make test-back`` (voyez la `page dédiée <./guides/backend-tests.html>`_ pour plus de détails). Lancer la commande sur tous les tests du site risque de prendre un certain temps et n'est pas nécessaire : les tests seront de toute manière lancés de manière automatisée sur votre *pull request*.
+5. Si vous avez modifié les modèles (les fichiers ``models.py``), n'oubliez pas de créer les fichiers de migration : ``python manage.py makemigrations``.
+6. Poussez votre travail et faites une *pull request*.
+7. Si votre travail nécessite des actions spécifiques lors du déploiement, précisez-les dans le corps de votre *pull request*. Elles seront ajoutées au *changelog* par le mainteneur qui effectuera le *merge*.
 
 Quelques bonnes pratiques
 -------------------------
