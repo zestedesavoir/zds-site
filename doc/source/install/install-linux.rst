@@ -15,7 +15,10 @@ Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les inst
     - Si malgré tout vous ne parvenez pas à installer ZdS, n'hésitez pas à ouvrir `un sujet sur le forum <https://zestedesavoir.com/forums/sujet/nouveau/?forum=2>`_
 
 
-Après avoir cloné, installer ZdS sous Linux est relativement simple. En effet, il suffit de lancer la commande suivante (qui se chargera d'installer ce qui est nécessaire, plus d'infos ci-dessous):
+Pour installer ZdS, vous aurez besoin d'abord des programmes ``make`` et ``sudo``. S'ils ne sont pas déjà installés sur votre système, ils sont généralement disponibles dans les gestionnaires de paquets sous le même nom.
+
+
+Après avoir cloné le dépôt du code source, installer ZdS sous Linux est relativement simple. En effet, il suffit de lancer la commande suivante (qui se chargera d'installer ce qui est nécessaire, plus d'infos ci-dessous):
 
 .. sourcecode:: bash
 

@@ -33,10 +33,10 @@ install-back-with-prod:
 	pip install --upgrade -r requirements-dev.txt -r requirements-prod.txt
 
 run-back: zmd-check ## Run the backend server
-	python manage.py runserver --nostatic
+	python manage.py runserver --nostatic 0.0.0.0:8000
 
 run-back-fast: zmd-check ## Run the backend server in fast mode (no debug toolbar & full browser cache)
-	python manage.py runserver --settings zds.settings.dev_fast
+	python manage.py runserver --settings zds.settings.dev_fast 0.0.0.0:8000
 
 lint-back: ## Lint Python code
 	black . --check
