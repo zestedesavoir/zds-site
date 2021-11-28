@@ -24,7 +24,7 @@ Il est ensuite possible d'uploader des images via le menu de gauche :
 
       Liens permettant d'uploader des images
 
-Via celui-ci, on peut importer des archives contenant des images (au format ZIP) ou des images seules. Dans ce dernier cas, le formulaire d'*upload* est le suivant :
+Via celui-ci, on peut importer des archives (au format ZIP) contenant des images ou des images seules. Dans ce dernier cas, le formulaire d'*upload* est le suivant :
 
    .. figure:: ../images/gallery/nouvelle-image.png
       :align: center
@@ -33,6 +33,9 @@ Via celui-ci, on peut importer des archives contenant des images (au format ZIP)
 
 Comme on peut le voir, chaque image doit posséder au minimum un titre et peut posséder une légende, qui sera employée par la suite. Il est donc conseillé de remplir également ce second champ, bien que ce ne soit pas obligatoire. Quant à l'image elle-même, sa taille ne peut pas excéder 1024 Kio.
 
+.. attention::
+    Le titre de l'image n'entre pas en compte dans le nommage de l'image une fois cette dernière téléchargée. Afin de réduire le risque de rencontrer des conflits de noms de fichiers, ces derniers sont hashés.
+
 Une fois l'image uploadée, il est possible d'y effectuer différentes actions sur la page qui lui est spécifique :
 
    .. figure:: ../images/gallery/gestion-image.png
@@ -40,13 +43,10 @@ Une fois l'image uploadée, il est possible d'y effectuer différentes actions s
 
       Gestion d'une image
 
-Autrement dit,
+Autrement dit :
 
-+ En modifier le titre, la légende ou encore l'image en elle-même. À noter que le titre et la légende peuvent être modifiés **sans qu'il ne soit nécessaire** d'uploader une nouvelle image.
++ En modifier le titre, la légende ou encore l'image en elle-même. À noter que le titre et la légende peuvent être modifiés **sans qu'il ne soit nécessaire** d'uploader une nouvelle image. Si une nouvelle version de l'image est uploadée, l'ancienne version de l'image n'est pas supprimée du serveur et reste accessible depuis son URL ; un nouvel identifiant (et donc une nouvelle URL) sera attribué à la nouvelle version de l'image. Cela signifie notamment que mettre à jour une image ne changera pas l'image là où elle a déjà été utilisée (tutoriel, article, message, ...). Ce comportement permet d'éviter que les images utilisées dans des contenus validés soient changées sans repasser par une validation.
 + Obtenir le code à insérer dans un champ de texte acceptant le Markdown pour l'image en elle-même, sa miniature ou encore la miniature accompagnée du lien vers l'image en taille réelle.
-
-.. attention::
-    Le titre de l'image n'entre pas en compte dans le nommage de l'image une fois cette dernière téléchargée. Afin de réduire le risque de rencontrer des conflits de noms de fichiers, ces derniers sont hashés.
 
 Les utilisateurs et leurs droits
 --------------------------------
