@@ -222,7 +222,16 @@ if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpat
         echo "   - If you don't have other choice, use \`--force-skip-activating\`."
         exit 1
     fi
-else 
+
+    # Some dependencies (like rust ones) require a recent pip:
+    print_info "* upgrading pip"
+    pip install --upgrade pip; exVal=$?
+
+    if [[ $exVal != 0 ]]; then
+        print_error "!! Failed to upgrade pip"
+        exit 1
+    fi
+
     print_info "!! Add \`$(realpath $ZDS_VENV)\` in your PATH."
 
     if [ ! -d $ZDS_VENV ]; then
@@ -434,6 +443,19 @@ if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+f
 fi
 
 
+# zmd (zmd has to be installed before the build the front)
+if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+    print_info "* [+zmd] install zmarkdown dependencies" --bold
+
+    make zmd-install; exVal=$?
+
+    if [[ $exVal != 0 ]]; then
+        print_error "!! Cannot install zmd (use \`-zmd\` to skip)"
+        exit 1
+    fi
+fi
+
+
 # install front
 if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     print_info "* [+front] install front dependencies & build front" --bold
@@ -453,19 +475,6 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Cannot build-front (use \`-front\` to skip)"
-        exit 1
-    fi
-fi
-
-
-# zmd
-if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    print_info "* [+zmd] install zmarkdown dependencies" --bold
-
-    make zmd-install; exVal=$?
-
-    if [[ $exVal != 0 ]]; then
-        print_error "!! Cannot install zmd (use \`-zmd\` to skip)"
         exit 1
     fi
 fi

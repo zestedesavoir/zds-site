@@ -159,6 +159,9 @@ class UpdateImageForm(ImageForm):
         super().__init__(*args, **kwargs)
 
         self.fields["physical"].required = False
+        self.fields["physical"].label = _(
+            "Changer l'image (attention : cela ne changera pas l'image là où vous l'avez déjà utilisée ; un nouvel identifiant sera attribué à la nouvelle image)"
+        )
 
         self.helper = FormHelper()
         self.helper.form_class = "clearfix"
