@@ -41,7 +41,6 @@
     "gulp-terser-js": "5.1.2",
     "gulp.spritesmith": "6.12.1",
     "jquery": "3.6.0",
-    "katex": "0.11.1",
     "moment": "2.29.1",
     "normalize.css": "8.0.1",
     "postcss": "8.3.0"
