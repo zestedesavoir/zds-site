@@ -19,7 +19,7 @@ def order_categories(choices):
     for choice in choices:
         # many request but only used in "new content" page
         # if someone find a better solution, please create a Pull Request
-        subcat = SubCategory.objects.get(pk=choice[0])
+        subcat = SubCategory.objects.get(pk=choice[0].value)
         parent = subcat.get_parent_category()
         if parent:
             ch = {"choice": choice, "parent": parent.title, "order": parent.pk}
