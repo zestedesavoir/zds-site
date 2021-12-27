@@ -1,6 +1,6 @@
 -r requirements.txt
 
 gunicorn==20.1.0
-mysqlclient==2.0.3
-sentry-sdk==1.4.3
-ujson==4.2.0
+mysqlclient==2.1.0
+sentry-sdk==1.5.1
+ujson==5.1.0
