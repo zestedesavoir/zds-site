@@ -322,3 +322,5 @@ TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

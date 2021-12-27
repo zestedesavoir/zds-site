@@ -210,7 +210,7 @@ class HatRequest(models.Model):
     date = models.DateTimeField(
         auto_now_add=True, db_index=True, verbose_name="Date de la demande", db_column="request_date"
     )
-    is_granted = models.NullBooleanField("Est acceptée")
+    is_granted = models.BooleanField("Est acceptée", null=True)
     solved_at = models.DateTimeField("Date de résolution", blank=True, null=True)
     moderator = models.ForeignKey(User, verbose_name="Modérateur", blank=True, null=True, on_delete=models.SET_NULL)
     comment = models.TextField("Commentaire", max_length=1000, blank=True)
