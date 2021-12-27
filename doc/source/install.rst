@@ -27,7 +27,7 @@ Si vous souhaitez terminer d'installer puis démarrer une instance locale de ZdS
 
    install/install-*
 
-Les détails concernant la contribution au code du site peuvent être trouvé `ici <./contributing.html>`_.
+Les détails concernant la contribution au code du site peuvent être trouvés `ici <./contributing.html>`_.
 
 Quelques informations supplémentaires:
 
