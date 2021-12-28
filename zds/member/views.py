@@ -1405,16 +1405,7 @@ def settings_promote(request, user_pk):
                             request,
                             _("{0} n'appartient maintenant plus au groupe {1}.").format(user.username, group.name),
                         )
-                        topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
-                        for topic in topics_followed:
-                            if isinstance(topic, Topic) and group in topic.forum.groups.all():
-                                TopicAnswerSubscription.objects.toggle_follow(topic, user)
         else:
-            for group in usergroups:
-                topics_followed = TopicAnswerSubscription.objects.get_objects_followed_by(user)
-                for topic in topics_followed:
-                    if isinstance(topic, Topic) and group in topic.forum.groups.all():
-                        TopicAnswerSubscription.objects.toggle_follow(topic, user)
             user.groups.clear()
             messages.warning(request, _("{0} n'appartient (plus ?) à aucun groupe.").format(user.username))
 
