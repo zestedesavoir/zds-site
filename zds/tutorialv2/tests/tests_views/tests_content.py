@@ -1634,7 +1634,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # ensure the content
         self.assertEqual(versioned.get_introduction(), some_text)
-        self.assertEqual(versioned.get_introduction(), some_text)
+        self.assertEqual(versioned.get_conclusion(), some_text)
         self.assertEqual(len(versioned.children), 1)
 
         new_chapter = versioned.children[-1]
@@ -1648,17 +1648,16 @@ class ContentTests(TutorialTestMixin, TestCase):
         # clean up
         os.remove(draft_zip_path)
 
-    def import_with_bad_title(self):
+    def test_import_with_bad_title(self):
         """Tests an error case that happen when someone sends an archive that modify the content title
         with a string that cannont be properly slugified"""
-        new_article = PublishableContentFactory(type="ARTICLE", title="extension", authors=[self.user_author])
+        new_article = PublishableContentFactory(type="ARTICLE", title="extension", author_list=[self.user_author])
         self.client.force_login(self.user_author)
         archive_path = settings.BASE_DIR / "fixtures" / "tuto" / "BadArchive.zip"
         answer = self.client.post(
             reverse("content:import", args=[new_article.pk, new_article.slug]),
             {
                 "archive": archive_path.open("rb"),
-                "image_archive": None,
                 "msg_commit": "let it go, let it goooooooo ! can't hold it back anymoooooore!",
             },
         )
@@ -1774,6 +1773,59 @@ class ContentTests(TutorialTestMixin, TestCase):
         # clean up
         os.remove(draft_zip_path)
         os.remove(image_zip_path)
+
+    def test_import_ready_to_publish(self):
+        """Test whether the 'ready_to_publish' info from the archive is correctly imported."""
+
+        # General principle of this test:
+        #   * create an archive by creating a content and exporting it
+        #   * change the 'ready_to_publish' toggles on the content
+        #   * import the archive and check whether we get back to the initial state (i.e. correct import)
+
+        self.client.force_login(self.user_author)
+
+        # Create a content with parts
+        content = PublishableContentFactory(author_list=[self.user_author])
+        versioned = content.load_version()
+        part1 = ContainerFactory(db_object=content, parent=versioned)
+        chapter1 = ContainerFactory(db_object=content, parent=part1)
+        chapter1.ready_to_publish = False
+        ContainerFactory(db_object=content, parent=part1)  # chapter 2
+        part2 = ContainerFactory(db_object=content, parent=versioned)
+        part2.ready_to_publish = False
+        sha = versioned.repo_update(content.title, content.slug, "introduction", "conclusion")
+        content.sha_draft = sha
+        content.save()
+
+        # Download archive of initial state for content
+        result = self.client.get(reverse("content:download-zip", args=[content.pk, content.slug]), follow=False)
+        self.assertEqual(result.status_code, 200)
+        draft_zip_path = os.path.join(tempfile.gettempdir(), "__draft1.zip")
+        with open(draft_zip_path, "wb") as f:
+            f.write(result.content)
+
+        # Update readiness of part 2 and part1/chapter1
+        # Failure to import this information defaults also to True, this is to make sure.
+        versioned.children[0].children[0].ready_to_publish = True
+        versioned.children[1].ready_to_publish = True
+        sha = versioned.repo_update_top_container(content.title, content.slug, "introduction", "conclusion")
+        content.sha_draft = sha
+        content.save()
+
+        # Import archive
+        result = self.client.post(
+            reverse("content:import", args=[content.pk, content.slug]),
+            {"archive": open(draft_zip_path, "rb")},
+        )
+        self.assertEqual(result.status_code, 302)
+
+        # Check override of previous modifications through the import
+        content = PublishableContent.objects.get(pk=content.pk)  # reload from database
+        versioned = content.load_version()
+        self.assertTrue(versioned.children[0].ready_to_publish)
+        self.assertTrue(versioned.children[0].children[1].ready_to_publish)
+        self.assertFalse(versioned.children[0].children[0].ready_to_publish)
+        self.assertFalse(versioned.children[1].ready_to_publish)
 
     def test_display_history(self):
         """Test DisplayHistory view"""
@@ -3270,7 +3322,7 @@ class ContentTests(TutorialTestMixin, TestCase):
             if extra == "md":
                 continue
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
-            self.assertEqual(result.status_code, 200, msg="Could not read {} export".format(extra))
+            self.assertEqual(result.status_code, 200, msg=f"Could not read {extra} export")
 
     def test_publication_give_pubdate_if_no_major(self):
         """if a content has never been published and `is_major` is not checked, still gives a publication date"""
@@ -3352,7 +3404,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         self.assertEqual(tuto.pubdate, current_pubdate)  # `is_major` in False → no update of the publication date
 
-    def no_form_not_allowed(self):
+    def test_no_form_not_allowed(self):
         """Check that author cannot access to form that he is not allowed to in the creation process, because
         - The container already have child container and author ask to add a child extract ;
         - The container already contains child extract and author ask to add a container."""

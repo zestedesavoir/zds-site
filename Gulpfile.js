@@ -175,7 +175,7 @@ function spriteImages() {
 
 // Prepares files for zmarkdown
 function prepareZmd() {
-  return gulp.src(['node_modules/katex/dist/{katex.min.css,fonts/*}'])
+  return gulp.src(['zmd/node_modules/katex/dist/{katex.min.css,fonts/*}'])
     .pipe(gulp.dest('dist/css/'))
 }
 
