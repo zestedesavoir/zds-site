@@ -46,7 +46,7 @@
    * Manage mobile sidebar on resize
    */
   $(window).on('resize', function() {
-    if (parseInt($('html').css('width')) < 960 && !disableMobileMenu) {
+    if (parseInt($('html').css('width')) < 1024 && !disableMobileMenu) {
       $('.page-container').css('width', $('html').css('width'))
 
       if (!$('#mobile-menu').hasClass('initialized')) {
