@@ -166,9 +166,9 @@ l’illustration plus haut, en combinant le nom indiqué sous le titre avec le
 numéro de la couleur (par exemple <code class="docutils literal notranslate"><span class="pre">$purple-400</span></code>), et peuvent être copiés au
 clic sur la version interactive.</p>
 <p>Ainsi, n’écrivez pas :</p>
-<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.smoothie</span> <span class="p">{</span>
-    <span class="nt">color</span><span class="nd">:</span> <span class="nn">#F0B429</span><span class="o">;</span>
-<span class="p">}</span>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.smoothie</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="nt">color</span><span class="nd">:</span><span class="w"> </span><span class="nn">#F0B429</span><span class="o">;</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Mais plutôt :</p>
@@ -287,34 +287,34 @@ avec une application beaucoup trop large qui affectent tout le site : ces règle
 à maintenir, car elles font des effets de bord de partout, et la moindre modification peut casser une page
 totalement improbable à l’autre bout du site.</p>
 <p>Ainsi, préférez mettre tout le CSS stylisant un composant dans une classe parente unique dans le projet, par exemple :</p>
-<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.your-component</span> <span class="p">{</span>
-   <span class="c1">// Tout le CSS de ce composant là dedans, rien en dehors</span>
-   <span class="c1">// Ainsi il ne pourra contaminer le reste du site</span>
-<span class="p">}</span>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.your-component</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="c1">// Tout le CSS de ce composant là dedans, rien en dehors</span>
+<span class="w">   </span><span class="c1">// Ainsi il ne pourra contaminer le reste du site</span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>Si vous avez un composant avec de légères variations ça et là en fonction de son usage, bien sûr, ne réinventez pas la roue.
 Vous pouvez par exemple utiliser le modèle de Bulma, assez effiace, de modificateurs :</p>
-<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.your-component</span> <span class="p">{</span>
-   <span class="c1">// Tout le CSS de la version “de base”</span>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.your-component</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">   </span><span class="c1">// Tout le CSS de la version “de base”</span>
 
-   <span class="k">&amp;</span><span class="nc">.is-light</span> <span class="p">{</span>
-      <span class="c1">// CSS pour la version “light”</span>
-   <span class="p">}</span>
+<span class="w">   </span><span class="k">&amp;</span><span class="nc">.is-light</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// CSS pour la version “light”</span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
 
-   <span class="k">&amp;</span><span class="nc">.is-small</span> <span class="p">{</span>
-      <span class="c1">// CSS pour une petite version</span>
-   <span class="p">}</span>
+<span class="w">   </span><span class="k">&amp;</span><span class="nc">.is-small</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// CSS pour une petite version</span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
 
-   <span class="k">&amp;</span><span class="nc">.has-dreams</span> <span class="p">{</span>
-      <span class="c1">// CSS pour la version qui a des rêves (?)</span>
-   <span class="p">}</span>
-<span class="p">}</span>
+<span class="w">   </span><span class="k">&amp;</span><span class="nc">.has-dreams</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">      </span><span class="c1">// CSS pour la version qui a des rêves (?)</span>
+<span class="w">   </span><span class="p">}</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <p>…ce qui permet de les appliquer facilement à l’usage (en plus, c’est plutôt lisible).</p>
 <div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;your-component is-small has-dreams&quot;</span><span class="p">&gt;</span>
-   <span class="c">&lt;!-- ... --&gt;</span>
+   <span class="cm">&lt;!-- ... --&gt;</span>
 <span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
 </pre></div>
 </div>
@@ -351,7 +351,7 @@ scannable facilement.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

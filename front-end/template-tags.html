@@ -536,7 +536,7 @@ ce templatetag est utile dans le cas de la hiérarchie des tutoriels où vous po
 féminin est le second qui associe un mot à un booléen qui indique s’il est féminin <code class="docutils literal notranslate"><span class="pre">True</span></code> ou masculin <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
 <p>Exemple :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">feminize</span> <span class="cp">%}</span>
-<span class="cp">{{</span> <span class="s2">&quot;le&quot;</span><span class="o">|</span><span class="nf">feminize</span><span class="s2">:&quot;partie&quot;</span> <span class="cp">}}</span> partie <span class="c">&lt;!-- affiche &quot;la partie&quot; si vous êtes en langue française --&gt;</span>
+<span class="cp">{{</span> <span class="s2">&quot;le&quot;</span><span class="o">|</span><span class="nf">feminize</span><span class="s2">:&quot;partie&quot;</span> <span class="cp">}}</span> partie <span class="cm">&lt;!-- affiche &quot;la partie&quot; si vous êtes en langue française --&gt;</span>
 </pre></div>
 </div>
 <div class="admonition attention">
@@ -591,10 +591,10 @@ Par exemple, l’auteur principal du tuto peut avoir demandé de l’aide pour �
 <p>Exemple :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">displayable_authors</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">for</span> <span class="nv">authors</span> <span class="k">in</span> <span class="nv">content</span><span class="o">|</span><span class="nf">displayable_authors</span><span class="o">:</span><span class="kp">True</span> <span class="cp">%}</span>
-   <span class="c">&lt;!-- here display all author for public version --&gt;</span>
+   <span class="cm">&lt;!-- here display all author for public version --&gt;</span>
 <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">for</span> <span class="nv">authors</span> <span class="k">in</span> <span class="nv">content</span><span class="o">|</span><span class="nf">displayable_authors</span><span class="o">:</span><span class="kp">False</span> <span class="cp">%}</span>
-   <span class="c">&lt;!-- here display all author for draft version --&gt;</span>
+   <span class="cm">&lt;!-- here display all author for draft version --&gt;</span>
 <span class="cp">{%</span> <span class="k">endfor</span> <span class="cp">%}</span>
 </pre></div>
 </div>
@@ -636,7 +636,7 @@ Clémentine;Orange;Citron
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2021, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
