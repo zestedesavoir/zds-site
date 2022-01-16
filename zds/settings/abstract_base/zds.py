@@ -110,7 +110,7 @@ ZDS_APP = {
             "mastodon": "https://framapiaf.org/@ZesteDeSavoir",
             "facebook": "https://www.facebook.com/ZesteDeSavoir",
             "twitter": "https://twitter.com/ZesteDeSavoir",
-            "github": 'https://github.com/zestedesavoir/zds-site',
+            "github": "https://github.com/zestedesavoir/zds-site",
             # 'discord': 'https://discord.gg/ue5MTKq'
         },
         "cnil": "1771020",
