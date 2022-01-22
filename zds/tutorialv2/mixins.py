@@ -144,7 +144,11 @@ class SingleContentPostMixin(SingleContentViewMixin):
     versioned = True
 
     def get_object(self, queryset=None):
-        self.object = super().get_object()
+        try:
+            self.object = super().get_object()
+        except RedirectToPublicVersion:
+            # This is a POST mixin, thus there is no public content redirection here.
+            raise PermissionDenied
 
         if self.versioned and "version" in self.request.POST["version"]:
             self.object.load_version_or_404(sha=self.request.POST["version"])
