@@ -85,7 +85,7 @@ class SingleContentViewMixin:
 
         if self.must_be_author and not self.is_author:
             if not self.authorized_for_staff or (self.authorized_for_staff and not self.is_staff):
-                raise PermissionDenied
+                raise RedirectToPublicVersion
 
         return obj
 
@@ -112,7 +112,7 @@ class SingleContentViewMixin:
 
         if not is_beta and not is_public and not self.is_author:
             if not self.is_staff or (not self.authorized_for_staff and self.must_be_author):
-                raise PermissionDenied
+                raise RedirectToPublicVersion
 
         # load versioned file
         versioned = self.object.load_version_or_404(self.sha)
@@ -205,7 +205,13 @@ class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
     """
 
     def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        try:
+            self.object = self.get_object()
+        except RedirectToPublicVersion:
+            if request.method == "GET" and self.object and self.object.is_public and self.object.sha_public:
+                return HttpResponsePermanentRedirect(self.get_public_object().get_absolute_url_online())
+            else:
+                raise PermissionDenied
         self.versioned_object = self.get_versioned_object()
         if self.object.sha_public:
             self.public_content_object = self.get_public_object()
@@ -235,7 +241,13 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
     """
 
     def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
+        try:
+            self.object = self.get_object()
+        except RedirectToPublicVersion:
+            if request.method == "GET" and self.object and self.object.is_public and self.object.sha_public:
+                return HttpResponsePermanentRedirect(self.get_public_object().get_absolute_url_online())
+            else:
+                raise PermissionDenied
 
         if not self.sha:
             try:
@@ -243,7 +255,14 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
             except KeyError:
                 self.sha = self.object.sha_draft
 
-        self.versioned_object = self.get_versioned_object()
+        try:
+            self.versioned_object = self.get_versioned_object()
+        except RedirectToPublicVersion:
+            if request.method == "GET" and self.object and self.object.is_public and self.object.sha_public:
+                return HttpResponsePermanentRedirect(self.get_public_object().get_absolute_url_online())
+            else:
+                raise PermissionDenied
+
         if self.object.sha_public:
             self.public_content_object = self.get_public_object()
 
@@ -303,6 +322,10 @@ class ContentTypeMixin:
         context["verbose_type_name_plural"] = v_type_name_plural
 
         return context
+
+
+class RedirectToPublicVersion(Exception):
+    """Exception raised when we should try to redirect to the public version."""
 
 
 class MustRedirect(Exception):

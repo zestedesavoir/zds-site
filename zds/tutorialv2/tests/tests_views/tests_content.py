@@ -4709,7 +4709,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         content = PublishedContentFactory(author_list=[self.user_author])
         self.client.force_login(self.user_guest)
         resp = self.client.get(reverse("content:view", args=[content.pk, content.slug]))
-        self.assertEqual(403, resp.status_code)
+        self.assertEqual(301, resp.status_code)
+        self.assertEqual(reverse("tutorial:view", args=[content.pk, content.slug]), resp.url)
 
     def test_republish_with_different_slug(self):
         """Ensure that a new PublishedContent object is created and well filled"""
