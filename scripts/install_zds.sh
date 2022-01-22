@@ -10,34 +10,6 @@ function load_nvm {
 }
 
 
-## start quiet mode
-function progressfilt {
-    local flag=false c count cr=$'\r' nl=$'\n'
-    while IFS='' read -d '' -rn 1 c
-    do
-        if $flag; then
-            printf '%s' "$c"
-        else
-            if [[ $c != $cr && $c != $nl ]]; then
-                count=0
-            else
-                ((count++))
-                if ((count > 1)); then
-                    flag=true
-                fi
-            fi
-        fi
-    done
-}
-
-
-# Hack for "-q --show-progress" (at least v1.16) and travis uses (travis uses wget 1.15)
-function wget_nv {
-    wget "$@" --progress=bar:force 2>&1 | progressfilt
-}
-## end
-
-
 # zds-site root folder
 ZDSSITE_DIR=$(pwd)
 
@@ -47,12 +19,10 @@ LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 source $LOCAL_DIR/define_variable.sh
 source $LOCAL_DIR/define_function.sh
 
-zds_fold_category "install"
-
 
 # Install packages
 if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "packages" "* [+packages] installing packages (this subcommand will be run as super-user)"
+    print_info "* [+packages] installing packages (this subcommand will be run as super-user)" --bold
 
     if $(_in "--detect-os-version" $@); then
         version=$(cat /proc/version)
@@ -88,6 +58,11 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         echo -n "Choice : "
         read -n 1
         echo ""
+
+        if ! [ "$REPLY" -eq "$REPLY" ] 2> /dev/null; then # check $REPLY contains a number
+            print_error "!! You have to pick a number!"
+            exit 1
+        fi
 
         filepath="${arr[$REPLY]}"
         if [[ $filepath == "" ]]; then
@@ -142,15 +117,13 @@ if  ! $(_in "-packages" $@) && ( $(_in "+packages" $@) || $(_in "+base" $@) || $
         fi
         echo ""
     done
-
-    zds_fold_end
 fi
 
 
 # virtualenv
 
 if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "virtualenv" "* Create virtualenv"
+    print_info "* Create virtualenv" --bold
 
     if [ ! -f $ZDS_VENV/bin/activate ]; then
         if [ -d $ZDS_VENV ]; then
@@ -197,7 +170,7 @@ fi
 
 # nvm node & yarn
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "node" "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn"
+    print_info "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn" --bold
 
     wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
@@ -220,13 +193,11 @@ if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+f
         print_error "!! Cannot obtain nvm v${ZDS_NVM_VERSION}"
         exit 1
     fi
-
-    zds_fold_end
 fi
 
 # virtualenv activation
 if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpath $VIRTUAL_ENV) != $(realpath $ZDS_VENV) ) ]]; then
-    zds_fold_start "virtualenv" "* Load virtualenv"
+    print_info "* Load virtualenv" --bold
 
     print_info "* activating venv \`$ZDS_VENV\`"
 
@@ -252,15 +223,20 @@ if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpat
         exit 1
     fi
 
-    zds_fold_end
-else 
+    # Some dependencies (like rust ones) require a recent pip:
+    print_info "* upgrading pip"
+    pip install --upgrade pip; exVal=$?
+
+    if [[ $exVal != 0 ]]; then
+        print_error "!! Failed to upgrade pip"
+        exit 1
+    fi
+
     print_info "!! Add \`$(realpath $ZDS_VENV)\` in your PATH."
 
     if [ ! -d $ZDS_VENV ]; then
         mkdir $ZDS_VENV
     fi
-
-    zds_fold_end
 fi
 
 export ZDS_ENV=$(realpath $ZDS_VENV)
@@ -268,7 +244,7 @@ export ZDS_ENV=$(realpath $ZDS_VENV)
 
 # local jdk 
 if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "jdk" "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)"
+    print_info "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)" --bold
 
     mkdir -p $ZDS_VENV/lib/
     cd $ZDS_VENV/lib/
@@ -284,7 +260,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
     folderPATH="${foldername}/OpenJDK11U-jdk_x64_linux_hotspot_${ZDS_JDK_VERSION}_${ZDS_JDK_REV}.tar.gz"
 
     echo "GET ${baseURL}${folderPATH}"
-    wget_nv -O ${foldername}.tar.gz ${baseURL}${folderPATH}
+    wget -O ${foldername}.tar.gz ${baseURL}${folderPATH} -q --show-progress
     tar xf ${foldername}.tar.gz
 
     if [[ $? == 0 ]]; then
@@ -309,14 +285,12 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
         exit 1
     fi
     cd $ZDSSITE_DIR
-
-    zds_fold_end
 fi
 
 
 # local elasticsearch
 if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "elasticsearch" "* [+elastic-local] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)"
+    print_info "* [+elastic-local] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)" --bold
 
     mkdir -p .local
     cd .local
@@ -327,7 +301,7 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         rm -r "$es_path"
     fi
 
-    wget_nv https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip
+    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip -q --show-progress
     if [[ $? == 0 ]]; then
         unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip 
         rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
@@ -345,14 +319,12 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
         exit 1
     fi
     cd $ZDSSITE_DIR
-
-    zds_fold_end
 fi
 
 
 # local texlive
 if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "texlive" "* [+tex-local] install texlive"
+    print_info "* [+tex-local] install texlive" --bold
 
     mkdir -p .local
     cd .local
@@ -382,7 +354,7 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
         sed -i 's@.texlive@texlive@' texlive.profile  # change directory
         sed -i "s@\$HOME@$LOCAL@" texlive.profile  # change destination
 
-        wget_nv -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz
+        wget -O install-tl.tar.gz http://mirror.ctan.org/systems/texlive/tlnet/install-tl-unx.tar.gz -q --show-progress
         if [[ $? == 0 ]]; then
             if [[ ! -f ./bin/x86_64-linux/tlmgr ]]; then # install texlive
                 tar xzf install-tl.tar.gz
@@ -412,14 +384,12 @@ if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) );
     fi
 
     cd $ZDSSITE_DIR
-
-    zds_fold_end
 fi
 
 
 # latex-template in TEXMFHOME.
 if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "latex-template" "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)"
+    print_info "* [+latex-template] install latex-template (from $ZDS_LATEX_REPO)" --bold
 
     if [[ $(which kpsewhich) == "" ]]; then # no texlive ?
         print_error "!! Cannot find kpsewhich, do you have texlive?"
@@ -444,14 +414,12 @@ if  ! $(_in "-latex-template" $@) && ( $(_in "+latex-template" $@) || $(_in "+fu
     fi
 
     cd $ZDSSITE_DIR
-
-    zds_fold_end
 fi
 
 
 # install back
 if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "back" "* [+back] install back dependencies & migration"
+    print_info "* [+back] install back dependencies & migration" --bold
 
     if $(_in "+prod" $@); then
         make install-back-with-prod; exVal=$?
@@ -472,14 +440,25 @@ if  ! $(_in "-back" $@) && ( $(_in "+back" $@) || $(_in "+base" $@) || $(_in "+f
             exit 1
         fi
     fi
+fi
 
-    zds_fold_end
+
+# zmd (zmd has to be installed before the build the front)
+if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
+    print_info "* [+zmd] install zmarkdown dependencies" --bold
+
+    make zmd-install; exVal=$?
+
+    if [[ $exVal != 0 ]]; then
+        print_error "!! Cannot install zmd (use \`-zmd\` to skip)"
+        exit 1
+    fi
 fi
 
 
 # install front
 if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "front" "* [+front] install front dependencies & build front"
+    print_info "* [+front] install front dependencies & build front" --bold
 
     if [ -d node_modules ]; then # delete previous modules
         rm -r node_modules
@@ -498,29 +477,12 @@ if  ! $(_in "-front" $@) && ( $(_in "+front" $@) || $(_in "+base" $@) || $(_in "
         print_error "!! Cannot build-front (use \`-front\` to skip)"
         exit 1
     fi
-
-    zds_fold_end
-fi
-
-
-# zmd
-if  ! $(_in "-zmd" $@) && ( $(_in "+zmd" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "zmd" "* [+zmd] install zmarkdown dependencies"
-
-    make zmd-install; exVal=$?
-
-    if [[ $exVal != 0 ]]; then
-        print_error "!! Cannot install zmd (use \`-zmd\` to skip)"
-        exit 1
-    fi
-
-    zds_fold_end
 fi
 
 
 # fixtures
 if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
-    zds_fold_start "fixtures" "* [+data] fixtures"
+    print_info "* [+data] fixtures" --bold
 
     npm run server --prefix zmd/node_modules/zmarkdown -- --silent; exVal=$?
 
@@ -565,8 +527,6 @@ if  ! $(_in "-data" $@) && ( $(_in "+data" $@) || $(_in "+base" $@) || $(_in "+f
     if $futureExit; then
         exit 1
     fi
-
-    zds_fold_end
 fi
 
 if  ! $(_in "--force-skip-activating" $@); then

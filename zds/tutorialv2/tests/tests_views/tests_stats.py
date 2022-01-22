@@ -155,6 +155,23 @@ class StatTests(TestCase, TutorialTestMixin):
         self.assertEqual(resp.context_data["urls"][0].url, self.published.content.get_absolute_url_online())
         self.assertEqual(len(resp.context_data["urls"]), 3)
 
+    def test_access_for_author_matomo_error(self):
+        # author can access to stats, and if request to Matomo triggers an error,
+        # display the page with a message error, and not an ugly error 500 page:
+        url = reverse(
+            "content:stats-content",
+            kwargs={"pk": self.published.content_pk, "slug": self.published.content_public_slug},
+        )
+        self.client.force_login(self.user_author)
+        with self.assertLogs(level="ERROR") as error_log:
+            resp = self.client.get(url)
+            self.assertTrue(
+                error_log.output[0].startswith(
+                    "ERROR:zds.tutorialv2.views.statistics:Something failed with Matomo reporting system:"
+                )
+            )
+        self.assertEqual(resp.status_code, 200)
+
     @mock.patch("requests.post")
     def test_access_for_staff(self, mock_post):
         # staff can access to stats

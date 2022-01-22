@@ -10,5 +10,6 @@ Guides pas-à-pas
    guides/update-env.rst
    guides/run-linux.rst
    guides/backend-tests.rst
+   guides/write-backend-tests.rst
 
 .. include:: /includes/contact-us.rst

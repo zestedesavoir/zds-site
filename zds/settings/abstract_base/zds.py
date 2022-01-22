@@ -99,7 +99,7 @@ ZDS_APP = {
                 "code": "GPL v3",
                 "url_license": "http://www.gnu.org/licenses/gpl-3.0.html",
                 "provider_name": "Progdupeupl",
-                "provider_url": "http://pdp.microjoe.org",
+                "provider_url": "https://github.com/progdupeupl/pdp_website",
             },
             "licence_info_title": "http://zestedesavoir.com/tutoriels/281/le-droit-dauteur-creative-commons-et-les-lic"
             "ences-sur-zeste-de-savoir/",
@@ -110,8 +110,8 @@ ZDS_APP = {
             "mastodon": "https://framapiaf.org/@ZesteDeSavoir",
             "facebook": "https://www.facebook.com/ZesteDeSavoir",
             "twitter": "https://twitter.com/ZesteDeSavoir",
+            "github": "https://github.com/zestedesavoir/zds-site",
             # 'discord': 'https://discord.gg/ue5MTKq'
-            # 'github': 'https://github.com/zestedesavoir/zds-site'
         },
         "cnil": "1771020",
     },

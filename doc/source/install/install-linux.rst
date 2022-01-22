@@ -15,7 +15,10 @@ Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les inst
     - Si malgré tout vous ne parvenez pas à installer ZdS, n'hésitez pas à ouvrir `un sujet sur le forum <https://zestedesavoir.com/forums/sujet/nouveau/?forum=2>`_
 
 
-Après avoir cloné, installer ZdS sous Linux est relativement simple. En effet, il suffit de lancer la commande suivante (qui se chargera d'installer ce qui est nécessaire, plus d'infos ci-dessous):
+Pour installer ZdS, vous aurez besoin d'abord des programmes ``make`` et ``sudo``. S'ils ne sont pas déjà installés sur votre système, ils sont généralement disponibles dans les gestionnaires de paquets sous le même nom.
+
+
+Après avoir cloné le dépôt du code source, installer ZdS sous Linux est relativement simple. En effet, il suffit de lancer la commande suivante (qui se chargera d'installer ce qui est nécessaire, plus d'infos ci-dessous):
 
 .. sourcecode:: bash
 
@@ -35,10 +38,22 @@ Une fois que c'est fait, vous pouvez directement lancer votre instance à l'aide
     make zmd-start # démarrer zmarkdown
     make run-back # démarer le serveur django
 
-
 Stoppez le serveur à l'aide de ctrl+c. Pour sortir de votre environnement, tapez ``deactivate``.
 
 Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.
+
+Si vous utilisez un shell autre que bash, et que vous avez l’erreur suivante quand vous activez ``zdsenv`` :
+
+.. sourcecode:: bash
+
+    …/zds-site/zdsenv/bin/activate:67: command not found: nvm
+
+Alors c’est très probablement dû au script d’installation de nvm qui ne gère que Bash. Pour corriger ce problème, ouvrez votre fichier ``.bashrc`` et copiez les lignes concernant nvm dans le fichier de configuration de votre shell. Ces fichiers se trouvent dans votre répertoire utilisateur, par exemple :
+
+.. sourcecode:: bash
+
+    ~/.bashrc
+    ~/.zshrc
 
 Plus d'informations
 -------------------

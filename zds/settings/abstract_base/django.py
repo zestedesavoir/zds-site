@@ -7,8 +7,11 @@ from django.utils.translation import gettext_lazy as _
 from .config import config
 from .base_dir import BASE_DIR
 
-
-INTERNAL_IPS = ("127.0.0.1",)  # debug toolbar
+# especially for debug toolbar:
+INTERNAL_IPS = (
+    "127.0.0.1",
+    "172.17.0.1",  # to enable debug toolbar when executed in a Docker container
+)
 
 DATABASES = {
     "default": {
@@ -157,7 +160,7 @@ INSTALLED_APPS = (
     "munin",
     "social_django",
     "rest_framework",
-    "rest_framework_swagger",
+    "drf_yasg",
     "dry_rest_permissions",
     "corsheaders",
     "oauth2_provider",
@@ -220,14 +223,11 @@ REST_FRAMEWORK_EXTENSIONS = {
 
 
 SWAGGER_SETTINGS = {
-    "APIS_SORTER": "alpha",
     "OPERATIONS_SORTER": "alpha",
-    "SHOW_REQUEST_HEADERS": True,
     "SUPPORTED_SUBMIT_METHODS": [
         "get",
         "post",
         "put",
-        "delete",
     ],
 }
 
@@ -322,3 +322,5 @@ TEST_RUNNER = "django.test.runner.DiscoverRunner"
 
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

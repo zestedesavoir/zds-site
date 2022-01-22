@@ -79,3 +79,5 @@ Il suffit alors de remonter la sortie de la console et chercher des lignes de la
 Il ne vous reste alors plus qu'à corriger votre code ou mettre à jour les tests concernés. :-)
 
 Pour en savoir plus sur les tests avec Django, consultez la `documentation officielle <https://docs.djangoproject.com/en/dev/topics/testing/overview/>`_.
+
+Pour en savoir plus sur l'écriture de tests *backend* pour Zeste de Savoir, consultez le `guide correspondant <./write-backend-tests.html>`_.
