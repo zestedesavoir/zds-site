@@ -161,19 +161,19 @@
 {% endblock %}
 
 
-
 {% block new_btn %}
-    <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
-        {% trans "Nouveau sujet" %}
-    </a>
+  {% if user.can_write_now %}
+      <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
+          {% trans "Nouveau sujet" %}
+      </a>
 
-    {% if topic.author.pk == user.pk and topic.first_post.is_visible or is_staff %}
-        <a href="{% url 'topic-edit' %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
-            {% trans "Éditer le sujet" %}
-        </a>
-    {% endif %}
+      {% if topic.author.pk == user.pk and topic.first_post.is_visible or is_staff %}
+          <a href="{% url 'topic-edit' %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
+              {% trans "Éditer le sujet" %}
+          </a>
+      {% endif %}
+  {% endif %}
 {% endblock %}
-
 
 
 {% block sidebar_actions %}
