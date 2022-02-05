@@ -223,7 +223,7 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements-ci.txt
 
-      - name: Check no migration is missing
+      - name: Check that no migration is missing
         run: python manage.py makemigrations --check --dry-run
 
       - name: Build and start zmarkdown
