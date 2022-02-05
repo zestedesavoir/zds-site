@@ -66,9 +66,11 @@
 
 
 {% block new_btn %}
-    <a href="{% url 'topic-new' %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
-        {% trans "Nouveau sujet" %}
-    </a>
+  {% if user.profile.can_write_now %}
+      <a href="{% url 'topic-new' %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+          {% trans "Nouveau sujet" %}
+      </a>
+  {% endif %}
 {% endblock %}
 
 
