@@ -18,12 +18,12 @@ authors_management = Signal()
 contributors_management = Signal()
 
 # Beta management
-# For the signals below, the arguments "performer", "content", "version" and "action" shall be provided.
+# For the signal below, the arguments "performer", "content", "version" and "action" shall be provided.
 # Action is either "activate" or "deactivate".
 beta_management = Signal()
 
 # Validation management
-# For the signals below, the arguments "performer", "content", "version" and "action" shall be provided.
+# For the signal below, the arguments "performer", "content", "version" and "action" shall be provided.
 # Action is either "request", "cancel", "accept", "reject", "revoke", "reserve" or "unreserve".
 validation_management = Signal()
 
@@ -32,7 +32,7 @@ validation_management = Signal()
 tags_management = Signal()
 
 # Suggestions management
-# For the signals below, the arguments "performer" and "content"  shall be provided.
+# For the signal below, the arguments "performer" and "content"  shall be provided.
 suggestions_management = Signal()
 
 # Help management
@@ -40,11 +40,11 @@ suggestions_management = Signal()
 help_management = Signal()
 
 # JSFiddle management
-# For the signals below, the arguments "performer", "content" and "action" shall be provided.
+# For the signal below, the arguments "performer", "content" and "action" shall be provided.
 # Action is either "activate" or "deactivate".
 jsfiddle_management = Signal()
 
 # Opinion publication management
-# For the signals below, the arguments "performer", "content" and "action" shall be provided.
+# For the signal below, the arguments "performer", "content" and "action" shall be provided.
 # Action is either "publish" or "unpublish".
 opinions_management = Signal()
