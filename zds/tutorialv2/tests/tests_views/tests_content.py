@@ -2067,7 +2067,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.client.logout()
 
-    def test_validation_workflow(self):
+    @patch("zds.tutorialv2.signals.validation_management")
+    def test_validation_workflow(self, validation_management):
         """test the different case of validation"""
 
         text_validation = "Valide moi ce truc, s'il te plait"
@@ -2089,6 +2090,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 0)  # not working if you don't provide a text
+        self.assertEqual(validation_management.send.call_count, 0)
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
@@ -2097,6 +2099,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
+        self.assertEqual(validation_management.send.call_count, 1)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "request")
 
         validation = Validation.objects.filter(content=tuto).last()
         self.assertIsNotNone(validation)
@@ -2152,6 +2156,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 2)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "reserve")
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "PENDING_V")
@@ -2162,6 +2168,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 3)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "unreserve")
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "PENDING")
@@ -2235,6 +2243,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "REJECT")
         self.assertEqual(validation.comment_validator, text_reject)
+        self.assertEqual(validation_management.send.call_count, 6)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "reject")
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
         new_mp_message_nb = PrivatePost.objects.filter(
@@ -2288,6 +2298,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "ACCEPT")
         self.assertEqual(validation.comment_validator, text_accept)
+        self.assertEqual(validation_management.send.call_count, 9)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "accept")
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
@@ -2338,6 +2350,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 10)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "revoke")
 
         self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
@@ -2371,6 +2385,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("validation:cancel", kwargs={"pk": validation.pk}), {"text": text_cancel}, follow=False
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 12)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "cancel")
 
         self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
