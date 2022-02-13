@@ -5,7 +5,7 @@ from zds.tutorialv2.models.events import Event
 from zds.utils.paginator import make_pagination
 
 
-class EventList(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
+class EventsList(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
     Display the list of events.
     """
