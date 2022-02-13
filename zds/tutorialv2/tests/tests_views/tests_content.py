@@ -2480,29 +2480,32 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
-    def test_js_fiddle_activation(self):
+    @patch("zds.tutorialv2.signals.jsfiddle_management")
+    def test_js_fiddle_activation(self, jsfiddle_management):
 
         self.client.force_login(self.staff)
         result = self.client.post(
             reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": "on"}, follow=True
         )
         self.assertEqual(result.status_code, 200)
+        self.assertEqual(jsfiddle_management.send.call_count, 1)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertTrue(updated.js_support)
         result = self.client.post(
             reverse("content:activate-jsfiddle"),
-            {
-                "pk": self.tuto.pk,
-            },
+            {"pk": self.tuto.pk},
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertFalse(updated.js_support)
+        self.assertEqual(jsfiddle_management.send.call_count, 2)
         self.client.logout()
+
         self.client.force_login(self.user_author)
         result = self.client.post(reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": True})
         self.assertEqual(result.status_code, 403)
+        self.assertEqual(jsfiddle_management.send.call_count, 2)
 
     def test_validate_unexisting(self):
 
