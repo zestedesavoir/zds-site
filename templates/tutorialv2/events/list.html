@@ -62,7 +62,7 @@
                 {% for e in events %}
                     <tr>
                         <td>{{ e.date | format_date:True }}</td>
-                        <td>{{ e.description | safe }}</td>
+                        <td>{% include 'tutorialv2/events/descriptions.part.html' with event=e %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
