@@ -7,14 +7,14 @@ from zds.utils.paginator import make_pagination
 
 class EventList(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
     """
-    Display contact page.
+    Display the list of events.
     """
 
     model = Event
     template_name = "tutorialv2/view/events.html"
 
     def get_context_data(self, **kwargs):
-        context = super(EventList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         events = list(Event.objects.filter(content=self.object))
         events.reverse()
         make_pagination(
