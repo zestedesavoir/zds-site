@@ -8,7 +8,6 @@ from zds.tutorialv2.factories import PublishableContentFactory
 from zds.tutorialv2.forms import RemoveSuggestionForm
 from zds.tutorialv2.models.database import ContentSuggestion
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.tutorialv2.views.editorialization import RemoveSuggestion
 
 
 @override_for_contents()
