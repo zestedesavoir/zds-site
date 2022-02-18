@@ -33,6 +33,7 @@ tags_management = Signal()
 
 # Suggestions management
 # For the signal below, the arguments "performer" and "content"  shall be provided.
+# Action is either "add" or "remove".
 suggestions_management = Signal()
 
 # Help management
