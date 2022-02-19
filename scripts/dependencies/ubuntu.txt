@@ -1,5 +1,5 @@
 #title=Ubuntu
-#desc=Utilisation de apt-get / Testé sur : Ubuntu 16.04 LTS, 18.04 LTS, 19.04 & Linux Mint 19
+#desc=Utilisation de apt-get / Testé sur : 18.04 LTS, 19.04, 20.04 LTS & Linux Mint 19
 #updatecmd=apt-get -y update
 #installcmd=apt-get -y install
 git
