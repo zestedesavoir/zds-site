@@ -4,7 +4,7 @@ import factory
 
 from zds.forum.tests.factories import PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
-from zds.utils.factories import LicenceFactory, SubCategoryFactory
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 from zds.utils.models import Licence
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction
 from zds.tutorialv2.models.versioned import Container, Extract

@@ -21,7 +21,7 @@ from zds.tutorialv2.tests.factories import (
 )
 from zds.tutorialv2.models.database import PublishedContent, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
-from zds.utils.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
