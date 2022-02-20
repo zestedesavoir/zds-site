@@ -1,7 +1,7 @@
 import datetime
 from django.test import TestCase
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishedContentFactory
+from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Alert
 from zds.utils.context_processor import get_header_notifications

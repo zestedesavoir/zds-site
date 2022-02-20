@@ -27,7 +27,7 @@ from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailProvider
-from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory

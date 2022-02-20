@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishedContentFactory
+from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
 from zds.utils.factories import LicenceFactory, SubCategoryFactory

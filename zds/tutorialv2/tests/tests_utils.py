@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,

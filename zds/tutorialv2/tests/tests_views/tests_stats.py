@@ -10,7 +10,7 @@ from django.urls import reverse
 
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import Validation, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.factories import LicenceFactory

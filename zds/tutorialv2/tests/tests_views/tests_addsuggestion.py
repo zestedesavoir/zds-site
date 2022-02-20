@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory
 from zds.tutorialv2.models.database import ContentSuggestion
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 

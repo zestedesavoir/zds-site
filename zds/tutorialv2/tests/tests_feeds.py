@@ -9,7 +9,7 @@ from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, User
 from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory, TagFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,

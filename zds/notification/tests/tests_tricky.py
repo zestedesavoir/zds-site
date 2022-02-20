@@ -19,7 +19,7 @@ from zds.notification.models import (
     PingSubscription,
 )
 from zds.tutorialv2 import signals
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     PublishedContentFactory,
     ContentReactionFactory,

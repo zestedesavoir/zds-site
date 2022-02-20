@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.core.management import call_command
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
