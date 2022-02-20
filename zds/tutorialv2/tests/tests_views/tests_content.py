@@ -20,7 +20,7 @@ from zds.forum.models import Topic, Post, TopicRead
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
-from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread, PrivatePost
 from zds.notification.models import (
     TopicAnswerSubscription,

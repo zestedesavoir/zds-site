@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.test.utils import override_settings
 from django.shortcuts import get_object_or_404
 
-from zds.member.factories import ProfileFactory
+from zds.member.tests.factories import ProfileFactory
 from zds.member.models import Profile
 from django.conf import settings
 from copy import deepcopy

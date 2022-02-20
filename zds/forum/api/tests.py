@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.forum.tests.factories import PostFactory, create_category_and_forum, create_topic_in_forum
-from zds.member.factories import ProfileFactory
+from zds.member.tests.factories import ProfileFactory
 from zds.utils.models import CommentVote
 
 

@@ -9,7 +9,7 @@ from django.test import TestCase
 
 from zds.gallery.models import UserGallery
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,

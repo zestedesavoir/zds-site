@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.member.views import member_from_ip
 from zds.notification.models import TopicAnswerSubscription
-from zds.member.factories import (
+from zds.member.tests.factories import (
     ProfileFactory,
     StaffProfileFactory,
     NonAsciiProfileFactory,

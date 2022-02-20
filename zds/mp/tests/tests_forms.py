@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.test import TestCase
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.mp.forms import PrivateTopicForm, PrivatePostForm
 from zds.mp.factories import PrivateTopicFactory
 

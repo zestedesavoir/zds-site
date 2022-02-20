@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from zds.tutorialv2.models.database import Validation
 from zds.tutorialv2.factories import PublishableContentFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.mps import send_message_mp, send_mp
 

@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.member.api.tests import create_oauth2_client, authenticate_client
-from zds.member.factories import ProfileFactory
+from zds.member.tests.factories import ProfileFactory
 from zds.mp.factories import PrivateTopicFactory
 from zds.notification.models import Notification
 from zds.utils.mps import send_message_mp

@@ -7,7 +7,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from zds.forum.tests.factories import PostFactory, create_category_and_forum, create_topic_in_forum
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory
 from zds.tutorialv2.models import CONTENT_TYPES
 from zds.tutorialv2.models.database import PublishableContent

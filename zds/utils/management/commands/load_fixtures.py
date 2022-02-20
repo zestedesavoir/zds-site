@@ -14,7 +14,7 @@ from zds.utils.templatetags.emarkdown import emarkdown
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
-from zds.member.factories import StaffProfileFactory, ProfileFactory
+from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
 from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, ForumCategory

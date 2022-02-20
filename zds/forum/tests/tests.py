@@ -9,7 +9,7 @@ from django.test import TestCase
 from zds.forum.commons import PostEditMixin
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Forum, TopicRead, Post, Topic
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import old_slugify
 from zds.utils.forums import get_tag_by_title

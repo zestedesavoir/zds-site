@@ -13,7 +13,7 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from zds.member.factories import StaffProfileFactory, ProfileFactory
+from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ContainerFactory,
