@@ -11,7 +11,7 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory, DevProfile
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.gallery.factories import GalleryFactory, ImageFactory
+from zds.gallery.tests.factories import GalleryFactory, ImageFactory
 from zds.utils.models import Alert, Hat
 
 

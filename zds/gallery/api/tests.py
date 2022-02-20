@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_extensions.settings import extensions_api_settings
 
-from zds.gallery.factories import UserGalleryFactory, GalleryFactory, ImageFactory
+from zds.gallery.tests.factories import UserGalleryFactory, GalleryFactory, ImageFactory
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, Image, GALLERY_READ
 from zds.member.factories import ProfileFactory
 from zds.member.api.tests import create_oauth2_client, authenticate_client

@@ -3,7 +3,7 @@ import os
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
+from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import ProfileFactory
 from django.conf import settings
 
