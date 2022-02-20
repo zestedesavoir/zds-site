@@ -4,7 +4,7 @@ from django.test.utils import override_settings
 from django.utils.translation import gettext_lazy as _
 
 from zds.forum.models import Post
-from zds.forum.factories import create_category_and_forum, create_topic_in_forum
+from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentEdit
 from zds.utils.templatetags.emarkdown import render_markdown

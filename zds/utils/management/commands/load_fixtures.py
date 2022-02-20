@@ -12,7 +12,7 @@ from random import randint
 from faker import Factory
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from django.contrib.auth.models import User, Permission

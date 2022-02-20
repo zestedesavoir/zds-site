@@ -13,7 +13,7 @@ from zds.tutorialv2.factories import (
 )
 from zds.tutorialv2.models.database import PublishableContent
 from zds.gallery.factories import UserGalleryFactory
-from zds.forum.factories import ForumFactory, ForumCategoryFactory
+from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.factories import SubCategoryFactory, LicenceFactory

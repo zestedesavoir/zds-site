@@ -9,8 +9,8 @@ from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
-from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.factories import create_category_and_forum
+from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
+from zds.forum.tests.factories import create_category_and_forum
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 

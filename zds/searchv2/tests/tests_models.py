@@ -4,8 +4,8 @@ from elasticsearch_dsl.query import MatchAll
 from django.conf import settings
 from django.test import TestCase
 
-from zds.forum.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.factories import create_category_and_forum
+from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
+from zds.forum.tests.factories import create_category_and_forum
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content

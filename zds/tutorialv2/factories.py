@@ -2,7 +2,7 @@ from datetime import datetime
 
 import factory
 
-from zds.forum.factories import PostFactory, TopicFactory
+from zds.forum.tests.factories import PostFactory, TopicFactory
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.utils.factories import LicenceFactory, SubCategoryFactory
 from zds.utils.models import Licence

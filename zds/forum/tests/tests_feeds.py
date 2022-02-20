@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.test.client import RequestFactory
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.feeds import LastPostsFeedRSS, LastPostsFeedATOM, LastTopicsFeedRSS, LastTopicsFeedATOM
 from zds.member.factories import ProfileFactory
 

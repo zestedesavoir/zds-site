@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.contrib.auth.models import Group
 from hashlib import md5
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.member.factories import ProfileFactory, StaffProfileFactory, DevProfileFactory
 from zds.member.models import TokenForgotPassword, TokenRegister, Profile

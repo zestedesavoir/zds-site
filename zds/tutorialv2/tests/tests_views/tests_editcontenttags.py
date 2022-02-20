@@ -8,7 +8,7 @@ from zds.tutorialv2.forms import EditContentTagsForm
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.factories import PublishableContentFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.forum.factories import TagFactory
+from zds.forum.tests.factories import TagFactory
 from zds.utils.forms import TagValidator
 from zds.utils.models import Tag
 

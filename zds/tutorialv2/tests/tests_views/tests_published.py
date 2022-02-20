@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.factories import ForumFactory, ForumCategoryFactory
+from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
