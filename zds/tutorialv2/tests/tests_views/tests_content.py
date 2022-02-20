@@ -28,7 +28,7 @@ from zds.notification.models import (
     NewPublicationSubscription,
     Notification,
 )
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,

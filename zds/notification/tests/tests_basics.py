@@ -22,7 +22,7 @@ from zds.notification.models import (
     NewTopicSubscription,
     NewPublicationSubscription,
 )
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContentReactionFactory,
     PublishedContentFactory,

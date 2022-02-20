@@ -9,7 +9,7 @@ from zds.featured.tests.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, ImageFactory
-from zds.tutorialv2.factories import PublishedContentFactory
+from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 

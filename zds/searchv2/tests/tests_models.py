@@ -8,7 +8,7 @@ from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
+from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
 from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
