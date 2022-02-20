@@ -11,7 +11,7 @@ from django.conf import settings
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Topic
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
 from zds.tutorialv2 import signals
 from zds.notification.models import (

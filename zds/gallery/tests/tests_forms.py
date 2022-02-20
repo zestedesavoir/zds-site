@@ -3,7 +3,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from zds.gallery.tests.factories import GalleryFactory
 from zds.gallery.forms import GalleryForm, UserGalleryForm, ImageForm, ImageAsAvatarForm, ArchiveImageForm
-from zds.member.factories import ProfileFactory
+from zds.member.tests.factories import ProfileFactory
 from django.conf import settings
 
 

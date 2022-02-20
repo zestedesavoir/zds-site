@@ -11,7 +11,7 @@ from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.member.api.tests import create_oauth2_client, authenticate_client
-from zds.member.factories import ProfileFactory, UserFactory
+from zds.member.tests.factories import ProfileFactory, UserFactory
 from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic
 

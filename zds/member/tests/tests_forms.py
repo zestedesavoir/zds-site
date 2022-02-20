@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
+from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import (
     LoginForm,
     RegisterForm,
@@ -13,7 +13,7 @@ from zds.member.forms import (
     UsernameAndEmailForm,
 )
 from zds.member.models import BannedEmailProvider
-from zds.member.factories import StaffProfileFactory
+from zds.member.tests.factories import StaffProfileFactory
 
 stringof77chars = "abcdefghijklmnopqrstuvwxyz0123456789abcdefghijklmnopqrstuvwxyz0123456789-----"
 stringof251chars = (

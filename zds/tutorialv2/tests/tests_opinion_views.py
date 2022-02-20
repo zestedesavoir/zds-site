@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import (
     PublishableContentFactory,
     ExtractFactory,

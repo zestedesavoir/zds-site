@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 from rest_framework.test import APIClient
 
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
-from zds.member.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
 from zds.member.models import TokenRegister, BannedEmailProvider
 from rest_framework_extensions.settings import extensions_api_settings
 from django.core.cache import caches

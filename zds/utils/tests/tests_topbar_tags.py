@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents

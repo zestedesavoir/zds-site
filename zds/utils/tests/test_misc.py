@@ -1,6 +1,6 @@
 import datetime
 from django.test import TestCase
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishedContentFactory
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Alert

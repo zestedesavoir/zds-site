@@ -12,7 +12,7 @@ from django.contrib.auth.models import Group
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
 from zds.forum.tests.factories import create_category_and_forum
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import (
     PublishableContentFactory,

@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import ESIndexManager
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
 from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent

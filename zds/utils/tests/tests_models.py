@@ -3,7 +3,7 @@ from django.db import IntegrityError, transaction
 from django.contrib.auth.models import Group
 
 from zds.member.models import Profile
-from zds.member.factories import ProfileFactory
+from zds.member.tests.factories import ProfileFactory
 from zds.utils.forms import TagValidator
 from zds.utils.models import Tag, Hat
 

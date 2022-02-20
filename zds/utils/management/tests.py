@@ -5,7 +5,7 @@ from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, ForumCategory
 from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, HelpWriting, Licence
-from zds.member.factories import ProfileFactory
+from zds.member.tests.factories import ProfileFactory
 from zds.tutorialv2.models.database import (
     PublishableContent,
     PublishedContent,

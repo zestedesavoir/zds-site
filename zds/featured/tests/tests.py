@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext as _
 
-from zds.member.factories import StaffProfileFactory, ProfileFactory
+from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
 from zds.featured.tests.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory

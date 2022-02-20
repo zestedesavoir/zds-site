@@ -5,7 +5,7 @@ from django.conf import settings
 from django.test import TestCase
 from django.core.management import call_command
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
