@@ -139,7 +139,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": article.pk, "slug": article.slug}),
-            {"text": text_validation, "source": "", "version": article_draft.current_version},
+            {"text": text_validation, "version": article_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -157,7 +157,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # accept
         result = self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": True, "source": ""},
+            {"text": text_publication, "is_major": True},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -198,7 +198,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # ask validation
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": midsize_tuto.pk, "slug": midsize_tuto.slug}),
-            {"text": text_validation, "source": "", "version": midsize_tuto_draft.current_version},
+            {"text": text_validation, "version": midsize_tuto_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -216,7 +216,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # accept
         result = self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": True, "source": ""},
+            {"text": text_publication, "is_major": True},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -288,7 +288,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # ask validation
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": bigtuto.pk, "slug": bigtuto.slug}),
-            {"text": text_validation, "source": "", "version": bigtuto_draft.current_version},
+            {"text": text_validation, "version": bigtuto_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -306,7 +306,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # accept
         result = self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": True, "source": ""},
+            {"text": text_publication, "is_major": True},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1214,7 +1214,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
-            {"text": text_validation, "source": "", "version": tuto.sha_draft},
+            {"text": text_validation, "version": tuto.sha_draft},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1232,7 +1232,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # accept
         result = self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": False, "source": ""},  # minor modification (just the title)
+            {"text": text_publication, "is_major": False},  # minor modification (just the title)
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1289,7 +1289,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("validation:ask", args=[tuto.pk, tuto.slug]),
-            {"text": "something good", "source": "", "version": tuto.sha_draft},
+            {"text": "something good", "version": tuto.sha_draft},
             follow=False,
         )
         old_title = tuto.title
@@ -1413,7 +1413,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": published.pk, "slug": published.slug}),
-            {"text": "abcdefg", "source": "", "version": published.load_version().current_version},
+            {"text": "abcdefg", "version": published.load_version().current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1429,7 +1429,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": publishable.pk, "slug": publishable.slug}),
-            {"text": "abcdefg", "source": "", "version": publishable.load_version().current_version},
+            {"text": "abcdefg", "version": publishable.load_version().current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1454,7 +1454,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": content_draft.pk, "slug": content_draft.slug}),
-            {"text": text_validation, "source": "", "version": content_draft.current_version},
+            {"text": text_validation, "version": content_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1488,7 +1488,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": content_draft.pk, "slug": content_draft.slug}),
-            {"text": text_validation, "source": "", "version": content_draft.current_version},
+            {"text": text_validation, "version": content_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1523,7 +1523,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(Validation.objects.count(), 0)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": article.pk, "slug": article.slug}),
-            {"text": text_validation, "source": "", "version": article_draft.current_version},
+            {"text": text_validation, "version": article_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1546,7 +1546,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # publish the article
         result = self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": True, "source": ""},
+            {"text": text_publication, "is_major": True},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1562,7 +1562,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # ask validation
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": article.pk, "slug": article.slug}),
-            {"text": text_validation, "source": "", "version": article_draft.current_version},
+            {"text": text_validation, "version": article_draft.current_version},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1580,7 +1580,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # publish the article
         result = self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": True, "source": ""},
+            {"text": text_publication, "is_major": True},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1883,7 +1883,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_staff)
         self.client.post(
             reverse("validation:ask", kwargs={"pk": tutorial.pk, "slug": tutorial.slug}),
-            {"text": text_validation, "source": "", "version": tutorial_draft.current_version},
+            {"text": text_validation, "version": tutorial_draft.current_version},
             follow=False,
         )
 
@@ -1894,7 +1894,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": True, "source": ""},
+            {"text": text_publication, "is_major": True},
             follow=False,
         )
         self.assertEqual(tutorial.public_version.authors.count(), 2)
@@ -1908,7 +1908,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_staff)
         self.client.post(
             reverse("validation:ask", kwargs={"pk": tutorial.pk, "slug": tutorial.slug}),
-            {"text": text_validation, "source": "", "version": tutorial_draft.current_version},
+            {"text": text_validation, "version": tutorial_draft.current_version},
             follow=False,
         )
 
@@ -1919,7 +1919,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.client.post(
             reverse("validation:accept", kwargs={"pk": validation.pk}),
-            {"text": text_publication, "is_major": False, "source": ""},
+            {"text": text_publication, "is_major": False},
             follow=False,
         )
 
