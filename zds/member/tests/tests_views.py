@@ -23,7 +23,7 @@ from zds.member.tests.factories import (
     UserFactory,
     DevProfileFactory,
 )
-from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
+from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import Profile, KarmaNote, TokenForgotPassword
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailProvider
