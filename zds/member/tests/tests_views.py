@@ -32,7 +32,7 @@ from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
-from zds.gallery.factories import GalleryFactory, UserGalleryFactory
+from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
 from zds.pages.models import GroupContact
 from zds.utils.models import CommentVote, Hat, HatRequest, Alert

@@ -15,7 +15,7 @@ from zds.tutorialv2.factories import (
     PublishedContentFactory,
     ContentReactionFactory,
 )
-from zds.gallery.factories import UserGalleryFactory
+from zds.gallery.tests.factories import UserGalleryFactory
 from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.utils import (
     get_target_tagged_tree_for_container,

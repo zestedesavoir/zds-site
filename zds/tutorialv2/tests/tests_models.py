@@ -16,7 +16,7 @@ from zds.tutorialv2.factories import (
     ExtractFactory,
     PublishedContentFactory,
 )
-from zds.gallery.factories import UserGalleryFactory
+from zds.gallery.tests.factories import UserGalleryFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents

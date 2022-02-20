@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 
-from zds.gallery.factories import GalleryFactory
+from zds.gallery.tests.factories import GalleryFactory
 from zds.gallery.forms import GalleryForm, UserGalleryForm, ImageForm, ImageAsAvatarForm, ArchiveImageForm
 from zds.member.factories import ProfileFactory
 from django.conf import settings

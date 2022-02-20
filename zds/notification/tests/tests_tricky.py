@@ -8,7 +8,7 @@ from django.test.utils import override_settings
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.forum.models import Topic
-from zds.gallery.factories import UserGalleryFactory
+from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory
 from zds.notification.models import (
     NewTopicSubscription,
