@@ -16,7 +16,7 @@ from zds.gallery.tests.factories import UserGalleryFactory
 from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 
 
 @override_for_contents()

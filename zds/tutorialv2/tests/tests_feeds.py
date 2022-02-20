@@ -16,7 +16,7 @@ from zds.tutorialv2.tests.factories import (
 )
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)

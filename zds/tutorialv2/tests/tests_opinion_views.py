@@ -12,7 +12,7 @@ from zds.tutorialv2.tests.factories import (
 )
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.models import Alert
 
 
