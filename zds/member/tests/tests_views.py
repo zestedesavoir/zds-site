@@ -30,7 +30,7 @@ from zds.member.models import TokenRegister, Ban, NewEmailProvider, BannedEmailP
 from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
 from zds.gallery.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery

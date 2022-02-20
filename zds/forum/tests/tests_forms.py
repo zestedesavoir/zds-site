@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from zds.forum.forms import TopicForm, PostForm
 
-from zds.forum.factories import create_category_and_forum, create_topic_in_forum
+from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
 from zds.member.factories import ProfileFactory
 from django.conf import settings
 

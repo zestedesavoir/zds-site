@@ -5,9 +5,8 @@ from django.urls import reverse
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.contenttypes.models import ContentType
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.gallery.factories import UserGalleryFactory
 from zds.member.factories import StaffProfileFactory, ProfileFactory

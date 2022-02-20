@@ -15,7 +15,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.factories import ForumFactory, ForumCategoryFactory
+from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
 from zds.gallery.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.context_processor import header_notifications as notifications_processor
 from zds.utils.models import Alert

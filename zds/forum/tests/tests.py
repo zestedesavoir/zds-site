@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Forum, TopicRead, Post, Topic
 from zds.member.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
