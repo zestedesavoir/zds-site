@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User, Group
 from django.template.context_processors import csrf
 from django.core.exceptions import PermissionDenied
@@ -40,7 +41,7 @@ from zds.member.commons import (
     DeleteBanSanction,
     TokenGenerator,
 )
-from zds.member.decorator import can_write_and_read_now, LoginRequiredMixin, PermissionRequiredMixin
+from zds.member.decorator import can_write_and_read_now, PermissionRequiredMixin
 from zds.member.forms import (
     LoginForm,
     MiniProfileForm,

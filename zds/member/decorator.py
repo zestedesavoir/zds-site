@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.core.exceptions import PermissionDenied
 from django.utils.decorators import method_decorator
@@ -43,19 +43,6 @@ class PermissionRequiredMixin:
 
     def dispatch(self, *args, **kwargs):
         self.check_permissions()
-        return super().dispatch(*args, **kwargs)
-
-
-class LoginRequiredMixin:
-    """
-    Represent the basic code that a Generic Class Based View has to use when
-    the required action needs the user to be logged in.
-    If the user is not logged in, the user is redirected to the connection form and the former action
-    is not executed.
-    """
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
 

@@ -4,6 +4,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.db.models import Q
@@ -13,7 +14,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, FormView
 
-from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin, LoggedWithReadWriteHability
+from zds.member.decorator import PermissionRequiredMixin, LoggedWithReadWriteHability
 from zds.mp.models import mark_read
 from zds.tutorialv2.forms import (
     AskValidationForm,

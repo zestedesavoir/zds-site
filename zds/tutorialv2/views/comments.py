@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, StreamingHttpResponse, HttpResponse
@@ -13,7 +14,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
 from zds import json_handler
-from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
+from zds.member.decorator import LoggedWithReadWriteHability, PermissionRequiredMixin
 from zds.member.views import get_client_ip
 from zds.notification.models import ContentReactionAnswerSubscription
 from zds.tutorialv2.forms import NoteForm, NoteEditForm
