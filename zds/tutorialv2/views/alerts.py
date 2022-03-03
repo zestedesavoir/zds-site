@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -10,7 +11,6 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
-from zds.member.decorator import LoginRequiredMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Alert

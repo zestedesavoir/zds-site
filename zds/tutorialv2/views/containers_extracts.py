@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, Http404
 from django.shortcuts import redirect
@@ -9,7 +10,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView, FormView
 
-from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
+from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import ContainerForm, WarnTypoForm, ExtractForm, MoveElementForm
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,

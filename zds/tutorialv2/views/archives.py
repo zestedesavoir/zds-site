@@ -9,6 +9,7 @@ from datetime import datetime
 from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
@@ -16,7 +17,7 @@ from easy_thumbnails.files import get_thumbnailer
 
 from zds import json_handler
 from zds.gallery.models import Image, Gallery
-from zds.member.decorator import LoginRequiredMixin, LoggedWithReadWriteHability
+from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import ImportContentForm, ImportNewContentForm
 from zds.tutorialv2.mixins import SingleContentDownloadViewMixin, SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
