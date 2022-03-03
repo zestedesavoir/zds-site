@@ -16,7 +16,7 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Alert
 
 
-class SendContentAlert(FormView, LoginRequiredMixin):
+class SendContentAlert(LoginRequiredMixin, FormView):
     http_method_names = ["post"]
 
     @method_decorator(transaction.atomic)
@@ -48,7 +48,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
         return redirect(content.get_absolute_url_online())
 
 
-class SolveContentAlert(FormView, LoginRequiredMixin):
+class SolveContentAlert(LoginRequiredMixin, FormView):
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)

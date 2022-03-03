@@ -234,7 +234,7 @@ class UpdateNoteView(SendNoteFormView):
         return super().form_valid(form)
 
 
-class HideReaction(FormView, LoginRequiredMixin):
+class HideReaction(LoginRequiredMixin, FormView):
     http_method_names = ["post"]
 
     @method_decorator(transaction.atomic)
@@ -281,7 +281,7 @@ class ShowReaction(FormView, LoggedWithReadWriteHability, PermissionRequiredMixi
             raise Http404("Aucune réaction trouvée.")
 
 
-class SendNoteAlert(FormView, LoginRequiredMixin):
+class SendNoteAlert(LoginRequiredMixin, FormView):
     http_method_names = ["post"]
 
     @method_decorator(transaction.atomic)
@@ -312,7 +312,7 @@ class SendNoteAlert(FormView, LoginRequiredMixin):
         return redirect(reaction.get_absolute_url())
 
 
-class SolveNoteAlert(FormView, LoginRequiredMixin):
+class SolveNoteAlert(LoginRequiredMixin, FormView):
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
