@@ -4,8 +4,8 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.forum.factories import ForumCategoryFactory, ForumFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.pages.models import GroupContact
 from zds.utils.models import Hat, HatRequest
 

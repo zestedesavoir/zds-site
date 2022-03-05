@@ -13,17 +13,17 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.test import TestCase, override_settings
 
-from zds.member.factories import ProfileFactory, UserFactory, StaffProfileFactory
-from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
+from zds.member.tests.factories import ProfileFactory, UserFactory, StaffProfileFactory
+from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.member.models import KarmaNote, NewEmailProvider
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.member.models import TokenRegister, Ban
-from zds.tutorialv2.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
 from zds.forum.models import Topic, Post
-from zds.gallery.factories import GalleryFactory, UserGalleryFactory
+from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
 from zds.gallery.models import Gallery, UserGallery
 from zds.utils.models import CommentVote
 

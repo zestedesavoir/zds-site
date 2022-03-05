@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
-from zds.member.factories import ProfileFactory, NonAsciiProfileFactory
+from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
 
 
 class MemberTests(TestCase):

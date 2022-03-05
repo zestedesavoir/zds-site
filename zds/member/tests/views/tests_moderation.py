@@ -8,9 +8,9 @@ from django.utils.translation import gettext_lazy as _
 from django.test import TestCase
 
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.member.views.moderation import member_from_ip
-from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.member.models import Profile, Ban, KarmaNote
 
 

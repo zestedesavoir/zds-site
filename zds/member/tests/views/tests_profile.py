@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group
 from django.urls import reverse
 from django.test import TestCase
 
-from zds.member.factories import (
+from zds.member.tests.factories import (
     ProfileFactory,
     StaffProfileFactory,
     UserFactory,
@@ -11,7 +11,7 @@ from zds.member.factories import (
 )
 from zds.member.models import Profile
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.factories import ForumCategoryFactory, ForumFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 
 
 @override_for_contents()
