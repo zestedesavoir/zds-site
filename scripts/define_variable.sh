@@ -19,9 +19,9 @@ if [[ $ZDS_LATEX_REPO == "" ]]; then
 fi
 
 if [[ $ZDS_JDK_VERSION == "" ]]; then
-    ZDS_JDK_VERSION="11.0.4"
+    ZDS_JDK_VERSION="11.0.14.1"
     # shellcheck disable=SC2034
-    ZDS_JDK_REV="11"
+    ZDS_JDK_REV="1"
 fi
 
 if [[ $ZMD_URL == "" ]]; then
