@@ -1,4 +1,5 @@
 import datetime
+from json import loads
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -29,7 +30,7 @@ from zds.tutorialv2.models.database import (
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.models import Alert, Tag, Hat
-from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory, HelpWritingFactory
 from zds.utils.header_notifications import get_header_notifications
 from copy import deepcopy
 from zds import json_handler
@@ -2040,3 +2041,45 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
         self.check_images_socials(result, "media/galleries/", self.chapter1.title, self.tuto.description)
+
+    def test_add_help_tuto(self):
+        self.client.force_login(self.user_author)
+        tutorial = PublishableContentFactory(author_list=[self.user_author])
+        help_wanted = HelpWritingFactory()
+        resp = self.client.post(
+            reverse("content:helps-change", args=[tutorial.pk]), {"activated": True, "help_wanted": help_wanted.title}
+        )
+        self.assertEqual(302, resp.status_code)
+        self.assertEqual(1, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
+
+    def test_add_help_opinion(self):
+        self.client.force_login(self.user_author)
+        tutorial = PublishableContentFactory(author_list=[self.user_author], type="OPINION")
+        help_wanted = HelpWritingFactory()
+        resp = self.client.post(
+            reverse("content:helps-change", args=[tutorial.pk]), {"activated": True, "help_wanted": help_wanted.title}
+        )
+        self.assertEqual(400, resp.status_code)
+        self.assertEqual(0, PublishableContent.objects.filter(pk=tutorial.pk).first().helps.count())
+
+    def test_save_no_redirect(self):
+        self.client.force_login(self.user_author)
+        tutorial = PublishableContentFactory(author_list=[self.user_author])
+        extract = ExtractFactory(db_object=tutorial, container=tutorial.load_version())
+        tutorial = PublishableContent.objects.get(pk=tutorial.pk)
+        resp = self.client.post(
+            reverse("content:edit-extract", args=[tutorial.pk, tutorial.slug, extract.slug]),
+            {
+                "last_hash": extract.compute_hash(),
+                "text": "a brand new text",
+                "title": extract.title,
+                "msg_commit": "a commit message",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+            follow=False,
+        )
+        # no redirect
+        self.assertEqual(200, resp.status_code)
+        result = loads(resp.content.decode("utf-8"))
+        self.assertEqual("ok", result.get("result", None))
+        self.assertEqual(extract.compute_hash(), result.get("last_hash", None))

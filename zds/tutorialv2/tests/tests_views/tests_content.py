@@ -1,5 +1,4 @@
 import datetime
-from json import loads
 import shutil
 import tempfile
 import zipfile
@@ -10,7 +9,6 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.core import mail
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
@@ -21,7 +19,7 @@ from zds.gallery.tests.factories import UserGalleryFactory
 from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.mp.models import PrivateTopic, is_privatetopic_unread, PrivatePost
+from zds.mp.models import PrivateTopic, PrivatePost
 from zds.notification.models import (
     TopicAnswerSubscription,
     ContentReactionAnswerSubscription,
@@ -40,20 +38,16 @@ from zds.tutorialv2.models.database import (
     PublishableContent,
     Validation,
     PublishedContent,
-    ContentReaction,
-    ContentRead,
 )
 from zds.tutorialv2.publication_utils import (
-    publish_content,
     PublicatorRegistry,
     Publicator,
     ZMarkdownRebberLatexPublicator,
     ZMarkdownEpubPublicator,
 )
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.models import HelpWriting, Alert, Tag, Hat
-from zds.utils.tests.factories import HelpWritingFactory, CategoryFactory, SubCategoryFactory, LicenceFactory
-from zds.utils.header_notifications import get_header_notifications
+from zds.utils.models import HelpWriting, Tag
+from zds.utils.tests.factories import HelpWritingFactory, SubCategoryFactory, LicenceFactory
 from zds import json_handler
 
 
