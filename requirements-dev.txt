@@ -1,6 +1,6 @@
 -r requirements.txt
 
-black==21.12b0  # needs to be also updated in .github/workflows/ci.yml and .pre-commit-config.yaml
+black==22.3.0  # needs to be also updated in .github/workflows/ci.yml and .pre-commit-config.yaml
 colorlog==6.6.0
 django-debug-toolbar==3.2.4
 django-extensions==3.1.5
