@@ -8,16 +8,16 @@
   'use strict'
 
   $('body').on('keydown', function(e) {
-    var $modal = $('.tab-modalize:visible')
+    const $modal = $('.tab-modalize:visible')
     if ($modal.length > 0) {
       // Tab do not go out modal
       if (e.which === 9) {
-        var $current = $modal.find(':focus')
-        var $tabbables = $modal.find(':tabbable')
-        var nextIndex = e.shiftKey ? $tabbables.length - 1 : 0
+        const $current = $modal.find(':focus')
+        const $tabbables = $modal.find(':tabbable')
+        let nextIndex = e.shiftKey ? $tabbables.length - 1 : 0
 
         if ($current.length === 1) {
-          var currentIndex = $tabbables.index($current)
+          const currentIndex = $tabbables.index($current)
           if (e.shiftKey) {
             if (currentIndex > 0) { nextIndex = currentIndex - 1 }
           } else {

@@ -10,16 +10,16 @@
   /**
    * Add class for mobile navigator does not support fixed position
    */
-  var navU = navigator.userAgent
+  const navU = navigator.userAgent
 
   // Android Mobile
-  var isAndroidMobile = navU.indexOf('Android') > -1 && navU.indexOf('Mozilla/5.0') > -1 && navU.indexOf('AppleWebKit') > -1
+  const isAndroidMobile = navU.indexOf('Android') > -1 && navU.indexOf('Mozilla/5.0') > -1 && navU.indexOf('AppleWebKit') > -1
 
   // Android Browser (not Chrome)
-  var regExAppleWebKit = new RegExp(/AppleWebKit\/([\d.]+)/)
-  var resultAppleWebKitRegEx = regExAppleWebKit.exec(navU)
-  var appleWebKitVersion = (resultAppleWebKitRegEx === null ? null : parseFloat(regExAppleWebKit.exec(navU)[1]))
-  var disableMobileMenu = isAndroidMobile && appleWebKitVersion !== null && appleWebKitVersion < 537
+  const regExAppleWebKit = new RegExp(/AppleWebKit\/([\d.]+)/)
+  const resultAppleWebKitRegEx = regExAppleWebKit.exec(navU)
+  const appleWebKitVersion = (resultAppleWebKitRegEx === null ? null : parseFloat(regExAppleWebKit.exec(navU)[1]))
+  const disableMobileMenu = isAndroidMobile && appleWebKitVersion !== null && appleWebKitVersion < 537
 
   if (disableMobileMenu) { $('html').removeClass('enable-mobile-menu') }
 
@@ -28,11 +28,11 @@
   /**
    * Get prefix to support CSS transform
    */
-  var transform = ''
-  var prefixedPropertyNames = ['transform', 'msTransform', 'MozTransform', 'WebkitTransform', 'OTransform']
-  var prefixes = ['', '-ms-', '-moz-', '-webkit-', '-o-']
-  var tempDiv = document.createElement('div')
-  for (var i = 0; i < prefixedPropertyNames.length; ++i) {
+  let transform = ''
+  const prefixedPropertyNames = ['transform', 'msTransform', 'MozTransform', 'WebkitTransform', 'OTransform']
+  const prefixes = ['', '-ms-', '-moz-', '-webkit-', '-o-']
+  const tempDiv = document.createElement('div')
+  for (let i = 0; i < prefixedPropertyNames.length; ++i) {
     if (typeof tempDiv.style[prefixedPropertyNames[i]] !== 'undefined') {
       transform = prefixes[i]
       break
@@ -72,7 +72,7 @@
 
         appendToSidebar($('#search'), true)
 
-        var $myaccount = appendToSidebar($('#my-account'), true)
+        const $myaccount = appendToSidebar($('#my-account'), true)
         $myaccount.addClass('mobile-menu-link mobile-menu-bloc')
 
         appendToSidebar($('.header-menu'))
@@ -92,9 +92,9 @@
        * Manage touch events for mobile sidebar
        */
       if (!$('#mobile-menu').hasClass('initialized-events')) {
-        var beginTouchDown = 0
-        var borderWidth = 50
-        var swipping = false
+        let beginTouchDown = 0
+        const borderWidth = 50
+        let swipping = false
 
         $('body')
           .on('touchstart', function(e) {
@@ -109,11 +109,11 @@
 
               swipping = true
 
-              var toMove = parseInt(e.originalEvent.touches[0].pageX, 10) - beginTouchDown
+              let toMove = parseInt(e.originalEvent.touches[0].pageX, 10) - beginTouchDown
               toMove = (toMove * 100) / parseInt($('html').width())
 
               if (toMove > 0 && toMove < 90) {
-                var props = {}
+                const props = {}
                 props[transform] = 'translate3d(' + toMove + '%, 0, 0)'
                 $(this).css(props)
 
@@ -125,15 +125,15 @@
           })
           .on('touchend touchleave touchcancel', function() {
             if (swipping) {
-              var offset = parseInt($(this).offset().left)
-              var width = parseInt($('html').width())
-              var visible = (offset > width / 3 && !$('html').hasClass('show-mobile-menu')) || (offset > width - width / 3 && $('html').hasClass('show-mobile-menu'))
+              const offset = parseInt($(this).offset().left)
+              const width = parseInt($('html').width())
+              const visible = (offset > width / 3 && !$('html').hasClass('show-mobile-menu')) || (offset > width - width / 3 && $('html').hasClass('show-mobile-menu'))
               toggleMobileMenu(visible)
 
               swipping = false
               $('body').removeClass('swipping')
 
-              var props = {}
+              const props = {}
               props[transform] = ''
               $('.page-container, #mobile-menu').css(props)
             }
@@ -172,25 +172,25 @@
       return $elem
     }
 
-    var $div = $('<div/>')
+    const $div = $('<div/>')
     $div.addClass('mobile-menu-bloc')
     $div.attr('data-title', $elem.attr('data-title'))
 
     if ($elem.hasClass('mobile-show-ico')) { $div.addClass('mobile-show-ico') }
 
-    var addAllLinks = $elem.hasClass('mobile-all-links')
+    const addAllLinks = $elem.hasClass('mobile-all-links')
 
-    var $links = $elem.find((addAllLinks) ? 'a, button, span.disabled' : '.mobile-menu-link')
+    let $links = $elem.find((addAllLinks) ? 'a, button, span.disabled' : '.mobile-menu-link')
 
     if (addAllLinks) { $links = $links.not('.action-hover') }
 
     $links.each(function() {
       if ($(this).parents('.mobile-menu-imported, .modal').length === 0) {
-        var $elem = $(this).clone().addClass('light')
-        var formId
+        const $elem = $(this).clone().addClass('light')
+        let formId
 
         if ($(this).is('button')) {
-          var $form = $(this).parents('form:first')
+          const $form = $(this).parents('form:first')
           if (!$form.attr('id')) {
             formId = 'form' + $('.identified-form').length
             $form.attr('id', formId).addClass('identified-form')
@@ -221,12 +221,12 @@
    * Toggle sidebar for mobiles
    */
   function toggleMobileMenu(visible) {
-    var scrollTop
+    let scrollTop
     if (visible === null) { visible = !$('html').hasClass('show-mobile-menu') }
 
     $('body').removeClass('swipping')
 
-    var viewportmeta = document.querySelector('meta[name="viewport"]')
+    const viewportmeta = document.querySelector('meta[name="viewport"]')
 
     if (visible) {
       if (!$('html').hasClass('show-mobile-menu')) {
@@ -294,9 +294,9 @@
    */
   $(window).on('resize', function() {
     if (parseInt($('html').css('width')) < 960 && !disableMobileMenu) {
-      var $newBtns = $('.sidebar .new-btn:not(.mobile-btn-imported)')
+      const $newBtns = $('.sidebar .new-btn:not(.mobile-btn-imported)')
       if ($newBtns.length > 0) {
-        var $prevElem = $('#content')
+        let $prevElem = $('#content')
           .find('> .content-wrapper, > .full-content-wrapper, > .content-col-2')
           .first()
           .find('h1, h2')
@@ -305,7 +305,7 @@
         if ($prevElem.next('.subtitle').length > 0) { $prevElem = $prevElem.next('.subtitle') }
         if ($prevElem.next('.taglist').length > 0) { $prevElem = $prevElem.next('.taglist') }
 
-        var $newBtnContainer = $('<div/>', {
+        const $newBtnContainer = $('<div/>', {
           class: 'new-btn-container'
         })
         $newBtns.each(function() {

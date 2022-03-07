@@ -5,13 +5,13 @@
   'use strict'
 
   if ($('body').hasClass('form-email-username')) {
-    var $emailInput = $('#id_email')
-    var $emailForm = $('#form-email')
-    var $emailButton = $('[data-form-email-username-button=email]')
+    const $emailInput = $('#id_email')
+    const $emailForm = $('#form-email')
+    const $emailButton = $('[data-form-email-username-button=email]')
 
-    var $usernameInput = $('#id_username')
-    var $usernameForm = $('#form-username')
-    var $usernameButton = $('[data-form-email-username-button=username]')
+    const $usernameInput = $('#id_username')
+    const $usernameForm = $('#form-username')
+    const $usernameButton = $('[data-form-email-username-button=username]')
 
     if ($emailInput.val() === '') {
       $emailForm.addClass('hidden')

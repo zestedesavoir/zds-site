@@ -9,10 +9,10 @@
 
   function buildSpoilers($elem) {
     $elem.each(function() {
-      var $this = $(this)
+      const $this = $(this)
       if (!$this.hasClass('spoiler-build')) {
-        var text = 'Afficher/Masquer le contenu masqué'
-        var $header = $this.find('.custom-block-heading')
+        let text = 'Afficher/Masquer le contenu masqué'
+        const $header = $this.find('.custom-block-heading')
         if ($header[0]) {
           text = $header.text() + ' (Afficher/Masquer)'
           $header.remove()
@@ -32,11 +32,11 @@
   }
 
   $(document).ready(function() {
-    var $content = $('#content')
+    const $content = $('#content')
     $('div.spoiler').addClass('custom-block-spoiler') /* for compatibility */
     buildSpoilers($content.find('.custom-block-spoiler'))
     $content.on('DOMNodeInserted', function(e) {
-      var $spoilers = $(e.target).find('.custom-block-spoiler')
+      const $spoilers = $(e.target).find('.custom-block-spoiler')
       return buildSpoilers($spoilers)
     })
   })

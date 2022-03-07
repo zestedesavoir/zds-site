@@ -1,11 +1,11 @@
 (function($) {
-  var $opinions = $('.opinion')
-  var $opinionCount = $('#opinion-count')
+  const $opinions = $('.opinion')
+  const $opinionCount = $('#opinion-count')
   $opinions.on('click', '.unpick-action', function() {
-    var $button = $(this)
-    var $row = $button.parent().parent()
-    var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val()
-    var data = {
+    const $button = $(this)
+    const $row = $button.parent().parent()
+    const csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val()
+    const data = {
       csrfmiddlewaretoken: csrfmiddlewaretoken
     }
     if ($button.data('operation')) {
@@ -16,16 +16,16 @@
         $row.remove()
       } else {
         $button.prop('disabled', true)
-        var $stateCol = $row.find('.state')
+        const $stateCol = $row.find('.state')
         $stateCol.text($stateCol.data('toggle'))
       }
       $opinionCount.text(parseInt($opinionCount.text(), 10) - 1)
     })
   })
   $('.unpublish-opinion').on('click', function() {
-    var $button = $(this)
-    var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val()
-    var data = {
+    const $button = $(this)
+    const csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val()
+    const data = {
       csrfmiddlewaretoken: csrfmiddlewaretoken,
       operation: 'REMOVE_PUB'
     }

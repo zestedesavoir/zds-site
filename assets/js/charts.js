@@ -9,9 +9,9 @@
    * http://www.cs.rit.edu/~ncs/color/t_convert.html
    */
   function hsvToRgb(h, s, v) {
-    var r, g, b
-    var i
-    var f, p, q, t
+    let r, g, b
+    let i
+    let f, p, q, t
 
     // Make sure our arguments stay in-range
     h = Math.max(0, Math.min(360, h))
@@ -50,7 +50,7 @@
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)]
   }
 
-  var basicOptions = {
+  const basicOptions = {
     scales: {
       x: {
         type: 'time',
@@ -74,34 +74,34 @@
     responsive: true
   }
 
-  var charts = []
-  var chartFormatters = {
+  const charts = []
+  const chartFormatters = {
     'view-graph': null,
     'visit-time-graph': Math.round,
     'users-graph': null
   }
   function setupChart(chartEl, formatter) {
-    var dataX = JSON.parse(chartEl.getAttribute('data-time'))
-    var times = []
+    const dataX = JSON.parse(chartEl.getAttribute('data-time'))
+    const times = []
     dataX.forEach(function(element) {
       times.push(window.moment(element).format('DD/MM/YYYY'))
     })
 
-    var allObjectData = chartEl.dataset
-    var data = []
+    const allObjectData = chartEl.dataset
+    const data = []
     // Count how many graphs are displayed
-    var nbColors = 0
-    for (var i in allObjectData) {
+    let nbColors = 0
+    for (const i in allObjectData) {
       if (i.indexOf('views') > -1) {
         nbColors++
       }
     }
-    var n = 0
-    for (var o in allObjectData) {
+    let n = 0
+    for (const o in allObjectData) {
       if (o.indexOf('views') > -1) {
-        var label = chartEl.getAttribute('data-label-' + o)
-        var color = hsvToRgb(n, 100, 80)
-        var d = JSON.parse(allObjectData[o])
+        const label = chartEl.getAttribute('data-label-' + o)
+        const color = hsvToRgb(n, 100, 80)
+        const d = JSON.parse(allObjectData[o])
         data.push({
           label: label,
           data: formatter ? d.map(formatter) : d,
@@ -114,7 +114,7 @@
       }
     }
 
-    var config = {
+    const config = {
       type: localStorage.getItem('graphType'),
       data: {
         labels: times,
@@ -136,14 +136,14 @@
   }
 
   // Switching between a graph with lines and a graph with bars
-  var switchToBar = 'Afficher un histogramme'
-  var switchToLine = 'Afficher une courbe'
+  const switchToBar = 'Afficher un histogramme'
+  const switchToLine = 'Afficher une courbe'
 
   if (!localStorage.getItem('graphType')) {
     localStorage.setItem('graphType', 'line') // default value
   }
 
-  var graphTypeToggleEl = document.getElementById('graph_type_toggle')
+  const graphTypeToggleEl = document.getElementById('graph_type_toggle')
   if (graphTypeToggleEl !== null) {
     graphTypeToggleEl.addEventListener('click', function() {
       if (localStorage.getItem('graphType') === 'line') {
@@ -168,8 +168,8 @@
 
   // Drawing charts
   function drawCharts() {
-    for (var g in chartFormatters) {
-      var el = document.getElementById(g)
+    for (const g in chartFormatters) {
+      const el = document.getElementById(g)
       if (el !== null) {
         setupChart(el, chartFormatters[g])
       }

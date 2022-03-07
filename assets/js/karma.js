@@ -9,7 +9,7 @@
    * Manages the karma of a message
    * @class
    */
-  var Karma = function(message) {
+  const Karma = function(message) {
     this.message = message
     if (!this.message.is('.topic-message')) throw new Error('Target is not a .topic-message')
     this.init()
@@ -101,7 +101,7 @@
      * Fetch the message's karma
      */
     fetchUpdate: function() {
-      var self = this
+      const self = this
       if (this.updating) return
       this.updating = true
       $.getJSON(this.karmaURI).done(this.update.bind(this)).always(function() {
@@ -168,7 +168,7 @@
       }
 
       // Updating the title
-      var likeTitleCount = data[sign].count + ' personne'
+      let likeTitleCount = data[sign].count + ' personne'
       if (data[sign].count === 1 && sign === 'like') {
         likeTitleCount += ' a'
       } else if (data[sign].count === 1 && sign === 'dislike') {
@@ -180,7 +180,7 @@
       }
       likeTitleCount += ' trouvé ce message utile'
 
-      var likeTitle
+      let likeTitle
       if (this.canVote) {
         likeTitle = 'Ce message ' + (sign === 'like' ? 'est' : "n'est pas") + ' utile'
         if (data[sign].count !== 0) {
@@ -196,13 +196,13 @@
 
       // Updating the tooltip
       if (Object.hasOwnProperty.call(data[sign], 'users')) {
-        var likers = data[sign].users.slice(0, 9)
-        var otherLikeCount = data[sign].count - likers.length
+        const likers = data[sign].users.slice(0, 9)
+        const otherLikeCount = data[sign].count - likers.length
 
-        var currentUser = $('#my-account .username').text()
-        var likes = likers.map(function(e) { return e.username === currentUser ? 'Vous (' + e.username + ')' : e.username })
+        const currentUser = $('#my-account .username').text()
+        const likes = likers.map(function(e) { return e.username === currentUser ? 'Vous (' + e.username + ')' : e.username })
         if (otherLikeCount > 0) {
-          var otherLikeStr = likes.length > 0 ? 'et ' + otherLikeCount + ' autre' : otherLikeCount + ' vote'
+          let otherLikeStr = likes.length > 0 ? 'et ' + otherLikeCount + ' autre' : otherLikeCount + ' vote'
           if (otherLikeCount !== 1) otherLikeStr += 's'
           likes.push(otherLikeStr)
         }
@@ -221,7 +221,7 @@
             /* jshint +W069 */
           }))
 
-          var anonymous = data[sign].count - data[sign].users.length
+          const anonymous = data[sign].count - data[sign].users.length
           if (anonymous) {
             $('<li>', { text: anonymous + ' anonyme' + (anonymous === 1 ? '' : 's'), class: 'muted' }).appendTo(this[sign].listElem)
           }
@@ -234,7 +234,7 @@
      */
     showDetails: function() {
       if (!this.detailsModal) {
-        var body = $('<div>', { class: 'vote-details' })
+        const body = $('<div>', { class: 'vote-details' })
           .append($('<div>', { class: 'vote-col' }).append($('<h3>', { text: 'Votes positifs' })).append(this.like.listElem))
           .append($('<div>', { class: 'vote-col' }).append($('<h3>', { text: 'Votes négatifs' })).append(this.dislike.listElem))
 
@@ -263,14 +263,14 @@
         $(elem).karma()
       })
     } else {
-      var message
+      let message
       if ($(this).is('.topic-message')) {
         message = $(this)
       } else {
         message = $(this).parents('.topic-message')
       }
 
-      var instance = message.data('karma')
+      const instance = message.data('karma')
       if (instance) return instance
 
       return new Karma(message)
