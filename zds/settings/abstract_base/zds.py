@@ -156,9 +156,9 @@ ZDS_APP = {
     "article": {"home_number": 3},
     "opinions": {
         "home_number": 5,
-        "allow_pdf": True,
-        "allow_epub": True,
-        "allow_zip": True,
+        "allow_pdf": zds_config.get("opinions_allow_pdf", True),
+        "allow_epub": zds_config.get("opinions_allow_epub", True),
+        "allow_zip": zds_config.get("opinions_allow_zip", True),
     },
     "content": {
         "repo_private_path": BASE_DIR / "contents-private",
