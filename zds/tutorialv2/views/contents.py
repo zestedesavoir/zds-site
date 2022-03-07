@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
@@ -13,8 +14,8 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView
 
 from zds.gallery.mixins import ImageCreateMixin, NotAnImage
-from zds.gallery.models import Gallery, Image
-from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin
+from zds.gallery.models import Gallery
+from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.models import Profile
 from zds.tutorialv2.forms import (
     ContentForm,

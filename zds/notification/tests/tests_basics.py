@@ -8,10 +8,10 @@ from django.test import TestCase
 from django.db import IntegrityError
 
 from django.conf import settings
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Topic
-from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
 from zds.tutorialv2 import signals
 from zds.notification.models import (
@@ -22,7 +22,7 @@ from zds.notification.models import (
     NewTopicSubscription,
     NewPublicationSubscription,
 )
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContentReactionFactory,
     PublishedContentFactory,
@@ -30,7 +30,7 @@ from zds.tutorialv2.factories import (
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.utils import old_slugify
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.mps import send_mp, send_message_mp
 
 

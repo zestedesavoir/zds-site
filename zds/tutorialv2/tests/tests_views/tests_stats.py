@@ -8,12 +8,12 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
-from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
+from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import Validation, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin
-from zds.utils.factories import LicenceFactory
+from zds.utils.tests.factories import LicenceFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"

@@ -9,18 +9,18 @@ from django.test import TestCase
 
 from zds.gallery.models import UserGallery
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import (
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
     PublishedContentFactory,
 )
-from zds.gallery.factories import UserGalleryFactory
+from zds.gallery.tests.factories import UserGalleryFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.models import Tag
 from django.template.defaultfilters import date
 

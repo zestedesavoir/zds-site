@@ -6,9 +6,9 @@ from zds.member.models import Profile
 from zds.tutorialv2.views.contents import EditContentLicense
 from zds.tutorialv2.forms import EditContentLicenseForm
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory
-from zds.utils.factories import LicenceFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory
+from zds.utils.tests.factories import LicenceFactory
 
 
 @override_for_contents()

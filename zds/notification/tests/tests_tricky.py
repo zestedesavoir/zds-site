@@ -5,12 +5,11 @@ from django.urls import reverse
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.contenttypes.models import ContentType
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.forum.models import Topic
-from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import StaffProfileFactory, ProfileFactory
+from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
 from zds.notification.models import (
     NewTopicSubscription,
     TopicAnswerSubscription,
@@ -20,14 +19,14 @@ from zds.notification.models import (
     PingSubscription,
 )
 from zds.tutorialv2 import signals
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     PublishedContentFactory,
     ContentReactionFactory,
 )
 from zds.tutorialv2.publication_utils import publish_content, notify_update
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.header_notifications import get_header_notifications
 

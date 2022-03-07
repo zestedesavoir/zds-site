@@ -12,9 +12,9 @@ from random import randint
 from faker import Factory
 from zds.utils.templatetags.emarkdown import emarkdown
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
-from zds.member.factories import StaffProfileFactory, ProfileFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
+from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
+from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
 from django.contrib.auth.models import User, Permission
 from zds.member.models import Profile
 from zds.forum.models import Forum, Topic, ForumCategory
@@ -22,7 +22,7 @@ from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, Su
 from zds.utils import old_slugify
 from django.conf import settings
 from django.db import transaction, IntegrityError
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,

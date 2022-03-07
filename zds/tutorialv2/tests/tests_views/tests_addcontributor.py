@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -7,8 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
 
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.forms import ContributionForm
 from zds.tutorialv2.models.database import ContentContribution, ContentContributionRole
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents

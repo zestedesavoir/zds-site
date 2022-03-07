@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import F
@@ -14,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, ListView
 
 from zds.gallery.models import Gallery
-from zds.member.decorator import LoggedWithReadWriteHability, LoginRequiredMixin, PermissionRequiredMixin
+from zds.member.decorator import LoggedWithReadWriteHability, PermissionRequiredMixin
 from zds.tutorialv2.forms import (
     PublicationForm,
     RevokeValidationForm,

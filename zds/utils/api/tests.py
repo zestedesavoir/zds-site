@@ -9,7 +9,7 @@ from rest_framework.test import APIClient
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from rest_framework_extensions.settings import extensions_api_settings
 from django.core.cache import caches
-from zds.tutorialv2.factories import PublishableContentFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.publication_utils import publish_content
 
 

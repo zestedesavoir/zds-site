@@ -13,15 +13,15 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from zds.member.factories import StaffProfileFactory, ProfileFactory
-from zds.tutorialv2.factories import (
+from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
 )
 from zds.tutorialv2.models.database import PublishedContent, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
-from zds.utils.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"

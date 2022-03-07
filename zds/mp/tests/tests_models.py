@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.contrib.auth.models import Group
 from django.conf import settings
 
-from zds.member.factories import ProfileFactory
-from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
+from zds.member.tests.factories import ProfileFactory
+from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import mark_read, is_privatetopic_unread, is_reachable, NotParticipatingError, NotReachableError
 
 # by moment, i wrote the scenario to be simpler
