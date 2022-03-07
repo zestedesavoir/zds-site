@@ -333,7 +333,8 @@ class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithRea
             self.perform_create(
                 form.cleaned_data.get("title"), self.request.FILES.get("physical"), form.cleaned_data.get("legend")
             )
-        except NotAnImage:
+        except NotAnImage as e:
+            messages.error(self.request, _(f"Le fichier « {e} » n'est pas une image valide."))
             form.add_error("physical", _("Image invalide"))
             return super().form_invalid(form)
         self.success_url = reverse("gallery-image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
@@ -387,7 +388,12 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         data["title"] = form.cleaned_data.get("title")
         data["legend"] = form.cleaned_data.get("legend")
 
-        self.perform_update(data)
+        try:
+            self.perform_update(data)
+        except NotAnImage as e:
+            messages.error(self.request, _(f"Le fichier « {e} » n'est pas une image valide."))
+            form.add_error("physical", _("Image invalide"))
+            return super().form_invalid(form)
 
         self.success_url = reverse("gallery-image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
 

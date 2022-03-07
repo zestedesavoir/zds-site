@@ -4,8 +4,7 @@ from .abstract_base import *
 
 DEBUG = True
 
-# NOTE: Can be removed once Django 3 is used
-ALLOWED_HOSTS = [".localhost", "127.0.0.1", "[::1]"]
+ALLOWED_HOSTS = ["*"]  # allow everything in case we are in a Docker container
 
 INSTALLED_APPS += (
     "debug_toolbar",

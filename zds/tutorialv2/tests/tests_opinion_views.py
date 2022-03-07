@@ -3,16 +3,16 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
-from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import (
+from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ExtractFactory,
     PublishedContentFactory,
 )
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.models import Alert
 
 

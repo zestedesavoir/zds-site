@@ -11,8 +11,8 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import ContentReactionFactory, PublishedContentFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import ContentReactionFactory, PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.models.database import PublicationEvent
 from zds.utils.models import CommentVote

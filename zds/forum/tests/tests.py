@@ -7,9 +7,9 @@ from django.urls import reverse
 from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
 from zds.forum.models import Forum, TopicRead, Post, Topic
-from zds.member.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import old_slugify
 from zds.utils.forums import get_tag_by_title
@@ -775,6 +775,45 @@ class ForumMemberTests(TestCase):
 
         template_response = self.client.get(topic.get_absolute_url() + "?page=2")
         self.assertNotIn(expected, template_response.content.decode("utf-8"))
+
+    def test_frontend_topic_message_when_profile_readonly(self):
+        readonly_profile = ProfileFactory(can_write=False)
+        self.client.force_login(readonly_profile.user)
+
+        topic = TopicFactory(forum=self.forum11, author=readonly_profile.user)
+        PostFactory(topic=topic, author=readonly_profile.user, position=1)
+        PostFactory(topic=topic, author=self.user, position=2)
+
+        template_response = self.client.get(topic.get_absolute_url())
+        decoded_content = template_response.content.decode("utf-8")
+        self.assertNotIn("Nouveau sujet", decoded_content)
+        self.assertNotIn("Éditer le sujet", decoded_content)
+        self.assertIn("Vous êtes en lecture seule. Vous ne pouvez pas poster de messages.", decoded_content)
+
+    def test_frontend_topic_no_message_when_profile_can_write(self):
+        self.client.force_login(self.user2)
+
+        topic = TopicFactory(forum=self.forum11, author=self.user2)
+        PostFactory(topic=topic, author=self.user2, position=1)
+        PostFactory(topic=topic, author=self.user, position=2)
+
+        template_response = self.client.get(topic.get_absolute_url())
+        decoded_content = template_response.content.decode("utf-8")
+        self.assertIn("Nouveau sujet", decoded_content)
+        self.assertIn("Éditer le sujet", decoded_content)
+        self.assertNotIn("Vous êtes en lecture seule. Vous ne pouvez pas poster de messages.", decoded_content)
+
+    def test_frontend_no_create_topic_when_profile_readonly(self):
+        readonly_profile = ProfileFactory(can_write=False)
+        self.client.force_login(readonly_profile.user)
+
+        template_response = self.client.get(self.forum22.get_absolute_url())
+        self.assertNotIn("Nouveau sujet", template_response.content.decode("utf-8"))
+
+    def test_frontend_can_create_topic_when_profile_can_write(self):
+        self.client.force_login(self.user)
+        template_response = self.client.get(self.forum22.get_absolute_url())
+        self.assertIn("Nouveau sujet", template_response.content.decode("utf-8"))
 
 
 class ForumGuestTests(TestCase):

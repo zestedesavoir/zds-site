@@ -221,7 +221,7 @@ class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
 
 class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
     """
-    This enhanced DetailView ensure,
+    This enhanced DetailView ensures,
 
     - by rewriting `get()`, that:
         * `self.object` contains the result of `get_object()` (as it must be if `get()` is not rewritten)

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
@@ -10,13 +11,12 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
-from zds.member.decorator import LoginRequiredMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Alert
 
 
-class SendContentAlert(FormView, LoginRequiredMixin):
+class SendContentAlert(LoginRequiredMixin, FormView):
     http_method_names = ["post"]
 
     @method_decorator(transaction.atomic)
@@ -48,7 +48,7 @@ class SendContentAlert(FormView, LoginRequiredMixin):
         return redirect(content.get_absolute_url_online())
 
 
-class SolveContentAlert(FormView, LoginRequiredMixin):
+class SolveContentAlert(LoginRequiredMixin, FormView):
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)

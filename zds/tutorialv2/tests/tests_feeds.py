@@ -4,19 +4,19 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.contrib.auth.models import Group
 
-from zds.gallery.factories import UserGalleryFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.forum.factories import ForumFactory, ForumCategoryFactory, TagFactory
+from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory, TagFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
-from zds.tutorialv2.factories import (
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
 )
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
-from zds.utils.factories import SubCategoryFactory, LicenceFactory
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from copy import deepcopy
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)

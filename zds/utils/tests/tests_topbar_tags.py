@@ -2,12 +2,12 @@ from django.contrib.auth.models import Group
 
 from django.test import TestCase
 
-from zds.forum.factories import ForumCategoryFactory, ForumFactory, TopicFactory
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import PublishedContentFactory, PublishableContentFactory, SubCategoryFactory
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.factories import CategoryFactory as ContentCategoryFactory
+from zds.utils.tests.factories import CategoryFactory as ContentCategoryFactory
 from zds.utils.templatetags.topbar import topbar_forum_categories, topbar_publication_categories
 
 

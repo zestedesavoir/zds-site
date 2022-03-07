@@ -3,8 +3,8 @@ import os
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.member.factories import ProfileFactory
-from zds.gallery.factories import GalleryFactory, UserGalleryFactory, ImageFactory
+from zds.member.tests.factories import ProfileFactory
+from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
 from zds.gallery.models import Gallery, UserGallery, Image
 from django.conf import settings
 
@@ -514,7 +514,7 @@ class EditImageViewTest(TestCase):
 
             self.client.post(
                 reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]),
-                {"title": "modify with no perms", "legend": "test legend", "slug": "test-slug", "physical": fp},
+                {"title": "modify with no perms", "legend": "test legend", "physical": fp},
                 follow=True,
             )
 
@@ -525,23 +525,25 @@ class EditImageViewTest(TestCase):
     def test_success_member_edit_image(self):
         self.client.force_login(self.profile1.user)
 
-        nb_files = len(os.listdir(self.gallery.get_gallery_path()))
+        for filename in (
+            settings.BASE_DIR / "fixtures" / "logo.png",
+            settings.BASE_DIR / "assets" / "licenses" / "copyright.svg",
+        ):
+            with self.subTest(filename):
+                nb_files = len(os.listdir(self.gallery.get_gallery_path()))
 
-        with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
+                with open(filename, "rb") as fp:
+                    response = self.client.post(
+                        reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]),
+                        {"title": "edit title", "legend": "dit legend", "physical": fp},
+                        follow=True,
+                    )
+                self.assertEqual(200, response.status_code)
+                # Check that 1 image and 2 thumbnails have been saved in the gallery
+                self.assertEqual(nb_files + 3, len(os.listdir(self.gallery.get_gallery_path())))
 
-            response = self.client.post(
-                reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]),
-                {"title": "edit title", "legend": "dit legend", "slug": "edit-slug", "physical": fp},
-                follow=True,
-            )
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(nb_files + 3, len(os.listdir(self.gallery.get_gallery_path())))
-
-        image_test = Image.objects.get(pk=self.image.pk)
-        self.assertEqual("edit title", image_test.title)
-        image_test.delete()
-        # picture AND thumbnail should be gone
-        self.assertEqual(nb_files, len(os.listdir(self.gallery.get_gallery_path())))
+                self.image.refresh_from_db()
+                self.assertEqual("edit title", self.image.title)
 
     def test_access_permission(self):
         self.client.force_login(self.profile1.user)
@@ -603,6 +605,7 @@ class ModifyImageTest(TestCase):
 
     def test_success_delete_image_write_permission(self):
         self.client.force_login(self.profile1.user)
+        nb_files = len(os.listdir(self.gallery1.get_gallery_path()))
 
         response = self.client.post(
             reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
@@ -612,6 +615,9 @@ class ModifyImageTest(TestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(0, Image.objects.filter(pk=self.image1.pk).count())
+
+        # picture AND thumbnails should be gone
+        self.assertEqual(nb_files, len(os.listdir(self.gallery1.get_gallery_path())))
 
     def test_success_delete_list_images_write_permission(self):
         self.client.force_login(self.profile1.user)
@@ -652,17 +658,22 @@ class NewImageViewTest(TestCase):
         self.client.force_login(self.profile1.user)
         self.assertEqual(0, len(self.gallery.get_images()))
 
-        with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
-            response = self.client.post(
-                reverse("gallery-image-new", args=[self.gallery.pk]),
-                {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
-                follow=True,
-            )
+        for filename in (
+            settings.BASE_DIR / "fixtures" / "logo.png",
+            settings.BASE_DIR / "assets" / "licenses" / "copyright.svg",
+        ):
+            with self.subTest(filename):
+                with open(filename, "rb") as fp:
+                    response = self.client.post(
+                        reverse("gallery-image-new", args=[self.gallery.pk]),
+                        {"title": "Test title", "legend": "Test legend", "physical": fp},
+                        follow=True,
+                    )
 
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(self.gallery.get_images()))
-        self.assertEqual(3, len(os.listdir(self.gallery.get_gallery_path())))  # New image and thumbnail
-        self.gallery.get_images()[0].delete()
+                self.assertEqual(200, response.status_code)
+                self.assertEqual(1, len(self.gallery.get_images()))
+                self.assertEqual(3, len(os.listdir(self.gallery.get_gallery_path())))  # New image and thumbnail
+                self.gallery.get_images()[0].delete()
 
     def test_fail_new_image_with_read_permission(self):
         self.client.force_login(self.profile2.user)
@@ -671,7 +682,7 @@ class NewImageViewTest(TestCase):
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
                 reverse("gallery-image-new", args=[self.gallery.pk]),
-                {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
+                {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
 
@@ -685,7 +696,7 @@ class NewImageViewTest(TestCase):
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
                 reverse("gallery-image-new", args=[self.gallery.pk]),
-                {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
+                {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
 
@@ -698,7 +709,7 @@ class NewImageViewTest(TestCase):
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
                 reverse("gallery-image-new", args=[156]),
-                {"title": "Test title", "legend": "Test legend", "slug": "test-slug", "physical": fp},
+                {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
 

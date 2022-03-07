@@ -7,15 +7,15 @@ from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import (
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
     PublishedContentFactory,
     ContentReactionFactory,
 )
-from zds.gallery.factories import UserGalleryFactory
+from zds.gallery.tests.factories import UserGalleryFactory
 from zds.tutorialv2.models.versioned import Container
 from zds.tutorialv2.utils import (
     get_target_tagged_tree_for_container,
@@ -34,7 +34,7 @@ from django.core.management import call_command
 from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds import json_handler
-from zds.utils.factories import LicenceFactory
+from zds.utils.tests.factories import LicenceFactory
 from zds.utils.models import Alert
 from zds.utils.header_notifications import get_header_notifications
 

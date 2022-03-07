@@ -5,8 +5,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import Group
 
-from zds.member.factories import ProfileFactory, UserFactory
-from zds.mp.factories import PrivateTopicFactory, PrivatePostFactory
+from zds.member.tests.factories import ProfileFactory, UserFactory
+from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePost, PrivateTopicRead, mark_read
 from zds.utils.models import Hat
 

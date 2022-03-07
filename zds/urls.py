@@ -6,7 +6,7 @@ from django.urls import include, re_path, path, get_resolver, reverse
 
 from zds.forum.models import ForumCategory, Forum, Topic, Tag
 from zds.pages.views import home as home_view
-from zds.member.views import MemberDetail
+from zds.member.views.profile import MemberDetail
 from zds.tutorialv2.models.database import PublishedContent
 
 from django.conf import settings

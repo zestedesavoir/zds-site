@@ -1,18 +1,16 @@
 from datetime import datetime
 from unittest.mock import patch
 
-from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
 from django.test import TestCase
 
-from zds.forum.factories import create_category_and_forum, create_topic_in_forum
-from zds.forum.factories import PostFactory, TagFactory
+from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
+from zds.forum.tests.factories import PostFactory, TagFactory
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.models import CommentEdit, Hat, Alert
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.utils.models import CommentEdit, Hat
 
 
 class LastTopicsViewTests(TestCase):

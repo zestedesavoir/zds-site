@@ -106,3 +106,11 @@
         subtitle: Discutez de tout !
         category: 4
         slug: discussions-generales
+-   model: forum.Forum
+    pk: 13
+    fields:
+        title: Staff only
+        subtitle: Réservé à l'équipe !
+        category: 4
+        slug: staff-only
+        groups: [1]
