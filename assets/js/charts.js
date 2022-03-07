@@ -10,8 +10,6 @@
    */
   function hsvToRgb(h, s, v) {
     let r, g, b
-    let i
-    let f, p, q, t
 
     // Make sure our arguments stay in-range
     h = Math.max(0, Math.min(360, h))
@@ -32,11 +30,11 @@
     }
 
     h /= 60 // sector 0 to 5
-    i = Math.floor(h)
-    f = h - i // factorial part of h
-    p = v * (1 - s)
-    q = v * (1 - s * f)
-    t = v * (1 - s * (1 - f))
+    const i = Math.floor(h)
+    const f = h - i // factorial part of h
+    const p = v * (1 - s)
+    const q = v * (1 - s * f)
+    const t = v * (1 - s * (1 - f))
 
     switch (i) {
       case 0: r = v; g = t; b = p; break

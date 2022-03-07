@@ -384,7 +384,7 @@
     }
 
     /* global EasyMDE */
-    var easyMDE = new EasyMDE({
+    const easyMDE = new EasyMDE({
       autoDownloadFontAwesome: false,
       element: this,
       forceSync: true,

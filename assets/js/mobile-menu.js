@@ -16,7 +16,7 @@
   const isAndroidMobile = navU.indexOf('Android') > -1 && navU.indexOf('Mozilla/5.0') > -1 && navU.indexOf('AppleWebKit') > -1
 
   // Android Browser (not Chrome)
-  const regExAppleWebKit = new RegExp(/AppleWebKit\/([\d.]+)/)
+  const regExAppleWebKit = /AppleWebKit\/([\d.]+)/
   const resultAppleWebKitRegEx = regExAppleWebKit.exec(navU)
   const appleWebKitVersion = (resultAppleWebKitRegEx === null ? null : parseFloat(regExAppleWebKit.exec(navU)[1]))
   const disableMobileMenu = isAndroidMobile && appleWebKitVersion !== null && appleWebKitVersion < 537

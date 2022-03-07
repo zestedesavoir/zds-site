@@ -260,7 +260,7 @@
   $.fn.karma = function() {
     if (this.length !== 1) {
       return $(this).map(function(index, elem) {
-        $(elem).karma()
+        return $(elem).karma()
       })
     } else {
       let message
