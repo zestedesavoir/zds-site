@@ -84,7 +84,11 @@
 <li class="toctree-l4"><a class="reference internal" href="#migrer-la-base-de-donnees">Migrer la base de données</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#recapitulatif-des-parametres-du-module">Récapitulatif des paramètres du module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#recapitulatif-des-parametres-du-module">Récapitulatif des paramètres du module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#parametres-globaux">Paramètres globaux</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#parametres-propres-aux-tribunes-libres">Paramètres propres aux tribunes libres</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="#statistiques">Statistiques</a></li>
 </ul>
 </li>
@@ -670,7 +674,9 @@ devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécut
 </section>
 <section id="recapitulatif-des-parametres-du-module">
 <h2>Récapitulatif des paramètres du module<a class="headerlink" href="#recapitulatif-des-parametres-du-module" title="Lien permanent vers ce titre"></a></h2>
-<p>Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP[“content”]</p>
+<section id="parametres-globaux">
+<h3>Paramètres globaux<a class="headerlink" href="#parametres-globaux" title="Lien permanent vers ce titre"></a></h3>
+<p>Ces paramètres sont à surcharger dans le dictionnaire <code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">repo_private_path</span></code> : chemin vers le dossier qui contiend les contenus durant leur rédaction, par défaut le dossier sera contents-private à la racine de l’application</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">repo_public_path</span></code>: chemin vers le dossier qui contient les fichiers permettant l’affichage des contenus publiés ainsi que les fichiers téléchargeables, par défaut contents-public</p></li>
@@ -689,6 +695,16 @@ devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécut
 <li><p><code class="docutils literal notranslate"><span class="pre">build_pdf_when_published</span></code>: indique que la publication générera un PDF (quelque soit la politique, si <code class="docutils literal notranslate"><span class="pre">False</span></code>, les PDF ne seront pas générés, sauf à appeler la commande adéquate),</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">maximum_slug_size</span></code>: taille maximale du slug d’un contenu</p></li>
 </ul>
+</section>
+<section id="parametres-propres-aux-tribunes-libres">
+<h3>Paramètres propres aux tribunes libres<a class="headerlink" href="#parametres-propres-aux-tribunes-libres" title="Lien permanent vers ce titre"></a></h3>
+<p>Ces paramètres sont à surcharger dans le dictionnaire <code class="docutils literal notranslate"><span class="pre">ZDS_APP['opinions']</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_pdf</span></code>: par défaut à <code class="docutils literal notranslate"><span class="pre">True</span></code> elle permet d’activer (et de désactiver si <code class="docutils literal notranslate"><span class="pre">False</span></code>) la génération des PDF à la publication des billets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_epub</span></code>: par défaut à <code class="docutils literal notranslate"><span class="pre">True</span></code> elle permet d’activer (et de désactiver si <code class="docutils literal notranslate"><span class="pre">False</span></code>) la génération des EPUB à la publication des billets.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">allow_zip</span></code>: par défaut à <code class="docutils literal notranslate"><span class="pre">True</span></code> elle permet d’activer (et de désactiver si <code class="docutils literal notranslate"><span class="pre">False</span></code>) la génération de l’archive du contenu à la publication des billets.</p></li>
+</ul>
+</section>
 </section>
 <section id="statistiques">
 <h2>Statistiques<a class="headerlink" href="#statistiques" title="Lien permanent vers ce titre"></a></h2>
