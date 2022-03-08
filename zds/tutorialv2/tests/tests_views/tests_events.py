@@ -2,8 +2,8 @@ from django.test import TestCase
 
 from django.urls import reverse
 
-from zds.member.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.factories import PublishableContentFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
 
 
