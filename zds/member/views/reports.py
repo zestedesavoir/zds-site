@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
-from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin
+from zds.member.decorator import LoginRequiredMixin
 from zds.member.models import Profile
 from zds.utils.models import Alert
 
@@ -27,7 +28,7 @@ class CreateProfileReportView(LoginRequiredMixin, View):
 
 
 class SolveProfileReportView(LoginRequiredMixin, PermissionRequiredMixin, View):
-    permissions = ["member.change_profile"]
+    permission_required = "member.change_profile"
 
     def post(self, request, *args, **kwargs):
         alert = get_object_or_404(Alert, pk=kwargs["alert_pk"], solved=False, scope="PROFILE")

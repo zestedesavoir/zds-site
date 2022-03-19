@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
@@ -11,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, CreateView
 
-from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin
+from zds.member.decorator import LoginRequiredMixin
 from zds.member.forms import HatRequestForm
 from zds.pages.models import GroupContact
 from zds.utils.models import HatRequest, Hat, get_hat_to_add
@@ -90,7 +91,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
 
 
 class RequestedHatsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
-    permissions = ["utils.change_hat"]
+    permission_required = "utils.change_hat"
     paginate_by = settings.ZDS_APP["member"]["requested_hats_per_page"]
 
     model = HatRequest
@@ -105,7 +106,7 @@ class RequestedHatsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingLi
 
 
 class SolvedHatRequestsList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
-    permissions = ["utils.change_hat"]
+    permission_required = "utils.change_hat"
     paginate_by = settings.ZDS_APP["member"]["requested_hats_per_page"]
 
     model = HatRequest
