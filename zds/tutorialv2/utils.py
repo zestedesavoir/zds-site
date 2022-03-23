@@ -696,11 +696,13 @@ def export_extract(extract, with_text):
     return dct
 
 
-def export_container(container, with_text=False):
+def export_container(container, with_text=False, ready_to_publish_only=False):
     """Export a container to a dictionary
 
     :param container: the container
     :type container: zds.tutorialv2.models.models_versioned.Container
+    :param ready_to_publish_only: if True, returns only ready-to-publish containers
+    :type ready_to_publish_only: boolean
     :return: dictionary containing the information
     :rtype: dict
     """
@@ -727,7 +729,9 @@ def export_container(container, with_text=False):
     dct["ready_to_publish"] = container.ready_to_publish
     if container.has_sub_containers():
         for child in container.children:
-            dct["children"].append(export_container(child, with_text))
+            if ready_to_publish_only and not child.ready_to_publish:
+                continue
+            dct["children"].append(export_container(child, with_text, ready_to_publish_only))
     elif container.has_extracts():
         for child in container.children:
             dct["children"].append(export_extract(child, with_text))
@@ -735,14 +739,16 @@ def export_container(container, with_text=False):
     return dct
 
 
-def export_content(content, with_text=False):
+def export_content(content, with_text=False, ready_to_publish_only=False):
     """Export a content to dictionary in order to store them in a JSON file
 
     :param content: content to be exported
+    :param ready_to_publish_only: if True, returns only ready-to-publish containers
+    :type ready_to_publish_only: boolean
     :return: dictionary containing the information
     :rtype: dict
     """
-    dct = export_container(content, with_text)
+    dct = export_container(content, with_text, ready_to_publish_only)
 
     # append metadata :
     dct["version"] = 2.1
