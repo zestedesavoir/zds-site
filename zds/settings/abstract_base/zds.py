@@ -137,8 +137,6 @@ ZDS_APP = {
         "users_in_hats_list": 5,
         "requested_hats_per_page": 100,
         "update_last_visit_interval": 600,  # seconds
-        "old_smileys_allowed": False,
-        "old_smileys_cookie_key": "use_old_smileys",
     },
     "hats": {
         "moderation": "Staff",

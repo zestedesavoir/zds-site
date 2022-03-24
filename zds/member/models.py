@@ -65,7 +65,6 @@ class Profile(models.Model):
     can_write = models.BooleanField("Possibilité d'écrire", default=True)
     end_ban_write = models.DateTimeField("Fin d'interdiction d'écrire", null=True, blank=True)
     last_visit = models.DateTimeField("Date de dernière visite", null=True, blank=True)
-    use_old_smileys = models.BooleanField("Utilise les anciens smileys ?", default=False)
     _permissions = {}
     _groups = None
     _cached_city = None
@@ -488,33 +487,6 @@ def remove_hats_linked_to_group(sender, instance, **kwargs):
     for hat in instance.hats.all():
         if hat.group:
             instance.hats.remove(hat)
-
-
-def remove_old_smileys_cookie(response):
-    """Remove the Clem smileys cookie by immediate expiration
-
-    :param response: the HTTP response
-    :type: django.http.response.HttpResponse
-    """
-
-    response.set_cookie(settings.ZDS_APP["member"]["old_smileys_cookie_key"], "", expires=0)
-
-
-def set_old_smileys_cookie(response, profile):
-    """Set the Clem smileys cookie according to profile (and if allowed)
-
-    :param response: the HTTP response
-    :type: django.http.response.HttpResponse
-    :param profile: the profile
-    :type profile: Profile
-    """
-
-    if settings.ZDS_APP["member"]["old_smileys_allowed"]:
-        if profile.use_old_smileys:
-            # TODO: set max_age, expires and so all (see https://stackoverflow.com/a/1623910)
-            response.set_cookie(settings.ZDS_APP["member"]["old_smileys_cookie_key"], profile.use_old_smileys)
-        else:
-            remove_old_smileys_cookie(response)
 
 
 class TokenForgotPassword(models.Model):
