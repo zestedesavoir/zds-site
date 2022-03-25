@@ -110,9 +110,9 @@
 <h3>Installation du webdriver<a class="headerlink" href="#installation-du-webdriver" title="Lien permanent vers ce titre"></a></h3>
 <p>Il est nécessaire d’installer deux choses pour utiliser Selenium avec Django : Selenium (présent dans <code class="docutils literal notranslate"><span class="pre">requirements-dev.txt</span></code>) et un webdriver. Pour ceci, il suffit d’exécuter :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Installation du webdriver</span>
-wget https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz
+wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
 mkdir geckodriver
-tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
+tar -xzf geckodriver-v0.30.0-linux64.tar.gz -C geckodriver
 <span class="c1"># Ajout du webdriver dans le PATH</span>
 <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$PWD</span>/geckodriver
 </pre></div>
@@ -120,7 +120,7 @@ tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
 <p>Pour Mac OS ou Windows, il suffit de lire les instructions à l’adresse suivante : <a class="reference external" href="https://github.com/mozilla/geckodriver/">https://github.com/mozilla/geckodriver/</a></p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>La version de geckodriver à installer dépend des versions de Selenium et de Firefox ! Par exemple, la version 19.0 de geckodriver fonctionne correctement avec Selenium 3.6.0 et Firefox 55.0 ou 56.0 mais peut ne pas fonctionner avec d’autres versions. En cas de problème lors de l’Installation, ne pas hésiter à demander de l’aide !</p>
+<p>La version de geckodriver à installer dépend des versions de Selenium et de Firefox ! Par exemple, la version 30.0 de geckodriver fonctionne correctement avec Selenium &gt;= 3.14 et Firefox &gt;= 78 ESR mais peut ne pas fonctionner avec d’autres versions. Mozilla met à disposition <a class="reference external" href="https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html">une table de compatibilité</a>. En cas de problème lors de l’installation, ne pas hésiter à demander de l’aide !</p>
 </div>
 </section>
 <section id="ecriture-des-tests">
@@ -129,32 +129,34 @@ tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
 <p>Il est aussi possible d’utiliser l’extension Firefox (&lt;<a class="reference external" href="https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/">https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/</a>&gt;) et d’exporter le test généré, cependant, il est nécessaire de le réécrire pour prendre en compte Django et Python 3. De plus, il est nécessaire d’ajouter un tag à la classe afin de pouvoir lancer les tests Selenium séparément.</p>
 <p>Voici le contenu d’un test :</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">django.contrib.staticfiles.testing</span> <span class="kn">import</span> <span class="n">StaticLiveServerTestCase</span>
-<span class="kn">from</span> <span class="nn">selenium.webdriver.firefox.webdriver</span> <span class="kn">import</span> <span class="n">WebDriver</span>
 <span class="kn">from</span> <span class="nn">django.test</span> <span class="kn">import</span> <span class="n">tag</span>
+<span class="kn">from</span> <span class="nn">selenium.webdriver</span> <span class="kn">import</span> <span class="n">Firefox</span>
+<span class="kn">from</span> <span class="nn">selenium.webdriver.firefox.options</span> <span class="kn">import</span> <span class="n">Options</span>
 
 
-<span class="nd">@tag</span><span class="p">(</span><span class="s1">&#39;front&#39;</span><span class="p">)</span>
+<span class="nd">@tag</span><span class="p">(</span><span class="s2">&quot;front&quot;</span><span class="p">)</span>
 <span class="k">class</span> <span class="nc">MySeleniumTests</span><span class="p">(</span><span class="n">StaticLiveServerTestCase</span><span class="p">):</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">setUpClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MySeleniumTests</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">setUpClass</span><span class="p">()</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">selenium</span> <span class="o">=</span> <span class="n">WebDriver</span><span class="p">()</span>
-        <span class="bp">cls</span><span class="o">.</span><span class="n">selenium</span><span class="o">.</span><span class="n">implicitly_wait</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setUpClass</span><span class="p">()</span>
+        <span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">()</span>
+        <span class="n">options</span><span class="o">.</span><span class="n">headless</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">selenium</span> <span class="o">=</span> <span class="n">Firefox</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">selenium</span><span class="o">.</span><span class="n">implicitly_wait</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">tearDownClass</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">selenium</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">MySeleniumTests</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span><span class="o">.</span><span class="n">tearDownClass</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">tearDownClass</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">test_zestedesavoir_is_present</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">selenium</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">live_server_url</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selenium</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">live_server_url</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
 <section id="lancement-des-tests">
 <h3>Lancement des tests<a class="headerlink" href="#lancement-des-tests" title="Lien permanent vers ce titre"></a></h3>
-<p>Il suffit d’utiliser le Makefile et de lancer <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test-front</span></code>.</p>
-<p>Il est aussi possible d’éxecuter un test précis avec <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">test</span> <span class="pre">zds.xxx.yyy</span></code> où <code class="docutils literal notranslate"><span class="pre">xxx</span></code> est le nom du module à tester et <code class="docutils literal notranslate"><span class="pre">yyy</span></code> est le nom du fichier de tests à lancer.</p>
+<p>Il suffit d’utiliser le Makefile et de lancer <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test-back-selenium</span></code>.</p>
 </section>
 </section>
 </section>
