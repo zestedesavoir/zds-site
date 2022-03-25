@@ -1,35 +1,23 @@
 from django.urls import re_path, path
 
-from zds.member.views import (
-    MemberList,
-    MemberDetail,
+from zds.member.views import MemberList
+from zds.member.views.profile import (
     UpdateMember,
     UpdateGitHubToken,
     remove_github_token,
     UpdateAvatarMember,
     UpdatePasswordMember,
     UpdateUsernameEmailMember,
-    RegisterView,
-    SendValidationEmailView,
+    redirect_old_profile_to_new,
+)
+from zds.member.views.moderation import (
     modify_karma,
-    modify_profile,
     settings_mini_profile,
     member_from_ip,
-    settings_promote,
-    login_view,
-    logout_view,
-    forgot_password,
-    new_password,
-    activate_account,
-    generate_token_account,
-    unregister,
-    warning_unregister,
-    BannedEmailProvidersList,
-    NewEmailProvidersList,
-    AddBannedEmailProvider,
-    remove_banned_email_provider,
-    check_new_email_provider,
-    MembersWithProviderList,
+    modify_profile,
+)
+from zds.member.views.login import login_view, logout_view
+from zds.member.views.hats import (
     HatsSettings,
     RequestedHatsList,
     HatRequestDetail,
@@ -39,10 +27,27 @@ from zds.member.views import (
     HatsList,
     HatDetail,
     SolvedHatRequestsList,
-    CreateProfileReportView,
-    SolveProfileReportView,
-    redirect_old_profile_to_new,
 )
+from zds.member.views.emailproviders import (
+    BannedEmailProvidersList,
+    NewEmailProvidersList,
+    AddBannedEmailProvider,
+    remove_banned_email_provider,
+    check_new_email_provider,
+    MembersWithProviderList,
+)
+from zds.member.views.register import (
+    RegisterView,
+    SendValidationEmailView,
+    unregister,
+    warning_unregister,
+    activate_account,
+    generate_token_account,
+)
+from zds.member.views.password_recovery import forgot_password, new_password
+from zds.member.views.admin import settings_promote
+from zds.member.views.reports import CreateProfileReportView, SolveProfileReportView
+
 
 urlpatterns = [
     # list
