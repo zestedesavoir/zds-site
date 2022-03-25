@@ -11,7 +11,7 @@ from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.utils.models import HelpWriting
-from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole
+from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole, ContentSuggestion
 from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
@@ -1363,10 +1363,18 @@ class SearchSuggestionForm(forms.Form):
 
 class RemoveSuggestionForm(forms.Form):
 
-    pk_suggestion = forms.CharField(
+    pk_suggestion = forms.IntegerField(
         label=_("Suggestion"),
         required=True,
+        error_messages={"does_not_exist": _("La suggestion sélectionnée n'existe pas.")},
     )
+
+    def clean_pk_suggestion(self):
+        pk_suggestion = self.cleaned_data.get("pk_suggestion")
+        suggestion = ContentSuggestion.objects.filter(id=pk_suggestion).first()
+        if suggestion is None:
+            self.add_error("pk_suggestion", self.fields["pk_suggestion"].error_messages["does_not_exist"])
+        return pk_suggestion
 
 
 class ToggleHelpForm(forms.Form):

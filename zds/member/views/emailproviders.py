@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.shortcuts import redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -8,7 +9,7 @@ from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 
-from zds.member.decorator import LoginRequiredMixin, PermissionRequiredMixin
+from zds.member.decorator import LoginRequiredMixin
 from zds.member.forms import BannedEmailProviderForm
 from zds.member.models import NewEmailProvider, BannedEmailProvider, Profile
 
@@ -16,7 +17,7 @@ from zds.utils.paginator import ZdSPagingListView
 
 
 class NewEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
-    permissions = ["member.change_bannedemailprovider"]
+    permission_required = "member.change_bannedemailprovider"
     paginate_by = settings.ZDS_APP["member"]["providers_per_page"]
 
     model = NewEmailProvider
@@ -43,7 +44,7 @@ def check_new_email_provider(request, provider_pk):
 class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     """List the banned email providers."""
 
-    permissions = ["member.change_bannedemailprovider"]
+    permission_required = "member.change_bannedemailprovider"
     paginate_by = settings.ZDS_APP["member"]["providers_per_page"]
 
     model = BannedEmailProvider
@@ -57,7 +58,7 @@ class BannedEmailProvidersList(LoginRequiredMixin, PermissionRequiredMixin, ZdSP
 class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     """List users using a banned email provider."""
 
-    permissions = ["member.change_bannedemailprovider"]
+    permission_required = "member.change_bannedemailprovider"
     paginate_by = settings.ZDS_APP["member"]["members_per_page"]
 
     model = User
@@ -84,7 +85,7 @@ class MembersWithProviderList(LoginRequiredMixin, PermissionRequiredMixin, ZdSPa
 class AddBannedEmailProvider(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Add an email provider to the banned list."""
 
-    permissions = ["member.change_bannedemailprovider"]
+    permission_required = "member.change_bannedemailprovider"
 
     model = BannedEmailProvider
     template_name = "member/admin/add_banned_email_provider.html"

@@ -323,6 +323,9 @@ class ZipPublicator(Publicator):
             published_content_entity = self.get_published_content_entity(md_file_path)
             if published_content_entity is None:
                 raise ValueError("published_content_entity is None")
+            if published_content_entity.content.type == "OPINION" and not settings.ZDS_APP["opinions"]["allow_zip"]:
+                logger.info("ZIP not allowed for opinions.")
+                return
             make_zip_file(published_content_entity)
             # no need to move zip file because it is already dumped to the public directory
         except (OSError, ValueError) as e:
@@ -365,6 +368,9 @@ class ZMarkdownRebberLatexPublicator(Publicator):
 
     def publish(self, md_file_path, base_name, **kwargs):
         published_content_entity = self.get_published_content_entity(md_file_path)
+        if published_content_entity.content.type == "OPINION" and not settings.ZDS_APP["opinions"]["allow_pdf"]:
+            logger.info("PDF not allowed for opinions")
+            return
         gallery_pk = published_content_entity.content.gallery.pk
         depth_to_size_map = {
             1: "small",  # in fact this is an "empty" tutorial (i.e it is empty or has intro and/or conclusion)
@@ -502,7 +508,6 @@ def handle_tex_compiler_error(latex_file_path, ext):
     errors = [f"Error occured, log file {log_file_path} not found."]
     with contextlib.suppress(FileNotFoundError, UnicodeDecodeError):
         with Path(log_file_path).open(encoding="utf-8") as latex_log:
-            # TODO zmd: see if the lines we extract here contain enough info for debugging purpose
             print_context = 25
             lines = []
             relevant_line = -print_context
@@ -528,6 +533,9 @@ class ZMarkdownEpubPublicator(Publicator):
     def publish(self, md_file_path, base_name, **kwargs):
         try:
             published_content_entity = self.get_published_content_entity(md_file_path)
+            if published_content_entity.content.type == "OPINION" and not settings.ZDS_APP["opinions"]["allow_epub"]:
+                logger.info("EPUB not allowed for opinions")
+                return
             epub_file_path = Path(base_name + ".epub")
             logger.info("Start generating epub")
             build_ebook(published_content_entity, path.dirname(md_file_path), epub_file_path)
