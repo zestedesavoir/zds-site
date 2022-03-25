@@ -33,5 +33,5 @@ dry-rest-permissions==0.1.10
 drf_yasg==1.20.0
 
 # Dependencies for slug generation, please be extra careful with those
-django-uuslug==1.2.0
-python-slugify==5.0.2
+django-uuslug==2.0.0
+python-slugify==6.1.1
