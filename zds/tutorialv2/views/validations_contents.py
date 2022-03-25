@@ -4,7 +4,7 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.db.models import Q
@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, FormView
 
-from zds.member.decorator import PermissionRequiredMixin, LoggedWithReadWriteHability
+from zds.member.decorator import LoggedWithReadWriteHability
 from zds.mp.models import mark_read
 from zds.tutorialv2.forms import (
     AskValidationForm,
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """List the validations, with possibilities of filters"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
     context_object_name = "validations"
     template_name = "tutorialv2/validation/index.html"
     subcategory = None
@@ -279,7 +279,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
 class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     """Reserve or remove the reservation on a content"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
 
     def post(self, request, *args, **kwargs):
         validation = get_object_or_404(Validation, pk=kwargs["pk"])
@@ -338,7 +338,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, RequiresValidationViewMixin):
 
     model = PublishableContent
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
     template_name = "tutorialv2/validation/history.html"
 
     def get_context_data(self, **kwargs):
@@ -357,7 +357,7 @@ class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, Require
 class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Reject the publication"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
     form_class = RejectValidationForm
 
     modal_form = True
@@ -429,7 +429,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormView):
     """Publish the content"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
     form_class = AcceptValidationForm
 
     modal_form = True
@@ -489,7 +489,7 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentFormViewMixin):
     """Unpublish a content and reverse the situation back to a pending validation"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
     form_class = RevokeValidationForm
     is_public = True
 
@@ -565,7 +565,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
 
 class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
 
     def get(self, request, *args, **kwargs):
         raise Http404("Marquer un contenu comme obsolète n'est pas disponible en GET.")
@@ -588,7 +588,7 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
     """Handles changes a validator or staff member can do on the js fiddle support of the provided content
     Only these users can do it"""
 
-    permissions = ["tutorialv2.change_publishablecontent"]
+    permission_required = "tutorialv2.change_publishablecontent"
     form_class = JsFiddleActivationForm
     http_method_names = ["post"]
 

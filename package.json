@@ -30,7 +30,7 @@
     "chartjs-adapter-moment": "1.0.0",
     "cssnano": "5.0.15",
     "del": "6.0.0",
-    "easymde": "2.10.2-360.0",
+    "easymde": "2.16.1",
     "gulp": "4.0.2",
     "gulp-concat": "2.6.1",
     "gulp-dart-sass": "1.0.2",
