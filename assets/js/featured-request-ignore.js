@@ -1,11 +1,11 @@
 (function($) {
   $('.featured-request').on('click', '.unpick-action', function() {
-    var $button = $(this)
-    var $row = $button.parent().parent()
-    var $table = $row.parent()
-    var csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val()
-    var operation = $button.data('operation')
-    var data = {
+    const $button = $(this)
+    const $row = $button.parent().parent()
+    const $table = $row.parent()
+    const csrfmiddlewaretoken = $("input[name='csrfmiddlewaretoken']").val()
+    const operation = $button.data('operation')
+    const data = {
       csrfmiddlewaretoken: csrfmiddlewaretoken
     }
     if (operation) {

@@ -16,7 +16,7 @@
   }
 
   function updatePreview(data, element) {
-    var $el = $(element)
+    const $el = $(element)
     if (data.image) {
       $el.find('.featured-resource-illu').show().attr('src', data.image)
     } else {
@@ -29,7 +29,7 @@
   }
 
   function buildDescription(authors, type) {
-    var text = type
+    let text = type
     if (authors.length > 0) { text += ' par ' + authors }
     return text
   }

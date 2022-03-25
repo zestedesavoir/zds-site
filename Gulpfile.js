@@ -2,7 +2,7 @@ const autoprefixer = require('autoprefixer')
 const concat = require('gulp-concat')
 const cssnano = require('cssnano')
 const del = require('del')
-const eslint = require('gulp-eslint')
+const { ESLint } = require('eslint')
 const gulp = require('gulp')
 const gulpif = require('gulp-if')
 const imagemin = require('gulp-imagemin')
@@ -94,7 +94,7 @@ function errors() {
 /* JS tasks */
 
 // ESLint options
-var eslintOptions = {}
+let eslintOptions = {}
 const fix = options.has('fix')
 if (fix) {
   eslintOptions = { fix: true }
@@ -102,12 +102,19 @@ if (fix) {
 
 // Lints the JS source files
 
-function jsLint() {
-  return gulp.src(['assets/js/*.js', 'Gulpfile.js', '!assets/js/editor-old.js'], { base: '.' })
-    .pipe(eslint(eslintOptions))
-    .pipe(eslint.format())
-    .pipe(gulp.dest('.'))
-    .pipe(eslint.failAfterError())
+async function jsLint() {
+  const eslint = new ESLint(eslintOptions)
+
+  const results = await eslint.lintFiles(['assets/js/*.js', 'Gulpfile.js'])
+
+  if (fix) {
+    await ESLint.outputFixes(results)
+  }
+
+  const formatter = await eslint.loadFormatter('stylish')
+  const resultText = formatter.format(results)
+
+  console.log(resultText)
 }
 
 // Get JS minified files from packages
@@ -148,7 +155,7 @@ function js() {
 
 // Optimizes the images
 function images() {
-  var plugins = [
+  const plugins = [
     imagemin.gifsicle(),
     imagemin.mozjpeg(),
     imagemin.optipng(),
@@ -202,7 +209,7 @@ function watch() {
 }
 
 // Build the front
-var build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
+const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 
 exports.build = build
 exports.watch = gulp.series(build, watch)

@@ -42,7 +42,7 @@
     cache: {},
 
     handleKeydown: function(e) {
-      var $tmp
+      let $tmp
       switch (e.which) {
         case 38: // Up
           e.preventDefault()
@@ -82,14 +82,14 @@
         e.stopPropagation()
       }
 
-      var input = this.$input.val()
+      const input = this.$input.val()
 
       if (this._lastInput === input) { return }
 
       this._lastInput = input
 
-      var search = this.parseInput(input)
-      var self = this
+      const search = this.parseInput(input)
+      const self = this
 
       if (!search || search === this._lastAutocomplete) {
         this.hideDropdown()
@@ -116,7 +116,7 @@
     },
 
     handleSubmit: function() {
-      var content = this.$input.val()
+      const content = this.$input.val()
       if (content.slice(-2) === ', ') {
         this.$input.val(content.slice(0, -2))
       }
@@ -139,15 +139,15 @@
 
     enter: function(selected) {
       selected = selected || this.selected
-      var input = this.$input.val()
-      var lastChar = input.substr(-1)
+      let input = this.$input.val()
+      const lastChar = input.substr(-1)
       if ((lastChar === ',' || selected === -1) && this.options.type === 'multiple') { return false }
 
-      var completion = this.getFromCache(selected)
+      const completion = this.getFromCache(selected)
       if (!completion) { return false }
 
       if (this.options.type === 'multiple') {
-        var lastComma = input.lastIndexOf(',')
+        const lastComma = input.lastIndexOf(',')
         if (lastComma !== -1) {
           input = input.substr(0, lastComma) + ', ' + completion[this.options.fieldname] + ', '
           this.$input.val(input)
@@ -172,13 +172,13 @@
     },
 
     updateCache: function(data) {
-      for (var i = 0; i < data.length; i++) {
+      for (let i = 0; i < data.length; i++) {
         this.cache[data[i][this.options.fieldname]] = data[i]
       }
     },
 
     extractWords: function(input) {
-      var words = $.grep(
+      const words = $.grep(
         $.map(input.split(','), $.trim), // Remove empty
         function(e) {
           return e === '' || e === undefined
@@ -193,7 +193,7 @@
       if (this.options.type === 'multiple') {
         if (input.substr(-1) === ',' || input.substr(-2) === ', ') { return false }
 
-        var words = this.extractWords(input)
+        const words = this.extractWords(input)
         if (words.length === 0) return false
 
         return words[words.length - 1] // last word in list
@@ -203,7 +203,7 @@
     },
 
     searchCache: function(input) {
-      var regexp = new RegExp(input, 'ig')
+      const regexp = new RegExp(input, 'ig')
       return $.grep(
         this.cache,
         function(e) {
@@ -213,22 +213,22 @@
     },
 
     getFromCache: function(id) {
-      for (var i in this.cache) {
+      for (const i in this.cache) {
         if (parseInt(this.cache[i].id) === parseInt(id)) { return this.cache[i] }
       }
       return false
     },
 
     filterData: function(data, exclude) {
-      var fieldname = this.options.fieldname
+      const fieldname = this.options.fieldname
       return data.filter(function(e) {
         return exclude.indexOf(e[fieldname]) === -1
       })
     },
 
     updateDropdown: function(list) {
-      var self = this
-      var onClick = function(e) {
+      const self = this
+      const onClick = function(e) {
         e.preventDefault()
         e.stopPropagation()
         self.enter($(this).attr('data-autocomplete-id'))
@@ -240,9 +240,9 @@
 
       if (list.length > this.options.limit) list = list.slice(0, this.options.limit)
 
-      var $list = $('<ul>')
-      var $el; var selected = false
-      for (var i in list) {
+      const $list = $('<ul>')
+      let $el; let selected = false
+      for (const i in list) {
         if ($('#my-account .username').text() === list[i][this.options.fieldname]) { continue }
         $el = $('<li>').text(list[i][this.options.fieldname])
         $el.attr('data-autocomplete-id', list[i].id)
@@ -264,10 +264,10 @@
     },
 
     sortList: function(list, search) {
-      var bestMatches = []
-      var otherMatches = []
+      const bestMatches = []
+      const otherMatches = []
 
-      for (var i = 0; i < list.length; i++) {
+      for (let i = 0; i < list.length; i++) {
         if (list[i][this.options.fieldname].indexOf(search) === 0) {
           bestMatches.push(list[i])
         } else {
@@ -275,9 +275,9 @@
         }
       }
 
-      var sortFn = function(a, b) {
-        var valueA = a[this.options.fieldname].toLowerCase()
-        var valueB = b[this.options.fieldname].toLowerCase()
+      const sortFn = function(a, b) {
+        const valueA = a[this.options.fieldname].toLowerCase()
+        const valueB = b[this.options.fieldname].toLowerCase()
         if (valueA < valueB) { return -1 }
         if (valueA > valueB) { return 1 }
         return 0
@@ -290,18 +290,18 @@
     },
 
     fetchData: function(input, excludeTerms) {
-      var data = this.options.url.replace('%s', input)
+      let data = this.options.url.replace('%s', input)
       data = data.replace('%e', excludeTerms)
       return $.getJSON(data)
     }
   }
 
   function buildDom(input) {
-    var $input = $(input)
-    var $wrapper = $('<div/>', {
+    const $input = $(input)
+    const $wrapper = $('<div/>', {
       class: 'autocomplete-wrapper'
     })
-    var $dropdown = $('<div/>', {
+    const $dropdown = $('<div/>', {
       class: 'autocomplete-dropdown'
     })
 
@@ -313,7 +313,7 @@
   }
 
   $.fn.autocomplete = function(options) {
-    var defaults = { // defaults are set for pm member autocomplete
+    const defaults = { // defaults are set for pm member autocomplete
       type: 'single', // single|multiple|mentions
       url: '/api/membres/?search=%s',
       limit: 4,
