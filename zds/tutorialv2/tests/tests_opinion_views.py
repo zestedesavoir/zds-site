@@ -1,4 +1,6 @@
 import datetime
+from django.conf import settings
+from django.core.management import call_command
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
@@ -10,7 +12,12 @@ from zds.tutorialv2.tests.factories import (
     ExtractFactory,
     PublishedContentFactory,
 )
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent, PickListOperation
+from zds.tutorialv2.models.database import (
+    PublishableContent,
+    PublishedContent,
+    PickListOperation,
+    PublicationEvent,
+)
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds.utils.models import Alert
@@ -59,6 +66,93 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
+
+    def test_publish_content_change_title_before_watchdog(self):
+        """
+        Test we can publish a content, change its title and publish it again
+        right away, before the publication watchdog processed the first
+        publication.
+        """
+        previous_extra_content_generation_policy = self.overridden_zds_app["content"]["extra_content_generation_policy"]
+        self.overridden_zds_app["content"]["extra_content_generation_policy"] = "WATCHDOG"
+
+        # Create a content:
+        opinion = PublishableContentFactory(type="OPINION")
+
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode="W")
+        opinion.licence = self.licence
+        opinion.save()
+
+        opinion_draft = opinion.load_version()
+
+        # Publish it a first time:
+        self.client.force_login(self.user_author)
+
+        result = self.client.post(
+            reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
+            {"text": "Blabla", "source": "", "version": opinion_draft.current_version},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
+
+        # Change the title:
+        random = "Whatever, we don't care about the details"
+        result = self.client.post(
+            reverse("content:edit", args=[opinion.pk, opinion.slug]),
+            {
+                "title": "{} ({})".format(opinion.title, "modified"),
+                "description": random,
+                "introduction": random,
+                "conclusion": random,
+                "type": "OPINION",
+                "licence": opinion.licence.pk,
+                "subcategory": opinion.subcategory.first().pk,
+                "last_hash": opinion.load_version().compute_hash(),
+                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
+            },
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishedContent.objects.count(), 1)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
+
+        # and publish it a second time now it has a new title:
+        result = self.client.post(
+            reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
+            {"text": "Blabla", "source": "", "version": opinion_draft.current_version},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        # There are two PublishedContent: one with the old title and the old slug
+        # redirecting to the current version of the content with the new title:
+        self.assertEqual(PublishedContent.objects.count(), 2)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNotNone(opinion.public_version)
+        opinion_draft = opinion.load_version()
+        self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
+
+        requested_events = PublicationEvent.objects.filter(state_of_processing="REQUESTED")
+        self.assertEqual(requested_events.count(), 4)
+
+        # Now, call the watchdog:
+        call_command("publication_watchdog", "--once")
+
+        requested_events = PublicationEvent.objects.filter(state_of_processing="REQUESTED")
+        self.assertEqual(requested_events.count(), 0)
+
+        self.overridden_zds_app["content"]["extra_content_generation_policy"] = previous_extra_content_generation_policy
 
     def test_accessible_ui_for_author(self):
         opinion = PublishedContentFactory(author_list=[self.user_author], type="OPINION")

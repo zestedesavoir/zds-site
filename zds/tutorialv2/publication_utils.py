@@ -563,6 +563,13 @@ class WatchdogFilePublicator(Publicator):
 
     def publish_from_published_content(self, published_content: PublishedContent):
         for requested_format in PublicatorRegistry.get_all_registered(["watchdog"]):
+            # Remove previous PublicationEvent for this content, not handled by
+            # the publication watchdog yet:
+            PublicationEvent.objects.filter(
+                state_of_processing="REQUESTED",
+                published_object__content_pk=published_content.content_pk,
+                format_requested=requested_format[0],
+            ).delete()
             PublicationEvent.objects.create(
                 state_of_processing="REQUESTED",
                 published_object=published_content,
