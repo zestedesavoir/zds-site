@@ -14,6 +14,13 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Launch a watchdog that generate all exported formats (epub, pdf...) files without blocking request handling"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--once",
+            action="store_true",
+            help="Do not wait forever for publication requests.",
+        )
+
     def handle(self, *args, **options):
         # We mark running events as failure, in case this command failed while running
         running_events = PublicationEvent.objects.filter(state_of_processing="RUNNING")
@@ -23,13 +30,17 @@ class Command(BaseCommand):
 
         while True:
             requested_events = PublicationEvent.objects.filter(state_of_processing="REQUESTED")
-            while requested_events.count() == 0:
-                time.sleep(60)
 
-            try:
-                self.run()
-            except:
-                logger.exception("Exception during one publication_watchdog run.")
+            if requested_events.count() == 0:
+                if options["once"]:
+                    break
+                else:
+                    time.sleep(60)
+            else:
+                try:
+                    self.run()
+                except:
+                    logger.exception("Exception during one publication_watchdog run.")
 
     def run(self):
         requested_events = PublicationEvent.objects.select_related(
