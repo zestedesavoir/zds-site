@@ -671,6 +671,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
     sha_public = models.CharField("Sha1 de la version publiée", blank=True, null=True, max_length=80, db_index=True)
     char_count = models.IntegerField(default=None, null=True, verbose_name=b"Nombre de lettres du contenu", blank=True)
 
+    # NOTE: removing the spurious space in the field description requires a database migration !
     must_redirect = models.BooleanField(
         "Redirection vers  une version plus récente", blank=True, db_index=True, default=False
     )
@@ -696,8 +697,13 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         if self.versioned_model:
             return self.versioned_model.title
         else:
-            self._manifest = self._manifest or self.content.load_manifest(sha=self.sha_public, public=self)
-            return self._manifest.get("title", "Default title")
+            title = "Default title"
+            try:
+                self._manifest = self._manifest or self.content.load_manifest(sha=self.sha_public, public=self)
+                title = self._manifest.get("title", title)
+            except OSError:
+                title = self.content.title
+            return title
 
     def description(self):
         if self.versioned_model:

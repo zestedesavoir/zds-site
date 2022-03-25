@@ -239,8 +239,9 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         response = self.client.post(reverse("api:content:generate_export", args=[content.content.pk]))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # And it should be greater than the previous one as we added new requets
-        self.assertGreater(PublicationEvent.objects.filter(published_object=content).count(), requests_count)
+        # And it should be equal than the previous one as we added new request,
+        # but the watchdog wasn't launched to handle them:
+        self.assertEqual(PublicationEvent.objects.filter(published_object=content).count(), requests_count)
 
         self.client.logout()
 
