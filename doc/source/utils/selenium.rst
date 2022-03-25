@@ -17,9 +17,9 @@ Il est nécessaire d'installer deux choses pour utiliser Selenium avec Django : 
 .. sourcecode:: bash
 
    # Installation du webdriver
-   wget https://github.com/mozilla/geckodriver/releases/download/v0.19.0/geckodriver-v0.19.0-linux64.tar.gz
+   wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
    mkdir geckodriver
-   tar -xzf geckodriver-v0.19.0-linux64.tar.gz -C geckodriver
+   tar -xzf geckodriver-v0.30.0-linux64.tar.gz -C geckodriver
    # Ajout du webdriver dans le PATH
    export PATH=$PATH:$PWD/geckodriver
 
@@ -27,7 +27,7 @@ Pour Mac OS ou Windows, il suffit de lire les instructions à l'adresse suivante
 
 .. attention::
 
-   La version de geckodriver à installer dépend des versions de Selenium et de Firefox ! Par exemple, la version 19.0 de geckodriver fonctionne correctement avec Selenium 3.6.0 et Firefox 55.0 ou 56.0 mais peut ne pas fonctionner avec d'autres versions. En cas de problème lors de l'Installation, ne pas hésiter à demander de l'aide !
+   La version de geckodriver à installer dépend des versions de Selenium et de Firefox ! Par exemple, la version 30.0 de geckodriver fonctionne correctement avec Selenium >= 3.14 et Firefox >= 78 ESR mais peut ne pas fonctionner avec d'autres versions. Mozilla met à disposition `une table de compatibilité <https://firefox-source-docs.mozilla.org/testing/geckodriver/Support.html>`_. En cas de problème lors de l'installation, ne pas hésiter à demander de l'aide !
 
 Écriture des tests
 ~~~~~~~~~~~~~~~~~~
@@ -41,30 +41,32 @@ Voici le contenu d'un test :
 .. sourcecode:: python
 
   from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-  from selenium.webdriver.firefox.webdriver import WebDriver
   from django.test import tag
+  from selenium.webdriver import Firefox
+  from selenium.webdriver.firefox.options import Options
 
 
-  @tag('front')
+  @tag("front")
   class MySeleniumTests(StaticLiveServerTestCase):
       @classmethod
       def setUpClass(cls):
-          super(MySeleniumTests, cls).setUpClass()
-          cls.selenium = WebDriver()
-          cls.selenium.implicitly_wait(10)
+          super().setUpClass()
+          options = Options()
+          options.headless = True
+          cls.selenium = Firefox(options=options)
+          cls.selenium.implicitly_wait(30)
 
       @classmethod
       def tearDownClass(cls):
           cls.selenium.quit()
-          super(MySeleniumTests, cls).tearDownClass()
+          super().tearDownClass()
 
       def test_zestedesavoir_is_present(self):
-          self.selenium.get(self.live_server_url + '/')
+          self.selenium.get(self.live_server_url + "/")
 
 
 Lancement des tests
 ~~~~~~~~~~~~~~~~~~~
 
-Il suffit d'utiliser le Makefile et de lancer ``make test-front``.
+Il suffit d'utiliser le Makefile et de lancer ``make test-back-selenium``.
 
-Il est aussi possible d'éxecuter un test précis avec ``python manage.py test zds.xxx.yyy`` où ``xxx`` est le nom du module à tester et ``yyy`` est le nom du fichier de tests à lancer.
