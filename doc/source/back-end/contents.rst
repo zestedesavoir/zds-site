@@ -599,7 +599,10 @@ devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécut
 Récapitulatif des paramètres du module
 ======================================
 
-Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
+Paramètres globaux
+------------------
+
+Ces paramètres sont à surcharger dans le dictionnaire ``ZDS_APP['content']``:
 
 - ``repo_private_path`` : chemin vers le dossier qui contiend les contenus durant leur rédaction, par défaut le dossier sera contents-private à la racine de l'application
 - ``repo_public_path``: chemin vers le dossier qui contient les fichiers permettant l'affichage des contenus publiés ainsi que les fichiers téléchargeables, par défaut contents-public
@@ -617,6 +620,15 @@ Ces paramètres sont à surcharger dans le dictionnaire ZDS_APP['content']
 - ``import_image_prefix``: préfixe mnémonique permettant d'indiquer que l'image se trouve dans l'archive jointe lors de l'import de contenu
 - ``build_pdf_when_published``: indique que la publication générera un PDF (quelque soit la politique, si ``False``, les PDF ne seront pas générés, sauf à appeler la commande adéquate),
 - ``maximum_slug_size``: taille maximale du slug d'un contenu
+
+Paramètres propres aux tribunes libres
+--------------------------------------
+
+Ces paramètres sont à surcharger dans le dictionnaire ``ZDS_APP['opinions']``:
+
+- ``allow_pdf``: par défaut à ``True`` elle permet d'activer (et de désactiver si ``False``) la génération des PDF à la publication des billets.
+- ``allow_epub``: par défaut à ``True`` elle permet d'activer (et de désactiver si ``False``) la génération des EPUB à la publication des billets.
+- ``allow_zip``: par défaut à ``True`` elle permet d'activer (et de désactiver si ``False``) la génération de l'archive du contenu à la publication des billets.
 
 Statistiques
 ============
