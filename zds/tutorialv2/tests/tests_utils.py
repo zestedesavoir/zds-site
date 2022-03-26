@@ -259,6 +259,53 @@ class UtilsTests(TutorialTestMixin, TestCase):
                 self.assertIsNone(chapter.introduction)
                 self.assertIsNone(chapter.conclusion)
 
+    def test_export_only_ready_to_publish(self):
+        """
+        Test exported contents contain only ready_to_publish==True parts.
+        """
+        #  Medium-size tutorial
+        midsize_tuto = PublishableContentFactory(type="TUTORIAL")
+
+        midsize_tuto.authors.add(self.user_author)
+        UserGalleryFactory(gallery=midsize_tuto.gallery, user=self.user_author, mode="W")
+        midsize_tuto.licence = self.licence
+        midsize_tuto.save()
+
+        # populate with 3 chapters (1 extract each), one not being ready for pubication
+        midsize_tuto_draft = midsize_tuto.load_version()
+        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto, title="Chapter 1 ready")
+        ExtractFactory(container=chapter1, db_object=midsize_tuto)
+        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto, title="Chapter 2 ready")
+        ExtractFactory(container=chapter2, db_object=midsize_tuto)
+        chapter3 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto, title="Chapter 3 not ready")
+        chapter3.ready_to_publish = False
+        ExtractFactory(container=chapter3, db_object=midsize_tuto)
+
+        # publish it
+        midsize_tuto = PublishableContent.objects.get(pk=midsize_tuto.pk)
+        published = publish_content(midsize_tuto, midsize_tuto_draft)
+        public = midsize_tuto.load_version(sha=published.sha_public, public=published)
+
+        # test creation of files:
+        self.assertTrue(Path(published.get_prod_path()).is_dir())
+        self.assertTrue(Path(published.get_prod_path(), "manifest.json").is_file())
+
+        self.assertTrue(Path(public.get_prod_path(), public.introduction).is_file())
+        self.assertTrue(Path(public.get_prod_path(), public.conclusion).is_file())
+
+        self.assertEqual(len(public.children), 2)
+        for child in public.children:
+            self.assertTrue(os.path.isfile(child.get_prod_path()))  # an HTML file for each chapter
+            self.assertIsNone(child.introduction)
+            self.assertIsNone(child.conclusion)
+
+        self.assertTrue(published.has_md())
+        with Path(published.get_extra_contents_directory(), published.content_public_slug + ".md").open("r") as md:
+            content = md.read()
+            self.assertIn(chapter1.title, content)
+            self.assertIn(chapter2.title, content)
+            self.assertNotIn(chapter3.title, content)
+
     def test_tagged_tree_extract(self):
         midsize = PublishableContentFactory(author_list=[self.user_author])
         midsize_draft = midsize.load_version()
