@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
 from zds.member.forms import LoginForm
-from zds.member.models import Profile, set_old_smileys_cookie, remove_old_smileys_cookie
+from zds.member.models import Profile
 from zds.member.views import get_client_ip
 from zds.utils.tokens import generate_token
 
@@ -94,7 +94,6 @@ def login_view(request):
                 response = redirect(next_page)
             except Resolver404:
                 response = redirect(reverse("homepage"))
-            set_old_smileys_cookie(response, profile)
             return response
 
     if next_page is not None:
@@ -112,6 +111,4 @@ def logout_view(request):
     logout(request)
     request.session.clear()
     response = redirect(reverse("homepage"))
-    # disable Clem smileys:
-    remove_old_smileys_cookie(response)
     return response
