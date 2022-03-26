@@ -690,40 +690,9 @@ linked to a group. In this case, the relevant hat will be removed from the user.
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="zds.member.models.remove_old_smileys_cookie">
-<span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">remove_old_smileys_cookie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.remove_old_smileys_cookie" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Remove the Clem smileys cookie by immediate expiration</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>response</strong> – the HTTP response</p>
-</dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>django.http.response.HttpResponse</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="zds.member.models.remove_token_github_on_removing_from_dev_group">
 <span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">remove_token_github_on_removing_from_dev_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sender</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instance</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.remove_token_github_on_removing_from_dev_group" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>This signal receiver removes the GitHub token of a user if he’s not in the dev group</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="zds.member.models.set_old_smileys_cookie">
-<span class="sig-prename descclassname"><span class="pre">zds.member.models.</span></span><span class="sig-name descname"><span class="pre">set_old_smileys_cookie</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">response</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profile</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.member.models.set_old_smileys_cookie" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Set the Clem smileys cookie according to profile (and if allowed)</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>response</strong> – the HTTP response</p></li>
-<li><p><strong>profile</strong> (<a class="reference internal" href="#zds.member.models.Profile" title="zds.member.models.Profile"><em>Profile</em></a>) – the profile</p></li>
-</ul>
-</dd>
-<dt class="field-even">Type</dt>
-<dd class="field-even"><p>django.http.response.HttpResponse</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
