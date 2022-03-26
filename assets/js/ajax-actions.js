@@ -11,15 +11,15 @@
    * @param {string} dataAttribute
    */
   $.fn.toggleText = function(dataAttribute) {
-    var textContainer = this.find('.a11y')
+    let textContainer = this.find('.a11y')
     if (textContainer.length === 0) {
       textContainer = this
     } else {
       textContainer = $(textContainer[0])
     }
 
-    var text = textContainer.text()
-    var textToPut = this.data(dataAttribute)
+    const text = textContainer.text()
+    const textToPut = this.data(dataAttribute)
 
     textContainer.text(textToPut)
     this.data(dataAttribute, text)
@@ -27,7 +27,7 @@
 
   function synchText() {
     $('#mobile-menu [data-ajax-input]').each(function() {
-      var dataAjaxInput = $(this).data('ajax-input')
+      const dataAjaxInput = $(this).data('ajax-input')
       $(this).text($('.sidebar').find("button[data-ajax-input='" + dataAjaxInput + "']").text())
     })
   }
@@ -36,13 +36,13 @@
    * Follow a topic
    */
   $('.sidebar, .flexpage-title-tool .actions').on('click', "[data-ajax-input='follow-topic']", function(e) {
-    var $act = $(this)
-    var $form = $(this).parents('form:first')
-    var $email = $(this).parents('li:first').next().find("[data-ajax-input='follow-topic-by-email']")
-    var $followText = $act.find('span#follow_text')
-    var $count = $form.find('span#subscriber_count')
-    var $plural = $act.find('span#subscriber_plural')
-    var $otherSubscriberCount = $($act.attr('data-raw-subscriber-count'))
+    const $act = $(this)
+    const $form = $(this).parents('form:first')
+    let $email = $(this).parents('li:first').next().find("[data-ajax-input='follow-topic-by-email']")
+    const $followText = $act.find('span#follow_text')
+    const $count = $form.find('span#subscriber_count')
+    const $plural = $act.find('span#subscriber_plural')
+    const $otherSubscriberCount = $($act.attr('data-raw-subscriber-count'))
 
     if ($email.length === 0) {
       $email = $(this).parents('.buttons-combined').find("[data-ajax-input='follow-topic-by-email']")
@@ -50,10 +50,10 @@
 
     $email.prop('disabled', true)
 
-    var csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
-    var topic = $form.find('input[name=topic]').val()
-    var follow = $form.find('input[name=follow]').val()
-    var page = $form.find('input[name=page]').val()
+    const csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+    const topic = $form.find('input[name=topic]').val()
+    const follow = $form.find('input[name=follow]').val()
+    const page = $form.find('input[name=page]').val()
 
     $.ajax({
       url: $form.attr('action'),
@@ -105,9 +105,9 @@
    * Be notified by email
    */
   $('.sidebar, .flexpage-title-tool .actions').on('click', "[data-ajax-input='follow-topic-by-email']", function(e) {
-    var $act = $(this)
-    var $follow = $(this).parents('li:first').prev().find("[data-ajax-input='follow-topic']")
-    var $form = $(this).parents('form:first')
+    const $act = $(this)
+    let $follow = $(this).parents('li:first').prev().find("[data-ajax-input='follow-topic']")
+    const $form = $(this).parents('form:first')
 
     if ($follow.length === 0) {
       $follow = $(this).parents('.buttons-combined').find("[data-ajax-input='follow-topic']")
@@ -115,10 +115,10 @@
 
     $follow.prop('disabled', true)
 
-    var csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
-    var topic = $form.find('input[name=topic]').val()
-    var email = $form.find('input[name=email]').val()
-    var page = $form.find('input[name=page]').val()
+    const csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+    const topic = $form.find('input[name=topic]').val()
+    const email = $form.find('input[name=email]').val()
+    const page = $form.find('input[name=page]').val()
 
     $.ajax({
       url: $form.attr('action'),
@@ -163,14 +163,14 @@
    * Featured request
    */
   $('.sidebar').on('click', "[data-ajax-input='request-featured']", function(e) {
-    var $act = $(this)
-    var $form = $(this).parents('form:first')
-    var $requestText = $act.find('#request_text')
-    var $count = $form.find('#featured_request_count')
-    var $plural = $act.find('#featured_request_plural')
+    const $act = $(this)
+    const $form = $(this).parents('form:first')
+    const $requestText = $act.find('#request_text')
+    const $count = $form.find('#featured_request_count')
+    const $plural = $act.find('#featured_request_plural')
 
-    var csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
-    var requestFeatured = $form.find('input[name=request_featured]').val()
+    const csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+    const requestFeatured = $form.find('input[name=request_featured]').val()
 
     $.ajax({
       url: $form.attr('action'),
@@ -198,13 +198,13 @@
    * Mark a topic solved
    */
   $('.sidebar').on('click', "[data-ajax-input='solve-topic']", function(e) {
-    var $act = $(this)
-    var $form = $(this).parents('form:first')
+    const $act = $(this)
+    const $form = $(this).parents('form:first')
 
-    var csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
-    var topic = $form.find('input[name=topic]').val()
-    var solved = $form.find('input[name=solved]').val()
-    var page = $form.find('input[name=page]').val()
+    const csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+    const topic = $form.find('input[name=topic]').val()
+    const solved = $form.find('input[name=solved]').val()
+    const page = $form.find('input[name=page]').val()
 
     $.ajax({
       url: $form.attr('action'),
@@ -239,8 +239,8 @@
    * Mobile action
    */
   $('#mobile-menu').on('click', '[data-ajax-input]', function(e) {
-    var dataAjaxInput = $(this).data('ajax-input')
-    var $button = $('.sidebar').find("button[data-ajax-input='" + dataAjaxInput + "']")
+    const dataAjaxInput = $(this).data('ajax-input')
+    const $button = $('.sidebar').find("button[data-ajax-input='" + dataAjaxInput + "']")
 
     if ($button[0]) {
       $(this).toggleText('content-on-click')
@@ -252,8 +252,8 @@
   })
 
   function getLineAt(string, index) {
-    var before = string.slice(0, index).split('\n').slice(-1)[0] || ''
-    var after = string.slice(index).split('\n')[0] || ''
+    const before = string.slice(0, index).split('\n').slice(-1)[0] || ''
+    const after = string.slice(index).split('\n')[0] || ''
     return before + after
   }
 
@@ -268,8 +268,8 @@
       return
     }
 
-    var before = editor.value.slice(0, editor.selectionStart)
-    var after = editor.value.slice(editor.selectionEnd)
+    const before = editor.value.slice(0, editor.selectionStart)
+    const after = editor.value.slice(editor.selectionEnd)
     editor.value = before + '\n' + citation + '\n' + after
   }
 
@@ -297,8 +297,8 @@
     e.stopPropagation()
     e.preventDefault()
 
-    var $act = $(this)
-    var editor = document.querySelector('.md-editor')
+    const $act = $(this)
+    const editor = document.querySelector('.md-editor')
 
     $.ajax({
       url: $act.attr('href'),

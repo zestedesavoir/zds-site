@@ -30,7 +30,6 @@ from zds.member.models import (
     KarmaNote,
     Ban,
     NewEmailProvider,
-    set_old_smileys_cookie,
 )
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models import CONTENT_TYPES
@@ -215,7 +214,6 @@ class UpdateMember(UpdateView):
                 "avatar_url": profile.avatar_url,
                 "show_sign": profile.show_sign,
                 "is_hover_enabled": profile.is_hover_enabled,
-                "use_old_smileys": profile.use_old_smileys,
                 "allow_temp_visual_changes": profile.allow_temp_visual_changes,
                 "show_markdown_help": profile.show_markdown_help,
                 "email_for_answer": profile.email_for_answer,
@@ -245,7 +243,6 @@ class UpdateMember(UpdateView):
         self.save_profile(profile)
 
         response = redirect(self.get_success_url())
-        set_old_smileys_cookie(response, profile)
         return response
 
     def update_profile(self, profile, form):
@@ -254,7 +251,6 @@ class UpdateMember(UpdateView):
         profile.site = form.data["site"]
         profile.show_sign = "show_sign" in cleaned_data_options
         profile.is_hover_enabled = "is_hover_enabled" in cleaned_data_options
-        profile.use_old_smileys = "use_old_smileys" in cleaned_data_options
         profile.allow_temp_visual_changes = "allow_temp_visual_changes" in cleaned_data_options
         profile.show_markdown_help = "show_markdown_help" in cleaned_data_options
         profile.email_for_answer = "email_for_answer" in cleaned_data_options

@@ -6,7 +6,7 @@
     this._parent = element
 
     this._canvas = document.createElement('canvas')
-    var canvas = this._canvas
+    const canvas = this._canvas
     this.resize()
 
     canvas.style.zIndex = -1
@@ -51,7 +51,7 @@
     },
 
     resize: function() {
-      var rect = this._parent.getBoundingClientRect()
+      const rect = this._parent.getBoundingClientRect()
 
       this.H = rect.height
       this.W = rect.width
@@ -77,8 +77,8 @@
     },
 
     update: function() {
-      var p; var now = Date.now(); var delta = now - this._lastLoop
-      for (var i in this.particles) {
+      let p; const now = Date.now(); const delta = now - this._lastLoop
+      for (const i in this.particles) {
         p = this.particles[i]
         p.y += (delta / 1000) * (this.PARTICLES_SPEED * p.d * (1.5 + Math.sin(now * this.TURBULENCES_SPEED / 1000 + p.s) * this.TURBULENCES_Y))
         p.x += (delta / 1000) * (this.PARTICLES_SPEED * p.d * (Math.cos(now * this.TURBULENCES_SPEED / 1000 + p.s) * this.TURBULENCES_X))
@@ -106,8 +106,8 @@
       }
       this._ctx.beginPath()
 
-      var p
-      for (var i in this.particles) {
+      let p
+      for (const i in this.particles) {
         p = this.particles[i]
         this._ctx.moveTo(p.x, p.y)
 

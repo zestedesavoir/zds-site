@@ -3,7 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import F
@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, ListView
 
 from zds.gallery.models import Gallery
-from zds.member.decorator import LoggedWithReadWriteHability, PermissionRequiredMixin
+from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import (
     PublicationForm,
     RevokeValidationForm,
@@ -155,7 +155,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
     form_class = DoNotPickOpinionForm
     modal_form = False
     prefetch_all = False
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
     template_name = "tutorialv2/validation/opinion-moderation-history.html"
 
     def get_context_data(self):
@@ -253,7 +253,7 @@ class RevokePickOperation(PermissionRequiredMixin, FormView):
 
     form_class = DoNotPickOpinionForm
     prefetch_all = False
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
 
     def get(self, request, *args, **kwargs):
         raise Http404("Impossible")
@@ -277,7 +277,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
 
     modal_form = True
     prefetch_all = False
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
 
     def get(self, request, *args, **kwargs):
         raise Http404(_("Valider un contenu n'est pas possible avec la méthode « GET »."))
@@ -349,7 +349,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
 
     modal_form = True
     prefetch_all = False
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
 
     def get(self, request, *args, **kwargs):
         raise Http404(_("Enlever un billet des billets choisis n'est pas possible avec la méthode « GET »."))
@@ -413,7 +413,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
 class ValidationOpinionListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     """List the validations, with possibilities of filters"""
 
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
     template_name = "tutorialv2/validation/opinions.html"
     context_object_name = "contents"
     subcategory = None
@@ -436,7 +436,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
 
     modal_form = True
     prefetch_all = False
-    permissions = ["tutorialv2.change_validation"]
+    permission_required = "tutorialv2.change_validation"
 
     def get(self, request, *args, **kwargs):
         raise Http404(_("Promouvoir un billet en article n'est pas possible avec la méthode « GET »."))

@@ -6,26 +6,26 @@ social-auth-app-django==5.0.0
 
 # Explicit dependencies (references in code)
 beautifulsoup4==4.10.0
-django-crispy-forms==1.13.0
+django-crispy-forms==1.14.0
 django-model-utils==4.2.0
 django-munin==0.2.1
-django-recaptcha==2.0.6
+django-recaptcha==3.0.0
 Django==3.2.12
-easy-thumbnails==2.8.0
+easy-thumbnails==2.8.1
 factory-boy==3.2.1
 geoip2==4.5.0
-GitPython==3.1.24
+GitPython==3.1.27
 homoglyphs==2.0.4
-lxml==4.7.1
+lxml==4.8.0
 Pillow==9.0.1
-pymemcache==3.5.0
-requests==2.26.0
+pymemcache==3.5.1
+requests==2.27.1
 toml==0.10.2
 
 # Api dependencies
-django-cors-headers==3.10.1
+django-cors-headers==3.11.0
 django-filter==21.1
-django-oauth-toolkit==1.5.0
+django-oauth-toolkit==1.7.0
 djangorestframework-xml==2.0.0
 djangorestframework==3.13.1
 drf-extensions==0.7.1
@@ -33,5 +33,5 @@ dry-rest-permissions==0.1.10
 drf_yasg==1.20.0
 
 # Dependencies for slug generation, please be extra careful with those
-django-uuslug==1.2.0
-python-slugify==5.0.2
+django-uuslug==2.0.0
+python-slugify==6.1.1

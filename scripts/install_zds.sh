@@ -255,7 +255,7 @@ if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) );
         rm -rf "$jdk_path"
     fi
 
-    baseURL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/"
+    baseURL="https://github.com/adoptium/temurin11-binaries/releases/download/"
     foldername="jdk-${ZDS_JDK_VERSION}+${ZDS_JDK_REV}"
     folderPATH="${foldername}/OpenJDK11U-jdk_x64_linux_hotspot_${ZDS_JDK_VERSION}_${ZDS_JDK_REV}.tar.gz"
 

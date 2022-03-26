@@ -29,23 +29,6 @@ def can_write_and_read_now(func):
     return _can_write_and_read_now
 
 
-class PermissionRequiredMixin:
-    """
-    Represent the basic code that a Generic Class Based View has to use when one or more
-    permissions are required simultaneously to execute the view
-    """
-
-    permissions = []
-
-    def check_permissions(self):
-        if False in [self.request.user.has_perm(p) for p in self.permissions]:
-            raise PermissionDenied
-
-    def dispatch(self, *args, **kwargs):
-        self.check_permissions()
-        return super().dispatch(*args, **kwargs)
-
-
 class LoggedWithReadWriteHability(LoginRequiredMixin):
     """
     Represent the basic code that a Generic Class View has to use when a logged in user with

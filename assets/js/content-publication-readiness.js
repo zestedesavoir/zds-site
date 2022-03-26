@@ -1,9 +1,9 @@
 (function($) {
   $('.readiness').on('click', function(e) {
-    var url = $(e.target).data('url')
-    var readiness = $(e.target).data('is-ready').toString() === 'true'
-    var csrf = $('input[name=csrfmiddlewaretoken]').val()
-    var toggledReadiness = !readiness
+    const url = $(e.target).data('url')
+    const readiness = $(e.target).data('is-ready').toString() === 'true'
+    const csrf = $('input[name=csrfmiddlewaretoken]').val()
+    const toggledReadiness = !readiness
     $.ajax(url, {
       method: 'PUT',
       data: {
@@ -12,8 +12,8 @@
         parent_container_slug: $(e.target).data('parent-container-slug') || ''
       },
       success: function() {
-        var readinessAsString = String(toggledReadiness)
-        var newDisplayedText = $(e.target).data('is-ready-' + readinessAsString)
+        const readinessAsString = String(toggledReadiness)
+        const newDisplayedText = $(e.target).data('is-ready-' + readinessAsString)
         $(e.target).attr('data-is-ready', readinessAsString)
           .text(newDisplayedText)
       },

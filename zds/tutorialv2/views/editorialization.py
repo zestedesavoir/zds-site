@@ -1,11 +1,12 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 
-from zds.member.decorator import LoggedWithReadWriteHability, can_write_and_read_now, PermissionRequiredMixin
+from zds.member.decorator import LoggedWithReadWriteHability, can_write_and_read_now
 from zds.tutorialv2.forms import RemoveSuggestionForm, EditContentTagsForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import ContentSuggestion, PublishableContent
@@ -15,7 +16,7 @@ class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
     form_class = RemoveSuggestionForm
     modal_form = True
     only_draft_version = True
-    permissions = ["tutorialv2.change_publishablecontent"]
+    permission_required = "tutorialv2.change_publishablecontent"
 
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
@@ -55,7 +56,7 @@ class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
 class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, SingleContentFormViewMixin):
     only_draft_version = True
     authorized_for_staff = True
-    permissions = ["tutorialv2.change_publishablecontent"]
+    permission_required = "tutorialv2.change_publishablecontent"
 
     def post(self, request, *args, **kwargs):
         publication = get_object_or_404(PublishableContent, pk=kwargs["pk"])
