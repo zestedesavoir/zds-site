@@ -19,7 +19,7 @@ class SearchForm(forms.Form):
     )
 
     choices = sorted(
-        [(k, v[0]) for k, v in settings.ZDS_APP["search"]["search_groups"].items()], key=lambda pair: pair[1]
+        ((k, v[0]) for k, v in settings.ZDS_APP["search"]["search_groups"].items()), key=lambda pair: pair[1]
     )
 
     models = forms.MultipleChoiceField(

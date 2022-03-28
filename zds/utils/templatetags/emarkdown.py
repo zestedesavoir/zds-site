@@ -127,9 +127,9 @@ def render_markdown(md_input, *, on_error=None, disable_jsfiddle=True, **kwargs)
 
     # FIXME: This cannot work with LaTeX.
     if inline:
-        return mark_safe("<p>{}</p>".format(json.dumps(messages))), metadata, []
+        return mark_safe(f"<p>{json.dumps(messages)}</p>"), metadata, []
     else:
-        return mark_safe('<div class="error ico-after"><p>{}</p></div>'.format(json.dumps(messages))), metadata, []
+        return mark_safe(f'<div class="error ico-after"><p>{json.dumps(messages)}</p></div>'), metadata, []
 
 
 def render_markdown_stats(md_input, **kwargs):

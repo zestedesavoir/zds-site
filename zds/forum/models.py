@@ -21,7 +21,7 @@ from zds.utils.models import Comment, Tag
 def sub_tag(tag):
     start = tag.group("start")
     end = tag.group("end")
-    return "{}".format(start + end)
+    return f"{start + end}"
 
 
 class ForumCategory(models.Model):

@@ -1,11 +1,11 @@
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.10.0
+    rev: v2.31.0
     hooks:
     -   id: pyupgrade
-        args: [--py36-plus]
+        args: [--py37-plus]
   - repo: https://github.com/psf/black
-    rev: 21.12b0 # needs to be also updated in requirements-dev.txt and .github/workflows/ci.yml
+    rev: 22.3.0 # needs to be also updated in requirements-dev.txt and .github/workflows/ci.yml
     hooks:
       - id: black
         language_version: python3

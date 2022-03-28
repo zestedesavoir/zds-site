@@ -5,7 +5,7 @@ from zds.utils.templatetags.htmldiff import htmldiff
 
 class HtmlDiffTests(TestCase):
     def test_empty(self):
-        self.assertEquals(htmldiff(b"essai", b"essai"), "<p>Pas de changements.</p>")
+        self.assertEqual(htmldiff(b"essai", b"essai"), "<p>Pas de changements.</p>")
 
     def test_nominal(self):
         self.assertIn("Agrume", htmldiff(b"Agrume", b""))

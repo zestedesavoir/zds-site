@@ -78,10 +78,10 @@ def load_member(cli, size, fake, root, *_):
         profile.last_ip_address = fake.ipv4()
         profile.save()
         cpt += 1
-        sys.stdout.write(" User {}/{}  \r".format(i + 1, nb_users))
+        sys.stdout.write(f" User {i + 1}/{nb_users}  \r")
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def load_staff(cli, size, fake, root, *_):
@@ -106,10 +106,10 @@ def load_staff(cli, size, fake, root, *_):
         profile.last_ip_address = fake.ipv6()
         profile.save()
         cpt += 1
-        sys.stdout.write(" Staff {}/{}  \r".format(i + 1, nb_staffs))
+        sys.stdout.write(f" Staff {i + 1}/{nb_staffs}  \r")
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def load_gallery(cli, size, fake, *_, **__):
@@ -134,7 +134,7 @@ def load_gallery(cli, size, fake, *_, **__):
             UserGalleryFactory(user=profiles[user_index].user, gallery=gal)
             __push_images_into_gallery(gal, user_index, gallery_index, nb_galleries, nb_images, nb_users)
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def __push_images_into_gallery(gal, i, j, nb_galleries, nb_images, nb_users):
@@ -159,10 +159,10 @@ def load_categories_forum(cli, size, fake, *_, **__):
         cat = ForumCategoryFactory(position=i + 1)
         cat.title = fake.word()
         cat.save()
-        sys.stdout.write(" Cat. {}/{}  \r".format(i + 1, nb_categories))
+        sys.stdout.write(f" Cat. {i + 1}/{nb_categories}  \r")
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def load_forums(cli, size, fake, *_, **__):
@@ -188,10 +188,10 @@ def load_forums(cli, size, fake, *_, **__):
                 forum.title = fake.word()
                 forum.subtitle = fake.sentence(nb_words=15, variable_nb_words=True)
                 forum.save()
-            sys.stdout.write(" Forum {}/{}  \r".format(i + 1, nb_forums))
+            sys.stdout.write(f" Forum {i + 1}/{nb_forums}  \r")
             sys.stdout.flush()
         tps2 = time.time()
-        cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+        cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def load_tags(cli, size, fake, *_, **__):
@@ -206,10 +206,10 @@ def load_tags(cli, size, fake, *_, **__):
         with contextlib.suppress(IntegrityError):
             tag, created = Tag.objects.get_or_create(title=title.lower())
             logging.getLogger(cli.__class__.__name__).debug("tag=%s is_new=%s", tag, created)
-        sys.stdout.write(" Tag {}/{}  \r".format(i + 1, nb_tags))
+        sys.stdout.write(f" Tag {i + 1}/{nb_tags}  \r")
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def load_topics(cli, size, fake, *_, **__):
@@ -249,10 +249,10 @@ def load_topics(cli, size, fake, *_, **__):
             topic.subtitle = fake.text(max_nb_chars=200)
             topic.save()
             PostFactory(topic=topic, author=topic.author, position=1)
-        sys.stdout.write(" Topic {}/{}  \r".format(i + 1, nb_topics))
+        sys.stdout.write(f" Topic {i + 1}/{nb_topics}  \r")
         sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def add_generated_tags_to_topic(nb_rand_tags, nb_tags, topic):
@@ -297,12 +297,10 @@ def __generate_topic_and_post(cli, fake, nb_avg_posts_in_topic, nb_topics, nb_us
             post.text_html = emarkdown(post.text)
             post.is_useful = int(nb_posts * 0.3) > 0 and post_index % int(nb_posts * 0.3) == 0
             post.save()
-            sys.stdout.write(
-                " Topic {}/{}  \tPost {}/{}  \r".format(topic_index + 1, nb_topics, post_index + 1, nb_posts)
-            )
+            sys.stdout.write(f" Topic {topic_index + 1}/{nb_topics}  \tPost {post_index + 1}/{nb_posts}  \r")
             sys.stdout.flush()
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def load_categories_content(cli, size, fake, *_, **__):
@@ -331,7 +329,7 @@ def load_categories_content(cli, size, fake, *_, **__):
         )
         cat.save()
         categories.append(cat)
-        sys.stdout.write(" Cat. {}/{}  \r".format(i + 1, nb_categories))
+        sys.stdout.write(f" Cat. {i + 1}/{nb_categories}  \r")
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
@@ -342,7 +340,7 @@ def load_categories_content(cli, size, fake, *_, **__):
             )
             subcat.save()
             sub_categories.append(subcat)
-        sys.stdout.write(" SubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
+        sys.stdout.write(f" SubCat. {i + 1}/{nb_sub_categories}  \r")
         sys.stdout.flush()
 
     for i in range(0, nb_sub_categories):
@@ -351,11 +349,11 @@ def load_categories_content(cli, size, fake, *_, **__):
                 category=categories[i % nb_categories], subcategory=sub_categories[i], is_main=True
             )
             catsubcat.save()
-        sys.stdout.write(" CatSubCat. {}/{}  \r".format(i + 1, nb_sub_categories))
+        sys.stdout.write(f" CatSubCat. {i + 1}/{nb_sub_categories}  \r")
         sys.stdout.flush()
 
     tps2 = time.time()
-    cli.stdout.write("\nFait en {} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1} sec")
 
 
 def load_comment_content(cli, size, fake, *_, **__):
@@ -379,12 +377,12 @@ def load_comment_content(cli, size, fake, *_, **__):
             post.text = fake.paragraph(nb_sentences=5, variable_nb_sentences=True)
             post.text_html = emarkdown(post.text)
             post.save()
-            sys.stdout.write("Contenu {}/{}  \tCommentaire {}/{}  \r".format(i + 1, nb_contents, j + 1, nb_posts))
+            sys.stdout.write(f"Contenu {i + 1}/{nb_contents}  \tCommentaire {j + 1}/{nb_posts}  \r")
             sys.stdout.flush()
         contents[i].last_note = post
         contents[i].save()
     tps2 = time.time()
-    cli.stdout.write("\nFait en {:.3f} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1:.3f} sec")
 
 
 def load_contents(cli, size, fake, _type, *_, **__):
@@ -442,7 +440,7 @@ def load_contents(cli, size, fake, _type, *_, **__):
                 nb_contents * percent_contents_with_validator,
             )
         )
-    cli.stdout.write(" - {:g} publiés".format(nb_contents * percent_contents_public))
+    cli.stdout.write(f" - {nb_contents * percent_contents_public:g} publiés")
 
     tps1 = time.time()
 
@@ -512,7 +510,7 @@ def load_contents(cli, size, fake, _type, *_, **__):
 
     # create and so all:
     for created_content_index in range(nb_contents):
-        sys.stdout.write("Création {} : {}/{}  \r".format(textual_type, created_content_index + 1, nb_contents))
+        sys.stdout.write(f"Création {textual_type} : {created_content_index + 1}/{nb_contents}  \r")
 
         current_size = content_sizes[created_content_index]
         action_flag = what_to_do[created_content_index]
@@ -552,7 +550,7 @@ def load_contents(cli, size, fake, _type, *_, **__):
         sys.stdout.flush()
 
     tps2 = time.time()
-    cli.stdout.write("\nFait en {:.3f} sec".format(tps2 - tps1))
+    cli.stdout.write(f"\nFait en {tps2 - tps1:.3f} sec")
 
 
 def validate_edited_content(content, fake, nb_staffs, staffs, to_do, versioned):

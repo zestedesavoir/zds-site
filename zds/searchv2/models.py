@@ -555,7 +555,7 @@ class ESIndexManager:
                         if abs(1 - ratio) > 0.1:
                             objects_per_batch = int(objects_per_batch * ratio)
                             if force_reindexing:
-                                print("     {}x, new batch size: {}".format(round(ratio, 2), objects_per_batch))
+                                print(f"     {round(ratio, 2)}x, new batch size: {objects_per_batch}")
                         prev_obj_per_sec = obj_per_sec
 
                     # fetch next batch

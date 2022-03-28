@@ -29,7 +29,7 @@ class CommonLayoutEditor(Layout):
             HTML("</div>"),
             HTML("</div>"),
             *args,
-            **kwargs
+            **kwargs,
         )
 
 
@@ -52,7 +52,7 @@ class CommonLayoutVersionEditor(Layout):
                 ),
             ),
             *args,
-            **kwargs
+            **kwargs,
         )
 
 

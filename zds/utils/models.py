@@ -36,14 +36,14 @@ logger = logging.getLogger(__name__)
 def image_path_category(instance, filename):
     """Return path to an image."""
     ext = filename.split(".")[-1]
-    filename = "{}.{}".format(str(uuid.uuid4()), string.lower(ext))
+    filename = f"{str(uuid.uuid4())}.{string.lower(ext)}"
     return os.path.join("categorie/normal", str(instance.pk), filename)
 
 
 def image_path_help(instance, filename):
     """Return path to an image."""
     ext = filename.split(".")[-1]
-    filename = "{}.{}".format(str(uuid.uuid4()), string.lower(ext))
+    filename = f"{str(uuid.uuid4())}.{string.lower(ext)}"
     return os.path.join("helps/normal", str(instance.pk), filename)
 
 

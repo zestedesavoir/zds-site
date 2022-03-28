@@ -33,7 +33,7 @@ def image_path(instance, filename):
     :rtype: unicode
     """
     ext = filename.split(".")[-1].lower()
-    filename = "{}.{}".format(str(uuid4()), ext)
+    filename = f"{str(uuid4())}.{ext}"
 
     return os.path.join("galleries", str(instance.gallery.pk), filename)
 

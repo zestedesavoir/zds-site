@@ -101,7 +101,7 @@ class ContainerFactory(factory.Factory):
     class Meta:
         model = Container
 
-    title = factory.Sequence(lambda n: "Mon container No{}".format(n + 1))
+    title = factory.Sequence(lambda n: f"Mon container No{n + 1}")
 
     @classmethod
     def _generate(cls, create, attrs):
@@ -139,7 +139,7 @@ class ExtractFactory(factory.Factory):
     class Meta:
         model = Extract
 
-    title = factory.Sequence(lambda n: "Mon extrait No{}".format(n + 1))
+    title = factory.Sequence(lambda n: f"Mon extrait No{n + 1}")
 
     @classmethod
     def _generate(cls, create, attrs):

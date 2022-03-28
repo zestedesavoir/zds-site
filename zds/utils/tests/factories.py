@@ -18,7 +18,7 @@ class HelpWritingFactory(factory.django.DjangoModelFactory):
         model = HelpWriting
 
     title = factory.Sequence("titre de l'image {}".format)
-    slug = factory.LazyAttribute(lambda o: "{}".format(old_slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: f"{old_slugify(o.title)}")
     tablelabel = factory.LazyAttribute(lambda n: "Besoin de " + n.title)
 
     @classmethod
@@ -97,5 +97,5 @@ class LicenceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Licence
 
-    code = factory.Sequence(lambda n: "bidon-no{}".format(n + 1))
-    title = factory.Sequence(lambda n: "Licence bidon no{}".format(n + 1))
+    code = factory.Sequence(lambda n: f"bidon-no{n + 1}")
+    title = factory.Sequence(lambda n: f"Licence bidon no{n + 1}")

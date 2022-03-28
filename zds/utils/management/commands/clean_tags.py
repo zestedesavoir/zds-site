@@ -15,7 +15,7 @@ class Command(BaseCommand):
             return f'"{tag.title}" ({tag.pk})'
 
         def replace(tag_to_delete, tag_to_use_instead):
-            self.stdout.write("Replacing {} with {}".format(title_pk(tag_to_delete), title_pk(tag_to_use_instead)))
+            self.stdout.write(f"Replacing {title_pk(tag_to_delete)} with {title_pk(tag_to_use_instead)}")
 
             topics = Topic.objects.filter(tags__pk=tag_to_delete["pk"])
             for topic in topics:
@@ -29,7 +29,7 @@ class Command(BaseCommand):
                 content.tags.add(tag_to_use_instead.pk)
                 content.tags.remove(tag_to_delete["pk"])
 
-            self.stdout.write("    Deleting {}".format(title_pk(tag_to_delete)))
+            self.stdout.write(f"    Deleting {title_pk(tag_to_delete)}")
             Tag.objects.get(pk=tag_to_delete["pk"]).delete()
 
         self.stdout.write(self.help)
@@ -57,4 +57,4 @@ class Command(BaseCommand):
                 stripped = Tag.objects.get(pk=tag["pk"])
                 stripped.name = tag["stripped"]
                 stripped.save()
-                self.stdout.write("Stripped {} to {}".format(title_pk(tag), title_pk(stripped)))
+                self.stdout.write(f"Stripped {title_pk(tag)} to {title_pk(stripped)}")

@@ -108,7 +108,7 @@ class ForumNotification(TestCase):
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
-                "text": "@{} @{} are pinged".format(pinged_users[1].user.username, pinged_users[3].user.username),
+                "text": f"@{pinged_users[1].user.username} @{pinged_users[3].user.username} are pinged",
                 "tags": "",
             },
             follow=False,

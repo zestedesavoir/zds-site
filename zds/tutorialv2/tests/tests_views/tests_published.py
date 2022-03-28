@@ -553,7 +553,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test quoting (without JS)
         result = self.client.get(
-            reverse("content:add-reaction") + "?pk={}&cite={}".format(self.published.content.pk, reactions[0].pk)
+            reverse("content:add-reaction") + f"?pk={self.published.content.pk}&cite={reactions[0].pk}"
         )
         self.assertEqual(result.status_code, 200)
 
@@ -565,7 +565,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         # test quoting (with JS)
         result = self.client.get(
-            reverse("content:add-reaction") + "?pk={}&cite={}".format(self.published.content.pk, reactions[0].pk),
+            reverse("content:add-reaction") + f"?pk={self.published.content.pk}&cite={reactions[0].pk}",
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
 
@@ -1151,9 +1151,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(404, result.status_code)
 
         # cite not existing note just gives the form empty
-        result = self.client.get(
-            reverse("content:add-reaction") + "?pk={}&cite={}".format(tuto.pk, 99999999), follow=True
-        )
+        result = self.client.get(reverse("content:add-reaction") + f"?pk={tuto.pk}&cite={99999999}", follow=True)
         self.assertEqual(200, result.status_code)
 
         self.assertTrue("text" not in result.context["form"])  # nothing quoted, so no text cited

@@ -31,7 +31,7 @@ def publish_container_new(
     rendered,
     template="tutorialv2/export/chapter.html",
     file_ext="html",
-    **ctx
+    **ctx,
 ):
     """
     Generate the browser-diplay or epub of a content and its possible hierarchy
@@ -128,7 +128,7 @@ def publish_container(
     template="tutorialv2/export/chapter.html",
     file_ext="html",
     image_callback=None,
-    **ctx
+    **ctx,
 ):
     """'Publish' a given container, in a recursive way
     Only here for epub publication (complexity of image/path traversal for the archive to be built)
@@ -221,7 +221,7 @@ def publish_container(
                 file_ext=file_ext,
                 image_callback=image_callback,
                 template=template,
-                **ctx
+                **ctx,
             )
             path_to_title_dict.update(result)
         if container.conclusion and container.get_conclusion():
