@@ -10,17 +10,19 @@
 {% endif %}
 
 {% for child in content.children %}
+{% if child.ready_to_publish %}
 # {{ child.title|safe }}
-{% if content.has_extracts %} {#  minituto or article #}
+{% if content.has_extracts %} {# minituto or article #}
 {% if child.text %}{{ child.get_text|safe|shift_heading_1 }}{% endif %}
-{% elif child.ready_to_publish %}{# midsize or bigtuto #}
+{% else %} {# midsize or bigtuto #}
 {% if child.introduction %}{{ child.get_introduction|safe|shift_heading_1 }}{% endif %}
 {% for subchild in child.children %}
+{% if subchild.ready_to_publish %}
 ## {{ subchild.title|safe }}
 
 {% if child.has_extracts %} {# midsize tuto #}
 {% if subchild.text %}{{ subchild.get_text|safe|shift_heading_2 }}{% endif %}
-{% elif subchild.ready_to_publish %}
+{% else %} {# bigtuto #}
 {% if subchild.introduction %}{{ subchild.get_introduction|safe|shift_heading_2 }}{% endif %}
 {% for extract in subchild.children %}
 
@@ -33,14 +35,14 @@
 ---------
 
 {{ conclu }}{% endif %}{% endif %}
-{% endif %}{% endfor %}
+{% endif %}{% endif %}{% endfor %}
 {% if child.conclusion %}
 {% captureas conclu %}{{ child.get_conclusion|safe|shift_heading_1 }}{% endcaptureas %}
 {% if conclu.strip != '' %}
 ---------
 
 {{ conclu }}{% endif %}{% endif %}
-{% endif %}{% endfor %}
+{% endif %}{% endif %}{% endfor %}
 {% if content.conclusion %}
 {% captureas conclu %}{{ content.get_conclusion|safe }}{% endcaptureas %}
 {% if conclu.strip != '' %}

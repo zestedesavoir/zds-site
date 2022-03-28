@@ -3,7 +3,7 @@ name: CI
 on: ["push", "pull_request"]
 
 env:
-  NODE_VERSION: "12"
+  NODE_VERSION: "16" # needs to be also updated in .nvmrc
   PYTHON_VERSION: "3.7"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
