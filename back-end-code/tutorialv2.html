@@ -3480,11 +3480,14 @@ association with the field named “__all__”.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="zds.tutorialv2.utils.export_container">
-<span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">export_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_container" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">export_container</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">container</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_to_publish_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_container" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Export a container to a dictionary</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>container</strong> (<em>zds.tutorialv2.models.models_versioned.Container</em>) – the container</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>container</strong> (<em>zds.tutorialv2.models.models_versioned.Container</em>) – the container</p></li>
+<li><p><strong>ready_to_publish_only</strong> (<em>boolean</em>) – if True, returns only ready-to-publish containers</p></li>
+</ul>
 </dd>
 <dt class="field-even">Renvoie</dt>
 <dd class="field-even"><p>dictionary containing the information</p>
@@ -3497,11 +3500,14 @@ association with the field named “__all__”.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="zds.tutorialv2.utils.export_content">
-<span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">export_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_content" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">export_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">content</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">with_text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ready_to_publish_only</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.export_content" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Export a content to dictionary in order to store them in a JSON file</p>
 <dl class="field-list simple">
 <dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>content</strong> – content to be exported</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>content</strong> – content to be exported</p></li>
+<li><p><strong>ready_to_publish_only</strong> (<em>boolean</em>) – if True, returns only ready-to-publish containers</p></li>
+</ul>
 </dd>
 <dt class="field-even">Renvoie</dt>
 <dd class="field-even"><p>dictionary containing the information</p>
