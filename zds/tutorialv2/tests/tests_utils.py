@@ -264,9 +264,10 @@ class UtilsTests(TutorialTestMixin, TestCase):
         Test exported contents contain only ready_to_publish==True parts.
         """
 
-        # We need to produce at least the .tex file, so use the real PDF publicator:
+        # We save the current settings for the PDF publicator:
         previous_pdf_publicator = PublicatorRegistry.get("pdf")
         previous_build_pdf_when_published = self.overridden_zds_app["content"]["build_pdf_when_published"]
+        # We need to produce at least the LaTeX file, so we use the real PDF publicator:
         PublicatorRegistry.registry["pdf"] = ZMarkdownRebberLatexPublicator(".pdf")
         self.overridden_zds_app["content"]["build_pdf_when_published"] = True
 
@@ -314,20 +315,21 @@ class UtilsTests(TutorialTestMixin, TestCase):
             self.assertIn(chapter2.title, content)
             self.assertNotIn(chapter3.title, content)
 
-        # TODO: factorize getting texfile path with what is done in zds.tutorialv2.publication_utils.publish():
+        # TODO: factorize getting the LaTeX file path with what is done in zds.tutorialv2.publication_utils.publish_content()
         tmp_path = os.path.join(
             settings.ZDS_APP["content"]["repo_public_path"], published.content_public_slug + "__building"
         )
         build_extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP["content"]["extra_contents_dirname"])
         base_name = os.path.join(build_extra_contents_path, published.content_public_slug)
         tex_file = base_name + ".tex"
-        # PDF generation may fail, only test the tex content:
+        # PDF generation may fail, we only test the LaTeX content:
         with open(tex_file) as tex:
             content = tex.read()
             self.assertIn(chapter1.title, content)
             self.assertIn(chapter2.title, content)
             self.assertNotIn(chapter3.title, content)
 
+        # We set back the previous settings:
         PublicatorRegistry.registry["pdf"] = previous_pdf_publicator
         self.overridden_zds_app["content"]["build_pdf_when_published"] = previous_build_pdf_when_published
 
