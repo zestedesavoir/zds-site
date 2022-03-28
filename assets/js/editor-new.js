@@ -23,18 +23,18 @@
   $(".message-bottom [data-ajax-input='preview-message'], .preview-btn").on('click', function(e) {
     e.stopPropagation()
     e.preventDefault()
-    var $btn = $(this)
-    var $form = $btn.parents('form:first')
-    var idInstance
+    const $btn = $(this)
+    const $form = $btn.parents('form:first')
+    let idInstance
     if ($form.find('.preview-source').length) {
       idInstance = $btn.closest('div').prev().find('.md-editor').prop('id')
     } else {
       idInstance = $form.find('.md-editor').prop('id')
     }
-    var text = window.editors[idInstance].value()
+    const text = window.editors[idInstance].value()
 
-    var csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
-    var lastPost = $form.find('input[name=last_post]').val()
+    const csrfmiddlewaretoken = $form.find('input[name=csrfmiddlewaretoken]').val()
+    const lastPost = $form.find('input[name=last_post]').val()
 
     $.ajax({
       url: $form.attr('action'),
@@ -59,21 +59,21 @@
   window.editors = {}
 
   function checkMatch(str, reg) {
-    var found = String(str).match(reg)
+    const found = String(str).match(reg)
     if (found) {
       return found.length > 0
     }
   }
 
   function getStateZmd(cm) {
-    var posStart = cm.getCursor('start')
-    var posEnd = cm.getCursor('end')
-    var line = cm.getLine(posStart.line)
-    var ret = {}
-    var i
+    const posStart = cm.getCursor('start')
+    const posEnd = cm.getCursor('end')
+    const line = cm.getLine(posStart.line)
+    const ret = {}
+    let i
 
-    var beforeChars = line.slice(0, posStart.ch).match(/^(\S)+/g)
-    var afterChars = line.slice(posEnd.ch).match(/(\S)+$/g)
+    const beforeChars = line.slice(0, posStart.ch).match(/^(\S)+/g)
+    const afterChars = line.slice(posEnd.ch).match(/(\S)+$/g)
 
 
     if (beforeChars && afterChars) {
@@ -93,7 +93,7 @@
         ret.math = true
       }
     } else if (checkMatch(line, /^\[\[(.+)\]\]$/)) { // it's a bloc
-      var isBlock = true
+      let isBlock = true
       for (i = (posStart.line) + 1; i <= posEnd.line; i++) {
         if ((!cm.getLine(i).startsWith('| ')) && (cm.getLine(i) !== '')) {
           isBlock = false
@@ -101,8 +101,8 @@
         }
       }
       if (isBlock) {
-        var reg = /^\[\[(.+)\]\]$/
-        var m = reg.exec(line)
+        const reg = /^\[\[(.+)\]\]$/
+        const m = reg.exec(line)
         const _titleContents = m[1].split('|')
         const _type = _titleContents[0].trim()
         if (_type === 'i' || _type === 'information') {
@@ -121,7 +121,7 @@
       }
     } else {
       // find checklist
-      var isCheckList = true
+      let isCheckList = true
       if (!(posStart.line === posEnd.line && posStart.ch === posEnd.ch)) {
         for (i = posStart.line; i <= posEnd.line; i++) {
           if ((!cm.getLine(i).match(/^- \[(.{1})\](\s*)/)) && (cm.getLine(i) !== '')) {
@@ -138,10 +138,10 @@
   }
 
   function shiftLines(cm, lineNumber, replText) {
-    var nextText
-    var currentText
+    let nextText
+    let currentText
     const lastLine = cm.lastLine()
-    for (var i = lineNumber; i <= lastLine + 1; i++) {
+    for (let i = lineNumber; i <= lastLine + 1; i++) {
       currentText = cm.getLine(i)
       if (i === lineNumber) {
         cm.replaceRange(replText, { line: i, ch: 0 }, { line: i, ch: maxRange })
@@ -156,7 +156,7 @@
   }
 
   function unShiftLines(cm, lineStart, lineEnd) {
-    for (var i = lineStart + 1; i <= lineEnd; i++) {
+    for (let i = lineStart + 1; i <= lineEnd; i++) {
       cm.replaceRange(cm.getLine(i).slice(2), { line: i, ch: 0 }, { line: i, ch: maxRange })
     }
     cm.replaceRange('', { line: lineStart, ch: 0 }, { line: lineStart + 1, ch: 0 })
@@ -168,7 +168,7 @@
     const text = cm.getLine(startPoint.line)
     start = text.slice(0, startPoint.ch)
     end = text.slice(startPoint.ch)
-    var offset = 0
+    let offset = 0
     if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
       unShiftLines(cm, startPoint.line, endPoint.line)
       startPoint.ch = 0
@@ -307,10 +307,10 @@
     cm.focus()
   }
 
-  var uploadImage = function(file, onSuccess, onError) {
+  const uploadImage = function(file, onSuccess, onError) {
     const galleryUrl = '/api/galeries/' + document.body.getAttribute('data-gallery') + '/images/'
 
-    var formData = new FormData()
+    const formData = new FormData()
     formData.append('physical', file)
     formData.append('title', file.name)
     // WARN: if you test zds with sqlite, you can't upload multiple files at a time
@@ -327,7 +327,7 @@
     }).done(function(result) {
       onSuccess(result.url)
     }).fail(function(resp) {
-      var error = 'Erreur inconnue'
+      let error = 'Erreur inconnue'
       if (resp.responseText !== undefined && resp.responseText.indexOf('RequestDataTooBig') !== -1) {
         error = 'L\'image est trop lourde.'
       } else if (resp.responseJSON !== undefined) {
@@ -346,8 +346,8 @@
   }
 
   $('.md-editor').each(function() {
-    var textarea = this
-    var formEditor = $(this).closest('form')
+    const textarea = this
+    const formEditor = $(this).closest('form')
     const mdeUniqueKey = (window.location.pathname + window.location.search + '@' + this.getAttribute('name')).replace(/[?|&]page=(\d+)/g, '')
 
     const smdeUniqueContent = localStorage.getItem('smde_' + mdeUniqueKey)
@@ -357,9 +357,9 @@
       minHeight = 200
     }
 
-    var customMarkdownParser = function(plainText, preview) {
-      var editor = window.editors[textarea.id]
-      var request = function() {
+    const customMarkdownParser = function(plainText, preview) {
+      const editor = window.editors[textarea.id]
+      const request = function() {
         $.ajax({
           url: formEditor.attr('action'),
           type: 'POST',
@@ -384,7 +384,7 @@
     }
 
     /* global EasyMDE */
-    var easyMDE = new EasyMDE({
+    const easyMDE = new EasyMDE({
       autoDownloadFontAwesome: false,
       element: this,
       forceSync: true,
@@ -440,15 +440,15 @@
         {
           name: 'abbr',
           action: (e) => {
-            var options = e.options
-            var cm = e.codemirror
-            var abbr = cm.getSelection()
-            var description = ''
-            var lastLine = cm.lastLine()
-            var lastCh = cm.getLine(lastLine).length
+            const options = e.options
+            const cm = e.codemirror
+            let abbr = cm.getSelection()
+            let description = ''
+            const lastLine = cm.lastLine()
+            const lastCh = cm.getLine(lastLine).length
 
-            var startPoint = cm.getCursor('start')
-            var endPoint = cm.getCursor('end')
+            const startPoint = cm.getCursor('start')
+            const endPoint = cm.getCursor('end')
 
             if (options.promptAbbrv) {
               if (abbr.length === 0) {
@@ -900,7 +900,7 @@
             $(wrapper.parentElement).children('.textarea-multivers').toggle()
             $(wrapper).toggle()
             // deactivating buttons incompatible with the textarea mode
-            var $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
+            const $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
             if ($toolbar.hasClass('disabled-for-textarea-mode')) {
               $toolbar.removeClass('disabled-for-textarea-mode')
             } else {

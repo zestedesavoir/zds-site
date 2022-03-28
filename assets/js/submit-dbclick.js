@@ -7,8 +7,8 @@
 (function($) {
   'use strict'
 
-  var buttonsSelector = '[type=submit], [type=reset]'
-  var $lastButtonClicked = null
+  const buttonsSelector = '[type=submit], [type=reset]'
+  let $lastButtonClicked = null
 
   $('body').on('submit', 'form', function() {
     $(buttonsSelector)

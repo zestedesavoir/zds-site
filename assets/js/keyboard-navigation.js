@@ -8,18 +8,18 @@
   'use strict'
 
   $(document).ready(function() {
-    var $lists = $('#content .navigable-list')
+    let $lists = $('#content .navigable-list')
 
     if ($lists.length > 0) {
-      var $navigableElems = $lists.find('.navigable-elem')
+      const $navigableElems = $lists.find('.navigable-elem')
 
       $('body').on('keydown', function(e) {
         if (!$(document.activeElement).is(':input') && (e.which === 74 || e.which === 75)) {
-          var $current = $lists.find('.navigable-elem.active')
-          var nextIndex = null
+          const $current = $lists.find('.navigable-elem.active')
+          let nextIndex = null
 
           if ($current.length === 1) {
-            var currentIndex = $navigableElems.index($current)
+            const currentIndex = $navigableElems.index($current)
             if (e.which === 75) { // J
               if (currentIndex > 0) { nextIndex = currentIndex - 1 }
             } else { // K

@@ -1,4 +1,4 @@
 -r requirements-dev.txt
 -r requirements-prod.txt
 
-coverage==5.5
+coverage==6.3.2 # check if Coveralls needs to be also updated in .github/workflows/ci.yml

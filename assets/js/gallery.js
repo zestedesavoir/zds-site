@@ -7,10 +7,10 @@
 (function($) {
   'use strict'
 
-  var $btn = $('.toggle-gallery-view')
-  var $galleryView = $('.gallery')
+  const $btn = $('.toggle-gallery-view')
+  const $galleryView = $('.gallery')
 
-  var updateBtn = function() {
+  const updateBtn = function() {
     $btn.text($galleryView.hasClass('list-view') ? 'Vue grille' : 'Vue liste')
   }
 
@@ -23,7 +23,7 @@
     updateBtn()
   }
 
-  var updateCheckbox = function() {
+  const updateCheckbox = function() {
     if (this.checked) $(this).parents('.gallery-item').addClass('selected')
     else $(this).parents('.gallery-item').removeClass('selected')
   }

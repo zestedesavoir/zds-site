@@ -22,8 +22,8 @@
     },
 
     tabbable: function(element) {
-      var tabIndex = $.attr(element, 'tabindex')
-      var isTabIndexNaN = isNaN(tabIndex)
+      const tabIndex = $.attr(element, 'tabindex')
+      const isTabIndexNaN = isNaN(tabIndex)
       return (isTabIndexNaN || tabIndex >= 0) && focusable(element, !isTabIndexNaN)
     }
   })
@@ -34,9 +34,9 @@
    * @returns {*}
    */
   function focusable(element) {
-    var map; var mapName; var img
-    var nodeName = element.nodeName.toLowerCase()
-    var isTabIndexNotNaN = !isNaN($.attr(element, 'tabindex'))
+    let map; let mapName; let img
+    const nodeName = element.nodeName.toLowerCase()
+    const isTabIndexNotNaN = !isNaN($.attr(element, 'tabindex'))
     if (nodeName === 'area') {
       map = element.parentNode
       mapName = map.name

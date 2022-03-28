@@ -7,14 +7,14 @@
 (function($) {
   'use strict'
 
-  var mouseDown = false
-  var shiftHeld = false
+  let mouseDown = false
+  let shiftHeld = false
 
   function hoveringModeEnabled() {
     return $('.header-menu').is('[data-hovering-mode]')
   }
 
-  var handlers = $('.header-dropdown')
+  const handlers = $('.header-dropdown')
     .map(function(_, dropdown) {
       return setupDropdown($(dropdown))
     })
@@ -26,7 +26,7 @@
   }
 
   function isDropdownContainer(element) {
-    for (var i = 0; i < handlers.length; i++) {
+    for (let i = 0; i < handlers.length; i++) {
       if (handlers[i].$container[0] === element) {
         return true
       }
@@ -60,8 +60,8 @@
   })
 
   function getTabIndex(element) {
-    var tabbables = $(':tabbable')
-    for (var i = 0; i < tabbables.length; i++) {
+    const tabbables = $(':tabbable')
+    for (let i = 0; i < tabbables.length; i++) {
       if (tabbables[i] === element) {
         return i
       }
@@ -70,13 +70,13 @@
   }
 
   function moveFocus(element, container, direction) {
-    var index = getTabIndex(element)
+    const index = getTabIndex(element)
     if (index === -1) {
       return
     }
 
-    var tabbables = $(':tabbable')
-    for (var i = index + direction; i < tabbables.length; i += direction) {
+    const tabbables = $(':tabbable')
+    for (let i = index + direction; i < tabbables.length; i += direction) {
       if (!container.contains(tabbables[i])) {
         closeAll()
         tabbables[i].focus()
@@ -89,9 +89,9 @@
 
   // Returns a dropdown handler
   function setupDropdown($dropdown) {
-    var $container = $dropdown.parent()
-    var $toggleLink = $container.find('> a')
-    var closingTimer
+    const $container = $dropdown.parent()
+    const $toggleLink = $container.find('> a')
+    let closingTimer
 
     $dropdown.on('click', function(event) {
       // Don't close

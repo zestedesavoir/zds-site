@@ -8,11 +8,11 @@
 (function($) {
   'use strict'
 
-  var linkToMathsTutorial = '//zestedesavoir.com/tutoriels/244/comment-rediger-des-maths-sur-zeste-de-savoir/'
-  var linkToMarkdownHelp = '//zestedesavoir.com/tutoriels/221/rediger-sur-zds/'
-  var linkToSupportedLanguages = 'https://github.com/highlightjs/highlight.js/blob/master/SUPPORTED_LANGUAGES.md'
+  const linkToMathsTutorial = '//zestedesavoir.com/tutoriels/244/comment-rediger-des-maths-sur-zeste-de-savoir/'
+  const linkToMarkdownHelp = '//zestedesavoir.com/tutoriels/221/rediger-sur-zds/'
+  const linkToSupportedLanguages = 'https://github.com/highlightjs/highlight.js/blob/master/SUPPORTED_LANGUAGES.md'
 
-  var tips = [
+  const tips = [
     'les simples retours à la ligne ne sont pas pris en compte. Pour créer un nouveau paragraphe, pensez à <em>sauter une ligne</em> !',
     'encadrez votre texte par une astérisque pour écrire en italique ou deux pour du gras.',
     'pour écrire un lien, utilisez la syntaxe <code>[texte de lien](url du lien)</code>',
@@ -32,7 +32,7 @@
 
   function addDocMD($elem) {
     $elem.each(function() {
-      var $help = $('<div/>', {
+      const $help = $('<div/>', {
         class: 'markdown-help',
         html: '<strong>Astuce :</strong> ' + tips[Math.floor(Math.random() * tips.length)] + ' <a href="' + linkToMarkdownHelp + "\">Envie d'en savoir plus ?</a><a href='#close-alert-box' class='close-alert-box ico-after cross'>Masquer</a>"
       })
@@ -49,7 +49,7 @@
         addDocMD($('.md-editor'))
       }
       $('#content').on('DOMNodeInserted', '.md-editor', function(e) {
-        var $editor = $(e.target)
+        const $editor = $(e.target)
         if ($editor.next().hasClass('markdown-help') === false) {
           addDocMD($editor)
         }

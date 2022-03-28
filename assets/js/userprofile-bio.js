@@ -8,12 +8,12 @@
 (function($) {
   'use strict'
 
-  var $bioContainer = $('body.userprofilepage .bio-container')
+  const $bioContainer = $('body.userprofilepage .bio-container')
   if (!$bioContainer[0]) return // We are not on a profile page
 
-  var $bioTextContainer = $bioContainer.find('.message-content')
-  var $bioOverflowToggleHandle = $bioContainer.find('.biography-overflow')
-  var $bioOverflowToggleLabel = $bioOverflowToggleHandle.find('p')
+  const $bioTextContainer = $bioContainer.find('.message-content')
+  const $bioOverflowToggleHandle = $bioContainer.find('.biography-overflow')
+  const $bioOverflowToggleLabel = $bioOverflowToggleHandle.find('p')
 
   if ($bioTextContainer[0].scrollHeight - $bioTextContainer.innerHeight() > 10) {
     // We detect overflow by comparing the scroll height (equal to the whole
@@ -32,7 +32,7 @@
   $bioOverflowToggleHandle.on('click', function() {
     $bioContainer.toggleClass('full-biography')
 
-    var oldLabel = $bioOverflowToggleLabel.text()
+    const oldLabel = $bioOverflowToggleLabel.text()
 
     $bioOverflowToggleLabel.text($bioOverflowToggleLabel.attr('data-other-label'))
     $bioOverflowToggleLabel.attr('data-other-label', oldLabel)
