@@ -25,77 +25,72 @@ def login_view(request):
         form = LoginForm()
     else:
         form = LoginForm(request.POST)
+
     if form.is_valid():
         username = form.cleaned_data["username"]
         password = form.cleaned_data["password"]
-        user = authenticate(username=username, password=password)
+        user = User.objects.filter(username=username).first()
         if user is None:
-            initial = {"username": username}
-            if User.objects.filter(username=username).exists():
-                messages.error(
-                    request,
-                    _(
-                        "Le mot de passe saisi est incorrect. "
-                        "Cliquez sur le lien « Mot de passe oublié ? » "
-                        "si vous ne vous en souvenez plus."
-                    ),
-                )
-            else:
-                messages.error(
-                    request,
-                    _(
-                        "Ce nom d’utilisateur est inconnu. "
-                        "Si vous ne possédez pas de compte, "
-                        "vous pouvez vous inscrire."
-                    ),
-                )
-            form = LoginForm(initial=initial)
-            if next_page is not None:
-                form.helper.form_action += "?next=" + next_page
-            csrf_tk["error"] = error
-            csrf_tk["form"] = form
-            return render(request, "member/login.html", {"form": form, "csrf_tk": csrf_tk})
-        profile = get_object_or_404(Profile, user=user)
-        if not user.is_active:
             messages.error(
                 request,
-                _(
-                    "Vous n'avez pas encore activé votre compte, "
-                    "vous devez le faire pour pouvoir vous "
-                    "connecter sur le site. Regardez dans vos "
-                    "mails : {}."
-                ).format(user.email),
-            )
-        elif not profile.can_read_now():
-            messages.error(
-                request,
-                _(
-                    "Vous n'êtes pas autorisé à vous connecter "
-                    "sur le site, vous avez été banni par un "
-                    "modérateur."
-                ),
+                _("Ce nom d’utilisateur est inconnu. Si vous ne possédez pas de compte, vous pouvez vous inscrire."),
             )
         else:
-            login(request, user)
-            request.session["get_token"] = generate_token()
-            if "remember" not in request.POST:
-                request.session.set_expiry(0)
-            profile.last_ip_address = get_client_ip(request)
-            profile.save()
-            # Redirect the user if needed.
-            # Set the cookie for Clem smileys.
-            # (For people switching account or clearing cookies
-            # after a browser session.)
-            try:
-                response = redirect(resolve(next_page).url_name)
-            except NoReverseMatch:
-                response = redirect(next_page)
-            except Resolver404:
-                response = redirect(reverse("homepage"))
-            return response
+            if not user.is_active:
+                messages.error(
+                    request,
+                    _(
+                        "Vous n'avez pas encore activé votre compte, "
+                        "vous devez le faire pour pouvoir vous "
+                        "connecter sur le site. Regardez dans vos "
+                        "mails : {}."
+                    ).format(user.email),
+                )
+            else:
+                user = authenticate(username=username, password=password)
+                if user is None:
+                    messages.error(
+                        request,
+                        _(
+                            "Le mot de passe saisi est incorrect. Cliquez sur le lien « Mot de passe oublié ? »"
+                            "si vous ne vous en souvenez plus."
+                        ),
+                    )
+                    initial = {"username": username}
 
-    if next_page is not None:
-        form.helper.form_action += "?next=" + next_page
+                    form = LoginForm(initial=initial)
+                    form.helper.form_action += "?next=" + next_page
+                    csrf_tk["error"] = error
+                    csrf_tk["form"] = form
+                    return render(request, "member/login.html", {"form": form, "csrf_tk": csrf_tk})
+                else:
+                    profile = get_object_or_404(Profile, user=user)
+                    if not profile.can_read_now():
+                        messages.error(
+                            request,
+                            _(
+                                "Vous n'êtes pas autorisé à vous connecter sur le site, vous avez été banni par un "
+                                "modérateur."
+                            ),
+                        )
+                    else:
+                        login(request, user)
+                        request.session["get_token"] = generate_token()
+                        if "remember" not in request.POST:
+                            request.session.set_expiry(0)
+                        profile.last_ip_address = get_client_ip(request)
+                        profile.save()
+                        # Redirect the user if needed.
+                        # Set the cookie for Clem smileys.
+                        # (For people switching account or clearing cookies
+                        # after a browser session.)
+                        try:
+                            response = redirect(resolve(next_page).url_name)
+                        except Resolver404:
+                            response = redirect(reverse("homepage"))
+                        return response
+
+    form.helper.form_action += "?next=" + next_page
     csrf_tk["error"] = error
     csrf_tk["form"] = form
     return render(request, "member/login.html", {"form": form, "csrf_tk": csrf_tk, "next_page": next_page})

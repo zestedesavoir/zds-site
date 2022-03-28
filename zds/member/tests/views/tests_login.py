@@ -1,80 +1,157 @@
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
+from django.utils.html import escape
 
 from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
 
 
-class MemberTests(TestCase):
-    def test_login(self):
-        """
-        To test user login.
-        """
-        user = ProfileFactory()
+class LoginTests(TestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()  # associated user is activated by default
+        self.correct_username = self.profile.user.username
+        self.wrong_username = "I_do_not_exist"
+        self.correct_password = "hostel77"
+        self.wrong_password = "XXXXX"
+        self.login_url = reverse("member-login")
 
-        # login a user. Good password then redirection to the homepage.
+    def test_nominal(self):
+        """
+        Nominal case: existing username, correct password, activated user.
+        Expected: successful login and redirect to homepage.
+        """
         result = self.client.post(
-            reverse("member-login"),
-            {"username": user.user.username, "password": "hostel77", "remember": "remember"},
+            self.login_url,
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+                "remember": "remember",
+            },
             follow=False,
         )
         self.assertRedirects(result, reverse("homepage"))
 
-        # login failed with bad password then no redirection
-        # (status_code equals 200 and not 302).
-        result = self.client.post(
-            reverse("member-login"),
-            {"username": user.user.username, "password": "hostel", "remember": "remember"},
+    def test_nonascii(self):
+        """
+        Edge case: similar to nominal, but with non-ascii username and redirect to profile.
+        Expected: successful login and redirect to profile.
+        """
+        user = NonAsciiProfileFactory()
+        result = self.client.get(
+            self.login_url + "?next=" + reverse("member-detail", args=[user.user.username]),
             follow=False,
         )
         self.assertEqual(result.status_code, 200)
-        self.assertContains(
-            result,
-            _(
-                "Le mot de passe saisi est incorrect. "
-                "Cliquez sur le lien « Mot de passe oublié ? » "
-                "si vous ne vous en souvenez plus."
-            ),
-        )
 
-        # login failed with bad username then no redirection
-        # (status_code equals 200 and not 302).
+    def test_bad_username(self):
+        """
+        Error case: bad username, password not relevant.
+        Expected: cannot log in, error associated to bad username.
+        """
         result = self.client.post(
-            reverse("member-login"), {"username": "clem", "password": "hostel77", "remember": "remember"}, follow=False
+            self.login_url,
+            {
+                "username": self.wrong_username,
+                "password": self.wrong_password,
+                "remember": "remember",
+            },
+            follow=False,
         )
-        self.assertEqual(result.status_code, 200)
-        self.assertContains(
-            result,
-            _("Ce nom d’utilisateur est inconnu. " "Si vous ne possédez pas de compte, " "vous pouvez vous inscrire."),
-        )
+        self.assertContains(result, _("Ce nom d’utilisateur est inconnu."))
 
-        # login a user. Good password and next parameter then
-        # redirection to the "next" page.
+    def test_inactive_account(self):
+        """
+        Error case: correct username, but inactive account.
+        Expected: cannot log in error associated to inactive account.
+        """
+        self.profile.user.is_active = False
+        self.profile.user.save()
+
         result = self.client.post(
-            reverse("member-login") + "?next=" + reverse("gallery:list"),
-            {"username": user.user.username, "password": "hostel77", "remember": "remember"},
+            self.login_url,
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+                "remember": "remember",
+            },
+            follow=False,
+        )
+        self.assertContains(result, escape(_("Vous n'avez pas encore activé votre compte")))
+
+    def test_correct_username_bad_password(self):
+        """
+        Error case: existing username, activated account, but wrong password.
+        Expected: cannot log in, error associated to wrong password.
+        """
+        result = self.client.post(
+            self.login_url,
+            {
+                "username": self.correct_username,
+                "password": self.wrong_password,
+                "remember": "remember",
+            },
+            follow=False,
+        )
+        self.assertContains(result, _("Le mot de passe saisi est incorrect. "))
+
+    def test_banned_user(self):
+        """
+        Error case: correct username, activated user, correct password, but banned user.
+        Expected: cannot log in, error associated with the ban.
+        """
+
+        # Equivalent to a banned user
+        self.profile.can_read = False
+        self.profile.save()
+
+        result = self.client.post(
+            self.login_url,
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+                "remember": "remember",
+            },
+            follow=False,
+        )
+        self.assertContains(result, escape(_("Vous n'êtes pas autorisé à vous connecter")))
+
+    def test_redirection_good_target(self):
+        """Nominal case: redirection to an existing page with the parameter 'next'."""
+        result = self.client.post(
+            self.login_url + "?next=" + reverse("gallery-list"),
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+                "remember": "remember",
+            },
             follow=False,
         )
         self.assertRedirects(result, reverse("gallery:list"))
 
-        # check the user is redirected to the home page if
-        # the "next" parameter points to a non-existing page.
+    def test_redirection_bad_target(self):
+        """Case failing gracefully: redirection to homepage when 'next' points to a non-existing page."""
         result = self.client.post(
-            reverse("member-login") + "?next=/foobar",
-            {"username": user.user.username, "password": "hostel77", "remember": "remember"},
+            self.login_url + "?next=/this_does_not_exist",
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+                "remember": "remember",
+            },
             follow=False,
         )
         self.assertRedirects(result, reverse("homepage"))
 
-        # check if the login form will redirect if there is
-        # a next parameter.
-        self.client.logout()
-        result = self.client.get(reverse("member-login") + "?next=" + reverse("gallery:list"))
-        self.assertContains(result, reverse("member-login") + "?next=" + reverse("gallery:list"), count=1)
-
-    def test_nonascii(self):
-        user = NonAsciiProfileFactory()
-        result = self.client.get(
-            reverse("member-login") + "?next=" + reverse("member-detail", args=[user.user.username]), follow=False
+    def test_redirection_loop_avoidance(self):
+        """
+        Case failing gracefully: redirection to homeage when 'next' risk creating a redirection loop.
+        """
+        result = self.client.post(
+            self.login_url + "?next=" + self.login_url,
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+                "remember": "remember",
+            },
+            follow=False,
         )
-        self.assertEqual(result.status_code, 200)
+        self.assertRedirects(result, reverse("homepage"))
