@@ -16,14 +16,14 @@ class FunctionTests(SimpleTestCase):
     def test_messages(self):
 
         for tag in self.tags:
-            txt = "some message with {}".format(repr(tag))
+            txt = f"some message with {repr(tag)}"
 
             test_messages = [Message(tag, txt)]
             self.assertEqual(
                 messages(test_messages), {"messages": [{"text": txt, "tags": LEVEL_TAGS[tag]}]}
             )  # clean one
 
-            txt = "['some dirty message with {}']".format(repr(tag))
+            txt = f"['some dirty message with {repr(tag)}']"
             txt_altered = txt.replace("['", "").replace("']", "")
             test_messages = [Message(tag, txt)]
             self.assertEqual(

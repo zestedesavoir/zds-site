@@ -9,7 +9,7 @@ register = template.Library()
 
 
 def obfuscate_string(value):
-    return "".join(["&#{:s};".format(str(ord(char))) for char in value])
+    return "".join([f"&#{str(ord(char)):s};" for char in value])
 
 
 @register.filter

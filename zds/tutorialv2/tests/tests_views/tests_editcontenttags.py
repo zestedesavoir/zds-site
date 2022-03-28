@@ -55,7 +55,7 @@ class EditContentTagsPermissionTests(TutorialTestMixin, TestCase):
         """Test that on form submission, unauthorized users get a 403."""
         self.client.force_login(self.outsider)
         response = self.client.post(self.form_url, self.form_data)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
 
 @override_for_contents()

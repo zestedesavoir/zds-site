@@ -83,7 +83,7 @@ def _get_version():
     if git_version is None:
         return __version__
     else:
-        return "{}/{}".format(__version__, git_version[:7])
+        return f"{__version__}/{git_version[:7]}"
 
 
 sentry_sdk.init(

@@ -121,7 +121,7 @@ class Command(BaseCommand):
                 sub = SubCategory()
                 sub.title = subcategory[0]
                 sub.subtitle = subcategory[1]
-                sub.slug = slugify("{}".format(subcategory[0]))
+                sub.slug = slugify(f"{subcategory[0]}")
                 sub.save()
                 self.stdout.write(f'[ZEP-25] : New subcategory "{sub}" added')
                 catsubcat = CategorySubCategory()

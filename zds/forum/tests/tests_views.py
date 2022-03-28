@@ -560,7 +560,7 @@ class TopicEditTest(TestCase):
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)
         self.assertTrue(topic.is_solved)
-        self.assertEquals(topic.solved_by, profile.user)
+        self.assertEqual(topic.solved_by, profile.user)
 
     def test_success_edit_topic_solved_by_staff(self):
         staff = StaffProfileFactory()
@@ -576,7 +576,7 @@ class TopicEditTest(TestCase):
         self.assertEqual(302, response.status_code)
         topic = Topic.objects.get(pk=topic.pk)
         self.assertTrue(topic.is_solved)
-        self.assertEquals(topic.solved_by, staff.user)
+        self.assertEqual(topic.solved_by, staff.user)
 
     def test_failure_edit_topic_lock_by_user(self):
         profile = ProfileFactory()

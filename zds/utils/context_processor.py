@@ -12,7 +12,7 @@ def get_version():
     Retrieve version informations from `zds/_version.py`.
     """
     if git_version is not None:
-        name = "{}/{}".format(__version__, git_version[:7])
+        name = f"{__version__}/{git_version[:7]}"
         url = get_repository_url(settings.ZDS_APP["github_projects"]["default_repository"], "base_url")
         return {"name": name, "url": f"{url}/tree/{git_version}"}
     else:

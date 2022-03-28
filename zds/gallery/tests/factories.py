@@ -10,7 +10,7 @@ class ImageFactory(factory.django.DjangoModelFactory):
         model = Image
 
     title = factory.Sequence("titre de l'image {}".format)
-    slug = factory.LazyAttribute(lambda o: "{}".format(old_slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: f"{old_slugify(o.title)}")
     legend = factory.Sequence("legende de l'image {}".format)
     physical = factory.django.ImageField(color="blue")
 
@@ -31,7 +31,7 @@ class GalleryFactory(factory.django.DjangoModelFactory):
 
     title = factory.Sequence("titre de la gallerie {}".format)
     subtitle = factory.Sequence("Sous-titre de la gallerie {}".format)
-    slug = factory.LazyAttribute(lambda o: "{}".format(old_slugify(o.title)))
+    slug = factory.LazyAttribute(lambda o: f"{old_slugify(o.title)}")
 
     @classmethod
     def _generate(cls, create, attrs):

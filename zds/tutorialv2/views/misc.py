@@ -105,7 +105,7 @@ class WarnTypo(SingleContentFormViewMixin):
     def form_valid(self, form):
         user = self.request.user
         authors = list(Profile.objects.contactable_members().filter(user__in=self.object.authors.all()))
-        authors = list([author.user for author in authors])
+        authors = list(author.user for author in authors)
 
         # check if the warn is done on a public or beta version :
         is_public = False

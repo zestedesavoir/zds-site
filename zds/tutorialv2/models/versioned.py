@@ -140,7 +140,7 @@ class Container:
         elif isinstance(self.children[0], Extract):
             return 2
         else:
-            return 1 + max([i.get_tree_level() for i in self.children])
+            return 1 + max(i.get_tree_level() for i in self.children)
 
     def has_child_with_path(self, child_path):
         """Return ``True`` if this container has a child matching the given
