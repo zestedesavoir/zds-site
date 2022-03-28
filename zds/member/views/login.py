@@ -1,12 +1,10 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.template.context_processors import csrf
 from django.urls import reverse, resolve, Resolver404, NoReverseMatch
 from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST
 
 from zds.member.forms import LoginForm
 from zds.member.models import Profile
@@ -101,14 +99,3 @@ def login_view(request):
     csrf_tk["error"] = error
     csrf_tk["form"] = form
     return render(request, "member/login.html", {"form": form, "csrf_tk": csrf_tk})
-
-
-@login_required
-@require_POST
-def logout_view(request):
-    """Log user out."""
-
-    logout(request)
-    request.session.clear()
-    response = redirect(reverse("homepage"))
-    return response

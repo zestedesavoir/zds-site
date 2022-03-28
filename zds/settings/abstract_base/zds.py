@@ -7,6 +7,8 @@ from .base_dir import BASE_DIR
 
 zds_config = config.get("zds", {})
 
+LOGOUT_REDIRECT_URL = "homepage"
+
 GEOIP_PATH = str(BASE_DIR / "geodata")
 GEOIP_CITY = "GeoLite2-City.mmdb"
 
