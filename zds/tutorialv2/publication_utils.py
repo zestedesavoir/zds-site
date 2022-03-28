@@ -414,7 +414,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         replaced_media_url = settings.MEDIA_URL
         if replaced_media_url.startswith("/"):
             replaced_media_url = replaced_media_url[1:]
-        exported = export_content(public_versionned_source, with_text=True)
+        exported = export_content(public_versionned_source, with_text=True, ready_to_publish_only=True)
         # no title to avoid zmd to put it on the final latex
         del exported["title"]
         content, metadata, messages = render_markdown(

@@ -31,7 +31,7 @@ from zds.tutorialv2.utils import (
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
-from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
+from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry, ZMarkdownRebberLatexPublicator
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds import json_handler
 from zds.utils.tests.factories import LicenceFactory
@@ -263,6 +263,14 @@ class UtilsTests(TutorialTestMixin, TestCase):
         """
         Test exported contents contain only ready_to_publish==True parts.
         """
+
+        # We save the current settings for the PDF publicator:
+        previous_pdf_publicator = PublicatorRegistry.get("pdf")
+        previous_build_pdf_when_published = self.overridden_zds_app["content"]["build_pdf_when_published"]
+        # We need to produce at least the LaTeX file, so we use the real PDF publicator:
+        PublicatorRegistry.registry["pdf"] = ZMarkdownRebberLatexPublicator(".pdf")
+        self.overridden_zds_app["content"]["build_pdf_when_published"] = True
+
         #  Medium-size tutorial
         midsize_tuto = PublishableContentFactory(type="TUTORIAL")
 
@@ -299,12 +307,31 @@ class UtilsTests(TutorialTestMixin, TestCase):
             self.assertIsNone(child.introduction)
             self.assertIsNone(child.conclusion)
 
+        # Test Markdown content:
         self.assertTrue(published.has_md())
         with Path(published.get_extra_contents_directory(), published.content_public_slug + ".md").open("r") as md:
             content = md.read()
             self.assertIn(chapter1.title, content)
             self.assertIn(chapter2.title, content)
             self.assertNotIn(chapter3.title, content)
+
+        # TODO: factorize getting the LaTeX file path with what is done in zds.tutorialv2.publication_utils.publish_content()
+        tmp_path = os.path.join(
+            settings.ZDS_APP["content"]["repo_public_path"], published.content_public_slug + "__building"
+        )
+        build_extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP["content"]["extra_contents_dirname"])
+        base_name = os.path.join(build_extra_contents_path, published.content_public_slug)
+        tex_file = base_name + ".tex"
+        # PDF generation may fail, we only test the LaTeX content:
+        with open(tex_file) as tex:
+            content = tex.read()
+            self.assertIn(chapter1.title, content)
+            self.assertIn(chapter2.title, content)
+            self.assertNotIn(chapter3.title, content)
+
+        # We set back the previous settings:
+        PublicatorRegistry.registry["pdf"] = previous_pdf_publicator
+        self.overridden_zds_app["content"]["build_pdf_when_published"] = previous_build_pdf_when_published
 
     def test_tagged_tree_extract(self):
         midsize = PublishableContentFactory(author_list=[self.user_author])
