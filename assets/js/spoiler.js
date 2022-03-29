@@ -7,7 +7,7 @@
 (function($) {
   'use strict'
 
-  function buildSpoilers($elem) {
+  function buildOldSpoilers($elem) {
     $elem.each(function() {
       const $this = $(this)
       if (!$this.hasClass('spoiler-build')) {
@@ -31,13 +31,27 @@
     })
   }
 
+  function buildNewSpoilers() {
+    for (const spoiler of document.querySelectorAll('details.custom-block-spoiler')) {
+      if (spoiler.querySelector('summary') === null) {
+        const summary = document.createElement('summary')
+        summary.classList.add('custom-block-heading')
+        summary.textContent = 'Afficher/Masquer le contenu masqué'
+        const body = spoiler.querySelector('.custom-block-body')
+        spoiler.insertBefore(summary, body)
+      }
+    }
+  }
+
   $(document).ready(function() {
     const $content = $('#content')
     $('div.spoiler').addClass('custom-block-spoiler') /* for compatibility */
-    buildSpoilers($content.find('.custom-block-spoiler'))
+    buildOldSpoilers($content.find('div.custom-block-spoiler'))
+    buildNewSpoilers()
     $content.on('DOMNodeInserted', function(e) {
-      const $spoilers = $(e.target).find('.custom-block-spoiler')
-      return buildSpoilers($spoilers)
+      const $spoilers = $(e.target).find('div.custom-block-spoiler')
+      buildOldSpoilers($spoilers)
+      return buildNewSpoilers()
     })
   })
 })(jQuery)
