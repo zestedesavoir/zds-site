@@ -33,12 +33,16 @@
 
   function buildNewSpoilers() {
     for (const spoiler of document.querySelectorAll('details.custom-block-spoiler')) {
-      if (spoiler.querySelector('summary') === null) {
-        const summary = document.createElement('summary')
+      let summary = spoiler.querySelector('summary')
+      if (summary === null) {
+        summary = document.createElement('summary')
         summary.classList.add('custom-block-heading')
         summary.textContent = 'Afficher/Masquer le contenu masqué'
         const body = spoiler.querySelector('.custom-block-body')
         spoiler.insertBefore(summary, body)
+      }
+      if (!summary.classList.contains('ico-after')) {
+        summary.classList.add('ico-after', 'view', 'light')
       }
     }
   }
