@@ -74,6 +74,9 @@ class PublishableContentFactory(factory.django.DjangoModelFactory):
         if not light:
             text = tricky_text_content
 
+        intro_content = attrs.pop("intro", text)
+        conclusion_content = attrs.pop("conclusion", text)
+
         publishable_content = super()._generate(create, attrs)
         publishable_content.gallery = GalleryFactory()
         publishable_content.licence = licence
@@ -88,7 +91,7 @@ class PublishableContentFactory(factory.django.DjangoModelFactory):
         for author in publishable_content.authors.all():
             UserGalleryFactory(user=author, gallery=publishable_content.gallery, mode="W")
 
-        init_new_repo(publishable_content, text, text)
+        init_new_repo(publishable_content, intro_content, conclusion_content)
 
         return publishable_content
 
@@ -114,14 +117,17 @@ class ContainerFactory(factory.Factory):
         # which is why we use attrs.get() (it stays in attrs).
         parent = attrs.get("parent", None)
 
-        # Needed because we use container.title later
-        container = super()._generate(create, attrs)
-
         text = text_content
         if not light:
             text = tricky_text_content
 
-        sha = parent.repo_add_container(container.title, text, text)
+        intro_content = attrs.pop("intro", text)
+        conclusion_content = attrs.pop("conclusion", text)
+
+        # Needed because we use container.title later
+        container = super()._generate(create, attrs)
+
+        sha = parent.repo_add_container(container.title, intro_content, conclusion_content)
         container = parent.children[-1]
 
         if db_object:
@@ -152,13 +158,15 @@ class ExtractFactory(factory.Factory):
         # which is why we use attrs.get() (it stays in attrs).
         container = attrs.get("container", None)
 
+        text = text_content
+        if not light:
+            text = tricky_text_content
+        text = attrs.pop("text_content", text)
+
         # Needed because we use extract.title later
         extract = super()._generate(create, attrs)
 
         parent = container
-        text = text_content
-        if not light:
-            text = tricky_text_content
 
         sha = parent.repo_add_extract(extract.title, text)
         extract = parent.children[-1]
