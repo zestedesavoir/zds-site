@@ -1,7 +1,9 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -29,38 +31,38 @@ from zds.utils import get_current_user
 MIN_PASSWORD_LENGTH = 6
 
 
-class LoginForm(forms.Form):
-    """
-    The login form, including the "remember me" checkbox.
-    """
-
-    username = forms.CharField(
-        label=_("Nom d'utilisateur"),
-        max_length=User._meta.get_field("username").max_length,
-        required=True,
-        widget=forms.TextInput(attrs={"autofocus": ""}),
-    )
-
-    password = forms.CharField(
-        label=_("Mot de passe"),
-        required=True,
-        widget=forms.PasswordInput,
-    )
-
+class LoginForm(AuthenticationForm):
     remember = forms.BooleanField(
         label=_("Se souvenir de moi"),
         initial=True,
         required=False,
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_action = reverse("member-login")
-        self.helper.form_method = "post"
-        self.helper.form_class = "content-wrapper"
+    error_messages = {
+        "invalid_login": _(
+            "Merci de saisir un nom d'utilisateur et un mot de passe corrects. Faites attention aux majuscules et "
+            "minuscules !"
+        ),
+        "inactive": _(
+            "Vous n’avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site."
+            " Regardez dans vos mails : %(email)s."
+        ),
+        "banned": _("Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur."),
+    }
 
-        self.helper.layout = Layout(
+    def __init__(self, request=None, *args, **kwargs):
+        super().__init__(request, *args, **kwargs)
+        self.helper = self.get_helper()
+        # Errors are displayed using info bars (see LoginView) instead of the form built-in error rendering
+        self.helper.form_show_errors = False
+
+    def get_helper(self):
+        """Return the FormHelper expected by cripsy."""
+        helper = FormHelper()
+        helper.form_action = reverse("member-login")
+        helper.form_method = "post"
+        helper.form_class = "content-wrapper"
+        helper.layout = Layout(
             Field("username"),
             Field("password"),
             Field("remember"),
@@ -68,6 +70,19 @@ class LoginForm(forms.Form):
                 StrictButton(_("Se connecter"), type="submit"),
             ),
         )
+        return helper
+
+    def confirm_login_allowed(self, user):
+        """Override the parent method to change the error for inactive users and prevent login of banned users."""
+        if not user.is_active:
+            raise ValidationError(
+                self.error_messages["inactive"], code="inactive", params={"email": self.user_cache.email}
+            )
+        elif not user.profile.can_read:
+            raise ValidationError(
+                self.error_messages["banned"],
+                code="banned",
+            )
 
 
 class RegisterForm(forms.Form):

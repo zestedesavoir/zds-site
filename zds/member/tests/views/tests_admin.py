@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
 from django.urls import reverse
 from django.test import TestCase
 
@@ -55,9 +55,8 @@ class MemberTests(TestCase):
 
         # LET THE TEST BEGIN !
 
-        # tester shouldn't be able to connect
-        login_check = self.client.login(username=tester.user.username, password="hostel77")
-        self.assertEqual(login_check, False)
+        # At this point, the user cannot log in because the account is inactive.
+        # This behavior is tested in the tests of LoginView.
 
         # connect as staff (superuser)
         self.client.force_login(staff.user)
@@ -87,7 +86,7 @@ class MemberTests(TestCase):
 
         self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 3)
 
-        # retract all right, keep one group only and activate account
+        # retract all rights, keep one group only and activate account
         result = self.client.post(
             reverse("member-settings-promote", kwargs={"user_pk": tester.user.id}),
             {"groups": [group.id], "activation": "on"},
@@ -108,9 +107,10 @@ class MemberTests(TestCase):
         tester = Profile.objects.get(id=tester.id)  # refresh
         self.assertEqual(len(TopicAnswerSubscription.objects.get_objects_followed_by(tester.user)), 1)
 
-        # Finally, check that user can connect and can not access the interface
-        login_check = self.client.login(username=tester.user.username, password="hostel77")
-        self.assertEqual(login_check, True)
+        # Finally, check that the user cannot access the interface.
+        tester_from_db = User.objects.get(username=tester.user.username)
+        self.assertTrue(tester_from_db.is_active)
+        self.client.force_login(tester.user)
         result = self.client.post(
             reverse("member-settings-promote", kwargs={"user_pk": staff.user.id}), {"activation": "on"}, follow=False
         )

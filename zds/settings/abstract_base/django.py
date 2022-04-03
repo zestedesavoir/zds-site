@@ -1,4 +1,3 @@
-from os.path import join
 from urllib.parse import quote
 
 from django.contrib.messages import constants as message_constants
@@ -313,7 +312,7 @@ MESSAGE_TAGS = {
 AUTHENTICATION_BACKENDS = (
     "social_core.backends.facebook.FacebookOAuth2",
     "social_core.backends.google.GoogleOAuth2",
-    "django.contrib.auth.backends.ModelBackend",
+    "django.contrib.auth.backends.AllowAllUsersModelBackend",
 )
 
 # To remove a useless warning in Django 1.7.

@@ -1,9 +1,12 @@
 from django.urls import reverse
 from django.test import TestCase
-from django.utils.translation import gettext_lazy as _
 from django.utils.html import escape
 
+from zds.member.forms import LoginForm
 from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
+
+# TODO: test correct update of IP
+# TODO: test session expiration with/without "remember me"
 
 
 class LoginTests(TestCase):
@@ -43,6 +46,22 @@ class LoginTests(TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
+    def test_empty_username_or_password(self):
+        """
+        Error case: bad username, password not relevant.
+        Expected: cannot log in, errors associated to empty username and password.
+        """
+        result = self.client.post(
+            self.login_url,
+            {
+                "username": "",
+                "password": "",
+                "remember": "remember",
+            },
+            follow=False,
+        )
+        self.assertContains(result, escape("Ce champ est obligatoire"), count=2)
+
     def test_bad_username(self):
         """
         Error case: bad username, password not relevant.
@@ -57,7 +76,7 @@ class LoginTests(TestCase):
             },
             follow=False,
         )
-        self.assertContains(result, _("Ce nom d’utilisateur est inconnu."))
+        self.assertContains(result, escape(LoginForm.error_messages["invalid_login"]))
 
     def test_inactive_account(self):
         """
@@ -76,7 +95,7 @@ class LoginTests(TestCase):
             },
             follow=False,
         )
-        self.assertContains(result, escape(_("Vous n'avez pas encore activé votre compte")))
+        self.assertContains(result, escape(LoginForm.error_messages["inactive"][:20]))
 
     def test_correct_username_bad_password(self):
         """
@@ -92,7 +111,7 @@ class LoginTests(TestCase):
             },
             follow=False,
         )
-        self.assertContains(result, _("Le mot de passe saisi est incorrect. "))
+        self.assertContains(result, escape(LoginForm.error_messages["invalid_login"]))
 
     def test_banned_user(self):
         """
@@ -113,7 +132,7 @@ class LoginTests(TestCase):
             },
             follow=False,
         )
-        self.assertContains(result, escape(_("Vous n'êtes pas autorisé à vous connecter")))
+        self.assertContains(result, escape(LoginForm.error_messages["banned"]))
 
     def test_redirection_good_target(self):
         """Nominal case: redirection to an existing page with the parameter 'next'."""
@@ -143,7 +162,7 @@ class LoginTests(TestCase):
 
     def test_redirection_loop_avoidance(self):
         """
-        Case failing gracefully: redirection to homeage when 'next' risk creating a redirection loop.
+        Case failing gracefully: redirection to homepage when 'next' risks creating a redirection loop.
         """
         result = self.client.post(
             self.login_url + "?next=" + self.login_url,
