@@ -1,12 +1,11 @@
+from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.html import escape
 
 from zds.member.forms import LoginForm
+from zds.member.models import Profile
 from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
-
-# TODO: test correct update of IP
-# TODO: test session expiration with/without "remember me"
 
 
 class LoginTests(TestCase):
@@ -17,11 +16,14 @@ class LoginTests(TestCase):
         self.correct_password = "hostel77"
         self.wrong_password = "XXXXX"
         self.login_url = reverse("member-login")
+        self.test_ip = "192.168.0.110"  # must be different from the one set by the factory to test actual change
+        self.assertNotEqual(self.test_ip, ProfileFactory.last_ip_address)
+        settings.SESSION_COOKIE_AGE = 1337
 
-    def test_nominal(self):
+    def test_nominal_and_remember_me(self):
         """
-        Nominal case: existing username, correct password, activated user.
-        Expected: successful login and redirect to homepage.
+        Nominal case: existing username, correct password, activated user, 'remember me' checked.
+        Expected: successful login, redirect to homepage, session expiration age set.
         """
         result = self.client.post(
             self.login_url,
@@ -31,8 +33,35 @@ class LoginTests(TestCase):
                 "remember": "remember",
             },
             follow=False,
+            REMOTE_ADDR=self.test_ip,
         )
+
         self.assertRedirects(result, reverse("homepage"))
+
+        # Check cookie setting
+        self.assertFalse(self.client.session.get_expire_at_browser_close())
+        self.assertEqual(self.client.session.get_expiry_age(), settings.SESSION_COOKIE_AGE)
+
+        # Check IP recording
+        profile = Profile.objects.get(user=self.profile.user)
+        self.assertEqual(profile.last_ip_address, self.test_ip)
+
+    def test_nominal_and_do_not_remember_me(self):
+        """
+        Nominal case: existing username, correct password, activated user, 'remember me' not checked.
+        Expected: successful login, redirect to homepage, session expiration at browser closing.
+        """
+        result = self.client.post(
+            self.login_url,
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+            },
+            follow=False,
+        )
+
+        self.assertRedirects(result, reverse("homepage"))
+        self.assertTrue(self.client.session.get_expire_at_browser_close())
 
     def test_nonascii(self):
         """
