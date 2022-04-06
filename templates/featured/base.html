@@ -15,20 +15,20 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url 'featured-resource-list' %}">{% trans "Mise en avant du site" %}</a></li>
+    <li><a href="{% url "featured:resource-list" %}">{% trans "Mise en avant du site" %}</a></li>
 {% endblock %}
 
 
 
 {% block sidebar %}
     <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans 'Action sur les unes' %}">
-        <a href="{% url 'featured-message-create' %}" class="new-btn ico-after more blue">
+        <a href="{% url "featured:message-create" %}" class="new-btn ico-after more blue">
             {% trans "Éditer le message d’accueil" %}
         </a>
-        <a href="{% url 'featured-resource-create' %}" class="new-btn ico-after more blue">
+        <a href="{% url "featured:resource-create" %}" class="new-btn ico-after more blue">
             {% trans "Nouvelle une" %}
         </a>
-        <a href="{% url 'featured-resource-requests' %}" class="new-btn ico-after star blue">
+        <a href="{% url "featured:resource-requests" %}" class="new-btn ico-after star blue">
             {% trans "Liste des requêtes pour les unes" %}
         </a>
 
