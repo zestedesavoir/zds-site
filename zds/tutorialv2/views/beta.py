@@ -15,7 +15,7 @@ from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.forums import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.models import get_hat_from_settings
-from zds.utils.mps import send_mp, send_message_mp
+from zds.mp.utils import send_mp, send_message_mp
 
 
 class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):

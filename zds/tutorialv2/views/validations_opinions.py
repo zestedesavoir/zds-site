@@ -30,7 +30,7 @@ from zds.tutorialv2.publication_utils import publish_content, FailureDuringPubli
 from zds.tutorialv2.utils import clone_repo
 from zds.tutorialv2.views.validations_contents import logger
 from zds.utils.models import get_hat_from_settings
-from zds.utils.mps import send_mp, send_message_mp
+from zds.mp.utils import send_mp, send_message_mp
 
 
 class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormViewMixin):
