@@ -39,7 +39,7 @@ from zds.tutorialv2.publication_utils import (
     save_validation_state,
 )
 from zds.utils.models import SubCategory, get_hat_from_settings
-from zds.utils.mps import send_mp, send_message_mp
+from zds.mp.utils import send_mp, send_message_mp
 
 logger = logging.getLogger(__name__)
 

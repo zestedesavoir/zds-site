@@ -9,7 +9,7 @@ from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.tests.factories import ProfileFactory
 from zds.mp.tests.factories import PrivateTopicFactory
 from zds.notification.models import Notification
-from zds.utils.mps import send_message_mp
+from zds.mp.utils import send_message_mp
 
 
 class NotificationListAPITest(APITestCase):
