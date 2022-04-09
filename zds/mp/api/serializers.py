@@ -8,7 +8,7 @@ from zds.member.api.serializers import UserListSerializer
 from zds.mp.commons import UpdatePrivatePost
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.mp.validators import ParticipantsUserValidator, TitleValidator, TextValidator
-from zds.utils.mps import send_mp, send_message_mp
+from zds.mp.utils import send_mp, send_message_mp
 
 
 class PrivatePostSerializer(ZdSModelSerializer):

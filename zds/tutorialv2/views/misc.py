@@ -16,7 +16,7 @@ from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2.forms import WarnTypoForm
 from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, SingleContentFormViewMixin
 from zds.tutorialv2.utils import search_container_or_404
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 
 
 class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, SingleOnlineContentViewMixin, FormView):

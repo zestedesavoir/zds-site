@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.member.models import Profile, TokenRegister, Ban
 from zds.utils.models import get_hat_from_settings
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 
 
 class ProfileCreate:

@@ -7,7 +7,6 @@ import logging
 from django.conf import settings
 
 from django.contrib.auth.models import User, Group
-from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.db import models
@@ -21,7 +20,7 @@ from easy_thumbnails.fields import ThumbnailerImageField
 from zds.utils import signals
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 from zds.utils import old_slugify
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.templatetags.emarkdown import render_markdown

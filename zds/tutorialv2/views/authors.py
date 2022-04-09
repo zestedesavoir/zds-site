@@ -13,7 +13,7 @@ from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import AuthorForm, RemoveAuthorForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.utils.models import get_hat_from_settings
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 
 
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):

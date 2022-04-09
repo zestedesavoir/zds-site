@@ -21,7 +21,7 @@ from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost, SinglePrivatePo
 from zds.mp.decorator import is_participant
 from zds.utils.models import get_hat_from_request
 from zds.forum.utils import CreatePostView
-from zds.utils.mps import send_mp, send_message_mp
+from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
 from .models import PrivateTopic, PrivatePost, mark_read, NotReachableError
