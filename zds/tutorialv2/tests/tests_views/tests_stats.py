@@ -7,11 +7,13 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import Validation, PublishedContent
+from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
 from zds.utils.tests.factories import LicenceFactory
 
@@ -32,7 +34,7 @@ def daterange(start_date, end_date):
 class StatTests(TestCase, TutorialTestMixin):
     def setUp(self):
         self.nb_part = 1
-        self.nb_chapter = 1
+        self.nb_chapter = 3
         self.nb_section = 1
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
@@ -51,7 +53,9 @@ class StatTests(TestCase, TutorialTestMixin):
                 cpt += len(child.children)
         return cpt
 
-    def _mock_response(self, start_date=None, end_date=None, duration=7, status=200, raise_for_status=None):
+    def _mock_response(
+        self, start_date=None, end_date=None, duration=7, status=200, raise_for_status=None, count_urls=None
+    ):
         methods = ["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords", "Actions.getPageUrl"]
 
         if end_date is None:
@@ -68,7 +72,8 @@ class StatTests(TestCase, TutorialTestMixin):
         mock_resp.status_code = status
         # add json data if provided
         response_data = []
-        count_urls = self.count_urls()
+        if count_urls is None:
+            count_urls = self.count_urls()
         for method in methods:
             for counter in range(count_urls):
                 json_data = {}
@@ -142,18 +147,63 @@ class StatTests(TestCase, TutorialTestMixin):
     @mock.patch("requests.post")
     def test_access_for_author(self, mock_post):
         # author can access to stats
+        text_button_back_to_global_view = _("Revenir à la vue globale")
+        text_button_compare = _("Comparer")
+        text_link_details = _("(détails)")
+
         url = reverse(
             "content:stats-content",
             kwargs={"pk": self.published.content_pk, "slug": self.published.content_public_slug},
         )
         self.client.force_login(self.user_author)
+
+        # Statistics of the global content:
         mock_post.return_value = self._mock_response()
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context_data["display"], "global")
         self.assertEqual(resp.context_data["urls"][0].name, self.published.title())
         self.assertEqual(resp.context_data["urls"][0].url, self.published.content.get_absolute_url_online())
-        self.assertEqual(len(resp.context_data["urls"]), 3)
+        self.assertEqual(len(resp.context_data["urls"]), 5)
+        self.assertNotContains(resp, text_button_back_to_global_view)
+        self.assertContains(resp, text_button_compare)
+        self.assertContains(resp, text_link_details)
+        global_urls = resp.context_data["urls"]
+
+        # Statistics of a chapter:
+        mock_post.return_value = self._mock_response(count_urls=1)
+        resp = self.client.get(url + "?urls=" + global_urls[-1].url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data["display"], "details")
+        self.assertEqual(len(resp.context_data["urls"]), 1)
+        self.assertContains(resp, text_button_back_to_global_view)
+        self.assertNotContains(resp, text_button_compare)
+        self.assertNotContains(resp, text_link_details)
+
+        # Comparison of two chapters:
+        mock_post.return_value = self._mock_response(count_urls=2)
+        resp = self.client.post(url, {"urls": [global_urls[-2].url, global_urls[-1].url]})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data["display"], "comparison")
+        self.assertEqual(len(resp.context_data["urls"]), 2)
+        self.assertContains(resp, text_button_back_to_global_view)
+        self.assertNotContains(resp, text_button_compare)
+        self.assertContains(resp, text_link_details)
+
+        # An opinion without extract:
+        opinion = self.get_small_opinion()
+        url = reverse(
+            "content:stats-content",
+            kwargs={"pk": opinion.content_pk, "slug": opinion.content_public_slug},
+        )
+        mock_post.return_value = self._mock_response(count_urls=1)
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context_data["display"], "global")
+        self.assertEqual(len(resp.context_data["urls"]), 1)
+        self.assertNotContains(resp, text_button_back_to_global_view)
+        self.assertNotContains(resp, text_button_compare)
+        self.assertNotContains(resp, text_link_details)
 
     def test_access_for_author_matomo_error(self):
         # author can access to stats, and if request to Matomo triggers an error,
@@ -313,3 +363,15 @@ class StatTests(TestCase, TutorialTestMixin):
         published = PublishedContent.objects.filter(content=bigtuto).first()
         self.assertIsNotNone(published)
         return published
+
+    def get_small_opinion(self):
+        """
+        Returns a published opinion without extract.
+        """
+        opinion = PublishableContentFactory(type="OPINION")
+        opinion.authors.add(self.user_author)
+        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode="W")
+        opinion.licence = LicenceFactory()
+        opinion.save()
+        opinion_draft = opinion.load_version()
+        return publish_content(opinion, opinion_draft)
