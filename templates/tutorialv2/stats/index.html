@@ -55,7 +55,7 @@
         {% endif %}
 
         {% if cumulative_stats %}
-            {% if display == 'global' %}
+            {% if display == 'global' and cumulative_stats|length > 1 %}
                 {% if form.non_field_errors %}
                     <p class="content-wrapper alert-box warning">
                         {{ form.non_field_errors.as_text }}
@@ -70,21 +70,21 @@
                     <th>{% trans "Vues" %}</th>
                     <th>{% trans "Temps moyen sur la page" %}</th>
                     <th>{% trans "Visiteurs uniques" %}</th>
-                    {% if display == 'global' %}<th></th>{% endif %}
+                    {% if display == 'global' and cumulative_stats|length > 1 %}<th></th>{% endif %}
                 </thead>
                 <tbody>
                     {% for url, view in cumulative_stats.items %}
                         <tr>
                             <td class="level-{{url.level}}">
                                 <a href="{{ url.url }}">{{ url.name }}</a>
-                                {% if display != 'details' %}
+                                {% if display != 'details' and cumulative_stats|length > 1 %}
                                 - <a href="?urls={{ url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
                                 {% endif %}
                             </td>
                             <td>{{ view.nb_hits }}</td>
                             <td>{{ view.avg_time_on_page|seconds_to_duration }}</td>
                             <td>{{ view.nb_uniq_visitors }}</td>
-                            {% if display == 'global' %}
+                            {% if display == 'global' and cumulative_stats|length > 1 %}
                                 <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ url.url }}" type="checkbox"></td>
                             {% endif %}
                         </tr>
@@ -92,8 +92,10 @@
                 </tbody>
             </table>
             {% if display == 'global' %}
-                <input type="submit" class="btn">{% trans "Comparer" %}</input>
-                </form>
+                {% if cumulative_stats|length > 1 %}
+                    <button type="submit" class="btn">{% trans "Comparer" %}</button>
+                    </form>
+                {% endif %}
             {% elif not content.has_extracts %}
                 <a href="{% url "content:stats-content" content.pk content.slug %}" class="btn btn-submit">{% trans "Revenir à la vue globale" %}</a>
             {% endif %}

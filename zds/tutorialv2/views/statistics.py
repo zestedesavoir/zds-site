@@ -147,10 +147,10 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def get_display_mode(self, urls):
         # TODO make display_mode an enum ?
         # Good idea, but not straightforward for the template integration
-        if len(urls) == 1:
-            return "details"
         if len(urls) == len(self.get_content_urls()):
             return "global"
+        if len(urls) == 1:
+            return "details"
         return "comparison"
 
     @staticmethod
