@@ -20,7 +20,7 @@ from zds.member.models import Profile
 from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost, SinglePrivatePostObjectMixin
 from zds.mp.decorator import is_participant
 from zds.utils.models import get_hat_from_request
-from zds.utils.forums import CreatePostView
+from zds.forum.utils import CreatePostView
 from zds.utils.mps import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm

@@ -13,7 +13,7 @@ from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.forms import BetaForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
-from zds.utils.forums import create_topic, send_post, lock_topic, unlock_topic
+from zds.forum.utils import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.models import get_hat_from_settings
 from zds.utils.mps import send_mp, send_message_mp
 
