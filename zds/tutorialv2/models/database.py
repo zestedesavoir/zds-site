@@ -214,7 +214,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         for author in self.authors.all():
             get += "&" + urlencode({"username": author.username})
 
-        return reverse("mp-new") + get
+        return reverse("mp:create") + get
 
     def get_repo_path(self, relative=False):
         """Get the path to the tutorial repository

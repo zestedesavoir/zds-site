@@ -103,7 +103,7 @@ class PrivatePostForm(forms.Form):
     def __init__(self, topic, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse("private-posts-new", args=[topic.pk, topic.slug()])
+        self.helper.form_action = reverse("mp:answer", args=[topic.pk, topic.slug()])
         self.helper.form_method = "post"
 
         self.helper.layout = Layout(

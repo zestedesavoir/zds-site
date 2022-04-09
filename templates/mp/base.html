@@ -16,14 +16,14 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "mp-list" %}">{% trans "Messagerie privée" %}</a></li>
+    <li><a href="{% url "mp:list" %}">{% trans "Messagerie privée" %}</a></li>
 {% endblock %}
 
 
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
-        <a href="{% url 'mp-new' %}" class="new-btn ico-after more blue">
+        <a href="{% url "mp:create" %}" class="new-btn ico-after more blue">
             {% trans "Nouvelle conversation" %}
         </a>
         {% block sidebar_actions %}{% endblock %}

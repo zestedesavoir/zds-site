@@ -26,7 +26,7 @@ class IndexViewTest(TestCase):
         self.client.force_login(self.profile1.user)
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
-        response = self.client.post(reverse("mp-list-delete"), {"items": [topic.pk]})
+        response = self.client.post(reverse("mp:list-delete"), {"items": [topic.pk]})
 
         self.assertEqual(302, response.status_code)
         self.assertEqual(0, PrivateTopic.objects.filter(pk=topic.pk).count())
@@ -35,7 +35,7 @@ class IndexViewTest(TestCase):
 
         self.client.force_login(self.profile1.user)
 
-        response = self.client.post(reverse("mp-list-delete"), {"items": [self.topic1.pk]})
+        response = self.client.post(reverse("mp:list-delete"), {"items": [self.topic1.pk]})
 
         self.assertEqual(302, response.status_code)
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
@@ -47,7 +47,7 @@ class IndexViewTest(TestCase):
 
         self.client.force_login(self.profile2.user)
 
-        response = self.client.post(reverse("mp-list-delete"), {"items": [self.topic1.pk]})
+        response = self.client.post(reverse("mp:list-delete"), {"items": [self.topic1.pk]})
 
         self.assertEqual(302, response.status_code)
 
@@ -63,7 +63,7 @@ class IndexViewTest(TestCase):
 
         self.client.force_login(self.profile2.user)
 
-        self.client.post(reverse("mp-list-delete"), {"items": [topic.pk]})
+        self.client.post(reverse("mp:list-delete"), {"items": [topic.pk]})
 
         self.assertEqual(1, PrivateTopic.objects.filter(pk=topic.pk).count())
 
@@ -72,7 +72,7 @@ class IndexViewTest(TestCase):
 
         self.client.force_login(self.profile1.user)
 
-        response = self.client.get(reverse("mp-list") + "?page=abc")
+        response = self.client.get(reverse("mp:list") + "?page=abc")
         self.assertEqual(response.status_code, 404)
 
     def test_topic_get_page_too_far(self):
@@ -86,7 +86,7 @@ class IndexViewTest(TestCase):
             topic.participants.add(self.profile2.user)
             PrivatePostFactory(privatetopic=topic, author=self.profile1.user, position_in_topic=1)
 
-        response = self.client.get(reverse("mp-list") + "?page=42")
+        response = self.client.get(reverse("mp:list") + "?page=42")
         self.assertEqual(response.status_code, 404)
 
 
@@ -105,7 +105,7 @@ class TopicViewTest(TestCase):
 
         self.client.force_login(self.profile1.user)
 
-        response = self.client.get(reverse("private-posts-list", args=[12, "private-topic"]))
+        response = self.client.get(reverse("mp:view", args=[12, "private-topic"]))
         self.assertEqual(404, response.status_code)
 
     def test_fail_topic_no_permission(self):
@@ -113,7 +113,7 @@ class TopicViewTest(TestCase):
 
         self.client.force_login(self.profile3.user)
 
-        response = self.client.get(reverse("private-posts-list", args=[self.topic1.pk, self.topic1.slug]), follow=True)
+        response = self.client.get(reverse("mp:view", args=[self.topic1.pk, self.topic1.slug()]), follow=True)
 
         self.assertEqual(403, response.status_code)
 
@@ -124,10 +124,10 @@ class TopicViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "private-posts-list",
+                "mp:view",
                 kwargs={
                     "pk": self.topic1.pk,
-                    "topic_slug": self.topic1.slug,
+                    "topic_slug": self.topic1.slug(),
                 },
             )
             + "?page=abc"
@@ -141,10 +141,10 @@ class TopicViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "private-posts-list",
+                "mp:view",
                 kwargs={
                     "pk": self.topic1.pk,
-                    "topic_slug": self.topic1.slug,
+                    "topic_slug": self.topic1.slug(),
                 },
             )
             + "?page=42"
@@ -158,10 +158,10 @@ class TopicViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "private-posts-list",
+                "mp:view",
                 kwargs={
                     "pk": self.topic1.pk,
-                    "topic_slug": self.topic1.slug,
+                    "topic_slug": self.topic1.slug(),
                 },
             )
         )
@@ -185,10 +185,10 @@ class TopicViewTest(TestCase):
 
         response = self.client.get(
             reverse(
-                "private-posts-list",
+                "mp:view",
                 kwargs={
                     "pk": self.topic1.pk,
-                    "topic_slug": self.topic1.slug,
+                    "topic_slug": self.topic1.slug(),
                 },
             )
             + "?page=2"
@@ -213,18 +213,18 @@ class NewTopicViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse("mp-new"), follow=True)
+        response = self.client.get(reverse("mp:create"), follow=True)
 
-        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("mp-new"))
+        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("mp:create"))
 
     def test_success_get_with_and_without_username(self):
 
-        response = self.client.get(reverse("mp-new"))
+        response = self.client.get(reverse("mp:create"))
 
         self.assertEqual(200, response.status_code)
         self.assertIsNone(response.context["form"].initial["participants"])
 
-        response2 = self.client.get(reverse("mp-new") + "?username=" + self.profile2.user.username)
+        response2 = self.client.get(reverse("mp:create") + "?username=" + self.profile2.user.username)
 
         self.assertEqual(200, response2.status_code)
         self.assertEqual(self.profile2.user.username, response2.context["form"].initial["participants"])
@@ -234,7 +234,7 @@ class NewTopicViewTest(TestCase):
         profile3 = ProfileFactory()
 
         response = self.client.get(
-            reverse("mp-new") + "?username=" + self.profile2.user.username + "&username=" + profile3.user.username
+            reverse("mp:create") + "?username=" + self.profile2.user.username + "&username=" + profile3.user.username
         )
 
         self.assertEqual(200, response.status_code)
@@ -245,19 +245,19 @@ class NewTopicViewTest(TestCase):
 
     def test_success_get_with_and_without_title(self):
 
-        response = self.client.get(reverse("mp-new"))
+        response = self.client.get(reverse("mp:create"))
 
         self.assertEqual(200, response.status_code)
         self.assertIsNone(response.context["form"].initial["title"])
 
-        response2 = self.client.get(reverse("mp-new") + "?title=Test titre")
+        response2 = self.client.get(reverse("mp:create") + "?title=Test titre")
 
         self.assertEqual(200, response2.status_code)
         self.assertEqual("Test titre", response2.context["form"].initial["title"])
 
     def test_fail_get_with_username_not_exist(self):
 
-        response2 = self.client.get(reverse("mp-new") + "?username=wrongusername")
+        response2 = self.client.get(reverse("mp:create") + "?username=wrongusername")
 
         self.assertEqual(200, response2.status_code)
         self.assertIsNone(response2.context["form"].initial["participants"])
@@ -266,7 +266,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {
                 "preview": "",
                 "participants": self.profile2.user.username,
@@ -283,7 +283,8 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse("mp-new"), {"participants": "wronguser", "title": "title", "subtitle": "subtitle", "text": "text"}
+            reverse("mp:create"),
+            {"participants": "wronguser", "title": "title", "subtitle": "subtitle", "text": "text"},
         )
 
         self.assertEqual(200, response.status_code)
@@ -297,7 +298,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {
                 "participants": f"{profile_inactive.user.username}",
                 "title": "title",
@@ -313,7 +314,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {"participants": self.profile2.user.username, "title": "title", "subtitle": "subtitle", "text": "text"},
             follow=True,
         )
@@ -323,7 +324,7 @@ class NewTopicViewTest(TestCase):
 
     def test_new_topic_with_hat(self):
         response = self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {
                 "participants": self.profile2.user.username,
                 "title": "title",
@@ -341,7 +342,7 @@ class NewTopicViewTest(TestCase):
 
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {"participants": self.profile1.user.username, "title": "title", "subtitle": "subtitle", "text": "text"},
             follow=True,
         )
@@ -356,7 +357,7 @@ class NewTopicViewTest(TestCase):
         participants = self.profile2.user.username
 
         response = self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {"participants": participants, "title": "title", "subtitle": "subtitle", "text": "text"},
             follow=True,
         )
@@ -386,27 +387,27 @@ class AnswerViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse("private-posts-new", args=[1, "private-topic"]), follow=True)
+        response = self.client.get(reverse("mp:answer", args=[1, "private-topic"]), follow=True)
 
         self.assertRedirects(
-            response, reverse("member-login") + "?next=" + reverse("private-posts-new", args=[1, "private-topic"])
+            response, reverse("member-login") + "?next=" + reverse("mp:answer", args=[1, "private-topic"])
         )
 
     def test_fail_answer_not_send_topic_pk(self):
 
-        response = self.client.post(reverse("private-posts-new", args=[999, "private-topic"]))
+        response = self.client.post(reverse("mp:answer", args=[999, "private-topic"]))
 
         self.assertEqual(404, response.status_code)
 
     def test_fail_answer_topic_no_exist(self):
 
-        response = self.client.post(reverse("private-posts-new", args=[156, "private-topic"]))
+        response = self.client.post(reverse("mp:answer", args=[156, "private-topic"]))
 
         self.assertEqual(404, response.status_code)
 
     def test_fail_cite_post_no_exist(self):
 
-        response = self.client.get(reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug]) + "&cite=4864")
+        response = self.client.get(reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]) + "&cite=4864")
 
         self.assertEqual(404, response.status_code)
 
@@ -415,22 +416,20 @@ class AnswerViewTest(TestCase):
         another_post = PrivatePostFactory(privatetopic=another_topic, author=self.profile2.user, position_in_topic=1)
 
         response = self.client.get(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={another_post.pk}"
+            reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={another_post.pk}"
         )
 
         self.assertEqual(403, response.status_code)
 
     def test_fail_cite_weird_pk(self):
-        response = self.client.get(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + "?cite=abcd"
-        )
+        response = self.client.get(reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]) + "?cite=abcd")
 
         self.assertEqual(404, response.status_code)
 
     def test_success_cite_post(self):
 
         response = self.client.get(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={self.post2.pk}"
+            reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={self.post2.pk}"
         )
 
         self.assertEqual(200, response.status_code)
@@ -438,7 +437,7 @@ class AnswerViewTest(TestCase):
     def test_success_preview_answer(self):
 
         response = self.client.post(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]),
             {"text": "answer", "preview": "", "last_post": self.topic1.last_message.pk},
             follow=True,
         )
@@ -448,7 +447,7 @@ class AnswerViewTest(TestCase):
     def test_success_answer(self):
 
         response = self.client.post(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]),
             {"text": "Bonjour Luc", "last_post": self.topic1.last_message.pk},
             follow=True,
         )
@@ -459,7 +458,7 @@ class AnswerViewTest(TestCase):
 
     def test_answer_with_hat(self):
         response = self.client.post(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]),
             {
                 "text": "Luc !?",
                 "last_post": self.topic1.last_message.pk,
@@ -477,7 +476,7 @@ class AnswerViewTest(TestCase):
         self.client.force_login(self.profile3.user)
 
         response = self.client.post(
-            reverse("private-posts-new", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]),
             {"text": "answer", "last_post": self.topic1.last_message.pk},
             follow=True,
         )
@@ -493,7 +492,7 @@ class AnswerViewTest(TestCase):
         unicode_post = PrivatePostFactory(privatetopic=unicode_topic, author=self.profile1.user, position_in_topic=1)
 
         response = self.client.post(
-            reverse("private-posts-new", args=[unicode_topic.pk, unicode_topic.slug]),
+            reverse("mp:answer", args=[unicode_topic.pk, unicode_topic.slug()]),
             {"text": "answer", "last_post": unicode_post.pk},
             follow=True,
         )
@@ -507,7 +506,7 @@ class AnswerViewTest(TestCase):
         unicode_post = PrivatePostFactory(privatetopic=unicode_topic, author=self.profile1.user, position_in_topic=1)
 
         response = self.client.post(
-            reverse("private-posts-new", args=[unicode_topic.pk, unicode_topic.slug]),
+            reverse("mp:answer", args=[unicode_topic.pk, unicode_topic.slug()]),
             {"text": "answer", "last_post": unicode_post.pk},
             follow=True,
         )
@@ -530,39 +529,34 @@ class EditPostViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse("private-posts-edit", args=[1, "private-topic", 1]), follow=True)
+        response = self.client.get(reverse("mp:post-edit", args=[1]), follow=True)
 
         self.assertRedirects(
-            response, reverse("member-login") + "?next=" + reverse("private-posts-edit", args=[1, "private-topic", 1])
+            response,
+            reverse("member-login") + "?next=" + reverse("mp:post-edit", args=[1]),
         )
 
     def test_succes_get_edit_post_page(self):
         self.client.logout()
         self.client.force_login(self.profile2.user)
 
-        response = self.client.get(
-            reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk])
-        )
+        response = self.client.get(reverse("mp:post-edit", args=[self.post2.pk]))
 
         self.assertEqual(200, response.status_code)
 
     def test_fail_edit_post_no_exist(self):
 
-        response = self.client.get(reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, 154]))
+        response = self.client.get(reverse("mp:post-edit", args=[154]))
 
         self.assertEqual(404, response.status_code)
 
     def test_fail_edit_post_not_last(self):
-        response = self.client.get(
-            reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post1.pk])
-        )
+        response = self.client.get(reverse("mp:post-edit", args=[self.post1.pk]))
 
         self.assertEqual(403, response.status_code)
 
     def test_fail_edit_post_with_no_right(self):
-        response = self.client.get(
-            reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk])
-        )
+        response = self.client.get(reverse("mp:post-edit", args=[self.post2.pk]))
 
         self.assertEqual(403, response.status_code)
 
@@ -572,7 +566,7 @@ class EditPostViewTest(TestCase):
         self.client.force_login(self.profile2.user)
 
         response = self.client.post(
-            reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk]),
+            reverse("mp:post-edit", args=[self.post2.pk]),
             {
                 "text": "update post",
             },
@@ -586,7 +580,7 @@ class EditPostViewTest(TestCase):
         """test what happens if the text is not sent"""
 
         response = self.client.post(
-            reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk]),
+            reverse("mp:post-edit", args=[self.post2.pk]),
             {
                 "text": "",
             },
@@ -598,7 +592,7 @@ class EditPostViewTest(TestCase):
         """test what happens when we preview with no text"""
 
         response = self.client.post(
-            reverse("private-posts-edit", args=[self.topic1.pk, self.topic1.slug, self.post2.pk]),
+            reverse("mp:post-edit", args=[self.post2.pk]),
             {
                 "preview": "",
             },
@@ -631,15 +625,15 @@ class LeaveViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse("mp-delete", args=[1, "private-topic"]), follow=True)
+        response = self.client.get(reverse("mp:leave", args=[1, "private-topic"]), follow=True)
 
         self.assertRedirects(
-            response, reverse("member-login") + "?next=" + reverse("mp-delete", args=[1, "private-topic"])
+            response, reverse("member-login") + "?next=" + reverse("mp:leave", args=[1, "private-topic"])
         )
 
     def test_fail_leave_topic_no_exist(self):
 
-        response = self.client.post(reverse("mp-delete", args=[999, "private-topic"]))
+        response = self.client.post(reverse("mp:leave", args=[999, "private-topic"]))
 
         self.assertEqual(404, response.status_code)
 
@@ -648,14 +642,14 @@ class LeaveViewTest(TestCase):
         self.topic1.participants.clear()
         self.topic1.save()
 
-        response = self.client.post(reverse("mp-delete", args=[self.topic1.pk, self.topic1.slug]), follow=True)
+        response = self.client.post(reverse("mp:leave", args=[self.topic1.pk, self.topic1.slug()]), follow=True)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, PrivateTopic.objects.filter(pk=self.topic1.pk).all().count())
 
     def test_success_leave_topic_as_author(self):
 
-        response = self.client.post(reverse("mp-delete", args=[self.topic1.pk, self.topic1.slug]), follow=True)
+        response = self.client.post(reverse("mp:leave", args=[self.topic1.pk, self.topic1.slug()]), follow=True)
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, PrivateTopic.objects.filter(pk=self.topic1.pk).all().count())
@@ -667,7 +661,7 @@ class LeaveViewTest(TestCase):
         self.client.logout()
         self.client.force_login(self.profile2.user)
 
-        response = self.client.post(reverse("mp-delete", args=[self.topic1.pk, self.topic1.slug]), follow=True)
+        response = self.client.post(reverse("mp:leave", args=[self.topic1.pk, self.topic1.slug()]), follow=True)
 
         self.assertEqual(200, response.status_code)
 
@@ -697,15 +691,15 @@ class AddParticipantViewTest(TestCase):
     def test_denies_anonymous(self):
 
         self.client.logout()
-        response = self.client.get(reverse("mp-edit-participant", args=[1, "private-topic"]), follow=True)
+        response = self.client.get(reverse("mp:edit-participant", args=[1, "private-topic"]), follow=True)
 
         self.assertRedirects(
-            response, reverse("member-login") + "?next=" + reverse("mp-edit-participant", args=[1, "private-topic"])
+            response, reverse("member-login") + "?next=" + reverse("mp:edit-participant", args=[1, "private-topic"])
         )
 
     def test_fail_add_participant_topic_no_exist(self):
 
-        response = self.client.post(reverse("mp-edit-participant", args=[451, "private-topic"]), follow=True)
+        response = self.client.post(reverse("mp:edit-participant", args=[451, "private-topic"]), follow=True)
 
         self.assertEqual(404, response.status_code)
 
@@ -714,7 +708,7 @@ class AddParticipantViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         self.client.post(
-            reverse("mp-edit-participant", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
             {"username": self.anonymous_account.username},
         )
 
@@ -725,7 +719,9 @@ class AddParticipantViewTest(TestCase):
     def test_fail_add_participant_who_no_exist(self):
 
         response = self.client.post(
-            reverse("mp-edit-participant", args=[self.topic1.pk, self.topic1.slug]), {"username": "178548"}, follow=True
+            reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
+            {"username": "178548"},
+            follow=True,
         )
 
         self.assertEqual(200, response.status_code)
@@ -738,7 +734,7 @@ class AddParticipantViewTest(TestCase):
         self.client.force_login(profile3.user)
 
         response = self.client.post(
-            reverse("mp-edit-participant", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
             {"username": profile3.user.username},
         )
 
@@ -748,7 +744,7 @@ class AddParticipantViewTest(TestCase):
     def test_fail_add_participant_already_in(self):
 
         response = self.client.post(
-            reverse("mp-edit-participant", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
             {"username": self.profile2.user.username},
             follow=True,
         )
@@ -761,7 +757,7 @@ class AddParticipantViewTest(TestCase):
         profile3 = ProfileFactory()
 
         response = self.client.post(
-            reverse("mp-edit-participant", args=[self.topic1.pk, self.topic1.slug]),
+            reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
             {"username": profile3.user.username},
             follow=True,
         )
@@ -789,23 +785,23 @@ class PrivateTopicEditTest(TestCase):
         self.topic1.save()
 
         # get
-        response = self.client.get(reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]), follow=True)
+        response = self.client.get(reverse("mp:edit", args=[self.topic1.pk, "private-topic"]), follow=True)
 
         self.assertRedirects(
             response,
-            reverse("member-login") + "?next=" + reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
+            reverse("member-login") + "?next=" + reverse("mp:edit", args=[self.topic1.pk, "private-topic"]),
         )
 
         # post
         response = self.client.post(
-            reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
+            reverse("mp:edit", args=[self.topic1.pk, "private-topic"]),
             {"title": "test", "subtitle": "subtest"},
             follow=True,
         )
 
         self.assertRedirects(
             response,
-            reverse("member-login") + "?next=" + reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
+            reverse("member-login") + "?next=" + reverse("mp:edit", args=[self.topic1.pk, "private-topic"]),
         )
 
         topic = PrivateTopic.objects.get(pk=self.topic1.pk)
@@ -816,7 +812,7 @@ class PrivateTopicEditTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(
-            reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
+            reverse("mp:edit", args=[self.topic1.pk, "private-topic"]),
             {"title": "test", "subtitle": "subtest"},
             follow=True,
         )
@@ -835,11 +831,11 @@ class PrivateTopicEditTest(TestCase):
 
         self.client.force_login(self.profile2.user)
 
-        response = self.client.get(reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]), follow=True)
+        response = self.client.get(reverse("mp:edit", args=[self.topic1.pk, "private-topic"]), follow=True)
         self.assertEqual(403, response.status_code)
 
         response = self.client.post(
-            reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
+            reverse("mp:edit", args=[self.topic1.pk, "private-topic"]),
             {"title": "test", "subtitle": "subtest"},
             follow=True,
         )
@@ -853,11 +849,13 @@ class PrivateTopicEditTest(TestCase):
     def test_fail_topic_doesnt_exist(self):
         self.client.force_login(self.profile1.user)
 
-        response = self.client.get(reverse("mp-edit-topic", args=[91, "private-topic"]), follow=True)
+        response = self.client.get(reverse("mp:edit", args=[91, "private-topic"]), follow=True)
         self.assertEqual(404, response.status_code)
 
         response = self.client.post(
-            reverse("mp-edit-topic", args=[91, "private-topic"]), {"title": "test", "subtitle": "subtest"}, follow=True
+            reverse("mp:edit", args=[91, "private-topic"]),
+            {"title": "test", "subtitle": "subtest"},
+            follow=True,
         )
         self.assertEqual(404, response.status_code)
 
@@ -870,7 +868,7 @@ class PrivateTopicEditTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(
-            reverse("mp-edit-topic", args=[self.topic1.pk, "private-topic"]),
+            reverse("mp:edit", args=[self.topic1.pk, "private-topic"]),
             {"title": "", "subtitle": "subtest"},
             follow=True,
         )
@@ -897,44 +895,31 @@ class PrivatePostUnreadTest(TestCase):
     def test_denies_anonymous(self):
         """Test the case of an unauthenticated user trying to unread a private post."""
         self.client.logout()
-        response = self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=True)
+        response = self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
 
         self.assertRedirects(
             response,
-            reverse("member-login") + "?next=" + reverse("private-post-unread") + "?message=" + str(self.post2.pk),
+            reverse("member-login") + "?next=" + reverse("mp:post-unread", kwargs={"pk": self.post2.pk}),
         )
 
     def test_failing_unread_post(self):
         """Test cases of invalid unread requests by an authenticated user."""
         self.client.force_login(self.author.user)
-
-        # parameter is missing
-        result = self.client.get(reverse("private-post-unread"), follow=False)
-        self.assertEqual(result.status_code, 404)
-
-        # parameter is empty
-        result = self.client.get(reverse("private-post-unread") + "?message=", follow=False)
-        self.assertEqual(result.status_code, 404)
-
-        # parameter is weird
-        result = self.client.get(reverse("private-post-unread") + "?message=" + "abc", follow=False)
-        self.assertEqual(result.status_code, 404)
-
         # parameter doesn't (yet) exist
-        result = self.client.get(reverse("private-post-unread") + "?message=" + "424242", follow=False)
+        result = self.client.get(reverse("mp:post-unread", kwargs={"pk": 424242}), follow=False)
         self.assertEqual(result.status_code, 404)
 
     def test_user_not_participating(self):
         """Test the case of a user not participating in a private topic attempting to unread a post."""
         self.client.force_login(self.outsider.user)
-        result = self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=False)
+        result = self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=False)
         self.assertEqual(result.status_code, 403)
 
     @patch("zds.mp.signals.message_unread")
     def test_unread_first_post(self, message_unread):
         self.client.force_login(self.participant.user)
-        result = self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
-        self.assertRedirects(result, reverse("mp-list"))
+        result = self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post1.pk}), follow=True)
+        self.assertRedirects(result, reverse("mp:list"))
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
             PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
         self.assertEqual(message_unread.send.call_count, 1)
@@ -942,7 +927,7 @@ class PrivatePostUnreadTest(TestCase):
     @patch("zds.mp.signals.message_unread")
     def test_unread_normal_post(self, message_unread):
         self.client.force_login(self.participant.user)
-        self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=True)
+        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
         topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
         self.assertEqual(topic_read.privatetopic, self.topic1)
         self.assertEqual(topic_read.user, self.participant.user)
@@ -952,8 +937,8 @@ class PrivatePostUnreadTest(TestCase):
     @patch("zds.mp.signals.message_unread")
     def test_multiple_unread1(self, message_unread):
         self.client.force_login(self.participant.user)
-        self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
-        self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=True)
+        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post1.pk}), follow=True)
+        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
         topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
         self.assertEqual(topic_read.privatetopic, self.topic1)
         self.assertEqual(topic_read.user, self.participant.user)
@@ -963,8 +948,8 @@ class PrivatePostUnreadTest(TestCase):
     @patch("zds.mp.signals.message_unread")
     def test_multiple_unread2(self, message_unread):
         self.client.force_login(self.participant.user)
-        self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
-        self.client.get(reverse("private-post-unread") + "?message=" + str(self.post1.pk), follow=True)
+        for _ in range(2):
+            self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post1.pk}), follow=True)
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
             PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
         self.assertEqual(message_unread.send.call_count, 2)
@@ -973,6 +958,6 @@ class PrivatePostUnreadTest(TestCase):
         mark_read(self.topic1, self.author.user)
         topic_read_old = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
         self.client.force_login(self.participant.user)
-        self.client.get(reverse("private-post-unread") + "?message=" + str(self.post2.pk), follow=True)
+        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
         topic_read_new = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
         self.assertQuerysetEqual(topic_read_old, [repr(t) for t in topic_read_new])

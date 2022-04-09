@@ -89,7 +89,7 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object URL
         :rtype: str
         """
-        return reverse("private-posts-list", args=[self.pk, self.slug()])
+        return reverse("mp:view", args=[self.pk, self.slug()])
 
     def slug(self):
         """

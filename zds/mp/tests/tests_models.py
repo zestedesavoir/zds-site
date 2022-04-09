@@ -35,7 +35,7 @@ class PrivateTopicTest(TestCase):
         self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.user2, position_in_topic=2)
 
     def test_get_absolute_url(self):
-        url = reverse("private-posts-list", args=[self.topic1.pk, self.topic1.slug()])
+        url = reverse("mp:view", args=[self.topic1.pk, self.topic1.slug()])
 
         self.assertEqual(self.topic1.get_absolute_url(), url)
 

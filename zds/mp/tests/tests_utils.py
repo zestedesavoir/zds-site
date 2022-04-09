@@ -43,7 +43,7 @@ class MpUtilTest(TestCase):
 
     def test_new_mp_email(self):
         response = self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {
                 "participants": self.user2.username
                 + ", "
@@ -78,7 +78,7 @@ class MpUtilTest(TestCase):
 
         # Create a MP
         self.client.post(
-            reverse("mp-new"),
+            reverse("mp:create"),
             {
                 "participants": self.user2.username
                 + ", "
@@ -101,7 +101,7 @@ class MpUtilTest(TestCase):
         # Add an answer
         topic1 = PrivateTopic.objects.get()
         self.client.post(
-            reverse("private-posts-new", args=[topic1.pk, topic1.slug]),
+            reverse("mp:answer", args=[topic1.pk, topic1.slug()]),
             {"text": "answer", "last_post": topic1.last_message.pk},
             follow=True,
         )

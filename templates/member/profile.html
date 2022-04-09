@@ -151,7 +151,7 @@
                                 </a>
                             {% endif %}
                             {% if usr != user and not profile.is_private and profile.can_read_now %}
-                                <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="btn-ico btn ico-after cite light">
+                                <a href="{% url "mp:create" %}?username={{ usr.username }}" class="btn-ico btn ico-after cite light">
                                     {% trans "Envoyer un message" %}
                                 </a>
                             {% endif %}

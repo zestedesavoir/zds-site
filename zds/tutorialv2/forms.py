@@ -1059,7 +1059,7 @@ class WarnTypoForm(forms.Form):
             usernames += "username=" + user.username
 
         msg = _('<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
-            reverse("mp-new"), pm_title, usernames, _("à l'auteur") if num_of_authors == 1 else _("aux auteurs")
+            reverse("mp:create"), pm_title, usernames, _("à l'auteur") if num_of_authors == 1 else _("aux auteurs")
         )
 
         version = content.sha_beta
