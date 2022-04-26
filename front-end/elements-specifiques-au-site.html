@@ -211,19 +211,19 @@ de l’attribut (ici <code class="docutils literal notranslate"><span class="pre
 <section id="api-javascript-pour-manipuler-les-modales">
 <h3>API Javascript pour manipuler les modales<a class="headerlink" href="#api-javascript-pour-manipuler-les-modales" title="Lien permanent vers ce titre"></a></h3>
 <p>Il est possible de créer des modales en Javascript. Exemple:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span> <span class="nx">m</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">Modal</span><span class="p">({</span>
-    <span class="nx">title</span><span class="o">:</span> <span class="s2">&quot;Titre de la modale&quot;</span><span class="p">,</span>
-    <span class="nx">body</span><span class="o">:</span> <span class="s2">&quot;&lt;p&gt;Contenu de la modale&lt;/p&gt;&quot;</span><span class="p">,</span> <span class="c1">// Peut être un DOMNode ou un objet jQuery</span>
-    <span class="nx">footer</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;&lt;a&gt;&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">href</span><span class="o">:</span> <span class="s2">&quot;#&quot;</span><span class="p">,</span> <span class="kd">class</span><span class="o">:</span> <span class="s2">&quot;btn btn-submit&quot;</span><span class="p">,</span> <span class="nx">text</span><span class="o">:</span> <span class="s2">&quot;Valider&quot;</span> <span class="p">}),</span> <span class="c1">// Bouton dans le footer, en plus du bouton annuler</span>
-    <span class="nx">closeText</span><span class="o">:</span> <span class="s2">&quot;Fermez-moi !&quot;</span><span class="p">,</span> <span class="c1">// Texte du bouton pour fermer. &quot;Annuler&quot; par défaut</span>
-    <span class="nx">titleIcon</span><span class="o">:</span> <span class="s2">&quot;light alert&quot;</span><span class="p">,</span> <span class="c1">// Ajoute une icone au titre de la modale</span>
-    <span class="nx">modal</span><span class="o">:</span> <span class="nx">$</span><span class="p">(</span><span class="s2">&quot;&lt;form&gt;&quot;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">action</span><span class="o">:</span> <span class="s2">&quot;/submit&quot;</span><span class="p">,</span> <span class="kd">class</span><span class="o">:</span> <span class="s2">&quot;modal modal-flex&quot;</span> <span class="p">});</span> <span class="c1">// Node qui deviendra la modale. Peut-être un formulaire.</span>
-<span class="p">});</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Modal</span><span class="p">({</span><span class="w"></span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Titre de la modale&quot;</span><span class="p">,</span><span class="w"></span>
+<span class="w">    </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;&lt;p&gt;Contenu de la modale&lt;/p&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Peut être un DOMNode ou un objet jQuery</span><span class="w"></span>
+<span class="w">    </span><span class="nx">footer</span><span class="o">:</span><span class="w"> </span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;&lt;a&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">href</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">class</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;btn btn-submit&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">text</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Valider&quot;</span><span class="w"> </span><span class="p">}),</span><span class="w"> </span><span class="c1">// Bouton dans le footer, en plus du bouton annuler</span><span class="w"></span>
+<span class="w">    </span><span class="nx">closeText</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Fermez-moi !&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Texte du bouton pour fermer. &quot;Annuler&quot; par défaut</span><span class="w"></span>
+<span class="w">    </span><span class="nx">titleIcon</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;light alert&quot;</span><span class="p">,</span><span class="w"> </span><span class="c1">// Ajoute une icone au titre de la modale</span><span class="w"></span>
+<span class="w">    </span><span class="nx">modal</span><span class="o">:</span><span class="w"> </span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;&lt;form&gt;&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;/submit&quot;</span><span class="p">,</span><span class="w"> </span><span class="kd">class</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;modal modal-flex&quot;</span><span class="w"> </span><span class="p">});</span><span class="w"> </span><span class="c1">// Node qui deviendra la modale. Peut-être un formulaire.</span><span class="w"></span>
+<span class="p">});</span><span class="w"></span>
 
-<span class="nx">m</span><span class="p">.</span><span class="nx">open</span><span class="p">();</span> <span class="c1">// Ouvre la modale</span>
-<span class="nx">m</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span> <span class="c1">// Ferme la modale</span>
-<span class="nx">Modal</span><span class="p">.</span><span class="nx">current</span><span class="p">;</span> <span class="c1">// Contient la modale courante (utile pour savoir si une modale est ouverte)</span>
-<span class="nx">Modal</span><span class="p">.</span><span class="nx">closeCurrent</span><span class="p">();</span> <span class="c1">// Ferme la modale courante</span>
+<span class="nx">m</span><span class="p">.</span><span class="nx">open</span><span class="p">();</span><span class="w"> </span><span class="c1">// Ouvre la modale</span><span class="w"></span>
+<span class="nx">m</span><span class="p">.</span><span class="nx">close</span><span class="p">();</span><span class="w"> </span><span class="c1">// Ferme la modale</span><span class="w"></span>
+<span class="nx">Modal</span><span class="p">.</span><span class="nx">current</span><span class="p">;</span><span class="w"> </span><span class="c1">// Contient la modale courante (utile pour savoir si une modale est ouverte)</span><span class="w"></span>
+<span class="nx">Modal</span><span class="p">.</span><span class="nx">closeCurrent</span><span class="p">();</span><span class="w"> </span><span class="c1">// Ferme la modale courante</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
@@ -564,9 +564,9 @@ a été ouverte automatiquement).</p></li>
 <span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">).</span><span class="nx">hasClass</span><span class="p">(</span><span class="s2">&quot;vc-snow&quot;</span><span class="p">))</span> <span class="p">{</span>
-    <span class="c1">// ...</span>
-<span class="p">}</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">if</span><span class="p">(</span><span class="nx">$</span><span class="p">(</span><span class="s2">&quot;body&quot;</span><span class="p">).</span><span class="nx">hasClass</span><span class="p">(</span><span class="s2">&quot;vc-snow&quot;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<span class="w">    </span><span class="c1">// ...</span><span class="w"></span>
+<span class="p">}</span><span class="w"></span>
 </pre></div>
 </div>
 <section id="changements-visuels-disponibles">

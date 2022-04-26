@@ -133,12 +133,12 @@ Vous pourrez à chaque fois définir une méthode à appeler en cas de succès d
 et en cas d’erreur.</p>
 <p>La première méthode prend en argument un objet issu de la désérialisation du JSON.</p>
 <p>Exemple:</p>
-<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span>    <span class="kd">const</span> <span class="nx">form</span> <span class="o">=</span> <span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.monFormulaire&#39;</span><span class="p">)</span>
-<span class="kd">const</span> <span class="nx">data</span> <span class="o">=</span> <span class="ow">new</span> <span class="nx">FormData</span><span class="p">(</span><span class="nx">form</span><span class="p">)</span>
-<span class="nx">ajax</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">),</span> <span class="nx">data</span><span class="p">,</span>
-  <span class="nx">result</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="nx">maFonctionEnCasDeSucces</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">une_valeur_retournee_par_le_serveur</span><span class="p">),</span>
-  <span class="p">()</span> <span class="p">=&gt;</span> <span class="nx">maFonctionEnCasDEchec</span><span class="p">()</span>
-<span class="p">)</span>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">form</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s1">&#39;.monFormulaire&#39;</span><span class="p">)</span><span class="w"></span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">FormData</span><span class="p">(</span><span class="nx">form</span><span class="p">)</span><span class="w"></span>
+<span class="nx">ajax</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="nx">form</span><span class="p">.</span><span class="nx">getAttribute</span><span class="p">(</span><span class="s1">&#39;action&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">data</span><span class="p">,</span><span class="w"></span>
+<span class="w">  </span><span class="nx">result</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">maFonctionEnCasDeSucces</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">une_valeur_retournee_par_le_serveur</span><span class="p">),</span><span class="w"></span>
+<span class="w">  </span><span class="p">()</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">maFonctionEnCasDEchec</span><span class="p">()</span><span class="w"></span>
+<span class="p">)</span><span class="w"></span>
 </pre></div>
 </div>
 </section>
