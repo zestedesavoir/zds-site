@@ -17,7 +17,7 @@ from zds.tutorialv2.forms import ContributionForm, RemoveContributionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.database import ContentContribution, PublishableContent
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 from zds.utils.paginator import ZdSPagingListView
 
 

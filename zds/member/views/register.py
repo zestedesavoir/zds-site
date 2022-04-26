@@ -46,7 +46,7 @@ from zds.utils.models import (
 )
 import logging
 
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 
 
 class RegisterView(CreateView, ProfileCreate, TokenGenerator):

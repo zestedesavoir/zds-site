@@ -12,7 +12,7 @@ from zds.forum.models import Forum, TopicRead, Post, Topic
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
 from zds.utils import old_slugify
-from zds.utils.forums import get_tag_by_title
+from zds.forum.utils import get_tag_by_title
 from zds.utils.models import Alert, Tag
 
 

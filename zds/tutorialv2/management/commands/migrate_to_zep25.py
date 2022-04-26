@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from django.conf import settings
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Category, SubCategory, CategorySubCategory, Tag
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 
 
 @transaction.atomic
