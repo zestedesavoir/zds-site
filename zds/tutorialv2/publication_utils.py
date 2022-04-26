@@ -1,6 +1,5 @@
 import contextlib
 import copy
-import json
 import logging
 import os
 import shutil
@@ -22,7 +21,7 @@ from zds.tutorialv2.models.database import ContentReaction, PublishedContent, Pu
 from zds.tutorialv2.publish_container import publish_use_manifest
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import export_content
-from zds.utils.forums import send_post, lock_topic
+from zds.forum.utils import send_post, lock_topic
 from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 

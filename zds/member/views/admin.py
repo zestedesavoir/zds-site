@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.member.forms import PromoteMemberForm
 from zds.member.models import Profile
 from zds.utils.models import get_hat_from_settings
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 
 
 @login_required
