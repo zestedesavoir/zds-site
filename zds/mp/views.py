@@ -386,3 +386,20 @@ class PrivatePostUnread(UpdateView):
             raise PermissionDenied
         self.perform_unread_private_post(self.object, self.request.user)
         return redirect(reverse("mp:list"))
+
+    @staticmethod
+    def perform_unread_private_post(post, user):
+        """
+        Mark the private post as unread.
+        """
+        previous_post = post.get_previous()
+        topic_read = PrivateTopicRead.objects.filter(privatetopic=post.privatetopic, user=user).first()
+        if topic_read is None and previous_post is not None:
+            PrivateTopicRead(privatepost=previous_post, privatetopic=post.privatetopic, user=user).save()
+        elif topic_read is not None and previous_post is not None:
+            topic_read.privatepost = previous_post
+            topic_read.save()
+        elif topic_read is not None:
+            topic_read.delete()
+
+        signals.message_unread.send(sender=post.privatetopic.__class__, instance=post, user=user)

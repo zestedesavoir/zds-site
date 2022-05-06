@@ -400,6 +400,13 @@ class PrivatePost(models.Model):
             is_same_private_topic = private_topic == self.privatetopic
         return is_same_private_topic and self.privatetopic.last_message == self
 
+    def get_previous(self):
+        """Return the previous post in the topic or 'None' if the post is the first one."""
+        return PrivatePost.objects.filter(
+            privatetopic=self.privatetopic,
+            position_in_topic=self.position_in_topic - 1,
+        ).first()
+
     def get_user_vote(self, user):
         """Get a user vote (like, dislike or neutral)"""
         if user.is_authenticated:
