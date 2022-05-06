@@ -10,14 +10,14 @@
 
 
 {% block breadcrumb_base %}
-    <li><a href="{% url "gallery-list" %}">{% trans "Galeries" %}</a></li>
+    <li><a href="{% url "gallery:list" %}">{% trans "Galeries" %}</a></li>
 {% endblock %}
 
 
 
 {% block sidebar %}
     <aside class="sidebar mobile-menu-hide">
-        <a href="{% url "gallery-new" %}" class="new-btn ico-after more blue">
+        <a href="{% url "gallery:create" %}" class="new-btn ico-after more blue">
             {% trans "Créer une galerie" %}
         </a>
 
@@ -31,19 +31,19 @@
                     <ul>
                         {% if permissions.write %}
                             <li>
-                                <a href="{% url "gallery-image-new" gallery.pk %}" class="ico-after more blue">
+                                <a href="{% url "gallery:image-add" gallery.pk %}" class="ico-after more blue">
                                     {% trans "Ajouter une image" %}
                                 </a>
                             </li>
                             {% if not content_linked %}
                                 <li>
-                                    <a href="{% url "gallery-edit" gallery.pk gallery.slug %}" class="ico-after edit blue">
+                                    <a href="{% url "gallery:edit" gallery.pk %}" class="ico-after edit blue">
                                         {% trans "Éditer la galerie" %}
                                     </a>
                                 </li>
                             {% endif %}
                             <li>
-                                <a href="{% url "gallery-image-import" gallery.pk %}" class="ico-after import blue">
+                                <a href="{% url "gallery:image-import" gallery.pk %}" class="ico-after import blue">
                                     {% trans "Importer une archive" %}
                                 </a>
                             </li>
@@ -52,7 +52,7 @@
                                     <a href="#delete-galleries" class="open-modal ico-after cross red">
                                         {% trans "Supprimer la galerie" %}
                                     </a>
-                                    <form action="{% url "galleries-delete" %}" method="post" id="delete-galleries" class="modal modal-flex">
+                                    <form action="{% url "gallery:delete" %}" method="post" id="delete-galleries" class="modal modal-flex">
                                         <input name="g_items" type="hidden" value="{{ gallery.pk }}" form="delete-galleries" />
                                         <p>{% trans "Êtes-vous certain de vouloir supprimer cette galerie ?" %}</p>
                                         {% csrf_token %}
