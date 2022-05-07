@@ -11,7 +11,7 @@ from zds.tutorialv2.forms import ToggleHelpForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 
 from zds.tutorialv2.models.database import PublishableContent
-from zds.utils.models import HelpWriting
+from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils.paginator import ZdSPagingListView
 
 
