@@ -49,8 +49,8 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
         comment = topic.last_message
 
         self.common_test_mark_as_potential_spam(
-            url_comments_list=reverse("topic-posts-list", args=[topic.pk, topic.slug()]),
-            url_comment_edit=reverse("post-edit") + f"?message={comment.pk}",
+            url_comments_list=reverse("forum:topic-posts-list", args=[topic.pk, topic.slug()]),
+            url_comment_edit=reverse("forum:post-edit") + f"?message={comment.pk}",
             comment=comment,
             author=author,
             staff=staff,

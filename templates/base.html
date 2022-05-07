@@ -127,7 +127,7 @@
 
     {# RSS links #}
     {% with request.GET|yesno:'?,'|add:request.GET.urlencode as rss_params %}
-    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "post-feed-rss" %}{{ rss_params | safe }}">
+    <link rel="alternate" type="application/rss+xml" title="Forum" href="{% url "forum:post-feed-rss" %}{{ rss_params | safe }}">
     <link rel="alternate" type="application/rss+xml" title="Nouveaux tutoriels (RSS)" href="{% url "tutorial:feed-rss" %}{{ rss_params | safe }}">
     <link rel="alternate" type="application/atom+xml" title="Nouveaux tutoriels (ATOM)" href="{% url "tutorial:feed-atom" %}{{ rss_params | safe }}">
     <link rel="alternate" type="application/rss+xml" title="Nouveaux articles (RSS)" href="{% url "article:feed-rss" %}{{ rss_params | safe }}">

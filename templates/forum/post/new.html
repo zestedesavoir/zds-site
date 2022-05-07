@@ -47,7 +47,7 @@
     <div class="content-wrapper">
         {% for message in posts %}
             {% captureas edit_link %}
-                {% url 'post-edit' %}?message={{ message.pk }}
+                {% url "forum:post-edit" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas hide_link %}{{ edit_link }}{% endcaptureas %}
@@ -55,11 +55,11 @@
             {% captureas alert_link %}{{ edit_link }}{% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+                {% url "forum:post-new" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas helpful_link %}
-                {% url 'post-useful' %}?message={{ message.pk }}
+                {% url "forum:post-useful" %}?message={{ message.pk }}
             {% endcaptureas %}
 
             {% captureas karma_link %}
@@ -67,7 +67,7 @@
             {% endcaptureas %}
 
             {% captureas alerts_solve_link %}
-                {% url "forum-solve-alert" %}
+                {% url "forum:solve-alert" %}
             {% endcaptureas %}
 
             {% include "misc/message.part.html" with perms_change=perms.forum.change_topic %}

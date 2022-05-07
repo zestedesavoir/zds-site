@@ -189,7 +189,7 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = PostForm(self.object, self.request.user)
-        form.helper.form_action = reverse("post-new") + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse("forum:post-new") + "?sujet=" + str(self.object.pk)
 
         posts = self.build_list_with_previous_item(context["object_list"])
         context.update(
@@ -311,7 +311,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if not self.object.forum.can_read(request.user):
-            return redirect(reverse("cats-forums-list"))
+            return redirect(reverse("forum:cats-forums-list"))
         if (
             ("text" in request.POST or request.method == "GET")
             and self.object.author != request.user
@@ -413,12 +413,12 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
 
     def create_form(self, form_class, **kwargs):
         form = form_class(initial=kwargs)
-        form.helper.form_action = reverse("topic-edit") + f"?topic={self.object.pk}"
+        form.helper.form_action = reverse("forum:topic-edit") + f"?topic={self.object.pk}"
         return form
 
     def get_form(self, form_class=TopicForm):
         form = form_class(self.request.POST)
-        form.helper.form_action = reverse("topic-edit") + f"?topic={self.object.pk}"
+        form.helper.form_action = reverse("forum:topic-edit") + f"?topic={self.object.pk}"
         return form
 
     def form_valid(self, form):
@@ -500,7 +500,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
     def get(self, request, *args, **kwargs):
         if self.kwargs.get("tag_pk"):
-            return redirect("topic-tag-find", tag_slug=self.kwargs.get("tag_slug"), permanent=True)
+            return redirect("forum:topic-tag-find", tag_slug=self.kwargs.get("tag_slug"), permanent=True)
         self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
@@ -579,12 +579,12 @@ class PostNew(CreatePostView):
 
     def create_forum(self, form_class, **kwargs):
         form = form_class(self.object, self.request.user, initial=kwargs)
-        form.helper.form_action = reverse("post-new") + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse("forum:post-new") + "?sujet=" + str(self.object.pk)
         return form
 
     def get_form(self, form_class=PostForm):
         form = self.form_class(self.object, self.request.user, self.request.POST)
-        form.helper.form_action = reverse("post-new") + "?sujet=" + str(self.object.pk)
+        form.helper.form_action = reverse("forum:post-new") + "?sujet=" + str(self.object.pk)
         return form
 
     def form_valid(self, form):
@@ -673,12 +673,12 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
     def create_form(self, form_class, **kwargs):
         form = form_class(self.object.topic, self.request.user, initial=kwargs)
-        form.helper.form_action = reverse("post-edit") + "?message=" + str(self.object.pk)
+        form.helper.form_action = reverse("forum:post-edit") + "?message=" + str(self.object.pk)
         return form
 
     def get_form(self, form_class=PostForm):
         form = self.form_class(self.object.topic, self.request.user, self.request.POST)
-        form.helper.form_action = reverse("post-edit") + "?message=" + str(self.object.pk)
+        form.helper.form_action = reverse("forum:post-edit") + "?message=" + str(self.object.pk)
         return form
 
     def form_valid(self, form):
@@ -746,7 +746,7 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
         self.perform_unread_message(self.object, self.request.user)
 
         return redirect(
-            reverse("forum-topics-list", args=[self.object.topic.forum.category.slug, self.object.topic.forum.slug])
+            reverse("forum:topics-list", args=[self.object.topic.forum.category.slug, self.object.topic.forum.slug])
         )
 
 

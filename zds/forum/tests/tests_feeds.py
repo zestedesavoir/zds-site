@@ -47,7 +47,7 @@ class LastTopicsFeedTest(TestCase):
         """Get object should return the given parameteres in an object"""
 
         factory = RequestFactory()
-        request = factory.get(reverse("topic-feed-rss") + "?forum=fofo&tag=tatag")
+        request = factory.get(reverse("forum:topic-feed-rss") + "?forum=fofo&tag=tatag")
         obj = self.topicfeed.get_object(request=request)
         self.assertEqual(obj["forum"], "fofo")
         self.assertEqual(obj["tag"], "tatag")
@@ -211,7 +211,7 @@ class LastPostsFeedTest(TestCase):
         """Get object should return the given parameteres in an object"""
 
         factory = RequestFactory()
-        request = factory.get(reverse("post-feed-rss") + "?forum=fofo&tag=tatag")
+        request = factory.get(reverse("forum:post-feed-rss") + "?forum=fofo&tag=tatag")
         obj = self.postfeed.get_object(request=request)
         self.assertEqual(obj["forum"], "fofo")
         self.assertEqual(obj["tag"], "tatag")

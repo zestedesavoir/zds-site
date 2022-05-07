@@ -265,7 +265,7 @@ def activate_account(request):
             "site_name": settings.ZDS_APP["site"]["literal_name"],
             "library_url": settings.ZDS_APP["site"]["url"] + reverse("publication:list"),
             "opinions_url": settings.ZDS_APP["site"]["url"] + reverse("opinion:list"),
-            "forums_url": settings.ZDS_APP["site"]["url"] + reverse("cats-forums-list"),
+            "forums_url": settings.ZDS_APP["site"]["url"] + reverse("forum:cats-forums-list"),
         },
     )
 

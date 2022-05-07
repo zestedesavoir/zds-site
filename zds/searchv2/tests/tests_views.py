@@ -621,7 +621,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.staff)
 
         data = {"move": "", "forum": hidden_forum.pk, "topic": topic_1.pk}
-        response = self.client.post(reverse("topic-edit"), data, follow=False)
+        response = self.client.post(reverse("forum:topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
 
