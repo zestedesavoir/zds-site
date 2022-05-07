@@ -32,6 +32,29 @@ from model_utils.managers import InheritanceManager
 logger = logging.getLogger(__name__)
 
 
+@models.Field.register_lookup
+class IsEmpty(models.Lookup):
+    """
+    A field lookup to filter empty (set to NULL or to an empty string) strings.
+    Inspired from the IsNull field lookup.
+    """
+
+    lookup_name = "isempty"
+    prepare_rhs = False
+
+    def as_sql(self, compiler, connection):
+        if not isinstance(self.rhs, bool):
+            warnings.warn(
+                "Using a non-boolean value for an isempty lookup is " "deprecated, use True or False instead.",
+                RemovedInDjango40Warning,
+            )
+        sql, params = compiler.compile(self.lhs)
+        if self.rhs:
+            return "({0} IS NULL OR {0} = '')".format(sql), params
+        else:
+            return "({0} IS NOT NULL AND {0} != '')".format(sql), params
+
+
 def image_path_category(instance, filename):
     """Return path to an image."""
     ext = filename.split(".")[-1]

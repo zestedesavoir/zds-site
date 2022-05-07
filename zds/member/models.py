@@ -172,7 +172,7 @@ class Profile(models.Model):
         :return: Queryset of draft contents with this user as author.
         """
         return self.get_user_contents_queryset(_type).filter(
-            sha_draft__isnull=False, sha_beta__isnull=True, sha_validation__isnull=True, sha_public__isnull=True
+            sha_draft__isempty=False, sha_beta__isempty=True, sha_validation__isempty=True, sha_public__isempty=True
         )
 
     def get_user_validate_contents_queryset(self, _type=None):
@@ -180,14 +180,14 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: Queryset of contents in validation with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_validation__isnull=False)
+        return self.get_user_contents_queryset(_type).filter(sha_validation__isempty=False)
 
     def get_user_beta_contents_queryset(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
         :return: Queryset of contents in beta with this user as author.
         """
-        return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False)
+        return self.get_user_contents_queryset(_type).filter(sha_beta__isempty=False)
 
     def get_content_count(self, _type=None):
         """
