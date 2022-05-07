@@ -89,7 +89,7 @@ urlpatterns = [
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^pages/", include(("zds.pages.urls", ""))),
     re_path(r"^galerie/", include(("zds.gallery.urls", ""))),
-    re_path(r"^rechercher/", include(("zds.searchv2.urls", "zds.searchv2"), namespace="search")),
+    path("rechercher/", include("zds.searchv2.urls")),
     re_path(r"^munin/", include(("zds.munin.urls", ""))),
     re_path(r"^mise-en-avant/", include(("zds.featured.urls", ""))),
     re_path(r"^notifications/", include(("zds.notification.urls", ""))),
