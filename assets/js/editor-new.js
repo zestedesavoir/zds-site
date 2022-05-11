@@ -613,10 +613,10 @@
             {
               name: 'char3',
               action: (e) => {
-                toggleEmoji(e.codemirror, ':)')
+                toggleEmoji(e.codemirror, ';)')
               },
               className: 'emoji clin',
-              title: ':)'
+              title: ';)'
             },
             {
               name: 'char8',
