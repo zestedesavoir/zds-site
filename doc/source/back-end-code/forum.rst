@@ -24,3 +24,9 @@ Vues (``views.py``)
 
 .. automodule:: zds.forum.views
     :members:
+
+Les utilitaires (``utils.py``)
+==============================
+
+.. automodule:: zds.forum.utils
+    :members:

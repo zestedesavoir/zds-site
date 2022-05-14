@@ -56,7 +56,7 @@ une couleur pour quelque chose, vous devez piocher dedans.
    :align: center
 
 .. seealso::
-   Cette palette est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#couleurs>`_,
+   Cette palette est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#couleurs>`__,
    avec un outil pour déterminer la couleur la plus proche d'une couleur donnée
    dans la palette.
 
@@ -76,7 +76,8 @@ Ainsi, n'écrivez pas :
 
 Mais plutôt :
 
-.. sourcecode:: scss
+.. La coloration syntaxique ne comprend pas le dollar (cf https://github.com/pygments/pygments/issues/2130), donc pas de langage précisé
+.. sourcecode::
 
    .smoothie {
        color: $accent-400;
@@ -117,7 +118,7 @@ Concernant les **tailles** de texte, elles sont également normalisées. Vous po
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#polices>`_,
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#polices>`__,
    avec prévisualisation pour les trois familles de police utilisées.
 
 Longueurs
@@ -134,7 +135,7 @@ de la variable correspond à la longueur en pixels (ou en dixième de ``rem``).
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#longueurs>`_.
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#longueurs>`__.
 
 .. attention::
    Cette norme peut être ignorée s'il s'agit d'aligner des éléments au pixel près. Cela dit, un code
@@ -154,7 +155,7 @@ Si un élément doit recevoir une ombre, utilisez l'une des six ombres standardi
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#ombres>`_.
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#ombres>`__.
 
 Arrondis
 --------
@@ -167,7 +168,7 @@ circulaire, l'élément devra avoir des dimensions carrées).
    :align: center
 
 .. seealso::
-   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#arrondis>`_.
+   Cette liste est également `disponible en version interactive <https://zestedesavoir.github.io/normes-graphiques/#arrondis>`__.
 
 
 Recommandations pour un SCSS propre
