@@ -1,6 +1,8 @@
 import random
 from datetime import datetime
+import sys
 
+import django
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -66,6 +68,8 @@ def about(request):
             "default_repository_url": get_repository_url(
                 settings.ZDS_APP["github_projects"]["default_repository"], "base_url"
             ),
+            "django_major_version": django.VERSION[0],
+            "python_major_version": sys.version_info.major,
         },
     )
 
