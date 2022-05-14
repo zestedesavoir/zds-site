@@ -453,9 +453,9 @@ class Comment(models.Model):
         """
         We override the save method for two tasks:
         1. we want to analyze the pings in the message to know if notifications
-           needs to be created;
+        needs to be created;
         2. if this comment is marked as potential spam, we need to open an alert
-           in case of update by its author.
+        in case of update by its author.
         """
         super().save(*args, **kwargs)
 
