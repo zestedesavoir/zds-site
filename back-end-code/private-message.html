@@ -57,6 +57,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Les messages privés (<code class="docutils literal notranslate"><span class="pre">mp/</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.mp.models">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.mp.views">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#les-utilitaires-utils-py">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="searchv2.html">La recherche (<code class="docutils literal notranslate"><span class="pre">searchv2/</span></code>)</a></li>
@@ -105,6 +106,7 @@
 <ul>
 <li><p><a class="reference internal" href="#module-zds.mp.models" id="id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a></p></li>
 <li><p><a class="reference internal" href="#module-zds.mp.views" id="id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#les-utilitaires-utils-py" id="id4">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a></p></li>
 </ul>
 </li>
 </ul>
@@ -730,6 +732,56 @@ Subclasses can override this to return any object.</p>
 POST variables and then check if it’s valid.</p>
 </dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="les-utilitaires-utils-py">
+<h2><a class="toc-backref" href="#id4">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a><a class="headerlink" href="#les-utilitaires-utils-py" title="Lien permanent vers ce titre"></a></h2>
+<p>Ce module ajoute des fonctions utiles permettant de gérer l’ajout et la réponse à des messages privés.</p>
+<p>Il est important d’utiliser ces méthodes pour réaliser ces actions sous peine d’oublier des actions.</p>
+<p>Ces méthodes permettent un lien direct avec le module « notifications ».</p>
+<span class="target" id="module-zds.mp.utils"></span><dl class="py function">
+<dt class="sig sig-object py" id="zds.mp.utils.send_message_mp">
+<span class="sig-prename descclassname"><span class="pre">zds.mp.utils.</span></span><span class="sig-name descname"><span class="pre">send_message_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_topic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_by_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">no_notification_for</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.utils.send_message_mp" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Send a post in an MP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Paramètres</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>author</strong> – sender of the private message</p></li>
+<li><p><strong>n_topic</strong> – topic in which it will be sent</p></li>
+<li><p><strong>text</strong> – content of the message</p></li>
+<li><p><strong>send_by_mail</strong> – if True, also notify by email</p></li>
+<li><p><strong>direct</strong> – send a mail directly without private message (ex : banned members who won’t connect again)</p></li>
+<li><p><strong>hat</strong> – hat attached to the message</p></li>
+<li><p><strong>no_notification_for</strong> – list of participants who won’t be notified of the message</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="zds.mp.utils.send_mp">
+<span class="sig-prename descclassname"><span class="pre">zds.mp.utils.</span></span><span class="sig-name descname"><span class="pre">send_mp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">users</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">send_by_mail</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leave</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">direct</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">automatically_read</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.utils.send_mp" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Send a private message in a new private topic.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Paramètres</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>author</strong> – sender of the message and author of the private topic</p></li>
+<li><p><strong>users</strong> – list of users receiving the message (participants of the private topic)</p></li>
+<li><p><strong>title</strong> – title of the private topic</p></li>
+<li><p><strong>subtitle</strong> – subtitle of the private topic</p></li>
+<li><p><strong>text</strong> – content of the private message</p></li>
+<li><p><strong>send_by_mail</strong> – </p></li>
+<li><p><strong>direct</strong> – send a mail directly without mp (ex : ban members who wont connect again)</p></li>
+<li><p><strong>leave</strong> – if True, do not add the sender to the topic</p></li>
+<li><p><strong>hat</strong> – hat with which to send the private message</p></li>
+<li><p><strong>automatically_read</strong> – a user or a list of users that will automatically be marked as having read of the mp</p></li>
+</ul>
+</dd>
+<dt class="field-even">Lève</dt>
+<dd class="field-even"><p><strong>UnreachableUserError</strong> – </p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

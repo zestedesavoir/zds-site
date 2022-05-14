@@ -54,6 +54,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.forum.models">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.forum.managers">Les managers (<code class="docutils literal notranslate"><span class="pre">managers.py</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.forum.views">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-zds.forum.utils">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="gallery.html">Les galleries (<code class="docutils literal notranslate"><span class="pre">gallery/</span></code>)</a></li>
@@ -107,6 +108,7 @@
 <li><p><a class="reference internal" href="#module-zds.forum.models" id="id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a></p></li>
 <li><p><a class="reference internal" href="#module-zds.forum.managers" id="id3">Les managers (<code class="docutils literal notranslate"><span class="pre">managers.py</span></code>)</a></p></li>
 <li><p><a class="reference internal" href="#module-zds.forum.views" id="id4">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#module-zds.forum.utils" id="id5">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a></p></li>
 </ul>
 </li>
 </ul>
@@ -1029,6 +1031,48 @@ Subclasses can override this to return any object.</p>
 <cite>QuerySet</cite> in which case <cite>QuerySet</cite> specific behavior will be enabled.</p>
 </dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="module-zds.forum.utils">
+<span id="les-utilitaires-utils-py"></span><h2><a class="toc-backref" href="#id5">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.utils" title="Lien permanent vers ce titre"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="zds.forum.utils.CreatePostView">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.utils.</span></span><span class="sig-name descname"><span class="pre">CreatePostView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.utils.CreatePostView" title="Lien permanent vers cette définition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="zds.forum.utils.CreatePostView.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.utils.CreatePostView.get" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Handle GET requests: instantiate a blank version of the form.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.forum.utils.CreatePostView.post">
+<span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.utils.CreatePostView.post" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Handle POST requests: instantiate a form instance with the passed
+POST variables and then check if it’s valid.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="zds.forum.utils.create_topic">
+<span class="sig-prename descclassname"><span class="pre">zds.forum.utils.</span></span><span class="sig-name descname"><span class="pre">create_topic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">author</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tags</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">related_publishable_content</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.utils.create_topic" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>create topic in forum</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="zds.forum.utils.get_tag_by_title">
+<span class="sig-prename descclassname"><span class="pre">zds.forum.utils.</span></span><span class="sig-name descname"><span class="pre">get_tag_by_title</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.utils.get_tag_by_title" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Extract tags from title.
+In a title, tags can be set this way:
+&gt; [Tag 1][Tag 2] There is the real title
+Rules to detect tags:
+- Tags are enclosed in square brackets. This allows multi-word tags instead of hashtags.
+- Tags can embed square brackets: [Tag] is a valid tag and must be written [[Tag]] in the raw title
+- All tags must be declared at the beginning of the title. Example: _ »Title [tag] »_ will not create a tag.
+- Tags and title correctness (example: empty tag/title detection) is <strong>not</strong> checked here
+:param title: The raw title
+:return: A tuple: (the tag list, the title without the tags).</p>
 </dd></dl>
 
 </section>

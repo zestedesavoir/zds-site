@@ -294,10 +294,10 @@
 </li>
       <li><a href="back-end-code/utils.html#zds.utils.models.Comment">Comment (classe dans zds.utils.models)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="back-end-code/utils.html#zds.utils.models.Comment.DoesNotExist">Comment.DoesNotExist</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="back-end-code/utils.html#zds.utils.models.Comment.MultipleObjectsReturned">Comment.MultipleObjectsReturned</a>
 </li>
       <li><a href="back-end-code/utils.html#zds.utils.models.CommentEdit">CommentEdit (classe dans zds.utils.models)</a>
@@ -377,6 +377,10 @@
       <li><a href="back-end-code/utils.html#zds.utils.misc.convert_camel_to_underscore">convert_camel_to_underscore() (dans le module zds.utils.misc)</a>
 </li>
       <li><a href="back-end-code/pages.html#zds.pages.views.cookies">cookies() (dans le module zds.pages.views)</a>
+</li>
+      <li><a href="back-end-code/forum.html#zds.forum.utils.create_topic">create_topic() (dans le module zds.forum.utils)</a>
+</li>
+      <li><a href="back-end-code/forum.html#zds.forum.utils.CreatePostView">CreatePostView (classe dans zds.forum.utils)</a>
 </li>
       <li><a href="back-end-code/pages.html#zds.pages.views.custom_error_500">custom_error_500() (dans le module zds.pages.views)</a>
 </li>
@@ -669,6 +673,8 @@
       <li><a href="back-end-code/tutorialv2.html#zds.tutorialv2.publication_utils.PublicatorRegistry.get">get() (méthode de la classe zds.tutorialv2.publication_utils.PublicatorRegistry)</a>
 
       <ul>
+        <li><a href="back-end-code/forum.html#zds.forum.utils.CreatePostView.get">(méthode zds.forum.utils.CreatePostView)</a>
+</li>
         <li><a href="back-end-code/forum.html#zds.forum.views.ForumTopicsListView.get">(méthode zds.forum.views.ForumTopicsListView)</a>
 </li>
         <li><a href="back-end-code/forum.html#zds.forum.views.PostEdit.get">(méthode zds.forum.views.PostEdit)</a>
@@ -1198,6 +1204,8 @@
 </li>
       <li><a href="back-end-code/member.html#zds.member.models.Profile.get_solved_hat_requests">get_solved_hat_requests() (méthode zds.member.models.Profile)</a>
 </li>
+      <li><a href="back-end-code/forum.html#zds.forum.utils.get_tag_by_title">get_tag_by_title() (dans le module zds.forum.utils)</a>
+</li>
       <li><a href="back-end-code/tutorialv2.html#zds.tutorialv2.utils.get_target_tagged_tree">get_target_tagged_tree() (dans le module zds.tutorialv2.utils)</a>
 </li>
       <li><a href="back-end-code/tutorialv2.html#zds.tutorialv2.utils.get_target_tagged_tree_for_container">get_target_tagged_tree_for_container() (dans le module zds.tutorialv2.utils)</a>
@@ -1650,6 +1658,8 @@
 </li>
         <li><a href="back-end-code/forum.html#module-zds.forum.models">zds.forum.models</a>
 </li>
+        <li><a href="back-end-code/forum.html#module-zds.forum.utils">zds.forum.utils</a>
+</li>
         <li><a href="back-end-code/forum.html#module-zds.forum.views">zds.forum.views</a>
 </li>
         <li><a href="back-end-code/gallery.html#module-zds.gallery.auto_upload_gallery">zds.gallery.auto_upload_gallery</a>
@@ -1667,6 +1677,8 @@
         <li><a href="back-end-code/member.html#module-zds.member.views">zds.member.views</a>
 </li>
         <li><a href="back-end-code/private-message.html#module-zds.mp.models">zds.mp.models</a>
+</li>
+        <li><a href="back-end-code/private-message.html#module-zds.mp.utils">zds.mp.utils</a>
 </li>
         <li><a href="back-end-code/private-message.html#module-zds.mp.views">zds.mp.views</a>
 </li>
@@ -1804,6 +1816,8 @@
       <li><a href="back-end-code/featured.html#zds.featured.views.FeaturedRequestedUpdate.post">post() (méthode zds.featured.views.FeaturedRequestedUpdate)</a>
 
       <ul>
+        <li><a href="back-end-code/forum.html#zds.forum.utils.CreatePostView.post">(méthode zds.forum.utils.CreatePostView)</a>
+</li>
         <li><a href="back-end-code/forum.html#zds.forum.views.ForumTopicsListView.post">(méthode zds.forum.views.ForumTopicsListView)</a>
 </li>
         <li><a href="back-end-code/forum.html#zds.forum.views.ManageGitHubIssue.post">(méthode zds.forum.views.ManageGitHubIssue)</a>
@@ -2055,12 +2069,16 @@
 </li>
       <li><a href="back-end-code/searchv2.html#zds.searchv2.views.SearchView">SearchView (classe dans zds.searchv2.views)</a>
 </li>
-      <li><a href="back-end-code/private-message.html#zds.mp.models.PrivateTopic.set_as_author">set_as_author() (méthode zds.mp.models.PrivateTopic)</a>
+      <li><a href="back-end-code/private-message.html#zds.mp.utils.send_message_mp">send_message_mp() (dans le module zds.mp.utils)</a>
 </li>
-      <li><a href="back-end-code/utils.html#zds.utils.models.Comment.set_user_vote">set_user_vote() (méthode zds.utils.models.Comment)</a>
+      <li><a href="back-end-code/private-message.html#zds.mp.utils.send_mp">send_mp() (dans le module zds.mp.utils)</a>
+</li>
+      <li><a href="back-end-code/private-message.html#zds.mp.models.PrivateTopic.set_as_author">set_as_author() (méthode zds.mp.models.PrivateTopic)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="back-end-code/utils.html#zds.utils.models.Comment.set_user_vote">set_user_vote() (méthode zds.utils.models.Comment)</a>
+</li>
       <li><a href="back-end-code/searchv2.html#zds.searchv2.models.ESIndexManager.setup_custom_analyzer">setup_custom_analyzer() (méthode zds.searchv2.models.ESIndexManager)</a>
 </li>
       <li><a href="back-end-code/searchv2.html#zds.searchv2.models.ESIndexManager.setup_search">setup_search() (méthode zds.searchv2.models.ESIndexManager)</a>
@@ -2286,6 +2304,13 @@
 </li>
       </ul></li>
       <li>
+    zds.forum.utils
+
+      <ul>
+        <li><a href="back-end-code/forum.html#module-zds.forum.utils">module</a>
+</li>
+      </ul></li>
+      <li>
     zds.forum.views
 
       <ul>
@@ -2349,6 +2374,13 @@
 </li>
       </ul></li>
       <li>
+    zds.mp.utils
+
+      <ul>
+        <li><a href="back-end-code/private-message.html#module-zds.mp.utils">module</a>
+</li>
+      </ul></li>
+      <li>
     zds.mp.views
 
       <ul>
@@ -2369,6 +2401,8 @@
         <li><a href="back-end-code/searchv2.html#module-zds.searchv2.models">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     zds.searchv2.views
 
@@ -2376,8 +2410,6 @@
         <li><a href="back-end-code/searchv2.html#module-zds.searchv2.views">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     zds.tutorialv2.forms
 
