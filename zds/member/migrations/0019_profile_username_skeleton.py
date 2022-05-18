@@ -2,10 +2,9 @@
 
 from django.db import migrations, models
 
-from zds.member.models import Profile
-
 
 def init_skeleton(apps, schema_editor):
+    Profile = apps.get_model("member", "Profile")
     profiles = Profile.objects.all()
     for profile in profiles:
         profile.username_skeleton = Profile.find_username_skeleton(profile.user.username)
@@ -13,6 +12,7 @@ def init_skeleton(apps, schema_editor):
 
 
 def remove_skeleton(apps, schema_editor):
+    Profile = apps.get_model("member", "Profile")
     profiles = Profile.objects.all()
     for profile in profiles:
         profile.username_skeleton = None

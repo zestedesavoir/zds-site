@@ -213,6 +213,7 @@ class UpdateMember(UpdateView):
                 "site": profile.site,
                 "avatar_url": profile.avatar_url,
                 "show_sign": profile.show_sign,
+                "hide_forum_activity": profile.hide_forum_activity,
                 "is_hover_enabled": profile.is_hover_enabled,
                 "allow_temp_visual_changes": profile.allow_temp_visual_changes,
                 "show_markdown_help": profile.show_markdown_help,
@@ -255,6 +256,7 @@ class UpdateMember(UpdateView):
         profile.show_markdown_help = "show_markdown_help" in cleaned_data_options
         profile.email_for_answer = "email_for_answer" in cleaned_data_options
         profile.email_for_new_mp = "email_for_new_mp" in cleaned_data_options
+        profile.hide_forum_activity = "hide_forum_activity" in cleaned_data_options
         profile.avatar_url = form.data["avatar_url"]
         profile.sign = form.data["sign"]
         profile.licence = form.cleaned_data["licence"]

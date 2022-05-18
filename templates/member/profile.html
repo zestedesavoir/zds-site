@@ -458,49 +458,51 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if topics_count > 0 or messages_count > 0 or followed_topics_count > 0 and profile.user == user %}
-                                    <div class="linkbox-item primary">
-                                        <div class="head">
-                                            <h3>{% trans 'Forum' %}</h3>
+                                {% if not profile.hide_forum_activity or user.is_staff or profile.user == user %}
+                                    {% if topics_count > 0 or messages_count > 0 or followed_topics_count > 0 and profile.user == user %}
+                                        <div class="linkbox-item primary">
+                                            <div class="head">
+                                                <h3>{% trans 'Forum' %}</h3>
+                                            </div>
+
+                                            {% if topics_count > 0 %}
+                                                <a href="{% url 'topic-find' usr.pk %}" class="tail">
+                                                    <p>
+                                                        {% blocktrans count topics_count=topics_count %}
+                                                            <span class="bold">{{ topics_count }}</span> sujet créé
+                                                        {% plural %}
+                                                            <span class="bold">{{ topics_count }}</span> sujets créés
+                                                        {% endblocktrans %}
+                                                    </p>
+                                                </a>
+                                            {% endif %}
+
+                                            {% if followed_topics_count > 0 and profile.user == user %}
+                                                <a href="{% url 'followed-topic-find' %}" class="tail">
+                                                    <p>
+
+                                                        {% blocktrans count followed_topics_count=followed_topics_count %}
+                                                            <span class="bold">{{ followed_topics_count }}</span> sujet suivi
+                                                        {% plural %}
+                                                            <span class="bold">{{ followed_topics_count }}</span> sujets suivis
+                                                        {% endblocktrans %}
+                                                    </p>
+                                                </a>
+                                            {% endif %}
+
+                                            {% if messages_count > 0 %}
+                                                <a href="{% url 'post-find' usr.pk %}" class="tail">
+                                                    <p>
+                                                        {% blocktrans count messages_count=messages_count %}
+                                                            <span class="bold">{{ messages_count }}</span> message posté
+                                                        {% plural %}
+                                                            <span class="bold">{{ messages_count }}</span> messages postés
+                                                        {% endblocktrans %}
+                                                    </p>
+                                                </a>
+                                            {% endif %}
                                         </div>
-
-                                        {% if topics_count > 0 %}
-                                            <a href="{% url 'topic-find' usr.pk %}" class="tail">
-                                                <p>
-                                                    {% blocktrans count topics_count=topics_count %}
-                                                        <span class="bold">{{ topics_count }}</span> sujet créé
-                                                    {% plural %}
-                                                        <span class="bold">{{ topics_count }}</span> sujets créés
-                                                    {% endblocktrans %}
-                                                </p>
-                                            </a>
-                                        {% endif %}
-
-                                        {% if followed_topics_count > 0 and profile.user == user %}
-                                            <a href="{% url 'followed-topic-find' %}" class="tail">
-                                                <p>
-
-                                                    {% blocktrans count followed_topics_count=followed_topics_count %}
-                                                        <span class="bold">{{ followed_topics_count }}</span> sujet suivi
-                                                    {% plural %}
-                                                        <span class="bold">{{ followed_topics_count }}</span> sujets suivis
-                                                    {% endblocktrans %}
-                                                </p>
-                                            </a>
-                                        {% endif %}
-
-                                        {% if messages_count > 0 %}
-                                            <a href="{% url 'post-find' usr.pk %}" class="tail">
-                                                <p>
-                                                    {% blocktrans count messages_count=messages_count %}
-                                                        <span class="bold">{{ messages_count }}</span> message posté
-                                                    {% plural %}
-                                                        <span class="bold">{{ messages_count }}</span> messages postés
-                                                    {% endblocktrans %}
-                                                </p>
-                                            </a>
-                                        {% endif %}
-                                    </div>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                         </div>
@@ -547,25 +549,27 @@
             {% endif %}
 
             {% if topics %}
-                <section>
-                    <h2 itemprop="name">
-                        <span>{% trans 'Derniers sujets créés' %}</span>
-                        <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
-                    </h2>
+                {% if not profile.hide_forum_activity or user.is_staff or profile.user == user %}
+                    <section>
+                        <h2 itemprop="name">
+                            <span>{% trans 'Derniers sujets créés' %}</span>
+                            <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
+                        </h2>
 
-                    {% if topics %}
-                        <div class="content-item-list">
-                            {% for topic in topics %}
-                                {% include 'forum/includes/topic_item.part.html' %}
-                                {% if forloop.last %}
-                                    <span class="fill"></span>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <p>{% trans "Aucun sujet créé." %}</p>
-                    {% endif %}
-                </section>
+                        {% if topics %}
+                            <div class="content-item-list">
+                                {% for topic in topics %}
+                                    {% include 'forum/includes/topic_item.part.html' %}
+                                    {% if forloop.last %}
+                                        <span class="fill"></span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p>{% trans "Aucun sujet créé." %}</p>
+                        {% endif %}
+                    </section>
+                {% endif %}
             {% endif %}
 
             {% if perms.member.change_profile and profile.user.is_active %}

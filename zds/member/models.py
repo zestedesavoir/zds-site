@@ -53,6 +53,9 @@ class Profile(models.Model):
     )
     github_token = models.TextField("GitHub", blank=True)
     show_sign = models.BooleanField("Voir les signatures", default=True)
+    hide_forum_activity = models.BooleanField(
+        "Masquer l'activité de forum et les commentaires sur la page de profil", default=False
+    )
     # do UI components open by hovering them, or is clicking on them required?
     is_hover_enabled = models.BooleanField("Déroulement au survol ?", default=False)
     allow_temp_visual_changes = models.BooleanField("Activer les changements visuels temporaires", default=True)
