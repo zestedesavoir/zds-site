@@ -657,6 +657,22 @@
               },
               className: 'emoji ange',
               title: ':ange:'
+            },
+            {
+              name: 'char9',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':popcorn:')
+              },
+              className: 'emoji popcorn',
+              title: ':popcorn:'
+            },
+            {
+              name: 'char10',
+              action: (e) => {
+                toggleEmoji(e.codemirror, ':bounce:')
+              },
+              className: 'emoji bounce',
+              title: ':bounce:'
             }
           ]
         },
