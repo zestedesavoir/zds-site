@@ -14,7 +14,7 @@ from rest_framework.generics import (
     RetrieveUpdateAPIView,
     ListAPIView,
 )
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
@@ -36,6 +36,7 @@ from zds.mp.api.serializers import (
     PrivateTopicCreateSerializer,
     PrivatePostSerializer,
     PrivatePostActionSerializer,
+    PrivatePostKarmaSerializer,
 )
 from zds.mp.commons import LeavePrivateTopic
 from zds.mp.models import PrivateTopic, PrivatePost, mark_read
@@ -579,3 +580,9 @@ class PrivateTopicReadAPI(ListAPIView):
             subscription__content_type=ContentType.objects.get_for_model(PrivateTopic)
         )
         return [notification.content_object.privatetopic for notification in notifications]
+
+
+class PrivatePostReactionKarmaView(RetrieveUpdateDestroyAPIView):
+    queryset = PrivatePost.objects.all()
+    serializer_class = PrivatePostKarmaSerializer
+    permission_classes = (IsAuthenticated, IsParticipantFromPrivatePost, DRYPermissions)

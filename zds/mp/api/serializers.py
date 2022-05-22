@@ -2,6 +2,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from dry_rest_permissions.generics import DRYPermissionsField
 from rest_framework import serializers
+from rest_framework.fields import IntegerField
+from rest_framework.serializers import ModelSerializer
+
 from zds.api.serializers import ZdSModelSerializer
 
 from zds.member.api.serializers import UserListSerializer
@@ -9,6 +12,7 @@ from zds.mp.commons import UpdatePrivatePost
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.mp.validators import ParticipantsUserValidator, TitleValidator, TextValidator
 from zds.mp.utils import send_mp, send_message_mp
+from zds.utils.api.serializers import KarmaSerializer
 
 
 class PrivatePostSerializer(ZdSModelSerializer):
@@ -189,3 +193,30 @@ class PrivatePostActionSerializer(serializers.ModelSerializer, TextValidator, Up
 
     def throw_error(self, key=None, message=None):
         raise serializers.ValidationError(message)
+
+
+class PrivatePostLikesSerializer(ModelSerializer):
+    count = IntegerField(source="like", read_only=True)
+    users = UserListSerializer(source="get_likers", many=True, read_only=True)
+
+    class Meta:
+        model = PrivatePost
+        fields = ("count", "users")
+
+
+class PrivatePostDislikesSerializer(ModelSerializer):
+    count = IntegerField(source="dislike", read_only=True)
+    users = UserListSerializer(source="get_dislikers", many=True, read_only=True)
+
+    class Meta:
+        model = PrivatePost
+        fields = ("count", "users")
+
+
+class PrivatePostKarmaSerializer(KarmaSerializer):
+    like = PrivatePostLikesSerializer(source="*", read_only=True)
+    dislike = PrivatePostDislikesSerializer(source="*", read_only=True)
+
+    class Meta:
+        model = PrivatePost
+        fields = ("like", "dislike", "user", "vote")
