@@ -3379,14 +3379,6 @@ association with the field named “__all__”.</p>
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">InvalidOperationError</span></span><a class="headerlink" href="#zds.tutorialv2.utils.InvalidOperationError" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="zds.tutorialv2.utils.InvalidSlugError">
-<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">InvalidSlugError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.InvalidSlugError" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Error raised when a slug is invalid. Argument is the slug that cause the error.</p>
-<p><code class="docutils literal notranslate"><span class="pre">source</span></code> can also be provided, being the sentence from witch the slug was generated, if any.
-<code class="docutils literal notranslate"><span class="pre">had_source</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code> if the source is provided.</p>
-</dd></dl>
-
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.tutorialv2.utils.NamedUrl">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">NamedUrl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.NamedUrl" title="Lien permanent vers cette définition"></a></dt>
@@ -3425,23 +3417,6 @@ association with the field named “__all__”.</p>
 :type dict_representation: dict
 :return:
 :rtype: bool</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="zds.tutorialv2.utils.check_slug">
-<span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">check_slug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slug</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.check_slug" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>If the title is incorrect (only special chars so slug is empty).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>slug</strong> (<em>str</em>) – slug to test</p>
-</dd>
-<dt class="field-even">Renvoie</dt>
-<dd class="field-even"><p><cite>True</cite> if slug is valid, false otherwise</p>
-</dd>
-<dt class="field-odd">Type renvoyé</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -3791,30 +3766,6 @@ given as unicode string.</p>
 </dd>
 <dt class="field-even">Raise</dt>
 <dd class="field-even"><p>Http404 if not found</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="zds.tutorialv2.utils.slugify_raise_on_invalid">
-<span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.utils.</span></span><span class="sig-name descname"><span class="pre">slugify_raise_on_invalid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_old_slugify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.utils.slugify_raise_on_invalid" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
-is raised.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>title</strong> (<em>str</em>) – to be slugified title</p></li>
-<li><p><strong>use_old_slugify</strong> (<em>bool</em>) – use the function <cite>slugify()</cite> defined in zds.utils instead of the one in uuslug. Usefull     for retro-compatibility with the old article/tutorial module, SHOULD NOT be used for the new one !</p></li>
-</ul>
-</dd>
-<dt class="field-even">Lève</dt>
-<dd class="field-even"><p><a class="reference internal" href="#zds.tutorialv2.utils.InvalidSlugError" title="zds.tutorialv2.utils.InvalidSlugError"><strong>InvalidSlugError</strong></a> – on incorrect slug</p>
-</dd>
-<dt class="field-odd">Renvoie</dt>
-<dd class="field-odd"><p>the slugified title</p>
-</dd>
-<dt class="field-even">Type renvoyé</dt>
-<dd class="field-even"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
