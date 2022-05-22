@@ -332,7 +332,7 @@
                                     </div>
                                 {% endif %}
 
-                                {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or content_reactions_count > 0 %}
+                                {% if public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or content_reactions_count > 0 and not hide_forum_activity %}
                                     <div class="linkbox-item primary">
                                         <div class="head">
                                             <h3>{% trans 'Contenus' %}</h3>
@@ -373,7 +373,7 @@
                                                 </p>
                                             </a>
                                         {% endif %}
-                                        {% if content_reactions_count > 0 %}
+                                        {% if content_reactions_count > 0 and not hide_forum_activity %}
                                             <a href="{% url "content:list-content-reactions" usr.pk %}" class="tail">
                                                 <p>
                                                     {% blocktrans count content_reactions_count=content_reactions_count %}
@@ -458,7 +458,7 @@
                                     {% endif %}
                                 {% endif %}
 
-                                {% if not profile.hide_forum_activity or user.is_staff or profile.user == user %}
+                                {% if not hide_forum_activity %}
                                     {% if topics_count > 0 or messages_count > 0 or followed_topics_count > 0 and profile.user == user %}
                                         <div class="linkbox-item primary">
                                             <div class="head">
@@ -549,7 +549,7 @@
             {% endif %}
 
             {% if topics %}
-                {% if not profile.hide_forum_activity or user.is_staff or profile.user == user %}
+                {% if not hide_forum_activity %}
                     <section>
                         <h2 itemprop="name">
                             <span>{% trans 'Derniers sujets créés' %}</span>

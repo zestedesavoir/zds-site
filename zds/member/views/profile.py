@@ -171,6 +171,11 @@ class MemberDetail(DetailView):
             .count()
         )
         context["content_reactions_count"] = ContentReaction.objects.filter(author=usr).count()
+        context["hide_forum_activity"] = (
+            profile.hide_forum_activity
+            and not self.request.user.has_perm("member.change_profile")
+            and not profile.user == self.request.user
+        )
 
         if self.request.user.has_perm("member.change_profile"):
             sanctions = list(Ban.objects.filter(user=usr).select_related("moderator"))
