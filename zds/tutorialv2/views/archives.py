@@ -26,10 +26,10 @@ from zds.tutorialv2.utils import (
     BadArchiveError,
     get_content_from_json,
     BadManifestError,
-    InvalidSlugError,
     default_slug_pool,
     init_new_repo,
 )
+from zds.utils.validators import InvalidSlugError
 from zds.utils.uuslug_wrapper import slugify
 
 

@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 
 from zds.gallery.models import Gallery, Image, UserGallery
-from zds.utils.validators import with_svg_validator
+from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
 
 
 class GalleryForm(forms.ModelForm):
@@ -42,6 +42,13 @@ class GalleryForm(forms.ModelForm):
             self._errors["title"] = self.error_class([_("Le champ titre ne peut être vide")])
             if "title" in cleaned_data:
                 del cleaned_data["title"]
+
+        try:
+            slugify_raise_on_invalid(title)
+        except InvalidSlugError as e:
+            self._errors["title"] = self.error_class(
+                [_("Ce titre n'est pas autorisé, son slug est invalide {} !").format(e)]
+            )
 
         return cleaned_data
 

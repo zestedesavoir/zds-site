@@ -21,13 +21,11 @@ from zds.tutorialv2.utils import (
     get_target_tagged_tree_for_container,
     get_target_tagged_tree_for_extract,
     last_participation_is_old,
-    InvalidSlugError,
     BadManifestError,
     get_content_from_json,
     get_commit_author,
-    slugify_raise_on_invalid,
-    check_slug,
 )
+from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError, check_slug
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
