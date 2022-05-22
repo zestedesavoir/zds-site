@@ -27,6 +27,18 @@ class GalleryFormTest(TestCase):
 
         self.assertFalse(form.is_valid())
 
+    def test_invalid_gallery_form_invalid_slug(self):
+        data = {"title": ":", "subtitle": "Test Subtitle"}
+        form = GalleryForm(data=data)
+
+        self.assertFalse(form.is_valid())
+
+    def test_valid_gallery_form_title_with_special_characters(self):
+        data = {"title": "Title:", "subtitle": "Test Subtitle"}
+        form = GalleryForm(data=data)
+
+        self.assertTrue(form.is_valid())
+
 
 class UserGalleryFormTest(TestCase):
     def setUp(self):

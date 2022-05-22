@@ -9,11 +9,10 @@ from git import Repo, Actor
 
 from django.conf import settings
 from zds.tutorialv2 import signals
-from zds.tutorialv2 import VALID_SLUG
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
-from zds.utils import get_current_user, old_slugify
+from zds.utils import get_current_user
 from zds.utils.models import Licence
-from zds.utils.uuslug_wrapper import slugify
+from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError, check_slug
 
 logger = logging.getLogger(__name__)
 
@@ -448,76 +447,6 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                                     new_chapter.add_extract(new_extract, generate_slug=False)
 
     return versioned
-
-
-class InvalidSlugError(ValueError):
-    """Error raised when a slug is invalid. Argument is the slug that cause the error.
-
-    ``source`` can also be provided, being the sentence from witch the slug was generated, if any.
-    ``had_source`` is set to ``True`` if the source is provided.
-
-    """
-
-    def __init__(self, *args, **kwargs):
-
-        self.source = ""
-        self.had_source = False
-
-        if "source" in kwargs:
-            self.source = kwargs.pop("source")
-            self.had_source = True
-
-        super().__init__(*args, **kwargs)
-
-
-def check_slug(slug):
-    """
-    If the title is incorrect (only special chars so slug is empty).
-
-    :param slug: slug to test
-    :type slug: str
-    :return: `True` if slug is valid, false otherwise
-    :rtype: bool
-    """
-
-    if not VALID_SLUG.match(slug):
-        return False
-
-    if not slug.replace("-", "").replace("_", ""):
-        return False
-
-    if len(slug) > settings.ZDS_APP["content"]["maximum_slug_size"]:
-        return False
-
-    return True
-
-
-def slugify_raise_on_invalid(title, use_old_slugify=False):
-    """
-    use uuslug to generate a slug but if the title is incorrect (only special chars or slug is empty), an exception
-    is raised.
-
-    :param title: to be slugified title
-    :type title: str
-    :param use_old_slugify: use the function `slugify()` defined in zds.utils instead of the one in uuslug. Usefull \
-    for retro-compatibility with the old article/tutorial module, SHOULD NOT be used for the new one !
-    :type use_old_slugify: bool
-    :raise InvalidSlugError: on incorrect slug
-    :return: the slugified title
-    :rtype: str
-    """
-
-    if not isinstance(title, str):
-        raise InvalidSlugError("", source=title)
-    if not use_old_slugify:
-        slug = slugify(title)
-    else:
-        slug = old_slugify(title)
-
-    if not check_slug(slug):
-        raise InvalidSlugError(slug, source=title)
-
-    return slug
 
 
 def fill_containers_from_json(json_sub, parent):
