@@ -74,7 +74,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             queryset = queryset.filter(content__subcategory__in=[self.subcategory])
 
         if "tag" in self.request.GET:
-            self.tag = get_object_or_404(Tag, title=self.request.GET.get("tag").lower().strip())
+            self.tag = get_object_or_404(Tag, slug=slugify(self.request.GET.get("tag").lower().strip()))
             # TODO: fix me
             # different tags can have same slug such as C/C#/C++, as a first version we get all of them
             queryset = queryset.filter(content__tags__in=[self.tag])
