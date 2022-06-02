@@ -117,7 +117,6 @@ def record_event_contributor_management(sender, performer, signal, content, cont
 @receiver(signals.validation_management, sender=RejectValidation)
 @receiver(signals.validation_management, sender=RevokeValidation)
 @receiver(signals.validation_management, sender=ReserveValidation)
-@receiver(signals.validation_management, sender=ReserveValidation)
 def record_event_validation_management(sender, performer, signal, content, version, action, **_):
     Event(
         performer=performer,
