@@ -29,7 +29,7 @@
     {% captureas version_href %}{% url "content:view" event.content.pk event.content.slug %}?version={{ event.version }}{% endcaptureas %}
     {% if event.action == "activate" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a mis une <a href="{{ version_href }}">version du contenu</a> en bêta.
-    {% elif event.action == "desactivate" %}
+    {% elif event.action == "deactivate" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a désactivé la bêta.
     {% else %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action inconnue sur la bêta.
