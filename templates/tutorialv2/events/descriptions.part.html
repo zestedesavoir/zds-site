@@ -10,7 +10,7 @@
     {% elif event.action == "remove" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a supprimé <a href="{{ author_href }}">{{ event.author }}</a> de la liste des auteurs.
     {% else %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action inconnue sur la liste des auteurs.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la liste des auteurs.
     {% endif %}
 
 
@@ -21,7 +21,7 @@
     {% elif event.action == "remove" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a supprimé <a href="{{ contributor_href }}">{{ event.contributor }}</a> de la liste des contributeurs.
     {% else %}
-        <a href="{{ performer_href  }}">{{ event.performer }}</a> a effectué une action inconnue sur la liste des contributeurs.
+        <a href="{{ performer_href  }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la liste des contributeurs.
     {% endif %}
 
 
@@ -32,7 +32,7 @@
     {% elif event.action == "deactivate" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a désactivé la bêta.
     {% else %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action inconnue sur la bêta.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la bêta.
     {% endif %}
 
 
@@ -53,7 +53,7 @@
     {% elif event.action == "unreserve" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a annulé la réservation du contenu pour validation.
     {% else %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de validation inconnue.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de validation de type « {{ event.action }} ».
     {% endif %}
 
 
@@ -67,7 +67,7 @@
     {% elif event.action == "remove" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a supprimé une suggestion de contenu.
     {% else %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action inconnue sur les suggestions de contenu.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur les suggestions de contenu.
     {% endif %}
 
 
@@ -81,7 +81,7 @@
     {% elif event.action == "deactivate" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a désactivé JSFiddle.
     {% else %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action inconnue sur la gestion de JS Fiddle.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la gestion de JS Fiddle.
     {% endif %}
 
 
@@ -91,10 +91,10 @@
     {% elif event.action == "unpublish" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a dépublié le billet.
     {% else %}
-        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action inconnue sur le billet.
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur le billet.
     {% endif %}
 
 
 {% else %}
-    <a href="{{ performer_href }}">{{ event.performer }}</a> a déclenché un événement inconnu.
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a déclenché un événement de type « {{ event.type }} ».
 {% endif %}
