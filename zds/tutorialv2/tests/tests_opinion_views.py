@@ -70,7 +70,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
-    def test_publish_content_change_title_before_watchdog(self):
+    @patch("zds.tutorialv2.signals.opinions_management")
+    def test_publish_content_change_title_before_watchdog(self, opinions_management):
         """
         Test we can publish a content, change its title and publish it again
         right away, before the publication watchdog processed the first
@@ -276,6 +277,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(PublishedContent.objects.count(), 1)
         self.assertEqual(opinions_management.send.call_count, 1)
+        self.assertEqual(opinions_management.send.call_args[1]["action"], "publish")
 
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertIsNotNone(opinion.public_version)
