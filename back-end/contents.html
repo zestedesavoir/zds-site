@@ -356,24 +356,21 @@ peuvent donc continuer à travailler chacun de leur côté.</p>
 <p><strong>Le cas général</strong></p>
 <p>Une fois que le contenu est passé en validation et a satisfait les critères
 éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs afin
-de les informer de la publication, et de leur transmettre le message laissé
+de les informer de la publication et de leur transmettre le message laissé
 par le validateur en charge du contenu. Il faut bien préciser que le processus
-de validation peut être assez long.
-De plus, un historique de validation est disponible pour les validateurs.</p>
-<p>La publication d’un contenu entraîne l’exportation du contenu en plusieurs formats :</p>
+de validation peut être assez long. De plus, un historique de validation est
+disponible pour les validateurs.</p>
+<p>La publication d’un contenu entraîne l’export du contenu en plusieurs formats :</p>
 <ul class="simple">
-<li><p>Markdown : disponible uniquement pour les membres du staff et les auteurs du contenu</p></li>
-<li><p>HTML</p></li>
-<li><p>PDF</p></li>
-<li><p>EPUB : format de lecture adapté aux liseuses</p></li>
-<li><p>Archive : un export de l’archive contenant la version publiée du contenu</p></li>
+<li><p>Markdown : disponible uniquement pour les membres du staff et les auteurs du contenu,</p></li>
+<li><p>HTML,</p></li>
+<li><p>PDF,</p></li>
+<li><p>EPUB : format de lecture adapté aux liseuses,</p></li>
+<li><p>Archive : un export de l’archive contenant la version publiée du contenu.</p></li>
 </ul>
 <p>Pour différentes raisons, il se peut que l’export dans divers formats échoue.
 Dans ce cas, le lien de téléchargement n’est pas présenté. Un fichier de log
 sur le serveur enregistre les problèmes liés à l’export d’un format.</p>
-<p>Aujourd’hui, il existe des bugs dans la conversion en PDF (notamment les blocs spécifiques à ZdS),
-qui devraient être réglés plus tard avec la
-<a class="reference external" href="http://zestedesavoir.com/forums/sujet/676/zep-05-refonte-du-traitement-markdown-pour-lexport">ZEP-05</a>)</p>
 <p>Enfin, signalons qu’il est possible à tout moment pour un membre de l’équipe
 de dépublier un contenu. Le cas échéant, un message sera envoyé aux auteurs,
 indiquant les raisons de la dépublication.</p>
@@ -383,7 +380,7 @@ est configurable selon trois niveaux à affecter au paramètre <code class="docu
 <ul class="simple">
 <li><p>NOTHING : ne génère aucun document téléchargeable autre que le fichier markdown et l’archive zip des sources</p></li>
 <li><p>SYNC : génère tous les documents téléchargeables que le système peut générer de manière synchrone à la publication. C’est à dire que la génération est élevée au rang de tâche bloquante</p></li>
-<li><p>WATCHDOG : seul un « marqueur de publication » est généré lors de la publication, c’est un observateur externe qui viendra publier le nouveau contenu. Le site fourni un observateur externe : <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">mangage.py</span> <span class="pre">publication_watchdog</span></code>.</p></li>
+<li><p>WATCHDOG : seul un « marqueur de publication » est généré lors de la publication, c’est un observateur externe qui viendra publier le nouveau contenu. Le site fourni un observateur externe : <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">publication_watchdog</span></code>.</p></li>
 </ul>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
