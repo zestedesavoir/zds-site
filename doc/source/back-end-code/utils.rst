@@ -15,9 +15,6 @@ Modèles (``models.py``)
 Tutoriels (``tutorials.py``)
 ============================
 
-.. automodule:: zds.utils.tutorials
-    :members:
-
 Les processeurs de contexte (``context_processor.py``)
 ======================================================
 
