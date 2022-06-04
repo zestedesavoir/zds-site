@@ -8,7 +8,7 @@ from zds.forum.feeds import LastPostsFeedRSS, LastPostsFeedATOM, LastTopicsFeedR
 from zds.member.tests.factories import ProfileFactory
 
 
-class LastTopicsFeedRSSTest(TestCase):
+class LastTopicsFeedTest(TestCase):
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
 
@@ -35,7 +35,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(self.topicfeed.link, "/forums/")
         reftitle = "Derniers sujets sur {}".format(settings.ZDS_APP["site"]["literal_name"])
         self.assertEqual(self.topicfeed.title, reftitle)
-        refdescription = "Les derniers sujets créés " "sur le forum de {}.".format(
+        refdescription = "Les derniers sujets créés sur le forum de {}.".format(
             settings.ZDS_APP["site"]["literal_name"]
         )
         self.assertEqual(self.topicfeed.description, refdescription)
@@ -76,7 +76,7 @@ class LastTopicsFeedRSSTest(TestCase):
     def test_items_bad_cases(self):
         """test that right items are sent back according to obj"""
 
-        # test empty values, return value shoulb be empty
+        # test empty values, return value should be empty
         obj = {"forum": -1, "tag": -1}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
@@ -140,7 +140,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(ret, ref)
 
 
-class LastPostFeedTest(TestCase):
+class LastPostsFeedTest(TestCase):
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
 
@@ -160,7 +160,7 @@ class LastPostFeedTest(TestCase):
         self.topic2.tags.add(self.tag)
         self.topic2.save()
 
-        # create 2 posts un each forum
+        # create 2 posts in each forum
         PostFactory(topic=self.topic1, author=self.user, position=1)
         PostFactory(topic=self.topic1, author=self.user, position=2)
         PostFactory(topic=self.topic2, author=self.user, position=1)
@@ -181,7 +181,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(self.postfeed.link, "/forums/")
         reftitle = "Derniers messages sur {}".format(settings.ZDS_APP["site"]["literal_name"])
         self.assertEqual(self.postfeed.title, reftitle)
-        refdescription = "Les derniers messages " "parus sur le forum de {}.".format(
+        refdescription = "Les derniers messages parus sur le forum de {}.".format(
             settings.ZDS_APP["site"]["literal_name"]
         )
         self.assertEqual(self.postfeed.description, refdescription)

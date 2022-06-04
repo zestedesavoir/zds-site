@@ -2,11 +2,10 @@ from django.conf import settings
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.auth.models import Group
 
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory, TagFactory
+from zds.member.tests.factories import ProfileFactory
+from zds.forum.tests.factories import TagFactory
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
 from zds.tutorialv2.tests.factories import (
@@ -26,35 +25,17 @@ overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "content
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
+class LastTutorialsFeedsTest(TutorialTestMixin, TestCase):
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app["content"]["build_pdf_when_published"] = False
-
-        self.staff = StaffProfileFactory().user
-
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory().user
-        overridden_zds_app["member"]["bot_account"] = self.mas.username
-
-        bot = Group(name=overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
-
-        self.beta_forum = ForumFactory(
-            pk=overridden_zds_app["forum"]["beta_forum_id"],
-            category=ForumCategoryFactory(position=1),
-            position_in_category=1,
-        )  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
         self.tag = TagFactory()
 
         self.user_author = ProfileFactory().user
-        self.user_staff = StaffProfileFactory().user
-        self.user_guest = ProfileFactory().user
 
         # create a tutorial
         self.tuto = PublishableContentFactory(type="TUTORIAL")
@@ -211,35 +192,17 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
 
 
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
+class LastArticlesFeedsTest(TutorialTestMixin, TestCase):
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app["content"]["build_pdf_when_published"] = False
-
-        self.staff = StaffProfileFactory().user
-
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory().user
-        overridden_zds_app["member"]["bot_account"] = self.mas.username
-
-        bot = Group(name=overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
-
-        self.beta_forum = ForumFactory(
-            pk=overridden_zds_app["forum"]["beta_forum_id"],
-            category=ForumCategoryFactory(position=1),
-            position_in_category=1,
-        )  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
         self.tag = TagFactory()
 
         self.user_author = ProfileFactory().user
-        self.user_staff = StaffProfileFactory().user
-        self.user_guest = ProfileFactory().user
 
         # create an article
         self.article = PublishableContentFactory(type="ARTICLE")

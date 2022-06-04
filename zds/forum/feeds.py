@@ -40,7 +40,7 @@ def request_object(request):
 class LastPostsFeedRSS(Feed, ItemMixin):
     title = "Derniers messages sur {}".format(settings.ZDS_APP["site"]["literal_name"])
     link = "/forums/"
-    description = "Les derniers messages " "parus sur le forum de {}.".format(settings.ZDS_APP["site"]["literal_name"])
+    description = "Les derniers messages parus sur le forum de {}.".format(settings.ZDS_APP["site"]["literal_name"])
 
     def get_object(self, request):
         return request_object(request)
