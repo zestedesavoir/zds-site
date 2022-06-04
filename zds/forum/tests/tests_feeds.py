@@ -139,6 +139,24 @@ class LastTopicsFeedTest(TestCase):
         ret = self.topicfeed.item_link(item=topics[0])
         self.assertEqual(ret, ref)
 
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_topic = TopicFactory(forum=self.forum2, author=self.user)
+        buggy_topic.title = "Strange char: \u0007"
+        buggy_topic.save()
+
+        request = self.client.get(reverse("topic-feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("topic-feed-atom"))
+        self.assertEqual(request.status_code, 200)
+
 
 class LastPostsFeedTest(TestCase):
     def setUp(self):
@@ -284,3 +302,22 @@ class LastPostsFeedTest(TestCase):
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_link(item=posts[0])
         self.assertEqual(ret, ref)
+
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_topic = TopicFactory(forum=self.forum2, author=self.user)
+        post = PostFactory(topic=buggy_topic, author=self.user, position=1)
+        post.update_content("Strange char: \u0007")
+        post.save()
+
+        request = self.client.get(reverse("post-feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("post-feed-atom"))
+        self.assertEqual(request.status_code, 200)

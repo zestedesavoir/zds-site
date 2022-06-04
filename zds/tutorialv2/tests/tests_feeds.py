@@ -2,6 +2,7 @@ from django.conf import settings
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
@@ -17,6 +18,7 @@ from zds.tutorialv2.feeds import (
 )
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
+    PublishedContentFactory,
     ContainerFactory,
     ExtractFactory,
 )
@@ -197,6 +199,27 @@ class LastTutorialsFeedsTest(TutorialTestMixin, TestCase):
         self.tutofeed.query_params = {"tag": "invalid"}
         self.assertRaises(Http404, self.tutofeed.items)
 
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_tutorial = PublishedContentFactory(
+            author_list=[self.user_author], type="TUTORIAL", description="Strange char: \u0007"
+        )
+        buggy_tutorial.subcategory.add(self.subcategory)
+        buggy_tutorial.tags.add(self.tag)
+        buggy_tutorial.save()
+
+        request = self.client.get(reverse("tutorial:feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("tutorial:feed-atom"))
+        self.assertEqual(request.status_code, 200)
+
 
 @override_settings(ZDS_APP=overridden_zds_app)
 class LastArticlesFeedsTest(TutorialTestMixin, TestCase):
@@ -362,6 +385,27 @@ class LastArticlesFeedsTest(TutorialTestMixin, TestCase):
         self.articlefeed.query_params = {"tag": "invalid"}
         self.assertRaises(Http404, self.articlefeed.items)
 
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_article = PublishedContentFactory(
+            author_list=[self.user_author], type="ARTICLE", description="Strange char: \u0007"
+        )
+        buggy_article.subcategory.add(self.subcategory)
+        buggy_article.tags.add(self.tag)
+        buggy_article.save()
+
+        request = self.client.get(reverse("article:feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("article:feed-atom"))
+        self.assertEqual(request.status_code, 200)
+
 
 @override_settings(ZDS_APP=overridden_zds_app)
 class LastOpinionsFeedsTest(TutorialTestMixin, TestCase):
@@ -503,3 +547,24 @@ class LastOpinionsFeedsTest(TutorialTestMixin, TestCase):
 
         self.opinionfeed.query_params = {"tag": "invalid"}
         self.assertRaises(Http404, self.opinionfeed.items)
+
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_opinion = PublishedContentFactory(
+            author_list=[self.user_author], type="OPINION", description="Strange char: \u0007"
+        )
+        buggy_opinion.subcategory.add(self.subcategory)
+        buggy_opinion.tags.add(self.tag)
+        buggy_opinion.save()
+
+        request = self.client.get(reverse("opinion:feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("opinion:feed-atom"))
+        self.assertEqual(request.status_code, 200)

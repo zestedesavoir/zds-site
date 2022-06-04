@@ -1,10 +1,9 @@
 from django.contrib.syndication.views import Feed
-
-from django.utils.feedgenerator import Atom1Feed
 from django.conf import settings
 from django.utils.timezone import make_aware
 from pytz import AmbiguousTimeError, NonExistentTimeError
 
+from zds.utils.feeds import DropControlCharsRss201rev2Feed, DropControlCharsAtom1Feed
 from .models import Post, Topic
 
 
@@ -41,6 +40,7 @@ class LastPostsFeedRSS(Feed, ItemMixin):
     title = "Derniers messages sur {}".format(settings.ZDS_APP["site"]["literal_name"])
     link = "/forums/"
     description = "Les derniers messages parus sur le forum de {}.".format(settings.ZDS_APP["site"]["literal_name"])
+    feed_type = DropControlCharsRss201rev2Feed
 
     def get_object(self, request):
         return request_object(request)
@@ -65,7 +65,7 @@ class LastPostsFeedRSS(Feed, ItemMixin):
 
 
 class LastPostsFeedATOM(LastPostsFeedRSS):
-    feed_type = Atom1Feed
+    feed_type = DropControlCharsAtom1Feed
     subtitle = LastPostsFeedRSS.description
 
 
@@ -73,6 +73,7 @@ class LastTopicsFeedRSS(Feed, ItemMixin):
     title = "Derniers sujets sur {}".format(settings.ZDS_APP["site"]["literal_name"])
     link = "/forums/"
     description = "Les derniers sujets créés sur le forum de {}.".format(settings.ZDS_APP["site"]["literal_name"])
+    feed_type = DropControlCharsRss201rev2Feed
 
     def get_object(self, request):
         return request_object(request)
@@ -97,5 +98,5 @@ class LastTopicsFeedRSS(Feed, ItemMixin):
 
 
 class LastTopicsFeedATOM(LastTopicsFeedRSS):
-    feed_type = Atom1Feed
+    feed_type = DropControlCharsAtom1Feed
     subtitle = LastTopicsFeedRSS.description
