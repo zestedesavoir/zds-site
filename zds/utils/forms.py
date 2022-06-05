@@ -2,6 +2,7 @@ import logging
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
+from django.contrib.auth import authenticate
 from django.utils.translation import gettext_lazy as _
 from django.template import defaultfilters
 from zds.utils.models import Tag
@@ -157,3 +158,17 @@ class FieldValidatorMixin:
     def check_text_length_limit(self, text, max_length, message_format):
         if len(text) > max_length:
             self._errors["text"] = [message_format().format(max_length)]
+
+
+class FieldPasswordMixin:
+    def check_correct_password(self, cleaned_data):
+        password = cleaned_data.get("password")
+
+        if password and self.user:
+            user_exist = authenticate(username=self.user.username, password=password)
+            # Check if the user exist.
+            if not user_exist and password != "":
+                self._errors["password"] = self.error_class([_("Mot de passe incorrect.")])
+                if "password" in cleaned_data:
+                    del cleaned_data["password"]
+        return cleaned_data

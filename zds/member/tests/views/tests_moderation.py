@@ -335,7 +335,7 @@ class TestsModeration(TestCase):
         tester = ProfileFactory()
         old_pseudo = tester.user.username
         self.client.force_login(tester.user)
-        data = {"username": "dummy", "email": tester.user.email}
+        data = {"username": "dummy", "email": tester.user.email, "password": "hostel77"}
         result = self.client.post(reverse("update-username-email-member"), data, follow=False)
 
         self.assertEqual(result.status_code, 302)
