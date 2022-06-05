@@ -18,3 +18,7 @@ class RedirectOldContentOfAuthorTest(TestCase):
 
         response = self.client.get(f"/contenus/foo/{user.pk}", follow=True)
         self.assertEqual(response.status_code, 404)
+
+        # The user with pk=3954 doesn't exist:
+        response = self.client.get("/contenus/tutoriels/3954", follow=True)
+        self.assertEqual(response.status_code, 404)
