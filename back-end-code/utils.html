@@ -59,7 +59,6 @@
 <li class="toctree-l2"><a class="reference internal" href="tutorialv2.html">Les tutoriels v2 (ZEP12) (<code class="docutils literal notranslate"><span class="pre">tutorialv2/</span></code>)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils/</span></code>)</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.utils.models">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#module-zds.utils.tutorials">Tutoriels (<code class="docutils literal notranslate"><span class="pre">tutorials.py</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#les-processeurs-de-contexte-context-processor-py">Les processeurs de contexte (<code class="docutils literal notranslate"><span class="pre">context_processor.py</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.utils.forms">Utilitaires pour formulaires (<code class="docutils literal notranslate"><span class="pre">forms.py</span></code>)</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-zds.utils.misc">Autres (<code class="docutils literal notranslate"><span class="pre">misc.py</span></code>)</a></li>
@@ -107,10 +106,9 @@
 <li><p><a class="reference internal" href="#les-utilitaires-utils" id="id1">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils/</span></code>)</a></p>
 <ul>
 <li><p><a class="reference internal" href="#module-zds.utils.models" id="id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#module-zds.utils.tutorials" id="id3">Tutoriels (<code class="docutils literal notranslate"><span class="pre">tutorials.py</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#les-processeurs-de-contexte-context-processor-py" id="id4">Les processeurs de contexte (<code class="docutils literal notranslate"><span class="pre">context_processor.py</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#module-zds.utils.forms" id="id5">Utilitaires pour formulaires (<code class="docutils literal notranslate"><span class="pre">forms.py</span></code>)</a></p></li>
-<li><p><a class="reference internal" href="#module-zds.utils.misc" id="id6">Autres (<code class="docutils literal notranslate"><span class="pre">misc.py</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#les-processeurs-de-contexte-context-processor-py" id="id3">Les processeurs de contexte (<code class="docutils literal notranslate"><span class="pre">context_processor.py</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#module-zds.utils.forms" id="id4">Utilitaires pour formulaires (<code class="docutils literal notranslate"><span class="pre">forms.py</span></code>)</a></p></li>
+<li><p><a class="reference internal" href="#module-zds.utils.misc" id="id5">Autres (<code class="docutils literal notranslate"><span class="pre">misc.py</span></code>)</a></p></li>
 </ul>
 </li>
 </ul>
@@ -514,11 +512,8 @@ Hat requests for this hat are also canceled.</p>
 </dd></dl>
 
 </section>
-<section id="module-zds.utils.tutorials">
-<span id="tutoriels-tutorials-py"></span><h2><a class="toc-backref" href="#id3">Tutoriels (<code class="docutils literal notranslate"><span class="pre">tutorials.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.tutorials" title="Lien permanent vers ce titre"></a></h2>
-</section>
 <section id="les-processeurs-de-contexte-context-processor-py">
-<h2><a class="toc-backref" href="#id4">Les processeurs de contexte (<code class="docutils literal notranslate"><span class="pre">context_processor.py</span></code>)</a><a class="headerlink" href="#les-processeurs-de-contexte-context-processor-py" title="Lien permanent vers ce titre"></a></h2>
+<h2><a class="toc-backref" href="#id3">Les processeurs de contexte (<code class="docutils literal notranslate"><span class="pre">context_processor.py</span></code>)</a><a class="headerlink" href="#les-processeurs-de-contexte-context-processor-py" title="Lien permanent vers ce titre"></a></h2>
 <p>La doc de Django explique le principe des <em>context_processors</em> comme suit :</p>
 <div class="line-block">
 <div class="line">Un processeur de contexte possède une interface très simple : ce n’est qu’une fonction Python acceptant un paramètre, un objet HttpRequest, et renvoyant un dictionnaire qui est ensuite ajouté au contexte de gabarit. Chaque processeur de contexte doit renvoyer un dictionnaire.</div>
@@ -547,7 +542,7 @@ Hat requests for this hat are also canceled.</p>
 
 </section>
 <section id="module-zds.utils.forms">
-<span id="utilitaires-pour-formulaires-forms-py"></span><h2><a class="toc-backref" href="#id5">Utilitaires pour formulaires (<code class="docutils literal notranslate"><span class="pre">forms.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.forms" title="Lien permanent vers ce titre"></a></h2>
+<span id="utilitaires-pour-formulaires-forms-py"></span><h2><a class="toc-backref" href="#id4">Utilitaires pour formulaires (<code class="docutils literal notranslate"><span class="pre">forms.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.forms" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.utils.forms.CommonLayoutEditor">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.utils.forms.</span></span><span class="sig-name descname"><span class="pre">CommonLayoutEditor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.forms.CommonLayoutEditor" title="Lien permanent vers cette définition"></a></dt>
@@ -642,7 +637,7 @@ Hat requests for this hat are also canceled.</p>
 
 </section>
 <section id="module-zds.utils.misc">
-<span id="autres-misc-py"></span><h2><a class="toc-backref" href="#id6">Autres (<code class="docutils literal notranslate"><span class="pre">misc.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.misc" title="Lien permanent vers ce titre"></a></h2>
+<span id="autres-misc-py"></span><h2><a class="toc-backref" href="#id5">Autres (<code class="docutils literal notranslate"><span class="pre">misc.py</span></code>)</a><a class="headerlink" href="#module-zds.utils.misc" title="Lien permanent vers ce titre"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="zds.utils.misc.compute_hash">
 <span class="sig-prename descclassname"><span class="pre">zds.utils.misc.</span></span><span class="sig-name descname"><span class="pre">compute_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.utils.misc.compute_hash" title="Lien permanent vers cette définition"></a></dt>
