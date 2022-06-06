@@ -22,7 +22,7 @@ from zds.member.validators import (
     validate_zds_password,
     validate_raw_zds_username,
 )
-from zds.utils.forms import IncludeEasyMDE, FieldPasswordMixin
+from zds.utils.forms import IncludeEasyMDE, PasswordRequiredForm
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.models import Licence, HatRequest, Hat
 from zds.utils import get_current_user
@@ -366,7 +366,7 @@ class GitHubTokenForm(forms.Form):
         )
 
 
-class ChangeUserForm(forms.Form, FieldPasswordMixin):
+class ChangeUserForm(PasswordRequiredForm):
     """
     Update username and email
     """
@@ -391,11 +391,6 @@ class ChangeUserForm(forms.Form, FieldPasswordMixin):
         required=False,
         choices=(("show_email", _("Afficher mon adresse courriel publiquement")),),
         widget=forms.CheckboxSelectMultiple,
-    )
-
-    password = forms.CharField(
-        label=_("Mot de passe (confirmation)"),
-        widget=forms.PasswordInput,
     )
 
     def __init__(self, user, *args, **kwargs):
@@ -439,15 +434,10 @@ class ChangeUserForm(forms.Form, FieldPasswordMixin):
         return cleaned_data
 
 
-class UnregisterForm(forms.Form, FieldPasswordMixin):
+class UnregisterForm(PasswordRequiredForm):
     """
     Unregister form
     """
-
-    password = forms.CharField(
-        label=_("Mot de passe (confirmation)"),
-        widget=forms.PasswordInput,
-    )
 
     def __init__(self, user, *args, **kwargs):
         super(UnregisterForm, self).__init__(*args, **kwargs)
@@ -483,12 +473,7 @@ class UnregisterForm(forms.Form, FieldPasswordMixin):
 
 
 # TODO: Updates the password --> requires a better name
-class ChangePasswordForm(forms.Form, FieldPasswordMixin):
-
-    password = forms.CharField(
-        label=_("Mot de passe actuel"),
-        widget=forms.PasswordInput,
-    )
+class ChangePasswordForm(PasswordRequiredForm):
 
     password_new = forms.CharField(
         label=_("Nouveau mot de passe"),
