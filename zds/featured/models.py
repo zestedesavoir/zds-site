@@ -113,7 +113,7 @@ class FeaturedMessage(models.Model):
     - The message : the info message itself (i.e.: "The site will be down for maintenance tomorrow")
     - The "tell me more" url : A tell me more button linking to a page giving more details
 
-    All those elements are facultative.
+    Only the message is mandatory.
     """
 
     class Meta:
@@ -121,7 +121,7 @@ class FeaturedMessage(models.Model):
         verbose_name_plural = _("Messages")
 
     hook = models.CharField(_("Accroche"), max_length=100, blank=True, null=True)
-    message = models.CharField(_("Message"), max_length=255, blank=True, null=True)
+    message = models.CharField(_("Message"), max_length=255)
     url = models.CharField(_("URL du message"), max_length=2000, blank=True, null=True)
 
     objects = FeaturedMessageManager()
