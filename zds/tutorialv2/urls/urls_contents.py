@@ -100,7 +100,7 @@ urlpatterns = [
     # typo:
     re_path(r"^reactions/typo/$", WarnTypo.as_view(), name="warn-typo"),
     # create:
-    re_path(r"^nouveau-contenu/(?P<created_content_type>[A-Z]+)", CreateContent.as_view(), name="create-content"),
+    path("nouveau-contenu/<str:created_content_type>/", CreateContent.as_view(), name="create-content"),
     re_path(
         r"^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$",
         CreateContainer.as_view(),
