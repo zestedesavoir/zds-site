@@ -144,7 +144,7 @@
         <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
-                  <a href="{{ taglist }}?tag={% if content.is_opinion %}{{ tag.title|urlencode }}{% else %}{{ tag.slug }}{% endif %}">
+                  <a href="{{ taglist }}?tag={{ tag.slug }}">
                     {{ tag.title }}
                   </a>
                 </li>

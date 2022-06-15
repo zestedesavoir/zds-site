@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
+from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import (
@@ -860,3 +861,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         alert = Alert.objects.get(pk=alert.pk)
         self.assertTrue(alert.solved)
+
+    def test_tag_list_is_slug(self):
+        tag = TagFactory(title="Test Slug")
+        result = self.client.get(reverse("opinion:list"), {"tag": tag.slug})
+        self.assertEqual(result.status_code, 200)

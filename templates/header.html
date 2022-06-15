@@ -84,7 +84,7 @@
                                                 {% trans "Tags les plus utilisés" %}
                                             </li>
                                             {% for tag in categories.tags %}
-                                                <li><a href="{% url 'publication:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                <li><a href="{% url 'publication:list' %}?tag={{ tag.slug }}">{{ tag }}</a></li>
                                             {% endfor %}
                                             <li><a href="{% url 'content:tags' %}">Tous les tags</a></li>
                                         </ul>
@@ -139,7 +139,7 @@
                                                 {% trans "Tags les plus utilisés" %}
                                             </li>
                                             {% for tag in categories.tags %}
-                                                <li><a href="{% url 'opinion:list' %}?tag={{ tag.title|urlencode }}">{{ tag }}</a></li>
+                                                <li><a href="{% url 'opinion:list' %}?tag={{ tag.slug }}">{{ tag }}</a></li>
                                             {% endfor %}
                                             <li><a href="{% url 'content:tags' %}?type=opinion">Tous les tags</a></li>
                                         </ul>
