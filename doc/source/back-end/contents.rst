@@ -256,26 +256,22 @@ La publication
 
 Une fois que le contenu est passé en validation et a satisfait les critères
 éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs afin
-de les informer de la publication, et de leur transmettre le message laissé
+de les informer de la publication et de leur transmettre le message laissé
 par le validateur en charge du contenu. Il faut bien préciser que le processus
-de validation peut être assez long. 
-De plus, un historique de validation est disponible pour les validateurs.
+de validation peut être assez long. De plus, un historique de validation est
+disponible pour les validateurs.
 
-La publication d'un contenu entraîne l'exportation du contenu en plusieurs formats :
+La publication d'un contenu entraîne l'export du contenu en plusieurs formats :
 
-- Markdown : disponible uniquement pour les membres du staff et les auteurs du contenu
-- HTML
-- PDF
-- EPUB : format de lecture adapté aux liseuses
-- Archive : un export de l'archive contenant la version publiée du contenu
+- Markdown : disponible uniquement pour les membres du staff et les auteurs du contenu,
+- HTML,
+- PDF,
+- EPUB : format de lecture adapté aux liseuses,
+- Archive : un export de l'archive contenant la version publiée du contenu.
 
 Pour différentes raisons, il se peut que l'export dans divers formats échoue.
 Dans ce cas, le lien de téléchargement n'est pas présenté. Un fichier de log
 sur le serveur enregistre les problèmes liés à l'export d'un format.
-
-Aujourd'hui, il existe des bugs dans la conversion en PDF (notamment les blocs spécifiques à ZdS),
-qui devraient être réglés plus tard avec la
-`ZEP-05 <http://zestedesavoir.com/forums/sujet/676/zep-05-refonte-du-traitement-markdown-pour-lexport>`__)
 
 Enfin, signalons qu'il est possible à tout moment pour un membre de l'équipe
 de dépublier un contenu. Le cas échéant, un message sera envoyé aux auteurs,
@@ -288,7 +284,7 @@ est configurable selon trois niveaux à affecter au paramètre ``ZDS_APP['conten
 
 - NOTHING : ne génère aucun document téléchargeable autre que le fichier markdown et l'archive zip des sources
 - SYNC : génère tous les documents téléchargeables que le système peut générer de manière synchrone à la publication. C'est à dire que la génération est élevée au rang de tâche bloquante
-- WATCHDOG : seul un "marqueur de publication" est généré lors de la publication, c'est un observateur externe qui viendra publier le nouveau contenu. Le site fourni un observateur externe : ``python mangage.py publication_watchdog``.
+- WATCHDOG : seul un "marqueur de publication" est généré lors de la publication, c'est un observateur externe qui viendra publier le nouveau contenu. Le site fourni un observateur externe : ``python manage.py publication_watchdog``.
 
 .. attention::
 

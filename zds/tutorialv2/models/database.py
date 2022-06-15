@@ -35,11 +35,10 @@ from zds.tutorialv2.managers import PublishedContentManager, PublishableContentM
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
 from zds.tutorialv2.models.versioned import NotAPublicVersion
-from zds.tutorialv2.utils import get_content_from_json, BadManifestError
+from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, HelpWriting, Comment, Tag
 from zds.utils.templatetags.emarkdown import render_markdown_stats
-from zds.utils.tutorials import get_blob
 from zds.utils.uuslug_wrapper import uuslug
 
 ALLOWED_TYPES = ["pdf", "md", "html", "epub", "zip", "tex"]
