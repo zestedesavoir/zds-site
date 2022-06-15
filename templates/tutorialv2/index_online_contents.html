@@ -72,7 +72,7 @@
 {% block sidebar %}
     <aside class="sidebar accordeon mobile-menu-bloc" data-title="{% trans "Catégories des" %} {{ verbose_type_name_plural }}">
         {% if current_content_type == "TUTORIAL" %}
-            <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+            <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau tutoriel" %}
             </a>
 
@@ -80,7 +80,7 @@
                 {% trans "Aider les auteurs" %}
             </a>
         {% elif current_content_type == "ARTICLE" %}
-            <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+            <a href="{% url "content:create-content" created_content_type='ARTICLE' %}" class="new-btn ico-after more blue">
                 {% trans "Nouvel article" %}
             </a>
 
@@ -88,19 +88,19 @@
                 {% trans "Aider les auteurs" %}
             </a>
         {% elif current_content_type == "OPINION" %}
-            <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+            <a href="{% url "content:create-content" created_content_type='OPINION' %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau billet" %}
             </a>
         {% elif not current_content_type %}
-            <a href="{% url "content:create-article" %}" class="new-btn ico-after more blue">
+            <a href="{% url "content:create-content" created_content_type='ARTICLE' %}" class="new-btn ico-after more blue">
                 {% trans "Nouvel article" %}
             </a>
 
-            <a href="{% url "content:create-tutorial" %}" class="new-btn ico-after more blue">
+            <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau tutoriel" %}
             </a>
 
-            <a href="{% url "content:create-opinion" %}" class="new-btn ico-after more blue">
+            <a href="{% url "content:create-content" created_content_type='OPINION' %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau billet" %}
             </a>
 
