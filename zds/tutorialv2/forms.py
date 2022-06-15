@@ -322,7 +322,7 @@ class ContentForm(ContainerForm):
 
 class EditContentTagsForm(forms.Form):
     tags = forms.CharField(
-        label=_("Tags séparés par des virgules (exemple : python,django,web) :"),
+        label=_("Tags séparés par des virgules (exemple : python,api,web) :"),
         max_length=64,
         required=False,
         widget=forms.TextInput(

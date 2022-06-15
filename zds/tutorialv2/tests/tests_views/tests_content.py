@@ -245,7 +245,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         random_with_md = "un text contenant du **markdown** ."
 
         response = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "text": random_with_md,
                 "preview": "",
@@ -259,7 +259,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
 
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": title,
                 "description": description,
@@ -1272,7 +1272,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -1432,7 +1432,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -1548,7 +1548,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -3557,7 +3557,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         for title in disallowed_titles:
             dic["title"] = title
-            result = self.client.post(reverse("content:create-tutorial"), dic, follow=False)
+            result = self.client.post(
+                reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}), dic, follow=False
+            )
             self.assertEqual(result.status_code, 200)
             self.assertEqual(PublishableContent.objects.all().count(), 1)
             self.assertFalse(result.context["form"].is_valid())
@@ -3571,7 +3573,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         for title in allowed_titles:
             dic["title"] = title
-            result = self.client.post(reverse("content:create-tutorial"), dic, follow=False)
+            result = self.client.post(
+                reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}), dic, follow=False
+            )
             self.assertEqual(result.status_code, 302)
             self.assertNotEqual(PublishableContent.objects.all().count(), prev_count)
             prev_count += 1

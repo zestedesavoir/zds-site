@@ -10,6 +10,7 @@ Sitemap: https://zestedesavoir.com/sitemap-topics.xml
 Sitemap: https://zestedesavoir.com/sitemap-tutos.xml
 
 User-agent: *
+Disallow: /api/
 Disallow: /articles/epub/
 Disallow: /articles/html/
 Disallow: /articles/md/

@@ -171,7 +171,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_help_for_article(self):
         self.client.force_login(self.user_author)
-        resp = self.client.get(reverse("content:create-article"))
+        resp = self.client.get(reverse("content:create-content", kwargs={"created_content_type": "ARTICLE"}))
         self.assertEqual(200, resp.status_code)
 
     def test_opinion_publication_staff(self):

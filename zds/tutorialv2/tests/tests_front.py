@@ -154,7 +154,9 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         self.login(author)
         selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
-        new_article_url = self.live_server_url + reverse("content:create-article")
+        new_article_url = self.live_server_url + reverse(
+            "content:create-content", kwargs={"created_content_type": "ARTICLE"}
+        )
         selenium.get(new_article_url)
         WebDriverWait(self.selenium, 10).until(
             ec.element_to_be_clickable((By.CSS_SELECTOR, "input[type=checkbox][name=subcategory]"))
