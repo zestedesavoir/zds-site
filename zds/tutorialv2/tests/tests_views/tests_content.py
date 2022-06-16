@@ -9,6 +9,7 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.http import HttpResponseNotAllowed
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
@@ -245,7 +246,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         random_with_md = "un text contenant du **markdown** ."
 
         response = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "text": random_with_md,
                 "preview": "",
@@ -259,7 +260,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
 
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": title,
                 "description": description,
@@ -1272,7 +1273,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -1432,7 +1433,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -1548,7 +1549,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -2760,6 +2761,22 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.client.force_login(self.user_guest)
 
+        # check the request to warn about a typo can't be a GET
+        result = self.client.get(
+            reverse("content:warn-typo") + f"?pk={tuto.pk}",
+            {"pk": tuto.pk, "version": sha_beta, "text": typo_text, "target": ""},
+            follow=True,
+        )
+        self.assertEqual(result.status_code, HttpResponseNotAllowed.status_code)
+
+        # check the 'target' field in the request isn't mandatory
+        result = self.client.post(
+            reverse("content:warn-typo") + f"?pk={tuto.pk}",
+            {"pk": tuto.pk, "version": sha_beta, "text": typo_text},
+            follow=True,
+        )
+        self.assertEqual(result.status_code, 200)
+
         # check if user can warn typo in tutorial
         result = self.client.post(
             reverse("content:warn-typo") + f"?pk={tuto.pk}",
@@ -3557,7 +3574,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         for title in disallowed_titles:
             dic["title"] = title
-            result = self.client.post(reverse("content:create-tutorial"), dic, follow=False)
+            result = self.client.post(
+                reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}), dic, follow=False
+            )
             self.assertEqual(result.status_code, 200)
             self.assertEqual(PublishableContent.objects.all().count(), 1)
             self.assertFalse(result.context["form"].is_valid())
@@ -3571,7 +3590,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         for title in allowed_titles:
             dic["title"] = title
-            result = self.client.post(reverse("content:create-tutorial"), dic, follow=False)
+            result = self.client.post(
+                reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}), dic, follow=False
+            )
             self.assertEqual(result.status_code, 302)
             self.assertNotEqual(PublishableContent.objects.all().count(), prev_count)
             prev_count += 1

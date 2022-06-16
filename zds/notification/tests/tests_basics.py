@@ -8,7 +8,14 @@ from django.test import TestCase
 from django.db import IntegrityError
 
 from django.conf import settings
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.tests.factories import (
+    ForumCategoryFactory,
+    ForumFactory,
+    TopicFactory,
+    PostFactory,
+    TagFactory,
+    create_category_and_forum,
+)
 from zds.forum.models import Topic
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
@@ -412,6 +419,28 @@ class NotificationForumTest(TestCase):
         topic2 = TopicFactory(forum=self.forum11, author=self.user2)
         topic2.add_tags(["Linux"])
         notifications = Notification.objects.filter(object_id=topic2.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
+    def test_no_notification_on_a_tag_subscribed_in_hidden_forum(self):
+        """
+        When a user subscribes to a tag and a topic is created using that tag in a hidden forum, no notification is sent
+        """
+        # Subscribe.
+        user1 = ProfileFactory().user
+        user2 = ProfileFactory().user
+
+        group = Group.objects.create(name="Restricted")
+        user2.groups.add(group)
+        user2.save()
+        category, forum = create_category_and_forum(group)
+
+        tag1 = TagFactory(title="MyTagInHiddenForum")
+        NewTopicSubscription.objects.toggle_follow(tag1, user1)
+
+        topic1 = TopicFactory(forum=forum, author=user2)
+        topic1.add_tags([tag1.title])
+
+        notifications = Notification.objects.filter(object_id=topic1.pk, is_read=False).all()
         self.assertEqual(0, len(notifications))
 
     def test_mark_read_a_topic_of_a_tag_subscribed(self):
