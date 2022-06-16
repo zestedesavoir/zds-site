@@ -153,7 +153,7 @@ def epub_markdown(md_input, image_directory):
     replaced_media_url = settings.MEDIA_URL
     if replaced_media_url.startswith("/"):
         replaced_media_url = replaced_media_url[1:]
-    return (
+    return mark_safe(
         emarkdown(
             md_input,
             output_format="epub",
