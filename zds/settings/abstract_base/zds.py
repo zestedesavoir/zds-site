@@ -74,7 +74,6 @@ ZDS_APP = {
         "matomo_token_auth": zds_config.get("matomo_token_auth", ""),
         "association": {
             "name": "Zeste de Savoir",
-            "fee": zds_config.get("association_fee", "20 €"),
             "email": "zestedesavoir@gmail.com",
             "email_ca": "ca-zeste-de-savoir@googlegroups.com",
             "forum_ca_pk": 25,

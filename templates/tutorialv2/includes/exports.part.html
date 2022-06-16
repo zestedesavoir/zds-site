@@ -4,21 +4,21 @@
    data-exports-id="{{ content.pk }}"
    data-exports-api="{% url "api:content:list_exports" content.pk %}"
    data-request-export-api="{% url "api:content:generate_export" content.pk %}">
-  {% trans "Exports du contenu (PDF, ePub, LaTeX…)" %}
+  {% trans "Exports du contenu" %}
 </a>
 
 <div class="modal modal-flex" id="exports-modal" data-modal-close="Fermer">
     {% blocktrans %}
         <p>
             En plus de leur version web, <strong>vos contenus sont exportés
-            automatiquement en différents formats</strong> (PDF, ePub pour
-            liseuses, LaTeX, HTML…) par Zeste de Savoir, ce qui permet notamment
-            de les diffuser plus facilement hors-ligne.
+            automatiquement en différents formats</strong> par Zeste de
+            Savoir, ce qui permet notamment de les diffuser plus facilement
+            hors-ligne.
         </p>
     {% endblocktrans %}
 
     <section class="exports is-empty"
-             data-tr-no-exports="{% trans "<strong>Ce contenu n'a jamais été exporté.</strong><br />Cliquez sur le bouton vert ci-dessous pour générer des version PDF, ePub, etc. !" %}"
+             data-tr-no-exports="{% trans "<strong>Ce contenu n'a jamais été exporté.</strong><br />Cliquez sur le bouton vert ci-dessous pour demander les exports !" %}"
              data-tr-error-loading="{% trans "Impossible de charger la liste des exports." %}"
              data-tr-formatpdf="{% trans "PDF" %}"
              data-tr-formatepub="{% trans "ePub" %}"
