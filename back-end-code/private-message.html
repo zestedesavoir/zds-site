@@ -154,6 +154,30 @@
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePost.get_dislikers">
+<span class="sig-name descname"><span class="pre">get_dislikers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivatePost.get_dislikers" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Get the list of the users that disliked this PrivatePost</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePost.get_likers">
+<span class="sig-name descname"><span class="pre">get_likers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivatePost.get_likers" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Get the list of the users that liked this PrivatePost</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePost.get_user_vote">
+<span class="sig-name descname"><span class="pre">get_user_vote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivatePost.get_user_vote" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Get a user vote (like, dislike or neutral)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePost.get_votes">
+<span class="sig-name descname"><span class="pre">get_votes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivatePost.get_votes" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Get the non-anonymous votes</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="zds.mp.models.PrivatePost.is_author">
 <span class="sig-name descname"><span class="pre">is_author</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivatePost.is_author" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Check if the user given is the author of the message.</p>
@@ -180,6 +204,28 @@
 </dd>
 </dl>
 </dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePost.set_user_vote">
+<span class="sig-name descname"><span class="pre">set_user_vote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vote</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivatePost.set_user_vote" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Set a user vote (like, dislike or neutral)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePostVote">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.models.</span></span><span class="sig-name descname"><span class="pre">PrivatePostVote</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.models.PrivatePostVote" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Set of Private Post votes.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePostVote.DoesNotExist">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.mp.models.PrivatePostVote.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="zds.mp.models.PrivatePostVote.MultipleObjectsReturned">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.mp.models.PrivatePostVote.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
