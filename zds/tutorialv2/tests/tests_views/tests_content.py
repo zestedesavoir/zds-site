@@ -9,6 +9,7 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.http import HttpResponseNotAllowed
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
@@ -2759,6 +2760,22 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         self.client.force_login(self.user_guest)
+
+        # check the request to warn about a typo can't be a GET
+        result = self.client.get(
+            reverse("content:warn-typo") + f"?pk={tuto.pk}",
+            {"pk": tuto.pk, "version": sha_beta, "text": typo_text, "target": ""},
+            follow=True,
+        )
+        self.assertEqual(result.status_code, HttpResponseNotAllowed.status_code)
+
+        # check the 'target' field in the request isn't mandatory
+        result = self.client.post(
+            reverse("content:warn-typo") + f"?pk={tuto.pk}",
+            {"pk": tuto.pk, "version": sha_beta, "text": typo_text},
+            follow=True,
+        )
+        self.assertEqual(result.status_code, 200)
 
         # check if user can warn typo in tutorial
         result = self.client.post(
