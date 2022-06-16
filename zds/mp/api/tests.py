@@ -13,7 +13,7 @@ from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZ
 from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.member.tests.factories import ProfileFactory, UserFactory
 from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import PrivateTopic
+from zds.mp.models import PrivateTopic, PrivatePostVote
 
 
 class PrivateTopicListAPITest(APITestCase):
@@ -1150,3 +1150,158 @@ class PermissionMemberAPITest(APITestCase):
         response = self.client.get(reverse("api:mp:message-detail", args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get("permissions").get("update"))
+
+
+class PrivateTopicKarmaAPITest(APITestCase):
+    def setUp(self):
+        self.profile = ProfileFactory()
+        self.private_topic = PrivateTopicFactory(author=self.profile.user)
+        self.private_post = PrivatePostFactory(
+            author=self.profile.user, privatetopic=self.private_topic, position_in_topic=1
+        )
+        self.client = APIClient()
+        client_oauth2 = create_oauth2_client(self.profile.user)
+        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+
+        caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
+
+    def test_karma_of_private_post_not_in_participants(self):
+        """
+        Gets an error 404 when the member doesn't have permission to display karma about the private post.
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+        another_private_post = PrivatePostFactory(
+            author=self.profile.user, privatetopic=another_private_topic, position_in_topic=1
+        )
+
+        response = self.client.get(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, another_private_post.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_like_on_private_post(self):
+        """
+        Add thumbs up to private post
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+        another_private_post = PrivatePostFactory(
+            author=another_profile.user, privatetopic=another_private_topic, position_in_topic=1
+        )
+        another_private_topic.participants.add(self.profile.user)
+
+        response = self.client.put(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, another_private_post.id]),
+            {"vote": "like"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(
+            PrivatePostVote.objects.filter(
+                user=self.profile.user, private_post=another_private_post, positive=True
+            ).exists()
+        )
+
+    def test_dislike_on_private_post(self):
+        """
+        Add thumbs down to private post
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+        another_private_post = PrivatePostFactory(
+            author=another_profile.user, privatetopic=another_private_topic, position_in_topic=1
+        )
+        another_private_topic.participants.add(self.profile.user)
+
+        response = self.client.put(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, another_private_post.id]),
+            {"vote": "dislike"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(
+            PrivatePostVote.objects.filter(
+                user=self.profile.user, private_post=another_private_post, positive=False
+            ).exists()
+        )
+
+    def test_like_then_cancel_on_private_post(self):
+        """
+        Add thumbs up to private post then cancels it
+        """
+        another_profile = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile.user)
+        another_private_post = PrivatePostFactory(
+            author=another_profile.user, privatetopic=another_private_topic, position_in_topic=1
+        )
+        another_private_topic.participants.add(self.profile.user)
+
+        response = self.client.put(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, another_private_post.id]),
+            {"vote": "like"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.put(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, another_private_post.id]),
+            {"vote": "neutral"},
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(
+            PrivatePostVote.objects.filter(
+                user=self.profile.user, private_post=another_private_post, positive=True
+            ).exists()
+        )
+
+    def test_get_private_post_voters(self):
+        """
+        Verify that likes and dislikes voters can be retrieved
+        """
+        another_profile1 = ProfileFactory()
+        another_profile2 = ProfileFactory()
+        another_private_topic = PrivateTopicFactory(author=another_profile1.user)
+        another_private_topic.participants.add(self.profile.user)
+        another_private_topic.participants.add(another_profile2.user)
+
+        upvoted_post = PrivatePostFactory(
+            author=another_profile1.user, privatetopic=another_private_topic, position_in_topic=1, like=2
+        )
+        PrivatePostVote.objects.create(user=self.profile.user, private_post=upvoted_post, positive=True)
+        PrivatePostVote.objects.create(user=another_profile2.user, private_post=upvoted_post, positive=True)
+
+        downvoted_post = PrivatePostFactory(
+            author=another_profile1.user, privatetopic=another_private_topic, position_in_topic=2, dislike=2
+        )
+        PrivatePostVote.objects.create(user=self.profile.user, private_post=downvoted_post, positive=False)
+        PrivatePostVote.objects.create(user=another_profile2.user, private_post=downvoted_post, positive=False)
+
+        neutral_post = PrivatePostFactory(
+            author=another_profile1.user, privatetopic=another_private_topic, position_in_topic=3, like=1, dislike=1
+        )
+        PrivatePostVote.objects.create(user=self.profile.user, private_post=neutral_post, positive=True)
+        PrivatePostVote.objects.create(user=another_profile2.user, private_post=neutral_post, positive=False)
+
+        response = self.client.get(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, upvoted_post.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(2, len(response.data["like"]["users"]))
+        self.assertEqual(0, len(response.data["dislike"]["users"]))
+        self.assertEqual(2, response.data["like"]["count"])
+        self.assertEqual(0, response.data["dislike"]["count"])
+
+        response = self.client.get(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, downvoted_post.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(0, len(response.data["like"]["users"]))
+        self.assertEqual(2, len(response.data["dislike"]["users"]))
+        self.assertEqual(0, response.data["like"]["count"])
+        self.assertEqual(2, response.data["dislike"]["count"])
+
+        response = self.client.get(
+            reverse("api:mp:mp-reaction-karma", args=[another_private_topic.id, neutral_post.id])
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(1, len(response.data["like"]["users"]))
+        self.assertEqual(1, len(response.data["dislike"]["users"]))
+        self.assertEqual(1, response.data["like"]["count"])
+        self.assertEqual(1, response.data["dislike"]["count"])
