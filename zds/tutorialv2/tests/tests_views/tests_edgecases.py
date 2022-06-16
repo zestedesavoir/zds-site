@@ -73,3 +73,11 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(200, result.status_code)
         result = self.client.get(article.get_absolute_url())
         self.assertEqual(200, result.status_code)
+
+    def test_default_content_type_is_tutorial(self):
+        """
+        Test that if a wrong content type is provided to the create-content view, TUTORIAL is used as a default
+        """
+        self.client.force_login(self.author.user)
+        result = self.client.get(reverse("content:create-content", kwargs={"created_content_type": "WRONG_TYPE"}))
+        self.assertEqual("TUTORIAL", result.context_data.get("form").initial.get("type"))

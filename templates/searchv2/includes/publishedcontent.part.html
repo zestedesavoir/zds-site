@@ -60,9 +60,9 @@
         {% for tag in search_result.tags|slice:":3" %}
             <li>
                 {% if search_result.content_type == 'OPINION' %}
-                    <a href="{% url 'opinion:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                    <a href="{% url 'opinion:list' %}?tag={{ tag.slug }}">{{ tag }}</a>
                 {% else %}
-                    <a href="{% url 'publication:list' %}?tag={{ tag|urlencode }}">{{ tag }}</a>
+                    <a href="{% url 'publication:list' %}?tag={{ tag.slug }}">{{ tag }}</a>
                 {% endif %}
             </li>
         {% endfor %}

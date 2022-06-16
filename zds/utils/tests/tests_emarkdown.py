@@ -1,3 +1,4 @@
+from collections import namedtuple
 from textwrap import dedent
 
 from django.test import TestCase
@@ -8,15 +9,9 @@ from zds.utils.templatetags.emarkdown import shift_heading
 
 class EMarkdownTest(TestCase):
     def setUp(self):
-        content = "# Titre 1\n\n## Titre **2**\n\n### Titre 3\n\n> test"
-        self.context = Context({"content": content})
-
-    def test_emarkdown(self):
-        # The goal is not to test zmarkdown but test that template tag correctly call it
-
-        tr = Template("{% load emarkdown %}{{ content | emarkdown}}").render(self.context)
-
-        expected = (
+        self.content = "# Titre 1\n\n## Titre **2**\n\n### Titre 3\n\n> test"
+        self.context = Context({"content": self.content})
+        self.long_expected = (
             '<h3 id="titre-1">Titre 1<a aria-hidden="true" tabindex="-1" href="#titre-1">'
             '<span class="icon icon-link"></span></a></h3>\n<h4 id="titre-2">'
             'Titre <strong>2</strong><a aria-hidden="true" tabindex="-1" href="#titre-2"><span'
@@ -24,9 +19,25 @@ class EMarkdownTest(TestCase):
             '<a aria-hidden="true" tabindex="-1" href="#titre-3"><span class="icon icon-link">'
             "</span></a></h5>\n<blockquote>\n<p>test</p>\n</blockquote>"
         )
-        self.assertEqual(tr, expected)
+
+    def test_emarkdown(self):
+        # The goal is not to test zmarkdown but test that template tag correctly call it
+
+        tr = Template("{% load emarkdown %}{{ content | emarkdown}}").render(self.context)
+
+        self.assertEqual(tr, self.long_expected)
 
         # Todo: Find a way to force parsing crash or simulate it.
+
+    def test_epub_markdown(self):
+        DirTuple = namedtuple("DirTuple", ["absolute", "relative"])
+        image_directory = DirTuple("/some/absolute/path", "../some/relative/path")
+
+        tr = Template("{% load emarkdown %}{{ content | epub_markdown:image_directory }}").render(
+            Context({"content": self.content, "image_directory": image_directory})
+        )
+
+        self.assertEqual(tr, self.long_expected)
 
     def test_emarkdown_inline(self):
         # The goal is not to test zmarkdown but test that template tag correctly call it
