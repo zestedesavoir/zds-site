@@ -1,7 +1,7 @@
 <!-- Décrivez vos changements ici (optionnel pour les tous petits changements). -->
 
-<!-- Indiquez ci-dessous les numéros des éventuels tickets (avec le # au début) corrigés par vos changements. Suivez ces instructions pour profiter de la gestion automatique des tickets liés : https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue. -->
-Numéro du ticket concerné :
+<!-- Remplacez XXXX par le numéro de ticket concerné (si il y en a un) , github fermera l'issus concerné automatiquement  (voir https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue pour plus d'info) --!>
+fix #XXXX 
 
 <!-- Si votre PR modifie du code Python, mettez à jour ou créez les tests unitaires associés. Signalez vos éventuelles difficultés afin que des contributeurs expérimentés puissent vous aider. -->
 
