@@ -255,7 +255,12 @@ class FeaturedRequestedList(FeaturedViewMixin, ZdSPagingListView):
         if type_featured_request in FEATUREABLES.keys():
             queryset = queryset.filter(type=FEATUREABLES[type_featured_request]["name"])
 
-        return [q for q in queryset.all() if isinstance(q.content_object, Topic) or not q.content_object.is_obsolete]
+        featured_request_list = []
+        for q in queryset.all():
+            if q.content_object is not None:
+                if isinstance(q.content_object, Topic) or not q.content_object.is_obsolete:
+                    featured_request_list.append(q)
+        return featured_request_list
 
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
