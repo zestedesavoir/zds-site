@@ -1,0 +1,74 @@
+{% extends "tutorialv2/base.html" %}
+{% load profile %}
+{% load thumbnail %}
+{% load date %}
+{% load i18n %}
+
+
+{% block title %}
+    {% blocktrans with title=content.title %}
+        Journal des événements de "{{ title }}"
+    {% endblocktrans %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Journal des événements" %}</li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% if content.licence %}
+        <p class="license">
+            {{ content.licence }}
+        </p>
+    {% endif %}
+
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {% blocktrans with title=content.title %}
+            Journal des événements de "{{ title }}"
+        {% endblocktrans %}
+    </h1>
+
+    {% if content.description %}
+        <h2 class="subtitle">
+            {{ content.description }}
+        </h2>
+    {% endif %}
+
+    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% if events %}
+        {% include "misc/paginator.html" with position="top" %}
+
+        <table class="fullwidth commits-list">
+            <thead>
+                <tr>
+                    <th width="20%">{% trans "Date" %}</th>
+                    <th>{% trans "Description" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in events %}
+                    <tr>
+                        <td>{{ e.date | format_date:True }}</td>
+                        <td>{% include 'tutorialv2/events/descriptions.part.html' with event=e %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% include "misc/paginator.html" with position="bottom" %}
+    {% else %}
+        <p>{% trans "Aucun événement n'a été enregistré pour ce contenu." %}</p>
+    {% endif %}
+{% endblock %}

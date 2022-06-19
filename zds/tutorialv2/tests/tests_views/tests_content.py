@@ -5,10 +5,12 @@ import zipfile
 
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
+from django.http import HttpResponseNotAllowed
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
@@ -245,7 +247,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         random_with_md = "un text contenant du **markdown** ."
 
         response = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "text": random_with_md,
                 "preview": "",
@@ -259,7 +261,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
 
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": title,
                 "description": description,
@@ -626,7 +628,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         beta_topic = Topic.objects.get(pk=beta_topic.pk)
         self.assertTrue(beta_topic.is_locked)
 
-    def test_beta_workflow(self):
+    @patch("zds.tutorialv2.signals.beta_management")
+    def test_beta_workflow(self, beta_management):
         """Test beta workflow (access and update)"""
 
         # login with guest and test the non-access
@@ -656,15 +659,19 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertEqual(result.status_code, 302)
 
-        # check if there is a new topic and a pm corresponding to the tutorial in beta
+        # check if there is a pm corresponding to the tutorial in beta
         self.assertEqual(Topic.objects.filter(forum=self.beta_forum).count(), 1)
         self.assertTrue(PublishableContent.objects.get(pk=self.tuto.pk).beta_topic is not None)
         self.assertEqual(PrivateTopic.objects.filter(author=self.user_author).count(), 1)
+        # check if there is a new topic
         beta_topic = PublishableContent.objects.get(pk=self.tuto.pk).beta_topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user_author, beta_topic, is_active=True))
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
         self.assertEqual(beta_topic.tags.count(), 1)
         self.assertEqual(beta_topic.tags.first().title, sometag.title)
+        # check signal is emitted
+        self.assertEqual(beta_management.send.call_count, 1)
+        self.assertEqual(beta_management.send.call_args[1]["action"], "activate")
 
         # test if second author follow the topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(second_author, beta_topic, is_active=True))
@@ -791,6 +798,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 2)  # a new message was added !
         self.assertTrue(Topic.objects.get(pk=beta_topic.pk).is_locked)  # beta was inactived, so topic is locked !
+        # check signal is emitted
+        self.assertEqual(beta_management.send.call_count, 3)
+        self.assertEqual(beta_management.send.call_args[1]["action"], "deactivate")
 
         # then test for guest
         self.client.logout()
@@ -1272,7 +1282,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -1432,7 +1442,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -1548,7 +1558,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # create a tutorial
         result = self.client.post(
-            reverse("content:create-tutorial"),
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": given_title,
                 "description": some_text,
@@ -2058,7 +2068,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.client.logout()
 
-    def test_validation_workflow(self):
+    @patch("zds.tutorialv2.signals.validation_management")
+    def test_validation_workflow(self, validation_management):
         """test the different case of validation"""
 
         text_validation = "Valide moi ce truc, s'il te plait"
@@ -2080,6 +2091,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 0)  # not working if you don't provide a text
+        self.assertEqual(validation_management.send.call_count, 0)
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
@@ -2088,6 +2100,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(Validation.objects.count(), 1)
+        self.assertEqual(validation_management.send.call_count, 1)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "request")
 
         validation = Validation.objects.filter(content=tuto).last()
         self.assertIsNotNone(validation)
@@ -2143,6 +2157,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 2)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "reserve")
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "PENDING_V")
@@ -2153,6 +2169,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 3)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "unreserve")
 
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "PENDING")
@@ -2226,6 +2244,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "REJECT")
         self.assertEqual(validation.comment_validator, text_reject)
+        self.assertEqual(validation_management.send.call_count, 6)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "reject")
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
         new_mp_message_nb = PrivatePost.objects.filter(
@@ -2279,6 +2299,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         validation = Validation.objects.filter(pk=validation.pk).last()
         self.assertEqual(validation.status, "ACCEPT")
         self.assertEqual(validation.comment_validator, text_accept)
+        self.assertEqual(validation_management.send.call_count, 9)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "accept")
 
         self.assertIsNone(PublishableContent.objects.get(pk=tuto.pk).sha_validation)
 
@@ -2329,6 +2351,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 10)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "revoke")
 
         self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
@@ -2362,6 +2386,8 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("validation:cancel", kwargs={"pk": validation.pk}), {"text": text_cancel}, follow=False
         )
         self.assertEqual(result.status_code, 302)
+        self.assertEqual(validation_management.send.call_count, 12)
+        self.assertEqual(validation_management.send.call_args[1]["action"], "cancel")
 
         self.assertEqual(Validation.objects.filter(content=tuto).count(), 3)
 
@@ -2471,29 +2497,32 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(PrivateTopic.objects.last().author, self.user_staff)  # admin has received a PM
 
-    def test_js_fiddle_activation(self):
+    @patch("zds.tutorialv2.signals.jsfiddle_management")
+    def test_js_fiddle_activation(self, jsfiddle_management):
 
         self.client.force_login(self.staff)
         result = self.client.post(
             reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": "on"}, follow=True
         )
         self.assertEqual(result.status_code, 200)
+        self.assertEqual(jsfiddle_management.send.call_count, 1)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertTrue(updated.js_support)
         result = self.client.post(
             reverse("content:activate-jsfiddle"),
-            {
-                "pk": self.tuto.pk,
-            },
+            {"pk": self.tuto.pk},
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
         updated = PublishableContent.objects.get(pk=self.tuto.pk)
         self.assertFalse(updated.js_support)
+        self.assertEqual(jsfiddle_management.send.call_count, 2)
         self.client.logout()
+
         self.client.force_login(self.user_author)
         result = self.client.post(reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": True})
         self.assertEqual(result.status_code, 403)
+        self.assertEqual(jsfiddle_management.send.call_count, 2)
 
     def test_validate_unexisting(self):
 
@@ -2661,7 +2690,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(contents[0], tutoriel_1)
         self.assertEqual(contents[1], tutoriel_2)
 
-    def test_add_author(self):
+    @patch("zds.tutorialv2.signals.authors_management")
+    def test_add_author(self, authors_management):
         self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": self.user_guest.username}, follow=False
@@ -2671,14 +2701,18 @@ class ContentTests(TutorialTestMixin, TestCase):
         gallery = UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first()
         self.assertIsNotNone(gallery)
         self.assertEqual(GALLERY_WRITE, gallery.mode)
+        self.assertEqual(authors_management.send.call_count, 1)
+        self.assertEqual(authors_management.send.call_args[1]["action"], "add")
         # add unexisting user
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": "unknown"}, follow=False
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
+        self.assertEqual(authors_management.send.call_count, 1)
 
-    def test_remove_author(self):
+    @patch("zds.tutorialv2.signals.authors_management")
+    def test_remove_author(self, authors_management):
         self.client.force_login(self.user_author)
         tuto = PublishableContentFactory(author_list=[self.user_author, self.user_guest])
         result = self.client.post(
@@ -2686,6 +2720,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        self.assertEqual(authors_management.send.call_count, 1)
+        self.assertEqual(authors_management.send.call_args[1]["action"], "remove")
 
         self.assertIsNone(UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first())
         # remove unexisting user
@@ -2694,14 +2730,17 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        self.assertEqual(authors_management.send.call_count, 1)
+
         # remove last author must lead to no change
         result = self.client.post(
             reverse("content:remove-author", args=[tuto.pk]), {"username": self.user_author.username}, follow=False
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
+        self.assertEqual(authors_management.send.call_count, 1)
 
-        # re-add quest
+        # re-add guest
         result = self.client.post(
             reverse("content:add-author", args=[tuto.pk]), {"username": self.user_guest.username}, follow=False
         )
@@ -2759,6 +2798,22 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         self.client.force_login(self.user_guest)
+
+        # check the request to warn about a typo can't be a GET
+        result = self.client.get(
+            reverse("content:warn-typo") + f"?pk={tuto.pk}",
+            {"pk": tuto.pk, "version": sha_beta, "text": typo_text, "target": ""},
+            follow=True,
+        )
+        self.assertEqual(result.status_code, HttpResponseNotAllowed.status_code)
+
+        # check the 'target' field in the request isn't mandatory
+        result = self.client.post(
+            reverse("content:warn-typo") + f"?pk={tuto.pk}",
+            {"pk": tuto.pk, "version": sha_beta, "text": typo_text},
+            follow=True,
+        )
+        self.assertEqual(result.status_code, 200)
 
         # check if user can warn typo in tutorial
         result = self.client.post(
@@ -3557,7 +3612,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         for title in disallowed_titles:
             dic["title"] = title
-            result = self.client.post(reverse("content:create-tutorial"), dic, follow=False)
+            result = self.client.post(
+                reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}), dic, follow=False
+            )
             self.assertEqual(result.status_code, 200)
             self.assertEqual(PublishableContent.objects.all().count(), 1)
             self.assertFalse(result.context["form"].is_valid())
@@ -3571,7 +3628,9 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         for title in allowed_titles:
             dic["title"] = title
-            result = self.client.post(reverse("content:create-tutorial"), dic, follow=False)
+            result = self.client.post(
+                reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}), dic, follow=False
+            )
             self.assertEqual(result.status_code, 302)
             self.assertNotEqual(PublishableContent.objects.all().count(), prev_count)
             prev_count += 1

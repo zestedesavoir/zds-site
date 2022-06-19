@@ -2,6 +2,7 @@ from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -100,9 +101,7 @@ urlpatterns = [
     # typo:
     re_path(r"^reactions/typo/$", WarnTypo.as_view(), name="warn-typo"),
     # create:
-    re_path(r"^nouveau-tutoriel/$", CreateContent.as_view(created_content_type="TUTORIAL"), name="create-tutorial"),
-    re_path(r"^nouvel-article/$", CreateContent.as_view(created_content_type="ARTICLE"), name="create-article"),
-    re_path(r"^nouveau-billet/$", CreateContent.as_view(created_content_type="OPINION"), name="create-opinion"),
+    path("nouveau-contenu/<str:created_content_type>/", CreateContent.as_view(), name="create-content"),
     re_path(
         r"^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$",
         CreateContainer.as_view(),
@@ -191,4 +190,6 @@ urlpatterns = [
     # tags
     re_path(r"^tags/$", TagsListView.as_view(), name="tags"),
     re_path(r"^$", RedirectView.as_view(pattern_name="publication:list", permanent=True), name="list"),
+    # Journal of events
+    re_path(r"^evenements/(?P<pk>\d+)/$", EventsList.as_view(), name="events"),
 ]

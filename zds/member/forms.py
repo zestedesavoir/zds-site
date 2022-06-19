@@ -219,6 +219,13 @@ class ProfileForm(MiniProfileForm):
         ("show_markdown_help", _("Afficher l'aide Markdown dans l'éditeur")),
         ("email_for_answer", _("Recevoir un courriel lors d'une réponse à un message privé")),
         ("email_for_new_mp", _("Recevoir un courriel lors de la réception d'un nouveau message privé")),
+        (
+            "hide_forum_activity",
+            _(
+                "Masquer mes activités de forum et commentaires sur mon profil "
+                "(sauf pour moi et l'équipe de modération)"
+            ),
+        ),
     ]
 
     options = forms.MultipleChoiceField(
@@ -271,6 +278,9 @@ class ProfileForm(MiniProfileForm):
 
         if "email_for_new_mp" in initial and initial["email_for_new_mp"]:
             self.fields["options"].initial += "email_for_new_mp"
+
+        if "hide_forum_activity" in initial and initial["hide_forum_activity"]:
+            self.fields["options"].initial += "hide_forum_activity"
 
         layout = Layout(
             IncludeEasyMDE(),

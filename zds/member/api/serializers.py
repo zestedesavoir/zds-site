@@ -96,6 +96,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
             "sign",
             "show_email",
             "show_sign",
+            "hide_forum_activity",
             "is_hover_enabled",
             "allow_temp_visual_changes",
             "email_for_answer",
@@ -133,6 +134,7 @@ class ProfileValidatorSerializer(serializers.ModelSerializer):
     date_joined = serializers.DateTimeField(source="user.date_joined", required=False)
     permissions = DRYPermissionsField(additional_actions=["ban"])
     show_sign = serializers.NullBooleanField(required=False)
+    hide_forum_activity = serializers.NullBooleanField(required=False)
     is_hover_enabled = serializers.NullBooleanField(required=False)
     email_for_answer = serializers.NullBooleanField(required=False)
 
@@ -150,6 +152,7 @@ class ProfileValidatorSerializer(serializers.ModelSerializer):
             "sign",
             "show_email",
             "show_sign",
+            "hide_forum_activity",
             "is_hover_enabled",
             "email_for_answer",
             "last_visit",
@@ -178,6 +181,8 @@ class ProfileValidatorSerializer(serializers.ModelSerializer):
             instance.show_email = validated_data.get("show_email", instance.show_email)
         if validated_data.get("show_sign", instance.show_sign) != instance.show_sign:
             instance.show_sign = validated_data.get("show_sign", instance.show_sign)
+        if validated_data.get("hide_forum_activity", instance.hide_forum_activity) != instance.hide_forum_activity:
+            instance.hide_forum_activity = validated_data.get("hide_forum_activity", instance.hide_forum_activity)
         if validated_data.get("is_hover_enabled", instance.is_hover_enabled) != instance.is_hover_enabled:
             instance.is_hover_enabled = validated_data.get("is_hover_enabled", instance.is_hover_enabled)
         if validated_data.get("email_for_answer", instance.email_for_answer) != instance.email_for_answer:

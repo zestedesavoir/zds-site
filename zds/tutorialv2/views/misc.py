@@ -16,7 +16,7 @@ from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2.forms import WarnTypoForm
 from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, SingleContentFormViewMixin
 from zds.tutorialv2.utils import search_container_or_404
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 
 
 class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, SingleOnlineContentViewMixin, FormView):
@@ -80,6 +80,7 @@ class WarnTypo(SingleContentFormViewMixin):
     must_be_author = False
     only_draft_version = False
 
+    http_method_names = ["post"]
     object = None
 
     def get_form_kwargs(self):
@@ -90,7 +91,7 @@ class WarnTypo(SingleContentFormViewMixin):
         kwargs["content"] = versioned
         kwargs["targeted"] = versioned
 
-        if self.request.POST["target"]:
+        if "target" in self.request.POST and self.request.POST["target"] != "":
             kwargs["targeted"] = search_container_or_404(versioned, self.request.POST["target"])
 
         kwargs["public"] = True

@@ -14,9 +14,8 @@ from zds.utils.models import HelpWriting
 from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole, ContentSuggestion
 from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
-from zds.tutorialv2.utils import slugify_raise_on_invalid, InvalidSlugError
 from zds.utils.forms import TagValidator, IncludeEasyMDE
-from zds.utils.validators import with_svg_validator
+from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
 
 
 class FormWithTitle(forms.Form):
@@ -323,7 +322,7 @@ class ContentForm(ContainerForm):
 
 class EditContentTagsForm(forms.Form):
     tags = forms.CharField(
-        label=_("Tags séparés par des virgules (exemple : python,django,web) :"),
+        label=_("Tags séparés par des virgules (exemple : python,api,web) :"),
         max_length=64,
         required=False,
         widget=forms.TextInput(

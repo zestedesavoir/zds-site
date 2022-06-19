@@ -30,7 +30,7 @@ Installer une distribution LaTeX
 
 + Sous Windows, vous pouvez installer `MikTeX <https://miktex.org/download>`_ ou `TexLive <https://www.tug.org/texlive/>`_.
 + Sous macOS, vous pouvez installer `MacTex <https://www.tug.org/mactex/mactex-download.html>`_.
-+ Sous Linux, vous pouvez utiliser `TexLive <https://www.tug.org/texlive/>`_ (qui est probablement disponible dans votre gestionnaire de paquet). Notez que si vous êtes à l'aise, vous pouvez également installer une version allégée, `comme c'est fait ici <https://github.com/zestedesavoir/latex-template/blob/master/scripts/install_texlive.sh>`_ ou `dans le script d'installation automatisé <./install-linux.html##composant-tex-local-et-latex-template>`_.
++ Sous Linux, vous pouvez utiliser `TexLive <https://www.tug.org/texlive/>`_ (qui est probablement disponible dans votre gestionnaire de paquet). Notez que si vous êtes à l'aise, vous pouvez également installer une version allégée, `comme c'est fait ici <https://github.com/zestedesavoir/latex-template/blob/master/scripts/install_texlive.sh>`_ ou `dans le script d'installation automatisé <./install-linux.html#composant-tex-local-et-latex-template>`_.
 
 Si vous n'êtes pas famillier avec LaTeX, choisissez d'installer la version **complète**.
 La liste des packages nécessaire `est disponible ici <https://github.com/zestedesavoir/latex-template/blob/master/scripts/packages>`_, mais n'est peut être pas exhaustive.

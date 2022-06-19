@@ -17,7 +17,8 @@ from django.template.loader import render_to_string
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
 from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_BETA, CONTENT_TYPES_REQUIRING_VALIDATION
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from zds.tutorialv2.utils import get_blob, InvalidSlugError, check_slug
+from zds.tutorialv2.utils import get_blob
+from zds.utils.validators import InvalidSlugError, check_slug
 from zds.utils.misc import compute_hash
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.uuslug_wrapper import slugify

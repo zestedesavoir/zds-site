@@ -16,6 +16,7 @@ from django.views.generic import FormView, ListView
 
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     PublicationForm,
     RevokeValidationForm,
@@ -30,7 +31,7 @@ from zds.tutorialv2.publication_utils import publish_content, FailureDuringPubli
 from zds.tutorialv2.utils import clone_repo
 from zds.tutorialv2.views.validations_contents import logger
 from zds.utils.models import get_hat_from_settings
-from zds.utils.mps import send_mp, send_message_mp
+from zds.mp.utils import send_mp, send_message_mp
 
 
 class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormViewMixin):
@@ -76,6 +77,9 @@ class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormVi
             )
             notify_update(db_object, is_update, form.cleaned_data.get("is_major", False))
 
+            signals.opinions_management.send(
+                sender=self.__class__, performer=self.request.user, content=self.object, action="publish"
+            )
             messages.success(self.request, _("Le contenu a bien été publié."))
             self.success_url = published.get_absolute_url_online()
 
@@ -142,6 +146,10 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                     hat=get_hat_from_settings("moderation"),
                     no_notification_for=[self.request.user],
                 )
+
+        signals.opinions_management.send(
+            sender=self.__class__, performer=self.request.user, content=self.object, action="unpublish"
+        )
 
         messages.success(self.request, _("Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url()

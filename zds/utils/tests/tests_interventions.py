@@ -9,7 +9,7 @@ from zds.tutorialv2.models.database import Validation
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from zds.utils.mps import send_message_mp, send_mp
+from zds.mp.utils import send_message_mp, send_mp
 
 
 class InterventionsTest(TestCase):

@@ -43,8 +43,9 @@ from zds.tutorialv2.models.database import PublishableContent, Validation, Conte
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
 from zds.utils.models import get_hat_from_settings
-from zds.utils.mps import send_mp, send_message_mp
+from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 
 logger = logging.getLogger(__name__)
 
@@ -73,6 +74,9 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
     def get_form(self, form_class=ContentForm):
         form = super().get_form(form_class)
+        content_type = self.kwargs["created_content_type"]
+        if content_type in CONTENT_TYPE_LIST:
+            self.created_content_type = content_type
         form.initial["type"] = self.created_content_type
         return form
 

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -99,7 +101,16 @@ class RemoveSuggestionWorkflowTests(TutorialTestMixin, TestCase):
         # Log in with an authorized user to perform the tests
         self.client.force_login(self.staff)
 
-    def test_existing(self):
+    def check_signal(self, suggestions_management, emitted, count=1):
+        """Assert whether the signal is appropriately emitted."""
+        if emitted:
+            self.assertEqual(suggestions_management.send.call_count, count)
+            self.assertEqual(suggestions_management.send.call_args[1]["action"], "remove")
+        else:
+            self.assertFalse(suggestions_management.send.called)
+
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_existing(self, suggestions_management):
         response = self.client.post(self.form_url, {"pk_suggestion": self.suggestion_1.pk}, follow=True)
         # Check that we display correct message
         self.assertContains(response, escape(self.success_message_fragment))
@@ -107,15 +118,22 @@ class RemoveSuggestionWorkflowTests(TutorialTestMixin, TestCase):
         with self.assertRaises(ContentSuggestion.DoesNotExist):
             ContentSuggestion.objects.get(pk=self.suggestion_1.pk)
         ContentSuggestion.objects.get(pk=self.suggestion_2.pk)  # succeeds
+        self.check_signal(suggestions_management, emitted=True)
 
-    def test_empty(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_empty(self, suggestions_management):
         response = self.client.post(self.form_url, {"pk_suggestion": ""}, follow=True)
         self.assertContains(response, escape(self.error_messages["required"]))
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_invalid(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_invalid(self, suggestions_management):
         response = self.client.post(self.form_url, {"pk_suggestion": "420"}, follow=True)  # pk must not exist
         self.assertContains(response, escape(self.error_messages["does_not_exist"]))
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_not_integer(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_not_integer(self, suggestions_management):
         response = self.client.post(self.form_url, {"pk_suggestion": "abcd"}, follow=True)
         self.assertContains(response, escape(self.error_messages["invalid"]))
+        self.check_signal(suggestions_management, emitted=False)

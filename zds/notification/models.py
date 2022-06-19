@@ -450,8 +450,3 @@ class TopicFollowed(models.Model):
 
     def __str__(self):
         return f'<Sujet "{self.topic.title}" suivi par {self.user.username}>'
-
-
-# used to fix Django 1.9 Warning
-# https://github.com/zestedesavoir/zds-site/issues/3451
-from . import receivers  # noqa

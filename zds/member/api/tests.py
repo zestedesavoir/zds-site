@@ -383,6 +383,7 @@ class MemberMyDetailAPITest(APITestCase):
         self.assertEqual(profile.sign, response.data.get("sign"))
         self.assertFalse(response.data.get("show_email"))
         self.assertEqual(profile.show_sign, response.data.get("show_sign"))
+        self.assertEqual(profile.hide_forum_activity, response.data.get("hide_forum_activity"))
         self.assertEqual(profile.is_hover_enabled, response.data.get("is_hover_enabled"))
         self.assertEqual(profile.allow_temp_visual_changes, response.data.get("allow_temp_visual_changes"))
         self.assertEqual(profile.email_for_answer, response.data.get("email_for_answer"))
@@ -425,6 +426,7 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(self.profile.sign, response.data.get("sign"))
         self.assertFalse(response.data.get("show_email"))
         self.assertEqual(self.profile.show_sign, response.data.get("show_sign"))
+        self.assertEqual(self.profile.hide_forum_activity, response.data.get("hide_forum_activity"))
         self.assertEqual(self.profile.is_hover_enabled, response.data.get("is_hover_enabled"))
         self.assertEqual(self.profile.email_for_answer, response.data.get("email_for_answer"))
 
@@ -485,6 +487,7 @@ class MemberDetailAPITest(APITestCase):
         self.assertEqual(self.profile.sign, response.data.get("sign"))
         self.assertFalse(response.data.get("show_email"))
         self.assertEqual(self.profile.show_sign, response.data.get("show_sign"))
+        self.assertEqual(self.profile.hide_forum_activity, response.data.get("hide_forum_activity"))
         self.assertEqual(self.profile.is_hover_enabled, response.data.get("is_hover_enabled"))
         self.assertEqual(self.profile.email_for_answer, response.data.get("email_for_answer"))
 
@@ -613,6 +616,20 @@ class MemberDetailAPITest(APITestCase):
         response = self.client_authenticated.put(reverse("api:member:detail", args=[self.profile.user.id]), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("show_sign"), data.get("show_sign"))
+
+    def test_update_member_details_hide_forum_activity(self):
+        """
+        Updates Hide Comment Activity of a given member.
+        """
+        data = {"hide_forum_activity": True}
+        response = self.client_authenticated.put(reverse("api:member:detail", args=[self.profile.user.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("hide_forum_activity"), data.get("hide_forum_activity"))
+
+        data = {"hide_forum_activity": False}
+        response = self.client_authenticated.put(reverse("api:member:detail", args=[self.profile.user.id]), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("hide_forum_activity"), data.get("hide_forum_activity"))
 
     def test_update_member_details_is_hover_enabled(self):
         """

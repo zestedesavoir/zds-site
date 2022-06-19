@@ -1,6 +1,5 @@
 import contextlib
 import copy
-import json
 import logging
 import os
 import shutil
@@ -22,7 +21,7 @@ from zds.tutorialv2.models.database import ContentReaction, PublishedContent, Pu
 from zds.tutorialv2.publish_container import publish_use_manifest
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import export_content
-from zds.utils.forums import send_post, lock_topic
+from zds.forum.utils import send_post, lock_topic
 from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 
@@ -414,7 +413,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         replaced_media_url = settings.MEDIA_URL
         if replaced_media_url.startswith("/"):
             replaced_media_url = replaced_media_url[1:]
-        exported = export_content(public_versionned_source, with_text=True)
+        exported = export_content(public_versionned_source, with_text=True, ready_to_publish_only=True)
         # no title to avoid zmd to put it on the final latex
         del exported["title"]
         content, metadata, messages = render_markdown(
@@ -564,6 +563,13 @@ class WatchdogFilePublicator(Publicator):
 
     def publish_from_published_content(self, published_content: PublishedContent):
         for requested_format in PublicatorRegistry.get_all_registered(["watchdog"]):
+            # Remove previous PublicationEvent for this content, not handled by
+            # the publication watchdog yet:
+            PublicationEvent.objects.filter(
+                state_of_processing="REQUESTED",
+                published_object__content_pk=published_content.content_pk,
+                format_requested=requested_format[0],
+            ).delete()
             PublicationEvent.objects.create(
                 state_of_processing="REQUESTED",
                 published_object=published_content,

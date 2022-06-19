@@ -21,17 +21,15 @@ from zds.tutorialv2.utils import (
     get_target_tagged_tree_for_container,
     get_target_tagged_tree_for_extract,
     last_participation_is_old,
-    InvalidSlugError,
     BadManifestError,
     get_content_from_json,
     get_commit_author,
-    slugify_raise_on_invalid,
-    check_slug,
 )
+from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError, check_slug
 from zds.tutorialv2.publication_utils import publish_content, unpublish_content
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
 from django.core.management import call_command
-from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry
+from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry, ZMarkdownRebberLatexPublicator
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds import json_handler
 from zds.utils.tests.factories import LicenceFactory
@@ -258,53 +256,6 @@ class UtilsTests(TutorialTestMixin, TestCase):
                 self.assertTrue(os.path.isfile(chapter.get_prod_path()))  # an HTML file for each chapter
                 self.assertIsNone(chapter.introduction)
                 self.assertIsNone(chapter.conclusion)
-
-    def test_export_only_ready_to_publish(self):
-        """
-        Test exported contents contain only ready_to_publish==True parts.
-        """
-        #  Medium-size tutorial
-        midsize_tuto = PublishableContentFactory(type="TUTORIAL")
-
-        midsize_tuto.authors.add(self.user_author)
-        UserGalleryFactory(gallery=midsize_tuto.gallery, user=self.user_author, mode="W")
-        midsize_tuto.licence = self.licence
-        midsize_tuto.save()
-
-        # populate with 3 chapters (1 extract each), one not being ready for pubication
-        midsize_tuto_draft = midsize_tuto.load_version()
-        chapter1 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto, title="Chapter 1 ready")
-        ExtractFactory(container=chapter1, db_object=midsize_tuto)
-        chapter2 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto, title="Chapter 2 ready")
-        ExtractFactory(container=chapter2, db_object=midsize_tuto)
-        chapter3 = ContainerFactory(parent=midsize_tuto_draft, db_object=midsize_tuto, title="Chapter 3 not ready")
-        chapter3.ready_to_publish = False
-        ExtractFactory(container=chapter3, db_object=midsize_tuto)
-
-        # publish it
-        midsize_tuto = PublishableContent.objects.get(pk=midsize_tuto.pk)
-        published = publish_content(midsize_tuto, midsize_tuto_draft)
-        public = midsize_tuto.load_version(sha=published.sha_public, public=published)
-
-        # test creation of files:
-        self.assertTrue(Path(published.get_prod_path()).is_dir())
-        self.assertTrue(Path(published.get_prod_path(), "manifest.json").is_file())
-
-        self.assertTrue(Path(public.get_prod_path(), public.introduction).is_file())
-        self.assertTrue(Path(public.get_prod_path(), public.conclusion).is_file())
-
-        self.assertEqual(len(public.children), 2)
-        for child in public.children:
-            self.assertTrue(os.path.isfile(child.get_prod_path()))  # an HTML file for each chapter
-            self.assertIsNone(child.introduction)
-            self.assertIsNone(child.conclusion)
-
-        self.assertTrue(published.has_md())
-        with Path(published.get_extra_contents_directory(), published.content_public_slug + ".md").open("r") as md:
-            content = md.read()
-            self.assertIn(chapter1.title, content)
-            self.assertIn(chapter2.title, content)
-            self.assertNotIn(chapter3.title, content)
 
     def test_tagged_tree_extract(self):
         midsize = PublishableContentFactory(author_list=[self.user_author])
@@ -621,3 +572,279 @@ class UtilsTests(TutorialTestMixin, TestCase):
     def tearDown(self):
         super().tearDown()
         PublicatorRegistry.registry = self.old_registry
+
+
+@override_for_contents()
+class UtilsExportOnlyReadyToPublishTests(TutorialTestMixin, TestCase):
+    """
+    Test exported contents contain only ready_to_publish==True parts.
+    These tests can be seen as producing a 100% coverage of the template file
+    templates/tutorialv2/export/content.md.
+    """
+
+    def setUp(self):
+        self.licence = LicenceFactory()
+        self.user_author = ProfileFactory().user
+
+        self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
+        self.old_build_pdf_when_published = self.overridden_zds_app["content"]["build_pdf_when_published"]
+
+        self.overridden_zds_app["content"]["build_pdf_when_published"] = True
+
+    def get_latex_file_path(self, published: PublishedContent):
+        """
+        Returns the LaTeX file path of a published content.
+        TODO: factorize this method with what is done in zds.tutorialv2.publication_utils.publish_content()
+        """
+        tmp_path = os.path.join(
+            settings.ZDS_APP["content"]["repo_public_path"], published.content_public_slug + "__building"
+        )
+        build_extra_contents_path = os.path.join(tmp_path, settings.ZDS_APP["content"]["extra_contents_dirname"])
+        base_name = os.path.join(build_extra_contents_path, published.content_public_slug)
+        return base_name + ".tex"
+
+    def create_content(self):
+        """
+        Returns a content and its draft used in following tests.
+        """
+        tuto = PublishableContentFactory(type="TUTORIAL", intro="Intro tuto", conclusion="Conclusion tuto")
+        tuto.authors.add(self.user_author)
+        UserGalleryFactory(gallery=tuto.gallery, user=self.user_author, mode="W")
+        tuto.licence = self.licence
+        tuto.save()
+
+        tuto_draft = tuto.load_version()
+
+        return tuto, tuto_draft
+
+    def test_mini_tuto(self):
+        """
+        Test everything in a mini tuto is exported:
+
+        + Content
+            + Extract
+            + Extract
+        """
+
+        def check(path):
+            with path.open("r") as f:
+                content = f.read()
+                self.assertIn(mini_tuto_draft.get_introduction(), content)
+                self.assertIn(extract1.title, content)
+                self.assertIn(extract1.get_text(), content)
+                self.assertIn(extract2.title, content)
+                self.assertIn(extract2.get_text(), content)
+                self.assertIn(mini_tuto_draft.get_conclusion(), content)
+
+        mini_tuto, mini_tuto_draft = self.create_content()
+        extract1 = ExtractFactory(
+            container=mini_tuto_draft, db_object=mini_tuto, title="Extract 1", text_content="Content extract 1"
+        )
+        extract2 = ExtractFactory(
+            container=mini_tuto_draft, db_object=mini_tuto, title="Extract 2", text_content="Content extract 2"
+        )
+
+        # publish it
+        published = publish_content(mini_tuto, mini_tuto_draft)
+
+        # Test Markdown content:
+        self.assertTrue(published.has_md())
+        check(Path(published.get_extra_contents_directory(), published.content_public_slug + ".md"))
+
+        # PDF generation may fail, we only test the LaTeX content:
+        check(Path(self.get_latex_file_path(published)))
+
+    def test_midsize_tutorial(self):
+        """
+        Test everything in a midsize_tuto is exported, with respect to ready_to_publish:
+
+        + Content
+            + Part
+                + Extract
+                + Extract
+            + Part (not ready)
+                + Extract
+                + Extract
+        """
+
+        def check(path):
+            with path.open("r") as f:
+                content = f.read()
+                self.assertIn(midsize_tuto_draft.get_introduction(), content)
+                self.assertIn(part1.title, content)
+                self.assertIn(part1.get_introduction(), content)
+                self.assertIn(extract11.title, content)
+                self.assertIn(extract11.get_text(), content)
+                self.assertIn(extract12.title, content)
+                self.assertIn(extract12.get_text(), content)
+                self.assertIn(part1.get_conclusion(), content)
+                self.assertNotIn(part2.title, content)
+                self.assertNotIn(part2.get_introduction(), content)
+                self.assertNotIn(extract21.title, content)
+                self.assertNotIn(extract21.get_text(), content)
+                self.assertNotIn(extract22.title, content)
+                self.assertNotIn(extract22.get_text(), content)
+                self.assertNotIn(part2.get_conclusion(), content)
+                self.assertIn(midsize_tuto_draft.get_conclusion(), content)
+
+        midsize_tuto, midsize_tuto_draft = self.create_content()
+        part1 = ContainerFactory(
+            parent=midsize_tuto_draft,
+            db_object=midsize_tuto,
+            title="Part 1 ready",
+            intro="Intro part 1",
+            conclusion="Conclusion part 1",
+        )
+        extract11 = ExtractFactory(
+            container=part1, db_object=midsize_tuto, title="Extract 1.1", text_content="Content 1.1"
+        )
+        extract12 = ExtractFactory(
+            container=part1, db_object=midsize_tuto, title="Extract 1.2", text_content="Content 1.2"
+        )
+        part2 = ContainerFactory(
+            parent=midsize_tuto_draft,
+            db_object=midsize_tuto,
+            title="Part 2 not ready",
+            intro="Intro part 2",
+            conclusion="Conclusion part 2",
+        )
+        part2.ready_to_publish = False
+        extract21 = ExtractFactory(
+            container=part2, db_object=midsize_tuto, title="Extract 2.1", text_content="Content 2.1"
+        )
+        extract22 = ExtractFactory(
+            container=part2, db_object=midsize_tuto, title="Extract 2.2", text_content="Content 2.2"
+        )
+
+        # publish it
+        published = publish_content(midsize_tuto, midsize_tuto_draft)
+
+        # Test Markdown content:
+        self.assertTrue(published.has_md())
+        check(Path(published.get_extra_contents_directory(), published.content_public_slug + ".md"))
+
+        # PDF generation may fail, we only test the LaTeX content:
+        check(Path(self.get_latex_file_path(published)))
+
+    def test_big_tutorial(self):
+        """
+        Test everything in a big tuto is exported, with respect to ready_to_publish:
+
+        + Content
+            + Part
+                + Chapter
+                    + Extract
+                    + Extract
+                + Chapter (not ready)
+                    + Extract
+                    + Extract
+            + Part (not ready)
+                + Chapter
+                    + Extract
+                    + Extract
+        """
+
+        def check(path):
+            with path.open("r") as f:
+                content = f.read()
+                self.assertIn(big_tuto_draft.get_introduction(), content)
+                self.assertIn(part1.title, content)
+                self.assertIn(part1.get_introduction(), content)
+                self.assertIn(chapter11.title, content)
+                self.assertIn(chapter11.get_introduction(), content)
+                self.assertIn(extract111.title, content)
+                self.assertIn(extract111.get_text(), content)
+                self.assertIn(extract112.title, content)
+                self.assertIn(extract112.get_text(), content)
+                self.assertIn(chapter11.get_conclusion(), content)
+                self.assertNotIn(chapter12.title, content)
+                self.assertNotIn(chapter12.get_introduction(), content)
+                self.assertNotIn(extract121.title, content)
+                self.assertNotIn(extract121.get_text(), content)
+                self.assertNotIn(extract122.title, content)
+                self.assertNotIn(extract122.get_text(), content)
+                self.assertNotIn(chapter12.get_conclusion(), content)
+                self.assertIn(part1.get_conclusion(), content)
+                self.assertNotIn(part2.title, content)
+                self.assertNotIn(part2.get_introduction(), content)
+                self.assertNotIn(chapter21.title, content)
+                self.assertNotIn(chapter21.get_introduction(), content)
+                self.assertNotIn(extract211.title, content)
+                self.assertNotIn(extract211.get_text(), content)
+                self.assertNotIn(extract212.title, content)
+                self.assertNotIn(extract212.get_text(), content)
+                self.assertNotIn(chapter21.get_conclusion(), content)
+                self.assertNotIn(part2.get_conclusion(), content)
+                self.assertIn(big_tuto_draft.get_conclusion(), content)
+
+        big_tuto, big_tuto_draft = self.create_content()
+        part1 = ContainerFactory(
+            parent=big_tuto_draft,
+            db_object=big_tuto,
+            title="Part 1 partially ready",
+            intro="Intro part 1",
+            conclusion="Conclusion part 1",
+        )
+        chapter11 = ContainerFactory(
+            parent=part1,
+            db_object=big_tuto,
+            title="Chapter 1.1 ready",
+            intro="Intro chapter 1.1",
+            conclusion="Conclusion chapter 1.1",
+        )
+        extract111 = ExtractFactory(
+            container=chapter11, db_object=big_tuto, title="Extract 1.1.1", text_content="Content 1.1.1"
+        )
+        extract112 = ExtractFactory(
+            container=chapter11, db_object=big_tuto, title="Extract 1.1.2", text_content="Content 1.1.2"
+        )
+        chapter12 = ContainerFactory(
+            parent=part1,
+            db_object=big_tuto,
+            title="Chapter 1.2 not ready",
+            intro="Intro chapter 1.2",
+            conclusion="Conclusion chapter 1.2",
+        )
+        chapter12.ready_to_publish = False
+        extract121 = ExtractFactory(
+            container=chapter12, db_object=big_tuto, title="Extract 1.2.1", text_content="Content 1.2.1"
+        )
+        extract122 = ExtractFactory(
+            container=chapter12, db_object=big_tuto, title="Extract 1.2.2", text_content="Content 1.2.2"
+        )
+        part2 = ContainerFactory(
+            parent=big_tuto_draft,
+            db_object=big_tuto,
+            title="Part 2 not ready",
+            intro="Intro part 2",
+            conclusion="Conclusion part 2",
+        )
+        part2.ready_to_publish = False
+        chapter21 = ContainerFactory(
+            parent=part2,
+            db_object=big_tuto,
+            title="Chapter 2.1 ready",
+            intro="Intro chapter 2.1",
+            conclusion="Conclusion chapter 2.1",
+        )
+        extract211 = ExtractFactory(
+            container=chapter21, db_object=big_tuto, title="Extract 2.1.1", text_content="Content 2.1.1"
+        )
+        extract212 = ExtractFactory(
+            container=chapter21, db_object=big_tuto, title="Extract 2.1.2", text_content="Content 2.1.2"
+        )
+
+        # publish it
+        published = publish_content(big_tuto, big_tuto_draft)
+
+        # Test Markdown content:
+        self.assertTrue(published.has_md())
+        check(Path(published.get_extra_contents_directory(), published.content_public_slug + ".md"))
+
+        # PDF generation may fail, we only test the LaTeX content:
+        check(Path(self.get_latex_file_path(published)))
+
+    def tearDown(self):
+        super().tearDown()
+        PublicatorRegistry.registry = self.old_registry
+        self.overridden_zds_app["content"]["build_pdf_when_published"] = self.old_build_pdf_when_published

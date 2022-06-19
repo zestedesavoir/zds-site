@@ -68,6 +68,10 @@
                 {% endcaptureas %}
             {% endif %}
 
+            {% captureas karma_link %}
+                {% url "api:mp:mp-reaction-karma" topic.pk message.pk %}
+            {% endcaptureas %}
+
             {% captureas unread_link %}
                 {% url "private-post-unread" %}?message={{ message.pk }}
             {% endcaptureas %}

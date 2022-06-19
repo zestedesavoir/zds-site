@@ -13,11 +13,12 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.notification.models import NewPublicationSubscription
+from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import ContributionForm, RemoveContributionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
 from zds.tutorialv2.models.database import ContentContribution, PublishableContent
-from zds.utils.mps import send_mp
+from zds.mp.utils import send_mp
 from zds.utils.paginator import ZdSPagingListView
 
 
@@ -92,6 +93,9 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
                 direct=False,
                 leave=True,
             )
+            signals.contributors_management.send(
+                sender=self.__class__, content=self.object, performer=self.request.user, contributor=user, action="add"
+            )
             self.success_url = self.object.get_absolute_url()
 
             return super().form_valid(form)
@@ -119,7 +123,9 @@ class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFor
         contribution = get_object_or_404(ContentContribution, pk=form.cleaned_data["pk_contribution"])
         user = contribution.user
         contribution.delete()
-
+        signals.contributors_management.send(
+            sender=self.__class__, content=self.object, performer=self.request.user, contributor=user, action="remove"
+        )
         messages.success(
             self.request, _("Vous avez enlevé {} de la liste des contributeurs de {}.").format(user.username, _type)
         )

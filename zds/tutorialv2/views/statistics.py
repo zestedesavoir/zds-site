@@ -15,6 +15,15 @@ from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.utils import NamedUrl
 
 
+class StatisticsException(Exception):
+    """A class to distinguish exceptions raised ourselves by our code from
+    other exceptions: ours have two arguments: the logger to use and the
+    message."""
+
+    def __init__(self, logger, msg):
+        super().__init__(logger, msg)
+
+
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     template_name = "tutorialv2/stats/index.html"
     form_class = ContentCompareStatsURLForm
@@ -84,11 +93,13 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
         data = response_matomo.json()
         if isinstance(data, dict) and data.get("result", "") == "error":
-            raise Exception(self.logger.error, data.get("message", _("Pas de message d'erreur")))
+            raise StatisticsException(self.logger.error, data.get("message", _("Pas de message d'erreur")))
         else:
             for index, method_url in enumerate(itertools.product(methods, urls)):
                 if isinstance(data[index], dict) and data[index].get("result", "") == "error":
-                    raise Exception(self.logger.error, data[index].get("message", _("Pas de message d'erreur")))
+                    raise StatisticsException(
+                        self.logger.error, data[index].get("message", _("Pas de message d'erreur"))
+                    )
 
                 method = method_url[0]
                 data_structured[method].append(data[index])
@@ -147,10 +158,10 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
     def get_display_mode(self, urls):
         # TODO make display_mode an enum ?
         # Good idea, but not straightforward for the template integration
-        if len(urls) == 1:
-            return "details"
         if len(urls) == len(self.get_content_urls()):
             return "global"
+        if len(urls) == 1:
+            return "details"
         return "comparison"
 
     @staticmethod
@@ -215,11 +226,15 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 end_date,
                 ["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords", "Actions.getPageUrl"],
             )
-        except Exception as e:
+        except StatisticsException as e:
             all_statistics = {}
             logger_method, msg = e.args
             logger_method(f"Something failed with Matomo reporting system: {msg}")
             messages.error(self.request, _("Impossible de récupérer les statistiques du site ({}).").format(msg))
+        except Exception as e:
+            all_statistics = {}
+            self.logger.error(f"Something failed with Matomo reporting system: {e}")
+            messages.error(self.request, _("Impossible de récupérer les statistiques du site ({}).").format(e))
 
         if all_statistics != {}:
             all_stats = all_statistics["Actions.getPageUrl"]

@@ -27,7 +27,7 @@ from zds.notification.models import NewTopicSubscription, TopicAnswerSubscriptio
 from zds.featured.mixins import FeatureableMixin
 from zds.utils import old_slugify
 from zds.utils.context_processor import get_repository_url
-from zds.utils.forums import create_topic, send_post, CreatePostView
+from zds.forum.utils import create_topic, send_post, CreatePostView
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
 from zds.utils.paginator import ZdSPagingListView

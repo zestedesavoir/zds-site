@@ -353,6 +353,9 @@ class PrivatePost(models.Model):
         blank=True,
         null=True,
     )
+    like = models.IntegerField("Likes", default=0)
+    dislike = models.IntegerField("Dislikes", default=0)
+
     objects = PrivatePostManager()
 
     def __str__(self):
@@ -397,6 +400,49 @@ class PrivatePost(models.Model):
             is_same_private_topic = private_topic == self.privatetopic
         return is_same_private_topic and self.privatetopic.last_message == self
 
+    def get_user_vote(self, user):
+        """Get a user vote (like, dislike or neutral)"""
+        if user.is_authenticated:
+            try:
+                user_vote = "like" if PrivatePostVote.objects.get(user=user, private_post=self).positive else "dislike"
+            except PrivatePostVote.DoesNotExist:
+                user_vote = "neutral"
+        else:
+            user_vote = "neutral"
+
+        return user_vote
+
+    def set_user_vote(self, user, vote):
+        """Set a user vote (like, dislike or neutral)"""
+        if vote == "neutral":
+            PrivatePostVote.objects.filter(user=user, private_post=self).delete()
+        else:
+            PrivatePostVote.objects.update_or_create(
+                user=user, private_post=self, defaults={"positive": (vote == "like")}
+            )
+
+        self.like = PrivatePostVote.objects.filter(positive=True, private_post=self).count()
+        self.dislike = PrivatePostVote.objects.filter(positive=False, private_post=self).count()
+
+    def get_votes(self):
+        """Get the non-anonymous votes"""
+        if not hasattr(self, "votes"):
+            self.votes = (
+                PrivatePostVote.objects.filter(private_post=self, id__gt=settings.VOTES_ID_LIMIT)
+                .select_related("user")
+                .all()
+            )
+
+        return self.votes
+
+    def get_likers(self):
+        """Get the list of the users that liked this PrivatePost"""
+        return [vote.user for vote in self.get_votes() if vote.positive]
+
+    def get_dislikers(self):
+        """Get the list of the users that disliked this PrivatePost"""
+        return [vote.user for vote in self.get_votes() if not vote.positive]
+
     @staticmethod
     def has_read_permission(request):
         return request.user.is_authenticated
@@ -413,6 +459,23 @@ class PrivatePost(models.Model):
 
     def has_object_update_permission(self, request):
         return PrivateTopic.has_write_permission(request) and self.is_last_message() and self.is_author(request.user)
+
+
+class PrivatePostVote(models.Model):
+
+    """Set of Private Post votes."""
+
+    class Meta:
+        verbose_name = "Vote"
+        verbose_name_plural = "Votes"
+        unique_together = ("user", "private_post")
+
+    private_post = models.ForeignKey(PrivatePost, db_index=True, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, db_index=True, on_delete=models.CASCADE)
+    positive = models.BooleanField("Est un vote positif", default=True)
+
+    def __str__(self):
+        return f"Vote from {self.user.username} about PrivatePost#{self.private_post.pk} thumb_up={self.positive}"
 
 
 class PrivateTopicRead(models.Model):

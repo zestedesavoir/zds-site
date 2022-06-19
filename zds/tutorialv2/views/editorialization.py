@@ -10,9 +10,12 @@ from zds.member.decorator import LoggedWithReadWriteHability, can_write_and_read
 from zds.tutorialv2.forms import RemoveSuggestionForm, EditContentTagsForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import ContentSuggestion, PublishableContent
+import zds.tutorialv2.signals as signals
+from zds.utils import get_current_user
 
 
 class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
+
     form_class = RemoveSuggestionForm
     modal_form = True
     only_draft_version = True
@@ -28,6 +31,9 @@ class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
     def form_valid(self, form):
         suggestion = ContentSuggestion.objects.get(pk=form.cleaned_data["pk_suggestion"])
         suggestion.delete()
+        signals.suggestions_management.send(
+            sender=self.__class__, performer=self.request.user, content=self.object, action="remove"
+        )
         messages.success(self.request, self.get_success_message(suggestion))
         return super().form_valid(form)
 
@@ -94,6 +100,12 @@ class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, Single
                 else:
                     obj_suggestion = ContentSuggestion(publication=publication, suggestion=suggestion)
                     obj_suggestion.save()
+                    signals.suggestions_management.send(
+                        sender=self.__class__,
+                        performer=self.request.user,
+                        content=self.object,
+                        action="add",
+                    )
                     messages.info(
                         self.request,
                         _(f'Le contenu "{suggestion.title}" a été ajouté dans les suggestions de {_type}'),
@@ -122,4 +134,5 @@ class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         self.object.add_tags(form.cleaned_data["tags"].split(","))
         self.object.save()
         messages.success(self.request, EditContentTags.success_message)
+        signals.tags_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
         return redirect(form.previous_page_url)

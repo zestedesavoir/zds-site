@@ -1,5 +1,8 @@
+import re
+
 from django.template import defaultfilters
 
+VALID_SLUG = re.compile(r"^[a-z0-9\-_]+$")
 
 try:
     from threading import local

@@ -241,7 +241,24 @@ h6 {
     }
 }
 
-.js .spoiler, .custom-block-spoiler {
+/* CSS specific for new spoilers using <details> and <summary> */
+.custom-block-spoiler summary.custom-block-heading {
+    cursor: pointer;
+
+    &.ico-after {
+        padding-left: $length-32;
+
+        &:after {
+            margin: $length-8 0 0 $length-10;
+        }
+    }
+
+    &:hover {
+        background-color: $grey-800;
+    }
+}
+
+.js .spoiler, div.custom-block-spoiler {
     display: none;
 }
 

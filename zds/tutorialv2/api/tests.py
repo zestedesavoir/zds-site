@@ -165,6 +165,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(1, response.data["dislike"]["count"])
 
         # Now we change the settings to keep anonymous the first [dis]like
+        previous_limit = settings.VOTES_ID_LIMIT
         settings.VOTES_ID_LIMIT = anon_limit.pk
         # and we run the same tests
         # on first message we should see 1 like and 1 anonymous
@@ -190,6 +191,7 @@ class ContentReactionKarmaAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(1, len(response.data["dislike"]["users"]))
         self.assertEqual(1, response.data["like"]["count"])
         self.assertEqual(1, response.data["dislike"]["count"])
+        settings.VOTES_ID_LIMIT = previous_limit
 
 
 @override_for_contents()
@@ -239,8 +241,9 @@ class ContentExportsAPITest(TutorialTestMixin, APITestCase):
         response = self.client.post(reverse("api:content:generate_export", args=[content.content.pk]))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # And it should be greater than the previous one as we added new requets
-        self.assertGreater(PublicationEvent.objects.filter(published_object=content).count(), requests_count)
+        # And it should be equal than the previous one as we added new request,
+        # but the watchdog wasn't launched to handle them:
+        self.assertEqual(PublicationEvent.objects.filter(published_object=content).count(), requests_count)
 
         self.client.logout()
 

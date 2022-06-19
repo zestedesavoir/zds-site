@@ -9,7 +9,7 @@ django-crispy-forms==1.14.0
 django-model-utils==4.2.0
 django-munin==0.2.1
 django-recaptcha==3.0.0
-Django==3.2.12
+Django==3.2.13
 easy-thumbnails==2.8.1
 factory-boy==3.2.1
 geoip2==4.5.0

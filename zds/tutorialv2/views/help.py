@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import ToggleHelpForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 
@@ -82,6 +83,7 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         else:
             self.object.helps.remove(data["help_wanted"])
         self.object.save()
+        signals.help_management.send(sender=self.__class__, performer=self.request.user, content=self.object)
         if self.request.is_ajax():
             return HttpResponse(
                 json.dumps({"result": "ok", "help_wanted": data["activated"]}), content_type="application/json"
