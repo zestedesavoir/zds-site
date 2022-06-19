@@ -266,7 +266,7 @@ def _handle_added_tags(tag_content_type, topic):
         for subscription in subscriptions:
             notification = Notification.objects.filter(object_id=topic.id, subscription=subscription)
             if not notification:
-                if subscription.user != topic.author:
+                if subscription.user != topic.author and topic.forum.can_read(subscription.user):
                     subscription.send_notification(content=topic, sender=topic.author)
 
 

@@ -80,6 +80,7 @@ class WarnTypo(SingleContentFormViewMixin):
     must_be_author = False
     only_draft_version = False
 
+    http_method_names = ["post"]
     object = None
 
     def get_form_kwargs(self):
@@ -90,7 +91,7 @@ class WarnTypo(SingleContentFormViewMixin):
         kwargs["content"] = versioned
         kwargs["targeted"] = versioned
 
-        if self.request.POST["target"]:
+        if "target" in self.request.POST and self.request.POST["target"] != "":
             kwargs["targeted"] = search_container_or_404(versioned, self.request.POST["target"])
 
         kwargs["public"] = True

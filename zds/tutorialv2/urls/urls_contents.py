@@ -101,9 +101,7 @@ urlpatterns = [
     # typo:
     re_path(r"^reactions/typo/$", WarnTypo.as_view(), name="warn-typo"),
     # create:
-    re_path(r"^nouveau-tutoriel/$", CreateContent.as_view(created_content_type="TUTORIAL"), name="create-tutorial"),
-    re_path(r"^nouvel-article/$", CreateContent.as_view(created_content_type="ARTICLE"), name="create-article"),
-    re_path(r"^nouveau-billet/$", CreateContent.as_view(created_content_type="OPINION"), name="create-opinion"),
+    path("nouveau-contenu/<str:created_content_type>/", CreateContent.as_view(), name="create-content"),
     re_path(
         r"^nouveau-conteneur/(?P<pk>\d+)/(?P<slug>.+)/(?P<container_slug>.+)/$",
         CreateContainer.as_view(),

@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import gettext_lazy as _
 
+from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import (
@@ -176,7 +177,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_help_for_article(self):
         self.client.force_login(self.user_author)
-        resp = self.client.get(reverse("content:create-article"))
+        resp = self.client.get(reverse("content:create-content", kwargs={"created_content_type": "ARTICLE"}))
         self.assertEqual(200, resp.status_code)
 
     def test_opinion_publication_staff(self):
@@ -873,3 +874,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         alert = Alert.objects.get(pk=alert.pk)
         self.assertTrue(alert.solved)
+
+    def test_tag_list_is_slug(self):
+        tag = TagFactory(title="Test Slug")
+        result = self.client.get(reverse("opinion:list"), {"tag": tag.slug})
+        self.assertEqual(result.status_code, 200)

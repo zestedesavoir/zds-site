@@ -142,16 +142,18 @@
 
 {% block sidebar_new %}
     {% if contents != None %}
-        <a href="{% url 'content:create-tutorial' %}" class="new-btn ico-after more blue">
+        <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="new-btn ico-after more blue">
             {% trans "Nouveau contenu" %}
         </a>
     {% else %}
-        <a href="{% url 'content:create-'|add:type %}" class="new-btn ico-after more blue">
             {% if tutorials != None %}
+                <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau tutoriel" %}
             {% elif articles != None %}
+                <a href="{% url "content:create-content" created_content_type='ARTICLE' %}" class="new-btn ico-after more blue">
                 {% trans "Nouvel article" %}
             {% elif opinions != None %}
+                <a href="{% url "content:create-content" created_content_type='OPINION' %}" class="new-btn ico-after more blue">
                 {% trans "Nouveau billet" %}
             {% endif %}
         </a>

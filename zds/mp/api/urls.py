@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import re_path, path
 
 from zds.mp.api.views import (
     PrivateTopicListAPI,
@@ -6,6 +6,7 @@ from zds.mp.api.views import (
     PrivatePostListAPI,
     PrivatePostDetailAPI,
     PrivateTopicReadAPI,
+    PrivatePostReactionKarmaView,
 )
 
 urlpatterns = [
@@ -14,6 +15,11 @@ urlpatterns = [
     re_path(r"^(?P<pk_ptopic>[0-9]+)/messages/$", PrivatePostListAPI.as_view(), name="message-list"),
     re_path(
         r"^(?P<pk_ptopic>[0-9]+)/messages/(?P<pk>[0-9]+)/?$", PrivatePostDetailAPI.as_view(), name="message-detail"
+    ),
+    re_path(
+        r"^(?P<pk_ptopic>[0-9]+)/messages/(?P<pk>[0-9]+)/karma/$",
+        PrivatePostReactionKarmaView.as_view(),
+        name="mp-reaction-karma",
     ),
     re_path(r"^unread/$", PrivateTopicReadAPI.as_view(), name="list-unread"),
 ]

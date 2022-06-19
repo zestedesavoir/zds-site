@@ -27,11 +27,11 @@
                 <p>{% trans "Vous avez un savoir à partager ? Vous vous sentez pédagogue ? Commencez donc l’écriture d’un contenu !" %}</p>
             </div>
 
-            <a href="{% url "content:create-tutorial" %}" class="tail">
+            <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="tail">
                 <p>{% trans 'Écrire un tutoriel' %}</p>
             </a>
 
-            <a href="{% url "content:create-article" %}" class="tail">
+            <a href="{% url "content:create-content" created_content_type='ARTICLE' %}" class="tail">
                 <p>{% trans 'Écrire un article' %}</p>
             </a>
         </div>
