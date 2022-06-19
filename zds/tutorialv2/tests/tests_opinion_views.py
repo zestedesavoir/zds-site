@@ -1,4 +1,6 @@
 import datetime
+from unittest.mock import patch
+
 from django.conf import settings
 from django.core.management import call_command
 from django.urls import reverse
@@ -35,7 +37,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.user_staff = StaffProfileFactory().user
         self.user_guest = ProfileFactory().user
 
-    def test_opinion_publication_author(self):
+    @patch("zds.tutorialv2.signals.opinions_management")
+    def test_opinion_publication_author(self, opinions_management):
         """
         Test the publication of PublishableContent where type is OPINION (with author).
         """
@@ -68,7 +71,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
-    def test_publish_content_change_title_before_watchdog(self):
+    @patch("zds.tutorialv2.signals.opinions_management")
+    def test_publish_content_change_title_before_watchdog(self, opinions_management):
         """
         Test we can publish a content, change its title and publish it again
         right away, before the publication watchdog processed the first
@@ -122,6 +126,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
         self.assertEqual(PublishedContent.objects.count(), 1)
+        self.assertEqual(opinions_management.send.call_count, 1)
+        self.assertEqual(opinions_management.send.call_args[1]["action"], "publish")
 
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertIsNotNone(opinion.public_version)
@@ -207,7 +213,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
-    def test_opinion_publication_guest(self):
+    @patch("zds.tutorialv2.signals.opinions_management")
+    def test_opinion_publication_guest(self, opinions_management):
         """
         Test the publication of PublishableContent where type is OPINION (with guest => 403).
         """
@@ -233,10 +240,12 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             follow=False,
         )
         self.assertEqual(result.status_code, 403)
+        self.assertEqual(opinions_management.send.call_count, 0)
 
         self.assertEqual(PublishedContent.objects.count(), 0)
 
-    def test_opinion_unpublication(self):
+    @patch("zds.tutorialv2.signals.opinions_management")
+    def test_opinion_unpublication(self, opinions_management):
         """
         Test the unpublication of PublishableContent where type is OPINION (with author).
         """
@@ -268,6 +277,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         self.assertEqual(PublishedContent.objects.count(), 1)
+        self.assertEqual(opinions_management.send.call_count, 1)
+        self.assertEqual(opinions_management.send.call_args[1]["action"], "publish")
 
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertIsNotNone(opinion.public_version)
@@ -282,6 +293,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         self.assertEqual(PublishedContent.objects.count(), 0)
+        self.assertEqual(opinions_management.send.call_count, 2)
+        self.assertEqual(opinions_management.send.call_args[1]["action"], "unpublish")
 
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertIsNone(opinion.public_version)

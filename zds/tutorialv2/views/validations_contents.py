@@ -16,6 +16,7 @@ from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.mp.models import mark_read
+from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     AskValidationForm,
     RejectValidationForm,
@@ -38,6 +39,7 @@ from zds.tutorialv2.publication_utils import (
     FailureDuringPublication,
     save_validation_state,
 )
+from zds.utils import get_current_user
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
 
@@ -184,6 +186,13 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         self.object.save()
 
         messages.success(self.request, _("Votre demande de validation a été transmise à l'équipe."))
+        signals.validation_management.send(
+            sender=self.__class__,
+            content=validation.content,
+            performer=self.request.user,
+            version=validation.version,
+            action="request",
+        )
 
         self.success_url = self.versioned_object.get_absolute_url(version=self.sha)
         return super().form_valid(form)
@@ -266,7 +275,13 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                 send_message_mp(bot, validation.content.validation_private_message, msg)
 
         messages.info(self.request, _("La validation de ce contenu a bien été annulée."))
-
+        signals.validation_management.send(
+            sender=self.__class__,
+            content=validation.content,
+            performer=self.request.user,
+            version=validation.version,
+            action="cancel",
+        )
         self.success_url = (
             reverse("content:view", args=[validation.content.pk, validation.content.slug])
             + "?version="
@@ -289,6 +304,13 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.status = "PENDING"
             validation.save()
             messages.info(request, _("Ce contenu n'est plus réservé."))
+            signals.validation_management.send(
+                sender=self.__class__,
+                content=validation.content,
+                performer=request.user,
+                version=validation.version,
+                action="unreserve",
+            )
             return redirect(reverse("validation:list"))
         else:
             validation.validator = request.user
@@ -327,6 +349,13 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 mark_read(validation.content.validation_private_message, validation.validator)
 
             messages.info(request, _("Ce contenu a bien été réservé par {0}.").format(request.user.username))
+            signals.validation_management.send(
+                sender=self.__class__,
+                content=validation.content,
+                performer=request.user,
+                version=validation.version,
+                action="reserve",
+            )
 
             return redirect(
                 reverse("content:view", args=[validation.content.pk, validation.content.slug])
@@ -423,6 +452,13 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
         messages.info(self.request, _("Le contenu a bien été refusé."))
         self.success_url = reverse("validation:list")
+        signals.validation_management.send(
+            sender=self.__class__,
+            content=validation.content,
+            performer=self.request.user,
+            version=validation.version,
+            action="reject",
+        )
         return super().form_valid(form)
 
 
@@ -481,6 +517,13 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             notify_update(db_object, is_update, form.cleaned_data["is_major"])
 
             messages.success(self.request, _("Le contenu a bien été validé."))
+            signals.validation_management.send(
+                sender=self.__class__,
+                content=validation.content,
+                performer=self.request.user,
+                version=validation.version,
+                action="accept",
+            )
             self.success_url = published.get_absolute_url_online()
 
         return super().form_valid(form)
@@ -559,7 +602,13 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
 
         messages.success(self.request, _("Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
-
+        signals.validation_management.send(
+            sender=self.__class__,
+            content=validation.content,
+            performer=self.request.user,
+            version=validation.version,
+            action="revoke",
+        )
         return super().form_valid(form)
 
 
@@ -599,5 +648,22 @@ class ActivateJSFiddleInContent(LoginRequiredMixin, PermissionRequiredMixin, For
         # forbidden for content without a validation before publication
         if not content.load_version().requires_validation():
             raise PermissionDenied
-        content.update(js_support=form.cleaned_data["js_support"])
+        new_js_support = form.cleaned_data["js_support"]
+        old_js_support = content.js_support
+        self.send_signal(old_js_support, new_js_support, content)
+        content.update(js_support=new_js_support)
         return redirect(content.load_version().get_absolute_url())
+
+    def send_signal(self, old_js_support, new_js_support, content):
+        if old_js_support != new_js_support:
+            action = self.get_action(new_js_support)
+            signals.jsfiddle_management.send(
+                sender=self.__class__, performer=get_current_user(), content=content, action=action
+            )
+
+    @staticmethod
+    def get_action(js_support_activated):
+        if js_support_activated:
+            return "activate"
+        else:
+            return "deactivate"

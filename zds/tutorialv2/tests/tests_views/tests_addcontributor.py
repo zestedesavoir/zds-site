@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -102,12 +104,21 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
         self.form_url = reverse("content:add-contributor", kwargs={"pk": self.content.pk})
         self.error_message_author_contributor = _("Un auteur ne peut pas être désigné comme contributeur")
         self.error_message_empty_user = _("Veuillez renseigner l'utilisateur")
-        self.comment = "What an mischievious person!"
+        self.comment = "What a mischievious person!"
 
         # Log in with an authorized user to perform the tests
         self.client.force_login(self.author)
 
-    def test_correct(self):
+    def check_signal(self, contributors_management, emitted):
+        """Assert whether the signal is appropriately emitted."""
+        if emitted:
+            self.assertEqual(contributors_management.send.call_count, 1)
+            self.assertEqual(contributors_management.send.call_args[1]["action"], "add")
+        else:
+            self.assertFalse(contributors_management.send.called)
+
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_correct(self, contributors_management):
         form_data = {
             "username": self.contributor,
             "contribution_role": self.role.pk,
@@ -122,7 +133,10 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
         ).first()
         self.assertEqual(list(ContentContribution.objects.all()), [contribution])
 
-    def test_empty_user(self):
+        self.check_signal(contributors_management, emitted=True)
+
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_empty_user(self, contributors_management):
         form_data = {
             "username": "",
             "contribution_role": self.role.pk,
@@ -130,16 +144,20 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
         response = self.client.post(self.form_url, form_data, follow=True)
         self.assertContains(response, escape(ContributionForm.declared_fields["username"].error_messages["required"]))
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_no_user(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_no_user(self, contributors_management):
         form_data = {
             "contribution_role": self.role.pk,
         }
         response = self.client.post(self.form_url, form_data, follow=True)
         self.assertContains(response, escape(ContributionForm.declared_fields["username"].error_messages["required"]))
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_invalid_user(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_invalid_user(self, contributors_management):
         form_data = {
             "username": "this pseudo does not exist",
             "contribution_role": self.role.pk,
@@ -147,8 +165,10 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
         response = self.client.post(self.form_url, form_data, follow=True)
         self.assertContains(response, escape(self.error_message_empty_user))
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_author_contributor(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_author_contributor(self, contributors_management):
         form_data = {
             "username": self.author,
             "contribution_role": self.role.pk,
@@ -156,8 +176,10 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
         response = self.client.post(self.form_url, form_data, follow=True)
         self.assertContains(response, escape(self.error_message_author_contributor))
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_empty_role(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_empty_role(self, contributors_management):
         form_data = {
             "username": self.contributor,
             "contribution_role": "",
@@ -167,8 +189,10 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
             response, escape(ContributionForm.declared_fields["contribution_role"].error_messages["required"])
         )
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_no_role(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_no_role(self, contributors_management):
         form_data = {
             "username": self.contributor,
         }
@@ -177,8 +201,10 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
             response, escape(ContributionForm.declared_fields["contribution_role"].error_messages["required"])
         )
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_invalid_role(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_invalid_role(self, contributors_management):
         form_data = {
             "username": self.contributor,
             "contribution_role": 3150,  # must be an invalid pk, integer or not
@@ -188,3 +214,4 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
             response, escape(ContributionForm.declared_fields["contribution_role"].error_messages["invalid_choice"])
         )
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=False)
