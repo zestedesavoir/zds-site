@@ -54,6 +54,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Les membres</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#inscription">Inscription</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#desinscription">Désinscription</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#inscription-et-connexion-par-delegation-d-authentification">Inscription et connexion par délégation d’authentification</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#les-membres-dans-les-environnement-de-test-et-de-developpement">Les membres dans les environnement de test et de développement</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#l-interface-de-promotion">L’interface de promotion</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#les-casquettes">Les casquettes</a></li>
@@ -172,6 +173,13 @@ latérale (<code class="docutils literal notranslate"><span class="pre">/membres
 </ul>
 </li>
 </ul>
+</section>
+<section id="inscription-et-connexion-par-delegation-d-authentification">
+<h2>Inscription et connexion par délégation d’authentification<a class="headerlink" href="#inscription-et-connexion-par-delegation-d-authentification" title="Lien permanent vers ce titre"></a></h2>
+<p>On utilise la bibliothèque <code class="docutils literal notranslate"><span class="pre">social-auth-app-django</span></code> pour permettre l’inscription et la connexion par délégation d’authentification. Les visiteurs peuvent se connecter à partir de leur compte Facebook ou Google et un compte Zeste de Savoir leur est créé lors de la première connexion. Les seules différences entre les comptes Zeste de Savoir créés traditionnellement et ceux créés par délégation d’authentification sont l’absence de mot de passe défini pour Google et Facebook ainsi que l’absence d’adresse de courriel pour Facebook. Pour ce dernier point, il s’agit d’un soucis qu’il faudrait investiguer et corriger dans le futur. Outre ces deux points, il ne devrait pas y avoir de différence entre ces deux types de comptes Zeste de Savoir.</p>
+<p>Si un visiteur se connecte une première fois avec son compte Google puis la fois suivante avec son compte Facebook, et si les deux comptes sont liés à la même adresse de courriel, alors les deux comptes devraient être liés en théorie au même compte Zeste de Savoir. Pour cette raison, si d’autres services venaient à être ajouter dans le futur, il faut s’assurer au préalable que ceux-ci valident bien l’adresse de courriel lors de l’inscription, sinon une usurpation du compte Zeste de Savoir serait possible.</p>
+<p>Les paramètres liés à la bibliothèque <code class="docutils literal notranslate"><span class="pre">social-auth-app-django</span></code> sont définis dans le fichier de configuration <code class="docutils literal notranslate"><span class="pre">zds/settings/abstract_base/requirements.py</span></code>. Si vous avez besoin de tester le fonctionnement de cette bibliothèque, des comptes de tests existent pour Facebook et Google. Demandez des renseignements aux responsables de l’équipe technique.</p>
+<p>Actuellement, si l’on souhaite tester la connexion à Google en local il faut utiliser <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> tandis que si l’on souhaite tester la connexion à Facebook il faut utiliser <code class="docutils literal notranslate"><span class="pre">localhost</span></code>.</p>
 </section>
 <section id="les-membres-dans-les-environnement-de-test-et-de-developpement">
 <h2>Les membres dans les environnement de test et de développement<a class="headerlink" href="#les-membres-dans-les-environnement-de-test-et-de-developpement" title="Lien permanent vers ce titre"></a></h2>
