@@ -1002,7 +1002,10 @@
     window.editors[this.id].previous_value = ''
 
     function submit(cm) {
-      if (cm.getValue() !== '') formEditor.submit()
+      if (cm.getValue() !== '') {
+        localStorage.removeItem('smde_' + mdeUniqueKey)
+        formEditor.submit()
+      }
     }
 
     easyMDE.codemirror.addKeyMap({
