@@ -5,6 +5,7 @@ import shutil
 
 from django.urls import reverse
 from django.test.utils import override_settings
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from zds.tutorialv2.models.database import Validation
@@ -43,26 +44,26 @@ class TutorialTestMixin:
 
 
 class TutorialFrontMixin:
+    def find_element(self, element):
+        return self.selenium.find_element(By.CSS_SELECTOR, element)
+
     def login(self, profile):
         """
         TODO: This is definitely way too slow. Fasten this.
         """
-        selenium = self.selenium
-        find_element = selenium.find_element_by_css_selector
+        self.selenium.get(self.live_server_url + reverse("member-login"))
 
-        selenium.get(self.live_server_url + reverse("member-login"))
-
-        username = find_element(".content-container input#id_username")
-        password = find_element(".content-container input#id_password")
+        username = self.find_element(".content-container input#id_username")
+        password = self.find_element(".content-container input#id_password")
         username.send_keys(profile.user.username)
         password.send_keys("hostel77")
 
-        find_element(".content-container button[type=submit]").click()
+        self.find_element(".content-container button[type=submit]").click()
 
         # Wait until the user is logged in (this raises if the element
         # is not found).
 
-        find_element(".header-container .logbox #my-account .username")
+        self.find_element(".header-container .logbox #my-account .username")
 
     def login_author(self):
         self.login(self.user_author.profile)
@@ -71,30 +72,26 @@ class TutorialFrontMixin:
         self.login(self.user_staff.profile)
 
     def logout(self):
-        find_element = self.selenium.find_element_by_css_selector
-        find_element("#my-account").click()
-        find_element('form[action="/membres/deconnexion/"] button').click()
+        self.find_element("#my-account").click()
+        self.find_element('form[action="/membres/deconnexion/"] button').click()
 
     def ask_validation(self):
-        find_element = self.selenium.find_element_by_css_selector
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
-        find_element('a[href="#ask-validation"]').click()
-        find_element("#ask-validation textarea").send_keys("Coucou.")
-        find_element('#ask-validation button[type="submit"]').click()
+        self.find_element('a[href="#ask-validation"]').click()
+        self.find_element("#ask-validation textarea").send_keys("Coucou.")
+        self.find_element('#ask-validation button[type="submit"]').click()
 
     def take_reservation(self):
-        find_element = self.selenium.find_element_by_css_selector
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         validation = Validation.objects.filter(content=self.content).first()
-        find_element(f'form[action="/validations/reserver/{validation.pk}/"] button').click()
+        self.find_element(f'form[action="/validations/reserver/{validation.pk}/"] button').click()
 
     def validate(self):
-        find_element = self.selenium.find_element_by_css_selector
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         validation = Validation.objects.filter(content=self.content).first()
-        find_element('a[href="#valid-publish"]').click()
-        find_element("form#valid-publish textarea").send_keys("Coucou.")
-        find_element(f'form[action="/validations/accepter/{validation.pk}/"] button').click()
+        self.find_element('a[href="#valid-publish"]').click()
+        self.find_element("form#valid-publish textarea").send_keys("Coucou.")
+        self.find_element(f'form[action="/validations/accepter/{validation.pk}/"] button').click()
 
     def wait_element_attribute_change(self, locator, attribute, initial_value, time):
         return WebDriverWait(self.selenium, time).until(AttributeHasChanged(locator, attribute, initial_value))
