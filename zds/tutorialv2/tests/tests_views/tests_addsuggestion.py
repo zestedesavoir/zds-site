@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -101,13 +103,24 @@ class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
         # Log in with an authorized user to perform the tests
         self.client.force_login(self.staff)
 
-    def test_published_simple(self):
+    def check_signal(self, suggestions_management, emitted, count=1):
+        """Assert whether the signal is appropriately emitted."""
+        if emitted:
+            self.assertEqual(suggestions_management.send.call_count, count)
+            self.assertEqual(suggestions_management.send.call_args[1]["action"], "add")
+        else:
+            self.assertFalse(suggestions_management.send.called)
+
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_published_simple(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.suggestable_content_1.pk}, follow=True)
         self.assertContains(response, escape(self.success_message_fragment))
         suggestion = ContentSuggestion.objects.get(publication=self.content, suggestion=self.suggestable_content_1)
         self.assertEqual(list(ContentSuggestion.objects.all()), [suggestion])
+        self.check_signal(suggestions_management, emitted=True)
 
-    def test_published_multiple(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_published_multiple(self, suggestions_management):
         response = self.client.post(
             self.form_url, {"options": [self.suggestable_content_1.pk, self.suggestable_content_2.pk]}, follow=True
         )
@@ -115,37 +128,52 @@ class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
         suggestion_1 = ContentSuggestion.objects.get(publication=self.content, suggestion=self.suggestable_content_1)
         suggestion_2 = ContentSuggestion.objects.get(publication=self.content, suggestion=self.suggestable_content_2)
         self.assertEqual(list(ContentSuggestion.objects.all()), [suggestion_1, suggestion_2])
+        self.check_signal(suggestions_management, emitted=True, count=2)
 
-    def test_already_suggested(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_already_suggested(self, suggestions_management):
         suggestion = ContentSuggestion(publication=self.content, suggestion=self.suggestable_content_1)
         suggestion.save()
         response = self.client.post(self.form_url, {"options": self.suggestable_content_1.pk}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment_already_suggested))
         self.assertEqual(list(ContentSuggestion.objects.all()), [suggestion])
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_self(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_self(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.content.pk}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment_self))
         self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_not_picked_opinion(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_not_picked_opinion(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.not_picked_opinion.pk}, follow=True)
         self.assertContains(response, escape(self.error_messge_fragment_not_picked))
         self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_unpublished(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_unpublished(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.unpublished_content.pk}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment_unpublished))
         self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_invalid(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_invalid(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": "420"}, follow=True)  # pk must not exist
         self.assertEqual(response.status_code, 404)
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_not_integer(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_not_integer(self, suggestions_management):
         with self.assertRaises(ValueError):
             self.client.post(self.form_url, {"options": "abcd"}, follow=True)
+        self.check_signal(suggestions_management, emitted=False)
 
-    def test_empty(self):
+    @patch("zds.tutorialv2.signals.suggestions_management")
+    def test_empty(self, suggestions_management):
         with self.assertRaises(ValueError):
             self.client.post(self.form_url, {"options": ""}, follow=True)
+        self.check_signal(suggestions_management, emitted=False)

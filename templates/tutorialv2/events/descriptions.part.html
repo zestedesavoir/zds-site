@@ -1,0 +1,100 @@
+{% load captureas %}
+
+{% captureas performer_href %}{% url "member-detail" event.performer.username %}{% endcaptureas %}
+
+
+{% if event.type == "authors_management" %}
+    {% captureas author_href %}{% url "member-detail" event.author.username %}{% endcaptureas %}
+    {% if event.action == "add" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a ajouté <a href="{{ author_href }}">{{ event.author }}</a> à la liste des auteurs.
+    {% elif event.action == "remove" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a supprimé <a href="{{ author_href }}">{{ event.author }}</a> de la liste des auteurs.
+    {% else %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la liste des auteurs.
+    {% endif %}
+
+
+{% elif event.type == "contributors_management" %}
+    {% captureas contributor_href %}{% url "member-detail" event.contributor.username %}{% endcaptureas %}
+    {% if event.action == "add" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a ajouté <a href="{{ contributor_href }}">{{ event.contributor }}</a> à la liste des contributeurs.
+    {% elif event.action == "remove" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a supprimé <a href="{{ contributor_href }}">{{ event.contributor }}</a> de la liste des contributeurs.
+    {% else %}
+        <a href="{{ performer_href  }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la liste des contributeurs.
+    {% endif %}
+
+
+{% elif event.type == "beta_management" %}
+    {% captureas version_href %}{% url "content:view" event.content.pk event.content.slug %}?version={{ event.version }}{% endcaptureas %}
+    {% if event.action == "activate" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a mis une <a href="{{ version_href }}">version du contenu</a> en bêta.
+    {% elif event.action == "deactivate" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a désactivé la bêta.
+    {% else %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la bêta.
+    {% endif %}
+
+
+{% elif event.type == "validation_management" %}
+    {% captureas version_href %}{% url "content:view" event.content.pk event.content.slug %}?version={{ event.version }}{% endcaptureas %}
+    {% if event.action == "request" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a demandé la validation d'une <a href="{{ version_href }}">version du contenu</a>.
+    {% elif event.action == "cancel" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a annulé la demande de validation du contenu.
+    {% elif event.action == "accept" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a accepté le contenu pour publication.
+    {% elif event.action == "reject" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a refusé le contenu pour publication.
+    {% elif event.action == "revoke" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a dépublié le contenu.
+    {% elif event.action == "reserve" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a réservé le contenu pour validation.
+    {% elif event.action == "unreserve" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a annulé la réservation du contenu pour validation.
+    {% else %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de validation de type « {{ event.action }} ».
+    {% endif %}
+
+
+{% elif event.type == "tags_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les tags du contenu.
+
+
+{% elif event.type == "suggestions_management" %}
+    {% if event.action == "add" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a ajouté une suggestion de contenu.
+    {% elif event.action == "remove" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a supprimé une suggestion de contenu.
+    {% else %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur les suggestions de contenu.
+    {% endif %}
+
+
+{% elif event.type == "help_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les demandes d'aide.
+
+
+{% elif event.type == "jsfiddle_management" %}
+    {% if event.action == "activate" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a activé JSFiddle.
+    {% elif event.action == "deactivate" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a désactivé JSFiddle.
+    {% else %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur la gestion de JS Fiddle.
+    {% endif %}
+
+
+{% elif event.type == "opinions_management" %}
+    {% if event.action == "publish" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a publié le billet.
+    {% elif event.action == "unpublish" %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a dépublié le billet.
+    {% else %}
+        <a href="{{ performer_href }}">{{ event.performer }}</a> a effectué une action de type « {{ event.action }} » sur le billet.
+    {% endif %}
+
+
+{% else %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a déclenché un événement de type « {{ event.type }} ».
+{% endif %}

@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -105,33 +107,53 @@ class RemoveContributorWorkflowTests(TutorialTestMixin, TestCase):
         # Log in with an authorized user to perform the tests
         self.client.force_login(self.author)
 
-    def test_existing(self):
+    def check_signal(self, contributors_management, emitted):
+        """Assert whether the signal is appropriately emitted."""
+        if emitted:
+            self.assertEqual(contributors_management.send.call_count, 1)
+            self.assertEqual(contributors_management.send.call_args[1]["action"], "remove")
+        else:
+            self.assertFalse(contributors_management.send.called)
+
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_existing(self, contributors_management):
         response = self.client.post(self.form_url, {"pk_contribution": self.contribution.pk}, follow=True)
         self.assertContains(response, escape(self.success_message_fragment))
         self.assertEqual(list(ContentContribution.objects.all()), [])
+        self.check_signal(contributors_management, emitted=True)
 
-    def test_empty(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_empty(self, contributors_management):
         response = self.client.post(self.form_url, {"pk_contribution": ""}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment))
         self.assertEqual(list(ContentContribution.objects.all()), [self.contribution])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_invalid(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_invalid(self, contributors_management):
         response = self.client.post(self.form_url, {"pk_contribution": "420"}, follow=True)  # pk must not exist
         self.assertEqual(response.status_code, 404)
         self.assertEqual(list(ContentContribution.objects.all()), [self.contribution])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_not_integer(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_not_integer(self, contributors_management):
         with self.assertRaises(ValueError):
             self.client.post(self.form_url, {"pk_contribution": "abcd"}, follow=True)
         self.assertEqual(list(ContentContribution.objects.all()), [self.contribution])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_no_argument(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_no_argument(self, contributors_management):
         response = self.client.post(self.form_url, follow=True)
         self.assertContains(response, escape(self.error_message_fragment))
         self.assertEqual(list(ContentContribution.objects.all()), [self.contribution])
+        self.check_signal(contributors_management, emitted=False)
 
-    def test_wrong_contribution(self):
+    @patch("zds.tutorialv2.signals.contributors_management")
+    def test_wrong_contribution(self, contributors_management):
         form_url = reverse("content:remove-contributor", kwargs={"pk": 3023})  # pk must not exist
         response = self.client.post(form_url, follow=True)
         self.assertEqual(response.status_code, 404)
         self.assertEqual(list(ContentContribution.objects.all()), [self.contribution])
+        self.check_signal(contributors_management, emitted=False)

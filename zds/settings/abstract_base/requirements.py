@@ -12,7 +12,6 @@ social_auth_config = config.get("social_auth", {})
 
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_USE_DEPRECATED_API = True
 SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
 
 SOCIAL_AUTH_PIPELINE = (
@@ -21,6 +20,7 @@ SOCIAL_AUTH_PIPELINE = (
     "social.pipeline.social_auth.auth_allowed",
     "social.pipeline.social_auth.social_user",
     "social.pipeline.user.get_username",
+    "social.pipeline.social_auth.associate_by_email",
     "social.pipeline.user.create_user",
     "zds.member.models.save_profile",
     "social.pipeline.social_auth.associate_user",
@@ -28,17 +28,15 @@ SOCIAL_AUTH_PIPELINE = (
     "social.pipeline.user.user_details",
 )
 
+# Before adding new providers such as Facebook and Google,
+# you need to make sure they validate the user's email address on sign up!
+# If they don't, a malicious person could take control of someone else account!
 SOCIAL_AUTH_FACEBOOK_KEY = social_auth_config.get("facebook_key", "")
 SOCIAL_AUTH_FACEBOOK_SECRET = social_auth_config.get("facebook_secret", "")
-
-SOCIAL_AUTH_TWITTER_KEY = social_auth_config.get("twitter_key", "")
-SOCIAL_AUTH_TWITTER_SECRET = social_auth_config.get("twitter_secret", "")
-
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = social_auth_config.get(
     "google_oauth2_key",
     "696570367703-r6hc7mdd27t1sktdkivpnc5b25i0uip2.apps.googleusercontent.com",
 )
-
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = social_auth_config.get(
     "google_oauth2_secret",
     "mApWNh3stCsYHwsGuWdbZWP8",

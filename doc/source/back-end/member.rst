@@ -67,6 +67,17 @@ Le clic sur "Me désinscrire" entraîne alors une série d'action (qui sont **ir
 .. _tutoriels: ../tutorial/tutorial.html
 
 
+Inscription et connexion par délégation d'authentification
+==========================================================
+
+On utilise la bibliothèque ``social-auth-app-django`` pour permettre l'inscription et la connexion par délégation d'authentification. Les visiteurs peuvent se connecter à partir de leur compte Facebook ou Google et un compte Zeste de Savoir leur est créé lors de la première connexion. Les seules différences entre les comptes Zeste de Savoir créés traditionnellement et ceux créés par délégation d'authentification sont l'absence de mot de passe défini pour Google et Facebook ainsi que l'absence d'adresse de courriel pour Facebook. Pour ce dernier point, il s'agit d'un soucis qu'il faudrait investiguer et corriger dans le futur. Outre ces deux points, il ne devrait pas y avoir de différence entre ces deux types de comptes Zeste de Savoir.
+
+Si un visiteur se connecte une première fois avec son compte Google puis la fois suivante avec son compte Facebook, et si les deux comptes sont liés à la même adresse de courriel, alors les deux comptes devraient être liés en théorie au même compte Zeste de Savoir. Pour cette raison, si d'autres services venaient à être ajouter dans le futur, il faut s'assurer au préalable que ceux-ci valident bien l'adresse de courriel lors de l'inscription, sinon une usurpation du compte Zeste de Savoir serait possible.
+
+Les paramètres liés à la bibliothèque ``social-auth-app-django`` sont définis dans le fichier de configuration ``zds/settings/abstract_base/requirements.py``. Si vous avez besoin de tester le fonctionnement de cette bibliothèque, des comptes de tests existent pour Facebook et Google. Demandez des renseignements aux responsables de l'équipe technique.
+
+Actuellement, si l'on souhaite tester la connexion à Google en local il faut utiliser ``127.0.0.1`` tandis que si l'on souhaite tester la connexion à Facebook il faut utiliser ``localhost``.
+
 Les membres dans les environnement de test et de développement
 ==============================================================
 
