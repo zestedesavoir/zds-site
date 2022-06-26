@@ -45,7 +45,9 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
                     self.object.validation_private_message.add_participant(user)
                 all_authors_pk.append(user.pk)
                 if user != self.request.user:
-                    url_index = reverse(self.object.type.lower() + ":find-" + self.object.type.lower(), args=[user.pk])
+                    url_index = reverse(
+                        self.object.type.lower() + ":find-" + self.object.type.lower(), args=[user.username]
+                    )
                     send_mp(
                         bot,
                         [user],
