@@ -184,7 +184,7 @@ ZDS_APP = {
         "build_pdf_when_published": True,
         "maximum_slug_size": 150,
         "characters_per_minute": 1500,
-        "editorial_line_link": "https://zestedesavoir.com/articles/222/la-ligne-editoriale-officielle-de-zeste-de-savoir/",
+        "editorial_line_link": "https://zestedesavoir.com/articles/3978/la-ligne-editoriale-officielle-de-zeste-de-savoir-2/",
         "epub_stylesheets": {
             "toc": Path("toc.css"),
             "full": BASE_DIR / "dist" / "css" / "zmd.css",
