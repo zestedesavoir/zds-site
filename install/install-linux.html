@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -106,7 +107,7 @@
            <div itemprop="articleBody">
              
   <section id="installation-sous-linux">
-<h1>Installation sous Linux<a class="headerlink" href="#installation-sous-linux" title="Lien permanent vers ce titre"></a></h1>
+<h1>Installation sous Linux<a class="headerlink" href="#installation-sous-linux" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Pour installer une version locale de ZdS sur GNU/Linux, veuillez suivre les instructions suivantes.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -146,22 +147,22 @@ make run-back <span class="c1"># démarer le serveur django</span>
 </pre></div>
 </div>
 <section id="plus-d-informations">
-<h2>Plus d’informations<a class="headerlink" href="#plus-d-informations" title="Lien permanent vers ce titre"></a></h2>
+<h2>Plus d’informations<a class="headerlink" href="#plus-d-informations" title="Lien permanent vers cette rubrique"></a></h2>
 <p>La commande <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">install-linux[-full]</span></code> appelle en fait le script <code class="docutils literal notranslate"><span class="pre">scripts/install_zds.sh</span></code> avec <code class="docutils literal notranslate"><span class="pre">+base</span></code> (ou <code class="docutils literal notranslate"><span class="pre">+full</span></code>).
 Ce script est concu de manière modulaire pour installer des composants de ZdS (sous Linux) à l’aide de <code class="docutils literal notranslate"><span class="pre">scripts/install_zds.sh</span> <span class="pre">+back</span> <span class="pre">+front</span> <span class="pre">[...]</span></code>, le <code class="docutils literal notranslate"><span class="pre">+</span></code> indiquant qu’on souhaite <strong>installer</strong> un composant (ici <code class="docutils literal notranslate"><span class="pre">front</span></code> et <code class="docutils literal notranslate"><span class="pre">back</span></code>).
 Les différents composants sont listé ci-dessous.</p>
 <section id="composants-base">
-<h3>Composants <code class="docutils literal notranslate"><span class="pre">base</span></code><a class="headerlink" href="#composants-base" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composants <code class="docutils literal notranslate"><span class="pre">base</span></code><a class="headerlink" href="#composants-base" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Équivalent à  <code class="docutils literal notranslate"><span class="pre">+packages</span> <span class="pre">+virtualenv</span> <span class="pre">+node</span> <span class="pre">+back</span> <span class="pre">+front</span> <span class="pre">+zmd</span> <span class="pre">+data</span></code> (plus de détails ci-dessous).
 Notez que si vous ne souhaitez pas un de ces compsants, vous pouvez utiliser la syntaxe <code class="docutils literal notranslate"><span class="pre">scripts/install_zds.sh</span> <span class="pre">+base</span> <span class="pre">-machin</span> <span class="pre">-bidule</span></code>, le <code class="docutils literal notranslate"><span class="pre">-</span></code> indquant qu’on ne souhaite pas installer un composant.</p>
 </section>
 <section id="composants-full">
-<h3>Composants <code class="docutils literal notranslate"><span class="pre">full</span></code><a class="headerlink" href="#composants-full" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composants <code class="docutils literal notranslate"><span class="pre">full</span></code><a class="headerlink" href="#composants-full" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Équivalent à <code class="docutils literal notranslate"><span class="pre">+base</span> <span class="pre">+elastic-local</span> <span class="pre">+tex-local</span> <span class="pre">+latex-template</span></code> (plus de détails ci-dessous).
 De même que pour <a class="reference external" href="#composants-base">base</a>, vous pouvez agrémenter de <code class="docutils literal notranslate"><span class="pre">-composant</span></code> pour ne pas installer un composant donné.</p>
 </section>
 <section id="composant-packages">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">packages</span></code><a class="headerlink" href="#composant-packages" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">packages</span></code><a class="headerlink" href="#composant-packages" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe les packages nécessaire à l’utilisation et au développement de Zeste de Savoir à l’aide du gestionnaire de paquet de votre distribution (détecte et fonctionne pour Ubuntu, Debian, Fedora et Archlinux).</p>
 <p>La liste des packages vous est donnée ci-dessous (pour Debian), si vous utilisez une distribution différente, le nom des paquets à installer devrait être fort semblable, n’hésitez dès lors pas à employer la fonction « recherche » de votre gestionnaire de paquet préféré.</p>
 <ul class="simple">
@@ -177,7 +178,7 @@ De même que pour <a class="reference external" href="#composants-base">base</a>
 </ul>
 </section>
 <section id="composant-virtualenv">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code><a class="headerlink" href="#composant-virtualenv" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code><a class="headerlink" href="#composant-virtualenv" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe le <em>virtualenv</em> qui est un environnement python cloisonné prévu pour ne pas interférer avec d’autres installation de python (<a class="reference external" href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">plus d’infos ici</a>).
 Ce que fait ce composant est tout simplement:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m venv <span class="nv">$ZDS_VENV</span>
@@ -186,14 +187,14 @@ Ce que fait ce composant est tout simplement:</p>
 <p>Le nom du <em>virtualenv</em> est donc controlé par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_VENV</span></code> (dont la valeur est par défaut <code class="docutils literal notranslate"><span class="pre">zdsenv</span></code>).</p>
 </section>
 <section id="composant-node">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">node</span></code><a class="headerlink" href="#composant-node" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">node</span></code><a class="headerlink" href="#composant-node" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe <code class="docutils literal notranslate"><span class="pre">nvm</span></code> et l’utilise pour installer <code class="docutils literal notranslate"><span class="pre">node</span></code>, puis <code class="docutils literal notranslate"><span class="pre">yarn</span></code>.
 Ajoute ensuite un <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code> dans le dossier et ajoute <code class="docutils literal notranslate"><span class="pre">node</span> <span class="pre">use</span></code> au script d’activation du <em>virtualenv</em> (pour qu’il soit automatiquement utilisé au chargement).
 La version de node installée est controlée par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_NODE_VERSION</span></code> (dont la valeur est par défaut celle spécifiée dans <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code>).</p>
 <p>Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur <a class="reference external" href="frontend-install.html">la documentation dédiée au frontend</a>.</p>
 </section>
 <section id="composant-back">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">back</span></code><a class="headerlink" href="#composant-back" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">back</span></code><a class="headerlink" href="#composant-back" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe les packages python nécessaire au bon fonctionnement et au développement de ZdS, puis installe les migrations.
 Strictement équivalent au commande suivantes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-back <span class="c1"># Dépendances Python</span>
@@ -202,7 +203,7 @@ make migrate-db <span class="c1"># Cf. &quot;migrate&quot; de Django</span>
 </div>
 </section>
 <section id="composant-front">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">front</span></code><a class="headerlink" href="#composant-front" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">front</span></code><a class="headerlink" href="#composant-front" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe les dépendances du front-end en utilisant <code class="docutils literal notranslate"><span class="pre">yarn</span></code>, puis <em>build</em> le front-end.
 Strictement équivalent au commande suivantes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm -R node_modules
@@ -213,7 +214,7 @@ make build-front
 <p>Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur <a class="reference external" href="frontend-install.html">la documentation dédiée au frontend</a>.</p>
 </section>
 <section id="composant-zmd">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">zmd</span></code><a class="headerlink" href="#composant-zmd" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">zmd</span></code><a class="headerlink" href="#composant-zmd" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe le serveur <em>zmarkdown</em>, nécessaire au bon fonctionement du site.
 Strictement équivalent à la commande suivantes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make zmd-install
@@ -223,7 +224,7 @@ Strictement équivalent à la commande suivantes:</p>
 Pour cela, rendez-vous sur <a class="reference external" href="extra-zmd.html">la documentation dédiée à zmarkdown</a>.</p>
 </section>
 <section id="composant-data">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">data</span></code><a class="headerlink" href="#composant-data" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">data</span></code><a class="headerlink" href="#composant-data" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe le jeu de données de test de ZdS, pour le développement.
 Strictement équivalent à la commande suivantes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make generate-fixtures
@@ -232,14 +233,14 @@ Strictement équivalent à la commande suivantes:</p>
 <p>Plus d’info sur cette fonctionalité <a class="reference external" href="../utils/fixture_loaders.html">sur la page dédiée</a>.</p>
 </section>
 <section id="composant-elastic-local">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">elastic-local</span></code><a class="headerlink" href="#composant-elastic-local" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">elastic-local</span></code><a class="headerlink" href="#composant-elastic-local" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe une version <strong>locale</strong> d’Elasticsearch dans un dossier <code class="docutils literal notranslate"><span class="pre">.local</span></code> situé dans le dossier de ZdS.
 La commande <code class="docutils literal notranslate"><span class="pre">elasticsearch</span></code> est ensuite ajoutée dans le <em>virtualenv</em>, de telle sorte à ce que ce soit cette version locale qui soit utilisée.
 La version d’Elasticsearch installée est controlée par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_ELASTIC_VERSION</span></code> (voir <code class="docutils literal notranslate"><span class="pre">scripts/define_variable.sh</span></code> pour la valeur par défaut).</p>
 <p>Notez que vous pouvez choisir d’installer Elasticsearch manuellement, <a class="reference external" href="./extra-install-es.html#sous-linux">comme décrit ici</a>.</p>
 </section>
 <section id="composant-tex-local-et-latex-template">
-<h3>Composant <code class="docutils literal notranslate"><span class="pre">tex-local</span></code> et <code class="docutils literal notranslate"><span class="pre">latex-template</span></code><a class="headerlink" href="#composant-tex-local-et-latex-template" title="Lien permanent vers ce titre"></a></h3>
+<h3>Composant <code class="docutils literal notranslate"><span class="pre">tex-local</span></code> et <code class="docutils literal notranslate"><span class="pre">latex-template</span></code><a class="headerlink" href="#composant-tex-local-et-latex-template" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ces composants s’assurent que votre instance locale peut utiliser LaTeX (en fait LuaLaTeX) pour générer des PDFs des contenus.</p>
 <p>Le composant <code class="docutils literal notranslate"><span class="pre">tex-local</span></code> installe une version <strong>locale</strong> (et allégée) de <a class="reference external" href="https://tug.org/texlive/">Tex Live</a> dans un dossier <code class="docutils literal notranslate"><span class="pre">.local</span></code> situé dans le dossier de ZdS.
 Elle s’ocuppe également d’installer les polices d’écritures nécessaire au bon fonctionement de la <em>template</em> dans votre <code class="docutils literal notranslate"><span class="pre">$HOME</span></code>.

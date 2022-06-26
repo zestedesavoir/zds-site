@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -97,7 +98,7 @@
            <div itemprop="articleBody">
              
   <section id="les-galleries-gallery">
-<h1><a class="toc-backref" href="#id1">Les galleries (<code class="docutils literal notranslate"><span class="pre">gallery/</span></code>)</a><a class="headerlink" href="#les-galleries-gallery" title="Lien permanent vers ce titre"></a></h1>
+<h1><a class="toc-backref" href="#id1">Les galleries (<code class="docutils literal notranslate"><span class="pre">gallery/</span></code>)</a><a class="headerlink" href="#les-galleries-gallery" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Module situé dans <code class="docutils literal notranslate"><span class="pre">zds/gallery/</span></code>.</p>
 <div class="contents topic" id="fichiers-documentes">
 <p class="topic-title">Fichiers documentés :</p>
@@ -112,7 +113,7 @@
 </ul>
 </div>
 <section id="module-zds.gallery.models">
-<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.gallery.models" title="Lien permanent vers ce titre"></a></h2>
+<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.gallery.models" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.gallery.models.Gallery">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.gallery.models.</span></span><span class="sig-name descname"><span class="pre">Gallery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subtitle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slug</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pubdate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.gallery.models.Gallery" title="Lien permanent vers cette définition"></a></dt>
@@ -384,7 +385,7 @@ non-SQL backends), respectively. Normally, they should not be set.</p>
 
 </section>
 <section id="module-zds.gallery.views">
-<span id="vues-views-py"></span><h2><a class="toc-backref" href="#id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.gallery.views" title="Lien permanent vers ce titre"></a></h2>
+<span id="vues-views-py"></span><h2><a class="toc-backref" href="#id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.gallery.views" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.gallery.views.DeleteGalleries">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.gallery.views.</span></span><span class="sig-name descname"><span class="pre">DeleteGalleries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.gallery.views.DeleteGalleries" title="Lien permanent vers cette définition"></a></dt>
@@ -404,7 +405,7 @@ success URL.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.DeleteImages.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.gallery.views.DeleteImages.model" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <a class="reference internal" href="#zds.gallery.models.Image" title="zds.gallery.models.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.models.Image</span></code></a></p>
+<dd><p>alias de <a class="reference internal" href="#zds.gallery.models.Image" title="zds.gallery.models.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -416,7 +417,7 @@ success URL.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.EditGallery.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.gallery.views.EditGallery.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.forms.UpdateGalleryForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">UpdateGalleryForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -446,7 +447,7 @@ success URL.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.EditGalleryMembers.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.gallery.views.EditGalleryMembers.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.forms.UserGalleryForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">UserGalleryForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -476,7 +477,7 @@ success URL.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.EditImage.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.gallery.views.EditImage.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.forms.UpdateImageForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">UpdateImageForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -534,7 +535,7 @@ and information given at the template.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.GalleryDetails.object">
 <span class="sig-name descname"><span class="pre">object</span></span><a class="headerlink" href="#zds.gallery.views.GalleryDetails.object" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <a class="reference internal" href="#zds.gallery.models.Image" title="zds.gallery.models.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.models.Image</span></code></a></p>
+<dd><p>alias de <a class="reference internal" href="#zds.gallery.models.Image" title="zds.gallery.models.Image"><code class="xref py py-class docutils literal notranslate"><span class="pre">Image</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -557,7 +558,7 @@ and information given at the template.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.ImportImages.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.gallery.views.ImportImages.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.forms.ArchiveImageForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">ArchiveImageForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -590,7 +591,7 @@ and information given at the template.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.ListGallery.object">
 <span class="sig-name descname"><span class="pre">object</span></span><a class="headerlink" href="#zds.gallery.views.ListGallery.object" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <a class="reference internal" href="#zds.gallery.models.UserGallery" title="zds.gallery.models.UserGallery"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.models.UserGallery</span></code></a></p>
+<dd><p>alias de <a class="reference internal" href="#zds.gallery.models.UserGallery" title="zds.gallery.models.UserGallery"><code class="xref py py-class docutils literal notranslate"><span class="pre">UserGallery</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -602,7 +603,7 @@ and information given at the template.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.NewGallery.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.gallery.views.NewGallery.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.forms.GalleryForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">GalleryForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -620,7 +621,7 @@ and information given at the template.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.gallery.views.NewImage.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.gallery.views.NewImage.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.gallery.forms.ImageForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">ImageForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -633,10 +634,10 @@ and information given at the template.</p>
 
 </section>
 <section id="module-zds.gallery.auto_upload_gallery">
-<span id="le-context-processor-pour-trouver-la-galerie-automatique-auto-upload-gallery-py"></span><h2><a class="toc-backref" href="#id4">Le context processor pour trouver la galerie automatique (<code class="docutils literal notranslate"><span class="pre">auto_upload_gallery.py</span></code>)</a><a class="headerlink" href="#module-zds.gallery.auto_upload_gallery" title="Lien permanent vers ce titre"></a></h2>
+<span id="le-context-processor-pour-trouver-la-galerie-automatique-auto-upload-gallery-py"></span><h2><a class="toc-backref" href="#id4">Le context processor pour trouver la galerie automatique (<code class="docutils literal notranslate"><span class="pre">auto_upload_gallery.py</span></code>)</a><a class="headerlink" href="#module-zds.gallery.auto_upload_gallery" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="zds.gallery.auto_upload_gallery.get_auto_upload_gallery">
-<span class="sig-prename descclassname"><span class="pre">zds.gallery.auto_upload_gallery.</span></span><span class="sig-name descname"><span class="pre">get_auto_upload_gallery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">django.http.request.HttpRequest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.gallery.auto_upload_gallery.get_auto_upload_gallery" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">zds.gallery.auto_upload_gallery.</span></span><span class="sig-name descname"><span class="pre">get_auto_upload_gallery</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">HttpRequest</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.gallery.auto_upload_gallery.get_auto_upload_gallery" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>This context processor adds <code class="docutils literal notranslate"><span class="pre">auto_update_gallery</span></code> to context.
 The gallery is the « default gallery » on  forums and comments. On publishable content edition, it’s the
 content-specific gallery.

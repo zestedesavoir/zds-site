@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -107,15 +108,15 @@
            <div itemprop="articleBody">
              
   <section id="installation-du-frontend">
-<h1>Installation du frontend<a class="headerlink" href="#installation-du-frontend" title="Lien permanent vers ce titre"></a></h1>
+<h1>Installation du frontend<a class="headerlink" href="#installation-du-frontend" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Vous voulez nous aider au développement du frontend ? Installez Node.js et Yarn grâce aux instructions qui suivent !</p>
 <section id="installation-de-node-js-et-yarn">
-<h2>Installation de Node.js et Yarn<a class="headerlink" href="#installation-de-node-js-et-yarn" title="Lien permanent vers ce titre"></a></h2>
+<h2>Installation de Node.js et Yarn<a class="headerlink" href="#installation-de-node-js-et-yarn" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Le frontend de Zeste de Savoir repose sur la version de Node JS spécifiée dans <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code>. Vous pouvez installer la version adéquate de Node.js via <a class="reference external" href="https://nodejs.org/en/download/package-manager/">votre gestionnaire de paquet</a> (<code class="docutils literal notranslate"><span class="pre">apt</span></code>, <code class="docutils literal notranslate"><span class="pre">yum</span></code>, …) ou en téléchargeant une <a class="reference external" href="https://nodejs.org/en/download/">archive</a>.</p>
 <p>Dans le cas où vous avez besoin de faire cohabiter sur votre système différentes versions de Node.js pour des projets différents, à l’instar de virtualenv ou rvm, il existe <a class="reference external" href="https://github.com/creationix/nvm">nvm</a> (Node Version Manager) qui permet d’installer plusieurs version de Node.js et de basculer d’une version à l’autre facilement.</p>
 <p>Le gestionnaire de paquet <code class="docutils literal notranslate"><span class="pre">npm</span></code> (Node.js Package Manager) est fourni avec Node.js, mais nous préferons utiliser Yarn qui est plus rapide et plus sûr. Yarn n’est strictement nécessaire qu’en production mais nous recommandons également de s’en servir lors du développement. <a class="reference external" href="https://yarnpkg.com/fr/docs/install/">Installer Yarn</a>.</p>
 <section id="verifier-que-les-bonnes-versions-sont-installees">
-<h3>Vérifier que les bonnes versions sont installées<a class="headerlink" href="#verifier-que-les-bonnes-versions-sont-installees" title="Lien permanent vers ce titre"></a></h3>
+<h3>Vérifier que les bonnes versions sont installées<a class="headerlink" href="#verifier-que-les-bonnes-versions-sont-installees" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour vérifier que Node.js et yarn sont installés et que vous avez les bonnes versions (<code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> désigne la version spécifiée dans <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code>) :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ node -v
 vX.Y.Z
@@ -127,7 +128,7 @@ X.Y.Z
 <p>Si vous désirez utiliser <code class="docutils literal notranslate"><span class="pre">npm</span></code> à la place de <code class="docutils literal notranslate"><span class="pre">yarn</span></code>, vérifiez que vous avez la version 5 ou une plus récente.</p>
 </section>
 <section id="mise-a-jour-de-node-js-et-yarn">
-<h3>Mise à jour de Node.js et Yarn<a class="headerlink" href="#mise-a-jour-de-node-js-et-yarn" title="Lien permanent vers ce titre"></a></h3>
+<h3>Mise à jour de Node.js et Yarn<a class="headerlink" href="#mise-a-jour-de-node-js-et-yarn" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour Yarn, il suffit de le mettre à jour avec cette commande :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npm install -g yarn
 </pre></div>
@@ -135,7 +136,7 @@ X.Y.Z
 <p>Pour ce qui est de Node.js, utilisez soit votre gestionnaire de paquet, soit nvm.</p>
 </section>
 <section id="installation-des-dependances-yarn">
-<h3>Installation des dépendances Yarn<a class="headerlink" href="#installation-des-dependances-yarn" title="Lien permanent vers ce titre"></a></h3>
+<h3>Installation des dépendances Yarn<a class="headerlink" href="#installation-des-dependances-yarn" title="Lien permanent vers cette rubrique"></a></h3>
 <p>L’installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via Yarn dans le répertoire du projet :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make install-front
 </pre></div>
@@ -147,18 +148,18 @@ X.Y.Z
 </section>
 </section>
 <section id="utilisation-des-outils">
-<h2>Utilisation des outils<a class="headerlink" href="#utilisation-des-outils" title="Lien permanent vers ce titre"></a></h2>
+<h2>Utilisation des outils<a class="headerlink" href="#utilisation-des-outils" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Vous avez installé les outils ? Voilà comment on s’en sert dans notre projet !</p>
 <p><strong>Note :</strong> dans la suite de ce document, les utilisateurs d’OS X et de GNU/Linux préféreront utiliser <code class="docutils literal notranslate"><span class="pre">make</span></code>, les utilisateurs de Windows qui ne connaissent pas <code class="docutils literal notranslate"><span class="pre">make</span></code> préféreront utiliser <code class="docutils literal notranslate"><span class="pre">yarn</span></code> directement.</p>
 <section id="presentation-de-gulp">
-<h3>Présentation de Gulp<a class="headerlink" href="#presentation-de-gulp" title="Lien permanent vers ce titre"></a></h3>
+<h3>Présentation de Gulp<a class="headerlink" href="#presentation-de-gulp" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Gulp est un outil permettant d’automatiser les tâches liées au <em>front-end</em>. C’est une sorte de Makefile.</p>
 </section>
 <section id="utilisation-de-gulp">
-<h3>Utilisation de Gulp<a class="headerlink" href="#utilisation-de-gulp" title="Lien permanent vers ce titre"></a></h3>
+<h3>Utilisation de Gulp<a class="headerlink" href="#utilisation-de-gulp" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Gulp se lance avec <code class="docutils literal notranslate"><span class="pre">yarn</span> <span class="pre">run</span> <span class="pre">gulp</span> <span class="pre">--</span> <span class="pre">[tâche]</span></code> où <code class="docutils literal notranslate"><span class="pre">[tâche]</span></code> est la tâche à lancer.</p>
 <section id="generer-les-fichiers-avec-build">
-<h4>Générer les fichiers avec <code class="docutils literal notranslate"><span class="pre">build</span></code><a class="headerlink" href="#generer-les-fichiers-avec-build" title="Lien permanent vers ce titre"></a></h4>
+<h4>Générer les fichiers avec <code class="docutils literal notranslate"><span class="pre">build</span></code><a class="headerlink" href="#generer-les-fichiers-avec-build" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Saisissez la commande suivante (elle vous permet de générer les fichiers Web du site pour vous permettre de consulter Zeste de Savoir sur votre navigateur, en local) :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make build-front
 </pre></div>
@@ -182,12 +183,12 @@ de <code class="docutils literal notranslate"><span class="pre">assets/</span></
 <p>Si vos modifications n’apparaissent pas dans votre navigateur et que ce n’est pas dû à Gulp, pensez à vider le cache de votre navigateur !</p>
 </section>
 <section id="supprimer-les-fichiers-generes-avec-clean">
-<h4>Supprimer les fichiers générés avec <code class="docutils literal notranslate"><span class="pre">clean</span></code><a class="headerlink" href="#supprimer-les-fichiers-generes-avec-clean" title="Lien permanent vers ce titre"></a></h4>
+<h4>Supprimer les fichiers générés avec <code class="docutils literal notranslate"><span class="pre">clean</span></code><a class="headerlink" href="#supprimer-les-fichiers-generes-avec-clean" title="Lien permanent vers cette rubrique"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">clean</span></code> supprime les fichiers générés par <code class="docutils literal notranslate"><span class="pre">build</span></code> (il supprime simplement le dossier <code class="docutils literal notranslate"><span class="pre">dist/</span></code>).</p>
 <p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">clean-front</span></code> ou <code class="docutils literal notranslate"><span class="pre">yarn</span> <span class="pre">run</span> <span class="pre">clean</span></code></p>
 </section>
 <section id="verifier-le-code-avec-lint">
-<h4>Vérifier le code avec <code class="docutils literal notranslate"><span class="pre">lint</span></code><a class="headerlink" href="#verifier-le-code-avec-lint" title="Lien permanent vers ce titre"></a></h4>
+<h4>Vérifier le code avec <code class="docutils literal notranslate"><span class="pre">lint</span></code><a class="headerlink" href="#verifier-le-code-avec-lint" title="Lien permanent vers cette rubrique"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">lint</span></code> vérifie, par le biais de JSHint, la forme du code (indentation, doubles guillemets, etc). Si le code ne
 respecte pas ces règles, le script va sortir une liste d’erreurs (<em>errors</em>) et/ou d’avertissements (<em>warnings</em>)
 que vous devez corriger.</p>
@@ -200,7 +201,7 @@ pratique pour vous (et nous) que vous lanciez cette commande en amont avec <code
 </div>
 </section>
 <section id="coder-plus-simplement-avec-watch">
-<h4>Coder plus simplement avec <code class="docutils literal notranslate"><span class="pre">watch</span></code><a class="headerlink" href="#coder-plus-simplement-avec-watch" title="Lien permanent vers ce titre"></a></h4>
+<h4>Coder plus simplement avec <code class="docutils literal notranslate"><span class="pre">watch</span></code><a class="headerlink" href="#coder-plus-simplement-avec-watch" title="Lien permanent vers cette rubrique"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">watch</span></code> surveille les fichiers SCSS et Javascript lance la tâche <code class="docutils literal notranslate"><span class="pre">build</span></code> dès qu’ils sont modifiés. C’est très utile pour le développement car ça permet de ne pas avoir à relancer <code class="docutils literal notranslate"><span class="pre">build</span></code> manuellement. Pour lancer cette commande, faites <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">watch-front</span></code> ou <code class="docutils literal notranslate"><span class="pre">yarn</span> <span class="pre">run</span> <span class="pre">watch</span></code>. Pour arrêter cette commande, il suffit de presser <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code>.</p>
 <p>Si votre ordinateur n’est pas très puissant ou la commande <code class="docutils literal notranslate"><span class="pre">watch</span></code> est lente. Vous aurez besoin de l’option <code class="docutils literal notranslate"><span class="pre">--speed</span></code>. Cette option permet de désactiver les fonctions de parsing pour la prod. Ainsi <code class="docutils literal notranslate"><span class="pre">watch</span></code> a besoin de moins de CPU.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npm run watch -- --speed
@@ -216,9 +217,9 @@ Venez voir <a class="reference external" href="../front-end.html">la documentati
 </section>
 </section>
 <section id="nettoyage-des-outils">
-<h2>Nettoyage des outils<a class="headerlink" href="#nettoyage-des-outils" title="Lien permanent vers ce titre"></a></h2>
+<h2>Nettoyage des outils<a class="headerlink" href="#nettoyage-des-outils" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="desinstaller-les-dependances">
-<h3>Désinstaller les dépendances<a class="headerlink" href="#desinstaller-les-dependances" title="Lien permanent vers ce titre"></a></h3>
+<h3>Désinstaller les dépendances<a class="headerlink" href="#desinstaller-les-dependances" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il suffit de supprimer le dossier <code class="docutils literal notranslate"><span class="pre">node_modules</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm -r node_modules/.
 </pre></div>

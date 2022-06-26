@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -99,11 +100,11 @@
            <div itemprop="articleBody">
              
   <section id="installation-de-elasticsearch-pour-la-recherche">
-<h1>Installation de Elasticsearch (pour la recherche)<a class="headerlink" href="#installation-de-elasticsearch-pour-la-recherche" title="Lien permanent vers ce titre"></a></h1>
+<h1>Installation de Elasticsearch (pour la recherche)<a class="headerlink" href="#installation-de-elasticsearch-pour-la-recherche" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Zeste de Savoir utilise <strong>Elasticsearch 5</strong>, un moteur de recherche très performant.
 Installer Elasticsearch est nécessaire pour faire fonctionner la recherche.</p>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers ce titre"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers cette rubrique"></a></h2>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>Par défaut, Elasticsearch requiert au moins 2 Gio de mémoire pour démarrer.</p>
@@ -116,9 +117,9 @@ Par exemple, vous pouvez passer la valeur de ces variables à 512 Mio grâce à:
 <p>Plus d’informations sont disponibles <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setting-system-settings.html#jvm-options">dans la documentation officielle</a>.</p>
 </div>
 <section id="sous-linux">
-<h3>Sous Linux<a class="headerlink" href="#sous-linux" title="Lien permanent vers ce titre"></a></h3>
+<h3>Sous Linux<a class="headerlink" href="#sous-linux" title="Lien permanent vers cette rubrique"></a></h3>
 <section id="installer-java-8">
-<h4>Installer java 8<a class="headerlink" href="#installer-java-8" title="Lien permanent vers ce titre"></a></h4>
+<h4>Installer java 8<a class="headerlink" href="#installer-java-8" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Il est nécessaire d’utiliser au moins <strong>la version 8</strong> de Java pour faire tourner Elasticsearch, mais ce n’est probablement pas la version par défaut de votre système d’exploitation.</p>
 <p><strong>Sous Debian et dérivés</strong>, le package à installer est <code class="docutils literal notranslate"><span class="pre">openjdk-8-jdk</span></code> :</p>
 <ul class="simple">
@@ -130,7 +131,7 @@ Par exemple, vous pouvez passer la valeur de ces variables à 512 Mio grâce à:
 Passez ensuite à la version 8 de java à l’aide de la commande <code class="docutils literal notranslate"><span class="pre">alternatives</span> <span class="pre">--config</span> <span class="pre">java</span></code> (<strong>en root</strong>).</p>
 </section>
 <section id="installer-elasticsearch">
-<h4>Installer Elasticsearch<a class="headerlink" href="#installer-elasticsearch" title="Lien permanent vers ce titre"></a></h4>
+<h4>Installer Elasticsearch<a class="headerlink" href="#installer-elasticsearch" title="Lien permanent vers cette rubrique"></a></h4>
 <p>La procédure d’installation, si vous souhaitez utiliser Elasticsearch sans l’installer via le gestionnaire de paquets de votre distribution, est d’entrer les commandes suivantes dans votre <em>shell</em> préféré. Remplacez <code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> par la version spécifiée dans <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> !</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-X.Y.Z.zip
 unzip elasticsearch-X.Y.Z.zip
@@ -150,7 +151,7 @@ Rendez-vous <a class="reference external" href="https://www.elastic.co/guide/en/
 </section>
 </section>
 <section id="sous-macos">
-<h3>Sous macOS<a class="headerlink" href="#sous-macos" title="Lien permanent vers ce titre"></a></h3>
+<h3>Sous macOS<a class="headerlink" href="#sous-macos" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Utilisez les commandes suivantes pour installer Java 8 et Elasticsearch:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew update
 brew cask install java
@@ -168,7 +169,7 @@ Plus d’infos <a class="reference external" href="https://gist.github.com/jpala
 </div>
 </section>
 <section id="sous-windows">
-<h3>Sous Windows<a class="headerlink" href="#sous-windows" title="Lien permanent vers ce titre"></a></h3>
+<h3>Sous Windows<a class="headerlink" href="#sous-windows" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Elasticsearch requiert <strong>la version 8</strong> de Java, que vous pouvez trouver <a class="reference external" href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html">sur la page officielle de java</a>. Prenez la version correspondante à votre système d’exploitation.</p>
 <p>Pour télécharger Elasticsearch :</p>
 <ul class="simple">
@@ -191,7 +192,7 @@ Plus d’informations <a class="reference external" href="https://www.elastic.co
 </section>
 </section>
 <section id="indexation-et-recherche">
-<h2>Indexation et recherche<a class="headerlink" href="#indexation-et-recherche" title="Lien permanent vers ce titre"></a></h2>
+<h2>Indexation et recherche<a class="headerlink" href="#indexation-et-recherche" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez-vous sur la page <a class="reference external" href="http://localhost:9200/">http://localhost:9200/</a>.
 Vous devriez observer une réponse du même genre que celle-ci :</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span>{

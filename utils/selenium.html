@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -101,13 +102,13 @@
            <div itemprop="articleBody">
              
   <section id="selenium">
-<h1>Selenium<a class="headerlink" href="#selenium" title="Lien permanent vers ce titre"></a></h1>
+<h1>Selenium<a class="headerlink" href="#selenium" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Selenium est utilisé pour réaliser les tests front-end. Il s’agit d’un outil très utilisé qui propose des interfaces dans différents languages dont Python. Il est donc possible de l’utiliser avec Django.</p>
 <p>Pour l’utiliser, il suffit au développeur d’installer Selenium et un webdriver.</p>
 <section id="les-tests-front-end">
-<h2>Les tests front-end<a class="headerlink" href="#les-tests-front-end" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les tests front-end<a class="headerlink" href="#les-tests-front-end" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="installation-du-webdriver">
-<h3>Installation du webdriver<a class="headerlink" href="#installation-du-webdriver" title="Lien permanent vers ce titre"></a></h3>
+<h3>Installation du webdriver<a class="headerlink" href="#installation-du-webdriver" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il est nécessaire d’installer deux choses pour utiliser Selenium avec Django : Selenium (présent dans <code class="docutils literal notranslate"><span class="pre">requirements-dev.txt</span></code>) et un webdriver. Pour ceci, il suffit d’exécuter :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Installation du webdriver</span>
 wget https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-linux64.tar.gz
@@ -124,7 +125,7 @@ tar -xzf geckodriver-v0.30.0-linux64.tar.gz -C geckodriver
 </div>
 </section>
 <section id="ecriture-des-tests">
-<h3>Écriture des tests<a class="headerlink" href="#ecriture-des-tests" title="Lien permanent vers ce titre"></a></h3>
+<h3>Écriture des tests<a class="headerlink" href="#ecriture-des-tests" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il est donc possible d’écrire des tests pour Django directement en utilisant la document de Selenium ici : &lt;<a class="reference external" href="http://selenium-python.readthedocs.io/">http://selenium-python.readthedocs.io/</a>&gt; et le <cite>StaticLiveServerTestCase</cite> de Django (&lt;<a class="reference external" href="https://docs.djangoproject.com/fr/2.1/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase">https://docs.djangoproject.com/fr/2.1/ref/contrib/staticfiles/#django.contrib.staticfiles.testing.StaticLiveServerTestCase</a>&gt;).</p>
 <p>Il est aussi possible d’utiliser l’extension Firefox (&lt;<a class="reference external" href="https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/">https://addons.mozilla.org/en-US/firefox/addon/selenium-ide/</a>&gt;) et d’exporter le test généré, cependant, il est nécessaire de le réécrire pour prendre en compte Django et Python 3. De plus, il est nécessaire d’ajouter un tag à la classe afin de pouvoir lancer les tests Selenium séparément.</p>
 <p>Voici le contenu d’un test :</p>
@@ -155,7 +156,7 @@ tar -xzf geckodriver-v0.30.0-linux64.tar.gz -C geckodriver
 </div>
 </section>
 <section id="lancement-des-tests">
-<h3>Lancement des tests<a class="headerlink" href="#lancement-des-tests" title="Lien permanent vers ce titre"></a></h3>
+<h3>Lancement des tests<a class="headerlink" href="#lancement-des-tests" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il suffit d’utiliser le Makefile et de lancer <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test-back-selenium</span></code>.</p>
 </section>
 </section>

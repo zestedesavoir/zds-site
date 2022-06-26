@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -112,7 +113,7 @@
            <div itemprop="articleBody">
              
   <section id="structure-globale-du-site">
-<h1>Structure globale du site<a class="headerlink" href="#structure-globale-du-site" title="Lien permanent vers ce titre"></a></h1>
+<h1>Structure globale du site<a class="headerlink" href="#structure-globale-du-site" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Le site est composé de plusieurs grandes parties.</p>
 <p>Tous ces éléments sont dans le fichier <code class="docutils literal notranslate"><span class="pre">templates/base.html</span></code>. Pour les utiliser dans les gabarits, il suffit
 d’étendre <code class="docutils literal notranslate"><span class="pre">base.html</span></code>, avec cette ligne :</p>
@@ -133,26 +134,26 @@ d’étendre <code class="docutils literal notranslate"><span class="pre">base.h
 <a class="reference external" href="https://docs.djangoproject.com/fr/1.8/topics/templates/#template-inheritance">l’héritage des gabarits</a> !</p>
 </div>
 <section id="l-en-tete">
-<h2>L’en-tête<a class="headerlink" href="#l-en-tete" title="Lien permanent vers ce titre"></a></h2>
+<h2>L’en-tête<a class="headerlink" href="#l-en-tete" title="Lien permanent vers cette rubrique"></a></h2>
 <figure class="align-center">
 <img alt="../_images/en-tete.png" src="../_images/en-tete.png" />
 </figure>
 <p>On peut découper l’en-tête du site en quatre.</p>
 <section id="le-logo">
-<h3>Le logo<a class="headerlink" href="#le-logo" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le logo<a class="headerlink" href="#le-logo" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le logo est simplement un lien qui a pour contenu une image. L’image change en fonction de la taille de l’écran.</p>
 </section>
 <section id="le-menu">
-<h3>Le menu<a class="headerlink" href="#le-menu" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le menu<a class="headerlink" href="#le-menu" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le menu est composé soit d’un lien, soit d’un menu déroulant. Ces derniers contiennent des listes de liens.</p>
 <figure class="align-center">
 <img alt="../_images/en-tete_menu.png" src="../_images/en-tete_menu.png" />
 </figure>
 </section>
 <section id="la-logbox">
-<h3>La <em>logbox</em><a class="headerlink" href="#la-logbox" title="Lien permanent vers ce titre"></a></h3>
+<h3>La <em>logbox</em><a class="headerlink" href="#la-logbox" title="Lien permanent vers cette rubrique"></a></h3>
 <section id="pour-un-utilisateur-connecte">
-<h4>Pour un utilisateur connecté<a class="headerlink" href="#pour-un-utilisateur-connecte" title="Lien permanent vers ce titre"></a></h4>
+<h4>Pour un utilisateur connecté<a class="headerlink" href="#pour-un-utilisateur-connecte" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Pour un utilisateur connecté, la <em>logbox</em> contient trois menus déroulants :</p>
 <ul class="simple">
 <li><p>le premier affiche les messages privés ;</p></li>
@@ -165,7 +166,7 @@ d’étendre <code class="docutils literal notranslate"><span class="pre">base.h
 </figure>
 </section>
 <section id="pour-un-anonyme">
-<h4>Pour un anonyme<a class="headerlink" href="#pour-un-anonyme" title="Lien permanent vers ce titre"></a></h4>
+<h4>Pour un anonyme<a class="headerlink" href="#pour-un-anonyme" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Pour un anonyme, il y a simplement deux boutons :</p>
 <ul class="simple">
 <li><p>un pour se connecter ;</p></li>
@@ -174,14 +175,14 @@ d’étendre <code class="docutils literal notranslate"><span class="pre">base.h
 </section>
 </section>
 <section id="le-sous-en-tete">
-<h3>Le sous en-tête<a class="headerlink" href="#le-sous-en-tete" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le sous en-tête<a class="headerlink" href="#le-sous-en-tete" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le sous-entête est en deux partie :</p>
 <ul class="simple">
 <li><p>à gauche, une aide à la navigation ;</p></li>
 <li><p>à droite, un petit formulaire de recherche.</p></li>
 </ul>
 <section id="l-aide-a-la-navigation">
-<h4>L’aide à la navigation<a class="headerlink" href="#l-aide-a-la-navigation" title="Lien permanent vers ce titre"></a></h4>
+<h4>L’aide à la navigation<a class="headerlink" href="#l-aide-a-la-navigation" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Pour renseigner l’aide à la navigation, il faut utiliser le bloc <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">block</span> <span class="pre">breadcrumb</span> <span class="pre">%}</span></code> :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">block</span> <span class="nv">breadcrumb</span> <span class="cp">%}</span><span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>Le titre de ma page<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span><span class="cp">{%</span> <span class="k">endblock</span> <span class="cp">%}</span>
 </pre></div>
@@ -201,12 +202,12 @@ d’étendre <code class="docutils literal notranslate"><span class="pre">base.h
 </section>
 </section>
 <section id="le-contenu-principal">
-<h2>Le contenu principal<a class="headerlink" href="#le-contenu-principal" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le contenu principal<a class="headerlink" href="#le-contenu-principal" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Le contenu principal change radicalement suivant les pages : tutoriels, articles, messages du forum, messages privés…
 Il y a donc différentes façons de l’afficher suivant le contenu ! Dans les gabarits, le résultat est donc l’existence
 de plusieurs blocs différents.</p>
 <section id="du-contenu-accompagne-de-titre-et-sous-titre">
-<h3>Du contenu accompagné de titre et sous-titre<a class="headerlink" href="#du-contenu-accompagne-de-titre-et-sous-titre" title="Lien permanent vers ce titre"></a></h3>
+<h3>Du contenu accompagné de titre et sous-titre<a class="headerlink" href="#du-contenu-accompagne-de-titre-et-sous-titre" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il faut mettre le contenu entre <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">block</span> <span class="pre">content</span> <span class="pre">%}</span></code> et <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">endblock</span> <span class="pre">%}</span></code>, comme ceci :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;base.html&quot;</span> <span class="cp">%}</span>
 
@@ -237,7 +238,7 @@ de plusieurs blocs différents.</p>
 </div>
 </section>
 <section id="du-contenu-sans-titre-ni-sous-titre">
-<h3>Du contenu sans titre ni sous-titre<a class="headerlink" href="#du-contenu-sans-titre-ni-sous-titre" title="Lien permanent vers ce titre"></a></h3>
+<h3>Du contenu sans titre ni sous-titre<a class="headerlink" href="#du-contenu-sans-titre-ni-sous-titre" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Dans ce cas là, il faut simplement utiliser <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">block</span> <span class="pre">content_out</span> <span class="pre">%}</span></code> :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;base.html&quot;</span> <span class="cp">%}</span>
 
@@ -250,7 +251,7 @@ de plusieurs blocs différents.</p>
 </div>
 </section>
 <section id="du-contenu-comme-un-tutoriel-ou-un-article">
-<h3>Du contenu comme un tutoriel ou un article<a class="headerlink" href="#du-contenu-comme-un-tutoriel-ou-un-article" title="Lien permanent vers ce titre"></a></h3>
+<h3>Du contenu comme un tutoriel ou un article<a class="headerlink" href="#du-contenu-comme-un-tutoriel-ou-un-article" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Dans ce cas là, il faut utiliser <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">block</span> <span class="pre">content</span> <span class="pre">%}</span></code> mais avec <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">extends</span> <span class="pre">&quot;base_content_page.html&quot;</span> <span class="pre">%}</span></code> :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;base_content_page.html&quot;</span> <span class="cp">%}</span>
 
@@ -291,7 +292,7 @@ La différence est minime, pour plus d’informations, regardez le fichier <code
 </section>
 </section>
 <section id="la-barre-laterale">
-<h2>La barre latérale<a class="headerlink" href="#la-barre-laterale" title="Lien permanent vers ce titre"></a></h2>
+<h2>La barre latérale<a class="headerlink" href="#la-barre-laterale" title="Lien permanent vers cette rubrique"></a></h2>
 <p>La barre latérale contient des listes de liens, boutons ou formulaires permettant à l’utilisateur d’effectuer des actions.</p>
 <figure class="align-center" id="id2">
 <img alt="../_images/barre-laterale.png" src="../_images/barre-laterale.png" />
@@ -308,7 +309,7 @@ La différence est minime, pour plus d’informations, regardez le fichier <code
 </pre></div>
 </div>
 <section id="pour-les-pages-comme-un-tutoriel-ou-un-article">
-<h3>Pour les pages comme un tutoriel ou un article<a class="headerlink" href="#pour-les-pages-comme-un-tutoriel-ou-un-article" title="Lien permanent vers ce titre"></a></h3>
+<h3>Pour les pages comme un tutoriel ou un article<a class="headerlink" href="#pour-les-pages-comme-un-tutoriel-ou-un-article" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il faut étendre <code class="docutils literal notranslate"><span class="pre">templates/base_content_page.html</span></code> et utiliser <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">block</span> <span class="pre">sidebar_actions</span> <span class="pre">%}</span></code> :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">extends</span> <span class="s2">&quot;base_content_page.html&quot;</span> <span class="cp">%}</span>
 
@@ -329,7 +330,7 @@ La différence est minime, pour plus d’informations, regardez le fichier <code
 </section>
 </section>
 <section id="le-bas-de-page">
-<h2>Le bas de page<a class="headerlink" href="#le-bas-de-page" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le bas de page<a class="headerlink" href="#le-bas-de-page" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Le bas de page est sûrement la partie la plus simple du site. Il contient trois <em>flexboxs</em> <a class="footnote-reference brackets" href="#flexbox" id="id1">1</a> :</p>
 <ul class="simple">
 <li><p>celui de gauche affiche le nom du site ;</p></li>
@@ -346,14 +347,14 @@ La différence est minime, pour plus d’informations, regardez le fichier <code
 </dl>
 </section>
 <section id="le-menu-pour-mobile">
-<h2>Le menu pour mobile<a class="headerlink" href="#le-menu-pour-mobile" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le menu pour mobile<a class="headerlink" href="#le-menu-pour-mobile" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Le menu pour mobile est généré à partir de l’en-tête et de la barre latérale grâce à <a class="reference external" href="https://github.com/zestedesavoir/zds-site/blob/dev/assets/js/mobile-menu.js">ce code Javascript</a>.</p>
 <figure class="align-center">
 <img alt="../_images/menu-mobile.png" src="../_images/menu-mobile.png" />
 </figure>
 </section>
 <section id="design-fluide-responsive-design">
-<h2>Design fluide (responsive design)<a class="headerlink" href="#design-fluide-responsive-design" title="Lien permanent vers ce titre"></a></h2>
+<h2>Design fluide (responsive design)<a class="headerlink" href="#design-fluide-responsive-design" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Le design est prévu dès le début pour être adapté à un maximum de supports (à priori tous). Ainsi, il faudra prendre garde à quelques détails si l’on souhaite un comportement idéal sur tablettes et mobiles.</p>
 <p>Une différence notable sur les petits appareils est que la barre de navigation latérale gauche est masquée par défaut. Elle est disponible au glissé (swipe) du bord gauche vers la droite, ou directement via l’icône en haut.</p>
 <div class="admonition note">

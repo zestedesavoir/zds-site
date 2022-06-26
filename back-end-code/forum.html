@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -98,7 +99,7 @@
            <div itemprop="articleBody">
              
   <section id="les-forums-forum">
-<h1><a class="toc-backref" href="#id1">Les forums (<code class="docutils literal notranslate"><span class="pre">forum/</span></code>)</a><a class="headerlink" href="#les-forums-forum" title="Lien permanent vers ce titre"></a></h1>
+<h1><a class="toc-backref" href="#id1">Les forums (<code class="docutils literal notranslate"><span class="pre">forum/</span></code>)</a><a class="headerlink" href="#les-forums-forum" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Module situé dans <code class="docutils literal notranslate"><span class="pre">zds/forum/</span></code>.</p>
 <div class="contents topic" id="fichiers-documentes">
 <p class="topic-title">Fichiers documentés :</p>
@@ -114,7 +115,7 @@
 </ul>
 </div>
 <section id="module-zds.forum.models">
-<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.models" title="Lien permanent vers ce titre"></a></h2>
+<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.models" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.models.Forum">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.models.</span></span><span class="sig-name descname"><span class="pre">Forum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Forum" title="Lien permanent vers cette définition"></a></dt>
@@ -496,7 +497,7 @@ Technically it is a simple joint [user, topic, last read post].</p>
 
 </section>
 <section id="module-zds.forum.managers">
-<span id="les-managers-managers-py"></span><h2><a class="toc-backref" href="#id3">Les managers (<code class="docutils literal notranslate"><span class="pre">managers.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.managers" title="Lien permanent vers ce titre"></a></h2>
+<span id="les-managers-managers-py"></span><h2><a class="toc-backref" href="#id3">Les managers (<code class="docutils literal notranslate"><span class="pre">managers.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.managers" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.managers.ForumManager">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.managers.</span></span><span class="sig-name descname"><span class="pre">ForumManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.managers.ForumManager" title="Lien permanent vers cette définition"></a></dt>
@@ -566,7 +567,7 @@ for the request user.
 
 </section>
 <section id="module-zds.forum.views">
-<span id="vues-views-py"></span><h2><a class="toc-backref" href="#id4">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.views" title="Lien permanent vers ce titre"></a></h2>
+<span id="vues-views-py"></span><h2><a class="toc-backref" href="#id4">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.views" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.views.CategoriesForumsListView">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.views.</span></span><span class="sig-name descname"><span class="pre">CategoriesForumsListView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.views.CategoriesForumsListView" title="Lien permanent vers cette définition"></a></dt>
@@ -793,7 +794,7 @@ POST variables and then check if it’s valid.</p>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.PostEdit.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.forum.views.PostEdit.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.forum.forms.PostForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">PostForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -829,7 +830,7 @@ POST variables and then check if it’s valid.</p>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.PostNew.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.forum.views.PostNew.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.forum.forms.PostForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">PostForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -855,7 +856,7 @@ Subclasses can override this to return any object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.PostNew.model_quote">
 <span class="sig-name descname"><span class="pre">model_quote</span></span><a class="headerlink" href="#zds.forum.views.PostNew.model_quote" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <a class="reference internal" href="#zds.forum.models.Post" title="zds.forum.models.Post"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.forum.models.Post</span></code></a></p>
+<dd><p>alias de <a class="reference internal" href="#zds.forum.models.Post" title="zds.forum.models.Post"><code class="xref py py-class docutils literal notranslate"><span class="pre">Post</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -912,7 +913,7 @@ POST variables and then check if it’s valid.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.TopicEdit.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.forum.views.TopicEdit.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.forum.forms.TopicForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">TopicForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -956,7 +957,7 @@ POST variables and then check if it’s valid.</p>
 <dd><dl class="py attribute">
 <dt class="sig sig-object py" id="zds.forum.views.TopicNew.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.forum.views.TopicNew.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.forum.forms.TopicForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">TopicForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -1035,7 +1036,7 @@ Subclasses can override this to return any object.</p>
 
 </section>
 <section id="module-zds.forum.utils">
-<span id="les-utilitaires-utils-py"></span><h2><a class="toc-backref" href="#id5">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.utils" title="Lien permanent vers ce titre"></a></h2>
+<span id="les-utilitaires-utils-py"></span><h2><a class="toc-backref" href="#id5">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a><a class="headerlink" href="#module-zds.forum.utils" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.forum.utils.CreatePostView">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.forum.utils.</span></span><span class="sig-name descname"><span class="pre">CreatePostView</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.utils.CreatePostView" title="Lien permanent vers cette définition"></a></dt>

@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -100,13 +101,13 @@
            <div itemprop="articleBody">
              
   <section id="les-galeries">
-<h1>Les galeries<a class="headerlink" href="#les-galeries" title="Lien permanent vers ce titre"></a></h1>
+<h1>Les galeries<a class="headerlink" href="#les-galeries" title="Lien permanent vers cette rubrique"></a></h1>
 <p>La liste des galeries de l’utilisateur est accessible via l’url suivante : <code class="docutils literal notranslate"><span class="pre">/galerie/</span></code>.</p>
 <section id="generalites">
-<h2>Généralités<a class="headerlink" href="#generalites" title="Lien permanent vers ce titre"></a></h2>
+<h2>Généralités<a class="headerlink" href="#generalites" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Une galerie rassemble un certain nombre d’images. Elle doit prendre un titre et peut également posséder un sous-titre.</p>
 <section id="creation-et-remplissage">
-<h3>Création et remplissage<a class="headerlink" href="#creation-et-remplissage" title="Lien permanent vers ce titre"></a></h3>
+<h3>Création et remplissage<a class="headerlink" href="#creation-et-remplissage" title="Lien permanent vers cette rubrique"></a></h3>
 <p>On peut créer une nouvelle galerie via l’url <code class="docutils literal notranslate"><span class="pre">/galerie/nouveau/</span></code>. Le titre de la galerie et un sous-titre facultatif sont demandés.</p>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
@@ -151,7 +152,7 @@
 </ul>
 </section>
 <section id="les-utilisateurs-et-leurs-droits">
-<h3>Les utilisateurs et leurs droits<a class="headerlink" href="#les-utilisateurs-et-leurs-droits" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les utilisateurs et leurs droits<a class="headerlink" href="#les-utilisateurs-et-leurs-droits" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le créateur de la galerie possède un droit d’écriture, mais peut y ajouter à tout moment des utilisateurs :</p>
 <blockquote>
 <div><figure class="align-center" id="id4">
@@ -178,7 +179,7 @@
 <p>Il n’est actuellement pas possible de modifier les droits d’un utilisateur après son ajout à la galerie.</p>
 </section>
 <section id="la-suppression">
-<h3>La suppression<a class="headerlink" href="#la-suppression" title="Lien permanent vers ce titre"></a></h3>
+<h3>La suppression<a class="headerlink" href="#la-suppression" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Une image peut être supprimée à tout moment en la sélectionnant sur la page de la galerie et en cliquant sur le bouton suivant :</p>
 <blockquote>
 <div><figure class="align-center" id="id6">
@@ -215,19 +216,19 @@
 </section>
 </section>
 <section id="lien-galerie-tutoriel">
-<h2>Lien galerie &lt;-&gt; Tutoriel<a class="headerlink" href="#lien-galerie-tutoriel" title="Lien permanent vers ce titre"></a></h2>
+<h2>Lien galerie &lt;-&gt; Tutoriel<a class="headerlink" href="#lien-galerie-tutoriel" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Chaque tutoriel possède une galerie en propre. Par défaut cette galerie possède le même nom qui a été donné au tutoriel lors de sa création.</p>
 <p>Chaque auteur possède un droit d’accès en écriture (<code class="docutils literal notranslate"><span class="pre">GALLERY_WRITE</span></code>) sur la galerie liée au tutoriel.</p>
 <p>Si un membre possède un droit de lecture seule (<code class="docutils literal notranslate"><span class="pre">GALLERY_READ</span></code>) sur la galerie d’un tutoriel, aucun droit n’est accordé à ce membre quant au tutoriel.</p>
 </section>
 <section id="aspects-techniques">
-<h2>Aspects techniques<a class="headerlink" href="#aspects-techniques" title="Lien permanent vers ce titre"></a></h2>
+<h2>Aspects techniques<a class="headerlink" href="#aspects-techniques" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Chaque galerie (classe <code class="docutils literal notranslate"><span class="pre">Gallery</span></code>) est stockée en base de données avec son titre, son sous-titre et son <em>slug</em> (ainsi que la date de création et de dernière modification). Une galerie est associée à l’utilisateur via la classe <code class="docutils literal notranslate"><span class="pre">UserGallery</span></code>, qui reprend un lien vers l’utilisateur, la galerie, mais également les droits qu’il possède sur cette dernière, sous la forme d’une constante : <code class="docutils literal notranslate"><span class="pre">GALLERY_READ</span></code> pour le droit de lecture ou <code class="docutils literal notranslate"><span class="pre">GALLERY_WRITE</span></code> pour le droit d’écriture.</p>
 <p>Une image (classe <code class="docutils literal notranslate"><span class="pre">Image</span></code>) est renseignée en base de données avec son titre, sa légende, un lien vers la galerie qui la contient, son <em>slug</em> et un lien <em>physique</em> vers le fichier image (ainsi que la date de création et de dernière modification).</p>
 <p>Les images sont stockées dans le dossier renseigné par la variable <code class="docutils literal notranslate"><span class="pre">MEDIA_URL</span></code> (dans le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>), dans un sous-dossier dont le nom correspond au <code class="docutils literal notranslate"><span class="pre">pk</span></code> de la galerie. C’est la librairie <a class="reference external" href="https://github.com/SmileyChris/easy-thumbnails">easy_thumbnails</a> qui gère la génération des miniatures correspondantes aux images uploadées, à la demande du <em>back</em>.</p>
 </section>
 <section id="outils-logiciels-utilises">
-<h2>Outils logiciels utilisés<a class="headerlink" href="#outils-logiciels-utilises" title="Lien permanent vers ce titre"></a></h2>
+<h2>Outils logiciels utilisés<a class="headerlink" href="#outils-logiciels-utilises" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Afin d’assurer une compatibilité maximale de toutes les images des galeries et leur redimensionnement au besoin, le logiciel <code class="docutils literal notranslate"><span class="pre">Pillow</span></code> est utilisé.</p>
 </section>
 </section>

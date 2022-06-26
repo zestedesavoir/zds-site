@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -98,7 +99,7 @@
            <div itemprop="articleBody">
              
   <section id="installation-sous-macos">
-<h1>Installation sous macOS<a class="headerlink" href="#installation-sous-macos" title="Lien permanent vers ce titre"></a></h1>
+<h1>Installation sous macOS<a class="headerlink" href="#installation-sous-macos" title="Lien permanent vers cette rubrique"></a></h1>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
 <p>Cette partie de la documentation n’est probablement pas à jour faute de contributeur utilisant MacOS. Il se peut que l’installation et les tests unitaires fonctionnent correctement, partiellement ou pas du tout. Bref, en cas de problème n’hésitez pas à venir demander de l’aide sur le <a class="reference external" href="https://zestedesavoir.com/forums/communaute/dev-zone/">forum des Devs” de Zeste de Savoir</a> !</p>
@@ -106,7 +107,7 @@
 <p>Pour installer une version locale de ZdS sur macOS, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.</p>
 <section id="pre-requis">
-<h2>Pré-requis<a class="headerlink" href="#pre-requis" title="Lien permanent vers ce titre"></a></h2>
+<h2>Pré-requis<a class="headerlink" href="#pre-requis" title="Lien permanent vers cette rubrique"></a></h2>
 <ul class="simple">
 <li><p>Installer XCode :</p></li>
 </ul>
@@ -139,7 +140,7 @@ pip3 install virtualenv virtualenvwrapper
 <p>Une fois les pré-requis terminés, vous pouvez vous lancer dans l’installaton de l’environnement de zds.</p>
 </section>
 <section id="configuration-de-virtualenv">
-<h2>Configuration de virtualenv<a class="headerlink" href="#configuration-de-virtualenv" title="Lien permanent vers ce titre"></a></h2>
+<h2>Configuration de virtualenv<a class="headerlink" href="#configuration-de-virtualenv" title="Lien permanent vers cette rubrique"></a></h2>
 <p>(Si vous n’utilisez pas bash mais un autre shell, par exemple zsh, remplacez <code class="docutils literal notranslate"><span class="pre">~/.bash_profile</span></code> par le fichier rc de votre shell, par exemple <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code>.)</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir ~/.virtualenvs
 <span class="nb">echo</span> <span class="s2">&quot;export WORKON_HOME=</span><span class="nv">$HOME</span><span class="s2">/.virtualenvs&quot;</span> &gt;&gt; ~/.bash_profile
@@ -149,7 +150,7 @@ pip3 install virtualenv virtualenvwrapper
 </div>
 </section>
 <section id="usage-de-virtualenv">
-<h2>Usage de virtualenv<a class="headerlink" href="#usage-de-virtualenv" title="Lien permanent vers ce titre"></a></h2>
+<h2>Usage de virtualenv<a class="headerlink" href="#usage-de-virtualenv" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Création d’un virtualenv :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkvirtualenv -p python3 zdsenv
 </pre></div>
@@ -164,7 +165,7 @@ pip3 install virtualenv virtualenvwrapper
 </div>
 </section>
 <section id="installation-des-des-dependances-front-et-back">
-<h2>Installation des des dépendances front et back<a class="headerlink" href="#installation-des-des-dependances-front-et-back" title="Lien permanent vers ce titre"></a></h2>
+<h2>Installation des des dépendances front et back<a class="headerlink" href="#installation-des-des-dependances-front-et-back" title="Lien permanent vers cette rubrique"></a></h2>
 <p>On installe <a class="reference external" href="extra-install-frontend.html">les outils du front-end</a>, <a class="reference external" href="extra-zmd.html">zmarkdown</a> puis les packages python:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-front
 make build-front
@@ -174,7 +175,7 @@ make install-back
 </div>
 </section>
 <section id="lancer-zds">
-<h2>Lancer ZdS<a class="headerlink" href="#lancer-zds" title="Lien permanent vers ce titre"></a></h2>
+<h2>Lancer ZdS<a class="headerlink" href="#lancer-zds" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS.
 On crée d’abord la base de donnée, puis le <a class="reference external" href="../utils/fixture_loaders.html">jeu de données utile au développement</a>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make migrate-db
@@ -188,7 +189,7 @@ make run-back
 </div>
 </section>
 <section id="aller-plus-loin">
-<h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers ce titre"></a></h2>
+<h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Elasticsearch:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="extra-install-es.html">Installez Elasticsearch</a> ;</p></li>

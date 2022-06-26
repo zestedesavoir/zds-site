@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -98,15 +99,15 @@
            <div itemprop="articleBody">
              
   <section id="les-fichiers-de-manifeste">
-<h1>Les fichiers de manifeste<a class="headerlink" href="#les-fichiers-de-manifeste" title="Lien permanent vers ce titre"></a></h1>
+<h1>Les fichiers de manifeste<a class="headerlink" href="#les-fichiers-de-manifeste" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Chaque contenu publiable (tutoriel et article) est décrit par un fichier de manifeste écrit au format JSON.</p>
 <p>Ce fichier de manifeste a pour but d’exprimer, versionner et instancier les informations et méta-informations du contenu tout au long du workflow de publication.</p>
 <p>Les informations en question sont l’architecture, les titres, les liens vers les sources, les informations de license ainsi que la version du fichier de manifeste lui-même.</p>
 <p>Le fichier de manifeste est intrinsèquement lié à un interpréteur qui est inclus dans le module de contenu associé.</p>
 <section id="les-versions-du-manifeste">
-<h2>Les versions du manifeste<a class="headerlink" href="#les-versions-du-manifeste" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les versions du manifeste<a class="headerlink" href="#les-versions-du-manifeste" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="nomenclature">
-<h3>Nomenclature<a class="headerlink" href="#nomenclature" title="Lien permanent vers ce titre"></a></h3>
+<h3>Nomenclature<a class="headerlink" href="#nomenclature" title="Lien permanent vers cette rubrique"></a></h3>
 <p>La version du manifeste (et de son interpréteur) suit une nomenclature du type « semantic version » (SemVer), c’est-à-dire que la version est séparée en trois parties selon le format v X.Y.Z</p>
 <ul class="simple">
 <li><p>X : numéro de version majeur</p></li>
@@ -126,7 +127,7 @@ L’absence du champ version est interprétée comme <code class="docutils liter
 Les 0 non significatifs sont optionnels ainsi <code class="docutils literal notranslate"><span class="pre">{version:</span> <span class="pre">&quot;1&quot;}</span></code> est strictement équivalent à <code class="docutils literal notranslate"><span class="pre">{version:</span> <span class="pre">&quot;1.0&quot;}</span></code> lui-même strictement équivalent à <code class="docutils literal notranslate"><span class="pre">{version:</span> <span class="pre">&quot;1.0.0&quot;}</span></code>.</p>
 </section>
 <section id="version-2-1">
-<h3>Version 2.1<a class="headerlink" href="#version-2-1" title="Lien permanent vers ce titre"></a></h3>
+<h3>Version 2.1<a class="headerlink" href="#version-2-1" title="Lien permanent vers cette rubrique"></a></h3>
 <p>La version 2.1 est la version actuellement utilisée.
 Le manifest voit l’arrivée d’un nouvel élément non obligatoire <code class="docutils literal notranslate"><span class="pre">ready_to_publish</span></code> qui sera utilisé sur tous les éléments de type <code class="docutils literal notranslate"><span class="pre">Container</span></code>.
 Cet élément permet de marquer qu’une partie ou un chapitre est prêt à être publié. Lorsque la valeur est à <code class="docutils literal notranslate"><span class="pre">False</span></code>, la partie ou le chapitre
@@ -134,7 +135,7 @@ sont simplement ignorés du processus de publication.</p>
 <p>Lorsque l’attribut n’est pas renseigné, il est supposé <em>truthy</em>.</p>
 </section>
 <section id="version-2-0">
-<h3>Version 2.0<a class="headerlink" href="#version-2-0" title="Lien permanent vers ce titre"></a></h3>
+<h3>Version 2.0<a class="headerlink" href="#version-2-0" title="Lien permanent vers cette rubrique"></a></h3>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;object&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;container&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;slug&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;un-tutoriel&quot;</span><span class="p">,</span><span class="w"></span>
@@ -191,7 +192,7 @@ sont simplement ignorés du processus de publication.</p>
 </ol>
 </section>
 <section id="version-1-0">
-<h3>Version 1.0<a class="headerlink" href="#version-1-0" title="Lien permanent vers ce titre"></a></h3>
+<h3>Version 1.0<a class="headerlink" href="#version-1-0" title="Lien permanent vers cette rubrique"></a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>La version 1.0 est dépréciée, et il est conseillé d’employer la version 2.0. Il est ceci dit toujours possible
@@ -199,7 +200,7 @@ sont simplement ignorés du processus de publication.</p>
 </div>
 <p>La version 1.0 définit trois types de manifeste selon que nous faisons face à un article,  un mini tutoriel ou un big tutoriel.</p>
 <section id="mini-tuto">
-<h4>MINI TUTO<a class="headerlink" href="#mini-tuto" title="Lien permanent vers ce titre"></a></h4>
+<h4>MINI TUTO<a class="headerlink" href="#mini-tuto" title="Lien permanent vers cette rubrique"></a></h4>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Mon Tutoriel No10&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Description du Tutoriel No10&quot;</span><span class="p">,</span><span class="w"></span>
@@ -211,7 +212,7 @@ sont simplement ignorés du processus de publication.</p>
 </div>
 </section>
 <section id="big-tuto">
-<h4>BIG TUTO<a class="headerlink" href="#big-tuto" title="Lien permanent vers ce titre"></a></h4>
+<h4>BIG TUTO<a class="headerlink" href="#big-tuto" title="Lien permanent vers cette rubrique"></a></h4>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;title&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;3D temps réel avec Irrlicht&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="s2">&quot;description&quot;</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;3D temps réel avec Irrlicht&quot;</span><span class="p">,</span><span class="w"></span>
@@ -252,7 +253,7 @@ sont simplement ignorés du processus de publication.</p>
 </div>
 </section>
 <section id="article">
-<h4>Article<a class="headerlink" href="#article" title="Lien permanent vers ce titre"></a></h4>
+<h4>Article<a class="headerlink" href="#article" title="Lien permanent vers cette rubrique"></a></h4>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Mon Article No5&quot;</span><span class="p">,</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Description de l&#39;article No5&quot;</span><span class="p">,</span><span class="w"></span>

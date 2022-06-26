@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -119,9 +120,9 @@
            <div itemprop="articleBody">
              
   <section id="elements-specifiques-au-site">
-<h1>Eléments spécifiques au site<a class="headerlink" href="#elements-specifiques-au-site" title="Lien permanent vers ce titre"></a></h1>
+<h1>Eléments spécifiques au site<a class="headerlink" href="#elements-specifiques-au-site" title="Lien permanent vers cette rubrique"></a></h1>
 <section id="les-boites-modales">
-<h2>Les boîtes modales<a class="headerlink" href="#les-boites-modales" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les boîtes modales<a class="headerlink" href="#les-boites-modales" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Une boîte modale est une pseudo-fenêtre qui s’affiche au clique de certains boutons. Elle a pour but de faire confirmer un choix à l’utilisateur ou de permettre à celui-ci de remplir un formulaire.</p>
 <figure class="align-center" id="id1">
 <img alt="../_images/boite-modale_mp.png" src="../_images/boite-modale_mp.png" />
@@ -132,7 +133,7 @@
 <p>Une boîte modale est un élément HTML avec la classe CSS <code class="docutils literal notranslate"><span class="pre">modal</span></code>. Mais ce ne serait pas drôle s’il n’y avait pas des
 spécificités suivant les cas d’utilisation !</p>
 <section id="cas-courant-quand-c-est-un-formulaire">
-<h3>Cas courant : quand c’est un formulaire<a class="headerlink" href="#cas-courant-quand-c-est-un-formulaire" title="Lien permanent vers ce titre"></a></h3>
+<h3>Cas courant : quand c’est un formulaire<a class="headerlink" href="#cas-courant-quand-c-est-un-formulaire" title="Lien permanent vers cette rubrique"></a></h3>
 <p>On utilise souvent les boîtes modales avec un formulaire que ce soit pour confirmer une action (par exemple,
 une suppression) ou pour demander à l’utilisateur de remplir des champs de texte (par exemple, ajout de nouveaux
 participants à une discussion ou nouveaux auteurs à un tutoriel) !</p>
@@ -152,7 +153,7 @@ En effet, un bouton « Annuler » est automatiquement ajouté pour que l’uti
 boîte modale très simplement !</p>
 </section>
 <section id="cas-particulier-quand-ce-n-est-pas-un-formulaire">
-<h3>Cas particulier : quand ce n’est pas un formulaire<a class="headerlink" href="#cas-particulier-quand-ce-n-est-pas-un-formulaire" title="Lien permanent vers ce titre"></a></h3>
+<h3>Cas particulier : quand ce n’est pas un formulaire<a class="headerlink" href="#cas-particulier-quand-ce-n-est-pas-un-formulaire" title="Lien permanent vers cette rubrique"></a></h3>
 <p>On peut se dire qu’avec ce code tout va bien fonctionner :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">id</span><span class="o">=</span><span class="s">&quot;une-ancre&quot;</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;modal modal-flex&quot;</span><span class="p">&gt;</span>
     Une super boîte modale !
@@ -178,7 +179,7 @@ contenant la boîte un lien avec les classes <code class="docutils literal notra
 </div>
 </section>
 <section id="creer-le-lien">
-<h3>Créer le lien<a class="headerlink" href="#creer-le-lien" title="Lien permanent vers ce titre"></a></h3>
+<h3>Créer le lien<a class="headerlink" href="#creer-le-lien" title="Lien permanent vers cette rubrique"></a></h3>
 <p>La création du lien affichant la boîte modale est tout aussi simple : il suffit
 de mettre une ancre correspondant à l”<code class="docutils literal notranslate"><span class="pre">id</span></code> de la boîte modale ainsi que la
 classe <code class="docutils literal notranslate"><span class="pre">open-modal</span></code>. N’oubliez pas l’attribut <code class="docutils literal notranslate"><span class="pre">aria-haspopup=&quot;dialog&quot;</span></code> pour
@@ -194,7 +195,7 @@ l’accessibilité.</p>
 </div>
 </section>
 <section id="quand-le-texte-du-lien-n-est-pas-le-titre">
-<h3>Quand le texte du lien n’est pas le titre<a class="headerlink" href="#quand-le-texte-du-lien-n-est-pas-le-titre" title="Lien permanent vers ce titre"></a></h3>
+<h3>Quand le texte du lien n’est pas le titre<a class="headerlink" href="#quand-le-texte-du-lien-n-est-pas-le-titre" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si vous voulez un autre titre que le texte du lien pour votre modale, vous pouvez ajouter
 l’attribut <code class="docutils literal notranslate"><span class="pre">data-modal-title=&quot;Le</span> <span class="pre">titre</span> <span class="pre">de</span> <span class="pre">ma</span> <span class="pre">boîte&quot;</span></code> à la boîte modale. Le texte
 de l’attribut (ici <code class="docutils literal notranslate"><span class="pre">Le</span> <span class="pre">titre</span> <span class="pre">de</span> <span class="pre">ma</span> <span class="pre">boîte</span></code>) deviendra le titre de la boîte modale.</p>
@@ -205,11 +206,11 @@ de l’attribut (ici <code class="docutils literal notranslate"><span class="pre
 </div>
 </section>
 <section id="les-tailles-des-modales">
-<h3>Les tailles des modales<a class="headerlink" href="#les-tailles-des-modales" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les tailles des modales<a class="headerlink" href="#les-tailles-des-modales" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Par défaut, les modales vont prendre tout l’écran en largeur, mais en ajoutant une classe <code class="docutils literal notranslate"><span class="pre">modal-flex</span></code>, la modale va prendre la taille du contenu, avec comme taille minimum 400px. La modale va automatiquement s’adapter en hauteur et en largeur. Si une modale prend quand même toute la taille en largeur, c’est sûrement que le contenu de votre modale a une taille à 100% !</p>
 </section>
 <section id="api-javascript-pour-manipuler-les-modales">
-<h3>API Javascript pour manipuler les modales<a class="headerlink" href="#api-javascript-pour-manipuler-les-modales" title="Lien permanent vers ce titre"></a></h3>
+<h3>API Javascript pour manipuler les modales<a class="headerlink" href="#api-javascript-pour-manipuler-les-modales" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il est possible de créer des modales en Javascript. Exemple:</p>
 <div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">var</span><span class="w"> </span><span class="nx">m</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Modal</span><span class="p">({</span><span class="w"></span>
 <span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;Titre de la modale&quot;</span><span class="p">,</span><span class="w"></span>
@@ -229,7 +230,7 @@ de l’attribut (ici <code class="docutils literal notranslate"><span class="pre
 </section>
 </section>
 <section id="les-infobulles-css">
-<h2>Les infobulles CSS<a class="headerlink" href="#les-infobulles-css" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les infobulles CSS<a class="headerlink" href="#les-infobulles-css" title="Lien permanent vers cette rubrique"></a></h2>
 <p>À ne pas confondre avec <a class="reference external" href="helpers-js.html#tooltip">les infobulles en JavaScript</a>, les infobulles CSS ont la même apparence
 mais sont beaucoup plus légères et simples à utiliser. Par contre, elles ne peuvent contenir de contenu HTML riche, ni ne
 réagir au clic. Elles sont donc efficaces pour des infobulles purement informatives, mais qui sont suffisamment importantes
@@ -272,7 +273,7 @@ CSS <code class="docutils literal notranslate"><span class="pre">is-tooltip-acti
 </div>
 </section>
 <section id="les-menus-deroulants-ou-dropdown">
-<h2>Les menus déroulants (ou dropdown)<a class="headerlink" href="#les-menus-deroulants-ou-dropdown" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les menus déroulants (ou dropdown)<a class="headerlink" href="#les-menus-deroulants-ou-dropdown" title="Lien permanent vers cette rubrique"></a></h2>
 <p>À ne pas confondre avec <code class="docutils literal notranslate"><span class="pre">header-dropdown</span></code>, ces menus déroulants ne requièrent aucun JS pour fonctionner mais se reposent sur la balise <code class="docutils literal notranslate"><span class="pre">&lt;details&gt;</span></code>.</p>
 <p>Pour créer un menu déroulant, utilisez simplement la classe <code class="docutils literal notranslate"><span class="pre">dropdown</span></code> à l’élément <code class="docutils literal notranslate"><span class="pre">&lt;details&gt;</span></code>, en utilisant la balise <code class="docutils literal notranslate"><span class="pre">&lt;summary&gt;</span></code> pour fournir un texte alternatif au <code class="docutils literal notranslate"><span class="pre">…</span></code> affiché par défaut.</p>
 <p>La classe <code class="docutils literal notranslate"><span class="pre">.dropdown-content</span></code> permet de grouper le contenu pour le positionner.</p>
@@ -287,7 +288,7 @@ CSS <code class="docutils literal notranslate"><span class="pre">is-tooltip-acti
 <p>Note : Il y a par défaut un léger décalage vers la gauche via la variable <code class="docutils literal notranslate"><span class="pre">$dropdown-offset-right</span></code>.</p>
 </section>
 <section id="la-lecture-zen">
-<h2>La lecture zen<a class="headerlink" href="#la-lecture-zen" title="Lien permanent vers ce titre"></a></h2>
+<h2>La lecture zen<a class="headerlink" href="#la-lecture-zen" title="Lien permanent vers cette rubrique"></a></h2>
 <p>La lecture zen est un mode d’affichage des tutoriels et des articles permettant à l’utilisateur de se concentrer sur sa lecture.
 Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le contenu principal.</p>
 <figure class="align-center" id="id3">
@@ -309,7 +310,7 @@ Elle cache l’en-tête et la barre latérale de la page pour ne laisser que le 
 <p>Au clic du bouton, le Javascript se chargera de mettre ou d’enlever la classe <code class="docutils literal notranslate"><span class="pre">zen-mode</span></code> à <code class="docutils literal notranslate"><span class="pre">.content-container</span></code>.</p>
 </section>
 <section id="les-boites-representant-les-contenus-et-les-derniers-sujets">
-<h2>Les boîtes représentant les contenus et les derniers sujets<a class="headerlink" href="#les-boites-representant-les-contenus-et-les-derniers-sujets" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les boîtes représentant les contenus et les derniers sujets<a class="headerlink" href="#les-boites-representant-les-contenus-et-les-derniers-sujets" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Les contenus (articles et tutoriels) ainsi que les derniers sujets de la page d’accueil sont représentés dans des boîtes
 les résumant.</p>
 <figure class="align-center" id="id5">
@@ -319,9 +320,9 @@ les résumant.</p>
 </figcaption>
 </figure>
 <section id="importation-dans-un-gabarit">
-<h3>Importation dans un gabarit<a class="headerlink" href="#importation-dans-un-gabarit" title="Lien permanent vers ce titre"></a></h3>
+<h3>Importation dans un gabarit<a class="headerlink" href="#importation-dans-un-gabarit" title="Lien permanent vers cette rubrique"></a></h3>
 <section id="article">
-<h4>Article<a class="headerlink" href="#article" title="Lien permanent vers ce titre"></a></h4>
+<h4>Article<a class="headerlink" href="#article" title="Lien permanent vers cette rubrique"></a></h4>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;tutorialv2/includes/content_item_type_article.part.html&quot;</span> <span class="cp">%}</span>
 </pre></div>
 </div>
@@ -341,7 +342,7 @@ les résumant.</p>
 </div>
 </section>
 <section id="tutoriel">
-<h4>Tutoriel<a class="headerlink" href="#tutoriel" title="Lien permanent vers ce titre"></a></h4>
+<h4>Tutoriel<a class="headerlink" href="#tutoriel" title="Lien permanent vers cette rubrique"></a></h4>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;tutorialv2/includes/content_item_type_tutoriel.part.html&quot;</span> <span class="cp">%}</span>
 </pre></div>
 </div>
@@ -368,7 +369,7 @@ les résumant.</p>
 </figure>
 </section>
 <section id="sujet">
-<h4>Sujet<a class="headerlink" href="#sujet" title="Lien permanent vers ce titre"></a></h4>
+<h4>Sujet<a class="headerlink" href="#sujet" title="Lien permanent vers cette rubrique"></a></h4>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">include</span> <span class="s2">&quot;forum/includes/topic_item.part.html&quot;</span> <span class="cp">%}</span>
 </pre></div>
 </div>
@@ -376,7 +377,7 @@ les résumant.</p>
 </section>
 </section>
 <section id="faire-une-liste-de-contenus">
-<h3>Faire une liste de contenus<a class="headerlink" href="#faire-une-liste-de-contenus" title="Lien permanent vers ce titre"></a></h3>
+<h3>Faire une liste de contenus<a class="headerlink" href="#faire-une-liste-de-contenus" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si vous voulez faire une liste de tutoriels, il faut les regrouper dans une <code class="docutils literal notranslate"><span class="pre">&lt;div</span> <span class="pre">class=&quot;content-item-list&quot;&gt;&lt;/div&gt;</span></code>.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;content-item-list&quot;</span><span class="p">&gt;</span>
     <span class="cm">&lt;!-- Mes tutoriels --&gt;</span>
@@ -424,9 +425,9 @@ les résumant.</p>
 </section>
 </section>
 <section id="les-membres-et-listes-de-membres">
-<h2>Les membres et listes de membres<a class="headerlink" href="#les-membres-et-listes-de-membres" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les membres et listes de membres<a class="headerlink" href="#les-membres-et-listes-de-membres" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="afficher-un-membre">
-<h3>Afficher un membre<a class="headerlink" href="#afficher-un-membre" title="Lien permanent vers ce titre"></a></h3>
+<h3>Afficher un membre<a class="headerlink" href="#afficher-un-membre" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour afficher un membre, utilisez le gabari <code class="docutils literal notranslate"><span class="pre">misc/member_item.part.html</span></code>. Il dispose de plusieurs arguments :</p>
 <blockquote>
 <div><ul class="simple">
@@ -463,7 +464,7 @@ dernier (ce texte sera entre parenthèses, sauf si le mode “pleine largeur” 
 </figure>
 </section>
 <section id="afficher-une-liste-de-membres">
-<h3>Afficher une liste de membres<a class="headerlink" href="#afficher-une-liste-de-membres" title="Lien permanent vers ce titre"></a></h3>
+<h3>Afficher une liste de membres<a class="headerlink" href="#afficher-une-liste-de-membres" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il arrive souvent que l’on ait à afficher non un seul membre, mais une liste de membres (par exemple une liste
 d’auteurs, ou de contributeurs, ou n’importe quoi en fait).</p>
 <p>La manière la plus simple de le faire est d’englober les éléments <code class="docutils literal notranslate"><span class="pre">misc/member_item.part.html</span></code> précédents dans un bloc
@@ -527,7 +528,7 @@ pour ce cas d’usage (retirant les parenthèses autour du bloc info).</p>
 </section>
 </section>
 <section id="les-alertes-de-moderation">
-<h2>Les alertes de modération<a class="headerlink" href="#les-alertes-de-moderation" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les alertes de modération<a class="headerlink" href="#les-alertes-de-moderation" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Pour afficher une liste d’alertes de modération, utilisez le gabari <code class="docutils literal notranslate"><span class="pre">misc/alerts.part.html</span></code>. Il demande le paramètre
 <code class="docutils literal notranslate"><span class="pre">alerts</span></code>, qui doit être un itérable d”<code class="docutils literal notranslate"><span class="pre">Alert</span></code> à afficher, ainsi que l’un ou l’autre de ces paramètres pour préciser
 vers quoi le formulaire de résolution d’alerte doit être envoyé :</p>
@@ -553,7 +554,7 @@ a été ouverte automatiquement).</p></li>
 </figure>
 </section>
 <section id="ajouter-un-design-temporaire">
-<h2>Ajouter un design temporaire<a class="headerlink" href="#ajouter-un-design-temporaire" title="Lien permanent vers ce titre"></a></h2>
+<h2>Ajouter un design temporaire<a class="headerlink" href="#ajouter-un-design-temporaire" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Il y a dans le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> un tableau <code class="docutils literal notranslate"><span class="pre">ZDS_APP.visual_changes</span></code>. Ce tableau de chaînes de caractères est injecté sous forme de classes au body, avec comme prefixe <code class="docutils literal notranslate"><span class="pre">vc-</span></code> (si l’utilisateur n’as pas bloqué les designs temporaires dans ses paramètres).</p>
 <p>Il suffit donc, dans le style et dans les scripts si le <code class="docutils literal notranslate"><span class="pre">body</span></code> a la classe <code class="docutils literal notranslate"><span class="pre">vc-{...}</span></code> correspondante au changement visuel.</p>
 <div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.element</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
@@ -570,7 +571,7 @@ a été ouverte automatiquement).</p></li>
 </pre></div>
 </div>
 <section id="changements-visuels-disponibles">
-<h3>Changements visuels disponibles<a class="headerlink" href="#changements-visuels-disponibles" title="Lien permanent vers ce titre"></a></h3>
+<h3>Changements visuels disponibles<a class="headerlink" href="#changements-visuels-disponibles" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Les changements visuels disponibles sont:</p>
 <blockquote>
 <div><ul class="simple">

@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -102,12 +103,12 @@
            <div itemprop="articleBody">
              
   <section id="installer-zeste-de-savoir-sur-linux">
-<h1>Installer Zeste de Savoir sur Linux<a class="headerlink" href="#installer-zeste-de-savoir-sur-linux" title="Lien permanent vers ce titre"></a></h1>
+<h1>Installer Zeste de Savoir sur Linux<a class="headerlink" href="#installer-zeste-de-savoir-sur-linux" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Vous voulez installer Zeste de Savoir sur votre distribution GNU/Linux ? Vous êtes au bon endroit !</p>
 <section id="preparation">
-<h2>Préparation<a class="headerlink" href="#preparation" title="Lien permanent vers ce titre"></a></h2>
+<h2>Préparation<a class="headerlink" href="#preparation" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="preparation-pour-contribuer-au-projet">
-<h3>Préparation pour contribuer au projet<a class="headerlink" href="#preparation-pour-contribuer-au-projet" title="Lien permanent vers ce titre"></a></h3>
+<h3>Préparation pour contribuer au projet<a class="headerlink" href="#preparation-pour-contribuer-au-projet" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Toutes les contributions au projet prennent place sur le site web Github, un espace de travail très connu des projets <em>open-source</em>. La première étape est donc de <a class="reference external" href="https://github.com/join">se créer un compte Github</a> pour contribuer au projet !</p>
 <p>La deuxième étape est de créer <a class="reference external" href="https://help.github.com/en/github/getting-started-with-github/fork-a-repo">un fork</a>, votre copie personnelle du projet. Pour ce faire, une fois connecté à votre compte Github, rendez-vous sur <a class="reference external" href="https://github.com/zestedesavoir/zds-site">la page du dépôt zds-site</a> et cliquez sur le bouton <em>Fork</em> en haut à droite. Cette opération peut prendre quelques minutes, c’est tout à fait normal.</p>
 <p>La troisème étape consiste à installer le gestionnaire de version Git, un outil qui nous permet de travailler à plusieurs sur le projet sans se marcher dessus ! Ce logiciel est très probablement disponible dans le gestionnaire de paquet de votre distribution. Si ce n’est pas le cas, je vous invite à lire <a class="reference external" href="https://git-scm.com/downloads">la page d’installation de Git</a>.</p>
@@ -122,7 +123,7 @@ git fetch upstream
 <p>Voilà, vous avez maintenant une copie locale du projet, liée à votre copie personnelle (<em>origin</em>) et la copie officielle (<em>upstream</em>) sur Github !</p>
 </section>
 <section id="preparation-pour-simplement-tester-le-projet">
-<h3>Préparation pour simplement tester le projet<a class="headerlink" href="#preparation-pour-simplement-tester-le-projet" title="Lien permanent vers ce titre"></a></h3>
+<h3>Préparation pour simplement tester le projet<a class="headerlink" href="#preparation-pour-simplement-tester-le-projet" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si vous ne souhaitez pas contribuer au projet mais simplement le tester, vous n’avez pas besoin de Git ! Il vous suffit de télécharger l’archive contenant le code source et extraire les fichiers :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://github.com/zestedesavoir/zds-site/archive/dev.zip
 unzip dev.zip
@@ -131,7 +132,7 @@ unzip dev.zip
 </div>
 </section>
 <section id="installation-de-l-utilitaire-make">
-<h3>Installation de l’utilitaire Make<a class="headerlink" href="#installation-de-l-utilitaire-make" title="Lien permanent vers ce titre"></a></h3>
+<h3>Installation de l’utilitaire Make<a class="headerlink" href="#installation-de-l-utilitaire-make" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Nous utilisons l’utilitaire Make pour avoir des commandes simples à retenir. Celui-ci est très probablement déjà installé sur votre distribution, ce que vous pouvez vérifier tout simplement avec :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
 </pre></div>
@@ -140,9 +141,9 @@ unzip dev.zip
 </section>
 </section>
 <section id="installation">
-<h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers ce titre"></a></h2>
+<h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="installation-de-base">
-<h3>Installation de base<a class="headerlink" href="#installation-de-base" title="Lien permanent vers ce titre"></a></h3>
+<h3>Installation de base<a class="headerlink" href="#installation-de-base" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si notre projet est assez complexe et a besoin de beaucoup d’outils différents pour fonctionner, ce n’est pas pour autant qu’il est difficile de l’installer ! Une seule commande suffit :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-linux
 </pre></div>
@@ -153,7 +154,7 @@ unzip dev.zip
 <p><strong>Si vous rencontrez un soucis, n’hésitez pas à nous contacter !</strong></p>
 </section>
 <section id="installation-complete">
-<h3>Installation complète<a class="headerlink" href="#installation-complete" title="Lien permanent vers ce titre"></a></h3>
+<h3>Installation complète<a class="headerlink" href="#installation-complete" title="Lien permanent vers cette rubrique"></a></h3>
 <p>L’installation de base suffit grandement pour lancer le site web et découvrir le projet, mais elle est incomplète. Deux outils manquent à l’appel :</p>
 <ul class="simple">
 <li><p>LaTeX, nécessaire pour la génération des PDFs des contenus ;</p></li>
@@ -165,12 +166,12 @@ unzip dev.zip
 </div>
 </section>
 <section id="en-savoir-plus-sur-l-installation">
-<h3>En savoir plus sur l’installation<a class="headerlink" href="#en-savoir-plus-sur-l-installation" title="Lien permanent vers ce titre"></a></h3>
+<h3>En savoir plus sur l’installation<a class="headerlink" href="#en-savoir-plus-sur-l-installation" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si le fonctionnement du script d’installation vous intéresse, je vous invite à lire <a class="reference external" href="../install/install-linux.html">cette page détaillée</a>.</p>
 </section>
 </section>
 <section id="aller-plus-loin">
-<h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers ce titre"></a></h2>
+<h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Vous avez réussi à installer Zeste de Savoir ? Il est maintenant temps de <a class="reference external" href="run-linux.html">le lancer</a> !</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

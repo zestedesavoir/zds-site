@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/translations.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -104,15 +105,15 @@
            <div itemprop="articleBody">
              
   <section id="api">
-<h1>API<a class="headerlink" href="#api" title="Lien permanent vers ce titre"></a></h1>
+<h1>API<a class="headerlink" href="#api" title="Lien permanent vers cette rubrique"></a></h1>
 <section id="informations-generales">
-<h2>Informations générales<a class="headerlink" href="#informations-generales" title="Lien permanent vers ce titre"></a></h2>
+<h2>Informations générales<a class="headerlink" href="#informations-generales" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="version-courante">
-<h3>Version courante<a class="headerlink" href="#version-courante" title="Lien permanent vers ce titre"></a></h3>
+<h3>Version courante<a class="headerlink" href="#version-courante" title="Lien permanent vers cette rubrique"></a></h3>
 <p>L’API est toujours en développement et n’est pas encore versionnée. Même si elle le deviendra une fois son développement stabilisé, elle doit être vue comme une bêta avec les changements que cela peut impliquer dans ses paramètres et ses réponses.</p>
 </section>
 <section id="schema">
-<h3>Schéma<a class="headerlink" href="#schema" title="Lien permanent vers ce titre"></a></h3>
+<h3>Schéma<a class="headerlink" href="#schema" title="Lien permanent vers cette rubrique"></a></h3>
 <p>L’API est accessible à partir du domaine <code class="docutils literal notranslate"><span class="pre">zestedesavoir.com/api/</span></code> (prochainement <code class="docutils literal notranslate"><span class="pre">api.zestedesavoir.com</span></code>) et en HTTP ou en HTTPS. Dès lors que vous effectuez des requêtes authentifiées le HTTPS devient obligatoire. De base, toutes les réponses sont renvoyées en JSON.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -i https://zestedesavoir.com/api/membres/
 
@@ -139,7 +140,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p>Tous les timestamp sont retournés au le format ISO 8601 : <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DDTHH:MM:SSZ</span></code>.</p>
 </section>
 <section id="les-verbes-http">
-<h3>Les verbes HTTP<a class="headerlink" href="#les-verbes-http" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les verbes HTTP<a class="headerlink" href="#les-verbes-http" title="Lien permanent vers cette rubrique"></a></h3>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">GET</span></code> : Utilisés pour récupérer des ressources.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">POST</span></code> : Utilisés pour créer des ressources.</p></li>
@@ -149,7 +150,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p>Les autres verbes ne sont pas supportés.</p>
 </section>
 <section id="les-formats-d-entrees-sorties">
-<h3>Les formats d’entrées/sorties<a class="headerlink" href="#les-formats-d-entrees-sorties" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les formats d’entrées/sorties<a class="headerlink" href="#les-formats-d-entrees-sorties" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Par défaut, le serveur renvoie les réponses au format <code class="docutils literal notranslate"><span class="pre">JSON</span></code> mais il gère aussi le <code class="docutils literal notranslate"><span class="pre">XML</span></code>. Pour demander au serveur de renvoyer les réponses en <code class="docutils literal notranslate"><span class="pre">XML</span></code>, il faut utiliser l’en-tête <code class="docutils literal notranslate"><span class="pre">Accept</span></code> en spécifiant <code class="docutils literal notranslate"><span class="pre">application/xml</span></code> comme valeur (<code class="docutils literal notranslate"><span class="pre">application/json</span></code> pour recevoir du <code class="docutils literal notranslate"><span class="pre">JSON</span></code>).</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -H <span class="s2">&quot;Accept: application/xml&quot;</span> https://zestedesavoir.com/api/membres/
 </pre></div>
@@ -181,7 +182,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 </div>
 </section>
 <section id="cache">
-<h3>Cache<a class="headerlink" href="#cache" title="Lien permanent vers ce titre"></a></h3>
+<h3>Cache<a class="headerlink" href="#cache" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Un cache spécifique à l’API est mis en place pour mettre en cache toutes les méthodes <code class="docutils literal notranslate"><span class="pre">GET</span></code>. Le système n’est pas spécifique à Django Rest Framework mais est disponible via une librairie tierce qui a été développée spécialement pour fonctionner avec DRF, <a class="reference external" href="http://chibisov.github.io/drf-extensions/docs/">DRF-Extensions (en)</a>.</p>
 <p>Pour placer un cache, il suffit d’annoter la méthode <code class="docutils literal notranslate"><span class="pre">GET</span></code> voulue avec l’annotation <code class="docutils literal notranslate"><span class="pre">&#64;cache_response()</span></code> (comme le mentionne la <a class="reference external" href="http://chibisov.github.io/drf-extensions/docs/#caching">documentation à ce sujet (en)</a>
 ). Par exemple, la méthode <code class="docutils literal notranslate"><span class="pre">GET</span></code> pour récupérer la liste paginée des membres ressemblerait au code ci-dessous.</p>
@@ -198,7 +199,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p>Pour enrichir la clé d’un cache, DRF-Extensions propose les <code class="docutils literal notranslate"><span class="pre">KeyConstructor</span></code>. Toutes les informations et les possibilités à ce sujet sont disponibles dans la <a class="reference external" href="http://chibisov.github.io/drf-extensions/docs/#key-constructor">documentation de cette librairie (en)</a>.</p>
 </section>
 <section id="etag">
-<h3>ETag<a class="headerlink" href="#etag" title="Lien permanent vers ce titre"></a></h3>
+<h3>ETag<a class="headerlink" href="#etag" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Un ETag est un identifiant unique assigné par le serveur à chaque version d’une ressource accessible via une URL. Si la ressource accessible via cette URL change, un nouvel ETag sera assigné. Lorsque le client utilise cet en-tête, cela permet d’alléger le serveur : il suffit au serveur de comparer l’ETag de la ressource et celui fourni par le client pour décider si une requête en base de données est nécessaire.</p>
 <p>Le calcul de l’ETag n’est pas natif à Django Rest Framework mais est accessible via la <a class="reference external" href="http://chibisov.github.io/drf-extensions/docs/#conditional-requests">bibliothèque DRF-Extensions (en)</a>. Le calcul est ajouté sur toutes les méthodes <code class="docutils literal notranslate"><span class="pre">GET</span></code> et <code class="docutils literal notranslate"><span class="pre">PUT</span></code>. Il est inutile de calculer des ETags pour des requêtes <code class="docutils literal notranslate"><span class="pre">POST</span></code> et <code class="docutils literal notranslate"><span class="pre">DELETE</span></code> puisque ces deux méthodes ont pour objectif de créer et supprimer des ressources.</p>
 <p>Pour placer un ETag, il suffit d’annoter la méthode voulue avec l’annotation <code class="docutils literal notranslate"><span class="pre">&#64;etag()</span></code>. Par exemple, la méthode <code class="docutils literal notranslate"><span class="pre">GET</span></code> pour récupérer la liste paginée des membres ressemblerait au code ci-dessous.</p>
@@ -221,7 +222,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p>Si le serveur constate qu’il n’y a aucun changement dans la ressource, il renverra une réponse <code class="docutils literal notranslate"><span class="pre">304</span> <span class="pre">Not</span> <span class="pre">Modified</span></code> avec un corps vide. Il n’est alors pas nécessaire de mettre à jour les valeurs sauvegardées en locale pour les ressources désirées. Dans le cas contraire, les ressources demandées seront renvoyées avec un nouvel ETag à sauvegarder.</p>
 </section>
 <section id="throttling">
-<h3>Throttling<a class="headerlink" href="#throttling" title="Lien permanent vers ce titre"></a></h3>
+<h3>Throttling<a class="headerlink" href="#throttling" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le <cite>throttling</cite> permet d’imposer des limites au nombre de requêtes possibles pour un utilisateur anonyme et connecté. Cette fonctionnalité est native à Django Rest Framework et se met en place facilement via le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> du projet sous l’attribut <code class="docutils literal notranslate"><span class="pre">DEFAULT_THROTTLE_CLASSES</span></code> du dictionnaire <code class="docutils literal notranslate"><span class="pre">REST_FRAMEWORK</span></code> pour spécifier les types de throttling à appliquer et sous <code class="docutils literal notranslate"><span class="pre">DEFAULT_THROTTLE_RATES</span></code> pour spécifier les taux.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s1">&#39;DEFAULT_THROTTLE_CLASSES&#39;</span><span class="p">:</span> <span class="p">(</span>
@@ -238,7 +239,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p>Il existe d’autres configurations possibles. Pour en prendre conscience, rendez-vous dans la <a class="reference external" href="http://www.django-rest-framework.org/api-guide/throttling/">documentation du throttling (en)</a>.</p>
 </section>
 <section id="pagination">
-<h3>Pagination<a class="headerlink" href="#pagination" title="Lien permanent vers ce titre"></a></h3>
+<h3>Pagination<a class="headerlink" href="#pagination" title="Lien permanent vers cette rubrique"></a></h3>
 <p>La pagination permet d’éviter au serveur de faire des requêtes trop lourdes sur la base de données. Par exemple, si un client désire récupérer la liste de tous les utilisateurs de la plateforme et que cette même plateforme dispose d’un très grand nombre d’utilisateurs, la requête en base de données pourrait être lourde. Coupler à ceci des intentions malveillantes pour faire tomber le serveur, paginer les listes de ressources est presque une mesure de sécurité.</p>
 <p>La pagination peut être configurée directement dans les vues de l’API mais aussi dans le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> pour s’appliquer à l’ensemble des listes des ressources de l’API. Dans le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>, <code class="docutils literal notranslate"><span class="pre">PAGINATE_BY</span></code> renseigne la taille d’une page, <code class="docutils literal notranslate"><span class="pre">PAGINATE_BY_PARAM</span></code> permet aux clients de modifier la taille d’une page et <code class="docutils literal notranslate"><span class="pre">MAX_PAGINATE_BY</span></code> permet d’imposer une taille maximale.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">REST_FRAMEWORK</span> <span class="o">=</span> <span class="p">{</span>
@@ -278,17 +279,17 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 </section>
 </section>
 <section id="authentification">
-<h2>Authentification<a class="headerlink" href="#authentification" title="Lien permanent vers ce titre"></a></h2>
+<h2>Authentification<a class="headerlink" href="#authentification" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="bibliotheque-tierce-choisie">
-<h3>Bibliothèque tierce choisie<a class="headerlink" href="#bibliotheque-tierce-choisie" title="Lien permanent vers ce titre"></a></h3>
+<h3>Bibliothèque tierce choisie<a class="headerlink" href="#bibliotheque-tierce-choisie" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Django Rest Framework supporte plusieurs systèmes d’authentification (comme en témoigne la <a class="reference external" href="http://www.django-rest-framework.org/api-guide/authentication/">documentation sur l’authentification (en)</a>). Sur Zeste de Savoir, il a été décidé d’utiliser OAuth2 (dont la spécification du protocole est disponible via <a class="reference external" href="http://tools.ietf.org/html/rfc6749">ce lien (en)</a>) pour tenter d’avoir le système le plus sécurisé possible.</p>
 <p>L’authentification n’est pas directement dans Django Rest Framework, il ne fait que supporter des librairies tierces qui s’en occupent. La librairie choisie est <a class="reference external" href="https://django-oauth-toolkit.readthedocs.org/en/0.7.0/">Django OAuth Toolkit</a> pour sa forte compatibilité avec Django Rest Framework, sa maintenance et sa compatibilité Python 3 et Django 1.7 (ou plus).</p>
 <p>Toute sa configuration est détaillée dans la <a class="reference external" href="https://django-oauth-toolkit.readthedocs.org/en/0.7.0/rest-framework/getting_started.html">documentation de cette bibliothèque</a>.</p>
 </section>
 <section id="utilisation">
-<h3>Utilisation<a class="headerlink" href="#utilisation" title="Lien permanent vers ce titre"></a></h3>
+<h3>Utilisation<a class="headerlink" href="#utilisation" title="Lien permanent vers cette rubrique"></a></h3>
 <section id="creer-un-client">
-<h4>Créer un client<a class="headerlink" href="#creer-un-client" title="Lien permanent vers ce titre"></a></h4>
+<h4>Créer un client<a class="headerlink" href="#creer-un-client" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Des requêtes authentifiées ne peuvent se faire sans un client. Ce client est appelé « Application » dans Django OAuth Toolkit. C’est pourquoi il sera nommé ainsi dans la suite de cette documentation. Pour créer une application, il faut en demander la création auprès des administrateurs de la plateforme. Ils seront en mesure d’en créer 2 types : confidentielle et publique. Une application confidentielle permet l’utilisation d’un <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> au contraire d’une application publique qui se contente d’envoyer un <code class="docutils literal notranslate"><span class="pre">access_token</span></code>.</p>
 <p>Dans l’interface d’administration de Django, se rendre dans la section « OAuth2_provider » puis créer une application. Un identifiant et une clé secrète cliente seront automatiquement générés et seront les informations à communiquer auprès des développeurs tiers. Il est ensuite nécessaire de renseigner au minimum la personne concernée par la demande, le type du client et le <cite>grant type</cite>.</p>
 <ul class="simple">
@@ -306,7 +307,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 </div>
 </section>
 <section id="recuperer-les-tokens-d-authentification">
-<h4>Récupérer les tokens d’authentification<a class="headerlink" href="#recuperer-les-tokens-d-authentification" title="Lien permanent vers ce titre"></a></h4>
+<h4>Récupérer les tokens d’authentification<a class="headerlink" href="#recuperer-les-tokens-d-authentification" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Pour récupérer les tokens, les développeurs doivent exécuter une requête en <code class="docutils literal notranslate"><span class="pre">POST</span></code> et en spécifiant l’identifiant et la clé secrète de l’application, le <cite>grant type</cite> spécifié dans l’application et le pseudo/mot de passe du compte utilisateur qui souhaite s’authentifier. Une requête basique ressemblerait à la commande ci-dessous. Toute fois, sachez que les caractères spéciaux doivent être échappés dans une commande <code class="docutils literal notranslate"><span class="pre">curl</span></code> comme celle exposé dans cette documentation. On ne peut que vous conseiller d’exécuter cette même requête plutôt dans une console REST comme il en existe des centaines.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -d <span class="s1">&#39;{</span>
 <span class="s1">        &quot;username&quot;: &quot;YOUR_USERNAME&quot;,</span>
@@ -337,7 +338,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p><strong>Note :</strong> S’il existe déjà un token actif pour l’utilisateur final, l’ancien token sera invalidé au profit du nouveau.</p>
 </section>
 <section id="utiliser-un-access-token">
-<h4>Utiliser un access_token<a class="headerlink" href="#utiliser-un-access-token" title="Lien permanent vers ce titre"></a></h4>
+<h4>Utiliser un access_token<a class="headerlink" href="#utiliser-un-access-token" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Pour utiliser l”<code class="docutils literal notranslate"><span class="pre">access_token</span></code>, il faut le renseigner dans l’en-tête de la requête sous l’attribut <code class="docutils literal notranslate"><span class="pre">Authorization</span></code> avec comme valeur <code class="docutils literal notranslate"><span class="pre">Bearer</span> <span class="pre">wERPXXHpYAsJV29eATLjSO2u5bamyw</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -H <span class="s2">&quot;Authorization: Bearer wERPXXHpYAsJV29eATLjSO2u5bamyw&quot;</span> https://zestedesavoir.com/api/membres/1/
 </pre></div>
@@ -345,7 +346,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p><strong>Attention :</strong> La requête doit se faire en HTTPS obligatoirement.</p>
 </section>
 <section id="utiliser-un-refresh-token">
-<h4>Utiliser un refresh_token<a class="headerlink" href="#utiliser-un-refresh-token" title="Lien permanent vers ce titre"></a></h4>
+<h4>Utiliser un refresh_token<a class="headerlink" href="#utiliser-un-refresh-token" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Si le token n’est plus valide ou que vous avez perdu l”<code class="docutils literal notranslate"><span class="pre">access_token</span></code> de l’utilisateur final, il faut en récupérer un nouveau grâce au <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>. Son utilisation est similaire à l’authentification sauf qu’il n’est pas nécessaire de renseigner le pseudo et le mot de passe mais le <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> à la place et de spécifier un <code class="docutils literal notranslate"><span class="pre">grant_type</span></code> avec comme valeur <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -d <span class="s1">&#39;{</span>
 <span class="s1">        &quot;grant_type&quot;: &quot;refresh_token&quot;,</span>
@@ -360,7 +361,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 </section>
 </section>
 <section id="documentation-utilisation">
-<h2>Documentation (utilisation)<a class="headerlink" href="#documentation-utilisation" title="Lien permanent vers ce titre"></a></h2>
+<h2>Documentation (utilisation)<a class="headerlink" href="#documentation-utilisation" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Django REST Swagger est une bibliothèque qui génère automatiquement la documentation d’une API Django basée sur la bibliothèque Django REST framework.</p>
 <p>Cette documentation est accessible par l’url <code class="docutils literal notranslate"><span class="pre">http://zestedesavoir.com/api/</span></code> et, via cette page, il est possible de :</p>
 <ul class="simple">

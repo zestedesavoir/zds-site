@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -95,10 +96,10 @@
            <div itemprop="articleBody">
              
   <section id="helpers-javascript">
-<h1>Helpers Javascript<a class="headerlink" href="#helpers-javascript" title="Lien permanent vers ce titre"></a></h1>
+<h1>Helpers Javascript<a class="headerlink" href="#helpers-javascript" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Quelques fonctions sont accessibles via jQuery pour manipuler les éléments du site.</p>
 <section id="tooltip">
-<h2>$().tooltip()<a class="headerlink" href="#tooltip" title="Lien permanent vers ce titre"></a></h2>
+<h2>$().tooltip()<a class="headerlink" href="#tooltip" title="Lien permanent vers cette rubrique"></a></h2>
 <p>La fonction <code class="docutils literal notranslate"><span class="pre">$(element).tooltip(contenu)</span></code> va ajouter une tooltip au survol de <code class="docutils literal notranslate"><span class="pre">element</span></code> avec comme contenu <code class="docutils literal notranslate"><span class="pre">contenu</span></code>. Si la tooltip existe déjà sur l’élément, la fonction va juste modifier le contenu.</p>
 <figure class="align-center" id="id1">
 <img alt="../_images/tooltip.png" src="../_images/tooltip.png" />
@@ -115,13 +116,13 @@ autre sur ces dernières, <a class="reference external" href="elements-specifiqu
 </div>
 </section>
 <section id="message-karma">
-<h2>$(message).karma()<a class="headerlink" href="#message-karma" title="Lien permanent vers ce titre"></a></h2>
+<h2>$(message).karma()<a class="headerlink" href="#message-karma" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Cette fonction retourne un objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> qui permet de manipuler et mettre à jour les votes d’un message.</p>
 <p><code class="docutils literal notranslate"><span class="pre">$(&quot;#p42&quot;).karma().vote(&quot;like&quot;)</span></code> permet par exemple d’ajouter (ou de l’enlever si l’utilisateur a déjà voté) un +1 sur le post n°42 sur la page.</p>
 <p>L’API complète de l’objet <code class="docutils literal notranslate"><span class="pre">Karma</span></code> est documentée dans le fichier <code class="docutils literal notranslate"><span class="pre">assets/js/karma.js</span></code>.</p>
 </section>
 <section id="window-ajax">
-<h2><code class="docutils literal notranslate"><span class="pre">window.ajax</span></code><a class="headerlink" href="#window-ajax" title="Lien permanent vers ce titre"></a></h2>
+<h2><code class="docutils literal notranslate"><span class="pre">window.ajax</span></code><a class="headerlink" href="#window-ajax" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Afin de faciliter la migration du code JS du site pour ne plus utiliser JQuery,
 nous avons créé un helper ajax qui vous permettra de manipuler rapidement les
 requêtes vers les fonctionnalités du site qui prennent un formulaire ou du json en entrée

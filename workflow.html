@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/translations.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -99,11 +100,11 @@
            <div itemprop="articleBody">
              
   <section id="workflow-et-details-pratiques">
-<h1><em>Workflow</em> et détails pratiques<a class="headerlink" href="#workflow-et-details-pratiques" title="Lien permanent vers ce titre"></a></h1>
+<h1><em>Workflow</em> et détails pratiques<a class="headerlink" href="#workflow-et-details-pratiques" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Cette page détaille le <em>workflow</em> utilisé lors du développement de Zeste de Savoir. La <a class="reference external" href="./contributing.html">page de contribution</a> devrait répondre à vos questions quant au processus de développement. Ici seront aussi décrit quelques détails sur la gestion des tickets sur GitHub (<em>tagging</em> et priorité).</p>
 <p>Ce <em>workflow</em> est très fortement basé sur le <a class="reference external" href="http://nvie.com/posts/a-successful-git-branching-model/">Git flow</a>.</p>
 <section id="workflow-general">
-<h2><em>Workflow</em> général<a class="headerlink" href="#workflow-general" title="Lien permanent vers ce titre"></a></h2>
+<h2><em>Workflow</em> général<a class="headerlink" href="#workflow-general" title="Lien permanent vers cette rubrique"></a></h2>
 <p>L’idée générale est très simple :</p>
 <ul class="simple">
 <li><p>Le développement se fait sur la branche <code class="docutils literal notranslate"><span class="pre">dev</span></code>;</p></li>
@@ -114,9 +115,9 @@
 <p>La pré-production (ou bêta) est disponible sur <a class="reference external" href="https://beta.zestedesavoir.com">beta.zestedesavoir.com</a>.</p>
 </section>
 <section id="workflow-de-developpement">
-<h2><em>Workflow</em> de développement<a class="headerlink" href="#workflow-de-developpement" title="Lien permanent vers ce titre"></a></h2>
+<h2><em>Workflow</em> de développement<a class="headerlink" href="#workflow-de-developpement" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="description">
-<h3>Description<a class="headerlink" href="#description" title="Lien permanent vers ce titre"></a></h3>
+<h3>Description<a class="headerlink" href="#description" title="Lien permanent vers cette rubrique"></a></h3>
 <ol class="arabic simple">
 <li><p>Les fonctionnalités et corrections de bugs se font via des <em>Pull Requests</em> (PR) depuis des <em>forks</em> via <a class="reference external" href="https://github.com/zestedesavoir/zds-site">GitHub</a>.</p></li>
 <li><p>Ces PR sont unitaires. Aucune PR qui corrige plusieurs problèmes ou apporte plusieurs fonctionnalité ne sera acceptée; la règle est : une PR = une fonctionnalité ou une correction.</p></li>
@@ -126,7 +127,7 @@
 </ol>
 </section>
 <section id="quelques-precisions">
-<h3>Quelques précisions<a class="headerlink" href="#quelques-precisions" title="Lien permanent vers ce titre"></a></h3>
+<h3>Quelques précisions<a class="headerlink" href="#quelques-precisions" title="Lien permanent vers cette rubrique"></a></h3>
 <p><strong>Où peut-on trouver les détails pratiques ?</strong></p>
 <p>Tous ces détails sont <a class="reference external" href="./contributing.html">dans la page de contribution</a>. On y trouve entre autres les recommendations en terme de PR ou de messages de commits.</p>
 <p><strong>Qu’est-ce qu’une « QA légère »</strong> ?</p>
@@ -139,7 +140,7 @@
 </section>
 </section>
 <section id="milestones">
-<h2>Milestones<a class="headerlink" href="#milestones" title="Lien permanent vers ce titre"></a></h2>
+<h2>Milestones<a class="headerlink" href="#milestones" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Les releases de zeste de savoir soit basées sur les priorités de la communauté et sont organisées ainsi :</p>
 <ul class="simple">
 <li><p>vMAJEUR : la communauté est appelée à voter pour deux fonctionnalités majeures, ce n’est que lorsque ces deux fonctionnalités seront implémentées que le numéro de MAJEUR changera</p></li>
@@ -149,7 +150,7 @@ Les tickets prioritaires sont rassemblés dans les <cite>« projets » GitHub 
 </ul>
 </section>
 <section id="strategie-de-tagging-des-tickets">
-<h2>Stratégie de <em>tagging</em> des tickets<a class="headerlink" href="#strategie-de-tagging-des-tickets" title="Lien permanent vers ce titre"></a></h2>
+<h2>Stratégie de <em>tagging</em> des tickets<a class="headerlink" href="#strategie-de-tagging-des-tickets" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Les étiquettes (ou <em>labels</em> ou <em>tags</em>) utilisées pour classifier les tickets sont réparties dans des catégories :</p>
 <ul class="simple">
 <li><p>Quelles sont les <strong>Compétences</strong> requises ?</p>
@@ -188,10 +189,10 @@ Les tickets prioritaires sont rassemblés dans les <cite>« projets » GitHub 
 </ul>
 </section>
 <section id="workflow-de-mise-en-production">
-<h2><em>Workflow</em> de mise en production<a class="headerlink" href="#workflow-de-mise-en-production" title="Lien permanent vers ce titre"></a></h2>
+<h2><em>Workflow</em> de mise en production<a class="headerlink" href="#workflow-de-mise-en-production" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Cette partie est là surtout pour satisfaire votre curiosité, à moins d’avoir les droits de faire une Mise En Production (MEP).</p>
 <section id="id1">
-<h3>Description<a class="headerlink" href="#id1" title="Lien permanent vers ce titre"></a></h3>
+<h3>Description<a class="headerlink" href="#id1" title="Lien permanent vers cette rubrique"></a></h3>
 <ol class="arabic simple">
 <li><p>Quand on a assez de nouveautés dans <code class="docutils literal notranslate"><span class="pre">dev</span></code> (mais pas trop), on décide de faire une <em>release</em>. L’idée est de pouvoir vérifier et corriger les problèmes de cette <em>release</em> rapidement, en moins de 2 semaines entre le lancement de la release et sa MEP.</p>
 <ol class="arabic simple">
@@ -213,12 +214,12 @@ Les tickets prioritaires sont rassemblés dans les <cite>« projets » GitHub 
 </section>
 </section>
 <section id="roles-et-responsabilites">
-<h2>Rôles et Responsabilités<a class="headerlink" href="#roles-et-responsabilites" title="Lien permanent vers ce titre"></a></h2>
+<h2>Rôles et Responsabilités<a class="headerlink" href="#roles-et-responsabilites" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Le projet Zeste de Savoir est dirigé par sa communauté. Ensuite les développeurs prennent en main l’aspect technique.
 On distingue cependant deux rôles particuliers au sein de l’équipe de développement.
 Voici leurs noms ainsi que leurs tâches :</p>
 <section id="le-maintainer-m">
-<h3>Le Maintainer (M)<a class="headerlink" href="#le-maintainer-m" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le Maintainer (M)<a class="headerlink" href="#le-maintainer-m" title="Lien permanent vers cette rubrique"></a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Suivi des éventuels bugs et suggestions remontés sur le forum</p></li>
@@ -234,7 +235,7 @@ Voici leurs noms ainsi que leurs tâches :</p>
 </div></blockquote>
 </section>
 <section id="le-release-manager-rm">
-<h3>Le Release Manager (RM)<a class="headerlink" href="#le-release-manager-rm" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le Release Manager (RM)<a class="headerlink" href="#le-release-manager-rm" title="Lien permanent vers cette rubrique"></a></h3>
 <blockquote>
 <div><ul class="simple">
 <li><p>Roles</p>
@@ -261,7 +262,7 @@ Voici leurs noms ainsi que leurs tâches :</p>
 </section>
 </section>
 <section id="glossaire">
-<h2>Glossaire<a class="headerlink" href="#glossaire" title="Lien permanent vers ce titre"></a></h2>
+<h2>Glossaire<a class="headerlink" href="#glossaire" title="Lien permanent vers cette rubrique"></a></h2>
 <ul class="simple">
 <li><p><strong>MEP</strong> : Mise En Production</p></li>
 <li><p><strong>PR</strong> : <em>Pull Request</em> (proposition d’une modification de code à un projet)</p></li>

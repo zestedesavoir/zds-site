@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -101,9 +102,9 @@
            <div itemprop="articleBody">
              
   <section id="les-membres">
-<h1>Les membres<a class="headerlink" href="#les-membres" title="Lien permanent vers ce titre"></a></h1>
+<h1>Les membres<a class="headerlink" href="#les-membres" title="Lien permanent vers cette rubrique"></a></h1>
 <section id="inscription">
-<h2>Inscription<a class="headerlink" href="#inscription" title="Lien permanent vers ce titre"></a></h2>
+<h2>Inscription<a class="headerlink" href="#inscription" title="Lien permanent vers cette rubrique"></a></h2>
 <p>L’inscription d’un membre se déroule en deux phases :</p>
 <ul class="simple">
 <li><p>Le membre crée son compte en fournissant un pseudo, un mot de passe et une adresse mail valide.</p></li>
@@ -118,7 +119,7 @@
 </div>
 </section>
 <section id="desinscription">
-<h2>Désinscription<a class="headerlink" href="#desinscription" title="Lien permanent vers ce titre"></a></h2>
+<h2>Désinscription<a class="headerlink" href="#desinscription" title="Lien permanent vers cette rubrique"></a></h2>
 <p>La désinscription se fait via l’interface utilisateur.</p>
 <ul>
 <li><p>Le lien de désinscription est accessible via paramètres (<code class="docutils literal notranslate"><span class="pre">/membres/parametres/profil/</span></code>) puis “Se désinscrire” dans la barre
@@ -175,14 +176,14 @@ latérale (<code class="docutils literal notranslate"><span class="pre">/membres
 </ul>
 </section>
 <section id="inscription-et-connexion-par-delegation-d-authentification">
-<h2>Inscription et connexion par délégation d’authentification<a class="headerlink" href="#inscription-et-connexion-par-delegation-d-authentification" title="Lien permanent vers ce titre"></a></h2>
+<h2>Inscription et connexion par délégation d’authentification<a class="headerlink" href="#inscription-et-connexion-par-delegation-d-authentification" title="Lien permanent vers cette rubrique"></a></h2>
 <p>On utilise la bibliothèque <code class="docutils literal notranslate"><span class="pre">social-auth-app-django</span></code> pour permettre l’inscription et la connexion par délégation d’authentification. Les visiteurs peuvent se connecter à partir de leur compte Facebook ou Google et un compte Zeste de Savoir leur est créé lors de la première connexion. Les seules différences entre les comptes Zeste de Savoir créés traditionnellement et ceux créés par délégation d’authentification sont l’absence de mot de passe défini pour Google et Facebook ainsi que l’absence d’adresse de courriel pour Facebook. Pour ce dernier point, il s’agit d’un soucis qu’il faudrait investiguer et corriger dans le futur. Outre ces deux points, il ne devrait pas y avoir de différence entre ces deux types de comptes Zeste de Savoir.</p>
 <p>Si un visiteur se connecte une première fois avec son compte Google puis la fois suivante avec son compte Facebook, et si les deux comptes sont liés à la même adresse de courriel, alors les deux comptes devraient être liés en théorie au même compte Zeste de Savoir. Pour cette raison, si d’autres services venaient à être ajouter dans le futur, il faut s’assurer au préalable que ceux-ci valident bien l’adresse de courriel lors de l’inscription, sinon une usurpation du compte Zeste de Savoir serait possible.</p>
 <p>Les paramètres liés à la bibliothèque <code class="docutils literal notranslate"><span class="pre">social-auth-app-django</span></code> sont définis dans le fichier de configuration <code class="docutils literal notranslate"><span class="pre">zds/settings/abstract_base/requirements.py</span></code>. Si vous avez besoin de tester le fonctionnement de cette bibliothèque, des comptes de tests existent pour Facebook et Google. Demandez des renseignements aux responsables de l’équipe technique.</p>
 <p>Actuellement, si l’on souhaite tester la connexion à Google en local il faut utiliser <code class="docutils literal notranslate"><span class="pre">127.0.0.1</span></code> tandis que si l’on souhaite tester la connexion à Facebook il faut utiliser <code class="docutils literal notranslate"><span class="pre">localhost</span></code>.</p>
 </section>
 <section id="les-membres-dans-les-environnement-de-test-et-de-developpement">
-<h2>Les membres dans les environnement de test et de développement<a class="headerlink" href="#les-membres-dans-les-environnement-de-test-et-de-developpement" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les membres dans les environnement de test et de développement<a class="headerlink" href="#les-membres-dans-les-environnement-de-test-et-de-developpement" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Afin de faciliter les procédures de test en local, 8 utilisateurs ont été créés via la fixture <code class="docutils literal notranslate"><span class="pre">users.yaml</span></code> (utilisateur/mot de passe):</p>
 <ul class="simple">
 <li><p>user/user : utilisateur normal</p></li>
@@ -213,7 +214,7 @@ pour changer le nom d’utilisateur (<em>username</em>) de ces comptes, agissez 
 </div>
 <p>Bien entendu, les comptes correspondants doivent exister dans la base de données.</p>
 <section id="l-interface-de-promotion">
-<h3>L’interface de promotion<a class="headerlink" href="#l-interface-de-promotion" title="Lien permanent vers ce titre"></a></h3>
+<h3>L’interface de promotion<a class="headerlink" href="#l-interface-de-promotion" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Afin de pouvoir gérer les membres directement depuis le site (c’est-à-dire sans avoir besoin de passer par l’interface d’administration de Django), une interface de promotion a été développée. Elle est accessible aux membres ayant le statut de super-utilisateur via un lien présent sur tous les profils.
 Cette interface permet :
 1. D’ajouter/supprimer un membre dans un/des groupe(s)
@@ -225,7 +226,7 @@ Elle est ensuite visible via le template <cite>member/settings/promote.html</cit
 <p>Le profil de chaque membre contient également un lien vers l’administration de Django si l’utilisateur connecté y a accès et est super-utilisateur. Cela permet de nommer un membre super-utilisateur ou de lui donner l’accès à l’administration.</p>
 </section>
 <section id="les-casquettes">
-<h3>Les casquettes<a class="headerlink" href="#les-casquettes" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les casquettes<a class="headerlink" href="#les-casquettes" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Les casquettes sont un moyen de certifier qu’un utilisateur a un rôle particulier (comme membre du staff, développeur, etc). Les casquettes d’un membre sont listées sur son profil et il est également possible lors de l’envoi d’un message de le poster avec une casquette particulière, qui sera mise en avant sur le message.</p>
 <p>Il est possible de modifier la casquette d’un message en l’éditant. Seules les casquettes possédées par le membre lors de l’édition peuvent être sélectionnés. Lorsqu’une casquette est retirée à un membre, les messages ayant été postés avec cette casquette la conservent. Cependant, il est obligatoire de modifier (ou de supprimer) la casquette d’un message s’il est édité alors que le membre ne la possède plus.</p>
 <p>Les casquettes peuvent être accordées de trois manières :</p>
@@ -239,14 +240,14 @@ Elle est ensuite visible via le template <cite>member/settings/promote.html</cit
 <p>Les casquettes sont ajoutées aux MP automatiques en fonction des paramètres <code class="docutils literal notranslate"><span class="pre">ZDS_APP['hats']</span></code> renseignés dans le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code>.</p>
 </section>
 <section id="l-interface-de-karma">
-<h3>L’interface de karma<a class="headerlink" href="#l-interface-de-karma" title="Lien permanent vers ce titre"></a></h3>
+<h3>L’interface de karma<a class="headerlink" href="#l-interface-de-karma" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour pouvoir communiquer entre modérateurs, il est utile d’avoir un outil de suivi sur les membres. Ce dernier prend forme via la gestion du « karma » d’un membre. Le karma est une valeur numérique pouvant aller de -100 à +100. Cette valeur peut-être modifiée via l’ajout de bonus/malus par les modérateurs. Chaque modification du karma doit s’accompagner d’un commentaire, mais un commentaire n’entraîne pas forcément une modification du karma (0 point de bonus/malus).</p>
 <p>Cet outil à deux rôles. Permettre d’identifier les membres <em>perturbateurs</em> mais aussi les membres <em>moteurs</em> qui pourrait faire l’objet d’un article ou d’une mise en avant de leurs projets.</p>
 <p>Pour modifier le karma d’un membre, il faut donc être modérateur sur le site. Sur le profil d’un membre apparaît alors un formulaire pour ajouter un bonus/malus et la liste des modifications précédentes montrant l’impact (+/-), le message, l’auteur du bonus/malus et la date d’effet de ce dernier.</p>
 <p>Lorsqu’un membre change de pseudo, une note de karma (de 0 point) est automatiquement ajoutée à son profil en faisant mention de son ancien et de son nouveau pseudo (afin de garder une tracabilité pour les membres du staff).</p>
 </section>
 <section id="l-interface-de-reinitialisation-de-mot-de-passe">
-<h3>L’interface de réinitialisation de mot de passe<a class="headerlink" href="#l-interface-de-reinitialisation-de-mot-de-passe" title="Lien permanent vers ce titre"></a></h3>
+<h3>L’interface de réinitialisation de mot de passe<a class="headerlink" href="#l-interface-de-reinitialisation-de-mot-de-passe" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Quand un membre du site oublie son mot de passe, il peut le réinitialiser. L’ancien mot de passe est supprimé et l’utilisateur peut en choisir un nouveau.
 Pour cela, il se rend sur la page de réinitialisation de mot de passe (<code class="docutils literal notranslate"><span class="pre">membres/reinitialisation/</span></code>) à partir de la page de connexion.</p>
 <blockquote>

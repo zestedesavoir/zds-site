@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -102,7 +103,7 @@
            <div itemprop="articleBody">
              
   <section id="installation-sous-windows">
-<h1>Installation sous Windows<a class="headerlink" href="#installation-sous-windows" title="Lien permanent vers ce titre"></a></h1>
+<h1>Installation sous Windows<a class="headerlink" href="#installation-sous-windows" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Pour installer une version locale de ZdS sur Windows, veuillez suivre les instructions suivantes.
 Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.</p>
 <p>Il est conseillé de lancer à chaque fois PowerShell en administrateur pour les étapes suivantes, et de se placer dans un dossier pour ZdS, par exemple :</p>
@@ -114,7 +115,7 @@ Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.</p>
 <p>Il est fortement recommandé (pour des raisons de compatibilité), d’installer tous les programmes ou en 32 bits, ou en 64 bits. Il est conseillé de ne pas mélanger les deux.</p>
 </div>
 <section id="cas-numero-1-windows-10-et-le-sous-systeme-linux">
-<h2>Cas numéro 1 : Windows 10 et le sous-système Linux<a class="headerlink" href="#cas-numero-1-windows-10-et-le-sous-systeme-linux" title="Lien permanent vers ce titre"></a></h2>
+<h2>Cas numéro 1 : Windows 10 et le sous-système Linux<a class="headerlink" href="#cas-numero-1-windows-10-et-le-sous-systeme-linux" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Utilisez <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">le sous-système Linux</a>, et installez Zeste de Savoir comme si vous étiez sur la distribution choisie.</p>
 <ul>
 <li><dl>
@@ -130,9 +131,9 @@ git clone https://github.com/&lt;votre-pseudo&gt;/zds-site
 </ul>
 </section>
 <section id="cas-numero-2-installation-sous-windows-lui-meme">
-<h2>Cas numéro 2 : installation sous Windows lui-même<a class="headerlink" href="#cas-numero-2-installation-sous-windows-lui-meme" title="Lien permanent vers ce titre"></a></h2>
+<h2>Cas numéro 2 : installation sous Windows lui-même<a class="headerlink" href="#cas-numero-2-installation-sous-windows-lui-meme" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="installation-automatique">
-<h3>Installation automatique<a class="headerlink" href="#installation-automatique" title="Lien permanent vers ce titre"></a></h3>
+<h3>Installation automatique<a class="headerlink" href="#installation-automatique" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Commencez par télécharger et installer <a class="reference external" href="https://www.python.org/">Python</a>. Installez PowerShell et autorisez l’exécution des scripts powershell en copiant cette ligne de code dans votre console : <code class="docutils literal notranslate"><span class="pre">powershell</span> <span class="pre">-Verb</span> <span class="pre">RunAs</span> <span class="pre">-ArgumentList</span> <span class="pre">&quot;Set-ExecutionPolicy</span> <span class="pre">RemoteSigned&quot;</span> <span class="pre">-WindowStyle</span> <span class="pre">Hidden</span> <span class="pre">-Wait</span></code>.</p>
 <p>Ensuite, ouvrez la console de Windows et faites :</p>
 <div class="highlight-batch notranslate"><div class="highlight"><pre><span></span><span class="k">cd</span> /ton/path/zds-site/
@@ -154,7 +155,7 @@ powershell .\scripts\win\install_zds.ps1 +full
 </ul>
 </section>
 <section id="installation-manuelle">
-<h3>Installation manuelle<a class="headerlink" href="#installation-manuelle" title="Lien permanent vers ce titre"></a></h3>
+<h3>Installation manuelle<a class="headerlink" href="#installation-manuelle" title="Lien permanent vers cette rubrique"></a></h3>
 <ul class="simple">
 <li><p>Téléchargez <a class="reference external" href="http://gnuwin32.sourceforge.net/downlinks/zlib.php">zlib</a> (prérequis pour la bibliothèque <code class="docutils literal notranslate"><span class="pre">Pillow</span></code>)</p></li>
 <li><dl class="simple">
@@ -201,7 +202,7 @@ powershell .\scripts\win\install_zds.ps1 +full
 <p>Pour que la modification soit effective, relancez une nouvelle fenêtre powershell.</p>
 </section>
 <section id="les-virtualenvs-et-pycharm">
-<h3>Les virtualenvs et PyCharm<a class="headerlink" href="#les-virtualenvs-et-pycharm" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les virtualenvs et PyCharm<a class="headerlink" href="#les-virtualenvs-et-pycharm" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Avec PyCharm (pour avoir une license Pro contactez le directeur technique (DTC)) vous pouvez gérer les virtualenv de manière bien plus performante qu’avec la commande powershell de base.
 Bien que le wrapper doive être installé comme dit au dessus, PyCharm vous offre une interface plus maniable.</p>
 <p>Ouvrez le projet dans PyCharm, puis allez dans Fichier(File) → Settings
@@ -214,13 +215,13 @@ Vous pouvez installer les dépendances depuis PowerShell ou bien aller dans l’
 </section>
 </section>
 <section id="installation-des-outils-front-end-et-de-zmarkdown">
-<h2>Installation des outils front-end et de zmarkdown<a class="headerlink" href="#installation-des-outils-front-end-et-de-zmarkdown" title="Lien permanent vers ce titre"></a></h2>
+<h2>Installation des outils front-end et de zmarkdown<a class="headerlink" href="#installation-des-outils-front-end-et-de-zmarkdown" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Il vous faut installer les outils du front-end.
 Pour cela, rendez-vous sur <a class="reference external" href="extra-install-frontend.html">la documentation dédiée</a>.
 Ensuite, <a class="reference external" href="extra-zmd.html">installez zmarkdown</a></p>
 </section>
 <section id="suite-et-fin-de-l-installation">
-<h2>Suite et fin de l’installation<a class="headerlink" href="#suite-et-fin-de-l-installation" title="Lien permanent vers ce titre"></a></h2>
+<h2>Suite et fin de l’installation<a class="headerlink" href="#suite-et-fin-de-l-installation" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Dans la console PowerShell via l’environnement zdsenv installez les dépendances:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">-r</span> <span class="pre">requirements-dev.txt</span></code></p></li>
@@ -234,7 +235,7 @@ Ensuite, <a class="reference external" href="extra-zmd.html">installez zmarkdown
 </ul>
 </section>
 <section id="aller-plus-loin">
-<h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers ce titre"></a></h2>
+<h2>Aller plus loin<a class="headerlink" href="#aller-plus-loin" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Elasticsearch:</p>
 <ul class="simple">
 <li><p><a class="reference external" href="extra-install-es.html">Installez Elasticsearch</a> ;</p></li>

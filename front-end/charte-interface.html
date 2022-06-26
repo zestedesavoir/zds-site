@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -106,12 +107,12 @@
            <div itemprop="articleBody">
              
   <section id="charte-de-l-interface-de-zeste-de-savoir">
-<h1>Charte de l’interface de Zeste de Savoir<a class="headerlink" href="#charte-de-l-interface-de-zeste-de-savoir" title="Lien permanent vers ce titre"></a></h1>
+<h1>Charte de l’interface de Zeste de Savoir<a class="headerlink" href="#charte-de-l-interface-de-zeste-de-savoir" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Les styles de Zeste de Savoir sont complexes, formés de l’empilement d’années
 de contributions par des personnes très différentes. Pour qu’ils restent
 maintenables, ce document propose une norme et des recommandations.</p>
 <section id="normalisation-des-styles">
-<h2>Normalisation des styles<a class="headerlink" href="#normalisation-des-styles" title="Lien permanent vers ce titre"></a></h2>
+<h2>Normalisation des styles<a class="headerlink" href="#normalisation-des-styles" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Afin de garantir une cohérence à l’interface de Zeste de Savoir, plusieurs
 éléments graphiques sont normés. On ne parle pas ici de composants graphiques
 tels des boutons, des dialogues…, mais plutôt des éléments graphiques qui les
@@ -148,7 +149,7 @@ disponible si vous voulez réutiliser ces normes dans des projets affiliés à Z
 Savoir.</p>
 </div>
 <section id="couleurs">
-<h3>Couleurs<a class="headerlink" href="#couleurs" title="Lien permanent vers ce titre"></a></h3>
+<h3>Couleurs<a class="headerlink" href="#couleurs" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Zeste de Savoir utilise une palette de couleurs limitée. Lorsque vous choisissez
 une couleur pour quelque chose, vous devez piocher dedans.</p>
 <figure class="align-center">
@@ -194,7 +195,7 @@ proposée c’est relativement peu probable.</p>
 </div>
 </section>
 <section id="polices">
-<h3>Polices<a class="headerlink" href="#polices" title="Lien permanent vers ce titre"></a></h3>
+<h3>Polices<a class="headerlink" href="#polices" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Zeste de Savoir utilise trois polices de caractères sur le site :</p>
 <ul class="simple">
 <li><p>une police sans empattement (<code class="docutils literal notranslate"><span class="pre">$font-sans-serif</span></code>), pour les textes de l’interface (il s’agit
@@ -217,7 +218,7 @@ avec prévisualisation pour les trois familles de police utilisées.</p>
 </div>
 </section>
 <section id="longueurs">
-<h3>Longueurs<a class="headerlink" href="#longueurs" title="Lien permanent vers ce titre"></a></h3>
+<h3>Longueurs<a class="headerlink" href="#longueurs" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Les longeurs des marges internes et externes, des tailles des blocs, des positionnements, …, sont
 également normalisées. Cela permet d’avoir une impression de cohérence globale à travers le site,
 en évitant d’utiliser toutes les longueurs existantes de façon aléatoire et chaotique.</p>
@@ -239,7 +240,7 @@ faire évoluer.</p>
 </div>
 </section>
 <section id="ombres">
-<h3>Ombres<a class="headerlink" href="#ombres" title="Lien permanent vers ce titre"></a></h3>
+<h3>Ombres<a class="headerlink" href="#ombres" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si un élément doit recevoir une ombre, utilisez l’une des six ombres standardisées ci-dessous. Plusieurs avantages :</p>
 <ul class="simple">
 <li><p>ce sont des mixins, donc vous n’aurez pas à vous embêter à écrire le <code class="docutils literal notranslate"><span class="pre">box-shadow</span></code> alambiqué, simplement <code class="docutils literal notranslate"><span class="pre">&#64;import</span> <span class="pre">shadow-1</span></code> ;</p></li>
@@ -254,7 +255,7 @@ faire évoluer.</p>
 </div>
 </section>
 <section id="arrondis">
-<h3>Arrondis<a class="headerlink" href="#arrondis" title="Lien permanent vers ce titre"></a></h3>
+<h3>Arrondis<a class="headerlink" href="#arrondis" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si un élément doit avoir des coins arrondis, utilisez l’un de ces arrondis. Le dernier est configuré à une très
 grande valeur pour les cas où vous désirez avoir un élément circulaire (veuillez noter que pour qu’il soit effectivement
 circulaire, l’élément devra avoir des dimensions carrées).</p>
@@ -268,11 +269,11 @@ circulaire, l’élément devra avoir des dimensions carrées).</p>
 </section>
 </section>
 <section id="recommandations-pour-un-scss-propre">
-<h2>Recommandations pour un SCSS propre<a class="headerlink" href="#recommandations-pour-un-scss-propre" title="Lien permanent vers ce titre"></a></h2>
+<h2>Recommandations pour un SCSS propre<a class="headerlink" href="#recommandations-pour-un-scss-propre" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ces recommandations ne sont pas <em>obligatoires</em>, mais elles permettent d’assurer une cohérence du code SCSS
 du site et une plus grande facilité à rentrer dedans lorsque l’on est extérieur au projet.</p>
 <section id="utilisez-flexbox-et-les-grilles">
-<h3>Utilisez <em>flexbox</em> et les grilles<a class="headerlink" href="#utilisez-flexbox-et-les-grilles" title="Lien permanent vers ce titre"></a></h3>
+<h3>Utilisez <em>flexbox</em> et les grilles<a class="headerlink" href="#utilisez-flexbox-et-les-grilles" title="Lien permanent vers cette rubrique"></a></h3>
 <p>CSS dispose de beaucoup d’options pour positionner les éléments les uns par rapport aux autres, mais certaines
 sont plus maintenables que d’autres. Il est recommandé <strong>d’éviter au plus possible d’utiliser des positionnements
 absolus et des flottants</strong>, au profit des outils CSS modernes et largement supportés que sont les
@@ -280,7 +281,7 @@ absolus et des flottants</strong>, au profit des outils CSS modernes et largemen
 <a class="reference external" href="https://developer.mozilla.org/fr/docs/Apprendre/CSS/CSS_layout/Grids">grilles CSS</a>.</p>
 </section>
 <section id="conteneurisez-le-css">
-<h3>Conteneurisez le CSS<a class="headerlink" href="#conteneurisez-le-css" title="Lien permanent vers ce titre"></a></h3>
+<h3>Conteneurisez le CSS<a class="headerlink" href="#conteneurisez-le-css" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Non, chers <em>aficionados</em> de Docker, on ne parle pas de ça ici.</p>
 <p>Lorsque vous stylisez un élément en CSS, assurez-vous de ne styliser <em>que</em> ce que vous voulez. Évitez les règles
 avec une application beaucoup trop large qui affectent tout le site : ces règles ont tendance à être une horreur
@@ -320,7 +321,7 @@ Vous pouvez par exemple utiliser le modèle de Bulma, assez effiace, de modifica
 </div>
 </section>
 <section id="pensez-a-l-ordre-des-proprietes-css">
-<h3>Pensez à l’ordre des propriétés CSS<a class="headerlink" href="#pensez-a-l-ordre-des-proprietes-css" title="Lien permanent vers ce titre"></a></h3>
+<h3>Pensez à l’ordre des propriétés CSS<a class="headerlink" href="#pensez-a-l-ordre-des-proprietes-css" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Les navigateurs n’ont cure de l’ordre de déclaration des propriétés CSS (tant que les mêmes ne sont pas déclarées
 plusieurs fois), mais les placer dans un ordre logique aide grandement à la lecture du code, permettant plus facilement
 de saisir en un coup d’œil ce qui est déclaré, les éléments similaires étant groupés ensemble.</p>

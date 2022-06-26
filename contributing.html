@@ -14,6 +14,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/translations.js"></script>
     <script src="_static/js/theme.js"></script>
@@ -92,9 +93,9 @@
            <div itemprop="articleBody">
              
   <section id="contribuer-a-zeste-de-savoir">
-<h1>Contribuer à Zeste de Savoir<a class="headerlink" href="#contribuer-a-zeste-de-savoir" title="Lien permanent vers ce titre"></a></h1>
+<h1>Contribuer à Zeste de Savoir<a class="headerlink" href="#contribuer-a-zeste-de-savoir" title="Lien permanent vers cette rubrique"></a></h1>
 <section id="avant-de-commencer">
-<h2>Avant de commencer…<a class="headerlink" href="#avant-de-commencer" title="Lien permanent vers ce titre"></a></h2>
+<h2>Avant de commencer…<a class="headerlink" href="#avant-de-commencer" title="Lien permanent vers cette rubrique"></a></h2>
 <ol class="arabic simple">
 <li><p>Vérifiez que vous avez <a class="reference external" href="https://github.com/signup/free">un compte Github</a>.</p></li>
 <li><dl class="simple">
@@ -110,7 +111,7 @@
 </ol>
 </section>
 <section id="id1">
-<h2>Contribuer à Zeste De Savoir<a class="headerlink" href="#id1" title="Lien permanent vers ce titre"></a></h2>
+<h2>Contribuer à Zeste De Savoir<a class="headerlink" href="#id1" title="Lien permanent vers cette rubrique"></a></h2>
 <ol class="arabic simple">
 <li><p>Créez une branche pour contenir votre travail.</p></li>
 <li><p>Faites vos modifications.</p></li>
@@ -122,7 +123,7 @@
 </ol>
 </section>
 <section id="quelques-bonnes-pratiques">
-<h2>Quelques bonnes pratiques<a class="headerlink" href="#quelques-bonnes-pratiques" title="Lien permanent vers ce titre"></a></h2>
+<h2>Quelques bonnes pratiques<a class="headerlink" href="#quelques-bonnes-pratiques" title="Lien permanent vers cette rubrique"></a></h2>
 <ul class="simple">
 <li><p>Respectez <a class="reference external" href="https://docs.djangoproject.com/en/2.1/internals/contributing/writing-code/coding-style/">les conventions de code de Django</a>, ce qui inclut la <a class="reference external" href="http://legacy.python.org/dev/peps/pep-0008/">PEP 8 de Python</a>.</p></li>
 <li><p>Le code et les commentaires sont en anglais.</p></li>
@@ -143,16 +144,16 @@
 </ul>
 </section>
 <section id="les-bonnes-pratiques-pour-les-pr-et-les-commits">
-<h2>Les bonnes pratiques pour les PR et les commits<a class="headerlink" href="#les-bonnes-pratiques-pour-les-pr-et-les-commits" title="Lien permanent vers ce titre"></a></h2>
+<h2>Les bonnes pratiques pour les PR et les commits<a class="headerlink" href="#les-bonnes-pratiques-pour-les-pr-et-les-commits" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="les-pull-requests">
-<h3>Les Pull Requests<a class="headerlink" href="#les-pull-requests" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les Pull Requests<a class="headerlink" href="#les-pull-requests" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Lors de l’ouverture d’une PR, la zone de texte sera pré-complété avec les informations essentielles à apporter à votre PR. Utilisez ce gabarit pour rédiger votre message.</p>
 <div class="line-block">
 <div class="line">Ajoutez des notes de QA (Quality Assurance). Ces notes doivent permettent à un testeur de comprendre ce que vous avez modifié, ce qu’il faut tester en priorité et les pièges auxquels il doit s’attendre et donc sur lesquels porter une attention particulière.</div>
 <div class="line">Précisez tout particulièrement s’il est nécessaire d’effectuer une action de gestion préalable, comme <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">migrate</span> <span class="pre">--fake-initial</span></code>, <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">loaddata</span> <span class="pre">fixture/*.yaml</span></code> ou <code class="docutils literal notranslate"><span class="pre">yarn</span> <span class="pre">run</span> <span class="pre">build</span></code>.</div>
 </div>
 <section id="mise-a-jour-d-une-pull-request-rebase">
-<h4>Mise à jour d’une Pull Request : <em>rebase</em><a class="headerlink" href="#mise-a-jour-d-une-pull-request-rebase" title="Lien permanent vers ce titre"></a></h4>
+<h4>Mise à jour d’une Pull Request : <em>rebase</em><a class="headerlink" href="#mise-a-jour-d-une-pull-request-rebase" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Au fil de l’avancement de votre PR, ou juste avant de la fusionner, il peut vous être demandé de <em>rebaser</em> (ou <em>rebase</em>). Cela permet de mettre à jour la branche de votre PR avec la toute dernière version de la branche principale du dépôt.</p>
 <p>C’est une opération assez simple, et très utile pour s’assurer que votre modification s’intègre toujours bien avec la toute dernière version du site (si d’autres contributeurs ont changé quelque chose, typiquement). Elle a l’avantage, par rapport à une classique fusion (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">merge</span></code>), d’intégrer les commits naturellement dans l’historique, sans en ajouter de supplémentaire inutile.</p>
 <p>Pour <em>rebase</em> en ligne de commande, utilisez la commande <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span> <span class="pre">--rebase</span> <span class="pre">upstream</span> <span class="pre">dev</span></code> (c’est tout). Si vous utilisez une interface graphique pour git, la marche à suivre dépendra de cette interface.</p>
@@ -175,7 +176,7 @@
 </section>
 </section>
 <section id="les-commits">
-<h3>Les commits<a class="headerlink" href="#les-commits" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les commits<a class="headerlink" href="#les-commits" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour les commits, nous suivons le même ordre d’idée que les standards Git.</p>
 <ul class="simple">
 <li><p>La première ligne du commit ne doit pas faire plus de 50 caractères.</p></li>

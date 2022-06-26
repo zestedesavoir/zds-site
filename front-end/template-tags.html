@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -144,13 +145,13 @@
            <div itemprop="articleBody">
              
   <section id="elements-de-templates-personnalises">
-<h1>Elements de templates personnalisés<a class="headerlink" href="#elements-de-templates-personnalises" title="Lien permanent vers ce titre"></a></h1>
+<h1>Elements de templates personnalisés<a class="headerlink" href="#elements-de-templates-personnalises" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Le dossier <code class="docutils literal notranslate"><span class="pre">zds/utils/templatetags/</span></code> contient un ensemble de tags et filtres personnalisés pouvant être utilisés dans les gabarits (<em>templates</em>),
 <a class="reference external" href="https://docs.djangoproject.com/fr/1.8/howto/custom-template-tags/">voir à ce sujet la documentation de Django</a>.</p>
 <p>La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.</p>
 <section id="append-query-params">
-<h2>append_query_params<a class="headerlink" href="#append-query-params" title="Lien permanent vers ce titre"></a></h2>
+<h2>append_query_params<a class="headerlink" href="#append-query-params" title="Lien permanent vers cette rubrique"></a></h2>
 <p>L’élément <code class="docutils literal notranslate"><span class="pre">append_query_params</span></code> permet de rajouter des paramètres à la requête <code class="docutils literal notranslate"><span class="pre">GET</span></code> courante. Par exemple, sur une page
 <code class="docutils literal notranslate"><span class="pre">module/toto</span></code>, le code de template suivant :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">append_query_params</span> <span class="cp">%}</span>
@@ -164,7 +165,7 @@ Python.</p>
 <p>…si le contenu de <code class="docutils literal notranslate"><span class="pre">var1</span></code> est <code class="docutils literal notranslate"><span class="pre">1</span></code> et le contenu de <code class="docutils literal notranslate"><span class="pre">var2</span></code> est <code class="docutils literal notranslate"><span class="pre">2</span></code>.</p>
 </section>
 <section id="le-module-trail">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">trail</span></code><a class="headerlink" href="#le-module-trail" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">trail</span></code><a class="headerlink" href="#le-module-trail" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module définit l’élément <code class="docutils literal notranslate"><span class="pre">trail</span></code> qui permet de retirer tous les sauts de ligne et les espaces dans le bloc de gabarit entre les balises HTML ainsi qu’à la fin et au début des lignes. Le code suivant :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">trail</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">trail</span> <span class="cp">%}</span>
@@ -181,7 +182,7 @@ Python.</p>
 </div>
 </section>
 <section id="le-module-captureas">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">captureas</span></code><a class="headerlink" href="#le-module-captureas" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">captureas</span></code><a class="headerlink" href="#le-module-captureas" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module définit l’élément <code class="docutils literal notranslate"><span class="pre">captureas</span></code>, qui permet de demander d’effectuer le rendu d’un bloc de gabarit et de stocker son contenu dans
 une variable. Ainsi le code suivant :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">captureas</span> <span class="cp">%}</span>
@@ -196,10 +197,10 @@ une variable. Ainsi le code suivant :</p>
 <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">endcaptureas</span> <span class="pre">%}</span></code>, soit <code class="docutils literal notranslate"><span class="pre">0123456789</span></code>, dans la variable de gabarit <code class="docutils literal notranslate"><span class="pre">var2</span></code></p>
 </section>
 <section id="le-module-date">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">date</span></code><a class="headerlink" href="#le-module-date" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">date</span></code><a class="headerlink" href="#le-module-date" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Plusieurs filtres sont disponibles dans ce module.</p>
 <section id="format-date">
-<h3><code class="docutils literal notranslate"><span class="pre">format_date</span></code><a class="headerlink" href="#format-date" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">format_date</span></code><a class="headerlink" href="#format-date" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtre formate une date au format <code class="docutils literal notranslate"><span class="pre">DateTime</span></code> destiné à être affiché sur le site :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">date</span> <span class="cp">%}</span>
 <span class="cp">{{</span> <span class="nv">date</span><span class="o">|</span><span class="nf">format_date</span> <span class="cp">}}</span>
@@ -207,11 +208,11 @@ une variable. Ainsi le code suivant :</p>
 </div>
 </section>
 <section id="tooltip-date">
-<h3><code class="docutils literal notranslate"><span class="pre">tooltip_date</span></code><a class="headerlink" href="#tooltip-date" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">tooltip_date</span></code><a class="headerlink" href="#tooltip-date" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtre effectue la même chose que <code class="docutils literal notranslate"><span class="pre">format_date</span></code> mais à destination des <code class="docutils literal notranslate"><span class="pre">tooltip</span></code>.</p>
 </section>
 <section id="humane-time">
-<h3><code class="docutils literal notranslate"><span class="pre">humane_time</span></code><a class="headerlink" href="#humane-time" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">humane_time</span></code><a class="headerlink" href="#humane-time" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Formate une date au format <em>Nombre de seconde depuis Epoch</em> en un élément lisible. Ainsi :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">date</span> <span class="cp">%}</span>
 <span class="cp">{{</span> <span class="nv">date_epoch</span><span class="o">|</span><span class="nf">humane_time</span> <span class="cp">}}</span>
@@ -225,17 +226,17 @@ une variable. Ainsi le code suivant :</p>
 </div>
 </section>
 <section id="from-elasticsearch-date">
-<h3><code class="docutils literal notranslate"><span class="pre">from_elasticsearch_date</span></code><a class="headerlink" href="#from-elasticsearch-date" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">from_elasticsearch_date</span></code><a class="headerlink" href="#from-elasticsearch-date" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Par défaut, Elasticsearch stocke ces dates au format <code class="docutils literal notranslate"><span class="pre">yyyy-MM-dd'T'HH:mm:ss.SSSZ</span></code>
 (il s’agit du format <code class="docutils literal notranslate"><span class="pre">strict_date_time</span></code>, voir à ce sujet <a class="reference external" href="https://www.elastic.co/guide/en/elasticsearch/reference/5.1/mapping-date-format.html">la documentation d’Elasticsearch</a>).
 Ce filtre transforme cette date en une date que les autres filtres de ce module peuvent exploiter.</p>
 </section>
 </section>
 <section id="le-module-email-obfuscator">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">email_obfuscator</span></code><a class="headerlink" href="#le-module-email-obfuscator" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">email_obfuscator</span></code><a class="headerlink" href="#le-module-email-obfuscator" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ces filtres sont principalement fondés sur <a class="reference external" href="https://github.com/morninj/django-email-obfuscator">https://github.com/morninj/django-email-obfuscator</a>.</p>
 <section id="obfuscate">
-<h3><code class="docutils literal notranslate"><span class="pre">obfuscate</span></code><a class="headerlink" href="#obfuscate" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">obfuscate</span></code><a class="headerlink" href="#obfuscate" title="Lien permanent vers cette rubrique"></a></h3>
 <p>L’adresse de courriel va être encodée avec des caractères ASCII pour la protéger des robots :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">email_obfuscator</span> <span class="cp">%}</span>
 <span class="cp">{{</span> <span class="s1">&#39;your@email.com&#39;</span><span class="o">|</span><span class="nf">obfuscate</span> <span class="cp">}}</span>
@@ -243,7 +244,7 @@ Ce filtre transforme cette date en une date que les autres filtres de ce module 
 </div>
 </section>
 <section id="obfuscate-mailto">
-<h3><code class="docutils literal notranslate"><span class="pre">obfuscate_mailto</span></code><a class="headerlink" href="#obfuscate-mailto" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">obfuscate_mailto</span></code><a class="headerlink" href="#obfuscate-mailto" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce <em>templatetag</em> ajoute en plus un <code class="docutils literal notranslate"><span class="pre">mailto</span></code>. Il prend un paramètre optionnel qui permet d’avoir un texte personnalisé dans
 la balise <code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">email_obfuscator</span> <span class="cp">%}</span>
@@ -256,7 +257,7 @@ la balise <code class="docutils literal notranslate"><span class="pre">&lt;a&gt;
 </div>
 </section>
 <section id="obfuscate-mailto-top-subject">
-<h3><code class="docutils literal notranslate"><span class="pre">obfuscate_mailto_top_subject</span></code><a class="headerlink" href="#obfuscate-mailto-top-subject" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">obfuscate_mailto_top_subject</span></code><a class="headerlink" href="#obfuscate-mailto-top-subject" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Identique sur le fonctionnement à <code class="docutils literal notranslate"><span class="pre">obfuscate_mailto</span></code>, ce <em>templatetag</em> ajoute en plus un sujet (qui remplace le champ
 pouvant être inséré entre les balises <code class="docutils literal notranslate"><span class="pre">&lt;a&gt;</span></code> et <code class="docutils literal notranslate"><span class="pre">&lt;/a&gt;</span></code>) ainsi que <code class="docutils literal notranslate"><span class="pre">target=&quot;_top&quot;</span></code>.</p>
 <p>Il est utilisé sur la page « Contact ».</p>
@@ -273,10 +274,10 @@ pouvant être inséré entre les balises <code class="docutils literal notransla
 </section>
 </section>
 <section id="le-module-emarkdown">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">emarkdown</span></code><a class="headerlink" href="#le-module-emarkdown" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">emarkdown</span></code><a class="headerlink" href="#le-module-emarkdown" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module définit des filtres utilisés dans la transformation du markdown en HTML ou le traitement du markdown.</p>
 <section id="markdown-vers-html">
-<h3>Markdown vers HTML<a class="headerlink" href="#markdown-vers-html" title="Lien permanent vers ce titre"></a></h3>
+<h3>Markdown vers HTML<a class="headerlink" href="#markdown-vers-html" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il permet de rendre un texte Markdown en HTML. Il y a deux commandes :</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">emarkdown</span></code> pour une transformation classique ;</p></li>
@@ -285,7 +286,7 @@ signatures des membres).</p></li>
 </ul>
 </section>
 <section id="markdown-vers-markdown">
-<h3>Markdown vers Markdown<a class="headerlink" href="#markdown-vers-markdown" title="Lien permanent vers ce titre"></a></h3>
+<h3>Markdown vers Markdown<a class="headerlink" href="#markdown-vers-markdown" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ces élements sont utilisés dans le cadre de la transformation du markdown avant d’être traité par <code class="docutils literal notranslate"><span class="pre">Pandoc</span></code> lors de la
 génération des fichiers PDF et EPUB des tutos :</p>
 <ul class="simple">
@@ -296,7 +297,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </section>
 </section>
 <section id="le-module-htmldiff">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">htmldiff</span></code><a class="headerlink" href="#le-module-htmldiff" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">htmldiff</span></code><a class="headerlink" href="#le-module-htmldiff" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module définit le tag <code class="docutils literal notranslate"><span class="pre">htmldiff</span></code> qui affiche la différence entre deux chaînes de caractères, en utilisant <a class="reference external" href="https://docs.python.org/2/library/difflib.html">difflib (en)</a>. Le code généré est un tableau HTML à l’intérieur d’une div. Il est employé pour afficher le <em>diff</em> des tutoriels et des articles.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">htmldiff</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">htmldiff</span> <span class="s2">&quot;Hello world!&quot;</span> <span class="s2">&quot;Hello world!!!&quot;</span> <span class="cp">%}</span>
@@ -305,10 +306,10 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </div>
 </section>
 <section id="le-module-interventions">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">interventions</span></code><a class="headerlink" href="#le-module-interventions" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">interventions</span></code><a class="headerlink" href="#le-module-interventions" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Les filtres de ce module sont utilisés pour récupérer et traiter la liste des interventions de l’utilisateur.</p>
 <section id="humane-delta">
-<h3><code class="docutils literal notranslate"><span class="pre">humane_delta</span></code><a class="headerlink" href="#humane-delta" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">humane_delta</span></code><a class="headerlink" href="#humane-delta" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtre renvoit le texte correspondant à une période donnée, si utilisé comme suis :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
 <span class="cp">{{</span> <span class="nv">period</span><span class="o">|</span><span class="nf">humane_delta</span> <span class="cp">}}</span>
@@ -324,7 +325,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </ul>
 </section>
 <section id="followed-topics">
-<h3><code class="docutils literal notranslate"><span class="pre">followed_topics</span></code><a class="headerlink" href="#followed-topics" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">followed_topics</span></code><a class="headerlink" href="#followed-topics" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtre renvoit la liste des <em>topics</em> suivis par l’utilisateur, sous la forme d’un dictionaire :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">with</span> <span class="nv">followedtopics</span><span class="o">=</span><span class="nv">user</span><span class="o">|</span><span class="nf">followed_topics</span> <span class="cp">%}</span>
@@ -337,7 +338,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 <p>où <code class="docutils literal notranslate"><span class="pre">period</span></code> est un nombre au format attendu par <code class="docutils literal notranslate"><span class="pre">humane_delta</span></code> (entre 1 et 5, voir plus haut) et <code class="docutils literal notranslate"><span class="pre">topics</span></code> la liste des <em>topics</em> dont le dernier message est situé dans cette période de temps. Les <em>topics</em> sont des objets <code class="docutils literal notranslate"><span class="pre">Topic</span></code> (<a class="reference external" href="../back-end-code/forum.html#zds.forum.models.Topic">voir le détail de son implémentation ici</a>).</p>
 </section>
 <section id="interventions-topics">
-<h3><code class="docutils literal notranslate"><span class="pre">interventions_topics</span></code><a class="headerlink" href="#interventions-topics" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">interventions_topics</span></code><a class="headerlink" href="#interventions-topics" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtre récupère la liste des notifications non lues sur des modèles notifiables excluant les messages privés:</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">with</span> <span class="nv">unread_posts</span><span class="o">=</span><span class="nv">user</span><span class="o">|</span><span class="nf">interventions_topics</span> <span class="cp">%}</span>
@@ -356,7 +357,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </ul>
 </section>
 <section id="interventions-privatetopics">
-<h3><code class="docutils literal notranslate"><span class="pre">interventions_privatetopics</span></code><a class="headerlink" href="#interventions-privatetopics" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">interventions_privatetopics</span></code><a class="headerlink" href="#interventions-privatetopics" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtre récupère la liste des MPs non-lus :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">with</span> <span class="nv">unread_posts</span><span class="o">=</span><span class="nv">user</span><span class="o">|</span><span class="nf">interventions_privatetopics</span> <span class="cp">%}</span>
@@ -369,7 +370,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 <p>Dans ce cas, <code class="docutils literal notranslate"><span class="pre">topic</span></code> est un objet de type <code class="docutils literal notranslate"><span class="pre">PrivateTopic</span></code> (<a class="reference external" href="../back-end-code/private-message.html#zds.mp.models.PrivateTopic">voir son implémentation ici</a>)</p>
 </section>
 <section id="alerts-list">
-<h3><code class="docutils literal notranslate"><span class="pre">alerts_list</span></code><a class="headerlink" href="#alerts-list" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">alerts_list</span></code><a class="headerlink" href="#alerts-list" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Récupère la liste des alertes (si l’utilisateur possède les droits pour le faire) :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">with</span> <span class="nv">alerts_list</span><span class="o">=</span><span class="nv">user</span><span class="o">|</span><span class="nf">alerts_list</span> <span class="cp">%}</span>
@@ -393,7 +394,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </ul>
 </section>
 <section id="waiting-count">
-<h3><code class="docutils literal notranslate"><span class="pre">waiting_count</span></code><a class="headerlink" href="#waiting-count" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">waiting_count</span></code><a class="headerlink" href="#waiting-count" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Récupère le nombre de tutoriels ou d’articles dans la zone de validation n’ayant pas été réservés par un validateur.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">with</span> <span class="nv">waiting_tutorials_count</span><span class="o">=</span><span class="s2">&quot;TUTORIAL&quot;</span><span class="o">|</span><span class="nf">waiting_count</span> <span class="nv">waiting_articles_count</span><span class="o">=</span><span class="s2">&quot;ARTICLE&quot;</span><span class="o">|</span><span class="nf">waiting_count</span> <span class="cp">%}</span>
@@ -404,7 +405,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 <p>Le filtre doit être appelé sur <code class="docutils literal notranslate"><span class="pre">&quot;TUTORIAL&quot;</span></code> pour récupérer le nombre de tutoriels en attente et sur <code class="docutils literal notranslate"><span class="pre">&quot;ARTICLE&quot;</span></code> pour le nombre d’articles.</p>
 </section>
 <section id="id1">
-<h3><code class="docutils literal notranslate"><span class="pre">humane_delta</span></code><a class="headerlink" href="#id1" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">humane_delta</span></code><a class="headerlink" href="#id1" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Permet d’afficher une période en lettres. Fait le lien entre le label d’un jour et sa clé.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">interventions</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">for</span> <span class="nv">period</span><span class="o">,</span> <span class="nv">topics</span> <span class="k">in</span> <span class="nv">followedtopics.items</span> <span class="cp">%}</span>
@@ -415,9 +416,9 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </section>
 </section>
 <section id="le-module-profiles">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">profiles</span></code><a class="headerlink" href="#le-module-profiles" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">profiles</span></code><a class="headerlink" href="#le-module-profiles" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="user">
-<h3><code class="docutils literal notranslate"><span class="pre">user</span></code><a class="headerlink" href="#user" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">user</span></code><a class="headerlink" href="#user" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour un objet de type <code class="docutils literal notranslate"><span class="pre">Profile</span></code> (<a class="reference external" href="../back-end-code/member.html#zds.member.models.Profile">voir son implémentation</a>), ce filtre récupère son objet <code class="docutils literal notranslate"><span class="pre">User</span></code> correspondant (<a class="reference external" href="https://docs.djangoproject.com/fr/1.8/topics/auth/default/#user-objects">voir les informations sur cet objet dans la documentation de Django</a>).</p>
 <p>Par exemple, le code suivant affichera le nom de l’utilisateur :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">profiles</span> <span class="cp">%}</span>
@@ -428,7 +429,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </div>
 </section>
 <section id="profile">
-<h3><code class="docutils literal notranslate"><span class="pre">profile</span></code><a class="headerlink" href="#profile" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">profile</span></code><a class="headerlink" href="#profile" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Fait l’opération inverse du filtre <code class="docutils literal notranslate"><span class="pre">user</span></code> : récupère un objet <code class="docutils literal notranslate"><span class="pre">Profile</span></code> à partir d’un objet <code class="docutils literal notranslate"><span class="pre">User</span></code>.</p>
 <p>Par exemple, le code suivant affichera un lien vers le profil de l’utilisateur :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">profiles</span> <span class="cp">%}</span>
@@ -439,7 +440,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </div>
 </section>
 <section id="state">
-<h3><code class="docutils literal notranslate"><span class="pre">state</span></code><a class="headerlink" href="#state" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">state</span></code><a class="headerlink" href="#state" title="Lien permanent vers cette rubrique"></a></h3>
 <p>À partir d’un objet <code class="docutils literal notranslate"><span class="pre">User</span></code>, ce filtre récupère « l’état » de l’utilisateur. Par exemple, il peut être employé comme décris ci-dessous:</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">profiles</span> <span class="cp">%}</span>
 <span class="cp">{%</span> <span class="k">with</span> <span class="nv">user_state</span><span class="o">=</span><span class="nv">user</span><span class="o">|</span><span class="nf">state</span> <span class="cp">%}</span>
@@ -458,7 +459,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </section>
 </section>
 <section id="le-module-roman">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">roman</span></code><a class="headerlink" href="#le-module-roman" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">roman</span></code><a class="headerlink" href="#le-module-roman" title="Lien permanent vers cette rubrique"></a></h2>
 <p>définit le filtre <code class="docutils literal notranslate"><span class="pre">roman</span></code>, qui transforme un nombre entier en chiffre romain, utilisé pour l’affichage du sommaire des tutoriels. Par exemple, le code suivant :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">roman</span> <span class="cp">%}</span>
 <span class="cp">{{</span> <span class="m">453</span><span class="o">|</span><span class="nf">roman</span> <span class="cp">}}</span>
@@ -467,7 +468,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 <p>affichera <code class="docutils literal notranslate"><span class="pre">CDLIII</span></code>, qui est bien la façon d’écrire 453 en chiffres romain.</p>
 </section>
 <section id="le-module-set">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">set</span></code><a class="headerlink" href="#le-module-set" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">set</span></code><a class="headerlink" href="#le-module-set" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module définit l’élément <code class="docutils literal notranslate"><span class="pre">set</span></code>, permetant de définir de nouvelles variables, il est donc complémentaire au module <code class="docutils literal notranslate"><span class="pre">captureas</span></code>.</p>
 <p>Le code suivant permet de définir la variable <code class="docutils literal notranslate"><span class="pre">var</span></code> comme valant <code class="docutils literal notranslate"><span class="pre">True</span></code> :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">set</span> <span class="cp">%}</span>
@@ -493,10 +494,10 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </div>
 </section>
 <section id="le-module-topbar">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">topbar</span></code><a class="headerlink" href="#le-module-topbar" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">topbar</span></code><a class="headerlink" href="#le-module-topbar" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module est utilisé pour récupéré les catégories dans le but de les afficher dans <a class="reference external" href="structure-du-site.html#le-menu">le menu</a> et dans la liste des tutoriels et articles.</p>
 <section id="topbar-forum-categories">
-<h3><code class="docutils literal notranslate"><span class="pre">topbar_forum_categories</span></code><a class="headerlink" href="#topbar-forum-categories" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">topbar_forum_categories</span></code><a class="headerlink" href="#topbar-forum-categories" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtre récupère les forums, classés par catégorie.</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">with</span> <span class="nv">top</span><span class="o">=</span><span class="nv">user</span><span class="o">|</span><span class="nf">topbar_forum_categories</span> <span class="cp">%}</span>
     <span class="cp">{%</span> <span class="k">for</span> <span class="nv">title</span><span class="o">,</span> <span class="nv">forums</span> <span class="k">in</span> <span class="nv">top.categories.items</span> <span class="cp">%}</span>
@@ -515,7 +516,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </ul>
 </section>
 <section id="topbar-publication-categories">
-<h3><code class="docutils literal notranslate"><span class="pre">topbar_publication_categories</span></code><a class="headerlink" href="#topbar-publication-categories" title="Lien permanent vers ce titre"></a></h3>
+<h3><code class="docutils literal notranslate"><span class="pre">topbar_publication_categories</span></code><a class="headerlink" href="#topbar-publication-categories" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ce filtres renvoit une liste des catégories utilisées dans les articles/tutoriels publiés.</p>
 <p>Par exemple, pour les tutoriels, on retrouvera le code suivant:</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">with</span> <span class="nv">categories</span><span class="o">=</span><span class="s2">&quot;TUTORIAL&quot;</span><span class="o">|</span><span class="nf">topbar_publication_categories</span> <span class="cp">%}</span>
@@ -529,7 +530,7 @@ génération des fichiers PDF et EPUB des tutos :</p>
 </section>
 </section>
 <section id="le-module-feminize">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">feminize</span></code><a class="headerlink" href="#le-module-feminize" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">feminize</span></code><a class="headerlink" href="#le-module-feminize" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Permet de générer les déterminants et pronoms adéquats en fonction du mot suivant dynamiquement généré. Typiquement
 ce templatetag est utile dans le cas de la hiérarchie des tutoriels où vous pouvez avoir <em>« une partie »</em> ou <em>« un chapitre »</em>.</p>
 <p>Ce templatetag est basé sur deux dictionnaires de mots : le premier qui associe le déterminant masculin à son homologue
@@ -545,7 +546,7 @@ féminin est le second qui associe un mot à un booléen qui indique s’il est 
 </div>
 </section>
 <section id="le-module-times">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">times</span></code><a class="headerlink" href="#le-module-times" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">times</span></code><a class="headerlink" href="#le-module-times" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Permet de générer une liste de nombre pour itérer dessus, utile dans les boucles.</p>
 <p>Exemple :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">load</span> <span class="nv">times</span> <span class="cp">%}</span>
@@ -556,7 +557,7 @@ féminin est le second qui associe un mot à un booléen qui indique s’il est 
 </div>
 </section>
 <section id="le-module-target-tree">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">target_tree</span></code><a class="headerlink" href="#le-module-target-tree" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">target_tree</span></code><a class="headerlink" href="#le-module-target-tree" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module définit un <em>templatetag</em> utilisé dans le module de tutoriel (v2) dans le but de générer la hiérarchie des tutos et l’arbre
 des déplacements possibles d’un élément. Il s’agit d’un wrapper autour de <code class="docutils literal notranslate"><span class="pre">zds.tutorialv2.utils.get_target_tagged_tree</span></code>.</p>
 <p>Exemple :</p>
@@ -571,7 +572,7 @@ des déplacements possibles d’un élément. Il s’agit d’un wrapper autour 
 </div>
 </section>
 <section id="le-module-url-category">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">url_category</span></code><a class="headerlink" href="#le-module-url-category" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">url_category</span></code><a class="headerlink" href="#le-module-url-category" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module définit un <em>templatetag</em> permetant d’accéder à l’url des listes de tutoriels et articles filtrés par tag. Il est employé pour l’affichage des <em>tags</em> des tutoriels et articles.</p>
 <p>Exemple :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">if</span> <span class="nv">content.subcategory.all</span><span class="o">|</span><span class="nf">length</span> <span class="o">&gt;</span> <span class="m">0</span> <span class="cp">%}</span>
@@ -585,7 +586,7 @@ des déplacements possibles d’un élément. Il s’agit d’un wrapper autour 
 </div>
 </section>
 <section id="le-module-displayable-authors">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">displayable_authors</span></code><a class="headerlink" href="#le-module-displayable-authors" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">displayable_authors</span></code><a class="headerlink" href="#le-module-displayable-authors" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module permet d’avoir un « versionnage graphique » des auteurs. En effet lorsqu’un tutoriel est publié il se peut que les auteurs ayant participé à sa publication ne soient plus les mêmes dans le futur.
 Par exemple, l’auteur principal du tuto peut avoir demandé de l’aide pour écrire la suite du tuto. Il serait injuste de mettre cette seconde personne en tant qu’auteur de la version publiée puisqu’elle n’a pas participé à sa rédaction.</p>
 <p>Exemple :</p>
@@ -600,7 +601,7 @@ Par exemple, l’auteur principal du tuto peut avoir demandé de l’aide pour �
 </div>
 </section>
 <section id="le-module-elasticsearch">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">elasticsearch</span></code><a class="headerlink" href="#le-module-elasticsearch" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">elasticsearch</span></code><a class="headerlink" href="#le-module-elasticsearch" title="Lien permanent vers cette rubrique"></a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">highlight</span></code></p>
 <p>Permet de mettre en surbrillance les résultats d’une recherche.</p>
 <p>Exemple :</p>
@@ -611,7 +612,7 @@ Par exemple, l’auteur principal du tuto peut avoir demandé de l’aide pour �
 </div>
 </section>
 <section id="le-module-joinby">
-<h2>Le module <code class="docutils literal notranslate"><span class="pre">joinby</span></code><a class="headerlink" href="#le-module-joinby" title="Lien permanent vers ce titre"></a></h2>
+<h2>Le module <code class="docutils literal notranslate"><span class="pre">joinby</span></code><a class="headerlink" href="#le-module-joinby" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module permet de lister le contenu d’un itérable en une seule ligne. C’est un équivalent un peu plus flexible de la fonction <code class="docutils literal notranslate"><span class="pre">str.join</span></code> en Python. Le séparateur peut être modifié et une option permet d’utiliser le même séparateur pour le dernier élément. Par défaut, le mot « et » est utilisé pour précéder le dernier élément.</p>
 <p>Exemple :</p>
 <div class="highlight-html+django notranslate"><div class="highlight"><pre><span></span><span class="cp">{%</span> <span class="k">joinby</span> <span class="nv">fruits</span> <span class="cp">%}</span>

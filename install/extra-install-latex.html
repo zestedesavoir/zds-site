@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -95,7 +96,7 @@
            <div itemprop="articleBody">
              
   <section id="installation-de-latex-et-de-la-template">
-<h1>Installation de LaTeX et de la <em>template</em><a class="headerlink" href="#installation-de-latex-et-de-la-template" title="Lien permanent vers ce titre"></a></h1>
+<h1>Installation de LaTeX et de la <em>template</em><a class="headerlink" href="#installation-de-latex-et-de-la-template" title="Lien permanent vers cette rubrique"></a></h1>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>La procédure peut ne pas fonctionner sous Windows (probable) et macOS (moins probable), où elle n’a pas été testée.
@@ -108,7 +109,7 @@ Une fois le code généré, il est nécessaire de le compiler, donc d’installe
 <li><p>La <em>template</em>, qui permet, entre autres choses, la mise en forme du document (couleurs, page de garde, blocs …). Celle-ci est située dans un <a class="reference external" href="https://github.com/zestedesavoir/latex-template">dépot séparé (en)</a>, où vous trouverez plus d’informations.</p></li>
 </ul>
 <section id="prerequis">
-<h2>Prérequis<a class="headerlink" href="#prerequis" title="Lien permanent vers ce titre"></a></h2>
+<h2>Prérequis<a class="headerlink" href="#prerequis" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Avant toutes choses, vous devez installer les parties suivantes (peu importe votre système d’exploitation):</p>
 <ul class="simple">
 <li><p>Les polices <a class="reference external" href="https://www.fontsquirrel.com/fonts/source-code-pro">Source Code Pro</a> et <a class="reference external" href="https://www.fontsquirrel.com/fonts/source-sans-pro">Source Sans Pro</a>. Une fois téléchargées et décompressées, le programme permetant de visualiser les polices sur votre système d’exploitation propose généralement un bouton d’installation. Sous Linux, vous pouvez simplement employer <a class="reference external" href="https://github.com/zestedesavoir/latex-template/blob/master/scripts/install_font.sh">ce script</a>.</p></li>
@@ -117,7 +118,7 @@ Une fois le code généré, il est nécessaire de le compiler, donc d’installe
 </ul>
 </section>
 <section id="installer-une-distribution-latex">
-<h2>Installer une distribution LaTeX<a class="headerlink" href="#installer-une-distribution-latex" title="Lien permanent vers ce titre"></a></h2>
+<h2>Installer une distribution LaTeX<a class="headerlink" href="#installer-une-distribution-latex" title="Lien permanent vers cette rubrique"></a></h2>
 <ul class="simple">
 <li><p>Sous Windows, vous pouvez installer <a class="reference external" href="https://miktex.org/download">MikTeX</a> ou <a class="reference external" href="https://www.tug.org/texlive/">TexLive</a>.</p></li>
 <li><p>Sous macOS, vous pouvez installer <a class="reference external" href="https://www.tug.org/mactex/mactex-download.html">MacTex</a>.</p></li>
@@ -127,7 +128,7 @@ Une fois le code généré, il est nécessaire de le compiler, donc d’installe
 La liste des packages nécessaire <a class="reference external" href="https://github.com/zestedesavoir/latex-template/blob/master/scripts/packages">est disponible ici</a>, mais n’est peut être pas exhaustive.</p>
 </section>
 <section id="installer-la-template">
-<h2>Installer la <em>template</em><a class="headerlink" href="#installer-la-template" title="Lien permanent vers ce titre"></a></h2>
+<h2>Installer la <em>template</em><a class="headerlink" href="#installer-la-template" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Vous pouvez <a class="reference external" href="https://github.com/zestedesavoir/latex-template/archive/master.zip">télécharger l’archive</a> et en décompresser le contenu (ou alors cloner le dépot) dans <code class="docutils literal notranslate"><span class="pre">&lt;TEXMFHOME&gt;/tex/latex</span></code>, où la valeur de <code class="docutils literal notranslate"><span class="pre">&lt;TEXMFHOME&gt;</span></code> peut être obtenue en entrant la commande suivante:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>kpsewhich -var-value TEXMFHOME
 </pre></div>

@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -133,9 +134,9 @@
            <div itemprop="articleBody">
              
   <section id="les-tutoriels-et-articles">
-<h1>Les tutoriels et articles<a class="headerlink" href="#les-tutoriels-et-articles" title="Lien permanent vers ce titre"></a></h1>
+<h1>Les tutoriels et articles<a class="headerlink" href="#les-tutoriels-et-articles" title="Lien permanent vers cette rubrique"></a></h1>
 <section id="vocabulaire-et-definitions">
-<h2>Vocabulaire et définitions<a class="headerlink" href="#vocabulaire-et-definitions" title="Lien permanent vers ce titre"></a></h2>
+<h2>Vocabulaire et définitions<a class="headerlink" href="#vocabulaire-et-definitions" title="Lien permanent vers cette rubrique"></a></h2>
 <ul class="simple">
 <li><p><strong>Contenu</strong> (<em>content</em>): désigne, de manière générale, tout ce qui peut être produit et édité sur Zeste de Savoir, c’est-à-dire, à l’heure actuelle, un article ou un tutoriel. Tout contenu est rattaché à un dossier qui lui est propre et dont l’organisation est explicitée plus bas. Ce dossier comporte des informations sur le contenu lui-même (<em>metadata</em> : un auteur, une description, une licence…) ainsi que des textes, agencés dans une arborescence bien précise.</p></li>
 <li><p><strong>Article</strong> : contenu, généralement court, visant à faire découvrir un sujet plus qu’à l’expliquer au lecteur (introduit sans rentrer dans les détails) ou à fournir un état des lieux sur un point donné de manière concise (rapports de <em>release</em>, actualité…).</p></li>
@@ -150,15 +151,15 @@
 </ul>
 </section>
 <section id="de-la-structure-generale-d-un-contenu">
-<h2>De la structure générale d’un contenu<a class="headerlink" href="#de-la-structure-generale-d-un-contenu" title="Lien permanent vers ce titre"></a></h2>
+<h2>De la structure générale d’un contenu<a class="headerlink" href="#de-la-structure-generale-d-un-contenu" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="des-extraits">
-<h3>Des extraits<a class="headerlink" href="#des-extraits" title="Lien permanent vers ce titre"></a></h3>
+<h3>Des extraits<a class="headerlink" href="#des-extraits" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Un <strong>extrait</strong> est une unité de texte. Il possède un titre (<em>title</em>) et du
 texte (<em>text</em>). Dans l’interface d’édition d’un tutoriel, un extrait est
 désigné par le terme « section ».</p>
 </section>
 <section id="des-conteneurs">
-<h3>Des conteneurs<a class="headerlink" href="#des-conteneurs" title="Lien permanent vers ce titre"></a></h3>
+<h3>Des conteneurs<a class="headerlink" href="#des-conteneurs" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Un conteneur est une boîte ayant pour rôle de regrouper des éléments
 sémantiquement proches. Il est caractérisé par son titre (<em>title</em>) et possède
 une introduction (<em>introduction</em>) ainsi qu’une conclusion (<em>conclusion</em>),
@@ -175,7 +176,7 @@ niveau 1, c’est-à-dire n’étant pas inclus dans un autre conteneur, et par
 « chapitre » tout conteneur enfant d’une partie.</p>
 </section>
 <section id="un-contenu">
-<h3>Un contenu<a class="headerlink" href="#un-contenu" title="Lien permanent vers ce titre"></a></h3>
+<h3>Un contenu<a class="headerlink" href="#un-contenu" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Un <strong>contenu</strong> est un agencement particulier de conteneurs et d’extraits. Il
 est décrit par des métadonnées (<em>metadata</em>), détaillées
 <a class="reference external" href="./contents_manifest.html">ici</a>. Une de ces métadonnées est le type : article
@@ -253,7 +254,7 @@ données. Le <em>slug</em>, quant à lui, a le mérite d’être compréhensible
 humain et permet de gérer les cas de redirection 301 (voir plus bas).</p>
 </section>
 <section id="des-objets-en-general">
-<h3>Des objets en général<a class="headerlink" href="#des-objets-en-general" title="Lien permanent vers ce titre"></a></h3>
+<h3>Des objets en général<a class="headerlink" href="#des-objets-en-general" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Tous les textes (introductions, conclusions et extraits) sont formatés en
 Markdown (dans la version étendue de ZdS).</p>
 <p>Conteneurs et extraits sont des <strong>objets</strong> (<em>object</em>). Dès lors, ils possèdent
@@ -301,14 +302,14 @@ de les faire correspondre à nouveau à leur contrepartie dans le système de fi
 </section>
 </section>
 <section id="cycle-de-vie-des-contenus">
-<h2>Cycle de vie des contenus<a class="headerlink" href="#cycle-de-vie-des-contenus" title="Lien permanent vers ce titre"></a></h2>
+<h2>Cycle de vie des contenus<a class="headerlink" href="#cycle-de-vie-des-contenus" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Quelque soit le type de contenu, le cycle de vie de celui-ci reste toujours le même.
 Un contenu peut être rédigé par un ou plusieurs auteurs. Chaque modification
 est conservée afin de pouvoir retrouver l’historique des modifications et éventuellement
 récupérer un morceau de texte perdu. Lorsqu’un contenu est créé il rentre dans
 sa première étape.</p>
 <section id="le-brouillon">
-<h3>Le brouillon<a class="headerlink" href="#le-brouillon" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le brouillon<a class="headerlink" href="#le-brouillon" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le brouillon est la première étape du cycle de vie d’un contenu. Il donne
 toujours l’état le plus récent d’un contenu vu par les auteurs. Chaque fois
 que le contenu est modifié, c’est la version brouillon qui est mise à jour.
@@ -317,7 +318,7 @@ d’un tutoriel. Si on souhaite donner un accès en lecture seule à nos écrits
 il faut passer par la méthode adéquate.</p>
 </section>
 <section id="la-beta">
-<h3>La bêta<a class="headerlink" href="#la-beta" title="Lien permanent vers ce titre"></a></h3>
+<h3>La bêta<a class="headerlink" href="#la-beta" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Lorsque les auteurs estiment que leur contenu a atteint un certain niveau de
 maturité, et qu’ils souhaitent recueillir des retours de la communauté, ils ont
 la possibilité de le mettre à la disposition de cette dernière le contenu en
@@ -334,7 +335,7 @@ il ne faudra pas oublier de mettre à jour cette dernière pour que la communaut
 puisse juger des dernières modifications.</p>
 </section>
 <section id="la-validation">
-<h3>La validation<a class="headerlink" href="#la-validation" title="Lien permanent vers ce titre"></a></h3>
+<h3>La validation<a class="headerlink" href="#la-validation" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Une fois que l’auteur a eu assez de retours sur son contenu, et qu’il estime
 qu’il est prêt à être publié, il décide d’envoyer son contenu en validation.
 <em>Via</em> l’interface idoine, un validateur peut alors réserver le contenu et
@@ -352,7 +353,7 @@ améliorée pendant que la version de validation reste figée. Auteurs et valida
 peuvent donc continuer à travailler chacun de leur côté.</p>
 </section>
 <section id="la-publication">
-<h3>La publication<a class="headerlink" href="#la-publication" title="Lien permanent vers ce titre"></a></h3>
+<h3>La publication<a class="headerlink" href="#la-publication" title="Lien permanent vers cette rubrique"></a></h3>
 <p><strong>Le cas général</strong></p>
 <p>Une fois que le contenu est passé en validation et a satisfait les critères
 éditoriaux, il est publié. Un message privé est alors envoyé aux auteurs afin
@@ -394,7 +395,7 @@ Si vous désirez vous passer de pandoc, il vous suffira d’appeler <code class=
 Vous pouvez aussi simplement surcharger chacun des <code class="docutils literal notranslate"><span class="pre">Publicator</span></code> par défaut en en enregistrant un nouveau sous le même nom.</p>
 </section>
 <section id="l-entraide">
-<h3>L’entraide<a class="headerlink" href="#l-entraide" title="Lien permanent vers ce titre"></a></h3>
+<h3>L’entraide<a class="headerlink" href="#l-entraide" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Afin d’aider les auteurs de contenus à rédiger ces derniers, des options lors
 de la création/édition de ce dernier sont disponibles. L’auteur peut ainsi
 faire aisément une demande d’aide pour les raisons suivantes
@@ -437,7 +438,7 @@ de détails si nécessaire.</p>
 </section>
 </section>
 <section id="import-de-contenus">
-<h2>Import de contenus<a class="headerlink" href="#import-de-contenus" title="Lien permanent vers ce titre"></a></h2>
+<h2>Import de contenus<a class="headerlink" href="#import-de-contenus" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Zeste de Savoir permet d’importer des contenus provenant de sources
 extérieures.</p>
 <p>Ce système est utilisable pour créer de nouveaux contenus à partir de zéros,
@@ -456,7 +457,7 @@ et de renseigner les champs relatifs à l’import d’une archive, puis de cliq
 </figure>
 </div></blockquote>
 <section id="import-d-image">
-<h3>Import d’image<a class="headerlink" href="#import-d-image" title="Lien permanent vers ce titre"></a></h3>
+<h3>Import d’image<a class="headerlink" href="#import-d-image" title="Lien permanent vers cette rubrique"></a></h3>
 <p>À noter que si vous souhaitez importer des images de manière à ce qu’elles soient
 directement intégrée à votre contenu, vous devez écrire les liens vers cette image sous la
 forme <code class="docutils literal notranslate"><span class="pre">![légende](archive:image.extension)</span></code>, puis créer une archive contenant toutes celles-ci.
@@ -472,7 +473,7 @@ les liens quand c’est nécessaire. Ainsi,</p>
 <p>À condition que <code class="docutils literal notranslate"><span class="pre">image.png</span></code> soit présent dans l’archive (à sa racine) et soit une image valide.</p>
 </section>
 <section id="regles">
-<h3>Règles<a class="headerlink" href="#regles" title="Lien permanent vers ce titre"></a></h3>
+<h3>Règles<a class="headerlink" href="#regles" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Au maximum, le système d’importation tentera d’être compréhensif envers une arborescence qui
 différente de celle énoncée ci-dessus. Par contre
 <strong>l’importation réorganisera les fichiers importés de la manière décrite ci-dessus</strong>,
@@ -486,9 +487,9 @@ supplémentaires) pour des raisons élémentaires de sécurité.</p>
 </section>
 </section>
 <section id="aspects-techniques-et-fonctionnels">
-<h2>Aspects techniques et fonctionnels<a class="headerlink" href="#aspects-techniques-et-fonctionnels" title="Lien permanent vers ce titre"></a></h2>
+<h2>Aspects techniques et fonctionnels<a class="headerlink" href="#aspects-techniques-et-fonctionnels" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="les-metadonnees">
-<h3>Les métadonnées<a class="headerlink" href="#les-metadonnees" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les métadonnées<a class="headerlink" href="#les-metadonnees" title="Lien permanent vers cette rubrique"></a></h3>
 <p>On distingue actuellement deux types de métadonnées (<em>metadata</em>) : celles
 versionnées (et donc reprises dans le <code class="docutils literal notranslate"><span class="pre">manifest.json</span></code>) et celles qui ne le
 sont pas. La liste exhaustive de ces dernières (à l’heure actuelle) est la
@@ -507,7 +508,7 @@ suivante :</p>
 </ul>
 </section>
 <section id="le-stockage-en-base-de-donnees">
-<h3>Le stockage en base de données<a class="headerlink" href="#le-stockage-en-base-de-donnees" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le stockage en base de données<a class="headerlink" href="#le-stockage-en-base-de-donnees" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Les métadonnées non versionnées sont stockées dans la base de données, à l’aide
 du modèle <code class="docutils literal notranslate"><span class="pre">PublishableContent</span></code>. Pour des raisons de facilité, certaines des
 métadonnées versionnées sont également intégrées dans la base :</p>
@@ -529,7 +530,7 @@ utilisé pour résoudre les URLs. C’est également lui qui se cache derrière 
 mécanisme de redirection si, entre deux versions, le <em>slug</em> du contenu change.</p>
 </section>
 <section id="le-stockage-via-des-dossiers">
-<h3>Le stockage <em>via</em> des dossiers<a class="headerlink" href="#le-stockage-via-des-dossiers" title="Lien permanent vers ce titre"></a></h3>
+<h3>Le stockage <em>via</em> des dossiers<a class="headerlink" href="#le-stockage-via-des-dossiers" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Comme énoncé plus haut, chaque contenu possède un dossier qui lui est propre
 (dont le nom est le <em>slug</em> du contenu), stocké dans l’endroit défini par la
 variable <code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']['repo_path']</span></code>. Dans ce dossier se trouve le
@@ -542,7 +543,7 @@ contenu tel que généré par ZdS en utilisant l’éditeur en ligne.</p>
 mauvaises surprises en cas d’édition externe (voir ci-dessous).</p>
 </section>
 <section id="les-permissions">
-<h3>Les permissions<a class="headerlink" href="#les-permissions" title="Lien permanent vers ce titre"></a></h3>
+<h3>Les permissions<a class="headerlink" href="#les-permissions" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Afin de gérer ce module, trois permissions peuvent être utilisées :</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">tutorialv2.change_publishablecontent</span></code> : pour le droit d’accéder et de modifier les contenus même sans en être l’auteur ;</p></li>
@@ -552,7 +553,7 @@ mauvaises surprises en cas d’édition externe (voir ci-dessous).</p>
 <p>Ces permissions doivent être accordées aux administateurs/modérateurs/validateurs selon les besoins via l’interface d’administration de Django.</p>
 </section>
 <section id="processus-de-publication">
-<h3>Processus de publication<a class="headerlink" href="#processus-de-publication" title="Lien permanent vers ce titre"></a></h3>
+<h3>Processus de publication<a class="headerlink" href="#processus-de-publication" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Apès avoir passé les étapes de validation, le contenu est près à être publié.
 Cette action est effectuée par un membre du Staff. Le but de la publication
 est double : permettre aux visiteurs de consulter le contenu, mais aussi
@@ -577,7 +578,7 @@ contenus ne sont pas stockés au même endroit (voir
 </ol>
 </section>
 <section id="consultation-d-un-contenu-publie">
-<h3>Consultation d’un contenu publié<a class="headerlink" href="#consultation-d-un-contenu-publie" title="Lien permanent vers ce titre"></a></h3>
+<h3>Consultation d’un contenu publié<a class="headerlink" href="#consultation-d-un-contenu-publie" title="Lien permanent vers cette rubrique"></a></h3>
 <p>On n’utilise pas git pour afficher la version publiée d’un contenu. Dès lors,
 deux cas se présentent :</p>
 <ul class="simple">
@@ -586,7 +587,7 @@ deux cas se présentent :</p>
 </ul>
 </section>
 <section id="qu-en-est-il-des-images">
-<h3>Qu’en est-il des images ?<a class="headerlink" href="#qu-en-est-il-des-images" title="Lien permanent vers ce titre"></a></h3>
+<h3>Qu’en est-il des images ?<a class="headerlink" href="#qu-en-est-il-des-images" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le versionnage des images d’un contenu (celles qui font partie de la galerie
 rattachée) continue à faire débat, et il a été décidé pour le moment de ne
 pas les versionner, pour des raisons simples :</p>
@@ -601,11 +602,11 @@ une rédaction totale en mode hors-ligne.</p>
 </section>
 </section>
 <section id="passage-des-tutos-v1-aux-tutos-v2">
-<h2>Passage des tutos v1 aux tutos v2<a class="headerlink" href="#passage-des-tutos-v1-aux-tutos-v2" title="Lien permanent vers ce titre"></a></h2>
+<h2>Passage des tutos v1 aux tutos v2<a class="headerlink" href="#passage-des-tutos-v1-aux-tutos-v2" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Le parseur v2 ne permettant qu’un support minimal des tutoriels à l’ancien
 format, il est nécessaire de mettre en place des procédures de migration.</p>
 <section id="migrer-une-archive-v1-vers-une-archive-v2">
-<h3>Migrer une archive v1 vers une archive v2<a class="headerlink" href="#migrer-une-archive-v1-vers-une-archive-v2" title="Lien permanent vers ce titre"></a></h3>
+<h3>Migrer une archive v1 vers une archive v2<a class="headerlink" href="#migrer-une-archive-v1-vers-une-archive-v2" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le premier cas qu’il est possible de rencontrer est la présence d’une
 archive <em>hors ligne</em> d’un tutoriel à la version 1.</p>
 <p>La migration de cette archive consistera alors à ne migrer que le <em>manifest</em>.
@@ -664,15 +665,15 @@ point de vue des nomenclatures, il ne sera pas nécessaire de l’adapter.</p>
 </div>
 </section>
 <section id="migrer-la-base-de-donnees">
-<h3>Migrer la base de données<a class="headerlink" href="#migrer-la-base-de-donnees" title="Lien permanent vers ce titre"></a></h3>
+<h3>Migrer la base de données<a class="headerlink" href="#migrer-la-base-de-donnees" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si vous faites tourner une instance du code de Zeste de Savoir sous la version 1.x et que vous passez à la v2.x, vous allez
 devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécuter la commande <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">manage.py</span> <span class="pre">migrate_to_zep12.py</span></code>.</p>
 </section>
 </section>
 <section id="recapitulatif-des-parametres-du-module">
-<h2>Récapitulatif des paramètres du module<a class="headerlink" href="#recapitulatif-des-parametres-du-module" title="Lien permanent vers ce titre"></a></h2>
+<h2>Récapitulatif des paramètres du module<a class="headerlink" href="#recapitulatif-des-parametres-du-module" title="Lien permanent vers cette rubrique"></a></h2>
 <section id="parametres-globaux">
-<h3>Paramètres globaux<a class="headerlink" href="#parametres-globaux" title="Lien permanent vers ce titre"></a></h3>
+<h3>Paramètres globaux<a class="headerlink" href="#parametres-globaux" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ces paramètres sont à surcharger dans le dictionnaire <code class="docutils literal notranslate"><span class="pre">ZDS_APP['content']</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">repo_private_path</span></code> : chemin vers le dossier qui contiend les contenus durant leur rédaction, par défaut le dossier sera contents-private à la racine de l’application</p></li>
@@ -694,7 +695,7 @@ devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécut
 </ul>
 </section>
 <section id="parametres-propres-aux-tribunes-libres">
-<h3>Paramètres propres aux tribunes libres<a class="headerlink" href="#parametres-propres-aux-tribunes-libres" title="Lien permanent vers ce titre"></a></h3>
+<h3>Paramètres propres aux tribunes libres<a class="headerlink" href="#parametres-propres-aux-tribunes-libres" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Ces paramètres sont à surcharger dans le dictionnaire <code class="docutils literal notranslate"><span class="pre">ZDS_APP['opinions']</span></code>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">allow_pdf</span></code>: par défaut à <code class="docutils literal notranslate"><span class="pre">True</span></code> elle permet d’activer (et de désactiver si <code class="docutils literal notranslate"><span class="pre">False</span></code>) la génération des PDF à la publication des billets.</p></li>
@@ -704,7 +705,7 @@ devoir migrer les différents tutoriels. Pour cela, il faudra simplement exécut
 </section>
 </section>
 <section id="statistiques">
-<h2>Statistiques<a class="headerlink" href="#statistiques" title="Lien permanent vers ce titre"></a></h2>
+<h2>Statistiques<a class="headerlink" href="#statistiques" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Pour permettre aux auteurs d’avoir des statistiques sur leurs contenus, il faut créer un fichier <code class="docutils literal notranslate"><span class="pre">api_analytics_secrets.json</span></code> contenant les identifiants nécessaires pour se connecter à l’API de Google Analytics. Voici un gabarit pour ce fichier :</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
 <span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;service_account&quot;</span><span class="p">,</span><span class="w"></span>

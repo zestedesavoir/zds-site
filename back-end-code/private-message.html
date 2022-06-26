@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/translations.js"></script>
     <script src="../_static/js/theme.js"></script>
@@ -97,7 +98,7 @@
            <div itemprop="articleBody">
              
   <section id="les-messages-prives-mp">
-<h1><a class="toc-backref" href="#id1">Les messages privés (<code class="docutils literal notranslate"><span class="pre">mp/</span></code>)</a><a class="headerlink" href="#les-messages-prives-mp" title="Lien permanent vers ce titre"></a></h1>
+<h1><a class="toc-backref" href="#id1">Les messages privés (<code class="docutils literal notranslate"><span class="pre">mp/</span></code>)</a><a class="headerlink" href="#les-messages-prives-mp" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Module situé dans <code class="docutils literal notranslate"><span class="pre">zds/mp/</span></code>.</p>
 <div class="contents topic" id="fichiers-documentes">
 <p class="topic-title">Fichiers documentés :</p>
@@ -112,7 +113,7 @@
 </ul>
 </div>
 <section id="module-zds.mp.models">
-<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.mp.models" title="Lien permanent vers ce titre"></a></h2>
+<span id="modeles-models-py"></span><h2><a class="toc-backref" href="#id2">Modèles (<code class="docutils literal notranslate"><span class="pre">models.py</span></code>)</a><a class="headerlink" href="#module-zds.mp.models" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.mp.models.NotParticipatingError">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.models.</span></span><span class="sig-name descname"><span class="pre">NotParticipatingError</span></span><a class="headerlink" href="#zds.mp.models.NotParticipatingError" title="Lien permanent vers cette définition"></a></dt>
@@ -562,7 +563,7 @@ with older private topic, the slug is always re-calculated when we need one.
 
 </section>
 <section id="module-zds.mp.views">
-<span id="vues-views-py"></span><h2><a class="toc-backref" href="#id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.mp.views" title="Lien permanent vers ce titre"></a></h2>
+<span id="vues-views-py"></span><h2><a class="toc-backref" href="#id3">Vues (<code class="docutils literal notranslate"><span class="pre">views.py</span></code>)</a><a class="headerlink" href="#module-zds.mp.views" title="Lien permanent vers cette rubrique"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostAnswer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivatePostAnswer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostAnswer" title="Lien permanent vers cette définition"></a></dt>
@@ -570,7 +571,7 @@ with older private topic, the slug is always re-calculated when we need one.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostAnswer.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostAnswer.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.mp.forms.PrivatePostForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">PrivatePostForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -588,7 +589,7 @@ with older private topic, the slug is always re-calculated when we need one.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostAnswer.model_quote">
 <span class="sig-name descname"><span class="pre">model_quote</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostAnswer.model_quote" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivatePost" title="zds.mp.models.PrivatePost"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.mp.models.PrivatePost</span></code></a></p>
+<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivatePost" title="zds.mp.models.PrivatePost"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivatePost</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -600,7 +601,7 @@ with older private topic, the slug is always re-calculated when we need one.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostEdit.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostEdit.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.mp.forms.PrivatePostForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">PrivatePostForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -690,7 +691,7 @@ Subclasses can override this to return any object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicEdit.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivateTopicEdit.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.mp.forms.PrivateTopicEditForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateTopicEditForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -704,7 +705,7 @@ Subclasses can override this to return any object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicEdit.model">
 <span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.mp.views.PrivateTopicEdit.model" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivateTopic" title="zds.mp.models.PrivateTopic"><code class="xref py py-class docutils literal notranslate"><span class="pre">zds.mp.models.PrivateTopic</span></code></a></p>
+<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivateTopic" title="zds.mp.models.PrivateTopic"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateTopic</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -750,7 +751,7 @@ Subclasses can override this to return any object.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicNew.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivateTopicNew.form_class" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">zds.mp.forms.PrivateTopicForm</span></code></p>
+<dd><p>alias de <code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateTopicForm</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -782,7 +783,7 @@ POST variables and then check if it’s valid.</p>
 
 </section>
 <section id="les-utilitaires-utils-py">
-<h2><a class="toc-backref" href="#id4">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a><a class="headerlink" href="#les-utilitaires-utils-py" title="Lien permanent vers ce titre"></a></h2>
+<h2><a class="toc-backref" href="#id4">Les utilitaires (<code class="docutils literal notranslate"><span class="pre">utils.py</span></code>)</a><a class="headerlink" href="#les-utilitaires-utils-py" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Ce module ajoute des fonctions utiles permettant de gérer l’ajout et la réponse à des messages privés.</p>
 <p>Il est important d’utiliser ces méthodes pour réaliser ces actions sous peine d’oublier des actions.</p>
 <p>Ces méthodes permettent un lien direct avec le module « notifications ».</p>
