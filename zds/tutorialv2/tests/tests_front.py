@@ -76,7 +76,6 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
     def test_partial_publication(self):
         self.login_author()
         self.selenium.get(self.live_server_url + self.ignored_part.get_absolute_url())
-        find_element = self.selenium.find_element_by_css_selector
         button = WebDriverWait(self.selenium, 20).until(
             expected_conditions.element_to_be_clickable((By.CSS_SELECTOR, ".readiness"))
         )
@@ -88,7 +87,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         self.assertFalse(self.ignored_part.ready_to_publish, "part should be marked as not ready to publish")
         self.selenium.get(self.live_server_url + self.content.get_absolute_url())
         self.selenium.get(self.live_server_url + self.ignored_part.get_absolute_url())
-        button = find_element(".readiness")
+        button = self.find_element(".readiness")
         self.assertNotEqual(
             readiness, button.get_attribute("data-is-ready"), "part should be marked as not ready to publish"
         )
@@ -102,7 +101,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         self.selenium.get(self.live_server_url + url)
         self.assertRaises(
             WebDriverException,
-            find_element,
+            self.find_element,
             'a[href="{}"]'.format(
                 reverse(
                     "tutorial:view-container",
@@ -113,7 +112,6 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
     def test_collaborative_article_edition_and_editor_persistence(self):
         selenium = self.selenium
-        find_element = selenium.find_element_by_css_selector
 
         author = ProfileFactory()
 
@@ -129,7 +127,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
         selenium.get(self.live_server_url + article_edit_url)
 
-        intro = find_element("div#div_id_introduction div.CodeMirror")
+        intro = self.find_element("div#div_id_introduction div.CodeMirror")
         # ActionChains: Support for CodeMirror https://stackoverflow.com/a/48969245/2226755
         action_chains = ActionChains(selenium)
         scrollDriverTo(selenium, 0, 312)
@@ -137,18 +135,17 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         action_chains.send_keys("intro").perform()
 
         output = "div#div_id_introduction div.CodeMirror div.CodeMirror-code"
-        self.assertEqual("intro", find_element(output).text)
+        self.assertEqual("intro", self.find_element(output).text)
 
         article.sha_draft = versioned_article.repo_update("article", "new intro", "", update_slug=False)
         article.save()
 
         selenium.refresh()
 
-        self.assertEqual("new intro", find_element(".md-editor#id_introduction").get_attribute("value"))
+        self.assertEqual("new intro", self.find_element(".md-editor#id_introduction").get_attribute("value"))
 
     def test_the_editor_forgets_its_content_on_form_submission(self):
         selenium = self.selenium
-        find_element = selenium.find_element_by_css_selector
 
         author = ProfileFactory()
 
@@ -162,20 +159,20 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
             ec.element_to_be_clickable((By.CSS_SELECTOR, "input[type=checkbox][name=subcategory]"))
         ).click()
 
-        find_element("#id_title").send_keys("Oulipo")
+        self.find_element("#id_title").send_keys("Oulipo")
 
-        intro = find_element("div#div_id_introduction div.CodeMirror")
+        intro = self.find_element("div#div_id_introduction div.CodeMirror")
         action_chains = ActionChains(selenium)
         action_chains.click(intro).perform()
         action_chains.send_keys("Le cadavre exquis boira le vin nouveau.").perform()
 
-        find_element(".content-container button[type=submit]").click()
+        self.find_element(".content-container button[type=submit]").click()
 
         self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains("Oulipo")))
 
         selenium.get(new_article_url)
 
-        self.assertEqual("", find_element(".md-editor#id_introduction").get_attribute("value"))
+        self.assertEqual("", self.find_element(".md-editor#id_introduction").get_attribute("value"))
 
 
 def scrollDriverTo(driver, x, y):
