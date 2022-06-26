@@ -86,11 +86,16 @@
     h4 {
         padding-top: $length-20;
         font-size: $font-size-8;
-
+        padding-top: $length-16;
+        padding-bottom: $length-16;
+        border-bottom: $length-1 solid $grey-100;
         a {
             text-decoration: none;
             color: $grey-800;
         }
+         &:hover, &:focus {
+             background: $color-sidebar-hover;
+         }
     }
 
     &.accordeon h4 {
@@ -452,10 +457,10 @@
 
     &.summary {
         h4 {
-            padding-bottom: $length-6;
+            padding-bottom: $length-16;
             padding-right: $length-16;
 
-            border-bottom: $length-1 solid $grey-000;
+            border-bottom: $length-1 solid $grey-100;
 
             overflow: hidden;
             text-overflow: ellipsis;
