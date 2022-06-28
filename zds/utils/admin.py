@@ -7,7 +7,6 @@ from zds.utils.models import (
     SubCategory,
     CategorySubCategory,
     Tag,
-    HelpWriting,
     CommentEdit,
     Hat,
     HatRequest,
@@ -60,7 +59,6 @@ admin.site.register(Licence)
 admin.site.register(Category)
 admin.site.register(SubCategory, SubCategoryAdmin)
 admin.site.register(CategorySubCategory)
-admin.site.register(HelpWriting)
 admin.site.register(CommentEdit, CommentEditAdmin)
 admin.site.register(Hat, HatAdmin)
 admin.site.register(HatRequest, HatRequestAdmin)
