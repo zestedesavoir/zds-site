@@ -367,7 +367,7 @@
                             <a href="{% url "opinion:find-opinion" user.username %}">{% trans "Mes billets" %}</a>
                         </li>
                         <li>
-                            <a href="{% url "gallery-list" %}">{% trans "Galeries d’images" %}</a>
+                            <a href="{% url "gallery:list" %}">{% trans "Galeries d’images" %}</a>
                         </li>
                         <li>
                             <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
@@ -434,7 +434,7 @@
 
                         {% if perms.featured.change_featuredresource %}
                             <li class="staff-only">
-                                <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
+                                <a href="{% url "featured:resource-list" %}">{% trans 'Gestion des mises en avant' %}</a>
                             </li>
                         {% endif %}
                         <li>

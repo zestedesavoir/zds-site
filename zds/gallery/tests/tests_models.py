@@ -82,7 +82,7 @@ class GalleryTest(TestCase):
         self.gallery.delete()
 
     def test_get_absolute_url(self):
-        absolute_url = reverse("gallery-details", args=[self.gallery.pk, self.gallery.slug])
+        absolute_url = reverse("gallery:details", args=[self.gallery.pk, self.gallery.slug])
         self.assertEqual(absolute_url, self.gallery.get_absolute_url())
 
     def test_get_linked_users(self):

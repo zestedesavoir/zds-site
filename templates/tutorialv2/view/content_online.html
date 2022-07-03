@@ -337,7 +337,7 @@
                     </li>
                     {% if perms.featured.change_featuredresource %}
                         <li>
-                            <a href="{% url "featured-resource-create" %}?content_type=published_content&amp;content_id={{ content.pk }}"
+                            <a href="{% url "featured:resource-create" %}?content_type=published_content&amp;content_id={{ content.pk }}"
                                class="ico-after star blue">
                                 {% trans "Ajouter en une" %}
                             </a>

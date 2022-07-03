@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import path
 
 from zds.featured.views import (
     FeaturedResourceList,
@@ -11,13 +11,15 @@ from zds.featured.views import (
     FeaturedRequestedUpdate,
 )
 
+app_name = "featured"
+
 urlpatterns = [
-    re_path(r"^$", FeaturedResourceList.as_view(), name="featured-resource-list"),
-    re_path(r"^unes/creer/$", FeaturedResourceCreate.as_view(), name="featured-resource-create"),
-    re_path(r"^unes/editer/(?P<pk>\d+)/$", FeaturedResourceUpdate.as_view(), name="featured-resource-update"),
-    re_path(r"^unes/supprimer/(?P<pk>\d+)/$", FeaturedResourceDeleteDetail.as_view(), name="featured-resource-delete"),
-    re_path(r"^unes/supprimer/$", FeaturedResourceDeleteList.as_view(), name="featured-resource-list-delete"),
-    re_path(r"^message/modifier/$", FeaturedMessageCreateUpdate.as_view(), name="featured-message-create"),
-    re_path(r"^unes/requetes/$", FeaturedRequestedList.as_view(), name="featured-resource-requests"),
-    re_path(r"^unes/requete/(?P<pk>\d+)/$", FeaturedRequestedUpdate.as_view(), name="featured-resource-request-update"),
+    path("", FeaturedResourceList.as_view(), name="resource-list"),
+    path("unes/creer/", FeaturedResourceCreate.as_view(), name="resource-create"),
+    path("unes/modifier/<int:pk>/", FeaturedResourceUpdate.as_view(), name="resource-update"),
+    path("unes/supprimer/<int:pk>/", FeaturedResourceDeleteDetail.as_view(), name="resource-delete"),
+    path("unes/supprimer/", FeaturedResourceDeleteList.as_view(), name="resource-list-delete"),
+    path("message/modifier/", FeaturedMessageCreateUpdate.as_view(), name="message-create"),
+    path("unes/requetes/", FeaturedRequestedList.as_view(), name="resource-requests"),
+    path("unes/requete/<int:pk>/", FeaturedRequestedUpdate.as_view(), name="resource-request-update"),
 ]

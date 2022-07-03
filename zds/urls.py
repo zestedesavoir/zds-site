@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
@@ -8,8 +9,6 @@ from zds.forum.models import ForumCategory, Forum, Topic, Tag
 from zds.pages.views import home as home_view
 from zds.member.views.profile import MemberDetail
 from zds.tutorialv2.models.database import PublishedContent
-
-from django.conf import settings
 
 
 # SiteMap data
@@ -88,10 +87,10 @@ urlpatterns = [
     re_path(r"^membres/", include(("zds.member.urls", ""))),
     re_path(r"^admin/", admin.site.urls),
     re_path(r"^pages/", include(("zds.pages.urls", ""))),
-    re_path(r"^galerie/", include(("zds.gallery.urls", ""))),
+    path("galerie/", include("zds.gallery.urls")),
     re_path(r"^rechercher/", include(("zds.searchv2.urls", "zds.searchv2"), namespace="search")),
-    re_path(r"^munin/", include(("zds.munin.urls", ""))),
-    re_path(r"^mise-en-avant/", include(("zds.featured.urls", ""))),
+    path("munin/", include(("zds.munin.urls", ""))),
+    path("mise-en-avant/", include("zds.featured.urls")),
     path("notifications/", include("zds.notification.urls")),
     path("", include(("social_django.urls", "social_django"), namespace="social")),
     re_path(r"^munin/", include(("munin.urls", "munin"))),
