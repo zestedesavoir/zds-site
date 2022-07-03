@@ -22,7 +22,7 @@ class GalleryForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_class = "clearfix"
-        self.helper.form_action = reverse("gallery-new")
+        self.helper.form_action = reverse("gallery:create")
         self.helper.form_method = "post"
 
         self.helper.layout = Layout(
@@ -94,7 +94,7 @@ class UserGalleryForm(forms.Form):
         self.helper = FormHelper()
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = "add-user-modal"
-        self.helper.form_action = reverse("gallery-members", kwargs={"pk": gallery.pk})
+        self.helper.form_action = reverse("gallery:members", kwargs={"pk": gallery.pk})
         self.helper.form_method = "post"
 
         self.helper.layout = Layout(

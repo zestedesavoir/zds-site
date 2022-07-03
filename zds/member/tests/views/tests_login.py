@@ -51,11 +51,11 @@ class MemberTests(TestCase):
         # login a user. Good password and next parameter then
         # redirection to the "next" page.
         result = self.client.post(
-            reverse("member-login") + "?next=" + reverse("gallery-list"),
+            reverse("member-login") + "?next=" + reverse("gallery:list"),
             {"username": user.user.username, "password": "hostel77", "remember": "remember"},
             follow=False,
         )
-        self.assertRedirects(result, reverse("gallery-list"))
+        self.assertRedirects(result, reverse("gallery:list"))
 
         # check the user is redirected to the home page if
         # the "next" parameter points to a non-existing page.
@@ -69,8 +69,8 @@ class MemberTests(TestCase):
         # check if the login form will redirect if there is
         # a next parameter.
         self.client.logout()
-        result = self.client.get(reverse("member-login") + "?next=" + reverse("gallery-list"))
-        self.assertContains(result, reverse("member-login") + "?next=" + reverse("gallery-list"), count=1)
+        result = self.client.get(reverse("member-login") + "?next=" + reverse("gallery:list"))
+        self.assertContains(result, reverse("member-login") + "?next=" + reverse("gallery:list"), count=1)
 
     def test_nonascii(self):
         user = NonAsciiProfileFactory()

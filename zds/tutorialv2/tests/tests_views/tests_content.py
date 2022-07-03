@@ -3516,14 +3516,14 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
 
         # try to delete gallery
-        result = self.client.post(reverse("galleries-delete"), {"delete": "", "gallery": gallery.pk}, follow=True)
+        result = self.client.post(reverse("gallery:delete"), {"delete": "", "gallery": gallery.pk}, follow=True)
 
         self.assertEqual(result.status_code, 403)
         self.assertEqual(1, Gallery.objects.filter(pk=self.tuto.gallery.pk).count())  # gallery not deleted
 
         # try to add to gallery
         result = self.client.post(
-            reverse("gallery-members", kwargs={"pk": gallery.pk}),
+            reverse("gallery:members", kwargs={"pk": gallery.pk}),
             {"action": "add", "user": self.user_staff.username, "mode": "R"},
             follow=True,
         )
@@ -3533,7 +3533,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # try to leave gallery
         result = self.client.post(
-            reverse("gallery-members", kwargs={"pk": gallery.pk}),
+            reverse("gallery:members", kwargs={"pk": gallery.pk}),
             {
                 "action": "leave",
                 "user": self.user_author.username,
