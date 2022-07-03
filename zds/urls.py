@@ -91,7 +91,7 @@ urlpatterns = [
     re_path(r"^rechercher/", include(("zds.searchv2.urls", "zds.searchv2"), namespace="search")),
     path("munin/", include(("zds.munin.urls", ""))),
     path("mise-en-avant/", include("zds.featured.urls")),
-    re_path(r"^notifications/", include(("zds.notification.urls", ""))),
+    path("notifications/", include("zds.notification.urls")),
     path("", include(("social_django.urls", "social_django"), namespace="social")),
     re_path(r"^munin/", include(("munin.urls", "munin"))),
     re_path(r"^$", home_view, name="homepage"),
