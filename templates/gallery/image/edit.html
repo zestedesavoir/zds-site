@@ -93,7 +93,7 @@
 
         {% if permissions.write %}
             {# Confirmation modal for deleting image #}
-            <form id="form-delete-image" name="form" method="post" action="{% url "gallery-image-delete" gallery.pk %}" class="modal modal-flex">
+            <form id="form-delete-image" name="form" method="post" action="{% url "gallery:image-delete" gallery.pk %}" class="modal modal-flex">
                 {% csrf_token %}
                 <input type="hidden" name="image" value="{{ image.pk }}">
                 <p>{% trans "Attention, vous vous apprêtez à supprimer cette image." %}</p>

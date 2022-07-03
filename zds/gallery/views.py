@@ -118,7 +118,7 @@ class EditGallery(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, FormV
 
     def dispatch(self, *args, **kwargs):
         try:
-            self.get_gallery(pk=self.kwargs.get("pk"), slug=self.kwargs.get("slug"))
+            self.get_gallery(pk=self.kwargs.get("pk"))
         except Gallery.DoesNotExist:
             raise Http404()
 
@@ -206,7 +206,7 @@ class DeleteGalleries(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, V
 
             self.perform_delete()
 
-        success_url = reverse("gallery-list")
+        success_url = reverse("gallery:list")
         return HttpResponseRedirect(success_url)
 
 
@@ -218,7 +218,7 @@ class EditGalleryMembers(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin
 
     def dispatch(self, *args, **kwargs):
         try:
-            self.get_gallery(pk=self.kwargs.get("pk"), slug=self.kwargs.get("slug"))
+            self.get_gallery(pk=self.kwargs.get("pk"))
         except Gallery.DoesNotExist:
             raise Http404()
 
@@ -288,7 +288,7 @@ class EditGalleryMembers(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin
         if not has_deleted and not modify_self:
             self.success_url = self.gallery.get_absolute_url()
         else:
-            self.success_url = reverse("gallery-list")
+            self.success_url = reverse("gallery:list")
 
         return super().form_valid(form)
 
@@ -300,7 +300,7 @@ class ImageFromGalleryViewMixin(GalleryMixin, View):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.get_gallery(pk=self.kwargs.get("pk_gallery"), slug=self.kwargs.get("slug"))
+            self.get_gallery(pk=self.kwargs.get("pk_gallery"))
         except Gallery.DoesNotExist:
             raise Http404()
 
@@ -337,7 +337,7 @@ class NewImage(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWithRea
             messages.error(self.request, _(f"Le fichier « {e} » n'est pas une image valide."))
             form.add_error("physical", _("Image invalide"))
             return super().form_invalid(form)
-        self.success_url = reverse("gallery-image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
+        self.success_url = reverse("gallery:image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
 
         return super().form_valid(form)
 
@@ -395,7 +395,7 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
             form.add_error("physical", _("Image invalide"))
             return super().form_invalid(form)
 
-        self.success_url = reverse("gallery-image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
+        self.success_url = reverse("gallery:image-edit", kwargs={"pk_gallery": self.gallery.pk, "pk": self.image.pk})
 
         return super().form_valid(form)
 

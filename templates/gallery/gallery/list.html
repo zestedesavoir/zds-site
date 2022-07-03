@@ -80,7 +80,7 @@
     {% if galleries|length == 0 %}
         <p>
             {% trans "Vous n’avez pas encore de galerie" %}. <br>
-            <a href="{% url "gallery-new" %}">{% trans "Créer une galerie" %}</a>.
+            <a href="{% url "gallery:create" %}">{% trans "Créer une galerie" %}</a>.
         </p>
     {% endif %}
 
@@ -99,7 +99,7 @@
                         {% trans "Supprimer les galeries sélectionnées" %}
                     </a>
 
-                    <form action="{% url "galleries-delete" %}" method="post" id="delete-galleries" class="modal modal-flex">
+                    <form action="{% url "gallery:delete" %}" method="post" id="delete-galleries" class="modal modal-flex">
                         <p>
                             {% trans "Attention, vous vous apprêtez à supprimer toutes les galeries sélectionnées" %}.
                         </p>

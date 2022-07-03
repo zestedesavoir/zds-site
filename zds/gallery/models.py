@@ -210,7 +210,7 @@ class Gallery(models.Model):
         :return: Gallery object URL
         :rtype: str
         """
-        return reverse("gallery-details", args=[self.pk, self.slug])
+        return reverse("gallery:details", args=[self.pk, self.slug])
 
     def get_gallery_path(self):
         """Get the filesystem path to this gallery root.

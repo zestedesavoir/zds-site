@@ -1,8 +1,10 @@
-from django.urls import re_path
+from django.urls import path
 
 from zds.notification.views import NotificationList, mark_notifications_as_read
 
+app_name = "notification"
+
 urlpatterns = [
-    re_path(r"^$", NotificationList.as_view(), name="notification-list"),
-    re_path(r"^marquer-comme-lues/$", mark_notifications_as_read, name="mark-notifications-as-read"),
+    path("", NotificationList.as_view(), name="list"),
+    path("marquer-comme-lues/", mark_notifications_as_read, name="mark-as-read"),
 ]
