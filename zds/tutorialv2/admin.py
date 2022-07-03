@@ -11,6 +11,7 @@ from zds.tutorialv2.models.database import (
     ContentContributionRole,
 )
 from zds.tutorialv2.models.events import Event
+from zds.tutorialv2.models.help_requests import HelpWriting
 
 
 class PublishableContentAdmin(admin.ModelAdmin):
@@ -119,4 +120,5 @@ admin.site.register(PickListOperation, PickListOperationAdmin)
 admin.site.register(ContentRead, ContentReadAdmin)
 admin.site.register(PublicationEvent, PublicationEventAdmin)
 admin.site.register(ContentContributionRole, ContentReviewTypeAdmin)
+admin.site.register(HelpWriting)
 admin.site.register(Event)

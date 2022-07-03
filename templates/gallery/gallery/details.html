@@ -70,7 +70,7 @@
                                                 <td>
                                                     {# droits #}
                                                     {% if u.user != current_user %}
-                                                        <form action="{% url "gallery-members" gallery.pk %}" method="post">
+                                                        <form action="{% url "gallery:members" gallery.pk %}" method="post">
                                                             {% csrf_token %}
                                                             <input type="hidden" name="action" value="edit">
                                                             <input type="hidden" name="user" value="{{ u.user.username }}">
@@ -85,7 +85,7 @@
                                                 </td>
                                                 <td>
                                                     {# suppression #}
-                                                    <form action="{% url "gallery-members" gallery.pk %}" method="post">
+                                                    <form action="{% url "gallery:members" gallery.pk %}" method="post">
                                                         {% csrf_token %}
                                                         <input type="hidden" name="action" value="leave">
                                                         <input type="hidden" name="user" value="{{ u.user.username }}">
@@ -127,7 +127,7 @@
                 <!-- Delete images -->
                 <a class="btn btn-cancel open-modal" href="#form-delete-images">{% trans "Supprimer la sélection" %}</a>
                 <!-- Confirmation modal -->
-                <form id="form-delete-images" name="form" method="post" action="{% url "gallery-image-delete" gallery.pk %}" class="modal modal-flex">
+                <form id="form-delete-images" name="form" method="post" action="{% url "gallery:image-delete" gallery.pk %}" class="modal modal-flex">
                     <input type="hidden" name="gallery" value="{{ gallery.pk }}">
                     {% csrf_token %}
                     <p>{% trans "Attention, vous vous appretez à supprimer toutes les images sélectionnées." %}</p>
@@ -149,7 +149,7 @@
                         {% endif %}
                     </div>
                     <div class="topic-description has-image" title="{{ img.title }}">
-                        <a href="{% url "gallery-image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
+                        <a href="{% url "gallery:image-edit" gallery.pk img.pk %}" class="topic-title-link navigable-link">
                             <img src="{{ img.physical.gallery.url }}"
                                  data-caption="{{ img.title }}"
                                  alt="{{ img.title }}"
@@ -164,7 +164,7 @@
                 </div>
             {% endfor %}
 
-            <a href="{% url "gallery-image-new" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
+            <a href="{% url "gallery:image-add" gallery.pk %}" title="Ajouter une image" class="gallery-item add-image">+</a>
         </div>
     {% else %}
         <p>
@@ -172,8 +172,8 @@
             <br>
 
             {% if permissions.write %}
-                {% url "gallery-image-new" gallery.pk as new_img_url %}
-                {% url "gallery-image-import" gallery.pk as import_archive %}
+                {% url "gallery:image-add" gallery.pk as new_img_url %}
+                {% url "gallery:image-import" gallery.pk as import_archive %}
                 {% blocktrans %}
                     Vous pouvez <a href="{{new_img_url}}">ajouter une image</a> à cette galerie dès à présent, ou <a href="{{ import_archive }}">importer une archive</a> !
                 {% endblocktrans %}

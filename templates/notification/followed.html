@@ -64,7 +64,7 @@
             <ul>
                 <li>
                     <a href="#mark-notifications-as-read" class="open-modal ico-after tick green">{% trans 'Tout marquer comme lu' %}</a>
-                    <form action="{% url 'mark-notifications-as-read' %}" method="post" id="mark-notifications-as-read" class="modal modal-flex">
+                    <form action="{% url "notification:mark-as-read" %}" method="post" id="mark-notifications-as-read" class="modal modal-flex">
                         {% csrf_token %}
                         <p>
                             {% trans 'Voulez-vous vraiment marquer toutes vos notifications comme lues ?' %}
