@@ -1,9 +1,11 @@
-from django.urls import re_path
+from django.urls import path
 from zds.searchv2.views import SearchView, opensearch, SimilarTopicsView, SuggestionContentView
 
+app_name = "search"
+
 urlpatterns = [
-    re_path(r"^$", SearchView.as_view(), name="query"),
-    re_path(r"^sujets-similaires/$", SimilarTopicsView.as_view(), name="similar"),
-    re_path(r"^suggestion-contenu/$", SuggestionContentView.as_view(), name="suggestion"),
-    re_path(r"^opensearch\.xml$", opensearch, name="opensearch"),
+    path("", SearchView.as_view(), name="query"),
+    path("sujets-similaires/", SimilarTopicsView.as_view(), name="similar"),
+    path("suggestion-contenu/", SuggestionContentView.as_view(), name="suggestion"),
+    path("opensearch.xml", opensearch, name="opensearch"),
 ]
