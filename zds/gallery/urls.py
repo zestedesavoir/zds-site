@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import path
 
 from zds.gallery.views import (
     NewGallery,
@@ -13,19 +13,20 @@ from zds.gallery.views import (
     EditGalleryMembers,
 )
 
+app_name = "gallery"
 
 urlpatterns = [
     # Index
-    re_path(r"^$", ListGallery.as_view(), name="gallery-list"),
-    # Gallery operation
-    re_path(r"^nouveau/$", NewGallery.as_view(), name="gallery-new"),
-    re_path(r"^(?P<pk>\d+)/(?P<slug>.+)/$", GalleryDetails.as_view(), name="gallery-details"),
-    re_path(r"^editer/(?P<pk>\d+)/(?P<slug>.+)/$", EditGallery.as_view(), name="gallery-edit"),
-    re_path(r"^membres/(?P<pk>\d+)/$", EditGalleryMembers.as_view(), name="gallery-members"),
-    re_path(r"^supprimer/$", DeleteGalleries.as_view(), name="galleries-delete"),
+    path("", ListGallery.as_view(), name="list"),
+    # Gallery operations
+    path("creer/", NewGallery.as_view(), name="create"),
+    path("<int:pk>/<slug:slug>/", GalleryDetails.as_view(), name="details"),
+    path("modifier/<int:pk>/", EditGallery.as_view(), name="edit"),
+    path("membres/<int:pk>/", EditGalleryMembers.as_view(), name="members"),
+    path("supprimer/", DeleteGalleries.as_view(), name="delete"),
     # Image operations
-    re_path(r"^image/ajouter/(?P<pk_gallery>\d+)/$", NewImage.as_view(), name="gallery-image-new"),
-    re_path(r"^image/supprimer/(?P<pk_gallery>\d+)/$", DeleteImages.as_view(), name="gallery-image-delete"),
-    re_path(r"^image/editer/(?P<pk_gallery>\d+)/(?P<pk>\d+)/$", EditImage.as_view(), name="gallery-image-edit"),
-    re_path(r"^image/importer/(?P<pk_gallery>\d+)/$", ImportImages.as_view(), name="gallery-image-import"),
+    path("<int:pk_gallery>/image/ajouter/", NewImage.as_view(), name="image-add"),
+    path("<int:pk_gallery>/image/supprimer/", DeleteImages.as_view(), name="image-delete"),
+    path("<int:pk_gallery>/image/<int:pk>/modifier/", EditImage.as_view(), name="image-edit"),
+    path("<int:pk_gallery>/image/importer/", ImportImages.as_view(), name="image-import"),
 ]

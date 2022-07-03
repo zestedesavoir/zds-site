@@ -137,7 +137,7 @@ class FeaturedResourceCreate(FeaturedViewMixin, CreateView):
                 pass
 
         messages.success(self.request, _("La une a été créée."))
-        return redirect(reverse("featured-resource-list"))
+        return redirect(reverse("featured:resource-list"))
 
 
 class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
@@ -181,12 +181,12 @@ class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
             self.object.pubdate = form.cleaned_data.get("pubdate")
 
         messages.success(self.request, _("La une a été mise à jour."))
-        self.success_url = reverse("featured-resource-list")
+        self.success_url = reverse("featured:resource-list")
         return super().form_valid(form)
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        form.helper.form_action = reverse("featured-resource-update", args=[self.object.pk])
+        form.helper.form_action = reverse("featured:resource-update", args=[self.object.pk])
         return form
 
 
@@ -198,7 +198,7 @@ class FeaturedResourceDeleteDetail(FeaturedViewMixin, DeleteView):
     model = FeaturedResource
 
     def dispatch(self, request, *args, **kwargs):
-        self.success_url = reverse("featured-resource-list")
+        self.success_url = reverse("featured:resource-list")
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -227,7 +227,7 @@ class FeaturedResourceDeleteList(FeaturedViewMixin, MultipleObjectMixin, Redirec
 
         messages.success(request, _("Les unes ont été supprimées avec succès."))
 
-        return redirect(reverse("featured-resource-list"))
+        return redirect(reverse("featured:resource-list"))
 
 
 class FeaturedRequestedList(FeaturedViewMixin, ZdSPagingListView):
@@ -328,4 +328,4 @@ class FeaturedMessageCreateUpdate(FeaturedViewMixin, FormView):
         featured_message.save()
 
         messages.success(self.request, _("Le message a été changé"))
-        return redirect(reverse("featured-resource-list"))
+        return redirect(reverse("featured:resource-list"))

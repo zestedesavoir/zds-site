@@ -11,8 +11,8 @@ from django.conf import settings
 
 class GalleryListViewTest(TestCase):
     def test_denies_anonymous(self):
-        response = self.client.get(reverse("gallery-list"), follow=True)
-        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("gallery-list"))
+        response = self.client.get(reverse("gallery:list"), follow=True)
+        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("gallery:list"))
 
     def test_list_galeries_belong_to_member(self):
         profile = ProfileFactory()
@@ -22,7 +22,7 @@ class GalleryListViewTest(TestCase):
 
         self.client.force_login(profile.user)
 
-        response = self.client.get(reverse("gallery-list"), follow=True)
+        response = self.client.get(reverse("gallery:list"), follow=True)
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, len(response.context["galleries"]))
@@ -37,14 +37,14 @@ class GalleryDetailViewTest(TestCase):
         self.profile2 = ProfileFactory()
 
     def test_denies_anonymous(self):
-        response = self.client.get(reverse("gallery-details", args=["89", "test-gallery"]), follow=True)
+        response = self.client.get(reverse("gallery:details", args=["89", "test-gallery"]), follow=True)
         self.assertRedirects(
-            response, reverse("member-login") + "?next=" + reverse("gallery-details", args=["89", "test-gallery"])
+            response, reverse("member-login") + "?next=" + reverse("gallery:details", args=["89", "test-gallery"])
         )
 
     def test_fail_gallery_no_exist(self):
         self.client.force_login(self.profile1.user)
-        response = self.client.get(reverse("gallery-details", args=["89", "test-gallery"]), follow=True)
+        response = self.client.get(reverse("gallery:details", args=["89", "test-gallery"]), follow=True)
 
         self.assertEqual(404, response.status_code)
 
@@ -55,7 +55,7 @@ class GalleryDetailViewTest(TestCase):
 
         self.client.force_login(self.profile2.user)
 
-        response = self.client.get(reverse("gallery-details", args=[gallery.pk, gallery.slug]))
+        response = self.client.get(reverse("gallery:details", args=[gallery.pk, gallery.slug]))
         self.assertEqual(403, response.status_code)
 
     def test_success_gallery_details_permission_authorized(self):
@@ -65,7 +65,7 @@ class GalleryDetailViewTest(TestCase):
 
         self.client.force_login(self.profile2.user)
 
-        response = self.client.get(reverse("gallery-details", args=[gallery.pk, gallery.slug]))
+        response = self.client.get(reverse("gallery:details", args=[gallery.pk, gallery.slug]))
         self.assertEqual(200, response.status_code)
 
 
@@ -74,24 +74,24 @@ class NewGalleryViewTest(TestCase):
         self.profile1 = ProfileFactory()
 
     def test_denies_anonymous(self):
-        response = self.client.get(reverse("gallery-new"), follow=True)
-        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("gallery-new"))
+        response = self.client.get(reverse("gallery:create"), follow=True)
+        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("gallery:create"))
 
-        response = self.client.post(reverse("gallery-new"), follow=True)
-        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("gallery-new"))
+        response = self.client.post(reverse("gallery:create"), follow=True)
+        self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("gallery:create"))
 
     def test_access_member(self):
         """just verify with get request that everythings is ok"""
         self.client.force_login(self.profile1.user)
 
-        response = self.client.get(reverse("gallery-new"))
+        response = self.client.get(reverse("gallery:create"))
         self.assertEqual(200, response.status_code)
 
     def test_fail_new_gallery_with_missing_params(self):
         self.client.force_login(self.profile1.user)
         self.assertEqual(0, Gallery.objects.count())
 
-        response = self.client.post(reverse("gallery-new"), {"subtitle": "test"})
+        response = self.client.post(reverse("gallery:create"), {"subtitle": "test"})
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.context["form"].errors)
         self.assertEqual(0, Gallery.objects.filter(subtitle="test").count())
@@ -101,7 +101,7 @@ class NewGalleryViewTest(TestCase):
         self.assertEqual(0, Gallery.objects.count())
 
         response = self.client.post(
-            reverse("gallery-new"), {"title": "test title", "subtitle": "test subtitle"}, follow=True
+            reverse("gallery:create"), {"title": "test title", "subtitle": "test subtitle"}, follow=True
         )
 
         self.assertEqual(200, response.status_code)
@@ -146,7 +146,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
-            reverse("galleries-delete"), {"delete_multi": "", "g_items": [self.gallery1.pk]}, follow=True
+            reverse("gallery:delete"), {"delete_multi": "", "g_items": [self.gallery1.pk]}, follow=True
         )
         self.assertEqual(200, response.status_code)
 
@@ -162,7 +162,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(3, Image.objects.all().count())
 
         response = self.client.post(
-            reverse("galleries-delete"),
+            reverse("gallery:delete"),
             {"delete_multi": "", "g_items": [self.gallery1.pk, self.gallery2.pk]},
             follow=True,
         )
@@ -179,9 +179,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
-        response = self.client.post(
-            reverse("galleries-delete"), {"delete": "", "gallery": self.gallery1.pk}, follow=True
-        )
+        response = self.client.post(reverse("gallery:delete"), {"delete": "", "gallery": self.gallery1.pk}, follow=True)
         self.assertEqual(403, response.status_code)
 
         self.assertEqual(4, Gallery.objects.all().count())
@@ -195,9 +193,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual(5, UserGallery.objects.all().count())
         self.assertEqual(3, Image.objects.all().count())
 
-        response = self.client.post(
-            reverse("galleries-delete"), {"delete": "", "gallery": self.gallery1.pk}, follow=True
-        )
+        response = self.client.post(reverse("gallery:delete"), {"delete": "", "gallery": self.gallery1.pk}, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, Gallery.objects.filter(pk=self.gallery1.pk).count())
         self.assertEqual(0, UserGallery.objects.filter(gallery=self.gallery1).count())
@@ -208,7 +204,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # gallery nonexistent
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": 99999}),
+            reverse("gallery:members", kwargs={"pk": 99999}),
             {
                 "action": "add",
             },
@@ -217,7 +213,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # try to add a user with write permission
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "add",
                 "user": self.profile2.user.username,
@@ -231,7 +227,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # Same permission : read
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "add",
                 "user": self.profile2.user.username,
@@ -247,7 +243,7 @@ class ModifyGalleryViewTest(TestCase):
         # try to add write permission to a user
         # who has already an read permission
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "add",
                 "user": self.profile2.user.username,
@@ -264,7 +260,7 @@ class ModifyGalleryViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "add",
                 "user": self.profile3.user.username,
@@ -281,7 +277,7 @@ class ModifyGalleryViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "add",
                 "user": self.profile3.user.username,
@@ -298,7 +294,7 @@ class ModifyGalleryViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "add",
                 "user": self.profile3.user.username,
@@ -312,7 +308,7 @@ class ModifyGalleryViewTest(TestCase):
         self.assertEqual("W", permissions[0].mode)
 
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "edit",
                 "user": self.profile3.user.username,
@@ -329,7 +325,7 @@ class ModifyGalleryViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "edit",
                 "user": self.profile1.user.username,
@@ -350,7 +346,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # kick the other
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "leave",
                 "user": self.profile2.user.username,
@@ -370,7 +366,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # try to quit
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "leave",
                 "user": self.profile1.user.username,
@@ -389,7 +385,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # leave
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "leave",
                 "user": self.profile2.user.username,
@@ -409,7 +405,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # set W
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "edit",
                 "user": self.profile2.user.username,
@@ -424,7 +420,7 @@ class ModifyGalleryViewTest(TestCase):
 
         # kick other
         response = self.client.post(
-            reverse("gallery-members", kwargs={"pk": self.gallery1.pk}),
+            reverse("gallery:members", kwargs={"pk": self.gallery1.pk}),
             {
                 "action": "leave",
                 "user": self.profile1.user.username,
@@ -452,7 +448,7 @@ class EditGalleryTestView(TestCase):
         given_subtile = "Un nouveau sous-titre"
 
         self.client.post(
-            reverse("gallery-edit", args=[self.gallery1.pk, self.gallery1.slug]),
+            reverse("gallery:edit", args=[self.gallery1.pk]),
             {"title": given_title, "subtitle": given_subtile},
             follow=True,
         )
@@ -468,7 +464,7 @@ class EditGalleryTestView(TestCase):
         given_subtile = "Un nouveau sous-titre"
 
         self.client.post(
-            reverse("gallery-edit", args=[self.gallery1.pk, self.gallery1.slug]),
+            reverse("gallery:edit", args=[self.gallery1.pk]),
             {"title": given_title, "subtitle": given_subtile},
             follow=True,
         )
@@ -484,7 +480,7 @@ class EditGalleryTestView(TestCase):
         given_subtile = "Un nouveau sous-titre"
 
         self.client.post(
-            reverse("gallery-edit", args=[self.gallery1.pk, self.gallery1.slug]),
+            reverse("gallery:edit", args=[self.gallery1.pk]),
             {"title": given_title, "subtitle": given_subtile},
             follow=True,
         )
@@ -513,7 +509,7 @@ class EditImageViewTest(TestCase):
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
 
             self.client.post(
-                reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]),
+                reverse("gallery:image-edit", args=[self.gallery.pk, self.image.pk]),
                 {"title": "modify with no perms", "legend": "test legend", "physical": fp},
                 follow=True,
             )
@@ -534,7 +530,7 @@ class EditImageViewTest(TestCase):
 
                 with open(filename, "rb") as fp:
                     response = self.client.post(
-                        reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]),
+                        reverse("gallery:image-edit", args=[self.gallery.pk, self.image.pk]),
                         {"title": "edit title", "legend": "dit legend", "physical": fp},
                         follow=True,
                     )
@@ -548,7 +544,7 @@ class EditImageViewTest(TestCase):
     def test_access_permission(self):
         self.client.force_login(self.profile1.user)
 
-        response = self.client.get(reverse("gallery-image-edit", args=[self.gallery.pk, self.image.pk]))
+        response = self.client.get(reverse("gallery:image-edit", args=[self.gallery.pk, self.image.pk]))
 
         self.assertEqual(200, response.status_code)
 
@@ -576,7 +572,7 @@ class ModifyImageTest(TestCase):
         self.client.force_login(self.profile3.user)
 
         response = self.client.post(
-            reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
+            reverse("gallery:image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
             {
                 "gallery": self.gallery1.pk,
             },
@@ -595,7 +591,7 @@ class ModifyImageTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         self.client.post(
-            reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
+            reverse("gallery:image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
             {"gallery": self.gallery1.pk, "delete": "", "image": image4.pk},
             follow=True,
         )
@@ -608,7 +604,7 @@ class ModifyImageTest(TestCase):
         nb_files = len(os.listdir(self.gallery1.get_gallery_path()))
 
         response = self.client.post(
-            reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
+            reverse("gallery:image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
             {"gallery": self.gallery1.pk, "delete": "", "image": self.image1.pk},
             follow=True,
         )
@@ -623,7 +619,7 @@ class ModifyImageTest(TestCase):
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(
-            reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
+            reverse("gallery:image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
             {"gallery": self.gallery1.pk, "delete_multi": "", "g_items": [self.image1.pk, self.image2.pk]},
             follow=True,
         )
@@ -636,7 +632,7 @@ class ModifyImageTest(TestCase):
         self.client.force_login(self.profile2.user)
 
         response = self.client.post(
-            reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
+            reverse("gallery:image-delete", kwargs={"pk_gallery": self.gallery1.pk}),
             {"gallery": self.gallery1.pk, "delete": "", "image": self.image1.pk},
             follow=True,
         )
@@ -665,7 +661,7 @@ class NewImageViewTest(TestCase):
             with self.subTest(filename):
                 with open(filename, "rb") as fp:
                     response = self.client.post(
-                        reverse("gallery-image-new", args=[self.gallery.pk]),
+                        reverse("gallery:image-add", args=[self.gallery.pk]),
                         {"title": "Test title", "legend": "Test legend", "physical": fp},
                         follow=True,
                     )
@@ -681,7 +677,7 @@ class NewImageViewTest(TestCase):
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
-                reverse("gallery-image-new", args=[self.gallery.pk]),
+                reverse("gallery:image-add", args=[self.gallery.pk]),
                 {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
@@ -695,7 +691,7 @@ class NewImageViewTest(TestCase):
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
-                reverse("gallery-image-new", args=[self.gallery.pk]),
+                reverse("gallery:image-add", args=[self.gallery.pk]),
                 {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
@@ -708,7 +704,7 @@ class NewImageViewTest(TestCase):
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
             response = self.client.post(
-                reverse("gallery-image-new", args=[156]),
+                reverse("gallery:image-add", args=[156]),
                 {"title": "Test title", "legend": "Test legend", "physical": fp},
                 follow=True,
             )
@@ -720,14 +716,14 @@ class NewImageViewTest(TestCase):
 
         with (settings.BASE_DIR / "fixtures" / "archive-gallery.zip").open("rb") as fp:
             response = self.client.post(
-                reverse("gallery-image-import", args=[self.gallery.pk]), {"file": fp}, follow=False
+                reverse("gallery:image-import", args=[self.gallery.pk]), {"file": fp}, follow=False
             )
         self.assertEqual(302, response.status_code)
         img = self.gallery.get_images()[0]
         self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 1)
         self.assertEqual("jpg", img.get_extension())
         response = self.client.post(
-            reverse("gallery-image-delete", kwargs={"pk_gallery": self.gallery.pk}),
+            reverse("gallery:image-delete", kwargs={"pk_gallery": self.gallery.pk}),
             {"delete": "", "image": img.pk},
             follow=True,
         )
@@ -738,7 +734,7 @@ class NewImageViewTest(TestCase):
 
         with (settings.BASE_DIR / "fixtures" / "archive-gallery.zip").open("rb"):
             response = self.client.post(
-                reverse("gallery-image-import", args=[self.gallery.pk]),
+                reverse("gallery:image-import", args=[self.gallery.pk]),
                 {
                     # normally we have
                     # 'file': fp
@@ -754,7 +750,7 @@ class NewImageViewTest(TestCase):
 
         with (settings.BASE_DIR / "fixtures" / "archive-gallery.zip").open("rb") as fp:
             response = self.client.post(
-                reverse("gallery-image-import", args=[self.gallery.pk]), {"file": fp}, follow=True
+                reverse("gallery:image-import", args=[self.gallery.pk]), {"file": fp}, follow=True
             )
         self.assertEqual(403, response.status_code)
         self.assertEqual(Image.objects.filter(gallery=self.gallery).count(), 0)
