@@ -434,7 +434,7 @@
 
                         {% if perms.featured.change_featuredresource %}
                             <li class="staff-only">
-                                <a href="{% url 'featured-resource-list' %}">{% trans 'Gestion des mises en avant' %}</a>
+                                <a href="{% url "featured:resource-list" %}">{% trans 'Gestion des mises en avant' %}</a>
                             </li>
                         {% endif %}
                         <li>

@@ -35,6 +35,7 @@ from zds.tutorialv2.tests.factories import (
     PublishedContentFactory,
     tricky_text_content,
     BetaContentFactory,
+    HelpWritingFactory,
 )
 from zds.tutorialv2.models.database import (
     PublishableContent,
@@ -48,8 +49,9 @@ from zds.tutorialv2.publication_utils import (
     ZMarkdownEpubPublicator,
 )
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.models import HelpWriting, Tag
-from zds.utils.tests.factories import HelpWritingFactory, SubCategoryFactory, LicenceFactory
+from zds.utils.models import Tag
+from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds import json_handler
 
 

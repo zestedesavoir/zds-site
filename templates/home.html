@@ -97,7 +97,7 @@
                 <span>{% trans "À la une" %}</span>
 
                 {% if perms.featured.change_featuredresource %}
-                    <a href="{% url "featured-resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
+                    <a href="{% url "featured:resource-list" %}" class="btn btn-grey">{% trans "Gérer les unes" %}</a>
                 {% endif %}
             </h1>
 
