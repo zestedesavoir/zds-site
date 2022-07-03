@@ -466,7 +466,7 @@
                                             </div>
 
                                             {% if topics_count > 0 %}
-                                                <a href="{% url "topic-find" usr.pk %}" class="tail">
+                                                <a href="{% url "forum:topic-find" usr.pk %}" class="tail">
                                                     <p>
                                                         {% blocktrans count topics_count=topics_count %}
                                                             <span class="bold">{{ topics_count }}</span> sujet créé
