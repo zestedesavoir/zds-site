@@ -90,6 +90,25 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class OldViewTest(TestCase):
+    """Test the view redirecting former topic URLs to the new ones."""
+
+    def test_nominal(self):
+        """Test the redirection on a nominal case."""
+        user = ProfileFactory().user
+        topic = PrivateTopicFactory(author=user)
+        PrivatePostFactory(privatetopic=topic, author=user, position_in_topic=1)
+
+        url_args = {"pk": topic.pk, "topic_slug": topic.slug()}
+        url = reverse("mp:old-view", kwargs=url_args)
+
+        self.client.force_login(user)
+        response = self.client.get(url)
+
+        redirect_url = reverse("mp:view", kwargs=url_args)
+        self.assertRedirects(response, redirect_url, status_code=301)
+
+
 class TopicViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
