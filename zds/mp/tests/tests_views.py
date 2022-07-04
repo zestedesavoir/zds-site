@@ -895,30 +895,30 @@ class PrivatePostUnreadTest(TestCase):
     def test_denies_anonymous(self):
         """Test the case of an unauthenticated user trying to unread a private post."""
         self.client.logout()
-        response = self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
+        response = self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post2.pk}), follow=True)
 
         self.assertRedirects(
             response,
-            reverse("member-login") + "?next=" + reverse("mp:post-unread", kwargs={"pk": self.post2.pk}),
+            reverse("member-login") + "?next=" + reverse("mp:mark-post-unread", kwargs={"pk": self.post2.pk}),
         )
 
     def test_failing_unread_post(self):
         """Test cases of invalid unread requests by an authenticated user."""
         self.client.force_login(self.author.user)
         # parameter doesn't (yet) exist
-        result = self.client.get(reverse("mp:post-unread", kwargs={"pk": 424242}), follow=False)
+        result = self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": 424242}), follow=False)
         self.assertEqual(result.status_code, 404)
 
     def test_user_not_participating(self):
         """Test the case of a user not participating in a private topic attempting to unread a post."""
         self.client.force_login(self.outsider.user)
-        result = self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=False)
+        result = self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post2.pk}), follow=False)
         self.assertEqual(result.status_code, 403)
 
     @patch("zds.mp.signals.message_unread")
     def test_unread_first_post(self, message_unread):
         self.client.force_login(self.participant.user)
-        result = self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post1.pk}), follow=True)
+        result = self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post1.pk}), follow=True)
         self.assertRedirects(result, reverse("mp:list"))
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
             PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
@@ -927,7 +927,7 @@ class PrivatePostUnreadTest(TestCase):
     @patch("zds.mp.signals.message_unread")
     def test_unread_normal_post(self, message_unread):
         self.client.force_login(self.participant.user)
-        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
+        self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post2.pk}), follow=True)
         topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
         self.assertEqual(topic_read.privatetopic, self.topic1)
         self.assertEqual(topic_read.user, self.participant.user)
@@ -937,8 +937,8 @@ class PrivatePostUnreadTest(TestCase):
     @patch("zds.mp.signals.message_unread")
     def test_multiple_unread1(self, message_unread):
         self.client.force_login(self.participant.user)
-        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post1.pk}), follow=True)
-        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
+        self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post1.pk}), follow=True)
+        self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post2.pk}), follow=True)
         topic_read = PrivateTopicRead.objects.get(privatetopic=self.post2.privatetopic, user=self.participant.user)
         self.assertEqual(topic_read.privatetopic, self.topic1)
         self.assertEqual(topic_read.user, self.participant.user)
@@ -949,7 +949,7 @@ class PrivatePostUnreadTest(TestCase):
     def test_multiple_unread2(self, message_unread):
         self.client.force_login(self.participant.user)
         for _ in range(2):
-            self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post1.pk}), follow=True)
+            self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post1.pk}), follow=True)
         with self.assertRaises(PrivateTopicRead.DoesNotExist):
             PrivateTopicRead.objects.get(privatetopic=self.post1.privatetopic, user=self.participant.user)
         self.assertEqual(message_unread.send.call_count, 2)
@@ -958,6 +958,6 @@ class PrivatePostUnreadTest(TestCase):
         mark_read(self.topic1, self.author.user)
         topic_read_old = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
         self.client.force_login(self.participant.user)
-        self.client.get(reverse("mp:post-unread", kwargs={"pk": self.post2.pk}), follow=True)
+        self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post2.pk}), follow=True)
         topic_read_new = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
         self.assertQuerysetEqual(topic_read_old, [repr(t) for t in topic_read_new])

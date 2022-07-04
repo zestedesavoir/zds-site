@@ -73,7 +73,7 @@
             {% endcaptureas %}
 
             {% captureas unread_link %}
-                {% url "mp:post-unread" message.pk %}
+                {% url "mp:mark-post-unread" message.pk %}
             {% endcaptureas %}
 
             {% if forloop.first and page_obj.number > 1 %}

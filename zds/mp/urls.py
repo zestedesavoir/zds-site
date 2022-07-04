@@ -38,5 +38,5 @@ urlpatterns = [
     ),
     # Routes related to a single message
     path("message/<int:pk>/modifier/", PrivatePostEdit.as_view(), name="post-edit"),
-    path("message/<int:pk>/marquer-non-lu/", PrivatePostUnread.as_view(), name="post-unread"),
+    path("message/<int:pk>/marquer-non-lu/", PrivatePostUnread.as_view(), name="mark-post-unread"),
 ]
