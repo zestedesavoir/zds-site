@@ -123,6 +123,12 @@ div.msg-are-hidden {
         }
     }
 
+    &:target {
+        /* Force l'affichage des messages masqués s'ils sont la cible d'une ancre (par exemple en venant via une notification) */
+        display: block !important;
+        visibility: visible !important;
+    }
+
     .user {
         @include until-desktop {
             display: none;
