@@ -1803,6 +1803,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         content.sha_draft = sha
         content.save()
 
+        original_intro = versioned.get_introduction()
+        original_conclu = versioned.get_conclusion()
+
         # Download archive of initial state for content
         result = self.client.get(reverse("content:download-zip", args=[content.pk, content.slug]), follow=False)
         self.assertEqual(result.status_code, 200)
@@ -1814,7 +1817,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # Failure to import this information defaults also to True, this is to make sure.
         versioned.children[0].children[0].ready_to_publish = True
         versioned.children[1].ready_to_publish = True
-        sha = versioned.repo_update_top_container(content.title, content.slug, "introduction", "conclusion")
+        sha = versioned.repo_update_top_container(content.title, content.slug, original_intro, original_conclu)
         content.sha_draft = sha
         content.save()
 
@@ -1832,6 +1835,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(versioned.children[0].children[1].ready_to_publish)
         self.assertFalse(versioned.children[0].children[0].ready_to_publish)
         self.assertFalse(versioned.children[1].ready_to_publish)
+
+        self.assertEqual(original_intro, versioned.get_introduction())
+        self.assertEqual(original_conclu, versioned.get_conclusion())
 
     def test_display_history(self):
         """Test DisplayHistory view"""
