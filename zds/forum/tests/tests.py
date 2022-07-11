@@ -1233,9 +1233,9 @@ class TopicReadAndUnreadTests(TestCase):
         author = ProfileFactory().user
         reader = ProfileFactory().user
         topic = TopicFactory(author=author, forum=ForumFactory(category=ForumCategoryFactory(), position_in_category=1))
-        PostFactory(topic=topic, author=author, position=1)
+        op = PostFactory(topic=topic, author=author, position=1)
+        TopicRead(topic=topic, post=op, user=reader).save()
         post = PostFactory(topic=topic, author=ProfileFactory().user, position=2)
-        TopicRead(topic=topic, post=post, user=reader).save()
         topic = Topic.objects.get(pk=topic.pk)
         self.assertEqual(post, topic.first_unread_post(reader))
 
