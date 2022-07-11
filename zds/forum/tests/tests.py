@@ -1211,6 +1211,46 @@ class ManagerTests(TestCase):
         self.assertFalse(topic.is_read_by_user(reader.user, check_auth=False))
 
 
+class TopicReadAndUnreadTests(TestCase):
+
+    def test_first_unread_on_non_read_op(self):
+        author = ProfileFactory()
+        reader = ProfileFactory()
+        topic = TopicFactory(author=author, forum=ForumFactory(category=ForumCategoryFactory(), position_in_category=1))
+        post = PostFactory(topic=topic, author=author, position=1)
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertEqual(post, topic.first_unread_post(reader))
+
+    def test_first_unread_on_read_op(self):
+        author = ProfileFactory()
+        reader = ProfileFactory()
+        topic = TopicFactory(author=author, forum=ForumFactory(category=ForumCategoryFactory(), position_in_category=1))
+        post = PostFactory(topic=topic, author=author, position=1)
+        TopicRead(topic=topic, post=post, user=reader).save()
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertEqual(None, topic.first_unread_post(reader))
+
+    def test_first_unread_on_read_other_message(self):
+        author = ProfileFactory()
+        reader = ProfileFactory()
+        topic = TopicFactory(author=author, forum=ForumFactory(category=ForumCategoryFactory(), position_in_category=1))
+        PostFactory(topic=topic, author=author, position=1)
+        post = PostFactory(topic=topic, author=ProfileFactory().user, position=2)
+        TopicRead(topic=topic, post=post, user=reader).save()
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertEqual(post, topic.first_unread_post(reader))
+
+    def test_first_unread_on_not_read_other_message(self):
+        author = ProfileFactory()
+        reader = ProfileFactory()
+        topic = TopicFactory(author=author, forum=ForumFactory(category=ForumCategoryFactory(), position_in_category=1))
+        op = PostFactory(topic=topic, author=author, position=1)
+        PostFactory(topic=topic, author=ProfileFactory().user, position=2)
+        topic = Topic.objects.get(pk=topic.pk)
+        self.assertEqual(op, topic.first_unread_post(reader))
+
+
+
 class TestMixins(TestCase):
     def test_double_unread_is_handled(self):
         author = ProfileFactory().user

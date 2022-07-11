@@ -366,7 +366,8 @@ class Topic(AbstractESDjangoIndexable):
         this topic.\
         Used in notification menu.
 
-        :return: The first unread post for this topic and this user.
+        :return: The first unread post for this topic and this user. If the topic was read, gets ``last_post`` or None \
+        if no posts was found after OP.
         """
         try:
             if user is None:
@@ -379,7 +380,8 @@ class Topic(AbstractESDjangoIndexable):
             )
             return next_post
         except (TopicRead.DoesNotExist, Post.DoesNotExist):
-            return self.first_post()
+            # if was read, returns the last topic or None if no answers
+            return self.get_last_post()
 
     def antispam(self, user=None):
         """
