@@ -1212,7 +1212,6 @@ class ManagerTests(TestCase):
 
 
 class TopicReadAndUnreadTests(TestCase):
-
     def test_first_unread_on_non_read_op(self):
         author = ProfileFactory()
         reader = ProfileFactory()
@@ -1248,7 +1247,6 @@ class TopicReadAndUnreadTests(TestCase):
         PostFactory(topic=topic, author=ProfileFactory().user, position=2)
         topic = Topic.objects.get(pk=topic.pk)
         self.assertEqual(op, topic.first_unread_post(reader))
-
 
 
 class TestMixins(TestCase):
