@@ -2,10 +2,10 @@ from django.conf import settings
 from django.contrib.syndication.views import Feed
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import make_aware
-from django.utils.feedgenerator import Atom1Feed
 from django.utils.translation import gettext_lazy as _
 from pytz import AmbiguousTimeError, NonExistentTimeError
 
+from zds.utils.feeds import DropControlCharsRss201rev2Feed, DropControlCharsAtom1Feed
 from zds.utils.models import Category, SubCategory, Tag
 from zds.utils.uuslug_wrapper import slugify
 from zds.tutorialv2.models.database import PublishedContent
@@ -21,6 +21,7 @@ class LastContentFeedRSS(Feed):
     link = ""
     content_type = None
     query_params = {}
+    feed_type = DropControlCharsRss201rev2Feed
 
     def get_object(self, request, *args, **kwargs):
         self.query_params = request.GET
@@ -80,7 +81,7 @@ class LastContentFeedRSS(Feed):
 
 
 class LastContentFeedATOM(LastContentFeedRSS):
-    feed_type = Atom1Feed
+    feed_type = DropControlCharsAtom1Feed
     subtitle = LastContentFeedRSS.description
 
 
@@ -96,7 +97,7 @@ class LastTutorialsFeedRSS(LastContentFeedRSS):
 
 
 class LastTutorialsFeedATOM(LastTutorialsFeedRSS):
-    feed_type = Atom1Feed
+    feed_type = DropControlCharsAtom1Feed
     subtitle = LastTutorialsFeedRSS.description
 
 
@@ -112,7 +113,7 @@ class LastArticlesFeedRSS(LastContentFeedRSS):
 
 
 class LastArticlesFeedATOM(LastArticlesFeedRSS):
-    feed_type = Atom1Feed
+    feed_type = DropControlCharsAtom1Feed
     subtitle = LastArticlesFeedRSS.description
 
 
@@ -128,5 +129,5 @@ class LastOpinionsFeedRSS(LastContentFeedRSS):
 
 
 class LastOpinionsFeedATOM(LastOpinionsFeedRSS):
-    feed_type = Atom1Feed
+    feed_type = DropControlCharsAtom1Feed
     subtitle = LastOpinionsFeedRSS.description

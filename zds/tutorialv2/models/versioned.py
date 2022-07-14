@@ -577,7 +577,9 @@ class Container:
         if do_commit:
             return self.top_container().commit_changes(commit_message)
 
-    def repo_add_container(self, title, introduction, conclusion, commit_message="", do_commit=True, slug=None):
+    def repo_add_container(
+        self, title, introduction, conclusion, commit_message="", do_commit=True, slug=None, ready_to_publish=None
+    ):
         """
         :param title: title of the new container
         :param introduction: text of its introduction
@@ -610,6 +612,8 @@ class Container:
         if not commit_message:
             commit_message = _("Création du conteneur « {} »").format(title)
 
+        if ready_to_publish is not None:
+            subcontainer.ready_to_publish = ready_to_publish
         return subcontainer.repo_update(
             title, introduction, conclusion, commit_message=commit_message, do_commit=do_commit
         )
