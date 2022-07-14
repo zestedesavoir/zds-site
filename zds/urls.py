@@ -83,7 +83,7 @@ admin.autodiscover()
 urlpatterns = [
     re_path(r"^", include(("zds.tutorialv2.urls", ""))),
     re_path(r"^forums/", include(("zds.forum.urls", ""))),
-    re_path(r"^mp/", include(("zds.mp.urls", ""))),
+    path("mp/", include("zds.mp.urls")),
     re_path(r"^membres/", include(("zds.member.urls", ""))),
     re_path(r"^admin/", admin.site.urls),
     path("pages/", include("zds.pages.urls")),

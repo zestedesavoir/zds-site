@@ -15,16 +15,16 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
 from django.views.decorators.http import require_GET
 
-
 from zds.member.models import Profile
-from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost, SinglePrivatePostObjectMixin
+from zds.mp import signals
+from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
 from zds.mp.decorator import is_participant
 from zds.utils.models import get_hat_from_request
 from zds.forum.utils import CreatePostView
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivatePost, mark_read, NotReachableError
+from .models import PrivateTopic, PrivateTopicRead, PrivatePost, mark_read, NotReachableError
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -158,7 +158,7 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
         topic = self.get_object()
         self.perform_destroy(topic)
         messages.success(request, _("Vous avez quitté la conversation avec succès."))
-        return redirect(reverse("mp-list"))
+        return redirect(reverse("mp:list"))
 
     def get_current_user(self):
         return self.request.user
@@ -196,7 +196,7 @@ class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
         except NotReachableError:
             messages.warning(request, _("""Le membre n'a pas été ajouté à la conversation, car il est injoignable."""))
 
-        return redirect(reverse("private-posts-list", args=[topic.pk, topic.slug()]))
+        return redirect(reverse("mp:view", args=[topic.pk, topic.slug()]))
 
 
 class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView):
@@ -217,7 +217,7 @@ class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView
     def post(self, request, *args, **kwargs):
         for topic in self.get_queryset():
             self.perform_destroy(topic)
-        return redirect(reverse("mp-list"))
+        return redirect(reverse("mp:list"))
 
     def get_current_user(self):
         return self.request.user
@@ -302,7 +302,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
     Edits a post on a MP.
     """
 
-    current_post = None
+    post = None
     topic = None
     queryset = PrivatePost.objects.all()
     template_name = "mp/post/edit.html"
@@ -313,37 +313,34 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
         return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
-        # if post.position_in_topic >= 1:
-        self.topic = get_object_or_404(PrivateTopic, pk=(self.kwargs.get("topic_pk", None)))
-        self.current_post = super().get_object(queryset)
-        last = get_object_or_404(PrivatePost, pk=self.topic.last_message.pk)
+        self.post = super().get_object(queryset)
+        self.topic = self.post.privatetopic
+        last_post = get_object_or_404(PrivatePost, pk=self.topic.last_message.pk)
         # Only edit last private post
-        if not last.pk == self.current_post.pk:
+        if not last_post.pk == self.post.pk:
             raise PermissionDenied
-        # Making sure the user is allowed to do that. Author of the post must to be the user logged.
-        if self.current_post.author != self.request.user:
+        # Making sure the user is allowed to do that. Author of the post must be the logged user.
+        if self.post.author != self.request.user:
             raise PermissionDenied
-        return self.current_post
+        return self.post
 
     def get(self, request, *args, **kwargs):
-        self.current_post = self.get_object()
-        form = self.form_class(self.topic, initial={"text": self.current_post.text})
-        form.helper.form_action = reverse(
-            "private-posts-edit", args=[self.topic.pk, self.topic.slug(), self.current_post.pk]
-        )
+        self.post = self.get_object()
+        form = self.form_class(self.topic, initial={"text": self.post.text})
+        form.helper.form_action = reverse("mp:post-edit", args=[self.post.pk])
         return render(
             request,
             self.template_name,
             {
-                "post": self.current_post,
+                "post": self.post,
                 "topic": self.topic,
-                "text": self.current_post.text,
+                "text": self.post.text,
                 "form": form,
             },
         )
 
     def post(self, request, *args, **kwargs):
-        self.current_post = self.get_object()
+        self.post = self.get_object()
         form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
@@ -357,7 +354,7 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
             request,
             self.template_name,
             {
-                "post": self.current_post,
+                "post": self.post,
                 "topic": self.topic,
                 "form": form,
             },
@@ -365,20 +362,17 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
 
     def get_form(self, form_class=PrivatePostForm):
         form = self.form_class(self.topic, self.request.POST)
-        form.helper.form_action = reverse(
-            "private-posts-edit", args=[self.topic.pk, self.topic.slug(), self.current_post.pk]
-        )
+        form.helper.form_action = reverse("mp:post-edit", args=[self.post.pk])
         return form
 
     def form_valid(self, form):
-        self.perform_update(
-            self.current_post, self.request.POST, hat=get_hat_from_request(self.request, self.current_post.author)
-        )
-
-        return redirect(self.current_post.get_absolute_url())
+        self.perform_update(self.post, self.request.POST, hat=get_hat_from_request(self.request, self.post.author))
+        return redirect(self.post.get_absolute_url())
 
 
-class PrivatePostUnread(UpdateView, UpdatePrivatePost, SinglePrivatePostObjectMixin):
+class PrivatePostUnread(UpdateView):
+    queryset = PrivatePost.objects.all()
+
     @method_decorator(require_GET)
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
@@ -391,4 +385,21 @@ class PrivatePostUnread(UpdateView, UpdatePrivatePost, SinglePrivatePostObjectMi
         ):
             raise PermissionDenied
         self.perform_unread_private_post(self.object, self.request.user)
-        return redirect(reverse("mp-list"))
+        return redirect(reverse("mp:list"))
+
+    @staticmethod
+    def perform_unread_private_post(post, user):
+        """
+        Mark the private post as unread.
+        """
+        previous_post = post.get_previous()
+        topic_read = PrivateTopicRead.objects.filter(privatetopic=post.privatetopic, user=user).first()
+        if topic_read is None and previous_post is not None:
+            PrivateTopicRead(privatepost=previous_post, privatetopic=post.privatetopic, user=user).save()
+        elif topic_read is not None and previous_post is not None:
+            topic_read.privatepost = previous_post
+            topic_read.save()
+        elif topic_read is not None:
+            topic_read.delete()
+
+        signals.message_unread.send(sender=post.privatetopic.__class__, instance=post, user=user)

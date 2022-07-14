@@ -819,7 +819,7 @@ class NotificationPrivateTopicTest(TestCase):
 
         self.assertEqual(1, len(Notification.objects.get_unread_notifications_of(self.user1)))
 
-        response = self.client.post(reverse("mp-delete", args=[topic.pk, topic.slug]), follow=True)
+        response = self.client.post(reverse("mp:leave", args=[topic.pk, topic.slug()]), follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(0, len(Notification.objects.get_unread_notifications_of(self.user1)))
 

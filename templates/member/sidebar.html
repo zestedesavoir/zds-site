@@ -28,7 +28,7 @@
             <ul>
                 {% if usr != user and not profile.is_private and profile.can_read_now %}
                     <li>
-                        <a href="{% url 'mp-new' %}?username={{ usr.username }}" class="ico-after cite blue">
+                        <a href="{% url "mp:create" %}?username={{ usr.username }}" class="ico-after cite blue">
                             {% trans "Envoyer un message privé" %}
                         </a>
                     </li>

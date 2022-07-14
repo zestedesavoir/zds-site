@@ -89,7 +89,7 @@ class PrivateTopic(models.Model):
         :return: PrivateTopic object URL
         :rtype: str
         """
-        return reverse("private-posts-list", args=[self.pk, self.slug()])
+        return reverse("mp:view", args=[self.pk, self.slug()])
 
     def slug(self):
         """
@@ -399,6 +399,13 @@ class PrivatePost(models.Model):
         if private_topic is not None:
             is_same_private_topic = private_topic == self.privatetopic
         return is_same_private_topic and self.privatetopic.last_message == self
+
+    def get_previous(self):
+        """Return the previous post in the topic or 'None' if the post is the first one."""
+        return PrivatePost.objects.filter(
+            privatetopic=self.privatetopic,
+            position_in_topic=self.position_in_topic - 1,
+        ).first()
 
     def get_user_vote(self, user):
         """Get a user vote (like, dislike or neutral)"""
