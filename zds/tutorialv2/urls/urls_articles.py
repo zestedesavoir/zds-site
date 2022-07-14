@@ -9,35 +9,27 @@ from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 
 urlpatterns = [
     # Flux
-    re_path(r"^flux/rss/$", LastArticlesFeedRSS(), name="feed-rss"),
-    re_path(r"^flux/atom/$", LastArticlesFeedATOM(), name="feed-atom"),
+    path("flux/rss/", LastArticlesFeedRSS(), name="feed-rss"),
+    path("flux/atom/", LastArticlesFeedATOM(), name="feed-atom"),
     # View
-    re_path(r"^(?P<pk>\d+)/(?P<slug>.+)/$", DisplayOnlineArticle.as_view(), name="view"),
+    path("<int:pk>/<slug:slug>/", DisplayOnlineArticle.as_view(), name="view"),
     # Downloads
-    re_path(
-        r"^md/(?P<pk>\d+)/(?P<slug>.+)\.md$", DownloadOnlineArticle.as_view(requested_file="md"), name="download-md"
-    ),
-    re_path(
-        r"^html/(?P<pk>\d+)/(?P<slug>.+)\.html$",
+    path("md/<int:pk>/<slug:slug>.md", DownloadOnlineArticle.as_view(requested_file="md"), name="download-md"),
+    path(
+        "html/<int:pk>/<slug:slug>.html",
         DownloadOnlineArticle.as_view(requested_file="html"),
         name="download-html",
     ),
-    re_path(
-        r"^pdf/(?P<pk>\d+)/(?P<slug>.+)\.pdf$", DownloadOnlineArticle.as_view(requested_file="pdf"), name="download-pdf"
-    ),
-    re_path(
-        r"^tex/(?P<pk>\d+)/(?P<slug>.+)\.tex$", DownloadOnlineArticle.as_view(requested_file="tex"), name="download-tex"
-    ),
-    re_path(
-        r"^epub/(?P<pk>\d+)/(?P<slug>.+)\.epub$",
+    path("pdf/<int:pk>/<slug:slug>.pdf", DownloadOnlineArticle.as_view(requested_file="pdf"), name="download-pdf"),
+    path("tex/<int:pk>/<slug:slug>.tex", DownloadOnlineArticle.as_view(requested_file="tex"), name="download-tex"),
+    path(
+        "epub/<int:pk>/<slug:slug>.epub",
         DownloadOnlineArticle.as_view(requested_file="epub"),
         name="download-epub",
     ),
-    re_path(
-        r"^zip/(?P<pk>\d+)/(?P<slug>.+)\.zip$", DownloadOnlineArticle.as_view(requested_file="zip"), name="download-zip"
-    ),
+    path("zip/<int:pk>/<slug:slug>.zip", DownloadOnlineArticle.as_view(requested_file="zip"), name="download-zip"),
     # Listing
-    re_path(r"^$", RedirectView.as_view(pattern_name="publication:list", permanent=True)),
+    path("", RedirectView.as_view(pattern_name="publication:list", permanent=True)),
     re_path(r"tags/*", TagsListView.as_view(displayed_types=["ARTICLE"]), name="tags"),
     path(
         "voir/<str:username>/",
