@@ -11,7 +11,7 @@ from django.views.generic import View
 from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.utils import mark_read
-from zds.utils.models import HelpWriting
+from zds.tutorialv2.models.help_requests import HelpWriting
 
 
 class SingleContentViewMixin:

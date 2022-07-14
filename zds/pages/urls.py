@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import path
 
 from zds.pages.views import (
     about,
@@ -16,16 +16,16 @@ from zds.pages.views import (
 
 urlpatterns = [
     # single pages
-    re_path(r"^apropos/$", about, name="pages-about"),
-    re_path(r"^association/$", association, name="pages-association"),
-    re_path(r"^contact/$", ContactView.as_view(), name="pages-contact"),
-    re_path(r"^cgu/$", eula, name="pages-eula"),
-    re_path(r"^alertes/$", alerts, name="pages-alerts"),
-    re_path(r"^cookies/$", cookies, name="pages-cookies"),
-    re_path(r"^historique-editions/(?P<comment_pk>\d+)/$", CommentEditsHistory.as_view(), name="comment-edits-history"),
-    re_path(r"^contenu-original/(?P<pk>\d+)/$", EditDetail.as_view(), name="edit-detail"),
-    re_path(r"^restaurer-edition/(?P<edit_pk>\d+)/$", restore_edit, name="restore-edit"),
-    re_path(r"^supprimer-contenu-edition/(?P<edit_pk>\d+)/$", delete_edit_content, name="delete-edit-content"),
+    path("apropos/", about, name="pages-about"),
+    path("association/", association, name="pages-association"),
+    path("contact/", ContactView.as_view(), name="pages-contact"),
+    path("cgu/", eula, name="pages-eula"),
+    path("alertes/", alerts, name="pages-alerts"),
+    path("cookies/", cookies, name="pages-cookies"),
+    path("historique-editions/<int:comment_pk>/", CommentEditsHistory.as_view(), name="comment-edits-history"),
+    path("contenu-original/<int:pk>/", EditDetail.as_view(), name="edit-detail"),
+    path("restaurer-edition/<int:edit_pk>/", restore_edit, name="restore-edit"),
+    path("supprimer-contenu-edition/<int:edit_pk>/", delete_edit_content, name="delete-edit-content"),
     # index
-    re_path(r"^$", index, name="pages-index"),
+    path("", index, name="pages-index"),
 ]

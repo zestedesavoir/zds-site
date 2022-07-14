@@ -8,7 +8,7 @@ from zds.forum.feeds import LastPostsFeedRSS, LastPostsFeedATOM, LastTopicsFeedR
 from zds.member.tests.factories import ProfileFactory
 
 
-class LastTopicsFeedRSSTest(TestCase):
+class LastTopicsFeedTest(TestCase):
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
 
@@ -35,7 +35,7 @@ class LastTopicsFeedRSSTest(TestCase):
         self.assertEqual(self.topicfeed.link, "/forums/")
         reftitle = "Derniers sujets sur {}".format(settings.ZDS_APP["site"]["literal_name"])
         self.assertEqual(self.topicfeed.title, reftitle)
-        refdescription = "Les derniers sujets créés " "sur le forum de {}.".format(
+        refdescription = "Les derniers sujets créés sur le forum de {}.".format(
             settings.ZDS_APP["site"]["literal_name"]
         )
         self.assertEqual(self.topicfeed.description, refdescription)
@@ -76,7 +76,7 @@ class LastTopicsFeedRSSTest(TestCase):
     def test_items_bad_cases(self):
         """test that right items are sent back according to obj"""
 
-        # test empty values, return value shoulb be empty
+        # test empty values, return value should be empty
         obj = {"forum": -1, "tag": -1}
         topics = self.topicfeed.items(obj=obj)
         self.assertEqual(len(topics), 0)
@@ -139,8 +139,26 @@ class LastTopicsFeedRSSTest(TestCase):
         ret = self.topicfeed.item_link(item=topics[0])
         self.assertEqual(ret, ref)
 
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
 
-class LastPostFeedTest(TestCase):
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_topic = TopicFactory(forum=self.forum2, author=self.user)
+        buggy_topic.title = "Strange char: \u0007"
+        buggy_topic.save()
+
+        request = self.client.get(reverse("topic-feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("topic-feed-atom"))
+        self.assertEqual(request.status_code, 200)
+
+
+class LastPostsFeedTest(TestCase):
     def setUp(self):
         # prepare a user and 2 Topic (with and without tags)
 
@@ -160,7 +178,7 @@ class LastPostFeedTest(TestCase):
         self.topic2.tags.add(self.tag)
         self.topic2.save()
 
-        # create 2 posts un each forum
+        # create 2 posts in each forum
         PostFactory(topic=self.topic1, author=self.user, position=1)
         PostFactory(topic=self.topic1, author=self.user, position=2)
         PostFactory(topic=self.topic2, author=self.user, position=1)
@@ -181,7 +199,7 @@ class LastPostFeedTest(TestCase):
         self.assertEqual(self.postfeed.link, "/forums/")
         reftitle = "Derniers messages sur {}".format(settings.ZDS_APP["site"]["literal_name"])
         self.assertEqual(self.postfeed.title, reftitle)
-        refdescription = "Les derniers messages " "parus sur le forum de {}.".format(
+        refdescription = "Les derniers messages parus sur le forum de {}.".format(
             settings.ZDS_APP["site"]["literal_name"]
         )
         self.assertEqual(self.postfeed.description, refdescription)
@@ -284,3 +302,22 @@ class LastPostFeedTest(TestCase):
         posts = self.postfeed.items(obj={"tag": self.tag2.pk})
         ret = self.postfeed.item_link(item=posts[0])
         self.assertEqual(ret, ref)
+
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_topic = TopicFactory(forum=self.forum2, author=self.user)
+        post = PostFactory(topic=buggy_topic, author=self.user, position=1)
+        post.update_content("Strange char: \u0007")
+        post.save()
+
+        request = self.client.get(reverse("post-feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("post-feed-atom"))
+        self.assertEqual(request.status_code, 200)

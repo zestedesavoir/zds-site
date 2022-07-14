@@ -10,7 +10,7 @@ from django.core.validators import MinLengthValidator
 from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
-from zds.utils.models import HelpWriting
+from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole, ContentSuggestion
 from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
@@ -1059,7 +1059,7 @@ class WarnTypoForm(forms.Form):
             usernames += "username=" + user.username
 
         msg = _('<p>Pas assez de place ? <a href="{}?title={}&{}">Envoyez un MP {}</a> !</a>').format(
-            reverse("mp-new"), pm_title, usernames, _("à l'auteur") if num_of_authors == 1 else _("aux auteurs")
+            reverse("mp:create"), pm_title, usernames, _("à l'auteur") if num_of_authors == 1 else _("aux auteurs")
         )
 
         version = content.sha_beta

@@ -2,15 +2,23 @@ from django.conf import settings
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.contrib.auth.models import Group
+from django.urls import reverse
 
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory, TagFactory
+from zds.member.tests.factories import ProfileFactory
+from zds.forum.tests.factories import TagFactory
 from zds.tutorialv2.models.database import PublishedContent
-from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM, LastArticlesFeedRSS, LastArticlesFeedATOM
+from zds.tutorialv2.feeds import (
+    LastTutorialsFeedRSS,
+    LastTutorialsFeedATOM,
+    LastArticlesFeedRSS,
+    LastArticlesFeedATOM,
+    LastOpinionsFeedRSS,
+    LastOpinionsFeedATOM,
+)
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
+    PublishedContentFactory,
     ContainerFactory,
     ExtractFactory,
 )
@@ -26,35 +34,17 @@ overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "content
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
+class LastTutorialsFeedsTest(TutorialTestMixin, TestCase):
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app["content"]["build_pdf_when_published"] = False
-
-        self.staff = StaffProfileFactory().user
-
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory().user
-        overridden_zds_app["member"]["bot_account"] = self.mas.username
-
-        bot = Group(name=overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
-
-        self.beta_forum = ForumFactory(
-            pk=overridden_zds_app["forum"]["beta_forum_id"],
-            category=ForumCategoryFactory(position=1),
-            position_in_category=1,
-        )  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
         self.tag = TagFactory()
 
         self.user_author = ProfileFactory().user
-        self.user_staff = StaffProfileFactory().user
-        self.user_guest = ProfileFactory().user
 
         # create a tutorial
         self.tuto = PublishableContentFactory(type="TUTORIAL")
@@ -209,37 +199,40 @@ class LastTutorialsFeedRSSTest(TutorialTestMixin, TestCase):
         self.tutofeed.query_params = {"tag": "invalid"}
         self.assertRaises(Http404, self.tutofeed.items)
 
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_tutorial = PublishedContentFactory(
+            author_list=[self.user_author], type="TUTORIAL", description="Strange char: \u0007"
+        )
+        buggy_tutorial.subcategory.add(self.subcategory)
+        buggy_tutorial.tags.add(self.tag)
+        buggy_tutorial.save()
+
+        request = self.client.get(reverse("tutorial:feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("tutorial:feed-atom"))
+        self.assertEqual(request.status_code, 200)
+
 
 @override_settings(ZDS_APP=overridden_zds_app)
-class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
+class LastArticlesFeedsTest(TutorialTestMixin, TestCase):
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
         # don't build PDF to speed up the tests
         overridden_zds_app["content"]["build_pdf_when_published"] = False
-
-        self.staff = StaffProfileFactory().user
-
-        settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
-        self.mas = ProfileFactory().user
-        overridden_zds_app["member"]["bot_account"] = self.mas.username
-
-        bot = Group(name=overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
-
-        self.beta_forum = ForumFactory(
-            pk=overridden_zds_app["forum"]["beta_forum_id"],
-            category=ForumCategoryFactory(position=1),
-            position_in_category=1,
-        )  # ensure that the forum, for the beta versions, is created
 
         self.licence = LicenceFactory()
         self.subcategory = SubCategoryFactory()
         self.tag = TagFactory()
 
         self.user_author = ProfileFactory().user
-        self.user_staff = StaffProfileFactory().user
-        self.user_guest = ProfileFactory().user
 
         # create an article
         self.article = PublishableContentFactory(type="ARTICLE")
@@ -391,3 +384,187 @@ class LastArticlesFeedRSSTest(TutorialTestMixin, TestCase):
 
         self.articlefeed.query_params = {"tag": "invalid"}
         self.assertRaises(Http404, self.articlefeed.items)
+
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_article = PublishedContentFactory(
+            author_list=[self.user_author], type="ARTICLE", description="Strange char: \u0007"
+        )
+        buggy_article.subcategory.add(self.subcategory)
+        buggy_article.tags.add(self.tag)
+        buggy_article.save()
+
+        request = self.client.get(reverse("article:feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("article:feed-atom"))
+        self.assertEqual(request.status_code, 200)
+
+
+@override_settings(ZDS_APP=overridden_zds_app)
+class LastOpinionsFeedsTest(TutorialTestMixin, TestCase):
+    def setUp(self):
+        self.overridden_zds_app = overridden_zds_app
+        # don't build PDF to speed up the tests
+        overridden_zds_app["content"]["build_pdf_when_published"] = False
+
+        self.subcategory = SubCategoryFactory()
+        self.tag = TagFactory()
+        self.user_author = ProfileFactory().user
+
+        # create an opinion
+        self.opinion = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        self.opinion.subcategory.add(self.subcategory)
+        self.opinion.tags.add(self.tag)
+        self.opinion.save()
+
+        self.opinionfeed = LastOpinionsFeedRSS()
+
+    def test_is_well_setup(self):
+        """Test that base parameters are Ok"""
+
+        self.assertEqual(self.opinionfeed.link, "/tribunes/")
+        reftitle = "Tribunes sur {}".format(overridden_zds_app["site"]["literal_name"])
+        self.assertEqual(self.opinionfeed.title, reftitle)
+        refdescription = "Les derniers billets des tribunes parus sur {}.".format(
+            overridden_zds_app["site"]["literal_name"]
+        )
+        self.assertEqual(self.opinionfeed.description, refdescription)
+
+        atom = LastOpinionsFeedATOM()
+        self.assertEqual(atom.subtitle, refdescription)
+
+    def test_get_items(self):
+        """basic test sending back the article"""
+
+        ret = list(self.opinionfeed.items())
+        self.assertEqual(ret[0].content, self.opinion)
+
+    def test_get_pubdate(self):
+        """test the return value of pubdate"""
+
+        ref = PublishedContent.objects.get(content__pk=self.opinion.pk).publication_date
+        opinion = list(self.opinionfeed.items())[0]
+        ret = self.opinionfeed.item_pubdate(item=opinion)
+        self.assertEqual(ret.date(), ref.date())
+
+    def test_get_title(self):
+        """test the return value of title"""
+
+        ref = self.opinion.title
+        opinion = list(self.opinionfeed.items())[0]
+        ret = self.opinionfeed.item_title(item=opinion)
+        self.assertEqual(ret, ref)
+
+    def test_get_description(self):
+        """test the return value of description"""
+
+        ref = self.opinion.description
+        opinion = list(self.opinionfeed.items())[0]
+        ret = self.opinionfeed.item_description(item=opinion)
+        self.assertEqual(ret, ref)
+
+    def test_get_author_name(self):
+        """test the return value of author name"""
+
+        ref = self.user_author.username
+        opinion = list(self.opinionfeed.items())[0]
+        ret = self.opinionfeed.item_author_name(item=opinion)
+        self.assertEqual(ret, ref)
+
+    def test_get_item_link(self):
+        """test the return value of item link"""
+
+        ref = self.opinion.get_absolute_url_online()
+        opinion = list(self.opinionfeed.items())[0]
+        ret = self.opinionfeed.item_link(item=opinion)
+        self.assertEqual(ret, ref)
+
+    def test_filters(self):
+        """Test filtering by category & tag"""
+        subcategory2 = SubCategoryFactory()
+        subcategory3 = SubCategoryFactory()
+        tag2 = TagFactory()
+        tag3 = TagFactory()
+
+        # Add a new opinion & publish it
+
+        opinion2 = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        opinion2.subcategory.add(subcategory2)
+        opinion2.tags.add(self.tag)
+        opinion2.tags.add(tag2)
+        opinion2.save()
+
+        # Default view
+
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [opinion2, self.opinion])
+
+        # Filter by subcategory
+
+        self.opinionfeed.query_params = {"subcategory": self.subcategory.slug}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [self.opinion])
+
+        self.opinionfeed.query_params = {"subcategory": f" {self.subcategory.slug} "}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [self.opinion])
+
+        self.opinionfeed.query_params = {"subcategory": subcategory2.slug}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [opinion2])
+
+        self.opinionfeed.query_params = {"subcategory": subcategory3.slug}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [])
+
+        self.opinionfeed.query_params = {"subcategory": "invalid"}
+        self.assertRaises(Http404, self.opinionfeed.items)
+
+        # Filter by tag
+
+        self.opinionfeed.query_params = {"tag": self.tag.slug}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [opinion2, self.opinion])
+
+        self.opinionfeed.query_params = {"tag": tag2.slug}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [opinion2])
+
+        self.opinionfeed.query_params = {"tag": f" {tag2.slug} "}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [opinion2])
+
+        self.opinionfeed.query_params = {"tag": tag3.slug}
+        ret = [item.content for item in self.opinionfeed.items()]
+        self.assertEqual(ret, [])
+
+        self.opinionfeed.query_params = {"tag": "invalid"}
+        self.assertRaises(Http404, self.opinionfeed.items)
+
+    def test_content_control_chars(self):
+        """
+        Test 'control characters' in content of the feed doesn't break it.
+
+        The '\u0007' character in the post content belongs to a character
+        family that is  not supported in RSS or Atom feeds and will break their
+        generation.
+        """
+        buggy_opinion = PublishedContentFactory(
+            author_list=[self.user_author], type="OPINION", description="Strange char: \u0007"
+        )
+        buggy_opinion.subcategory.add(self.subcategory)
+        buggy_opinion.tags.add(self.tag)
+        buggy_opinion.save()
+
+        request = self.client.get(reverse("opinion:feed-rss"))
+        self.assertEqual(request.status_code, 200)
+
+        request = self.client.get(reverse("opinion:feed-atom"))
+        self.assertEqual(request.status_code, 200)

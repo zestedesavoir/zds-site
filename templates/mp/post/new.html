@@ -41,7 +41,7 @@
     {% endif %}
 
     {% captureas form_action %}
-        {% url "private-posts-new" topic.pk topic.slug %}
+        {% url "mp:answer" topic.pk topic.slug %}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user text=form.text.value %}
@@ -55,11 +55,11 @@
     <div class="content-wrapper">
         {% for message in posts %}
             {% captureas edit_link %}
-                {% url "private-posts-edit" topic.pk topic.slug message.pk %}
+                {% url "mp:post-edit" message.pk %}
             {% endcaptureas %}
 
             {% captureas cite_link %}
-                {% url "private-posts-new" topic.pk topic.slug %}?cite={{ message.pk }}
+                {% url "mp:answer" topic.pk topic.slug %}?cite={{ message.pk }}
             {% endcaptureas %}
 
             {% include "misc/message.part.html" with can_hide=False is_mp=True %}

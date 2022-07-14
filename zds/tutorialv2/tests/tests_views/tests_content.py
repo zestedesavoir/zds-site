@@ -35,6 +35,7 @@ from zds.tutorialv2.tests.factories import (
     PublishedContentFactory,
     tricky_text_content,
     BetaContentFactory,
+    HelpWritingFactory,
 )
 from zds.tutorialv2.models.database import (
     PublishableContent,
@@ -48,8 +49,9 @@ from zds.tutorialv2.publication_utils import (
     ZMarkdownEpubPublicator,
 )
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.models import HelpWriting, Tag
-from zds.utils.tests.factories import HelpWritingFactory, SubCategoryFactory, LicenceFactory
+from zds.utils.models import Tag
+from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 from zds import json_handler
 
 
@@ -1801,6 +1803,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         content.sha_draft = sha
         content.save()
 
+        original_intro = versioned.get_introduction()
+        original_conclu = versioned.get_conclusion()
+
         # Download archive of initial state for content
         result = self.client.get(reverse("content:download-zip", args=[content.pk, content.slug]), follow=False)
         self.assertEqual(result.status_code, 200)
@@ -1812,7 +1817,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # Failure to import this information defaults also to True, this is to make sure.
         versioned.children[0].children[0].ready_to_publish = True
         versioned.children[1].ready_to_publish = True
-        sha = versioned.repo_update_top_container(content.title, content.slug, "introduction", "conclusion")
+        sha = versioned.repo_update_top_container(content.title, content.slug, original_intro, original_conclu)
         content.sha_draft = sha
         content.save()
 
@@ -1830,6 +1835,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(versioned.children[0].children[1].ready_to_publish)
         self.assertFalse(versioned.children[0].children[0].ready_to_publish)
         self.assertFalse(versioned.children[1].ready_to_publish)
+
+        self.assertEqual(original_intro, versioned.get_introduction())
+        self.assertEqual(original_conclu, versioned.get_conclusion())
 
     def test_display_history(self):
         """Test DisplayHistory view"""
@@ -3514,14 +3522,14 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
 
         # try to delete gallery
-        result = self.client.post(reverse("galleries-delete"), {"delete": "", "gallery": gallery.pk}, follow=True)
+        result = self.client.post(reverse("gallery:delete"), {"delete": "", "gallery": gallery.pk}, follow=True)
 
         self.assertEqual(result.status_code, 403)
         self.assertEqual(1, Gallery.objects.filter(pk=self.tuto.gallery.pk).count())  # gallery not deleted
 
         # try to add to gallery
         result = self.client.post(
-            reverse("gallery-members", kwargs={"pk": gallery.pk}),
+            reverse("gallery:members", kwargs={"pk": gallery.pk}),
             {"action": "add", "user": self.user_staff.username, "mode": "R"},
             follow=True,
         )
@@ -3531,7 +3539,7 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # try to leave gallery
         result = self.client.post(
-            reverse("gallery-members", kwargs={"pk": gallery.pk}),
+            reverse("gallery:members", kwargs={"pk": gallery.pk}),
             {
                 "action": "leave",
                 "user": self.user_author.username,

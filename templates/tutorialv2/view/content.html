@@ -622,7 +622,7 @@
     {# GALERY #}
     {% if can_edit %}
         <li>
-            <a href="{% url "gallery-details" gallery.pk gallery.slug %}" class="ico-after offline blue">
+            <a href="{% url "gallery:details" gallery.pk gallery.slug %}" class="ico-after offline blue">
                 {% trans "Aller à la galerie liée" %}
             </a>
         </li>
@@ -653,7 +653,7 @@
                     </li>
                 {% endif %}
                 <li>
-                    <a  href="{% url 'mp-new' %}?{% for username in content.authors.all %}&amp;username={{ username }}{% endfor %}"
+                    <a  href="{% url "mp:create" %}?{% for username in content.authors.all %}&amp;username={{ username }}{% endfor %}"
                         class="ico-after cite blue"
                     >
                         {% trans "Envoyer un MP" %}
