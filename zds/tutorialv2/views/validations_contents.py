@@ -572,33 +572,34 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         self.object.save()
 
         # send PM
-        msg = render_to_string(
-            "tutorialv2/messages/validation_revoke.md",
-            {
-                "content": versioned,
-                "url": versioned.get_absolute_url() + "?version=" + validation.version,
-                "admin": self.request.user,
-                "message_reject": "\n".join(["> " + a for a in form.cleaned_data["text"].split("\n")]),
-            },
-        )
+        if validation.content.authors.first().username != settings.ZDS_APP["member"]["external_account"]:
+            msg = render_to_string(
+                "tutorialv2/messages/validation_revoke.md",
+                {
+                    "content": versioned,
+                    "url": versioned.get_absolute_url() + "?version=" + validation.version,
+                    "admin": self.request.user,
+                    "message_reject": "\n".join(["> " + a for a in form.cleaned_data["text"].split("\n")]),
+                },
+            )
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-        if not validation.content.validation_private_message:
-            validation.content.validation_private_message = send_mp(
-                bot,
-                validation.content.authors.all(),
-                self.object.validation_message_title,
-                validation.content.title,
-                msg,
-                send_by_mail=True,
-                direct=False,
-                hat=get_hat_from_settings("validation"),
-            )
-            self.object.save()
-        else:
-            send_message_mp(
-                bot, validation.content.validation_private_message, msg, no_notification_for=[self.request.user]
-            )
+            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            if not validation.content.validation_private_message:
+                validation.content.validation_private_message = send_mp(
+                    bot,
+                    validation.content.authors.all(),
+                    self.object.validation_message_title,
+                    validation.content.title,
+                    msg,
+                    send_by_mail=True,
+                    direct=False,
+                    hat=get_hat_from_settings("validation"),
+                )
+                self.object.save()
+            else:
+                send_message_mp(
+                    bot, validation.content.validation_private_message, msg, no_notification_for=[self.request.user]
+                )
 
         messages.success(self.request, _("Le contenu a bien été dépublié."))
         self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version

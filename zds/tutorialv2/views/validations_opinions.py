@@ -126,7 +126,16 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
             )
 
             bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-            if not self.object.validation_private_message:
+            if self.object.validation_private_message:
+                send_message_mp(
+                    bot,
+                    self.object.validation_private_message,
+                    msg,
+                    hat=get_hat_from_settings("moderation"),
+                    no_notification_for=[self.request.user],
+                )
+            elif versioned.authors.first().username != settings.ZDS_APP["member"]["external_account"]:
+                # Send a message only if the author is still registered:
                 self.object.validation_private_message = send_mp(
                     bot,
                     versioned.authors.all(),
@@ -138,14 +147,6 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                     hat=get_hat_from_settings("moderation"),
                 )
                 self.object.save()
-            else:
-                send_message_mp(
-                    bot,
-                    self.object.validation_private_message,
-                    msg,
-                    hat=get_hat_from_settings("moderation"),
-                    no_notification_for=[self.request.user],
-                )
 
         signals.opinions_management.send(
             sender=self.__class__, performer=self.request.user, content=self.object, action="unpublish"
@@ -220,7 +221,16 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                 )
 
                 bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-                if not self.object.validation_private_message:
+                if self.object.validation_private_message:
+                    send_message_mp(
+                        bot,
+                        self.object.validation_private_message,
+                        msg,
+                        hat=get_hat_from_settings("moderation"),
+                        no_notification_for=[self.request.user],
+                    )
+                elif versioned.authors.first().username != settings.ZDS_APP["member"]["external_account"]:
+                    # Send a message only if the author is still registered:
                     self.object.validation_private_message = send_mp(
                         bot,
                         versioned.authors.all(),
@@ -232,14 +242,6 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                         hat=get_hat_from_settings("moderation"),
                     )
                     self.object.save()
-                else:
-                    send_message_mp(
-                        bot,
-                        self.object.validation_private_message,
-                        msg,
-                        hat=get_hat_from_settings("moderation"),
-                        no_notification_for=[self.request.user],
-                    )
         except ValueError:
             logger.exception("Could not %s the opinion %s", form.cleaned_data["operation"], str(self.object))
             return HttpResponse(json.dumps({"result": "FAIL", "reason": str(_("Mauvaise opération"))}), status=400)
