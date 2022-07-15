@@ -67,7 +67,7 @@
 
 {% block new_btn %}
   {% if user.profile.can_write_now %}
-      <a href="{% url 'topic-new' %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
+      <a href="{% url "forum:topic-new" %}?forum={{ forum.pk }}" class="new-btn ico-after more blue">
           {% trans "Nouveau sujet" %}
       </a>
   {% endif %}
@@ -107,7 +107,7 @@
 {% block sidebar_actions %}
     <li>
         {% with forum_is_followed=forum|is_followed_for_new_topic %}
-            {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
+            {% url "forum:topics-list" forum.category.slug forum.slug as link_follow %}
             {% if forum_is_followed %}
                 {% trans "Suivre ce forum" as data_onclick %}
                 {% trans "Ne plus suivre ce forum" as button_text %}
@@ -121,7 +121,7 @@
 
     <li>
         {% with forum_is_email_followed=forum|is_email_followed_for_new_topic %}
-            {% url 'forum-topics-list' forum.category.slug forum.slug as link_follow %}
+            {% url "forum:topics-list" forum.category.slug forum.slug as link_follow %}
             {% if forum_is_email_followed %}
                 {% trans "Être notifié par courriel" as data_onclick %}
                 {% trans "Ne plus être notifié par courriel" as button_text %}
@@ -140,21 +140,21 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url "forum-topics-list" forum.category.slug forum.slug %}?filter=solve"
+                <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}?filter=solve"
                    class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
                 >
                     {% trans "Sujets résolus" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "forum-topics-list" forum.category.slug forum.slug %}?filter=unsolve"
+                <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}?filter=unsolve"
                    class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
                 >
                     {% trans "Sujets non résolus" %}
                 </a>
             </li>
             <li>
-                <a href="{% url "forum-topics-list" forum.category.slug forum.slug %}?filter=noanswer"
+                <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}?filter=noanswer"
                    class="ico-after view {% if request.GET.filter == "noanswer" %}selected{% endif %}"
                 >
                     {% trans "Sujets sans réponse" %}
@@ -162,7 +162,7 @@
             </li>
             {% if request.GET.filter %}
                 <li>
-                    <a href="{% url "forum-topics-list" forum.category.slug forum.slug %}"
+                    <a href="{% url "forum:topics-list" forum.category.slug forum.slug %}"
                        class="ico-after cross blue"
                     >
                         {% trans "Annuler le filtre" %}

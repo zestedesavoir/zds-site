@@ -206,7 +206,7 @@ class CommentEditsHistoryTests(TestCase):
 
         self.client.force_login(self.user)
         data = {"text": "A new post!"}
-        self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
+        self.client.post(reverse("forum:post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
         self.post = topic.last_message
         self.edit = CommentEdit.objects.latest("date")
 

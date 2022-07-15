@@ -151,13 +151,13 @@
                 {% endcache %}
             </li>
             <li>
-                <a href="{% url "cats-forums-list" %}" class="mobile-menu-link has-dropdown {% block menu_forum %}{% endblock %}">
+                <a href="{% url "forum:cats-forums-list" %}" class="mobile-menu-link has-dropdown {% block menu_forum %}{% endblock %}">
                     {% trans "Forum" %}
                     <span class="arrow"></span>
                 </a>
                 {% cache 1800 menu_forum user|groups %}
                     <div class="header-dropdown header-menu-dropdown">
-                        <a href="{% url "cats-forums-list" %}" class="dropdown-link-all">
+                        <a href="{% url "forum:cats-forums-list" %}" class="dropdown-link-all">
                             {% trans "Tous les forums" %}
                         </a>
 
@@ -167,7 +167,7 @@
                                     <li>
                                         <ul>
                                             <li class="dropdown-title">
-                                                <a href="{% url "cat-forums-list" slug %}">
+                                                <a href="{% url "forum:cat-forums-list" slug %}">
                                                     {{ title }}
                                                 </a>
                                             </li>

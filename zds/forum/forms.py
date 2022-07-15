@@ -154,7 +154,7 @@ class MoveTopicForm(forms.Form):
     def __init__(self, topic, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse("topic-edit")
+        self.helper.form_action = reverse("forum:topic-edit")
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = "move-topic"
         self.helper.form_method = "post"

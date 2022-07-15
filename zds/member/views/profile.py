@@ -106,7 +106,7 @@ class MemberDetail(DetailView):
         if count_post > 0:
             summary.append(
                 (
-                    reverse_lazy("post-find", args=(profile.user.pk,)),
+                    reverse_lazy("forum:post-find", args=(profile.user.pk,)),
                     count_post,
                     __("message{}").format(pluralize_fr(count_post)),
                 )
@@ -116,7 +116,7 @@ class MemberDetail(DetailView):
         if count_topic > 0:
             summary.append(
                 (
-                    reverse_lazy("topic-find", args=(profile.user.pk,)),
+                    reverse_lazy("forum:topic-find", args=(profile.user.pk,)),
                     count_topic,
                     __("sujet{} créé{}").format(pluralize_fr(count_topic), pluralize_fr(count_topic)),
                 )
@@ -126,7 +126,7 @@ class MemberDetail(DetailView):
         if count_followed_topic > 0 and is_user_profile:
             summary.append(
                 (
-                    reverse_lazy("followed-topic-find"),
+                    reverse_lazy("forum:followed-topic-find"),
                     count_followed_topic,
                     __("sujet{} suivi{}").format(
                         pluralize_fr(count_followed_topic), pluralize_fr(count_followed_topic)

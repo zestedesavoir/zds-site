@@ -32,7 +32,7 @@
                     {% for tag in topic.tags.all %}
                         {% if tag.slug %}
                             <li>
-                                <a href="{% url 'topic-tag-find' tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
+                                <a href="{% url "forum:topic-tag-find" tag.slug %}" class="topic-tag" title="Tag {{ tag.title }}">
                                     {{ tag.title }}
                                 </a>
                             </li>
