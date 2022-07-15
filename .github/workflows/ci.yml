@@ -7,7 +7,7 @@ env:
   PYTHON_VERSION: "3.7"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
-  BLACK_VERSION: "22.3.0" # needs to be also updated in requirements-dev.txt and .pre-commit-config.yaml
+  BLACK_VERSION: "22.6.0" # needs to be also updated in requirements-dev.txt and .pre-commit-config.yaml
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for

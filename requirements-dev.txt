@@ -1,11 +1,11 @@
 -r requirements.txt
 
-black==22.3.0  # needs to be also updated in .github/workflows/ci.yml and .pre-commit-config.yaml
+black==22.6.0  # needs to be also updated in .github/workflows/ci.yml and .pre-commit-config.yaml
 colorlog==6.6.0
 django-debug-toolbar==3.5.0
-django-extensions==3.1.5
-Faker==13.14.0
-pre-commit==2.19.0
+django-extensions==3.2.0
+Faker==13.15.0
+pre-commit==2.20.0
 PyYAML==6.0
 selenium==4.3.0
 Sphinx==5.0.2
