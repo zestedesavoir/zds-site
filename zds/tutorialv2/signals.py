@@ -36,6 +36,10 @@ tags_management = Signal()
 # Action is either "add" or "remove".
 suggestions_management = Signal()
 
+# Goals management
+# For the signal below, the arguments "performer" and "content" shall be provided.
+goals_management = Signal()
+
 # Help management
 # For the signal below, the arguments "performer" and "content"  shall be provided.
 help_management = Signal()
