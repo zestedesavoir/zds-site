@@ -52,9 +52,9 @@ urlpatterns = [
         name="find-contribution-all",
     ),
     path("commentaires/<int:pk>/", ListContentReactions.as_view(), name="list-content-reactions"),
-    path("tutoriels/<int:pk>/", RedirectOldContentOfAuthor.as_view(type="TUTORIAL")),
-    path("articles/<int:pk>/", RedirectOldContentOfAuthor.as_view(type="ARTICLE")),
-    path("tribunes/<int:pk>/", RedirectOldContentOfAuthor.as_view(type="OPINION")),
+    path("tutoriels/<int:pk>/", RedirectOldContentOfAuthor.as_view(type="TUTORIAL"), name="legacy-find-tutorial"),
+    path("articles/<int:pk>/", RedirectOldContentOfAuthor.as_view(type="ARTICLE"), name="legacy-find-article"),
+    path("tribunes/<int:pk>/", RedirectOldContentOfAuthor.as_view(type="OPINION"), name="legacy-find-opinion"),
     path("aides/", ContentsWithHelps.as_view(), name="helps"),
     path("aides/<int:pk>/change/", ChangeHelp.as_view(), name="helps-change"),
     path(

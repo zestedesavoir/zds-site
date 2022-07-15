@@ -40,8 +40,7 @@ class RedirectOldBetaTuto(RedirectView):
 class RedirectOldContentOfAuthor(RedirectView):
     """
     allows to redirect the old lists of users' tutorials/articles/opinions (with
-    pks) to the new ones (with usernames and different root):
-    /contenus/tutoriels/user_pk/ => /tutoriels/voir/user_slug/
+    pks) to the new ones (with usernames and different root).
     """
 
     permanent = True
