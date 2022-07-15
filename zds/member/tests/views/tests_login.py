@@ -166,7 +166,7 @@ class LoginTests(TestCase):
     def test_redirection_good_target(self):
         """Nominal case: redirection to an existing page with the parameter 'next'."""
         result = self.client.post(
-            self.login_url + "?next=" + reverse("gallery-list"),
+            self.login_url + "?next=" + reverse("gallery:list"),
             {
                 "username": self.correct_username,
                 "password": self.correct_password,
