@@ -158,7 +158,6 @@ def epub_markdown(md_input, image_directory):
             md_input,
             output_format="epub",
             images_download_dir=image_directory.absolute,
-            local_url_to_local_path=[settings.MEDIA_URL + "galleries/[0-9]+", image_directory.relative],
         )
         .replace('src"/', f'src="{media_root}')
         .replace(f'src="{media_root}{replaced_media_url}', f'src="{media_root}')
