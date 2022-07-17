@@ -165,8 +165,8 @@ def publish_container(
         makedirs(current_dir)
 
     img_relative_path = ".." if ctx["relative"] == "." else "../" + ctx["relative"]
+    wrapped_image_callback = image_callback(img_relative_path) if image_callback else None
     if container.has_extracts():  # the container can be rendered in one template
-        wrapped_image_callback = image_callback(img_relative_path) if image_callback else image_callback
         args = {"container": container, "is_js": is_js}
         args.update(ctx)
         args["relative"] = img_relative_path
@@ -184,9 +184,7 @@ def publish_container(
 
         container.introduction = None
         container.conclusion = None
-
     else:  # separate render of introduction and conclusion
-        wrapped_image_callback_intro_ccl = image_callback(img_relative_path) if image_callback else image_callback
         # create subdirectory
         if not path.isdir(current_dir):
             makedirs(current_dir)
@@ -201,9 +199,7 @@ def publish_container(
             else:
                 parsed = emarkdown(container.get_introduction(), db_object.js_support)
             container.introduction = str(part_path)
-            write_chapter_file(
-                base_dir, container, part_path, parsed, path_to_title_dict, wrapped_image_callback_intro_ccl
-            )
+            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict, wrapped_image_callback)
         children = copy.copy(container.children)
         container.children = []
         container.children_dict = {}
@@ -234,9 +230,7 @@ def publish_container(
             else:
                 parsed = emarkdown(container.get_conclusion(), db_object.js_support)
             container.conclusion = str(part_path)
-            write_chapter_file(
-                base_dir, container, part_path, parsed, path_to_title_dict, wrapped_image_callback_intro_ccl
-            )
+            write_chapter_file(base_dir, container, part_path, parsed, path_to_title_dict, wrapped_image_callback)
 
     return path_to_title_dict
 
