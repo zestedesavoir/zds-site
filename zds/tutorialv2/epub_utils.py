@@ -22,10 +22,12 @@ def __build_mime_type_conf():
     return {"filename": "mimetype", "content": "application/epub+zip"}
 
 
-def __traverse_and_identify_images(image_dir):
+def __traverse_and_identify_images(root_image_dir, current_dir=None):
     """
-    :param image_dir:
-    :type image_dir: pathlib.Path
+    :param root_image_dir: Root folder of the images
+    :type root_image_dir: pathlib.Path
+    :param current_dir:  Folder currently explored
+    :type current_dir: pathlib.Path
     :return:
     """
     media_type_map = {
@@ -36,13 +38,16 @@ def __traverse_and_identify_images(image_dir):
         ".svg": "image/svg",
     }
 
-    for image_file_path in image_dir.iterdir():
+    if current_dir is None:
+        current_dir = root_image_dir
+
+    for image_file_path in current_dir.iterdir():
         if image_file_path.is_dir():
-            yield from __traverse_and_identify_images(image_file_path)
+            yield from __traverse_and_identify_images(root_image_dir, image_file_path)
             continue
         ext = path.splitext(image_file_path.name)[1]
-        identifier = f"image_{image_file_path.name}".lower().replace(".", "-").replace("@", "-")
-        ebook_image_path = Path("images", image_file_path.name)
+        ebook_image_path = Path("images", image_file_path.relative_to(root_image_dir))
+        identifier = "image_" + str(ebook_image_path)[7:].lower().replace(".", "-").replace("@", "-").replace("/", "-")
         yield ebook_image_path, identifier, media_type_map.get(ext.lower(), "image/png")
 
 
@@ -224,7 +229,7 @@ class ImageHandling:
                     final_path = Path(image_url).name
                 image_path_in_ebook = relative_path + "/images/" + str(final_path).replace("%20", "_")
                 image["src"] = str(image_path_in_ebook)
-                self.names.add(Path(image_path_in_ebook).name)
+                self.names.add(final_path)
             ids = {}
             for element in soup_parser.find_all(name=None, attrs={"id": (lambda s: True)}):
                 while element.get("id", None) and element["id"] in ids:
@@ -236,8 +241,13 @@ class ImageHandling:
         return handle_image_path_with_good_img_dir_path
 
     def remove_unused_image(self, image_path: Path, imglist):
-        for image in image_path.iterdir():
-            if image.name not in self.names and not image.is_dir():
+        # Remove unused images:
+        for image in image_path.rglob("*"):
+            if str(Path(image).relative_to(image_path)) not in self.names and not image.is_dir():
                 os.remove(str(image))
                 imglist = [i for i in imglist if i[0].name.replace("%20", "_") != image.name]
+        # Remove empty folders:
+        for item in image_path.iterdir():
+            if item.is_dir() and len(list(item.iterdir())) == 0:
+                os.rmdir(str(item))
         return imglist
