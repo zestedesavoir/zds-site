@@ -206,7 +206,14 @@ class ImageHandling:
                 if self.url_scheme_matcher.search(image_url):
                     splitted = parse.urlsplit(image_url)
                     final_path = splitted.path
-                elif image_url.startswith(settings.MEDIA_URL):
+                elif (not (Path(settings.MEDIA_URL).is_dir() and Path(image_url).exists())) and image_url.startswith(
+                    settings.MEDIA_URL
+                ):
+                    # do not go there if image_url is the path on the system
+                    # and not a portion of web URL
+                    # (image_url.startswith(settings.MEDIA_URL) can be True if
+                    # zds-site is in a directory under /media (the default
+                    # value of settings.MEDIA_URL))
                     final_path = Path(image_url).name
                 elif Path(image_url).is_absolute() and "images" in image_url:
                     root = Path(image_url)
