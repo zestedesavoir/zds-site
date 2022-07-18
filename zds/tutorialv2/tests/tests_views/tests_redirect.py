@@ -19,5 +19,5 @@ class RedirectOldContentOfAuthorTest(TestCase):
 
         # The user with pk=3954 doesn't exist (the view in the redirection
         # triggers the 404, so we need to follow the response):
-        response = self.client.get("/contenus/tutoriels/3954", follow=True)
+        response = self.client.get(reverse("content:legacy-find-tutorial", args=[3954]), follow=True)
         self.assertEqual(response.status_code, 404)
