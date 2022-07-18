@@ -5,6 +5,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from captcha.fields import ReCaptchaField
@@ -45,7 +46,7 @@ class LoginForm(AuthenticationForm):
         ),
         "inactive": _(
             "Vous n’avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site."
-            " Regardez dans vos mails : %(email)s."
+            " <a href={}>Vous n’avez pas reçu le courriel d'activation ?</a>"
         ),
         "banned": _("Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur."),
     }
@@ -75,8 +76,10 @@ class LoginForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
         """Override the parent method to change the error for inactive users and prevent login of banned users."""
         if not user.is_active:
+            error_text = mark_safe(self.error_messages["inactive"].format(reverse("send-validation-email")))
             raise ValidationError(
-                self.error_messages["inactive"], code="inactive", params={"email": self.user_cache.email}
+                error_text,
+                code="inactive",
             )
         elif not user.profile.can_read:
             raise ValidationError(
