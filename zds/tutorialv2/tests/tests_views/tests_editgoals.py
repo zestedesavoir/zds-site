@@ -16,6 +16,15 @@ class EditGoalsPermissionTests(TestCase):
         self.bad_url = reverse("content:edit-goals", kwargs={"pk": 42})
         self.success_url = reverse("content:view", kwargs={"pk": self.content.pk, "slug": self.content.slug})
 
+    def test_get_method(self):
+        """
+        GET is forbidden, since the view processes the form but do not display anything.
+        Actually, all methods except POST are forbidden, but the test is good enough as is.
+        """
+        self.client.force_login(self.staff)
+        response = self.client.get(self.good_url)
+        self.assertEqual(response.status_code, 405)
+
     def test_unauthenticated_not_existing_pk(self):
         """Invalid pks in URL"""
         self.client.logout()

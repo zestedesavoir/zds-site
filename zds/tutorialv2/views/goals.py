@@ -45,6 +45,7 @@ class EditGoals(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormVi
     form_class = EditGoalsForm
     success_message = _("Les objectifs ont bien été modifiés.")
     modal_form = True
+    http_method_names = ["post"]
 
     def dispatch(self, request, *args, **kwargs):
         content = get_object_or_404(PublishableContent, pk=self.kwargs["pk"])
