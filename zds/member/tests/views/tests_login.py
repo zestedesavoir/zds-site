@@ -148,7 +148,7 @@ class LoginTests(TestCase):
         Expected: cannot log in, error associated with the ban.
         """
 
-        # Equivalent to a banned user
+        # Equivalent to a permanently banned user
         self.profile.can_read = False
         self.profile.save()
 

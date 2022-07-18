@@ -58,7 +58,7 @@ class LoginForm(AuthenticationForm):
         self.helper.form_show_errors = False
 
     def get_helper(self):
-        """Return the FormHelper expected by cripsy."""
+        """Return the FormHelper expected by crispy."""
         helper = FormHelper()
         helper.form_action = reverse("member-login")
         helper.form_method = "post"
@@ -81,7 +81,7 @@ class LoginForm(AuthenticationForm):
                 error_text,
                 code="inactive",
             )
-        elif not user.profile.can_read:
+        elif not user.profile.is_banned():
             raise ValidationError(
                 self.error_messages["banned"],
                 code="banned",
