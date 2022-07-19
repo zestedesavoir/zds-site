@@ -10,11 +10,26 @@ from zds.tutorialv2.tests.factories import PublishableContentFactory, GoalFactor
 class EditGoalsPermissionTests(TestCase):
     def setUp(self):
         self.user = ProfileFactory().user
+        self.author = ProfileFactory().user
         self.staff = StaffProfileFactory().user
         self.content = PublishableContentFactory()
+        self.content.authors.add(self.author)
         self.good_url = reverse("content:edit-goals", kwargs={"pk": self.content.pk})
         self.bad_url = reverse("content:edit-goals", kwargs={"pk": 42})
-        self.success_url = reverse("content:view", kwargs={"pk": self.content.pk, "slug": self.content.slug})
+        self.content_url = reverse("content:view", kwargs={"pk": self.content.pk, "slug": self.content.slug})
+        self.success_url = self.content_url
+
+    def test_display(self):
+        """We shall display the form only for staff, not for authors."""
+        fragment = "Modifier les objectifs"
+
+        self.client.force_login(self.author)
+        response = self.client.get(self.content_url)
+        self.assertNotContains(response, fragment)
+
+        self.client.force_login(self.staff)
+        response = self.client.get(self.content_url)
+        self.assertContains(response, fragment)
 
     def test_get_method(self):
         """
