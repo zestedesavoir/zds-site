@@ -29,6 +29,11 @@ class LoginView(LoginView):
         form.user_cache.profile.save()
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["next"] = self.get_success_url()
+        return kwargs
+
     def get_success_url(self):
         """In case of success, redirect to homepage for some special 'next' targets or non-existing pages."""
         url = self.get_redirect_url()

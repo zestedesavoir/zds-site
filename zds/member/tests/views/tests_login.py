@@ -20,6 +20,13 @@ class LoginTests(TestCase):
         self.assertNotEqual(self.test_ip, ProfileFactory.last_ip_address)
         settings.SESSION_COOKIE_AGE = 1337
 
+    def test_form_action_redirect(self):
+        """The form shall have the 'next' parameter in the action url of the form."""
+        next_fragment = "?next=" + reverse("member-detail", args=[self.correct_username])
+        full_url = self.login_url + next_fragment
+        result = self.client.get(full_url, follow=False)
+        self.assertContains(result, f'action="{full_url}"')
+
     def test_nominal_and_remember_me(self):
         """
         Nominal case: existing username, correct password, activated user, 'remember me' checked.
@@ -69,7 +76,7 @@ class LoginTests(TestCase):
         Expected: successful login and redirect to profile.
         """
         user = NonAsciiProfileFactory()
-        result = self.client.get(
+        result = self.client.post(
             self.login_url + "?next=" + reverse("member-detail", args=[user.user.username]),
             follow=False,
         )

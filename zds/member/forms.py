@@ -51,16 +51,16 @@ class LoginForm(AuthenticationForm):
         "banned": _("Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur."),
     }
 
-    def __init__(self, request=None, *args, **kwargs):
+    def __init__(self, request=None, next="", *args, **kwargs):
         super().__init__(request, *args, **kwargs)
-        self.helper = self.get_helper()
+        self.helper = self.get_helper(next)
         # Errors are displayed using info bars (see LoginView) instead of the form built-in error rendering
         self.helper.form_show_errors = False
 
-    def get_helper(self):
+    def get_helper(self, next):
         """Return the FormHelper expected by crispy."""
         helper = FormHelper()
-        helper.form_action = reverse("member-login")
+        helper.form_action = reverse("member-login") + f"?next={next}"
         helper.form_method = "post"
         helper.form_class = "content-wrapper"
         helper.layout = Layout(
