@@ -7,6 +7,7 @@ from django.conf import settings
 
 from zds.forum.tests.factories import PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
+from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils import old_slugify
 from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
@@ -299,3 +300,15 @@ class HelpWritingFactory(factory.django.DjangoModelFactory):
         kwargs.pop("fixture_image_path", None)
 
         return super()._create(target_class, *args, **kwargs)
+
+
+class GoalFactory(factory.django.DjangoModelFactory):
+    """Factory that create a goal for use in tests."""
+
+    class Meta:
+        model = Goal
+
+    name = factory.Sequence("Mon objectif n°{}".format)
+    description = factory.Sequence("Très belle description n°{}".format)
+    position = factory.Sequence(lambda n: n)
+    slug = factory.Sequence("mon-objectif-{}".format)

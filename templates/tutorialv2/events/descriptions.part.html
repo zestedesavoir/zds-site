@@ -61,6 +61,10 @@
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les tags du contenu.
 
 
+{% elif event.type == "goals_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les objectifs du contenu.
+
+
 {% elif event.type == "suggestions_management" %}
     {% if event.action == "add" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a ajouté une suggestion de contenu.
