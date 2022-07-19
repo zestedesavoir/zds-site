@@ -50,6 +50,9 @@ class RedirectOldContentOfAuthor(RedirectView):
         user = User.objects.filter(pk=int(kwargs["pk"])).first()
         route = None
 
+        if not user:
+            raise Http404("Cet utilisateur est inconnu dans le système")
+
         if self.type == "TUTORIAL":
             route = "tutorial:find-tutorial"
         elif self.type == "ARTICLE":
