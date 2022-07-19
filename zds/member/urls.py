@@ -17,7 +17,7 @@ from zds.member.views.moderation import (
     member_from_ip,
     modify_profile,
 )
-from zds.member.views.login import login_view
+from zds.member.views.login import LoginView
 from zds.member.views.hats import (
     HatsSettings,
     RequestedHatsList,
@@ -103,7 +103,7 @@ urlpatterns = [
     re_path(r"^casquettes/ajouter/(?P<user_pk>\d+)/$", add_hat, name="add-hat"),
     re_path(r"^casquettes/retirer/(?P<user_pk>\d+)/(?P<hat_pk>\d+)/$", remove_hat, name="remove-hat"),
     # membership
-    re_path(r"^connexion/$", login_view, name="member-login"),
+    re_path(r"^connexion/$", LoginView.as_view(), name="member-login"),
     re_path(r"^deconnexion/$", LogoutView.as_view(), name="member-logout"),
     re_path(r"^inscription/$", RegisterView.as_view(), name="register-member"),
     re_path(r"^reinitialisation/$", forgot_password, name="member-forgot-password"),
