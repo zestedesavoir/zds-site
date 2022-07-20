@@ -12,7 +12,7 @@ from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils import old_slugify
 from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 from zds.utils.models import Licence
-from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction
+from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, ContentContributionRole
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.utils import init_new_repo
@@ -312,3 +312,12 @@ class GoalFactory(factory.django.DjangoModelFactory):
     description = factory.Sequence("Très belle description n°{}".format)
     position = factory.Sequence(lambda n: n)
     slug = factory.Sequence("mon-objectif-{}".format)
+
+
+class ContentContributionRoleFactory(factory.django.DjangoModelFactory):
+    """Factory that create a role in contributions to contents, for use in tests."""
+
+    class Meta:
+        model = ContentContributionRole
+
+    title = factory.Sequence("Rôle {}".format)
