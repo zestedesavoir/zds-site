@@ -36,6 +36,7 @@ from zds.member.models import (
 from zds.member.views import get_client_ip
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.database import PickListOperation
+from zds.tutorialv2.models.events import Event
 from zds.utils.models import (
     Comment,
     CommentVote,
@@ -172,6 +173,11 @@ def unregister(request):
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.database
     PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
     PickListOperation.objects.filter(canceler_user=current).update(canceler_user=anonymous)
+
+    Event.objects.filter(performer=current).update(performer=external)
+    Event.objects.filter(author=current).update(author=external)
+    Event.objects.filter(contributor=current).update(contributor=external)
+
     # Comments likes / dislikes
     votes = CommentVote.objects.filter(user=current)
     for vote in votes:
