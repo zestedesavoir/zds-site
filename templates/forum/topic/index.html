@@ -58,7 +58,7 @@
             {% for tag in topic.tags.all %}
                 {% if tag.slug %}
                 <li>
-                    <a href="{% url 'topic-tag-find' tag.slug %}" rel="tag">
+                    <a href="{% url "forum:topic-tag-find" tag.slug %}" rel="tag">
                         {{ tag.title }}
                     </a>
                 </li>
@@ -87,26 +87,26 @@
     {% for message in posts %}
         {% captureas edit_link %}
             {% if message.pk == topic.first_post.pk %}
-                {% url 'topic-edit' %}?topic={{ topic.pk }}
+                {% url "forum:topic-edit" %}?topic={{ topic.pk }}
             {% else %}
-                {% url 'post-edit' %}?message={{ message.pk }}
+                {% url "forum:post-edit" %}?message={{ message.pk }}
             {% endif %}
         {% endcaptureas %}
 
         {% captureas post_action_link %}
-            {% url 'post-edit' %}?message={{ message.pk }}
+            {% url "forum:post-edit" %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas hide_link %}{{ post_action_link }}{% endcaptureas %}
         {% captureas show_link %}{{ post_action_link }}{% endcaptureas %}
-        {% captureas alert_link %}{% url 'post-create-alert' %}?message={{ message.pk }}{% endcaptureas %}
+        {% captureas alert_link %}{% url "forum:post-create-alert" %}?message={{ message.pk }}{% endcaptureas %}
 
         {% captureas cite_link %}
-            {% url 'post-new' %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
+            {% url "forum:post-new" %}?sujet={{ topic.pk }}&amp;cite={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas helpful_link %}
-            {% url 'post-useful' %}?message={{ message.pk }}
+            {% url "forum:post-useful" %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% captureas karma_link %}
@@ -114,11 +114,11 @@
         {% endcaptureas %}
 
         {% captureas alerts_solve_link %}
-            {% url "forum-solve-alert" %}
+            {% url "forum:solve-alert" %}
         {% endcaptureas %}
 
         {% captureas unread_link %}
-            {% url 'post-unread' %}?message={{ message.pk }}
+            {% url "forum:post-unread" %}?message={{ message.pk }}
         {% endcaptureas %}
 
         {% if forloop.first and page_obj.number > 1 %}
@@ -146,7 +146,7 @@
 
     {# Anwser form #}
     {% captureas form_action %}
-        {% url 'post-new' %}?sujet={{ topic.pk }}
+        {% url "forum:post-new" %}?sujet={{ topic.pk }}
     {% endcaptureas %}
 
     {% include "misc/message_form.html" with member=user %}
@@ -163,12 +163,12 @@
 
 {% block new_btn %}
   {% if user.profile.can_write_now %}
-      <a href="{% url 'topic-new' %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
+      <a href="{% url "forum:topic-new" %}?forum={{ topic.forum.pk }}" class="new-btn ico-after more blue">
           {% trans "Nouveau sujet" %}
       </a>
 
       {% if topic.author.pk == user.pk and topic.first_post.is_visible or is_staff %}
-          <a href="{% url 'topic-edit' %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
+          <a href="{% url "forum:topic-edit" %}?topic={{ topic.pk }}" class="new-btn ico-after edit blue">
               {% trans "Éditer le sujet" %}
           </a>
       {% endif %}
@@ -184,7 +184,7 @@
     {% endif %}
 
     <li>
-        {% url 'topic-edit' as link_follow_without_parameter %}
+        {% url "forum:topic-edit" as link_follow_without_parameter %}
 
         {% with topic_is_followed=topic|is_followed %}
         {% with topic_id=topic.pk|stringformat:"s" %}
@@ -203,7 +203,7 @@
     </li>
 
     <li>
-        {% url 'topic-edit' as link_follow_without_parameter %}
+        {% url "forum:topic-edit" as link_follow_without_parameter %}
 
         {% with topic_is_email_followed=topic|is_email_followed %}
         {% with topic_id=topic.pk|stringformat:"s" %}
@@ -222,7 +222,7 @@
     </li>
 
     <li>
-        {% url 'topic-edit' as link_request_without_parameter %}
+        {% url "forum:topic-edit" as link_request_without_parameter %}
 
         {% with topic_id=topic.pk|stringformat:"s" %}
         {% with link_request=link_request_without_parameter|add:'?topic='|add:topic_id %}
@@ -266,7 +266,7 @@
                 {% else %}
                     <li>
                         <a href="#create-issue" class="open-modal ico-after github blue">{% trans 'Créer un ticket' %}</a>
-                        <form action="{% url 'manage-issue' topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
+                        <form action="{% url "forum:manage-issue" topic.pk %}" method="post" id="create-issue" class="modal modal-flex">
                             {% if has_token %}
                                 {% csrf_token %}
                                 <select name="repository">
@@ -296,7 +296,7 @@
 
                     <li>
                         <a href="#link-issue" class="open-modal ico-after arrow-right blue">{% trans 'Associer un ticket' %}</a>
-                        <form action="{% url 'manage-issue' topic.pk %}" method="post" id="link-issue" class="modal modal-flex">
+                        <form action="{% url "forum:manage-issue" topic.pk %}" method="post" id="link-issue" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
                                 {% trans "Quel est le dépôt et le numéro du ticket GitHub que vous souhaitez associer ?" %}
@@ -332,7 +332,7 @@
                             {% trans "Fermer le sujet" %}
                         {% endif %}
                     </a>
-                    <form action="{% url 'topic-edit' %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-flex">
+                    <form action="{% url "forum:topic-edit" %}" method="post" id="lock-open-topic-{{ topic.pk }}" class="modal modal-flex">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">
@@ -358,7 +358,7 @@
                 </li>
 
                 <li>
-                    <form action="{% url 'topic-edit' %}" method="post">
+                    <form action="{% url "forum:topic-edit" %}" method="post">
                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                         <input type="hidden" name="nb" value="{{ nb }}">
                         <input type="hidden" name="page" value="{{ nb }}">

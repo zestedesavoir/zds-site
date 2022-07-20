@@ -24,7 +24,7 @@
 
 {% block content_out %}
     {% url 'opinion:list' as url_opinions %}
-    {% url 'cats-forums-list' as url_forums %}
+    {% url "forum:cats-forums-list" as url_forums %}
     {% url 'publication:list' as url_publications %}
 
     {% url 'pages-association' as url_association %}
@@ -169,7 +169,7 @@
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="home-heading ico-after ico-forum" itemprop="name">
                     <span>{% trans "Derniers sujets" %}</span>
-                    <a href="{% url 'last-subjects' %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
+                    <a href="{% url "forum:last-subjects" %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">

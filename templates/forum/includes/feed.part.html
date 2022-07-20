@@ -2,9 +2,9 @@
 <div class="mobile-menu-bloc mobile-all-links" data-title="Flux">
     <h3>{% trans "Flux" %}</h3>
     <ul>
-        <li><a href="{% url "post-feed-rss" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux messages (RSS)" %}</a></li>
-        <li><a href="{% url "post-feed-atom" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux messages (ATOM)" %}</a></li>
-        <li><a href="{% url "topic-feed-rss" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux sujets (RSS)" %}</a></li>
-        <li><a href="{% url "topic-feed-atom" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux sujets (ATOM)" %}</a></li>
+        <li><a href="{% url "forum:post-feed-rss" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux messages (RSS)" %}</a></li>
+        <li><a href="{% url "forum:post-feed-atom" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux messages (ATOM)" %}</a></li>
+        <li><a href="{% url "forum:topic-feed-rss" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux sujets (RSS)" %}</a></li>
+        <li><a href="{% url "forum:topic-feed-atom" %}{{param}}{{value}}" class="ico-after rss blue">{% trans "Nouveaux sujets (ATOM)" %}</a></li>
     </ul>
 </div>

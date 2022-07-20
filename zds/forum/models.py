@@ -54,7 +54,7 @@ class ForumCategory(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("cat-forums-list", kwargs={"slug": self.slug})
+        return reverse("forum:cat-forums-list", kwargs={"slug": self.slug})
 
     def get_forums(self, user, with_count=False):
         """get all forums that user can access
@@ -101,7 +101,7 @@ class Forum(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse("forum-topics-list", kwargs={"cat_slug": self.category.slug, "forum_slug": self.slug})
+        return reverse("forum:topics-list", kwargs={"cat_slug": self.category.slug, "forum_slug": self.slug})
 
     def get_topic_count(self):
         """Retrieve or aggregate the number of threads in this forum. If this number already exists, it must be stored \
@@ -246,7 +246,7 @@ class Topic(AbstractESDjangoIndexable):
         return text
 
     def get_absolute_url(self):
-        return reverse("topic-posts-list", args=[self.pk, self.slug()])
+        return reverse("forum:topic-posts-list", args=[self.pk, self.slug()])
 
     def slug(self):
         return old_slugify(self.title)

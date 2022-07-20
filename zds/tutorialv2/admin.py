@@ -11,6 +11,7 @@ from zds.tutorialv2.models.database import (
     ContentContributionRole,
 )
 from zds.tutorialv2.models.events import Event
+from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.help_requests import HelpWriting
 
 
@@ -112,6 +113,11 @@ class ContentReviewTypeAdmin(admin.ModelAdmin):
     ordering = ["position"]
 
 
+class GoalAdmin(admin.ModelAdmin):
+    list_display = ["name", "description"]
+    ordering = ["position"]
+
+
 admin.site.register(PublishableContent, PublishableContentAdmin)
 admin.site.register(PublishedContent, PublishedContentAdmin)
 admin.site.register(Validation, ValidationAdmin)
@@ -122,3 +128,4 @@ admin.site.register(PublicationEvent, PublicationEventAdmin)
 admin.site.register(ContentContributionRole, ContentReviewTypeAdmin)
 admin.site.register(HelpWriting)
 admin.site.register(Event)
+admin.site.register(Goal, GoalAdmin)

@@ -26,7 +26,7 @@
 
 
 {% block new_btn %}
-    <a href="{% url 'cats-forums-list' %}" class="new-btn ico-after view blue">
+    <a href="{% url "forum:cats-forums-list" %}" class="new-btn ico-after view blue">
         {% trans "Tous les forums" %}
     </a>
 {% endblock %}
@@ -38,14 +38,14 @@
         <h3>{% trans "Ordre de tri" %}</h3>
         <ul>
             <li>
-                <a href="{% url 'last-subjects' %}?order=creation"
+                <a href="{% url "forum:last-subjects" %}?order=creation"
                    class="ico-after move {% if request.GET.order == 'creation' %}selected{% endif %}"
                 >
                     {% trans "Date de création" %}
                 </a>
             </li>
             <li>
-                <a href="{% url 'last-subjects' %}?order=last_post"
+                <a href="{% url "forum:last-subjects" %}?order=last_post"
                    class="ico-after history {% if request.GET.order == 'last_post' %}selected{% endif %}"
                 >
                     {% trans "Date de la dernière réponse" %}

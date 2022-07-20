@@ -60,7 +60,7 @@ class NotificationForumTest(TestCase):
         When we create a topic, the author follows it.
         """
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -103,7 +103,7 @@ class NotificationForumTest(TestCase):
         )
         self.assertIsNotNone(notification)
 
-        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("forum:topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(response.status_code, 200)
 
         # Checks that the notification is reading now.
@@ -124,7 +124,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse("post-new") + f"?sujet={topic1.pk}",
+            reverse("forum:post-new") + f"?sujet={topic1.pk}",
             {
                 "last_post": topic1.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -157,7 +157,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user2, position=1)
 
         result = self.client.post(
-            reverse("post-new") + f"?sujet={topic1.pk}",
+            reverse("forum:post-new") + f"?sujet={topic1.pk}",
             {
                 "last_post": topic1.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -173,7 +173,9 @@ class NotificationForumTest(TestCase):
         self.client.logout()
         self.client.force_login(self.user2)
 
-        result = self.client.get(reverse("topic-posts-list", args=[topic1.pk, old_slugify(topic1.title)]), follow=True)
+        result = self.client.get(
+            reverse("forum:topic-posts-list", args=[topic1.pk, old_slugify(topic1.title)]), follow=True
+        )
         self.assertEqual(result.status_code, 200)
 
         notification = Notification.objects.get(subscription__user=self.user2)
@@ -198,7 +200,7 @@ class NotificationForumTest(TestCase):
 
         self.client.force_login(StaffProfileFactory().user)
         data = {"move": "", "forum": forum_not_read.pk, "topic": topic.pk}
-        response = self.client.post(reverse("topic-edit"), data, follow=False)
+        response = self.client.post(reverse("forum:topic-edit"), data, follow=False)
 
         self.assertEqual(302, response.status_code)
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(self.user1, topic, is_active=False))
@@ -215,7 +217,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic1, author=self.user1, position=2)
         post = PostFactory(topic=topic1, author=self.user2, position=3)
 
-        result = self.client.get(reverse("post-unread") + f"?message={post.pk}", follow=False)
+        result = self.client.get(reverse("forum:post-unread") + f"?message={post.pk}", follow=False)
 
         self.assertEqual(result.status_code, 302)
 
@@ -238,7 +240,9 @@ class NotificationForumTest(TestCase):
         # hide last post
         data = {"delete_message": ""}
         self.client.force_login(StaffProfileFactory().user)
-        response = self.client.post(reverse("post-edit") + f"?message={topic.last_message.pk}", data, follow=False)
+        response = self.client.post(
+            reverse("forum:post-edit") + f"?message={topic.last_message.pk}", data, follow=False
+        )
         self.assertEqual(302, response.status_code)
 
         notifications = Notification.objects.filter(object_id=topic.last_message.pk, is_read=True).all()
@@ -326,7 +330,7 @@ class NotificationForumTest(TestCase):
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
-        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("forum:topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(response.status_code, 200)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
@@ -344,7 +348,7 @@ class NotificationForumTest(TestCase):
         staff = StaffProfileFactory()
         self.client.force_login(staff.user)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
-        response = self.client.post(reverse("topic-edit"), data, follow=False)
+        response = self.client.post(reverse("forum:topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
 
         topic = Topic.objects.get(pk=topic.pk)
@@ -353,7 +357,7 @@ class NotificationForumTest(TestCase):
 
         self.client.logout()
         self.client.force_login(self.user1)
-        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("forum:topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True).all()))
@@ -386,7 +390,7 @@ class NotificationForumTest(TestCase):
         staff = StaffProfileFactory()
         self.client.force_login(staff.user)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
-        response = self.client.post(reverse("topic-edit"), data, follow=False)
+        response = self.client.post(reverse("forum:topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
 
         topic = Topic.objects.get(pk=topic.pk)
@@ -395,7 +399,7 @@ class NotificationForumTest(TestCase):
 
         self.client.logout()
         self.client.force_login(self.user1)
-        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("forum:topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(1, len(Notification.objects.filter(object_id=topic.pk, is_read=True, is_dead=False).all()))
@@ -456,7 +460,7 @@ class NotificationForumTest(TestCase):
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
         self.assertEqual(1, len(notifications))
 
-        response = self.client.get(reverse("topic-posts-list", args=[topic.pk, topic.slug()]))
+        response = self.client.get(reverse("forum:topic-posts-list", args=[topic.pk, topic.slug()]))
         self.assertEqual(response.status_code, 200)
 
         notifications = Notification.objects.filter(object_id=topic.pk, is_read=False).all()
@@ -472,7 +476,7 @@ class NotificationForumTest(TestCase):
         PostFactory(topic=topic, author=self.user1, position=1)
 
         self.client.post(
-            reverse("topic-edit") + f"?topic={topic.pk}",
+            reverse("forum:topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein ete",
@@ -499,7 +503,7 @@ class NotificationForumTest(TestCase):
         self.assertEqual(1, len(notifications))
 
         self.client.post(
-            reverse("topic-edit") + f"?topic={topic.pk}",
+            reverse("forum:topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Un autre sujet",
                 "subtitle": "Encore ces lombards en plein été",

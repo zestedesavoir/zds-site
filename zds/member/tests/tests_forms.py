@@ -2,7 +2,6 @@ from django.test import TestCase
 
 from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
 from zds.member.forms import (
-    LoginForm,
     RegisterForm,
     MiniProfileForm,
     ProfileForm,
@@ -28,30 +27,6 @@ stringof2001chars = "http://url.com/"
 for i in range(198):
     stringof2001chars += "0123456789"
 stringof2001chars += "12.jpg"
-
-# This form is tricky to test as it needs a tuto to be done
-# class OldTutoFormTest(TestCase):
-
-
-class LoginFormTest(TestCase):
-    """
-    Check the form to login.
-    """
-
-    def test_valid_login_form(self):
-        data = {"username": "Tester", "password": "hostel77", "remember": True}
-        form = LoginForm(data=data)
-        self.assertTrue(form.is_valid())
-
-    def test_missing_username_form(self):
-        data = {"username": "", "password": "hostel77", "remember": True}
-        form = LoginForm(data=data)
-        self.assertFalse(form.is_valid())
-
-    def test_missing_password_form(self):
-        data = {"username": "Tester", "password": "", "remember": True}
-        form = LoginForm(data=data)
-        self.assertFalse(form.is_valid())
 
 
 class RegisterFormTest(TestCase):

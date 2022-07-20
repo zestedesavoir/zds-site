@@ -22,7 +22,7 @@
     {% with profile=usr|profile %}
         <li><a href="{{ profile.get_absolute_url }}">{{ usr.username }}</a></li>
     {% endwith %}
-    <li><a href="{% url 'post-find' usr.pk %}">{% trans "Messages postés" %}</a></li>
+    <li><a href="{% url "forum:post-find" usr.pk %}">{% trans "Messages postés" %}</a></li>
     <li>{% trans "Recherche" %}</li>
 {% endblock %}
 

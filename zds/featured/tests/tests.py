@@ -505,7 +505,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic = TopicFactory(forum=forum, author=author.user)
 
         response = self.client.post(
-            reverse("topic-edit") + f"?topic={topic.pk}",
+            reverse("forum:topic-edit") + f"?topic={topic.pk}",
             {"request_featured": 1},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )
@@ -521,7 +521,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         topic.save()
 
         response = self.client.post(
-            reverse("topic-edit") + f"?topic={topic.pk}",
+            reverse("forum:topic-edit") + f"?topic={topic.pk}",
             {"request_featured": 1},
             HTTP_X_REQUESTED_WITH="XMLHttpRequest",
         )

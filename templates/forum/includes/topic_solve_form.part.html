@@ -1,5 +1,5 @@
 {% load i18n %}
-<form action="{% url 'topic-edit' %}" method="post">
+<form action="{% url "forum:topic-edit" %}" method="post">
     <input type="hidden" name="topic" value="{{ topic.pk }}">
     <input type="hidden" name="nb" value="{{ nb }}">
     <input type="hidden" name="page" value="{{ nb }}">

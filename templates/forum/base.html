@@ -29,7 +29,7 @@
 
 {% block breadcrumb_base %}
     <li itemscope itemtype="http://data-vocabulary.org/Breadcrumb">
-        <a href="{% url "cats-forums-list" %}" itemprop="url">
+        <a href="{% url "forum:cats-forums-list" %}" itemprop="url">
             <span itemprop="title">{% trans "Forums" %}</span>
         </a>
     </li>
@@ -87,7 +87,7 @@
                         <ul>
                             {% for topic in topics %}
                                 <li>
-                                    <form action="{% url 'topic-edit' %}" method="post">
+                                    <form action="{% url "forum:topic-edit" %}" method="post">
                                         <input type="hidden" name="topic" value="{{ topic.pk }}">
                                         <input type="hidden" name="page" value="{% if page %} {{ page }} {% else %} 1 {% endif %}">
                                         <input type="hidden" name="follow" value="1">

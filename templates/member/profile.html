@@ -466,7 +466,7 @@
                                             </div>
 
                                             {% if topics_count > 0 %}
-                                                <a href="{% url 'topic-find' usr.pk %}" class="tail">
+                                                <a href="{% url "forum:topic-find" usr.pk %}" class="tail">
                                                     <p>
                                                         {% blocktrans count topics_count=topics_count %}
                                                             <span class="bold">{{ topics_count }}</span> sujet créé
@@ -478,7 +478,7 @@
                                             {% endif %}
 
                                             {% if followed_topics_count > 0 and profile.user == user %}
-                                                <a href="{% url 'followed-topic-find' %}" class="tail">
+                                                <a href="{% url "forum:followed-topic-find" %}" class="tail">
                                                     <p>
 
                                                         {% blocktrans count followed_topics_count=followed_topics_count %}
@@ -491,7 +491,7 @@
                                             {% endif %}
 
                                             {% if messages_count > 0 %}
-                                                <a href="{% url 'post-find' usr.pk %}" class="tail">
+                                                <a href="{% url "forum:post-find" usr.pk %}" class="tail">
                                                     <p>
                                                         {% blocktrans count messages_count=messages_count %}
                                                             <span class="bold">{{ messages_count }}</span> message posté
@@ -553,7 +553,7 @@
                     <section>
                         <h2 itemprop="name">
                             <span>{% trans 'Derniers sujets créés' %}</span>
-                            <a href="{% url 'topic-find' usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
+                            <a href="{% url "forum:topic-find" usr.pk %}" class="btn btn-grey">{% trans 'Voir tout' %}</a>
                         </h2>
 
                         {% if topics %}

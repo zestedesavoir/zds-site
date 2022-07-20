@@ -47,7 +47,7 @@ class LastTopicsFeedTest(TestCase):
         """Get object should return the given parameteres in an object"""
 
         factory = RequestFactory()
-        request = factory.get(reverse("topic-feed-rss") + "?forum=fofo&tag=tatag")
+        request = factory.get(reverse("forum:topic-feed-rss") + "?forum=fofo&tag=tatag")
         obj = self.topicfeed.get_object(request=request)
         self.assertEqual(obj["forum"], "fofo")
         self.assertEqual(obj["tag"], "tatag")
@@ -151,10 +151,10 @@ class LastTopicsFeedTest(TestCase):
         buggy_topic.title = "Strange char: \u0007"
         buggy_topic.save()
 
-        request = self.client.get(reverse("topic-feed-rss"))
+        request = self.client.get(reverse("forum:topic-feed-rss"))
         self.assertEqual(request.status_code, 200)
 
-        request = self.client.get(reverse("topic-feed-atom"))
+        request = self.client.get(reverse("forum:topic-feed-atom"))
         self.assertEqual(request.status_code, 200)
 
 
@@ -211,7 +211,7 @@ class LastPostsFeedTest(TestCase):
         """Get object should return the given parameteres in an object"""
 
         factory = RequestFactory()
-        request = factory.get(reverse("post-feed-rss") + "?forum=fofo&tag=tatag")
+        request = factory.get(reverse("forum:post-feed-rss") + "?forum=fofo&tag=tatag")
         obj = self.postfeed.get_object(request=request)
         self.assertEqual(obj["forum"], "fofo")
         self.assertEqual(obj["tag"], "tatag")
@@ -316,8 +316,8 @@ class LastPostsFeedTest(TestCase):
         post.update_content("Strange char: \u0007")
         post.save()
 
-        request = self.client.get(reverse("post-feed-rss"))
+        request = self.client.get(reverse("forum:post-feed-rss"))
         self.assertEqual(request.status_code, 200)
 
-        request = self.client.get(reverse("post-feed-atom"))
+        request = self.client.get(reverse("forum:post-feed-atom"))
         self.assertEqual(request.status_code, 200)

@@ -51,7 +51,7 @@ class ForumNotification(TestCase):
     def test_ping_unknown(self):
         self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum11.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -68,7 +68,7 @@ class ForumNotification(TestCase):
     def test_no_auto_ping(self):
         self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum11.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -87,7 +87,7 @@ class ForumNotification(TestCase):
         pinged_users = [ProfileFactory(), ProfileFactory(), ProfileFactory(), ProfileFactory()]
         self.client.force_login(self.user2)
         self.client.post(
-            reverse("topic-new") + f"?forum={self.forum11.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -104,7 +104,7 @@ class ForumNotification(TestCase):
         self.assertFalse(PingSubscription.objects.get_existing(pinged_users[2].user, post, True))
         self.assertFalse(PingSubscription.objects.get_existing(pinged_users[3].user, post, True))
         self.client.post(
-            reverse("topic-edit") + f"?topic={topic.pk}",
+            reverse("forum:topic-edit") + f"?topic={topic.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -123,7 +123,7 @@ class ForumNotification(TestCase):
         """
         self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum11.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -140,7 +140,7 @@ class ForumNotification(TestCase):
         user3 = ProfileFactory().user
         post = Topic.objects.last().last_message
         result = self.client.post(
-            reverse("post-edit") + f"?message={post.pk}",
+            reverse("forum:post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -153,7 +153,7 @@ class ForumNotification(TestCase):
         self.assertEqual(1, PingSubscription.objects.count(), "No added subscription.")
         self.assertEqual(1, Notification.objects.count())
         result = self.client.post(
-            reverse("post-edit") + f"?message={post.pk}",
+            reverse("forum:post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -174,7 +174,7 @@ class ForumNotification(TestCase):
         """
         self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum11.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -190,7 +190,7 @@ class ForumNotification(TestCase):
         self.assertEqual(1, Notification.objects.count())
         post = Topic.objects.last().last_message
         result = self.client.post(
-            reverse("post-edit") + f"?message={post.pk}",
+            reverse("forum:post-edit") + f"?message={post.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -209,7 +209,7 @@ class ForumNotification(TestCase):
         NewTopicSubscription.objects.get_or_create_active(self.user1, self.forum11)
         self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum11.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -228,7 +228,7 @@ class ForumNotification(TestCase):
         self.client.logout()
         self.client.force_login(self.staff)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
-        response = self.client.post(reverse("topic-edit"), data, follow=False)
+        response = self.client.post(reverse("forum:topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
         subscription = NewTopicSubscription.objects.get_existing(self.user1, self.forum11, True)
         self.assertIsNotNone(subscription, "There must still be an active subscription")
@@ -241,7 +241,7 @@ class ForumNotification(TestCase):
     def test_no_ping_on_private_forum(self):
         self.client.force_login(self.staff)
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -259,7 +259,7 @@ class ForumNotification(TestCase):
     def test_no_dead_ping_notif_on_moving_to_private_forum(self):
         self.client.force_login(self.user2)
         result = self.client.post(
-            reverse("topic-new") + f"?forum={self.forum11.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum11.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -278,7 +278,7 @@ class ForumNotification(TestCase):
         self.client.logout()
         self.client.force_login(self.staff)
         data = {"move": "", "forum": self.forum12.pk, "topic": topic.pk}
-        response = self.client.post(reverse("topic-edit"), data, follow=False)
+        response = self.client.post(reverse("forum:topic-edit"), data, follow=False)
         self.assertEqual(302, response.status_code)
         subscription = PingSubscription.objects.get_existing(self.user1, topic.last_message, True)
         self.assertIsNotNone(subscription, "There must still be an active subscription")
@@ -292,7 +292,7 @@ class ForumNotification(TestCase):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
         self.client.force_login(self.staff)
         self.client.post(
-            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -318,7 +318,7 @@ class ForumNotification(TestCase):
         NewTopicSubscription.objects.get_or_create_active(self.to_be_changed_staff, self.forum12)
         self.client.force_login(self.staff)
         self.client.post(
-            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -343,7 +343,7 @@ class ForumNotification(TestCase):
     def test_no_more_topic_answer_notif_on_losing_all_groups(self):
         self.client.force_login(self.to_be_changed_staff)
         self.client.post(
-            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -356,7 +356,7 @@ class ForumNotification(TestCase):
 
         self.client.force_login(self.staff)
         self.client.post(
-            reverse("post-new") + f"?sujet={topic.pk}",
+            reverse("forum:post-new") + f"?sujet={topic.pk}",
             {
                 "last_post": topic.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",
@@ -384,7 +384,7 @@ class ForumNotification(TestCase):
     def test_no_more_topic_answer_notif_on_losing_one_group(self):
         self.client.force_login(self.to_be_changed_staff)
         self.client.post(
-            reverse("topic-new") + f"?forum={self.forum12.pk}",
+            reverse("forum:topic-new") + f"?forum={self.forum12.pk}",
             {
                 "title": "Super sujet",
                 "subtitle": "Pour tester les notifs",
@@ -397,7 +397,7 @@ class ForumNotification(TestCase):
 
         self.client.force_login(self.staff)
         self.client.post(
-            reverse("post-new") + f"?sujet={topic.pk}",
+            reverse("forum:post-new") + f"?sujet={topic.pk}",
             {
                 "last_post": topic.last_message.pk,
                 "text": "C'est tout simplement l'histoire de la ville de Paris que je voudrais vous conter ",

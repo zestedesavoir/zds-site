@@ -41,7 +41,7 @@
 {% block sidebar_actions %}
     <li>
         {% with tag_is_followed=tag|is_followed_for_new_topic %}
-            {% url 'topic-tag-find' tag.slug as link_follow %}
+            {% url "forum:topic-tag-find" tag.slug as link_follow %}
             {% if tag_is_followed %}
                 {% trans "Suivre ce tag" as data_onclick %}
                 {% trans "Ne plus suivre ce tag" as button_text %}
@@ -54,7 +54,7 @@
     </li>
     <li>
         {% with tag_is_email_followed=tag|is_email_followed_for_new_topic %}
-            {% url 'topic-tag-find' tag.slug as link_follow %}
+            {% url "forum:topic-tag-find" tag.slug as link_follow %}
             {% if tag_is_email_followed %}
                 {% trans "Être notifié par courriel" as data_onclick %}
                 {% trans "Ne plus être notifié par courriel" as button_text %}
@@ -73,21 +73,21 @@
         <h3>{% trans "Filtres" %}</h3>
         <ul>
             <li>
-                <a href="{% url 'topic-tag-find' tag.slug %}?filter=solve"
+                <a href="{% url "forum:topic-tag-find" tag.slug %}?filter=solve"
                    class="ico-after tick green {% if request.GET.filter == "solve" %}selected{% endif %}"
                 >
                     {% trans "Sujets résolus" %}
                 </a>
             </li>
             <li>
-                <a href="{% url 'topic-tag-find' tag.slug %}?filter=unsolve"
+                <a href="{% url "forum:topic-tag-find" tag.slug %}?filter=unsolve"
                    class="ico-after tick blue {% if request.GET.filter == "unsolve" %}selected{% endif %}"
                 >
                     {% trans "Sujets non résolus" %}
                 </a>
             </li>
             <li>
-                <a href="{% url 'topic-tag-find' tag.slug %}?filter=noanswer"
+                <a href="{% url "forum:topic-tag-find" tag.slug %}?filter=noanswer"
                    class="ico-after view {% if request.GET.filter == "noanswer" %}selected{% endif %}"
                 >
                     {% trans "Sujets sans réponse" %}
@@ -95,7 +95,7 @@
             </li>
             {% if request.GET.filter %}
                 <li>
-                    <a href="{% url 'topic-tag-find' tag.slug %}"
+                    <a href="{% url "forum:topic-tag-find" tag.slug %}"
                        class="ico-after cross blue"
                     >
                         {% trans "Annuler le filtre" %}
