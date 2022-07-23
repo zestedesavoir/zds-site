@@ -62,7 +62,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         bot = Group(name=overridden_zds_app["member"]["bot_group"])
         bot.save()
         self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
+        self.external.groups.add(bot)
+        self.external.save()
         self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
+        self.anonymous.groups.add(bot)
+        self.anonymous.save()
 
         self.beta_forum = ForumFactory(
             pk=overridden_zds_app["forum"]["beta_forum_id"],

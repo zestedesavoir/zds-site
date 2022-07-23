@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.mp.models import mark_read
+from zds.mp.models import mark_read, filter_reachable
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     AskValidationForm,
@@ -572,7 +572,8 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         self.object.save()
 
         # send PM
-        if validation.content.authors.first().username != settings.ZDS_APP["member"]["external_account"]:
+        recipients = filter_reachable(validation.content.authors.all())
+        if len(recipients) > 0:
             msg = render_to_string(
                 "tutorialv2/messages/validation_revoke.md",
                 {
@@ -587,7 +588,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
             if not validation.content.validation_private_message:
                 validation.content.validation_private_message = send_mp(
                     bot,
-                    validation.content.authors.all(),
+                    recipients,
                     self.object.validation_message_title,
                     validation.content.title,
                     msg,

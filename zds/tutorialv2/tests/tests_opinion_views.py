@@ -2,6 +2,7 @@ import datetime
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.urls import reverse
 from django.test import TestCase
@@ -31,9 +32,16 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
 
         self.overridden_zds_app["member"]["bot_account"] = ProfileFactory().user.username
+        self.bot_group = Group()
+        self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
+        self.bot_group.save()
         self.licence = LicenceFactory()
         self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
+        self.anonymous.groups.add(self.bot_group)
+        self.anonymous.save()
         self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.external.groups.add(self.bot_group)
+        self.external.save()
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
