@@ -360,6 +360,12 @@ class Profile(models.Model):
                 return self.can_read
             return False
 
+    def is_banned(self):
+        """Return True if the user is permanently or temporarily banned."""
+        if self.end_ban_read:
+            return self.can_read or (self.end_ban_read < datetime.now())
+        return self.can_read
+
     def can_write_now(self):
         if self.user.is_active:
             if self.end_ban_write:

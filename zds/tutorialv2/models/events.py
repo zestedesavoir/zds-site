@@ -8,6 +8,7 @@ from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromCon
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
 from zds.tutorialv2.views.editorialization import EditContentTags, AddSuggestion, RemoveSuggestion
+from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.help import ChangeHelp
 from zds.tutorialv2.views.validations_contents import (
     ReserveValidation,
@@ -25,6 +26,7 @@ from zds.tutorialv2.views.validations_opinions import PublishOpinion, UnpublishO
 # * Addition
 #     1. Add a key in `types`.
 #     2. Modify the template "events/description.part.html" so that it is displayed properly.
+#     3. Add the appropriate receiver.
 #
 # * Deletion
 #     1. Remove the key in `types` and the corresponding `@receiver`.
@@ -44,6 +46,7 @@ types = {
     signals.beta_management: "beta_management",
     signals.validation_management: "validation_management",
     signals.tags_management: "tags_management",
+    signals.goals_management: "goals_management",
     signals.suggestions_management: "suggestions_management",
     signals.help_management: "help_management",
     signals.jsfiddle_management: "jsfiddle_management",
@@ -144,6 +147,15 @@ def record_event_suggestion_management(sender, performer, signal, content, actio
         type=types[signal],
         content=content,
         action=action,
+    ).save()
+
+
+@receiver(signals.goals_management, sender=EditGoals)
+def record_event_goals_management(sender, performer, signal, content, **_):
+    Event(
+        performer=performer,
+        type=types[signal],
+        content=content,
     ).save()
 
 

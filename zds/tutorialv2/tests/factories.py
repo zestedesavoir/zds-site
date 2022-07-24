@@ -7,11 +7,12 @@ from django.conf import settings
 
 from zds.forum.tests.factories import PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
+from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils import old_slugify
 from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 from zds.utils.models import Licence
-from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction
+from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, ContentContributionRole
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.utils import init_new_repo
@@ -299,3 +300,24 @@ class HelpWritingFactory(factory.django.DjangoModelFactory):
         kwargs.pop("fixture_image_path", None)
 
         return super()._create(target_class, *args, **kwargs)
+
+
+class GoalFactory(factory.django.DjangoModelFactory):
+    """Factory that create a goal for use in tests."""
+
+    class Meta:
+        model = Goal
+
+    name = factory.Sequence("Mon objectif n°{}".format)
+    description = factory.Sequence("Très belle description n°{}".format)
+    position = factory.Sequence(lambda n: n)
+    slug = factory.Sequence("mon-objectif-{}".format)
+
+
+class ContentContributionRoleFactory(factory.django.DjangoModelFactory):
+    """Factory that create a role in contributions to contents, for use in tests."""
+
+    class Meta:
+        model = ContentContributionRole
+
+    title = factory.Sequence("Rôle {}".format)

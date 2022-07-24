@@ -42,6 +42,7 @@ from zds.tutorialv2.mixins import (
 from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContribution, ContentSuggestion
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
+from zds.tutorialv2.views.goals import EditGoalsForm
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
@@ -180,6 +181,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
         context["formJs"] = form_js
         context["form_edit_license"] = EditContentLicenseForm(self.versioned_object)
         context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
+        context["form_edit_goals"] = EditGoalsForm(self.object)
 
         if self.versioned_object.requires_validation:
             context["formPublication"] = PublicationForm(self.versioned_object, initial={"source": self.object.source})

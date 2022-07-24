@@ -8,9 +8,9 @@ from django.utils.html import escape
 
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory
+from zds.tutorialv2.tests.factories import ContentContributionRoleFactory, PublishableContentFactory
 from zds.tutorialv2.forms import ContributionForm
-from zds.tutorialv2.models.database import ContentContribution, ContentContributionRole
+from zds.tutorialv2.models.database import ContentContribution
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
@@ -18,12 +18,6 @@ def create_contribution(role, contributor, content):
     contribution = ContentContribution(contribution_role=role, user=contributor, content=content)
     contribution.save()
     return contribution
-
-
-def create_role(title):
-    role = ContentContributionRole(title=title)
-    role.save()
-    return role
 
 
 @override_for_contents()
@@ -40,7 +34,7 @@ class AddContributorPermissionTests(TutorialTestMixin, TestCase):
 
         # Create content
         self.content = PublishableContentFactory(author_list=[self.author])
-        self.role = create_role("Contributeur espiègle")
+        self.role = ContentContributionRoleFactory(title="Contributeur espiègle")
 
         # Get information to be reused in tests
         self.form_url = reverse("content:add-contributor", kwargs={"pk": self.content.pk})
@@ -96,7 +90,7 @@ class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
         # Create entities for the test
         self.author = ProfileFactory().user
         self.contributor = ProfileFactory().user
-        self.role = create_role("Validateur")
+        self.role = ContentContributionRoleFactory(title="Validateur")
         self.content = PublishableContentFactory(author_list=[self.author])
         settings.ZDS_APP["member"]["bot_account"] = ProfileFactory().user.username
 

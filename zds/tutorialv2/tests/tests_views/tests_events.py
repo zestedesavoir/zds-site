@@ -1,10 +1,17 @@
+from django.conf import settings
 from django.test import TestCase
-
 from django.urls import reverse
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory
+from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.tutorialv2.models.database import PublishedContent
+from zds.tutorialv2.tests.factories import (
+    ContentContributionRoleFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+)
 from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()
@@ -46,4 +53,50 @@ class EventListPermissionTests(TutorialTestMixin, TestCase):
         """Test that unauthorized users get a 403."""
         self.client.force_login(self.outsider)
         response = self.client.get(self.events_list_url)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
+
+
+@override_for_contents()
+class EventListTests(TutorialTestMixin, TestCase):
+    def setUp(self):
+        # Create users
+        self.author = ProfileFactory().user
+        self.coauthor = ProfileFactory().user
+        self.contributor = ProfileFactory().user
+        self.staff = StaffProfileFactory().user
+        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
+        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.bot = UserFactory(username=settings.ZDS_APP["member"]["bot_account"], password="anything")
+        self.role = ContentContributionRoleFactory()
+
+    def test_events_involving_unregistered_users(self):
+        """Test accessing the event list with actions involving unregistered users."""
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.author])
+
+        self.client.force_login(self.author)
+
+        # Add a coauthor
+        result = self.client.post(
+            reverse("content:add-author", args=[article.pk]), {"username": self.coauthor.username}, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        # Add a contributor
+        form_data = {
+            "username": self.contributor,
+            "contribution_role": self.role.pk,
+            "comment": "Foo",
+        }
+        result = self.client.post(reverse("content:add-contributor", args=[article.pk]), form_data, follow=True)
+        self.assertEqual(result.status_code, 200)
+
+        # Unregister users
+        for user in [self.author, self.coauthor, self.contributor]:
+            self.client.force_login(user)
+            response = self.client.post(reverse("member-unregister"), follow=False)
+            self.assertEqual(response.status_code, 302)
+
+        # Access the event list page
+        self.client.force_login(self.staff)
+        response = self.client.get(reverse("content:events", args=[article.pk]))
+        self.assertEqual(response.status_code, 200)
