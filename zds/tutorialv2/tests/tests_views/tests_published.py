@@ -62,6 +62,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         bot = Group(name=overridden_zds_app["member"]["bot_group"])
         bot.save()
         self.external = UserFactory(username=overridden_zds_app["member"]["external_account"], password="anything")
+        self.external.groups.add(bot)
+        self.external.save()
+        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
+        self.anonymous.groups.add(bot)
+        self.anonymous.save()
 
         self.beta_forum = ForumFactory(
             pk=overridden_zds_app["forum"]["beta_forum_id"],
@@ -1354,6 +1359,35 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             },
             follow=False,
         )
+        public_count = PublishedContent.objects.count()
+        result = self.client.post(
+            reverse("validation:revoke", kwargs={"pk": article.pk, "slug": article.public_version.content_public_slug}),
+            {"text": "This content was bad", "version": article.public_version.sha_public},
+            follow=False,
+        )
+        self.assertEqual(302, result.status_code)
+        self.assertEqual(public_count - 1, PublishedContent.objects.count())
+        self.assertEqual("PENDING", Validation.objects.get(pk=registered_validation.pk).status)
+
+    def test_unpublish_unregistered_author(self):
+        article = PublishedContentFactory(type="ARTICLE", author_list=[self.user_author], licence=self.licence)
+        registered_validation = Validation(
+            content=article,
+            version=article.sha_draft,
+            status="ACCEPT",
+            comment_authors="bla",
+            comment_validator="bla",
+            date_reserve=datetime.datetime.now(),
+            date_proposition=datetime.datetime.now(),
+            date_validation=datetime.datetime.now(),
+        )
+        registered_validation.save()
+
+        self.client.force_login(self.user_author)
+        result = self.client.post(reverse("member-unregister"), follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.client.force_login(self.user_staff)
         public_count = PublishedContent.objects.count()
         result = self.client.post(
             reverse("validation:revoke", kwargs={"pk": article.pk, "slug": article.public_version.content_public_slug}),

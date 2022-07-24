@@ -30,6 +30,16 @@ def is_reachable(user):
     return settings.ZDS_APP["member"]["bot_group"] not in user_group_names
 
 
+def filter_reachable(users):
+    """
+    Returns a list with only reachable users.
+
+    :param user: a list of users
+    :return: list of reachable users.
+    """
+    return [u for u in users if is_reachable(u)]
+
+
 class PrivateTopic(models.Model):
     """
     Private topic, containing private posts.

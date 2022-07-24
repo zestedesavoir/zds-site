@@ -16,6 +16,8 @@ from django.views.generic import FormView, ListView
 
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.mp.models import filter_reachable
+from zds.mp.utils import send_mp, send_message_mp
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     PublicationForm,
@@ -31,7 +33,6 @@ from zds.tutorialv2.publication_utils import publish_content, FailureDuringPubli
 from zds.tutorialv2.utils import clone_repo
 from zds.tutorialv2.views.validations_contents import logger
 from zds.utils.models import get_hat_from_settings
-from zds.mp.utils import send_mp, send_message_mp
 
 
 class PublishOpinion(LoggedWithReadWriteHability, DoesNotRequireValidationFormViewMixin):
@@ -126,19 +127,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
             )
 
             bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-            if not self.object.validation_private_message:
-                self.object.validation_private_message = send_mp(
-                    bot,
-                    versioned.authors.all(),
-                    self.object.validation_message_title,
-                    versioned.title,
-                    msg,
-                    send_by_mail=True,
-                    direct=False,
-                    hat=get_hat_from_settings("moderation"),
-                )
-                self.object.save()
-            else:
+            if self.object.validation_private_message:
                 send_message_mp(
                     bot,
                     self.object.validation_private_message,
@@ -146,6 +135,20 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                     hat=get_hat_from_settings("moderation"),
                     no_notification_for=[self.request.user],
                 )
+            else:
+                recipients = filter_reachable(versioned.authors.all())
+                if len(recipients) > 0:
+                    self.object.validation_private_message = send_mp(
+                        bot,
+                        recipients,
+                        self.object.validation_message_title,
+                        versioned.title,
+                        msg,
+                        send_by_mail=True,
+                        direct=False,
+                        hat=get_hat_from_settings("moderation"),
+                    )
+                    self.object.save()
 
         signals.opinions_management.send(
             sender=self.__class__, performer=self.request.user, content=self.object, action="unpublish"
@@ -220,19 +223,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                 )
 
                 bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
-                if not self.object.validation_private_message:
-                    self.object.validation_private_message = send_mp(
-                        bot,
-                        versioned.authors.all(),
-                        self.object.validation_message_title,
-                        versioned.title,
-                        msg,
-                        send_by_mail=True,
-                        direct=False,
-                        hat=get_hat_from_settings("moderation"),
-                    )
-                    self.object.save()
-                else:
+                if self.object.validation_private_message:
                     send_message_mp(
                         bot,
                         self.object.validation_private_message,
@@ -240,6 +231,20 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                         hat=get_hat_from_settings("moderation"),
                         no_notification_for=[self.request.user],
                     )
+                else:
+                    recipients = filter_reachable(versioned.authors.all())
+                    if len(recipients) > 0:
+                        self.object.validation_private_message = send_mp(
+                            bot,
+                            recipients,
+                            self.object.validation_message_title,
+                            versioned.title,
+                            msg,
+                            send_by_mail=True,
+                            direct=False,
+                            hat=get_hat_from_settings("moderation"),
+                        )
+                        self.object.save()
         except ValueError:
             logger.exception("Could not %s the opinion %s", form.cleaned_data["operation"], str(self.object))
             return HttpResponse(json.dumps({"result": "FAIL", "reason": str(_("Mauvaise opération"))}), status=400)

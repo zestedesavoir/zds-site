@@ -2,6 +2,7 @@ import datetime
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.management import call_command
 from django.urls import reverse
 from django.test import TestCase
@@ -9,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ExtractFactory,
@@ -31,7 +32,16 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
 
         self.overridden_zds_app["member"]["bot_account"] = ProfileFactory().user.username
+        self.bot_group = Group()
+        self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
+        self.bot_group.save()
         self.licence = LicenceFactory()
+        self.anonymous = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"], password="anything")
+        self.anonymous.groups.add(self.bot_group)
+        self.anonymous.save()
+        self.external = UserFactory(username=settings.ZDS_APP["member"]["external_account"], password="anything")
+        self.external.groups.add(self.bot_group)
+        self.external.save()
 
         self.user_author = ProfileFactory().user
         self.user_staff = StaffProfileFactory().user
@@ -360,6 +370,25 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(PublishedContent.objects.count(), 1)
 
+        # unregister author and unpublish
+        self.client.force_login(self.user_author)
+        result = self.client.post(reverse("member-unregister"), follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        self.client.force_login(self.user_staff)
+
+        result = self.client.post(
+            reverse("validation:unpublish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
+            {"text": text_unpublication, "source": "", "version": opinion_draft.current_version},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        self.assertEqual(PublishedContent.objects.count(), 0)
+
+        opinion = PublishableContent.objects.get(pk=opinion.pk)
+        self.assertIsNone(opinion.public_version)
+
     def test_opinion_validation(self):
         """
         Test the validation of PublishableContent where type is OPINION.
@@ -545,56 +574,62 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertNotContains(result, opinion.title)
 
     def test_permanently_unpublish_opinion(self):
-        opinion = PublishableContentFactory(type="OPINION")
+        for unregister_author in [False, True]:
+            with self.subTest(unregister_author):
+                opinion = PublishableContentFactory(type="OPINION")
 
-        opinion.authors.add(self.user_author)
-        UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode="W")
-        opinion.licence = self.licence
-        opinion.save()
+                opinion.authors.add(self.user_author)
+                UserGalleryFactory(gallery=opinion.gallery, user=self.user_author, mode="W")
+                opinion.licence = self.licence
+                opinion.save()
 
-        opinion_draft = opinion.load_version()
-        ExtractFactory(container=opinion_draft, db_object=opinion)
-        ExtractFactory(container=opinion_draft, db_object=opinion)
+                opinion_draft = opinion.load_version()
+                ExtractFactory(container=opinion_draft, db_object=opinion)
+                ExtractFactory(container=opinion_draft, db_object=opinion)
 
-        self.client.force_login(self.user_author)
+                self.client.force_login(self.user_author)
 
-        # publish
-        result = self.client.post(
-            reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
-            {"source": "", "version": opinion_draft.current_version},
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
+                # publish
+                result = self.client.post(
+                    reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
+                    {"source": "", "version": opinion_draft.current_version},
+                    follow=False,
+                )
+                self.assertEqual(result.status_code, 302)
 
-        # login as staff
-        self.client.force_login(self.user_staff)
+                if unregister_author:
+                    result = self.client.post(reverse("member-unregister"), follow=False)
+                    self.assertEqual(result.status_code, 302)
 
-        # unpublish opinion
-        result = self.client.post(
-            reverse("validation:ignore-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
-            {
-                "operation": "REMOVE_PUB",
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 200)
+                # login as staff
+                self.client.force_login(self.user_staff)
 
-        # refresh
-        opinion = PublishableContent.objects.get(pk=opinion.pk)
+                # unpublish opinion
+                result = self.client.post(
+                    reverse("validation:ignore-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
+                    {
+                        "operation": "REMOVE_PUB",
+                    },
+                    follow=False,
+                )
+                self.assertEqual(result.status_code, 200)
 
-        # check that the opinion is not published
-        self.assertFalse(opinion.in_public())
+                # refresh
+                opinion = PublishableContent.objects.get(pk=opinion.pk)
 
-        # check that it's impossible to publish the opinion again
-        result = self.client.get(opinion.get_absolute_url())
-        self.assertContains(result, _("Billet modéré"))  # front
+                # check that the opinion is not published
+                self.assertFalse(opinion.in_public())
 
-        result = self.client.post(
-            reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
-            {"source": "", "version": opinion_draft.current_version},
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 403)  # back
+                # check that it's impossible to publish the opinion again
+                result = self.client.get(opinion.get_absolute_url())
+                self.assertContains(result, _("Billet modéré"))  # front
+
+                result = self.client.post(
+                    reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
+                    {"source": "", "version": opinion_draft.current_version},
+                    follow=False,
+                )
+                self.assertEqual(result.status_code, 403)  # back
 
     def test_defenitely_unpublish_alerted_opinion(self):
         opinion = PublishableContentFactory(type="OPINION")
