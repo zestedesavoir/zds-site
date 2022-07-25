@@ -379,7 +379,7 @@ class Topic(AbstractESDjangoIndexable):
             last_post = TopicRead.objects.filter(topic__pk=self.pk, user__pk=user.pk).latest("post__position").post
 
             next_post = (
-                Post.objects.filter(topic__pk=self.pk, position__gt=last_post.position).select_related("author").first()
+                Post.objects.filter(topic__pk=self.pk, position__gt=last_post.position).select_related("author").get()
             )
             return next_post
         except TopicRead.DoesNotExist:
