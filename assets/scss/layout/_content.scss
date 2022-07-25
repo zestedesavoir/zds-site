@@ -1,3 +1,40 @@
+body:before {
+    counter-reset: part;
+    counter-reset: chapter;
+    counter-reset: section;
+    counter-reset: subsection;
+}
+.article-content h2 {
+    counter-increment: part;
+    counter-set: chapter;
+
+    &:before {
+        content: counter(part) ". ";
+    }
+}
+.article-content h3 {
+    counter-increment: chapter;
+    counter-set: section;
+
+    &:before {
+        content: counter(part) "." counter(chapter) ". ";
+    }
+}
+.article-content h4 {
+    counter-increment: section;
+    counter-set: subsection;
+
+    &:before {
+        content: counter(part) "." counter(chapter) "." counter(section);
+    }
+}
+.article-content h5 {
+    counter-increment: subsection;
+
+    &:before {
+        content: counter(part) "." counter(chapter) "." counter(section) "." counter(subsection) ". ";
+    }
+}
 .small-content-wrapper {
     width: 90%;
     max-width: $length-512;
