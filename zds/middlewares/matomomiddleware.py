@@ -7,6 +7,8 @@ import logging
 from django.conf import settings
 from threading import Thread
 
+from django.urls import reverse
+
 from zds.member.views import get_client_ip
 
 matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]
@@ -102,7 +104,11 @@ class MatomoMiddleware:
                 if request.path.startswith(p):
                     return response
             try:
-                if p.startswith("/rechercher") and response.context_data["object_list"]:
+                if (
+                    p.contains(reverse("search:query"))
+                    and hasattr(response, "context_data")
+                    and response.context_data["object_list"]
+                ):
                     self.matomo_track(
                         request,
                         search_data={
