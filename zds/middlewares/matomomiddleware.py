@@ -35,6 +35,10 @@ def _background_process(queue: Queue):
             "m": data["datetime"].minute,
             "s": data["datetime"].second,
         }
+        if "search" in data:
+            params["search"] = data["search"]
+            params["search_count"] = data["search_count"]
+            params["search_cat"] = data["search_cat"]
         try:
             if data["address_ip"] != "0.0.0.0":
                 params["cip"] = data["address_ip"]
@@ -49,6 +53,15 @@ def _background_process(queue: Queue):
         data = queue.get(block=True)
 
 
+def _compute_search_category(request):
+    categories = []
+    models = request.GET["models"]
+    categories.append("-" if "content" not in models else "content")
+    categories.append("-" if "post" not in models else "post")
+    categories.append("-" if "topic" not in models else "topic")
+    return "|".join(categories)
+
+
 class MatomoMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -61,22 +74,25 @@ class MatomoMiddleware:
     def __call__(self, request):
         return self.process_response(request, self.get_response(request))
 
-    def matomo_track(self, request):
+    def matomo_track(self, request, search_data=None):
         client_user_agent = request.META.get("HTTP_USER_AGENT", "")
         client_referer = request.META.get("HTTP_REFERER", "")
         client_accept_language = request.META.get("HTTP_ACCEPT_LANGUAGE", "")
         client_url = f"{request.scheme}://{request.get_host()}{request.path}"
         if settings.ZDS_APP["site"]["matomo_tracking_enabled"]:
+            tracking_params = {
+                "client_user_agent": client_user_agent,
+                "client_referer": client_referer,
+                "client_accept_language": client_accept_language,
+                "client_url": client_url,
+                "datetime": datetime.now().time(),
+                "r_path": request.path,
+                "address_ip": get_client_ip(request),
+            }
+            if search_data:
+                tracking_params.update(search_data)
             self.queue.put(
-                {
-                    "client_user_agent": client_user_agent,
-                    "client_referer": client_referer,
-                    "client_accept_language": client_accept_language,
-                    "client_url": client_url,
-                    "datetime": datetime.now().time(),
-                    "r_path": request.path,
-                    "address_ip": get_client_ip(request),
-                }
+                tracking_params
             )
 
     def process_response(self, request, response):
@@ -88,7 +104,14 @@ class MatomoMiddleware:
                 if request.path.startswith(p):
                     return response
             try:
-                self.matomo_track(request)
+                if p.startswith("/rechercher") and response.context_data["object_list"]:
+                    self.matomo_track(request, search_data={
+                        "search": request.GET.get("q", "unknown"),
+                        "search_count": len(response.context_data["object_list"]),
+                        "search_cat": _compute_search_category(request),
+                    })
+                else:
+                    self.matomo_track(request)
             except Exception:
                 logger.exception(f"Something failed with Matomo tracking system.")
 
