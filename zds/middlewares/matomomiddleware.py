@@ -91,9 +91,7 @@ class MatomoMiddleware:
             }
             if search_data:
                 tracking_params.update(search_data)
-            self.queue.put(
-                tracking_params
-            )
+            self.queue.put(tracking_params)
 
     def process_response(self, request, response):
         if response.status_code not in tracked_status_code or request.is_ajax():
@@ -105,11 +103,14 @@ class MatomoMiddleware:
                     return response
             try:
                 if p.startswith("/rechercher") and response.context_data["object_list"]:
-                    self.matomo_track(request, search_data={
-                        "search": request.GET.get("q", "unknown"),
-                        "search_count": len(response.context_data["object_list"]),
-                        "search_cat": _compute_search_category(request),
-                    })
+                    self.matomo_track(
+                        request,
+                        search_data={
+                            "search": request.GET.get("q", "unknown"),
+                            "search_count": len(response.context_data["object_list"]),
+                            "search_cat": _compute_search_category(request),
+                        },
+                    )
                 else:
                     self.matomo_track(request)
             except Exception:
