@@ -164,11 +164,12 @@ class FieldValidatorMixin:
 class PasswordRequiredForm(forms.Form):
 
     password = forms.CharField(
-        label=_("Mot de passe (confirmation)"),
+        label=_("Mot de passe actuel"),
         widget=forms.PasswordInput,
     )
 
-    def check_correct_password(self, cleaned_data):
+    def clean(self):
+        cleaned_data = super().clean()
         password = cleaned_data.get("password")
 
         if password and self.user:

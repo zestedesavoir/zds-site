@@ -420,7 +420,6 @@ class ChangeUserForm(PasswordRequiredForm):
     def clean(self):
         validate_raw_zds_username(self.data)
         cleaned_data = super().clean()
-        cleaned_data = self.check_correct_password(cleaned_data)
         cleaned_data["previous_username"] = self.previous_username
         cleaned_data["previous_email"] = self.previous_email
         username = cleaned_data.get("username")
@@ -440,7 +439,7 @@ class UnregisterForm(PasswordRequiredForm):
     """
 
     def __init__(self, user, *args, **kwargs):
-        super(UnregisterForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_id = "unregister"
         self.helper.form_class = "modal modal-flex"
@@ -464,12 +463,6 @@ class UnregisterForm(PasswordRequiredForm):
                 StrictButton(_("Me désinscrire"), type="submit"),
             ),
         )
-
-    def clean(self):
-        cleaned_data = super(UnregisterForm, self).clean()
-        cleaned_data = self.check_correct_password(cleaned_data)
-
-        return cleaned_data
 
 
 # TODO: Updates the password --> requires a better name
@@ -508,7 +501,6 @@ class ChangePasswordForm(PasswordRequiredForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        cleaned_data = self.check_correct_password(cleaned_data)
         return validate_passwords(cleaned_data, password_label="password_new", username=self.user.username)
 
 
