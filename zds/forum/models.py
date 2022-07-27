@@ -379,15 +379,13 @@ class Topic(AbstractESDjangoIndexable):
             last_post = TopicRead.objects.filter(topic__pk=self.pk, user__pk=user.pk).latest("post__position").post
 
             next_post = (
-                Post.objects.filter(topic__pk=self.pk, position__gt=last_post.position).select_related("author").get()
-            )
+                Post.objects.filter(topic__pk=self.pk, position__gt=last_post.position).order_by("position").first()
+            ) or self.get_last_answer()
+            # if read was the last message, there is no next so default to last message
             return next_post
         except TopicRead.DoesNotExist:
             # if no read : the whole topic is not read so get first message
             return self.first_post()
-        except Post.DoesNotExist:
-            # if read was the last message, there is no next so default to last message
-            return self.get_last_answer()
 
     def antispam(self, user=None):
         """
