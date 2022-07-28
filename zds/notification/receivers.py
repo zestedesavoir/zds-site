@@ -329,7 +329,7 @@ def new_topic_event(sender, *, instance, created=True, **__):
 
         subscriptions = NewTopicSubscription.objects.get_subscriptions(topic.forum)
         for subscription in subscriptions:
-            if subscription.user != topic.author:
+            if subscription.user != topic.author and topic.forum.can_read(subscription.user):
                 subscription.send_notification(content=topic, sender=topic.author)
 
 
