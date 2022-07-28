@@ -44,7 +44,7 @@ class InterventionsTest(TestCase):
         )
         self.validation.save()
 
-        self.topic = send_mp(author=self.author.user, users=[], title="Title", text="Testing", subtitle="", leave=False)
+        self.topic = send_mp(author=self.author.user, users=[], title="Title", subtitle="", text="Testing", leave=False)
         self.topic.add_participant(self.user.user)
         send_message_mp(self.user.user, self.topic, "Testing")
 

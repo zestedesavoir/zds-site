@@ -185,7 +185,7 @@ class PrivatePostActionSerializer(serializers.ModelSerializer, TextValidator, Up
         author = self.context.get("view").request.user
 
         # Send post in mp
-        send_message_mp(author, topic, self.validated_data.get("text"), send_by_mail=True, direct=False)
+        send_message_mp(author, topic, self.validated_data.get("text"), send_by_mail=True)
         return topic.last_message
 
     def update(self, instance, validated_data):

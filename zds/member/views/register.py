@@ -283,7 +283,6 @@ def activate_account(request):
         msg,
         send_by_mail=False,
         leave=True,
-        direct=False,
         hat=get_hat_from_settings("moderation"),
     )
     token.delete()

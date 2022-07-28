@@ -22,7 +22,6 @@ def send_mp(
     send_by_mail=True,
     force_email=False,
     leave=True,
-    direct=False,
     hat=None,
     automatically_read=None,
 ):
@@ -36,7 +35,6 @@ def send_mp(
     :param text: content of the private message
     :param send_by_mail: if True, also notify by email
     :param force_email: if True, send email even if the user has not enabled email notifications
-    :param direct: send a mail directly without mp (ex : ban members who wont connect again)
     :param leave: if True, do not add the sender to the topic
     :param hat: hat with which to send the private message
     :param automatically_read: a user or a list of users that will automatically be marked as having read of the mp
@@ -46,7 +44,7 @@ def send_mp(
     n_topic = PrivateTopic.create(title=title, subtitle=subtitle, author=author, recipients=users)
     signals.topic_created.send(sender=PrivateTopic, topic=n_topic, by_email=send_by_mail)
 
-    topic = send_message_mp(author, n_topic, text, send_by_mail, force_email, direct, hat)
+    topic = send_message_mp(author, n_topic, text, send_by_mail, force_email, hat)
 
     if automatically_read:
         if not isinstance(automatically_read, list):
@@ -60,9 +58,7 @@ def send_mp(
     return topic
 
 
-def send_message_mp(
-    author, n_topic, text, send_by_mail=True, force_email=False, direct=False, hat=None, no_notification_for=None
-):
+def send_message_mp(author, n_topic, text, send_by_mail=True, force_email=False, hat=None, no_notification_for=None):
     """
     Send a post in an MP.
 
@@ -71,7 +67,6 @@ def send_message_mp(
     :param text: content of the message
     :param send_by_mail: if True, also notify by email
     :param force_email: if True, send email even if the user has not enabled email notifications
-    :param direct: send a mail directly without private message (ex : banned members who won't connect again)
     :param hat: hat attached to the message
     :param no_notification_for: list of participants who won't be notified of the message
     """
@@ -101,7 +96,6 @@ def send_message_mp(
         post=post,
         by_email=send_by_mail,
         force_email=force_email,
-        by_mp=not direct,
         no_notification_for=no_notification_for,
     )
     if no_notification_for:

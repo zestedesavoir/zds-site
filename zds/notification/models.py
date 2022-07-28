@@ -138,21 +138,17 @@ class SingleNotificationMixin:
     Mixin for the subscription that can only have one active notification at a time
     """
 
-    def send_notification(self, content=None, send_email=True, sender=None, send_mp=True):
+    def send_notification(self, content=None, send_email=True, sender=None):
         """
         Sends the notification about the given content
         :param content:  the content the notification is about
         :param sender: the user whose action triggered the notification
         :param send_email : whether an email must be sent if the subscription by email is active
-        :param send_mp : whether a private message must be sent
         """
         assert hasattr(self, "last_notification")
         assert hasattr(self, "get_notification_url")
         assert hasattr(self, "get_notification_title")
         assert hasattr(self, "send_email")
-
-        if not send_mp and not send_email:
-            return
 
         if self.last_notification is None or self.last_notification.is_read:
             notifications = list(Notification.objects.filter(subscription=self))
@@ -162,11 +158,10 @@ class SingleNotificationMixin:
                 LOG.info("Duplicates deleted.")
 
             notification = self.build_notification(content, sender)
-            if send_mp:
-                with transaction.atomic():
-                    notification.save()
-                    self.last_notification = notification
-                    self.save()
+            with transaction.atomic():
+                notification.save()
+                self.last_notification = notification
+                self.save()
 
             if send_email and self.by_email:
                 self.send_email(notification)
@@ -201,13 +196,12 @@ class SingleNotificationMixin:
 
 
 class MultipleNotificationsMixin:
-    def send_notification(self, content=None, send_email=True, sender=None, send_mp=True):
+    def send_notification(self, content=None, send_email=True, sender=None):
         """
         Sends the notification about the given content
         :param content:  the content the notification is about
         :param sender: the user whose action triggered the notification
         :param send_email : whether an email must be sent if the subscription by email is active
-        :param send_mp : whether a private message must be sent
         """
 
         assert hasattr(self, "get_notification_url")
@@ -216,15 +210,11 @@ class MultipleNotificationsMixin:
         if self.last_notification and not self.last_notification.is_read:
             return
 
-        if not send_email and not send_mp:
-            return
-
         notification = self.build_notification(content, sender)
-        if send_mp:
-            with transaction.atomic():
-                notification.save()
-                self.last_notification = notification
-                self.save()
+        with transaction.atomic():
+            notification.save()
+            self.last_notification = notification
+            self.save()
 
         if send_email and self.by_email:
             self.send_email(notification)

@@ -425,7 +425,7 @@ def create_private_topic_event(sender, *, topic, by_email, **__):
 
 @receiver(mp_signals.message_added, sender=PrivatePost)
 @disable_for_loaddata
-def answer_private_topic_event(sender, *, post, by_email, force_email, by_mp, no_notification_for=None, **__):
+def answer_private_topic_event(sender, *, post, by_email, force_email, no_notification_for=None, **__):
     """
     Sends PrivateTopicAnswerSubscription to the subscribers to the topic and subscribe
     the author to the following answers to the topic.
@@ -447,7 +447,7 @@ def answer_private_topic_event(sender, *, post, by_email, force_email, by_mp, no
                     or (is_new_mp and subscription.user.profile.email_for_new_mp)
                 )
             )
-            subscription.send_notification(content=post, sender=post.author, send_email=send_email, send_mp=by_mp)
+            subscription.send_notification(content=post, sender=post.author, send_email=send_email)
 
 
 @receiver(pre_delete, sender=PrivateTopic)

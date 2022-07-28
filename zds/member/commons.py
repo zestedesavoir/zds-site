@@ -214,7 +214,6 @@ class MemberSanctionState:
             msg,
             send_by_mail=True,
             force_email=True,
-            direct=False,
             hat=get_hat_from_settings("moderation"),
         )
 
