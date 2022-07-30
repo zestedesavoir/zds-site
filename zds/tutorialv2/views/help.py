@@ -2,7 +2,7 @@ import json
 
 from django.conf import settings
 from django.db.models import Count, Q
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
@@ -85,13 +85,11 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         self.object.save()
         signals.help_management.send(sender=self.__class__, performer=self.request.user, content=self.object)
         if self.request.is_ajax():
-            return HttpResponse(
-                json.dumps({"result": "ok", "help_wanted": data["activated"]}), content_type="application/json"
-            )
+            return JsonResponse({"result": "ok", "help_wanted": data["activated"]})
         self.success_url = self.object.get_absolute_url()
         return super().form_valid(form)
 
     def form_invalid(self, form):
         if self.request.is_ajax():
-            return HttpResponse(json.dumps({"errors": form.errors}), status=400, content_type="application/json")
+            return JsonResponse({"errors": form.errors}, status=400)
         return super().form_invalid(form)

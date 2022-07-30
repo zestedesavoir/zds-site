@@ -1,18 +1,31 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Field, ButtonHolder
+from crispy_forms.layout import Layout, Field, ButtonHolder
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.forms import forms, ModelMultipleChoiceField, CheckboxSelectMultiple
+from django.core.exceptions import ValidationError
+from django.db.models import Count
+from django.forms import (
+    forms,
+    ModelMultipleChoiceField,
+    CheckboxSelectMultiple,
+    IntegerField,
+    BooleanField,
+    HiddenInput,
+)
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.generic.edit import BaseFormView
 
 from zds.tutorialv2 import signals
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
-from zds.tutorialv2.models.database import PublishableContent
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.models.goals import Goal
 from zds.utils import get_current_user
+from zds.utils.paginator import ZdSPagingListView
 
 
 class EditGoalsForm(forms.Form):
@@ -40,6 +53,8 @@ class EditGoalsForm(forms.Form):
 
 
 class EditGoals(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormViewMixin):
+    """View managing the form used to modify the goals of a single content."""
+
     permission_required = "tutorialv2.change_publishablecontent"
     model = PublishableContent
     form_class = EditGoalsForm
@@ -69,3 +84,79 @@ class EditGoals(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormVi
         messages.success(self.request, self.success_message)
         signals.goals_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
         return super().form_valid(form)
+
+
+class MassEditGoalsForm(forms.Form):
+    """Form for requests sent with the page for mass edit of goals."""
+
+    activated = BooleanField(widget=HiddenInput, required=False)
+    goal_id = IntegerField(widget=HiddenInput)
+    content_id = IntegerField(widget=HiddenInput)
+
+    def clean_goal_id(self):
+        goal_id = self.cleaned_data["goal_id"]
+        if not Goal.objects.filter(id=goal_id).exists():
+            raise ValidationError(f"The goal with id {goal_id} does not exist.")
+        return goal_id
+
+    def clean_content_id(self):
+        content_id = self.cleaned_data["content_id"]
+        if not PublishableContent.objects.filter(id=content_id).exists():
+            raise ValidationError(f"The content with id {content_id} does not exist.")
+        return content_id
+
+
+class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, ZdSPagingListView):
+    """View to edit the goals of many contents."""
+
+    template_name = "tutorialv2/goals/mass-edit-goals.html"
+    permission_required = "tutorialv2.change_publishablecontent"
+    context_object_name = "contents"
+    form_class = MassEditGoalsForm
+    ordering = ["-creation_date"]
+    paginate_by = settings.ZDS_APP["content"]["goals_content_per_page"]
+
+    def get_context_data(self, **kwargs):
+        context = {
+            "goals": Goal.objects.all().annotate(num_contents=Count("contents")),
+            "current_filter_pk": self.current_filter_pk,
+            "only_not_classified": self.only_not_classified,
+            "all": self.current_filter_pk is None and not self.only_not_classified,
+            "num_all": self.num_all,
+            "num_not_classified": self.num_not_classified,
+        }
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
+    def get_queryset(self):
+        self.current_filter_pk = None
+
+        self.base_queryset = PublishableContent.objects.exclude(public_version=None)
+        self.num_all = self.base_queryset.count()
+
+        queryset_not_classified = self.base_queryset.filter(goals=None)
+        self.num_not_classified = queryset_not_classified.count()
+
+        self.only_not_classified = "non-classes" in self.request.GET
+        if self.only_not_classified:
+            return queryset_not_classified
+        else:
+            for goal in Goal.objects.all():
+                if f"objectif_{goal.pk}" in self.request.GET:
+                    self.current_filter_pk = goal.pk
+                    return self.base_queryset.filter(goals__in=[goal])
+        return self.base_queryset
+
+    def form_valid(self, form):
+        content = PublishableContent.objects.get(id=form.cleaned_data["content_id"])
+        goal = Goal.objects.get(id=form.cleaned_data["goal_id"])
+        activated = form.cleaned_data["activated"]
+        if activated:
+            content.goals.add(goal)
+        else:
+            content.goals.remove(goal)
+        return JsonResponse({"help_wanted": activated})
+
+    def form_invalid(self, form):
+        print(form)
+        return JsonResponse({"errors": form.errors}, status=400)

@@ -74,7 +74,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     old_pk = models.IntegerField(db_index=True, default=0)
     subcategory = models.ManyToManyField(SubCategory, verbose_name="Sous-Catégorie", blank=True, db_index=True)
     tags = models.ManyToManyField(Tag, verbose_name="Tags du contenu", blank=True, db_index=True)
-    goals = models.ManyToManyField(Goal, verbose_name="Objectifs du contenu", blank=True, db_index=True)
+    goals = models.ManyToManyField(
+        Goal, verbose_name="Objectifs du contenu", blank=True, db_index=True, related_name="contents"
+    )
 
     # store the thumbnail for tutorial or article
     image = models.ForeignKey(Image, verbose_name="Image du tutoriel", blank=True, null=True, on_delete=models.SET_NULL)
