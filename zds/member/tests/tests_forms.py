@@ -10,6 +10,7 @@ from zds.member.forms import (
     NewPasswordForm,
     KarmaForm,
     UsernameAndEmailForm,
+    UnregisterForm,
 )
 from zds.member.models import BannedEmailProvider
 from zds.member.tests.factories import StaffProfileFactory
@@ -163,6 +164,21 @@ class RegisterFormTest(TestCase):
         self.assertFalse(form.is_valid())
 
 
+class UnregisterFormTest(TestCase):
+    """
+    Check the unregistering form.
+    """
+
+    def setUp(self):
+        self.user1 = ProfileFactory()
+
+    def test_password_is_required(self):
+        data = {}
+        form = UnregisterForm(data=data, user=self.user1.user)
+        self.assertFalse(form.is_valid())
+        self.assertIn("password", form.errors.keys())
+
+
 class MiniProfileFormTest(TestCase):
     """
     Check the miniprofile form.
@@ -235,22 +251,22 @@ class ChangeUserFormTest(TestCase):
         self.user2 = ProfileFactory()
 
     def test_valid_change_username_user_form(self):
-        data = {"username": "MyNewPseudo", "email": self.user1.user.email}
+        data = {"username": "MyNewPseudo", "email": self.user1.user.email, "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertTrue(form.is_valid())
 
     def test_valid_change_email_user_form(self):
-        data = {"username": self.user1.user.username, "email": "test@gmail.com"}
+        data = {"username": self.user1.user.username, "email": "test@gmail.com", "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertTrue(form.is_valid())
 
     def test_already_used_username_user_form(self):
-        data = {"username": self.user2.user.username, "email": self.user1.user.email}
+        data = {"username": self.user2.user.username, "email": self.user1.user.email, "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_already_used_email_user_form(self):
-        data = {"username": self.user1.user.username, "email": self.user2.user.email}
+        data = {"username": self.user1.user.username, "email": self.user2.user.email, "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
@@ -258,28 +274,28 @@ class ChangeUserFormTest(TestCase):
         moderator = StaffProfileFactory().user
         if not BannedEmailProvider.objects.filter(provider="yopmail.com").exists():
             BannedEmailProvider.objects.create(provider="yopmail.com", moderator=moderator)
-        data = {"username": self.user1.user.username, "email": "test@yopmail.com"}
+        data = {"username": self.user1.user.username, "email": "test@yopmail.com", "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_wrong_email_user_form(self):
-        data = {"username": self.user1.user.username, "email": "wrong@"}
+        data = {"username": self.user1.user.username, "email": "wrong@", "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
-        data = {"username": self.user1.user.username, "email": "@test.com"}
+        data = {"username": self.user1.user.username, "email": "@test.com", "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
-        data = {"username": self.user1.user.username, "email": "wrong@test"}
+        data = {"username": self.user1.user.username, "email": "wrong@test", "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
-        data = {"username": self.user1.user.username, "email": "wrong@.com"}
+        data = {"username": self.user1.user.username, "email": "wrong@.com", "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
-        data = {"username": self.user1.user.username, "email": "wrongtest.com"}
+        data = {"username": self.user1.user.username, "email": "wrongtest.com", "password": "hostel77"}
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
@@ -287,6 +303,7 @@ class ChangeUserFormTest(TestCase):
         ProfileFactory()
         data = {
             "username": "  ZeTester  ",
+            "password": "hostel77",
             "email": self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
@@ -296,6 +313,7 @@ class ChangeUserFormTest(TestCase):
         ProfileFactory()
         data = {
             "username": "Ze,Tester",
+            "password": "hostel77",
             "email": self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
@@ -305,10 +323,21 @@ class ChangeUserFormTest(TestCase):
         ProfileFactory()
         data = {
             "username": "Ze/Tester",
+            "password": "hostel77",
             "email": self.user1.user.email,
         }
         form = ChangeUserForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
+
+    def test_password_is_required(self):
+        ProfileFactory()
+        data = {
+            "username": "ZeTester",
+            "email": self.user1.user.email,
+        }
+        form = ChangeUserForm(data=data, user=self.user1.user)
+        self.assertFalse(form.is_valid())
+        self.assertIn("password", form.errors.keys())
 
 
 class ChangePasswordFormTest(TestCase):
@@ -323,7 +352,7 @@ class ChangePasswordFormTest(TestCase):
 
     def test_valid_change_password_form(self):
         data = {
-            "password_old": self.old_password,
+            "password": self.old_password,
             "password_new": self.new_password,
             "password_confirm": self.new_password,
         }
@@ -331,25 +360,25 @@ class ChangePasswordFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_old_wrong_change_password_form(self):
-        data = {"password_old": "Wronnnng", "password_new": self.new_password, "password_confirm": self.new_password}
+        data = {"password": "Wronnnng", "password_new": self.new_password, "password_confirm": self.new_password}
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_not_matching_change_password_form(self):
-        data = {"password_old": self.old_password, "password_new": self.new_password, "password_confirm": "Wronnnng"}
+        data = {"password": self.old_password, "password_new": self.new_password, "password_confirm": "Wronnnng"}
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_too_short_change_password_form(self):
         too_short = "short"
-        data = {"password_old": self.old_password, "password_new": too_short, "password_confirm": too_short}
+        data = {"password": self.old_password, "password_new": too_short, "password_confirm": too_short}
         form = ChangePasswordForm(data=data, user=self.user1.user)
         self.assertFalse(form.is_valid())
 
     def test_match_username_change_password_form(self):
         self.user1.user.username = "LongName"
         data = {
-            "password_old": self.old_password,
+            "password": self.old_password,
             "password_new": self.user1.user.username,
             "password_confirm": self.user1.user.username,
         }

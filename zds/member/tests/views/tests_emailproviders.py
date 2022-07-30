@@ -29,7 +29,7 @@ class EmailProvidersTests(TestCase):
         # Edit the email with an unknown provider
         self.client.post(
             reverse("update-username-email-member"),
-            {"username": user.username, "email": "test@unknown-provider-edit.com"},
+            {"username": user.username, "email": "test@unknown-provider-edit.com", "password": "hostel77"},
             follow=False,
         )
         # A new provider object should have been created
