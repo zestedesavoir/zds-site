@@ -425,13 +425,14 @@ def create_private_topic_event(sender, *, topic, by_email, **__):
 
 @receiver(mp_signals.message_added, sender=PrivatePost)
 @disable_for_loaddata
-def answer_private_topic_event(sender, *, post, by_email, no_notification_for=None, **__):
+def answer_private_topic_event(sender, *, post, by_email, force_email, no_notification_for=None, **__):
     """
     Sends PrivateTopicAnswerSubscription to the subscribers to the topic and subscribe
     the author to the following answers to the topic.
 
     :param post: the new post.
     :param by_email: Send or not an email.
+    :param force_email: Send email even if the user has not enabled email notifications
     :param no_notification_for: user or group of user to ignore, really usefull when dealing with moderation message.
     """
 
@@ -439,8 +440,12 @@ def answer_private_topic_event(sender, *, post, by_email, no_notification_for=No
     for subscription in subscription_list:
         if subscription.user != post.author:
             is_new_mp = post.position_in_topic == 1
-            send_email = by_email and (
-                subscription.user.profile.email_for_answer or (is_new_mp and subscription.user.profile.email_for_new_mp)
+            send_email = force_email or (
+                by_email
+                and (
+                    subscription.user.profile.email_for_answer
+                    or (is_new_mp and subscription.user.profile.email_for_new_mp)
+                )
             )
             subscription.send_notification(content=post, sender=post.author, send_email=send_email)
 
