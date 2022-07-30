@@ -12,6 +12,7 @@ from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.member.views.moderation import member_from_ip
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.member.models import Profile, Ban, KarmaNote
+from zds.notification.models import Notification
 
 
 class TestsModeration(TestCase):
@@ -28,7 +29,7 @@ class TestsModeration(TestCase):
         self.bot = Group(name=settings.ZDS_APP["member"]["bot_group"])
         self.bot.save()
 
-    def test_sanctions(self):
+    def test_ls_followed_by_unls(self):
         """
         Test various sanctions.
         """
@@ -43,20 +44,23 @@ class TestsModeration(TestCase):
 
         # Test: LS
         user_ls = ProfileFactory()
+        ls_text = "Texte de test pour LS"
         result = self.client.post(
             reverse("member-modify-profile", kwargs={"user_pk": user_ls.user.id}),
-            {"ls": "", "ls-text": "Texte de test pour LS"},
+            {"ls": "", "ls-text": ls_text},
             follow=False,
         )
-        user = Profile.objects.get(id=user_ls.id)  # Refresh profile from DB
+        profile = Profile.objects.get(id=user_ls.id)  # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
-        self.assertFalse(user.can_write)
-        self.assertTrue(user.can_read)
-        self.assertIsNone(user.end_ban_write)
-        self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id=user.user.id).order_by("-pubdate")[0]
+        self.assertFalse(profile.can_write)
+        self.assertTrue(profile.can_read)
+        self.assertIsNone(profile.end_ban_write)
+        self.assertIsNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-pubdate")[0]
         self.assertEqual(ban.type, "Lecture seule illimitée")
-        self.assertEqual(ban.note, "Texte de test pour LS")
+        self.assertEqual(ban.note, ls_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 1)
+        self.assertEqual(Notification.objects.all().count(), 1)
         self.assertEqual(len(mail.outbox), 1)
 
         result = self.client.get(reverse("member-list"), follow=False)
@@ -64,109 +68,208 @@ class TestsModeration(TestCase):
         self.assertEqual(nb_users + 1, len(result.context["members"]))  # LS guy still shows up, good
 
         # Test: Un-LS
+        unls_text = "Texte de test pour un-LS"
         result = self.client.post(
             reverse("member-modify-profile", kwargs={"user_pk": user_ls.user.id}),
-            {"un-ls": "", "unls-text": "Texte de test pour un-LS"},
+            {"un-ls": "", "unls-text": unls_text},
             follow=False,
         )
-        user = Profile.objects.get(id=user_ls.id)  # Refresh profile from DB
+        profile = Profile.objects.get(id=user_ls.id)  # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
-        self.assertTrue(user.can_write)
-        self.assertTrue(user.can_read)
-        self.assertIsNone(user.end_ban_write)
-        self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id=user.user.id).order_by("-id")[0]
+        self.assertTrue(profile.can_write)
+        self.assertTrue(profile.can_read)
+        self.assertIsNone(profile.end_ban_write)
+        self.assertIsNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-id")[0]
         self.assertEqual(ban.type, "Levée de la lecture seule")
-        self.assertEqual(ban.note, "Texte de test pour un-LS")
+        self.assertEqual(ban.note, unls_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 2)
         self.assertEqual(len(mail.outbox), 2)
 
         result = self.client.get(reverse("member-list"), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(nb_users + 1, len(result.context["members"]))  # LS guy still shows up, good
 
-        # Test: LS temp
-        user_ls_temp = ProfileFactory()
+    def test_temp_ls_followed_by_unls(self):
+        """
+        Test various sanctions.
+        """
+
+        staff = StaffProfileFactory()
+        self.client.force_login(staff.user)
+
+        # list of members.
+        result = self.client.get(reverse("member-list"), follow=False)
+        self.assertEqual(result.status_code, 200)
+        nb_users = len(result.context["members"])
+
+        # Test: Temp LS
+        profile = ProfileFactory()
+        ls_text = "Texte de test pour LS TEMP"
         result = self.client.post(
-            reverse("member-modify-profile", kwargs={"user_pk": user_ls_temp.user.id}),
-            {"ls-temp": "", "ls-jrs": 10, "ls-text": "Texte de test pour LS TEMP"},
+            reverse("member-modify-profile", kwargs={"user_pk": profile.user.id}),
+            {"ls-temp": "", "ls-jrs": 10, "ls-text": ls_text},
             follow=False,
         )
-        user = Profile.objects.get(id=user_ls_temp.id)  # Refresh profile from DB
+        profile = Profile.objects.get(id=profile.id)  # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
-        self.assertFalse(user.can_write)
-        self.assertTrue(user.can_read)
-        self.assertIsNotNone(user.end_ban_write)
-        self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id=user.user.id).order_by("-id")[0]
+        self.assertFalse(profile.can_write)
+        self.assertTrue(profile.can_read)
+        self.assertIsNotNone(profile.end_ban_write)
+        self.assertIsNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-id")[0]
         self.assertIn("Lecture seule temporaire", ban.type)
-        self.assertEqual(ban.note, "Texte de test pour LS TEMP")
-        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(ban.note, ls_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 1)
+        self.assertEqual(Notification.objects.all().count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
-        # reset nb_users
+        result = self.client.get(reverse("member-list"), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(nb_users + 1, len(result.context["members"]))  # LS guy still shows up, good
+
+        # Test: Un-LS
+        unls_text = "Texte de test pour un-LS"
+        result = self.client.post(
+            reverse("member-modify-profile", kwargs={"user_pk": profile.user.id}),
+            {"un-ls": "", "unls-text": unls_text},
+            follow=False,
+        )
+        profile = Profile.objects.get(id=profile.id)  # Refresh profile from DB
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(profile.can_write)
+        self.assertTrue(profile.can_read)
+        self.assertIsNone(profile.end_ban_write)
+        self.assertIsNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-id")[0]
+        self.assertEqual(ban.type, "Levée de la lecture seule")
+        self.assertEqual(ban.note, unls_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 2)
+        self.assertEqual(len(mail.outbox), 2)
+
+        result = self.client.get(reverse("member-list"), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(nb_users + 1, len(result.context["members"]))  # LS guy still shows up, good
+
+    def test_ban_followed_by_unban(self):
+        """
+        Test ban followed by unban.
+        """
+
+        staff = StaffProfileFactory()
+        self.client.force_login(staff.user)
+
+        # list of members.
         result = self.client.get(reverse("member-list"), follow=False)
         self.assertEqual(result.status_code, 200)
         nb_users = len(result.context["members"])
 
         # Test: BAN
-        user_ban = ProfileFactory()
+        profile = ProfileFactory()
+        ban_text = "Texte de test pour BAN"
         result = self.client.post(
-            reverse("member-modify-profile", kwargs={"user_pk": user_ban.user.id}),
-            {"ban": "", "ban-text": "Texte de test pour BAN"},
+            reverse("member-modify-profile", kwargs={"user_pk": profile.user.id}),
+            {"ban": "", "ban-text": ban_text},
             follow=False,
         )
-        user = Profile.objects.get(id=user_ban.id)  # Refresh profile from DB
+        profile = Profile.objects.get(id=profile.id)  # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
-        self.assertTrue(user.can_write)
-        self.assertFalse(user.can_read)
-        self.assertIsNone(user.end_ban_write)
-        self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id=user.user.id).order_by("-id")[0]
+        self.assertTrue(profile.can_write)
+        self.assertFalse(profile.can_read)
+        self.assertIsNone(profile.end_ban_write)
+        self.assertIsNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-id")[0]
         self.assertEqual(ban.type, "Bannissement illimité")
-        self.assertEqual(ban.note, "Texte de test pour BAN")
-        self.assertEqual(len(mail.outbox), 4)
+        self.assertEqual(ban.note, ban_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
 
         result = self.client.get(reverse("member-list"), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(nb_users, len(result.context["members"]))  # Banned guy doesn't show up, good
 
         # Test: un-BAN
+        unban_text = "Texte de test pour UNBAN"
         result = self.client.post(
-            reverse("member-modify-profile", kwargs={"user_pk": user_ban.user.id}),
-            {"un-ban": "", "unban-text": "Texte de test pour BAN"},
+            reverse("member-modify-profile", kwargs={"user_pk": profile.user.id}),
+            {"un-ban": "", "unban-text": unban_text},
             follow=False,
         )
-        user = Profile.objects.get(id=user_ban.id)  # Refresh profile from DB
+        profile = Profile.objects.get(id=profile.id)  # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
-        self.assertTrue(user.can_write)
-        self.assertTrue(user.can_read)
-        self.assertIsNone(user.end_ban_write)
-        self.assertIsNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id=user.user.id).order_by("-id")[0]
+        self.assertTrue(profile.can_write)
+        self.assertTrue(profile.can_read)
+        self.assertIsNone(profile.end_ban_write)
+        self.assertIsNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-id")[0]
         self.assertEqual(ban.type, "Levée du bannissement")
-        self.assertEqual(ban.note, "Texte de test pour BAN")
-        self.assertEqual(len(mail.outbox), 5)
+        self.assertEqual(ban.note, unban_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 2)
+        self.assertEqual(len(mail.outbox), 2)
 
         result = self.client.get(reverse("member-list"), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(nb_users + 1, len(result.context["members"]))  # UnBanned guy shows up, good
 
-        # Test: BAN temp
-        user_ban_temp = ProfileFactory()
+    def test_temp_ban_followed_by_unban(self):
+        """
+        Test temporary ban followed by unban.
+        """
+
+        staff = StaffProfileFactory()
+        self.client.force_login(staff.user)
+
+        # list of members.
+        result = self.client.get(reverse("member-list"), follow=False)
+        self.assertEqual(result.status_code, 200)
+        nb_users = len(result.context["members"])
+
+        # Test: BAN
+        profile = ProfileFactory()
+        ban_text = "Texte de test pour BAN TEMP"
         result = self.client.post(
-            reverse("member-modify-profile", kwargs={"user_pk": user_ban_temp.user.id}),
-            {"ban-temp": "", "ban-jrs": 10, "ban-text": "Texte de test pour BAN TEMP"},
+            reverse("member-modify-profile", kwargs={"user_pk": profile.user.id}),
+            {"ban-temp": "", "ban-jrs": 10, "ban-text": ban_text},
             follow=False,
         )
-        user = Profile.objects.get(id=user_ban_temp.id)  # Refresh profile from DB
+        profile = Profile.objects.get(id=profile.id)  # Refresh profile from DB
         self.assertEqual(result.status_code, 302)
-        self.assertTrue(user.can_write)
-        self.assertFalse(user.can_read)
-        self.assertIsNone(user.end_ban_write)
-        self.assertIsNotNone(user.end_ban_read)
-        ban = Ban.objects.filter(user__id=user.user.id).order_by("-id")[0]
+        self.assertTrue(profile.can_write)
+        self.assertFalse(profile.can_read)
+        self.assertIsNone(profile.end_ban_write)
+        self.assertIsNotNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-id")[0]
         self.assertIn("Bannissement temporaire", ban.type)
-        self.assertEqual(ban.note, "Texte de test pour BAN TEMP")
-        self.assertEqual(len(mail.outbox), 6)
+        self.assertEqual(ban.note, ban_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 1)
+        self.assertEqual(len(mail.outbox), 1)
+
+        result = self.client.get(reverse("member-list"), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(nb_users, len(result.context["members"]))  # Banned guy doesn't show up, good
+
+        # Test: un-BAN
+        unban_text = "Texte de test pour UNBAN"
+        result = self.client.post(
+            reverse("member-modify-profile", kwargs={"user_pk": profile.user.id}),
+            {"un-ban": "", "unban-text": unban_text},
+            follow=False,
+        )
+        profile = Profile.objects.get(id=profile.id)  # Refresh profile from DB
+        self.assertEqual(result.status_code, 302)
+        self.assertTrue(profile.can_write)
+        self.assertTrue(profile.can_read)
+        self.assertIsNone(profile.end_ban_write)
+        self.assertIsNone(profile.end_ban_read)
+        ban = Ban.objects.filter(user__id=profile.user.id).order_by("-id")[0]
+        self.assertEqual(ban.type, "Levée du bannissement")
+        self.assertEqual(ban.note, unban_text)
+        self.assertEqual(Notification.objects.filter(subscription__user=profile.user, is_read=False).count(), 2)
+        self.assertEqual(len(mail.outbox), 2)
+
+        result = self.client.get(reverse("member-list"), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(nb_users + 1, len(result.context["members"]))  # UnBanned guy shows up, good
 
     def test_sanctions_with_not_staff_user(self):
         user = ProfileFactory().user

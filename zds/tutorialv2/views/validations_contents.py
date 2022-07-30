@@ -340,7 +340,6 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                         msg,
                         send_by_mail=True,
                         leave=False,
-                        direct=False,
                         hat=get_hat_from_settings("validation"),
                     )
                     validation.content.save()
@@ -441,7 +440,6 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
                 validation.content.title,
                 msg,
                 send_by_mail=True,
-                direct=False,
                 hat=get_hat_from_settings("validation"),
             )
             validation.content.save()
@@ -593,7 +591,6 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                     validation.content.title,
                     msg,
                     send_by_mail=True,
-                    direct=False,
                     hat=get_hat_from_settings("validation"),
                 )
                 self.object.save()
