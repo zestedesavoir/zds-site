@@ -44,7 +44,7 @@ from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.uuslug_wrapper import uuslug
 
-ALLOWED_TYPES = ["pdf", "md", "html", "epub", "zip", "tex"]
+ALLOWED_TYPES = ["pdf", "md", "epub", "zip", "tex"]
 logger = logging.getLogger(__name__)
 
 
