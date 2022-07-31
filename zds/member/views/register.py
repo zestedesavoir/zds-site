@@ -33,6 +33,7 @@ from zds.member.models import (
     BannedEmailProvider,
     NewEmailProvider,
 )
+from zds.member.utils import get_bot_account, get_anonymous_account, get_external_account
 from zds.member.views import get_client_ip
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.tutorialv2.models.database import PickListOperation
@@ -180,8 +181,8 @@ def unregister(request):
             request, "member/settings/unregister.html", {"user": request.user, "unregister_form": unregister_form}
         )
 
-    anonymous = get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"])
-    external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
+    anonymous = get_anonymous_account()
+    external = get_external_account()
     current = request.user
     # Nota : as of v21 all about content paternity is held by a proper receiver in zds.tutorialv2.models.database
     PickListOperation.objects.filter(staff_user=current).update(staff_user=anonymous)
@@ -276,7 +277,7 @@ def activate_account(request):
     usr.save()
 
     # Send welcome message
-    bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+    bot = get_bot_account()
     msg = render_to_string(
         "member/messages/account_activated.md",
         {

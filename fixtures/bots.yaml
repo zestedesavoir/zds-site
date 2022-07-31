@@ -1,0 +1,20 @@
+-   model: auth.user
+    pk: 5
+    fields:
+        first_name: anonymous
+        last_name: User
+        username: anonymous
+        password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
+        is_superuser: False
+        groups:
+            - 2
+-   model: auth.user
+    pk: 6
+    fields:
+        first_name: external
+        last_name: User
+        username: external
+        password: pbkdf2_sha256$12000$DWHNLpO3jXIv$MrnMZblGu1Q+xemP4XK2keLtbyfkRXxczPTLhSJ0AAM=
+        is_superuser: False
+        groups:
+            - 2

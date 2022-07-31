@@ -31,6 +31,7 @@ from zds.member.models import (
     Ban,
     NewEmailProvider,
 )
+from zds.member.utils import get_bot_account
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models import CONTENT_TYPES
 from zds.tutorialv2.models.database import PublishedContent, ContentContribution, ContentReaction
@@ -417,7 +418,7 @@ class UpdateUsernameEmailMember(UpdateMember):
         previous_email = form.cleaned_data.get("previous_email")
         if new_username and new_username != previous_username:
             # Add a karma message for the staff
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            bot = get_bot_account()
             KarmaNote(
                 user=profile.user,
                 moderator=bot,

@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, FormView
 
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.member.utils import get_bot_account
 from zds.mp.models import mark_read, filter_reachable
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
@@ -157,7 +158,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
 
         # warn the former validator that an update has been made, if any
         if old_validator:
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            bot = get_bot_account()
             msg = render_to_string(
                 "tutorialv2/messages/validation_change.md",
                 {
@@ -249,7 +250,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
 
         # warn the former validator that the whole thing has been cancelled
         if validation.validator:
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            bot = get_bot_account()
             msg = render_to_string(
                 "tutorialv2/messages/validation_cancel.md",
                 {
@@ -431,7 +432,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             },
         )
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         if not validation.content.validation_private_message:
             validation.content.validation_private_message = send_mp(
                 bot,
@@ -582,7 +583,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                 },
             )
 
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            bot = get_bot_account()
             if not validation.content.validation_private_message:
                 validation.content.validation_private_message = send_mp(
                     bot,

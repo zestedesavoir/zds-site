@@ -1,6 +1,8 @@
 import hashlib
 import re
 
+from django.contrib.auth import get_user_model
+
 THUMB_MAX_WIDTH = 80
 THUMB_MAX_HEIGHT = 80
 
@@ -54,3 +56,22 @@ def contains_utf8mb4(s):
         s = str(s, "utf-8")
     re_pattern = re.compile("[^\u0000-\uD7FF\uE000-\uFFFF]", re.UNICODE)
     return s != re_pattern.sub("\uFFFD", s)
+
+
+def check_essential_accounts():
+    """
+    Verify that essential accounts are present in the database.
+    Raise an exception if it not the case.
+    """
+
+    from django.conf import settings
+
+    User = get_user_model()
+    essential_accounts = ("bot_account", "anonymous_account", "external_account")
+
+    for account in essential_accounts:
+        username = settings.ZDS_APP["member"][account]
+        try:
+            User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise Exception(f"User {username!r} does not exist. You must create it to run the server.")
