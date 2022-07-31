@@ -790,14 +790,6 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """
         return self.has_type("md")
 
-    def has_html(self):
-        """Check if the html version of the content is available
-
-        :return: ``True`` if available, ``False`` otherwise
-        :rtype: bool
-        """
-        return self.has_type("html")
-
     def has_pdf(self):
         """Check if the pdf version of the content is available
 
