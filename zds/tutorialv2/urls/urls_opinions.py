@@ -1,4 +1,4 @@
-from django.urls import path, path
+from django.urls import path
 
 from zds.tutorialv2.feeds import LastOpinionsFeedRSS, LastOpinionsFeedATOM
 from zds.tutorialv2.views.lists import ListOpinions, ContentOfAuthor
