@@ -1215,8 +1215,9 @@ class TopicReadAndUnreadTests(TestCase):
     def setUp(self):
         self.author = ProfileFactory().user
         self.reader = ProfileFactory().user
-        self.topic = TopicFactory(author=self.author, forum=ForumFactory(category=ForumCategoryFactory(),
-                                                                         position_in_category=1))
+        self.topic = TopicFactory(
+            author=self.author, forum=ForumFactory(category=ForumCategoryFactory(), position_in_category=1)
+        )
 
     def test_first_unread_on_non_read_op(self):
         post = PostFactory(topic=self.topic, author=self.author, position=1)
