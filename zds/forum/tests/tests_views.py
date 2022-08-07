@@ -1,15 +1,17 @@
 from datetime import datetime
 from unittest.mock import patch
 
+from django.conf import settings
 from django.contrib.auth.models import Group
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
 from zds.forum.tests.factories import PostFactory, TagFactory
 from zds.forum.models import Topic, Post
 from zds.notification.models import TopicAnswerSubscription
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.member.tests.factories import DevProfileFactory, ProfileFactory, StaffProfileFactory
 from zds.utils.models import CommentEdit, Hat
 
 
@@ -1923,3 +1925,67 @@ class FindPostTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.context["posts"]))
         self.assertEqual(topic.last_message, response.context["posts"][0])
+
+
+class ShowLinksGitHubIssueTest(TestCase):
+    """
+    Test if buttons to manage GitHub issues are correctly displayed according to the context.
+    """
+
+    def setUp(self):
+        profile = ProfileFactory()
+        self.dev_profile = DevProfileFactory()
+        category, forum = create_category_and_forum()
+        self.unlinked_topic = create_topic_in_forum(forum, profile)
+        self.linked_topic = create_topic_in_forum(forum, profile)
+        self.linked_topic.github_repository_name = settings.ZDS_APP["github_projects"]["repositories"][0]
+        self.linked_topic.github_issue = 42
+        self.linked_topic.save()
+
+        self.route = "forum:topic-posts-list"
+        self.label_linked_issue = _("Ticket associé")
+        self.label_unlink_issue = _("Dissocier le ticket")
+        self.label_create_issue = _("Créer un ticket")
+        self.label_link_issue = _("Associer un ticket")
+
+    def test_default(self):
+        """
+        Default: nothing is displayed
+        """
+        response = self.client.get(reverse(self.route, args=[self.unlinked_topic.pk, self.unlinked_topic.slug()]))
+        self.assertNotContains(response, self.label_linked_issue)
+        self.assertNotContains(response, self.label_unlink_issue)
+        self.assertNotContains(response, self.label_create_issue)
+        self.assertNotContains(response, self.label_link_issue)
+
+    def test_associated_issue(self):
+        """
+        An issue is associated: the link is displayed
+        """
+        response = self.client.get(reverse(self.route, args=[self.linked_topic.pk, self.linked_topic.slug()]))
+        self.assertContains(response, self.label_linked_issue)
+        self.assertNotContains(response, self.label_unlink_issue)
+        self.assertNotContains(response, self.label_create_issue)
+        self.assertNotContains(response, self.label_link_issue)
+
+    def test_no_ticket_logged_as_dev(self):
+        """
+        Logged as a dev member, no ticket is associated: buttons to link or create an issue are displayed
+        """
+        self.client.force_login(self.dev_profile.user)
+        response = self.client.get(reverse(self.route, args=[self.unlinked_topic.pk, self.unlinked_topic.slug()]))
+        self.assertNotContains(response, self.label_linked_issue)
+        self.assertNotContains(response, self.label_unlink_issue)
+        self.assertContains(response, self.label_create_issue)
+        self.assertContains(response, self.label_link_issue)
+
+    def test_ticket_logged_as_dev(self):
+        """
+        Logged as a dev member, a ticket is associated: buttons to unlink or view the issue are displayed
+        """
+        self.client.force_login(self.dev_profile.user)
+        response = self.client.get(reverse(self.route, args=[self.linked_topic.pk, self.linked_topic.slug()]))
+        self.assertContains(response, self.label_linked_issue)
+        self.assertContains(response, self.label_unlink_issue)
+        self.assertNotContains(response, self.label_create_issue)
+        self.assertNotContains(response, self.label_link_issue)

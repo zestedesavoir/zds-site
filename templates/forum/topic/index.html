@@ -255,7 +255,7 @@
                         <li>
                             <a href="#unlink-issue" class="open-modal ico-after cross red">{% trans 'Dissocier le ticket' %}</a>
                         </li>
-                        <form action="{% url 'manage-issue' topic.pk %}" method="post" id="unlink-issue" class="modal modal-flex">
+                        <form action="{% url "forum:manage-issue" topic.pk %}" method="post" id="unlink-issue" class="modal modal-flex">
                             {% csrf_token %}
                             <p>
                                 {% trans 'Voulez-vous vraiment dissocier ce sujet de son ticket GitHub ?' %}
