@@ -6,6 +6,7 @@ const { ESLint } = require('eslint')
 const gulp = require('gulp')
 const gulpif = require('gulp-if')
 const imagemin = require('gulp-imagemin')
+const run = require('gulp-run')
 const options = require('gulp-options')
 const path = require('path')
 const postcss = require('gulp-postcss')
@@ -199,6 +200,17 @@ function images() {
     .pipe(gulp.dest('dist/'))
 }
 
+// Generate PNG versions of SVG smileys.
+// Output files are not optimized for size.
+function convertSmileysToPng() {
+  const pathToScript = 'scripts/convert_smileys_to_svg.py'
+  const pathToSvgSmileys = 'assets/smileys/svg/'
+  const pathToPngSmileys = 'dist/smileys/png'
+  const convertToPng = run(`python ${pathToScript} ${pathToSvgSmileys} ${pathToPngSmileys}`)
+  convertToPng.exec()
+  return Promise.resolve('Smileys were converted') // to fit into gulp's asynchronous system
+}
+
 function spriteImages() {
   return gulp.src(['dist/images/sprite*.png'])
     .pipe(gulpif(!fast, imagemin())) // Minify the images
@@ -238,7 +250,27 @@ function watch() {
 }
 
 // Build the front
-const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, errors, gulp.series(spriteCss, gulp.parallel(cssPackages, css, spriteImages)), iconFonts, textFonts)
+const build = gulp.series(
+  convertSmileysToPng, // automatically converted files may be overwritten with manually converted files afterwards
+  gulp.parallel(
+    prepareZmd,
+    prepareEasyMde,
+    jsPackages,
+    js,
+    images,
+    errors,
+    gulp.series(
+      spriteCss,
+      gulp.parallel(
+        cssPackages,
+        css,
+        spriteImages
+      )
+    ),
+    iconFonts,
+    textFont
+  )
+)
 
 exports.build = build
 exports.watch = gulp.series(build, watch)
