@@ -425,6 +425,25 @@ class NotificationForumTest(TestCase):
         notifications = Notification.objects.filter(object_id=topic2.pk, is_read=False).all()
         self.assertEqual(0, len(notifications))
 
+    def test_no_notification_on_new_topic_in_hidden_forum(self):
+        """
+        When a user subscribes to a forum that gets hidden and a topic is created in that forum, no notification is sent
+        """
+        # Subscribe.
+        user1 = ProfileFactory().user
+        user2 = ProfileFactory().user
+
+        group = Group.objects.create(name="Restricted")
+        user2.groups.add(group)
+        user2.save()
+        category, forum = create_category_and_forum(group)
+
+        NewTopicSubscription.objects.toggle_follow(forum, user1)
+        topic1 = TopicFactory(forum=forum, author=user2)
+
+        notifications = Notification.objects.filter(object_id=topic1.pk, is_read=False).all()
+        self.assertEqual(0, len(notifications))
+
     def test_no_notification_on_a_tag_subscribed_in_hidden_forum(self):
         """
         When a user subscribes to a tag and a topic is created using that tag in a hidden forum, no notification is sent
