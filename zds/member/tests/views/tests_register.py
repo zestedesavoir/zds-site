@@ -87,13 +87,13 @@ class TestRegister(TutorialTestMixin, TestCase):
 
         # test not logged user can't unregister.
         self.client.logout()
-        result = self.client.post(reverse("member-unregister"), follow=False)
+        result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
 
         # test logged user can unregister.
         user = ProfileFactory()
         self.client.force_login(user.user)
-        result = self.client.post(reverse("member-unregister"), follow=False)
+        result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
 
@@ -190,7 +190,7 @@ class TestRegister(TutorialTestMixin, TestCase):
 
         # login and unregister:
         self.client.force_login(user.user)
-        result = self.client.post(reverse("member-unregister"), follow=False)
+        result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
 
         # check that the bot have taken authorship of tutorial:

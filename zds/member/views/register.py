@@ -24,7 +24,7 @@ from zds.member.commons import (
     ProfileCreate,
     TokenGenerator,
 )
-from zds.member.forms import RegisterForm, UsernameAndEmailForm, LoginForm
+from zds.member.forms import RegisterForm, UsernameAndEmailForm, LoginForm, UnregisterForm
 from zds.member.models import (
     Profile,
     TokenRegister,
@@ -158,7 +158,10 @@ def warning_unregister(request):
     Display a warning page showing what will happen when the user
     unregisters.
     """
-    return render(request, "member/settings/unregister.html", {"user": request.user})
+    unregister_form = UnregisterForm(request.user)
+    return render(
+        request, "member/settings/unregister.html", {"user": request.user, "unregister_form": unregister_form}
+    )
 
 
 @login_required
@@ -166,6 +169,16 @@ def warning_unregister(request):
 @transaction.atomic
 def unregister(request):
     """Allow members to unregister."""
+
+    unregister_form = UnregisterForm(request.user, data=request.POST)
+
+    if not unregister_form.is_valid():
+        for field, errors in unregister_form.errors.items():
+            for error in errors:
+                messages.error(request, error)
+        return render(
+            request, "member/settings/unregister.html", {"user": request.user, "unregister_form": unregister_form}
+        )
 
     anonymous = get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"])
     external = get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"])
@@ -283,7 +296,6 @@ def activate_account(request):
         msg,
         send_by_mail=False,
         leave=True,
-        direct=False,
         hat=get_hat_from_settings("moderation"),
     )
     token.delete()

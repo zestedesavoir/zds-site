@@ -1384,7 +1384,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         registered_validation.save()
 
         self.client.force_login(self.user_author)
-        result = self.client.post(reverse("member-unregister"), follow=False)
+        result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
 
         self.client.force_login(self.user_staff)

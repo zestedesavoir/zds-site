@@ -151,35 +151,39 @@ class SingleNotificationMixin:
         assert hasattr(self, "send_email")
 
         if self.last_notification is None or self.last_notification.is_read:
-            with transaction.atomic():
-                notifications = list(Notification.objects.filter(subscription=self))
-                if len(notifications) > 1:
-                    LOG.error("Found %s notifications for %s", len(notifications), self, exc_info=True)
-                    Notification.objects.filter(pk__in=[n.pk for n in notifications[1:]]).delete()
-                    LOG.info("Duplicates deleted.")
+            notifications = list(Notification.objects.filter(subscription=self))
+            if len(notifications) > 1:
+                LOG.error("Found %s notifications for %s", len(notifications), self, exc_info=True)
+                Notification.objects.filter(pk__in=[n.pk for n in notifications[1:]]).delete()
+                LOG.info("Duplicates deleted.")
 
-                # If there isn't a notification yet or the last one is read, we generate a new one.
-                try:
-                    notification = Notification.objects.get(subscription=self)
-                except Notification.DoesNotExist:
-                    notification = Notification(subscription=self, content_object=content, sender=sender)
-                notification.content_object = content
-                notification.sender = sender
-                notification.url = self.get_notification_url(content)
-                notification.title = self.get_notification_title(content)
-                notification.pubdate = content.pubdate
-                notification.is_read = False
+            notification = self.build_notification(content, sender)
+            with transaction.atomic():
                 notification.save()
                 self.last_notification = notification
                 self.save()
 
-                if send_email and self.by_email:
-                    self.send_email(notification)
+            if send_email and self.by_email:
+                self.send_email(notification)
         elif self.last_notification is not None and not self.last_notification.is_read:
             # Update last notification if the new content is older (marking answer as unread)
             if self.last_notification.pubdate > content.pubdate:
                 self.last_notification.content_object = content
                 self.last_notification.save()
+
+    def build_notification(self, content, sender):
+        # If there isn't a notification yet or the last one is read, we generate a new one.
+        try:
+            notification = Notification.objects.get(subscription=self)
+        except Notification.DoesNotExist:
+            notification = Notification(subscription=self, content_object=content, sender=sender)
+        notification.content_object = content
+        notification.sender = sender
+        notification.url = self.get_notification_url(content)
+        notification.title = self.get_notification_title(content)
+        notification.pubdate = content.pubdate
+        notification.is_read = False
+        return notification
 
     def mark_notification_read(self):
         """
@@ -206,19 +210,23 @@ class MultipleNotificationsMixin:
         if self.last_notification and not self.last_notification.is_read:
             return
 
+        notification = self.build_notification(content, sender)
         with transaction.atomic():
-            notification = Notification(subscription=self, content_object=content, sender=sender)
-            notification.content_object = content
-            notification.sender = sender
-            notification.url = self.get_notification_url(content)
-            notification.title = self.get_notification_title(content)
-            notification.is_read = False
             notification.save()
             self.last_notification = notification
             self.save()
 
-            if send_email and self.by_email:
-                self.send_email(notification)
+        if send_email and self.by_email:
+            self.send_email(notification)
+
+    def build_notification(self, content, sender):
+        notification = Notification(subscription=self, content_object=content, sender=sender)
+        notification.content_object = content
+        notification.sender = sender
+        notification.url = self.get_notification_url(content)
+        notification.title = self.get_notification_title(content)
+        notification.is_read = False
+        return notification
 
     def mark_notification_read(self, content):
         """

@@ -145,7 +145,6 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                         versioned.title,
                         msg,
                         send_by_mail=True,
-                        direct=False,
                         hat=get_hat_from_settings("moderation"),
                     )
                     self.object.save()
@@ -241,7 +240,6 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                             versioned.title,
                             msg,
                             send_by_mail=True,
-                            direct=False,
                             hat=get_hat_from_settings("moderation"),
                         )
                         self.object.save()
@@ -337,7 +335,6 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
                 versioned.title,
                 msg,
                 send_by_mail=True,
-                direct=False,
                 hat=get_hat_from_settings("moderation"),
             )
             self.object.save()
@@ -411,7 +408,6 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
                 versioned.title,
                 msg,
                 send_by_mail=True,
-                direct=False,
                 hat=get_hat_from_settings("moderation"),
             )
             self.object.save()
@@ -551,7 +547,6 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             versionned_article.title,
             msg,
             send_by_mail=True,
-            direct=False,
             hat=get_hat_from_settings("validation"),
         )
         article.save()

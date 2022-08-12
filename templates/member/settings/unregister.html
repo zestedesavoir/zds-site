@@ -1,6 +1,6 @@
 {% extends "member/settings/base.html" %}
 {% load i18n %}
-
+{% load crispy_forms_tags %}
 
 {% block breadcrumb %}
     <li>{% trans "Désinscription" %}</li>
@@ -89,17 +89,5 @@
         <a href="#unregister" class="open-modal btn btn-cancel">{% trans "Me désinscrire" %}</a>
     </p>
 
-    <form
-        method="post"
-        action="{% url "member-unregister" %}"
-        id="unregister"
-        class="modal modal-flex"
-    >
-        <p>
-            {% trans "C’est votre dernière chance de rester parmi nous" %}...
-        </p>
-
-        {% csrf_token %}
-        <button type="submit" class="btn btn-submit">{% trans "Me désinscrire" %}</button>
-    </form>
+    {% crispy unregister_form %}
 {% endblock %}
