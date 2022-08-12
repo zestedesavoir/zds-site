@@ -24,7 +24,7 @@ from zds.forum.utils import CreatePostView
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivateTopicRead, PrivatePost, mark_read, NotReachableError
+from .models import PrivateTopic, PrivateTopicRead, PrivatePost, mark_read, NotReachableError, PrivatePostVote
 
 
 class PrivateTopicList(ZdSPagingListView):
@@ -254,6 +254,10 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
             context["user_can_modify"] = [self.object.last_message.pk]
         else:
             context["user_can_modify"] = []
+
+        votes = PrivatePostVote.objects.filter(user_id=self.request.user.pk, private_post__in=context["posts"]).all()
+        context["user_like"] = [vote.private_post_id for vote in votes if vote.positive]
+        context["user_dislike"] = [vote.private_post_id for vote in votes if not vote.positive]
 
         return context
 
