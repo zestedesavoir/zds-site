@@ -444,11 +444,7 @@ class PrivatePost(models.Model):
     def get_votes(self):
         """Get the non-anonymous votes"""
         if not hasattr(self, "votes"):
-            self.votes = (
-                PrivatePostVote.objects.filter(private_post=self, id__gt=settings.VOTES_ID_LIMIT)
-                .select_related("user")
-                .all()
-            )
+            self.votes = PrivatePostVote.objects.filter(private_post=self).select_related("user").all()
 
         return self.votes
 
