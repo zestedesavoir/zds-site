@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Q, F
+from django.db.models import Q, F, Max
 from model_utils.managers import InheritanceManager
 
 from zds.utils import get_current_user
@@ -93,7 +93,8 @@ class TopicManager(models.Manager):
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):
         return (
             self.filter(forum__pk=forum_pk, is_sticky=is_sticky)
-            .order_by("-last_message__pubdate")
+            .annotate(last_visible_update=Max("post__pubdate", filter=Q(post__is_visible=True)))
+            .order_by("-last_visible_update")
             .select_related("author__profile")
             .prefetch_related("last_message", "tags")
             .all()
