@@ -21,7 +21,7 @@ jobs:
   # Lint the Python back-end with flake8.
   lint-back:
     name: Lint back-end
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -41,7 +41,7 @@ jobs:
   # Build the documentation and upload it as an artifact.
   build-doc:
     name: Build Sphinx documentation
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -83,7 +83,7 @@ jobs:
   # Build the website front-end and upload built assets as an artifact.
   build-front:
     name: Lint and build front-end
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout
@@ -130,7 +130,7 @@ jobs:
   test:
     name: Install and test zds-site
     needs: build-front
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     strategy:
       matrix:
@@ -251,7 +251,7 @@ jobs:
   coverage:
     name: Push coverage to Coveralls
     needs: test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
@@ -271,7 +271,7 @@ jobs:
   push_doc:
     name: Push documentation to GitHub Pages
     needs: ["build-doc", "test"]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     if: "github.ref == 'refs/heads/dev'"
 
     steps:
