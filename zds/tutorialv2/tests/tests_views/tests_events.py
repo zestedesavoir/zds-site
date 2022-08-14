@@ -93,7 +93,7 @@ class EventListTests(TutorialTestMixin, TestCase):
         # Unregister users
         for user in [self.author, self.coauthor, self.contributor]:
             self.client.force_login(user)
-            response = self.client.post(reverse("member-unregister"), follow=False)
+            response = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
             self.assertEqual(response.status_code, 302)
 
         # Access the event list page

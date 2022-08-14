@@ -315,10 +315,6 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.AllowAllUsersModelBackend",
 )
 
-# To remove a useless warning in Django 1.7.
-# See http://daniel.hepper.net/blog/2014/04/fixing-1_6-w001-when-upgrading-from-django-1-5-to-1-7/
-TEST_RUNNER = "django.test.runner.DiscoverRunner"
-
 # Properly handle HTTPS vs HTTP
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 

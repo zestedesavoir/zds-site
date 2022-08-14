@@ -90,7 +90,6 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
                     },
                 ),
                 send_by_mail=True,
-                direct=False,
                 leave=True,
             )
             signals.contributors_management.send(
