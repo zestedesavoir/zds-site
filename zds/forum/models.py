@@ -206,6 +206,7 @@ class Topic(AbstractESDjangoIndexable):
         db_index=True,
         default=None,
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
     )
     is_locked = models.BooleanField("Est verrouillé", default=False, db_index=True)
