@@ -24,6 +24,7 @@ from gitdb.exc import BadName
 from zds import json_handler
 from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
+from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
     AbstractESDjangoIndexable,
@@ -1518,7 +1519,7 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     """
     transfer paternity to external user on user deletion
     """
-    external = sender.objects.get(username=settings.ZDS_APP["member"]["external_account"])
+    external = get_external_account()
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
 

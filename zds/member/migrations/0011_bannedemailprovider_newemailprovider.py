@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from zds.member.models import BannedEmailProvider
+from zds.member.utils import get_bot_account
 
 
 def forwards_func(apps, schema_editor):
@@ -818,7 +819,7 @@ def forwards_func(apps, schema_editor):
     ]
 
     try:
-        bot = User.objects.get(username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         bans = [BannedEmailProvider(provider=p, moderator=bot) for p in providers]
         BannedEmailProvider.objects.bulk_create(bans)
     except User.DoesNotExist:

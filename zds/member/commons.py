@@ -10,6 +10,7 @@ from django.template.defaultfilters import pluralize
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.models import Profile, TokenRegister, Ban
+from zds.member.utils import get_bot_account
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp
 
@@ -205,7 +206,7 @@ class MemberSanctionState:
         :return: nothing
         :rtype: None
         """
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         send_mp(
             bot,
             [ban.user],

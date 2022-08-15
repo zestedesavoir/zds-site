@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.contrib.auth.models import User
 from social_django.middleware import SocialAuthExceptionMiddleware
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
@@ -23,3 +25,27 @@ class ZDSCustomizeSocialAuthExceptionMiddleware(SocialAuthExceptionMiddleware):
 
     def get_redirect_uri(self, *_, **__):
         return reverse("member-login")
+
+
+def get_bot_account() -> User:
+    """
+    Get the bot account.
+    Used for example to send automated private messages.
+    """
+    return User.objects.get(username=settings.ZDS_APP["member"]["bot_account"])
+
+
+def get_external_account() -> User:
+    """
+    Get the external account.
+    Used for example to mark publications by authors not registered on the site.
+    """
+    return User.objects.get(username=settings.ZDS_APP["member"]["external_account"])
+
+
+def get_anonymous_account() -> User:
+    """
+    Get the anonymous account.
+    Used for example as a replacement for unregistered users.
+    """
+    return User.objects.get(username=settings.ZDS_APP["member"]["anonymous_account"])

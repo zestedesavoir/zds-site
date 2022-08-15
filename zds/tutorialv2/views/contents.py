@@ -17,6 +17,7 @@ from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.models import Profile
+from zds.member.utils import get_bot_account
 from zds.tutorialv2.forms import (
     ContentForm,
     JsFiddleActivationForm,
@@ -400,7 +401,7 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
                     messages.error(self.request, _("Merci de fournir une raison à la suppression."))
                     return redirect(self.object.get_absolute_url())
                 else:
-                    bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+                    bot = get_bot_account()
                     msg = render_to_string(
                         "tutorialv2/messages/validation_cancel_on_delete.md",
                         {
