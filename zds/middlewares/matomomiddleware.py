@@ -105,7 +105,7 @@ class MatomoMiddleware:
                     return response
             try:
                 if (
-                    reverse("search:query") in p
+                    reverse("search:query") in request.path
                     and hasattr(response, "context_data")
                     and response.context_data["object_list"]
                 ):
