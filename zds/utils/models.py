@@ -15,6 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 
+from zds.member.utils import get_bot_account
 from zds.utils import signals
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
@@ -246,7 +247,7 @@ class HatRequest(models.Model):
             raise Exception("This request is already solved.")
 
         if moderator is None:
-            moderator = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            moderator = get_bot_account()
 
         if is_granted:
             if self.get_hat() is None and hat_name:
@@ -267,7 +268,7 @@ class HatRequest(models.Model):
         if self.is_granted is None:
             raise Exception("The request must have been solved to use this method.")
 
-        solved_by_bot = self.moderator == get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        solved_by_bot = self.moderator == get_bot_account()
 
         message = render_to_string(
             "member/messages/hat_request_decision.md",
@@ -513,7 +514,7 @@ class Comment(models.Model):
         # the post was edited. If an open alert already exists for this reason, we update the
         # date of this alert to avoid lots of them stacking up.
         if self.old_text != self.text and self.is_potential_spam and self.editor == self.author:
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            bot = get_bot_account()
             alert_text = _("Ce message, soupçonné d'être un spam, a été modifié.")
 
             try:
@@ -702,7 +703,7 @@ class Alert(models.Model):
         """
         self.resolve_reason = resolve_reason or None
         if msg_title and msg_content:
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            bot = get_bot_account()
             privatetopic = send_mp(
                 bot,
                 [self.author],

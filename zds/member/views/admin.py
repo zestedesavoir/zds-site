@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.member.forms import PromoteMemberForm
 from zds.member.models import Profile
+from zds.member.utils import get_bot_account
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp
 
@@ -62,7 +63,7 @@ def settings_promote(request, user_pk):
         user.save()
 
         usergroups = user.groups.all()
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         msg = _(
             "Bonjour {0},\n\n" "Un administrateur vient de modifier les groupes " "auxquels vous appartenez.  \n"
         ).format(user.username)

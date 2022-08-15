@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.forum.models import Topic, Forum, mark_read
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.member.utils import get_bot_account
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import BetaForm
@@ -127,7 +128,7 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                     all_tags = self._get_all_tags()
                     topic = self._create_beta_topic(msg, beta_version, _type, all_tags)
 
-                    bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+                    bot = get_bot_account()
                     msg_pm = render_to_string(
                         "tutorialv2/messages/beta_activate_pm.md",
                         {
