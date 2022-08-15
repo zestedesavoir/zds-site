@@ -74,4 +74,7 @@ def check_essential_accounts():
         try:
             User.objects.get(username=username)
         except User.DoesNotExist:
-            raise Exception(f"User {username!r} does not exist. You must create it to run the server.")
+            raise Exception(
+                f"User {username!r} does not exist. You must create it to run the server. "
+                f"On a development instance, load the fixtures to solve this issue."
+            )
