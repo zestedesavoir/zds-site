@@ -39,7 +39,6 @@ def _background_process(queue: Queue):
         }
         if "search" in data:
             params["search"] = data["search"]
-            params["search_count"] = data["search_count"]
             params["search_cat"] = data["search_cat"]
         try:
             if data["address_ip"] != "0.0.0.0":
@@ -57,7 +56,7 @@ def _background_process(queue: Queue):
 
 def _compute_search_category(request):
     categories = []
-    models = request.GET["models"]
+    models = request.GET.get("models", [])
     categories.append("-" if "content" not in models else "content")
     categories.append("-" if "post" not in models else "post")
     categories.append("-" if "topic" not in models else "topic")
@@ -113,7 +112,6 @@ class MatomoMiddleware:
                         request,
                         search_data={
                             "search": request.GET.get("q", "unknown"),
-                            "search_count": len(response.context_data["object_list"]),
                             "search_cat": _compute_search_category(request),
                         },
                     )
