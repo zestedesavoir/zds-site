@@ -40,6 +40,7 @@ def _background_process(queue: Queue):
         if "search" in data:
             params["search"] = data["search"]
             params["search_cat"] = data["search_cat"]
+            params["search_count"] = data["search_count"]
         try:
             if data["address_ip"] != "0.0.0.0":
                 params["cip"] = data["address_ip"]
@@ -113,6 +114,10 @@ class MatomoMiddleware:
                         search_data={
                             "search": request.GET.get("q", "unknown"),
                             "search_cat": _compute_search_category(request),
+                            # use paginator.count instead of object_list.count()
+                            # django paginator uses a cached_property for count method and that's far more
+                            # performant than querying es for counting purpose
+                            "search_count": response.context_data["paginator"].count,
                         },
                     )
                 else:
