@@ -80,22 +80,22 @@ class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, Single
                 if ContentSuggestion.objects.filter(publication=publication, suggestion=suggestion).exists():
                     messages.error(
                         self.request,
-                        _(f'Le contenu "{suggestion.title}" fait déjà partie des suggestions de {_type}'),
+                        _(f'Le contenu "{suggestion.title}" fait déjà partie des suggestions de {_type}.'),
                     )
                 elif suggestion.pk == publication.pk:
                     messages.error(
                         self.request,
-                        _(f"Vous ne pouvez pas ajouter {_type} en tant que suggestion pour lui même."),
+                        _(f"Vous ne pouvez pas ajouter {_type} en tant que suggestion pour lui-même."),
                     )
                 elif suggestion.is_opinion and suggestion.sha_picked != suggestion.sha_public:
                     messages.error(
                         self.request,
-                        _(f"Vous ne pouvez pas suggerer pour {_type} un billet qui n'a pas été mis en avant."),
+                        _(f"Vous ne pouvez pas suggérer pour {_type} un billet qui n'a pas été mis en avant."),
                     )
                 elif not suggestion.sha_public:
                     messages.error(
                         self.request,
-                        _(f"Vous ne pouvez pas suggerer pour {_type} un contenu qui n'a pas été publié."),
+                        _(f"Vous ne pouvez pas suggérer pour {_type} un contenu qui n'a pas été publié."),
                     )
                 else:
                     obj_suggestion = ContentSuggestion(publication=publication, suggestion=suggestion)
@@ -108,7 +108,7 @@ class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, Single
                     )
                     messages.info(
                         self.request,
-                        _(f'Le contenu "{suggestion.title}" a été ajouté dans les suggestions de {_type}'),
+                        _(f'Le contenu "{suggestion.title}" a été ajouté dans les suggestions de {_type}.'),
                     )
 
         if self.object.public_version:
