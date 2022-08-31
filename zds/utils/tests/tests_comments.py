@@ -8,6 +8,7 @@ from rest_framework.test import APIClient
 
 from zds.forum.tests.factories import PostFactory, create_category_and_forum, create_topic_in_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.member.utils import get_bot_account
 from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.tutorialv2.models import CONTENT_TYPES
 from zds.tutorialv2.models.database import PublishableContent
@@ -85,7 +86,7 @@ class PotentialSpamTests(TutorialTestMixin, TestCase):
         )
 
     def common_test_mark_as_potential_spam(self, url_comments_list, url_comment_edit, comment, author, staff):
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
 
         potential_spam_class_not_there_if_not_staff = "potential-spam"
         potential_spam_classes_if_hidden = 'class="message-potential-spam alert ico-after hidden"'

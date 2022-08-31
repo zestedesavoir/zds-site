@@ -16,6 +16,7 @@ from django.views.generic import FormView, ListView
 
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.member.utils import get_bot_account
 from zds.mp.models import filter_reachable
 from zds.mp.utils import send_mp, send_message_mp
 from zds.tutorialv2 import signals
@@ -126,7 +127,7 @@ class UnpublishOpinion(LoginRequiredMixin, SingleOnlineContentFormViewMixin, Doe
                 },
             )
 
-            bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+            bot = get_bot_account()
             if self.object.validation_private_message:
                 send_message_mp(
                     bot,
@@ -221,7 +222,7 @@ class DoNotPickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormView
                     },
                 )
 
-                bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+                bot = get_bot_account()
                 if self.object.validation_private_message:
                     send_message_mp(
                         bot,
@@ -326,7 +327,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
             },
         )
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         if not self.object.validation_private_message:
             self.object.validation_private_message = send_mp(
                 bot,
@@ -399,7 +400,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
             },
         )
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         if not self.object.validation_private_message:
             self.object.validation_private_message = send_mp(
                 bot,
@@ -538,7 +539,7 @@ class PromoteOpinionToArticle(PermissionRequiredMixin, DoesNotRequireValidationF
             },
         )
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
 
         article.validation_private_message = send_mp(
             bot,

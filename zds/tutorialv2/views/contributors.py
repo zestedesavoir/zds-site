@@ -12,6 +12,7 @@ from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.member.utils import get_bot_account
 from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import ContributionForm, RemoveContributionForm
@@ -47,7 +48,7 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
         elif self.object.is_opinion:
             raise PermissionDenied
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         user = form.cleaned_data["user"]
         if user.pk in all_authors_pk:
