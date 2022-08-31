@@ -270,6 +270,7 @@ class Topic(AbstractESDjangoIndexable):
         Note the first post is not considered as an answer, therefore a topic with a single post (the 1st one) will
         return `None`.
         :return: the last answer in the thread, if any.
+        :rtype: Post
         """
         last_post = self.get_last_post()
 
@@ -361,13 +362,16 @@ class Topic(AbstractESDjangoIndexable):
             Post.objects.filter(topic__pk=self.pk).order_by("position").values("pk", "position").first().values()
         )
 
-    def first_unread_post(self, user=None):
+    def first_unread_post(self, user: User = None):
         """
         Returns the first post of this topics the current user has never read, or the first post if it has never read \
         this topic.\
         Used in notification menu.
 
-        :return: The first unread post for this topic and this user.
+        :param user: The user who potentially has read a post. If ``None`` will get request user
+
+        :return: The first unread post for this topic and this user. If the topic was read, gets ``last_post`` or None \
+        if no posts was found after OP.
         """
         try:
             if user is None:
@@ -376,10 +380,12 @@ class Topic(AbstractESDjangoIndexable):
             last_post = TopicRead.objects.filter(topic__pk=self.pk, user__pk=user.pk).latest("post__position").post
 
             next_post = (
-                Post.objects.filter(topic__pk=self.pk, position__gt=last_post.position).select_related("author").first()
-            )
+                Post.objects.filter(topic__pk=self.pk, position__gt=last_post.position).order_by("position").first()
+            ) or self.get_last_answer()
+            # if read was the last message, there is no next so default to last message
             return next_post
-        except (TopicRead.DoesNotExist, Post.DoesNotExist):
+        except TopicRead.DoesNotExist:
+            # if no read : the whole topic is not read so get first message
             return self.first_post()
 
     def antispam(self, user=None):
