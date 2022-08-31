@@ -122,7 +122,7 @@ This message is divided in three parts:</p>
 <li><p>The message : the info message itself (i.e.: « The site will be down for maintenance tomorrow »)</p></li>
 <li><p>The « tell me more » url : A tell me more button linking to a page giving more details</p></li>
 </ul>
-<p>All those elements are facultative.</p>
+<p>Only the message is mandatory.</p>
 <dl class="py exception">
 <dt class="sig sig-object py" id="zds.featured.models.FeaturedMessage.DoesNotExist">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.featured.models.FeaturedMessage.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
@@ -211,9 +211,28 @@ It displays 3 main informations:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="zds.featured.views.FeaturedMessageCreateUpdate.get_context_data">
+<span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.featured.views.FeaturedMessageCreateUpdate.get_context_data" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Insert the form into the context dict.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="zds.featured.views.FeaturedMessageCreateUpdate.get_initial">
 <span class="sig-name descname"><span class="pre">get_initial</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.featured.views.FeaturedMessageCreateUpdate.get_initial" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Return the initial data to use for forms on this view.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="zds.featured.views.FeaturedMessageDelete">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.featured.views.</span></span><span class="sig-name descname"><span class="pre">FeaturedMessageDelete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.featured.views.FeaturedMessageDelete" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Delete the featured message.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.featured.views.FeaturedMessageDelete.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.featured.views.FeaturedMessageDelete.delete" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Call the delete() method on the fetched object and then redirect to the
+success URL.</p>
 </dd></dl>
 
 </dd></dl>
