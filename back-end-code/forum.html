@@ -335,11 +335,14 @@ post, the anti-spam is active and the user cannot post.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.forum.models.Topic.first_unread_post">
-<span class="sig-name descname"><span class="pre">first_unread_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic.first_unread_post" title="Lien permanent vers cette définition"></a></dt>
+<span class="sig-name descname"><span class="pre">first_unread_post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">User</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.forum.models.Topic.first_unread_post" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Returns the first post of this topics the current user has never read, or the first post if it has never read         this topic.        Used in notification menu.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Renvoie</dt>
-<dd class="field-odd"><p>The first unread post for this topic and this user.</p>
+<dt class="field-odd">Paramètres</dt>
+<dd class="field-odd"><p><strong>user</strong> – The user who potentially has read a post. If <code class="docutils literal notranslate"><span class="pre">None</span></code> will get request user</p>
+</dd>
+<dt class="field-even">Renvoie</dt>
+<dd class="field-even"><p>The first unread post for this topic and this user. If the topic was read, gets <code class="docutils literal notranslate"><span class="pre">last_post</span></code> or None         if no posts was found after OP.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -376,7 +379,8 @@ post, the anti-spam is active and the user cannot post.
 <dd><p>Gets the last answer in this tread, if any.
 Note the first post is not considered as an answer, therefore a topic with a single post (the 1st one) will
 return <cite>None</cite>.
-:return: the last answer in the thread, if any.</p>
+:return: the last answer in the thread, if any.
+:rtype: Post</p>
 </dd></dl>
 
 <dl class="py method">
