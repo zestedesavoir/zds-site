@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
 
 from django.conf import settings
+
+from zds.member.utils import get_bot_account, get_anonymous_account, get_external_account
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.models import Category, SubCategory, CategorySubCategory, Tag
 from zds.mp.utils import send_mp
@@ -137,11 +139,11 @@ class Command(BaseCommand):
 
         :return: None
         """
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         bots = [
-            get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"]),
-            get_object_or_404(User, username=settings.ZDS_APP["member"]["anonymous_account"]),
-            get_object_or_404(User, username=settings.ZDS_APP["member"]["external_account"]),
+            get_bot_account(),
+            get_anonymous_account(),
+            get_external_account(),
         ]
         users = []
         contents = PublishableContent.objects.all()

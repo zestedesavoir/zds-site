@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.models import UserGallery, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.member.utils import get_bot_account
 from zds.tutorialv2 import signals
 
 from zds.tutorialv2.forms import AuthorForm, RemoveAuthorForm
@@ -37,7 +38,7 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         elif self.object.is_opinion:
             _type = _("du billet")
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         for user in form.cleaned_data["users"]:
             if user.pk not in all_authors_pk:
@@ -121,7 +122,7 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
         elif self.object.is_opinion:
             _type = (_("ce billet"), _("du billet"))
 
-        bot = get_object_or_404(User, username=settings.ZDS_APP["member"]["bot_account"])
+        bot = get_bot_account()
         for user in users:
             if RemoveAuthorFromContent.remove_author(self.object, user):
                 if user.pk == self.request.user.pk:
