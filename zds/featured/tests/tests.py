@@ -298,7 +298,7 @@ class FeaturedResourceListDeleteViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
 
-class FeaturedMessageCreateUpdateViewTest(TestCase):
+class FeaturedMessageTest(TestCase):
     def test_success_list_create_message(self):
         staff = StaffProfileFactory()
         self.client.force_login(staff.user)
@@ -342,6 +342,35 @@ class FeaturedMessageCreateUpdateViewTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, FeaturedMessage.objects.count())
+
+    def test_delete_message(self):
+        FeaturedMessage.objects.create(url="http://test.com", hook="Message", message="Text")
+
+        staff = StaffProfileFactory()
+        self.client.force_login(staff.user)
+
+        response = self.client.post(reverse("featured:message-delete"), follow=True)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0, FeaturedMessage.objects.count())
+
+    def test_delete_button_only_existing_message(self):
+        staff = StaffProfileFactory()
+        self.client.force_login(staff.user)
+
+        response = self.client.get(reverse("featured:message-create"))
+        self.assertNotContains(response, _("Supprimer"))
+
+        response = self.client.post(
+            reverse("featured:message-create"),
+            {
+                "message": "message",
+                "url": "http://test.com",
+            },
+            follow=True,
+        )
+
+        response = self.client.get(reverse("featured:message-create"))
+        self.assertContains(response, _("Supprimer"))
 
 
 @override_for_contents()

@@ -11,6 +11,12 @@
 
 {% block headline %}
     {% trans "Édition du message d’accueil" %}
+
+    {% if display_delete_button %}
+        <a href="#form-delete-message" class="btn btn-cancel open-modal">
+            {% trans "Supprimer" %}
+        </a>
+    {% endif %}
 {% endblock %}
 
 
@@ -25,4 +31,13 @@
     <div class="content-wrapper featured-message-edit-form">
         {% crispy form %}
     </div>
+
+    {% if display_delete_button %}
+        {# Confirmation modal for deleting message #}
+        <form id="form-delete-message" name="form" method="post" action="{% url "featured:message-delete" %}" class="modal modal-flex">
+            {% csrf_token %}
+            <p>{% trans "Attention, vous vous apprêtez à supprimer le message d'accueil." %}</p>
+            <button type="submit" name="delete" class="btn btn-submit">{% trans "Confirmer" %}</button>
+        </form>
+    {% endif %}
 {% endblock %}

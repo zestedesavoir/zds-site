@@ -317,6 +317,11 @@ class FeaturedMessageCreateUpdate(FeaturedViewMixin, FormView):
 
         return init
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["display_delete_button"] = self.last_message is not None
+        return context
+
     def form_valid(self, form):
         if self.last_message:
             self.last_message.delete()
@@ -328,4 +333,24 @@ class FeaturedMessageCreateUpdate(FeaturedViewMixin, FormView):
         featured_message.save()
 
         messages.success(self.request, _("Le message a été changé"))
+        return redirect(reverse("featured:resource-list"))
+
+
+class FeaturedMessageDelete(FeaturedViewMixin, DeleteView):
+    """
+    Delete the featured message.
+    """
+
+    http_method_names = ["post", "delete"]
+    last_message = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.last_message = FeaturedMessage.objects.get_last_message()
+        return super().dispatch(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        if self.last_message:
+            self.last_message.delete()
+
+        messages.success(self.request, _("Le message a été supprimé."))
         return redirect(reverse("featured:resource-list"))
