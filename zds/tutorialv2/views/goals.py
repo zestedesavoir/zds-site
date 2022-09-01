@@ -155,7 +155,7 @@ class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, Z
             content.goals.add(goal)
         else:
             content.goals.remove(goal)
-        return JsonResponse({"help_wanted": activated})
+        return JsonResponse({"state": activated})
 
     def form_invalid(self, form):
         print(form)

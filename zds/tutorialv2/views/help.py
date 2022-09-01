@@ -85,7 +85,7 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
         self.object.save()
         signals.help_management.send(sender=self.__class__, performer=self.request.user, content=self.object)
         if self.request.is_ajax():
-            return JsonResponse({"result": "ok", "help_wanted": data["activated"]})
+            return JsonResponse({"state": data["activated"]})
         self.success_url = self.object.get_absolute_url()
         return super().form_valid(form)
 

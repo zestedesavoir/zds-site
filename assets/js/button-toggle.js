@@ -27,7 +27,7 @@
       e.stopPropagation()
 
       ajax.post(form.getAttribute('action'), data,
-        (result) => setButtonState(current, result.help_wanted),
+        (result) => setButtonState(current, result.state),
         () => setButtonState(current, !newActivation)
       )
     }))
