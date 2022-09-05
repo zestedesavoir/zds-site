@@ -50,7 +50,7 @@
             </h2>
             <div class="content-item-list clearfix">
                 {% for contribution_tutorial in contribution_tutorials %}
-                    {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=contribution_tutorial.public_version content=contribution_tutorial%}
+                    {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=contribution_tutorial.public_version content=contribution_tutorial source="&src=contributor"%}
                 {% endfor %}
                 <div class="fill"></div>
                 <div class="fill"></div>
@@ -63,7 +63,7 @@
             </h2>
             <div class="content-item-list clearfix">
                 {% for contribution_article in contribution_articles %}
-                    {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=contribution_article.public_version content=contribution_article show_reactions=True %}
+                    {% include "tutorialv2/includes/content_item.part.html" with show_description=True public_content=contribution_article.public_version content=contribution_article show_reactions=True source="&src=contributor" %}
                 {% endfor %}
                 <div class="fill"></div>
                 <div class="fill"></div>
