@@ -42,10 +42,7 @@ def _background_process(queue: Queue):
         }
         if any(part in data["client_url"] for part in download_paths):
             params["download"] = data["client_url"]
-        elif (
-            any("/" + part + "/" in data["client_url"] for part in content_elements)
-            and "src" in data["get_params"]
-        ):
+        elif any("/" + part + "/" in data["client_url"] for part in content_elements) and "src" in data["get_params"]:
             params["e_c"] = data["get_params"]["src"]
             params["e_a"] = "clicked"
             params["e_n"] = list("/" + part + "/" in data["client_url"] for part in content_elements)[0]
