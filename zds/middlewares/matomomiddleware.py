@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 tracked_status_code = [200]
 tracked_methods = ["GET"]
 excluded_paths = ["/contenus", "/mp", "/munin", "/api", "/static", "/media"]
+# we track only public download
+download_paths = ["/pdf/", "/epub/"]
 
 
 def _background_process(queue: Queue):
@@ -37,6 +39,8 @@ def _background_process(queue: Queue):
             "m": data["datetime"].minute,
             "s": data["datetime"].second,
         }
+        if any(part in data["client_url"] for part in download_paths):
+            params["download"] = data["client_url"]
         if "search" in data:
             params["search"] = data["search"]
             params["search_cat"] = data["search_cat"]
