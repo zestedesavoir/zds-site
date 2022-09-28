@@ -25,7 +25,7 @@
     <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
         <h3>Filtrer</h3>
         <ul>
-            <li><a href="{% url "content:mass-edit-goals" %}" class="{% if all %}selected{% endif %}">Tous ({{ num_all }})</a></li>
+            <li><a href="{% url "content:mass-edit-goals" %}" class="{% if all %}selected{% endif %}">Toutes ({{ num_all }})</a></li>
             <li><a href="{% url "content:mass-edit-goals" %}?non-classes" class="{% if only_not_classified %}selected{% endif %}">Sans objectif ({{ num_not_classified }})</a></li>
             {% for goal in goals %}
                 <li>
