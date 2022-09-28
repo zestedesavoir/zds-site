@@ -25,13 +25,13 @@
     <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
         <h3>Filtrer</h3>
         <ul>
-            <li><a href="{% url "content:view-goals" %}" class="{% if all %}selected{% endif %}">Toutes ({{ num_all }})</a></li>
             <li><a href="{% url "content:view-goals" %}?non-classes" class="{% if only_not_classified %}selected{% endif %}">Sans objectif ({{ num_not_classified }})</a></li>
             {% for goal in goals %}
                 <li>
                     <a href="{% url "content:view-goals" %}?objectif_{{ goal.id }}" class="{% if current_filter_pk == goal.pk %}selected{% endif %}">{{ goal.name }} ({{ goal.num_contents }})</a>
                 </li>
             {% endfor %}
+            <li><a href="{% url "content:view-goals" %}" class="{% if all %}selected{% endif %}">Toutes ({{ num_all }})</a></li>
         </ul>
     </div>
 </div>
@@ -41,14 +41,16 @@
 
     <p>
         {% blocktrans %}
-        Cette page est un aperçu de la classification par objectif. Elle vise à donner un avant-goût de
+        Cette page est un aperçu de la classification par objectifs. Elle vise à donner un avant-goût de
         cette nouvelle manière de classifier les publications sur Zeste de Savoir, qui vient en complément
-        des catégories et des tags.
+        des catégories et des tags. L'objectif de cette classification est de faciliter l'identification
+        des objectifs des publications : découvrir un sujet, donner une opinion, apprendre à maîtriser un
+        outil ou une technologie, etc.
         {% endblocktrans %}
     </p>
 
     {% if not contents %}
-        <p>{% trans "Il n'y a pas de publications à lister." %}</p>
+        <p>{% trans "Il n'y a pas de publication à lister." %}</p>
     {% else %}
         {% include "misc/paginator.html" with position="top" %}
         <div class="content-item-list">
