@@ -14,10 +14,12 @@ from django.forms import (
     BooleanField,
     HiddenInput,
 )
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views import View
+from django.views.generic import TemplateView
 from django.views.generic.edit import BaseFormView
 
 from zds.tutorialv2 import signals
@@ -106,27 +108,8 @@ class MassEditGoalsForm(forms.Form):
         return content_id
 
 
-class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, ZdSPagingListView):
-    """View to edit the goals of many contents."""
-
-    template_name = "tutorialv2/goals/mass-edit-goals.html"
-    permission_required = "tutorialv2.change_publishablecontent"
+class ContentsByGoalMixin:
     context_object_name = "contents"
-    form_class = MassEditGoalsForm
-    ordering = ["-creation_date"]
-    paginate_by = settings.ZDS_APP["content"]["goals_content_per_page"]
-
-    def get_context_data(self, **kwargs):
-        context = {
-            "goals": Goal.objects.all().annotate(num_contents=Count("contents")),
-            "current_filter_pk": self.current_filter_pk,
-            "only_not_classified": self.only_not_classified,
-            "all": self.current_filter_pk is None and not self.only_not_classified,
-            "num_all": self.num_all,
-            "num_not_classified": self.num_not_classified,
-        }
-        context.update(kwargs)
-        return super().get_context_data(**context)
 
     def get_queryset(self):
         self.current_filter_pk = None
@@ -147,6 +130,40 @@ class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, Z
                     return self.base_queryset.filter(goals__in=[goal])
         return self.base_queryset
 
+    def get_context_data(self, **kwargs):
+        context = {
+            "goals": Goal.objects.all().annotate(num_contents=Count("contents")),
+            "current_filter_pk": self.current_filter_pk,
+            "only_not_classified": self.only_not_classified,
+            "all": self.current_filter_pk is None and not self.only_not_classified,
+            "num_all": self.num_all,
+            "num_not_classified": self.num_not_classified,
+        }
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
+
+class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, ContentsByGoalMixin, ZdSPagingListView):
+    """View to edit the goals of many contents."""
+
+    template_name = "tutorialv2/goals/mass-edit-goals.html"
+    permission_required = "tutorialv2.change_publishablecontent"
+    form_class = MassEditGoalsForm
+    ordering = ["-creation_date"]
+    paginate_by = settings.ZDS_APP["content"]["mass_edit_goals_content_per_page"]
+
+    def get_context_data(self, **kwargs):
+        context = {
+            "goals": Goal.objects.all().annotate(num_contents=Count("contents")),
+            "current_filter_pk": self.current_filter_pk,
+            "only_not_classified": self.only_not_classified,
+            "all": self.current_filter_pk is None and not self.only_not_classified,
+            "num_all": self.num_all,
+            "num_not_classified": self.num_not_classified,
+        }
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
     def form_valid(self, form):
         content = PublishableContent.objects.get(id=form.cleaned_data["content_id"])
         goal = Goal.objects.get(id=form.cleaned_data["goal_id"])
@@ -158,5 +175,23 @@ class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, Z
         return JsonResponse({"state": activated})
 
     def form_invalid(self, form):
-        print(form)
         return JsonResponse({"errors": form.errors}, status=400)
+
+
+class ViewContentsByGoal(ContentsByGoalMixin, ZdSPagingListView):
+    template_name = "tutorialv2/goals/view-goals.html"
+    ordering = ["-creation_date"]
+    paginate_by = settings.ZDS_APP["content"]["view_contents_by_goal_content_per_page"]
+
+    def get_context_data(self, **kwargs):
+        if self.only_not_classified:
+            headline = _("Publications sans objectif")
+        elif self.current_filter_pk is not None:
+            headline = _("Publications avec pour objectif « {} »").format(
+                Goal.objects.get(pk=self.current_filter_pk).name
+            )
+        else:
+            headline = _("Toutes les publications")
+        context = {"headline": headline}
+        context.update(kwargs)
+        return super().get_context_data(**context)
