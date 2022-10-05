@@ -241,7 +241,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.get(reverse("mp:create"))
 
         self.assertEqual(200, response.status_code)
-        self.assertIsNone(response.context["form"].initial["participants"])
+        self.assertEqual(response.context["form"].initial["participants"], "")
 
         response2 = self.client.get(reverse("mp:create") + "?username=" + self.profile2.user.username)
 
@@ -267,7 +267,7 @@ class NewTopicViewTest(TestCase):
         response = self.client.get(reverse("mp:create"))
 
         self.assertEqual(200, response.status_code)
-        self.assertIsNone(response.context["form"].initial["title"])
+        self.assertEqual(response.context["form"].initial["title"], "")
 
         response2 = self.client.get(reverse("mp:create") + "?title=Test titre")
 
@@ -279,7 +279,7 @@ class NewTopicViewTest(TestCase):
         response2 = self.client.get(reverse("mp:create") + "?username=wrongusername")
 
         self.assertEqual(200, response2.status_code)
-        self.assertIsNone(response2.context["form"].initial["participants"])
+        self.assertEqual(response2.context["form"].initial["participants"], "")
 
     def test_success_preview(self):
 
