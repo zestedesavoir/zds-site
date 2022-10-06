@@ -472,6 +472,13 @@ kbd {
 
     color: $accent-900;
     text-shadow: 0 $length-1 0 $white;
+
+    &.is-red {
+        background: $red-600;
+        border: solid 1px $red-400;
+        color: $red-000;
+        text-shadow: none;
+    }
 }
 
 // Code inline
