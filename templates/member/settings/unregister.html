@@ -21,6 +21,7 @@
 
 
 {% block content %}
+<article class="message-content">
     <p>
         {% blocktrans with username=user.username %}
             Attention {{ username }}, vous êtes sur le point de vous désinscrire de Zeste de Savoir. Voici ce qu’implique cette action <strong>qui ne peut être annulée</strong>.
@@ -29,10 +30,10 @@
 
     <ul>
         <li>
-            {% trans "Toutes vos conversations privées (MP) seront perdues" %}.
+            {% trans "Toutes vos conversations privées (MP) seront perdues." %}
         </li>
         <li>
-            {% trans "Tous vos messages de forums seront anonymisés" %}.
+            {% trans "Tous vos messages de forums seront anonymisés." %}
         </li>
         <li>
             {% blocktrans with username=user.username email=user.email %}
@@ -40,10 +41,10 @@
             {% endblocktrans %}
         </li>
         <li>
-            {% trans "Vos tutoriels, billets et articles non publiés (brouillon, bêta ou en cours de validation) seront supprimés sans possibilité de récuperation (sauf si d’autres auteurs sont présents lors de la rédaction" %}).
+            {% trans "Vos tutoriels, billets et articles non publiés (brouillon, bêta ou en cours de validation) seront supprimés sans possibilité de récupération, sauf si d’autres auteurs sont présents lors de la rédaction." %}
         </li>
         <li>
-            {% trans "Vos tutoriels, articles et billets publiés subiront les modifications suivantes :" %}
+            {% trans "Vos tutoriels, articles et billets publiés subiront les modifications suivantes :" %}
             <ul>
                 <li>
                     {% blocktrans %}
@@ -51,12 +52,12 @@
                     {% endblocktrans %}
                 </li>
                 <li>
-                    {% trans "Si vous étiez plusieurs auteurs, vous quitterez le groupe de rédacteurs. Les autres pourront dès lors continuer sans vous" %}.
+                    {% trans "Si vous étiez plusieurs auteurs, vous quitterez le groupe de rédacteurs. Les autres pourront dès lors continuer sans vous." %}
                 </li>
             </ul>
         </li>
         <li>
-            {% trans "Vos galeries d’images subiront les modifications suivantes :" %}
+            {% trans "Vos galeries d’images subiront les modifications suivantes :" %}
             <ul>
                 <li>
                     {% blocktrans %}
@@ -70,24 +71,26 @@
                 </li>
                 <li>
                     {% blocktrans %}
-                        Sinon, elle sera supprimée (ainsi que son contenu).
+                        Sinon, elle sera supprimée, ainsi que son contenu.
                     {% endblocktrans %}
                 </li>
             </ul>
         </li>
         <li>
-            {% trans "Toutes vos clés API (si vous en possédez) seront supprimées" %}.
+            {% trans "Si vous possédez des clés API, elles seront supprimées." %}
         </li>
     </ul>
 
     <p>
-
-        {% blocktrans %} Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton <kbd>Me désinscrire</kbd> ci-dessous. Sinon, il n’est pas encore trop tard{% endblocktrans %}...
+        {% blocktrans %} Si vous souhaitez poursuivre votre désinscription, cliquez sur le bouton <kbd class="is-red"><samp>Me désinscrire</samp></kbd> ci-dessous. Sinon, il n’est pas encore trop tard…{% endblocktrans %}
     </p>
 
-    <p>
-        <a href="#unregister" class="open-modal btn btn-cancel">{% trans "Me désinscrire" %}</a>
-    </p>
+</article>
 
-    {% crispy unregister_form %}
+<p>
+    <a href="#unregister" class="open-modal btn btn-cancel">{% trans "Me désinscrire" %}</a>
+</p>
+
+{% crispy unregister_form %}
+
 {% endblock %}
