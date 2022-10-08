@@ -31,12 +31,8 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
 
     def test_get_avatar_url(self):
         # if no url was specified -> gravatar !
-        self.assertEqual(
-            self.user1.get_avatar_url(),
-            "https://secure.gravatar.com/avatar/{}?d=identicon".format(
-                md5(self.user1.user.email.lower().encode()).hexdigest()
-            ),
-        )
+        self.assertIn("gravatar.com", self.user1.get_avatar_url())
+
         # if an url is specified -> take it !
         user2 = ProfileFactory()
         testurl = "http://test.com/avatar.jpg"
