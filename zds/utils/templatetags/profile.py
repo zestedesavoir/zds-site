@@ -71,6 +71,12 @@ def state(current_user):
 
 
 @register.simple_tag
-def avatar_url(profile, size=80):
-    url = profile.get_avatar_url(size)
-    return remove_url_scheme(url)
+def avatar_url(profile: Profile, size=80) -> str:
+    """
+    Return the URL of the avatar of a profile.
+    If the profile is None, return an empty string.
+    """
+    if profile is not None:
+        url = profile.get_avatar_url(size)
+        return remove_url_scheme(url)
+    return ""
