@@ -770,14 +770,23 @@
             <ul>
                 {# HELPS #}
                 {% for help in helps %}
+                    {% captureas current_status %}
+                        {% if help in content_helps %}true{% else %}false{% endif %}
+                    {% endcaptureas %}
+                    {% captureas desired_status %}
+                        {% if help in content_helps %}false{% else %}true{% endif %}
+                    {% endcaptureas %}
+                    {% captureas classes_when_activated %}
+                        {% if help in content_helps %}selected ico-after tick green{% endif %}
+                    {% endcaptureas %}
                     <li>
-                        <form action="{% url 'content:helps-change' content.pk %}" method="POST">
+                        <form action="{% url "content:helps-change" content.pk %}" method="POST">
                             {% csrf_token %}
-                            <input type="hidden" name="activated" value="{% if help in content_helps %}false{% else %}true{% endif %}">
+                            <input type="hidden" name="activated" value="{{ desired_status }}">
                             <input type="hidden" name="help_wanted" value="{{ help.title }}">
                             <button type="submit"
-                               class="help-toggle {% if help in content_helps %}selected ico-after tick green{% endif %} help-{{ help.slug }}"
-                               data-activated="{% if help in content_helps %}true{% else %}false{% endif %}">
+                               class="button-toggle {{ classes_when_activated }} help-{{ help.slug }}"
+                               data-activated="{{ current_status }}">
                                 {{ help.title }}
                             </button>
                         </form>

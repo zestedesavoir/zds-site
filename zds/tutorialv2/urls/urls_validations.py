@@ -24,15 +24,11 @@ from zds.tutorialv2.views.validations_opinions import (
 urlpatterns = [
     path("historique/<int:pk>/<slug:slug>/", ValidationHistoryView.as_view(), name="history"),
     # VALIDATION BEFORE PUBLICATION
-    # 1. ask validation
     path("proposer/<int:pk>/<slug:slug>/", AskValidationForContent.as_view(), name="ask"),
-    # 2. take (or cancel) validation
     path("reserver/<int:pk>/", ReserveValidation.as_view(), name="reserve"),
     path("annuler/<int:pk>/", CancelValidation.as_view(), name="cancel"),
-    # 3. accept or reject validation
     path("refuser/<int:pk>/", RejectValidation.as_view(), name="reject"),
     path("accepter/<int:pk>/", AcceptValidation.as_view(), name="accept"),
-    # 4. cancel validation after publication
     path("revoquer/<int:pk>/<slug:slug>/", RevokeValidation.as_view(), name="revoke"),
     # NO VALIDATION BEFORE PUBLICATION
     path("publier/<int:pk>/<slug:slug>/", PublishOpinion.as_view(), name="publish-opinion"),

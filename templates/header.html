@@ -373,6 +373,12 @@
                             <a href="{% url "update-member" %}">{% trans "Paramètres" %}</a>
                         </li>
 
+                        {% if perms.tutorialv2.change_publishablecontent %}
+                            <li class="staff-only">
+                                <a href="{% url "content:mass-edit-goals" %}?non-classes">{% trans "Modification des objectifs" %}</a>
+                            </li>
+                        {% endif %}
+
                         {% if perms.tutorialv2.change_validation %}
                             {% with waiting_tutorials_count="TUTORIAL"|waiting_count waiting_articles_count="ARTICLE"|waiting_count waiting_opinions_count="OPINION"|waiting_count %}
                                 <li class="staff-only">

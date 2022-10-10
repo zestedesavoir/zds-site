@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load profile %}
+{% load thumbnail %}
+{% load date %}
+{% load i18n %}
+{% load captureas %}
+
+
+{% block title %}
+    {% trans "Modification des objectifs" %}
+{% endblock %}
+
+
+{% block breadcrumb %}
+    <li>{% trans "Modification des objectifs" %}</li>
+{% endblock %}
+
+
+{% block headline %}
+    {% trans "Modification des objectifs" %}
+{% endblock %}
+
+{% block sidebar %}
+<div class="sidebar">
+    <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
+        <h3>Filtrer</h3>
+        <ul>
+            <li><a href="{% url "content:mass-edit-goals" %}" class="{% if all %}selected{% endif %}">Toutes ({{ num_all }})</a></li>
+            <li><a href="{% url "content:mass-edit-goals" %}?non-classes" class="{% if only_not_classified %}selected{% endif %}">Sans objectif ({{ num_not_classified }})</a></li>
+            {% for goal in goals %}
+                <li>
+                    <a href="{% url "content:mass-edit-goals" %}?objectif_{{ goal.id }}" class="{% if current_filter_pk == goal.pk %}selected{% endif %}">{{ goal.name }} ({{ goal.num_contents }})</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+    {% if not contents %}
+        <p>{% trans "Il n'y a pas de publications à lister." %}</p>
+    {% else %}
+
+        {% include "misc/paginator.html" with position="top" %}
+
+        <table class="mass-edit-goals-table">
+            <thead>
+                <tr>
+                    <th class="header-title">{% trans "Titre" %}</th>
+                    <th class="header-goals">{% trans "Objectifs" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for content in contents %}
+                <tr>
+                    <td>
+                        <a href="{% url "content:view" content.pk content.slug %}">
+                            {{ content.title }}
+                        </a>
+                    </td>
+                    <td class="mass-edit-goals-cell">
+                        <ul>
+                            {% for goal in goals %}
+                                {% captureas current_status %}
+                                    {% if goal in content.goals.all %}true{% else %}false{% endif %}
+                                {% endcaptureas %}
+                                {% captureas desired_status %}
+                                    {% if goal in content.goals.all %}false{% else %}true{% endif %}
+                                {% endcaptureas %}
+                                {% captureas classes_when_activated %}
+                                    {% if goal in content.goals.all %}selected{% endif %}
+                                {% endcaptureas %}
+                                <li>
+                                    <form action="{% url "content:mass-edit-goals" %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="activated" value="{{ desired_status }}">
+                                        <input type="hidden" name="goal_id" value="{{ goal.id }}">
+                                        <input type="hidden" name="content_id" value="{{ content.id }}">
+                                        <button type="submit" class="button-toggle {{ classes_when_activated  }}" data-activated="{{ current_status }}">
+                                            {{ goal.name }}
+                                        </button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        {% include "misc/paginator.html" with position="bottom" %}
+
+    {% endif %}
+
+{% endblock %}

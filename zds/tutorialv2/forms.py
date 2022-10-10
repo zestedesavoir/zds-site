@@ -1331,7 +1331,7 @@ class ContentCompareStatsURLForm(forms.Form):
 
 class SearchSuggestionForm(forms.Form):
     suggestion_pk = forms.CharField(
-        label="Contenu à suggerer",
+        label="Contenu à suggérer",
         required=False,
         widget=forms.TextInput(
             attrs={

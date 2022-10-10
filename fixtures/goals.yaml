@@ -8,21 +8,29 @@
 -   model: tutorialv2.Goal
     pk: 2
     fields:
-        name: Apprendre
-        description: Qui n'apprend rien n'a rien.
+        name: Découvrir
+        description: Découvrir des trucs.
         position: 1
-        slug: apprendre
+        slug: decouvrir
 -   model: tutorialv2.Goal
     pk: 3
     fields:
-        name: Exprimer une opinion
-        description: Ayez un avis sur tout.
+        name: Apprendre à faire
+        description: Qui n'apprend rien n'a rien.
         position: 2
-        slug: exprimer-opinion
+        slug: apprendre
 -   model: tutorialv2.Goal
     pk: 4
     fields:
+        name: Exprimer une opinion
+        description: Ayez un avis sur tout.
+        position: 3
+        slug: exprimer-opinion
+-   model: tutorialv2.Goal
+    pk: 5
+    fields:
         name: Nouvelles de la communauté
         description: Nous sommes des communards, après tout.
-        position: 3
+        position: 4
         slug: nouvelles-communaute
+

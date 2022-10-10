@@ -22,7 +22,7 @@ from zds.tutorialv2.publish_container import publish_use_manifest
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import export_content
 from zds.forum.utils import send_post, lock_topic
-from zds.utils.templatetags.emarkdown import render_markdown, MD_PARSING_ERROR
+from zds.utils.templatetags.emarkdown import render_markdown
 from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
 
 logger = logging.getLogger(__name__)
@@ -329,29 +329,6 @@ class ZipPublicator(Publicator):
             # no need to move zip file because it is already dumped to the public directory
         except (OSError, ValueError) as e:
             raise FailureDuringPublication("Zip could not be created", e)
-
-
-class ZmarkdownHtmlPublicator(Publicator):
-    def publish(self, md_file_path, base_name, **kwargs):
-        md_flat_content = _read_flat_markdown(md_file_path)
-        published_content_entity = self.get_published_content_entity(md_file_path)
-        html_flat_content, *_ = render_markdown(md_flat_content, disable_ping=True, disable_js=True)
-        html_file_path = path.splitext(md_file_path)[0] + ".html"
-        if str(MD_PARSING_ERROR) in html_flat_content:
-            logging.getLogger(self.__class__.__name__).error("HTML could not be rendered")
-            return
-
-        with open(html_file_path, mode="w", encoding="utf-8") as final_file:
-            final_file.write(html_flat_content)
-        shutil.move(
-            html_file_path,
-            str(
-                Path(
-                    published_content_entity.get_extra_contents_directory(),
-                    published_content_entity.content_public_slug + ".html",
-                )
-            ),
-        )
 
 
 @PublicatorRegistry.register("pdf")

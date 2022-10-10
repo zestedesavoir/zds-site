@@ -3,7 +3,7 @@ from django.views.generic.base import RedirectView
 
 from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, EditContentLicense, DeleteContent
 from zds.tutorialv2.views.events import EventsList
-from zds.tutorialv2.views.goals import EditGoals
+from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -186,5 +186,7 @@ urlpatterns = [
     # Journal of events
     path("evenements/<int:pk>/", EventsList.as_view(), name="events"),
     # Goal-based classification
+    path("modifier-objectifs/", MassEditGoals.as_view(), name="mass-edit-goals"),
     path("modifier-objectifs/<int:pk>/", EditGoals.as_view(), name="edit-goals"),
+    path("objectifs/", ViewContentsByGoal.as_view(), name="view-goals"),
 ]

@@ -1,0 +1,55 @@
+.content-container .mass-edit-goals-table {
+    .header-title {
+        width: 30%;
+    }
+
+    .mass-edit-goals-cell {
+        vertical-align:top;
+
+        ul {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+
+            button {
+                margin-bottom: $length-2;
+            }
+
+            button:not(.link) {
+                background: $grey-000;
+                color: $primary-300;
+                border: 0;
+
+                &.ico-after::after {
+                    background-image:none;
+                }
+            }
+
+            [type=submit]:not(.link):not(.disabled):focus {
+                outline: $length-2 solid $accent-800;
+                background: $grey-000;
+
+                &.selected{
+                    background: $primary-100;
+                }
+
+                &:hover{
+                    background: $primary-000;
+                }
+            }
+
+            button:not(.link):not(.disabled).selected {
+                background: $primary-100;
+                border: $length-1 solid $accent-600;
+                color: $primary-700;
+                font-weight: bold;
+            }
+
+            button:not(.link):not(.disabled):hover {
+                background: $primary-000;
+            }
+        }
+    }
+}
