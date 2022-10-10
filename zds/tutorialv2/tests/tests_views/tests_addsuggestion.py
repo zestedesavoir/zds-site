@@ -97,7 +97,7 @@ class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
         self.success_message_fragment = _("a été ajouté dans les suggestions")
         self.error_message_fragment_unpublished = _("un contenu qui n'a pas été publié")
         self.error_message_fragment_already_suggested = _("fait déjà partie des suggestions de")
-        self.error_message_fragment_self = _("en tant que suggestion pour lui même")
+        self.error_message_fragment_self = _("en tant que suggestion pour lui-même")
         self.error_messge_fragment_not_picked = _("un billet qui n'a pas été mis en avant")
 
         # Log in with an authorized user to perform the tests
