@@ -107,6 +107,7 @@ MIDDLEWARE = (
     "zds.utils.ThreadLocals",
     "zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware",
     "zds.middlewares.matomomiddleware.MatomoMiddleware",
+    "zds.middlewares.managesessionsmiddleware.ManageSessionsMiddleware",
     "zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware",
 )
 
@@ -285,7 +286,7 @@ LOGGING = {
     },
 }
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = "zds.utils.custom_cached_db_backend"
 
 LOGIN_URL = "member-login"
 LOGIN_REDIRECT_URL = "/"
