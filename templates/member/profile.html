@@ -10,7 +10,6 @@
 {% load messages %}
 {% load pluralize_fr %}
 {% load profile %}
-{% load remove_url_scheme %}
 
 
 
@@ -79,7 +78,7 @@
                 <div class="flexpage-title-tool">
                     <div class="avatar">
                         <figure>
-                            <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="{% trans "Avatar" %}" />
+                            <img src="{% avatar_url profile size=200 %}" alt="{% trans "Avatar" %}" />
                         </figure>
                     </div>
 
