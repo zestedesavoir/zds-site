@@ -625,6 +625,7 @@ class LeaveViewTest(TestCase):
     def setUp(self):
         self.profile1 = ProfileFactory()
         self.profile2 = ProfileFactory()
+        self.profile3 = ProfileFactory()
 
         self.anonymous_account = UserFactory(username=settings.ZDS_APP["member"]["anonymous_account"])
         self.bot_group = Group()
@@ -649,6 +650,14 @@ class LeaveViewTest(TestCase):
         self.assertRedirects(
             response, reverse("member-login") + "?next=" + reverse("mp:leave", args=[1, "private-topic"])
         )
+
+    def test_denies_leave_topic_as_random_member(self):
+        self.client.force_login(self.profile3.user)
+
+        response = self.client.post(reverse("mp:leave", args=[self.topic1.pk, self.topic1.slug()]), follow=True)
+
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(1, PrivateTopic.objects.filter(pk=self.topic1.pk).count())
 
     def test_fail_leave_topic_no_exist(self):
 
