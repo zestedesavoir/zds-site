@@ -156,6 +156,8 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
 
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
+        if not topic.is_participant(self.get_current_user()):
+            raise PermissionDenied
         self.perform_destroy(topic)
         messages.success(request, _("Vous avez quitté la conversation avec succès."))
         return redirect(reverse("mp:list"))
