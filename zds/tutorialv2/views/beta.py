@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.forum.models import Topic, Forum, mark_read
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
+from zds.mp.models import filter_reachable
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import BetaForm
@@ -139,9 +140,10 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
                         },
                     )
                     if not self.object.validation_private_message:
+                        recipients = filter_reachable(self.object.authors.all())
                         self.object.validation_private_message = send_mp(
                             bot,
-                            self.object.authors.all(),
+                            recipients,
                             self.object.validation_message_title,
                             beta_version.title,
                             msg_pm,
