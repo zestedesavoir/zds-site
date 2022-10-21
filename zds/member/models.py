@@ -1,10 +1,11 @@
+import logging
 from datetime import datetime
 from geoip2.errors import AddressNotFoundError
 from hashlib import md5
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.gis.geoip2 import GeoIP2
+from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
 from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
@@ -101,14 +102,17 @@ class Profile(models.Model):
         try:
             geo = GeoIP2().city(self.last_ip_address)
         except AddressNotFoundError:
-            self._cached_city = (self.last_ip_address, "")
-            return ""
-
-        city = geo["city"]
-        country = geo["country_name"]
-        geo_location = ", ".join(i for i in [city, country] if i)
+            geo_location = ""
+        except GeoIP2Exception as e:
+            geo_location = ""
+            logging.getLogger(__name__).warning(e)
+        else:
+            city = geo["city"]
+            country = geo["country_name"]
+            geo_location = ", ".join(i for i in [city, country] if i)
 
         self._cached_city = (self.last_ip_address, geo_location)
+
         return geo_location
 
     def get_avatar_url(self, size=80):
