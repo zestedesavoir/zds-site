@@ -17,7 +17,7 @@ from django.test import TestCase
 from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
 from zds.forum.models import Topic, Post, TopicRead
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.gallery.models import GALLERY_WRITE, UserGallery, Gallery
+from zds.gallery.models import UserGallery, Gallery
 from zds.gallery.models import Image
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, PrivatePost
@@ -2440,72 +2440,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         contents = response.context["contents"]
         self.assertEqual(contents[0], tutoriel_1)
         self.assertEqual(contents[1], tutoriel_2)
-
-    @patch("zds.tutorialv2.signals.authors_management")
-    def test_add_author(self, authors_management):
-        self.client.force_login(self.user_author)
-        result = self.client.post(
-            reverse("content:add-author", args=[self.tuto.pk]), {"username": self.user_guest.username}, follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
-        gallery = UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first()
-        self.assertIsNotNone(gallery)
-        self.assertEqual(GALLERY_WRITE, gallery.mode)
-        self.assertEqual(authors_management.send.call_count, 1)
-        self.assertEqual(authors_management.send.call_args[1]["action"], "add")
-        # add unexisting user
-        result = self.client.post(
-            reverse("content:add-author", args=[self.tuto.pk]), {"username": "unknown"}, follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=self.tuto.pk).authors.count(), 2)
-        self.assertEqual(authors_management.send.call_count, 1)
-
-    @patch("zds.tutorialv2.signals.authors_management")
-    def test_remove_author(self, authors_management):
-        self.client.force_login(self.user_author)
-        tuto = PublishableContentFactory(author_list=[self.user_author, self.user_guest])
-        result = self.client.post(
-            reverse("content:remove-author", args=[tuto.pk]), {"username": self.user_guest.username}, follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
-        self.assertEqual(authors_management.send.call_count, 1)
-        self.assertEqual(authors_management.send.call_args[1]["action"], "remove")
-
-        self.assertIsNone(UserGallery.objects.filter(gallery=self.tuto.gallery, user=self.user_guest).first())
-        # remove unexisting user
-        result = self.client.post(
-            reverse("content:remove-author", args=[tuto.pk]), {"username": "unknown"}, follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
-        self.assertEqual(authors_management.send.call_count, 1)
-
-        # remove last author must lead to no change
-        result = self.client.post(
-            reverse("content:remove-author", args=[tuto.pk]), {"username": self.user_author.username}, follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
-        self.assertEqual(authors_management.send.call_count, 1)
-
-        # re-add guest
-        result = self.client.post(
-            reverse("content:add-author", args=[tuto.pk]), {"username": self.user_guest.username}, follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 2)
-
-        # then, make `user_author` remove himself
-        result = self.client.post(
-            reverse("content:remove-author", args=[tuto.pk]), {"username": self.user_author.username}, follow=False
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertTrue(reverse("tutorial:find-tutorial", args=[self.user_author.username]) in result.url)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.count(), 1)
-        self.assertEqual(PublishableContent.objects.get(pk=tuto.pk).authors.filter(pk=self.user_author.pk).count(), 0)
 
     def test_warn_typo(self):
         """
