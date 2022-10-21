@@ -105,7 +105,11 @@ class Profile(models.Model):
             geo_location = ""
         except GeoIP2Exception as e:
             geo_location = ""
-            logging.getLogger(__name__).warning(e)
+            logging.getLogger(__name__).warning(
+                f"GeoIP2 failed with the following message: '{e}'. "
+                "The Geolite2 database might not be installed or configured correctly. "
+                "Check the documentation for guidance on how to install it properly."
+            )
         else:
             city = geo["city"]
             country = geo["country_name"]
