@@ -152,9 +152,9 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             else:  # if user is incorrect or alone
                 messages.error(
                     self.request,
-                    _(
-                        "Vous êtes le seul auteur de {} ou le membre sélectionné " "en a déjà quitté la rédaction."
-                    ).format(_type[0]),
+                    _("Vous êtes le seul auteur de {} ou le membre sélectionné en a déjà quitté la rédaction.").format(
+                        _type[0]
+                    ),
                 )
                 return redirect(self.object.get_absolute_url())
 
