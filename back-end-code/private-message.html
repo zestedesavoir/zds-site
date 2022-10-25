@@ -587,7 +587,7 @@ with older private topic, the slug is always re-calculated when we need one.
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostAnswer">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivatePostAnswer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostAnswer" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Creates a post to answer on a MP.</p>
+<dd><p>Create a post to answer in a private topic.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostAnswer.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostAnswer.form_class" title="Lien permanent vers cette définition"></a></dt>
@@ -607,6 +607,12 @@ with older private topic, the slug is always re-calculated when we need one.
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="zds.mp.views.PrivatePostAnswer.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostAnswer.model" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivateTopic" title="zds.mp.models.PrivateTopic"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateTopic</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostAnswer.model_quote">
 <span class="sig-name descname"><span class="pre">model_quote</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostAnswer.model_quote" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivatePost" title="zds.mp.models.PrivatePost"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivatePost</span></code></a></p>
@@ -617,7 +623,7 @@ with older private topic, the slug is always re-calculated when we need one.
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostEdit">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivatePostEdit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostEdit" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Edits a post on a MP.</p>
+<dd><p>Edit a post in a private topic.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostEdit.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostEdit.form_class" title="Lien permanent vers cette définition"></a></dt>
@@ -650,6 +656,12 @@ with older private topic, the slug is always re-calculated when we need one.
 Subclasses can override this to return any object.</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="zds.mp.views.PrivatePostEdit.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostEdit.model" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivatePost" title="zds.mp.models.PrivatePost"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivatePost</span></code></a></p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostEdit.post">
 <span class="sig-name descname"><span class="pre">post</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostEdit.post" title="Lien permanent vers cette définition"></a></dt>
@@ -662,7 +674,7 @@ POST variables and then check if it’s valid.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostList">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivatePostList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostList" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Display a thread and its posts using a pager.</p>
+<dd><p>Display a private topic and its posts using a pager.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostList.get_context_data">
 <span class="sig-name descname"><span class="pre">get_context_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostList.get_context_data" title="Lien permanent vers cette définition"></a></dt>
@@ -683,10 +695,17 @@ and information given at the template.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostUnread">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivatePostUnread</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostUnread" title="Lien permanent vers cette définition"></a></dt>
-<dd><dl class="py method">
+<dd><p>Mark a private post as not read.</p>
+<dl class="py method">
 <dt class="sig sig-object py" id="zds.mp.views.PrivatePostUnread.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivatePostUnread.get" title="Lien permanent vers cette définition"></a></dt>
 <dd><p>Handle GET requests: instantiate a blank version of the form.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="zds.mp.views.PrivatePostUnread.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.mp.views.PrivatePostUnread.model" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivatePost" title="zds.mp.models.PrivatePost"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivatePost</span></code></a></p>
 </dd></dl>
 
 <dl class="py method">
@@ -700,12 +719,11 @@ and information given at the template.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicAddParticipant">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivateTopicAddParticipant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicAddParticipant" title="Lien permanent vers cette définition"></a></dt>
-<dd><dl class="py method">
-<dt class="sig sig-object py" id="zds.mp.views.PrivateTopicAddParticipant.get_object">
-<span class="sig-name descname"><span class="pre">get_object</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">queryset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicAddParticipant.get_object" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Return the object the view is displaying.</p>
-<p>Require <cite>self.queryset</cite> and a <cite>pk</cite> or <cite>slug</cite> argument in the URLconf.
-Subclasses can override this to return any object.</p>
+<dd><p>Add a participant to a private topic.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="zds.mp.views.PrivateTopicAddParticipant.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.mp.views.PrivateTopicAddParticipant.model" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivateTopic" title="zds.mp.models.PrivateTopic"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateTopic</span></code></a></p>
 </dd></dl>
 
 </dd></dl>
@@ -713,7 +731,7 @@ Subclasses can override this to return any object.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicEdit">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivateTopicEdit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicEdit" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Update mp informations</p>
+<dd><p>Edit a private topic.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicEdit.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivateTopicEdit.form_class" title="Lien permanent vers cette définition"></a></dt>
@@ -739,13 +757,19 @@ Subclasses can override this to return any object.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicLeaveDetail">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivateTopicLeaveDetail</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicLeaveDetail" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Leaves a MP.</p>
+<dd><p>Leave a private topic.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="zds.mp.views.PrivateTopicLeaveDetail.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#zds.mp.views.PrivateTopicLeaveDetail.model" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>alias de <a class="reference internal" href="#zds.mp.models.PrivateTopic" title="zds.mp.models.PrivateTopic"><code class="xref py py-class docutils literal notranslate"><span class="pre">PrivateTopic</span></code></a></p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicLeaveList">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivateTopicLeaveList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicLeaveList" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Leaves a list of MP.</p>
+<dd><p>Leave a list of private topics.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicLeaveList.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicLeaveList.get_queryset" title="Lien permanent vers cette définition"></a></dt>
@@ -759,7 +783,7 @@ Subclasses can override this to return any object.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicList">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivateTopicList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicList" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Displays the list of private topics of a member given.</p>
+<dd><p>Display the list of private topics of a member.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicList.get_queryset">
 <span class="sig-name descname"><span class="pre">get_queryset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicList.get_queryset" title="Lien permanent vers cette définition"></a></dt>
@@ -773,7 +797,7 @@ Subclasses can override this to return any object.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicNew">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.mp.views.</span></span><span class="sig-name descname"><span class="pre">PrivateTopicNew</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.mp.views.PrivateTopicNew" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Creates a new MP.</p>
+<dd><p>Create a new private topic.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="zds.mp.views.PrivateTopicNew.form_class">
 <span class="sig-name descname"><span class="pre">form_class</span></span><a class="headerlink" href="#zds.mp.views.PrivateTopicNew.form_class" title="Lien permanent vers cette définition"></a></dt>
