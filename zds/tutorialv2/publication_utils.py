@@ -11,6 +11,7 @@ from pathlib import Path
 
 import requests
 from django.core.exceptions import ObjectDoesNotExist
+from django.template.defaultfilters import date
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
@@ -414,6 +415,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             images_download_dir=str(base_directory / "images"),
             local_url_to_local_path=["/", replacement_image_url],
             heading_shift=-1,
+            date=date(published_content_entity.last_publication_date, "l d F Y"),
         )
         if content == "" and messages:
             raise FailureDuringPublication(f"Markdown was not parsed due to {messages}")
