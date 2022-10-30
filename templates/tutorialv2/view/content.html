@@ -179,11 +179,6 @@
                         {% trans "Ajouter une section" %}
                     </a>
                 </li>
-                <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% url "content:create-quizz" content.pk content.slug %}">
-                        {% trans "Ajouter un quizz" %}
-                    </a>
-                </li>
             {% endif %}
         </ul>
     {% endif %}
@@ -235,9 +230,6 @@
             <h2>
                 <a class="force-blue" href="{% url "content:create-extract" content.pk content.slug %}">
                     {% trans "Ajouter une section" %}
-                </a> {% trans 'ou'%}
-                <a class="force-blue" href="{% url "content:create-quizz" content.pk content.slug %}">
-                    {% trans "ajouter un quizz" %}
                 </a>
                 <div class="actions-title">
                     <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more btn btn-grey">
@@ -290,9 +282,6 @@
         {%  if content.can_add_extract %}
             <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more blue new-btn">
                 {% trans "Ajouter une section" %}
-            </a>
-            <a href="{% url "content:create-quizz" content.pk content.slug %}" class="ico-after more blue new-btn">
-                {% trans "Ajouter un quizz" %}
             </a>
         {%  endif %}
 

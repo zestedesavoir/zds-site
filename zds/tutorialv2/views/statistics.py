@@ -1,6 +1,6 @@
 import itertools
 import uuid
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 import logging
 import urllib.parse
 from datetime import timedelta, datetime, date
@@ -339,25 +339,25 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             QuizzUserAnswer.objects.values(
                 "related_question__pk", "related_question__question", "related_question__url", "answer"
             )
-                .filter(related_question__in=base_questions, date_answer__range=(start_date, end_date))
-                .annotate(nb=Count("answer"))
+            .filter(related_question__in=base_questions, date_answer__range=(start_date, end_date))
+            .annotate(nb=Count("answer"))
         )
         for base_question in set(base_questions):
             full_answers_total = {}
             url = ""
             question = ""
             for available_answer in (
-                    QuizzAvailableAnswer.objects.filter(related_question__pk=base_question)
-                            .prefetch_related("related_question")
-                            .all()
+                QuizzAvailableAnswer.objects.filter(related_question__pk=base_question)
+                .prefetch_related("related_question")
+                .all()
             ):
                 full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
                 url = available_answer.related_question.url
                 question = available_answer.related_question.question
                 for r in total_per_label:
                     if (
-                            r["related_question__pk"] == base_question
-                            and r["answer"].strip() == available_answer.label.strip()
+                        r["related_question__pk"] == base_question
+                        and r["answer"].strip() == available_answer.label.strip()
                     ):
                         full_answers_total[available_answer.label]["nb"] = r["nb"]
             if url not in quizz_stats:

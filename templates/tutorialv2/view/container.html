@@ -136,15 +136,6 @@
                         {% trans "Ajouter une section" %}
                     </a>
                 </li>
-                <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% if container.parent == content %}
-                                {% url "content:create-quizz" content.pk content.slug container.slug %}
-                            {%  else %}
-                                {% url "content:create-quizz" content.pk content.slug container.parent.slug container.slug %}
-                            {%  endif %}">
-                        {% trans "Ajouter un quizz" %}
-                    </a>
-                </li>
             {% endif %}
         </ul>
     {% endif %}
@@ -212,13 +203,6 @@
                             {% url "content:create-extract" content.pk content.slug container.parent.slug container.slug %}
                         {%  endif %}">
                     {% trans "Ajouter une section" %}
-                </a> {% trans 'ou' %}
-                <a href="{% if container.parent == content %}
-                            {% url "content:create-quizz" content.pk content.slug container.slug %}
-                        {%  else %}
-                            {% url "content:create-quizz" content.pk content.slug container.parent.slug container.slug %}
-                        {%  endif %}">
-                    {% trans "ajouter un quizz" %}
                 </a>
                 <div class="actions-title">
                     <a href="{% if container.parent == content %}

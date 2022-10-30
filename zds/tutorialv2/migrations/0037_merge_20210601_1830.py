@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0036_quizzquestion_question_type'),
-        ('tutorialv2', '0035_merge_20210601_1744'),
+        ("tutorialv2", "0036_quizzquestion_question_type"),
+        ("tutorialv2", "0035_merge_20210601_1744"),
     ]
 
-    operations = [
-    ]
+    operations = []

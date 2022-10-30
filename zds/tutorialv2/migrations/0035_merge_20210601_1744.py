@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tutorialv2', '0034_auto_20200927_1105'),
-        ('tutorialv2', '0031_source_is_url'),
+        ("tutorialv2", "0034_auto_20200927_1105"),
+        ("tutorialv2", "0031_source_is_url"),
     ]
 
-    operations = [
-    ]
+    operations = []

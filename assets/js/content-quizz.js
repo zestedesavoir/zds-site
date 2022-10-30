@@ -16,8 +16,6 @@ function extractAnswer(radio, answers) {
     } else {
       answers[rb.parentNode.parentNode.getAttribute('id')].push(rb.checked)
     }
-    console.log('is checked')
-    console.log(rb.checked)
     rb.setAttribute('value', answers[rb.parentNode.parentNode.getAttribute('id')].length - 1)
     rb.disabled = false
     rb.checked = false
@@ -48,10 +46,8 @@ function computeForm(formdata, answers) {
       console.log('not found ' + name)
       continue
     } else {
-      console.log(name + ' ' + values + ' : ' + answers[name][values])
       // for poc we assume we only deal with lists
       if (!answers[name][values]) {
-        console.log('bad answer ' + name + ' ' + values)
         badAnswers.push({
           name: name,
           value: values
@@ -210,10 +206,13 @@ document.querySelectorAll('form.quizz').forEach(form => {
     }
     let nbGood = 0
     let nbTotal = 0
+    console.log(answers)
     Object.keys(answers).forEach(name => {
       const element = document.querySelector(`.custom-block[data-name="${name}"]`)
       let title = element.querySelector('.custom-block-heading').textContent
-      const correction = element.querySelector('.custom-block-heading+div')
+      const correction = element.querySelector('.custom-block-body .custom-block')
+      console.log(correction)
+      console.log(title)
       if (correction && title.indexOf(correction.textContent) > 0) {
         title = title.substr(0, title.indexOf(correction.textContent))
       }
@@ -224,14 +223,23 @@ document.querySelectorAll('form.quizz').forEach(form => {
       statistics.expected[title] = {}
       const availableResponses = element.querySelectorAll('input')
       for (let i = 0; i < availableResponses.length; i++) {
-        statistics.expected[title][availableResponses[i].parentElement.textContent] = answers[name][i]
+        let questionLabel = availableResponses[i].parentElement.textContent;
+        console.log(questionLabel)
+        console.log(questionLabel.indexOf(correction.textContent))
+        if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
+          questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
+        }
+        statistics.expected[title][questionLabel] = answers[name][i]
       }
+      // now determine answers and their labels
       element.querySelectorAll('input:checked')
         .forEach(node => {
+          // remove eventual glued corretion
           let label = node.parentElement.textContent
           if (correction && label.indexOf(correction.textContent) !== -1) {
             label = label.substr(0, label.indexOf(correction.textContent))
           }
+
           statistics.result[title].labels.push(label.trim())
         })
       if (element.classList.contains('hasAnswer')) {
