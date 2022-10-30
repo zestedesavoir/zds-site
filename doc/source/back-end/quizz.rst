@@ -33,9 +33,7 @@ Ajouter des types de questions
 
 Globalement, l'ajout de type de questions, disons "texte libre" pour l'exemple se décompose en trois parties :
 
-- Décider de quelle syntaxe Markdown on tirera partie pour déinir la correction. Imaginons ici qu'on utilise la syntaxe
-  des codes inlines (deux `)
-- Implémenter dans zMarkdown un preprocessor de ``quizzCustomBlock`` qui permettra de remplacer les ``inlineCode`` par un texte
-  composé de ``______`` dans le quizz et les laissera intact dans la correction
+- Décider de quelle syntaxe Markdown on tirera partie pour déinir la correction. Imaginons ici qu'on utilise la syntaxe des codes inlines (deux `````)
+- Implémenter dans zMarkdown un preprocessor de ``quizzCustomBlock`` qui permettra de remplacer les ``inlineCode`` par un texte composé de ``______`` dans le quizz et les laissera intact dans la correction
 - Adapter ``content_quizz.js`` et ``statistics.py`` pour que la correction se fasse et que les statistiques remontent
 
