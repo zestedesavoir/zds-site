@@ -18,7 +18,7 @@ from django.views.generic import FormView
 
 from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
 from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentFormViewMixin
-from zds.tutorialv2.models.quizz import QuizzUserAnswer, QuizzQuestion, QuizzAvailableAnswer, QuizzStat
+from zds.tutorialv2.models.quizz import QuizzUserAnswer, QuizzQuestion, QuizzAvailableAnswer
 from zds.tutorialv2.utils import NamedUrl
 
 
