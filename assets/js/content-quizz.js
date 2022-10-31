@@ -137,8 +137,7 @@ function injectForms(quizz, answers) {
 
       const submit = document.createElement('button')
       submit.innerText = submitLabel
-      submit.classList.add('btn-submit')
-      submit.classList.add('btn')
+      submit.classList.add('btn', 'btn-submit')
       const result = document.createElement('p')
       result.classList.add('result')
       let nodeToAddToForm = heading
