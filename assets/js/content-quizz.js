@@ -4,33 +4,76 @@
 
 let index = 0
 
-function extractAnswer(radio, answers) {
-  radio.forEach((rb) => {
-    if (!rb.parentElement.parentElement.getAttribute('id')) {
-      rb.parentElement.parentElement.setAttribute('id', 'id-' + (index++))
+function extractAnswer(inputDomElementList, answers) {
+  inputDomElementList.forEach((rb) => {
+
+    let ulWrapperElement = rb.parentElement.parentElement;
+    // we give the ui an id to find the element in a more effective way later when the users answer the questions
+    if (!ulWrapperElement.getAttribute('id')) {
+      ulWrapperElement.setAttribute('id', 'id-' + (index++))
     }
-    rb.setAttribute('name', rb.parentElement.parentElement.getAttribute('id'))
-    rb.parentElement.parentElement.parentElement.parentElement.setAttribute('data-name', rb.getAttribute('name'))
-    if (!answers[rb.parentNode.parentNode.getAttribute('id')]) {
-      answers[rb.parentNode.parentNode.getAttribute('id')] = [rb.checked]
+    rb.setAttribute('name', ulWrapperElement.getAttribute('id'))
+    let questionBlock = ulWrapperElement.parentElement.parentElement;
+    questionBlock.setAttribute('data-name', rb.getAttribute('name'))
+    if (!answers[ulWrapperElement.getAttribute('id')]) {
+      answers[ulWrapperElement.getAttribute('id')] = [rb.checked]
     } else {
-      answers[rb.parentNode.parentNode.getAttribute('id')].push(rb.checked)
+      answers[ulWrapperElement.getAttribute('id')].push(rb.checked)
     }
-    rb.setAttribute('value', answers[rb.parentNode.parentNode.getAttribute('id')].length - 1)
+    rb.setAttribute('value', answers[ulWrapperElement.getAttribute('id')].length - 1)
     rb.disabled = false
     rb.checked = false
   })
 }
 
-function initializeCheckboxes(answers, blockIds) {
+/**
+ * The full quizz is contained in a div or article that has class "quizz".
+ * Then one question is inside a zmarkdown "custom-block" of type "custom-block-quizz". Two possibilities :
+ *
+ * Without explanation for correction :
+ *
+ * <code>
+ *   <div class="custom-block custom-block-quizz">
+ *     <div class="custom-block-heading">The question</div>
+ *     <div class="custom-block-body">
+ *       <ul><li><input type="checkbox" value="the answer"/>the answer</li>
+ *       <li><input type="checkbox" value="the good answer" checked/>the good answer</li>
+ *       </ul>
+ *     </div>
+ *   </div>
+ * </code>
+ *
+ * With an explanation inside another custom block most of time a custom-block-neutral
+ *
+ * <code>
+ *   <div class="custom-block custom-block-quizz">
+ *     <div class="custom-block-heading">The question</div>
+ *     <div class="custom-block-body">
+ *       <ul><li><input type="checkbox" value="the answer"/>the answer</li>
+ *       <li><input type="checkbox" value="the good answer" checked/>the good answer
+ *           <div class="custom-block custom-block-neutral">
+ *         <div class="custom-block-heading">Explanation</div>
+ *         <div class="custom-block-body">a formatted text</div>
+ *       </div></li>
+ *       </ul>
+
+ *     </div>
+ *   </div>
+ * </code>
+ *
+ * Note that the correction MAY be inside the last li due to the way custom-block plugin works, this is not a bug
+ *
+ * @param answers the answer dictionary, it will be modified by the process
+ */
+function initializeCheckboxes(answers) {
   const checkboxes = document.querySelectorAll('.quizz ul li input[type=checkbox]')
-  extractAnswer(checkboxes, answers, blockIds)
+  extractAnswer(checkboxes, answers)
 }
 
 
-function initializeRadio(answers, blockIds) {
+function initializeRadio(answers) {
   const radio = document.querySelectorAll('.quizz ul li input[type=radio]')
-  extractAnswer(radio, answers, blockIds)
+  extractAnswer(radio, answers)
 }
 
 const initializePipeline = [initializeCheckboxes, initializeRadio]
@@ -43,7 +86,6 @@ function computeForm(formdata, answers) {
     const values = parseInt(entry[1], 10)
     allAnswerNames.push(name)
     if (!answers[name]) {
-      console.log('not found ' + name)
       continue
     } else {
       // for poc we assume we only deal with lists
@@ -109,6 +151,19 @@ function getWantedHeading(questionNode, nodeName, attr) {
   return potentialHeading
 }
 
+/**
+ * As we are using forms to capture the answer and send the result back to user (and flushing stats for authors),
+ * we need to add an html form.
+ *
+ * The main issue is that it was asked to have many quizz inside a tutorial section, not just a list of questions in a
+ * specific section. As a result we had to find an heuristic :
+ * - if the current section has no h3 headings, we just span the form from the beggining to the end of section
+ * - if the current section has one or more h3 headings, we start the form just after it and end it at just before the
+ * next h3 heading if there is one or the end of form
+ *
+ * @param quizz current quizz container
+ * @param answers answers dictionary
+ */
 function injectForms(quizz, answers) {
   const searchedTitle = quizz.getAttribute('data-heading-level') || 'h3'
   const submitLabel = quizz.getAttribute('data-quizz-validate') || 'Validate'
@@ -121,14 +176,15 @@ function injectForms(quizz, answers) {
       // if the node was treated and  therefore the clone has not been reinserted yet
       return
     }
+    // this is the custom-block-quizz node
     const questionNode = blockNode.parentElement.parentElement
     const heading = getWantedHeading(questionNode, searchedTitle, 'previousSibling') || quizz
     if (!heading.getAttribute('id')) {
-      console.log('new id')
       heading.setAttribute('id', `quizz-form-${idBias}`)
       idBias++
     }
     if (heading && !headings[heading.getAttribute('id')]) {
+      // this is just for convenience, this add a "known" element that will always be there
       const wrapper = document.createElement('div')
 
       headings[heading.getAttribute('id')] = true
@@ -140,7 +196,7 @@ function injectForms(quizz, answers) {
       submit.classList.add('btn', 'btn-submit')
       const result = document.createElement('p')
       result.classList.add('result')
-      let nodeToAddToForm = heading
+      let nodeToAddToForm
       if (heading === quizz) {
         nodeToAddToForm = quizz.firstChild
       } else {
@@ -148,7 +204,7 @@ function injectForms(quizz, answers) {
       }
       form.method = 'POST'
       form.setAttribute('action', quizz.getAttribute('data-answer-url'))
-
+      // gather all the questions of this current subsection, until the next h3 heading
       while (nodeToAddToForm && nodeToAddToForm.nodeName !== searchedTitle.toUpperCase()) {
         const current = nodeToAddToForm
         nodeToAddToForm = nodeToAddToForm.nextSibling
@@ -169,11 +225,11 @@ function injectForms(quizz, answers) {
         }
       }
     }
+    // avoid doubly
     if (heading.nodeName === searchedTitle.toUpperCase()) {
       quizz.removeChild(heading)
     }
   })
-  console.log(wrappers)
   wrappers.forEach((wrapper) => quizz.appendChild(wrapper))
 }
 
@@ -182,7 +238,28 @@ initializePipeline.forEach(func => func(answers))
 document.querySelectorAll('div.quizz').forEach(div => {
   injectForms(div, answers)
 })
+
+function sendQuizzStatistics(form, statistics) {
+  const csrfmiddlewaretoken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
+  const xhttp = new XMLHttpRequest()
+  xhttp.open('POST', form.getAttribute('action'))
+  xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+  xhttp.setRequestHeader('Content-Type', 'application/json')
+  xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
+  statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
+  xhttp.send(JSON.stringify(statistics))
+}
+
+function displayResultAfterSubmitButton(nbGood, nbTotal, form) {
+  const percentOfAnswers = (100 * 1.0 * nbGood / nbTotal).toLocaleString('fr-FR', {
+    minimumIntegerDigits: 1,
+    useGrouping: false
+  })
+  form.querySelector('.result').innerText = `Vous avez bien répondu à ${percentOfAnswers}% des questions.`
+}
+
 document.querySelectorAll('form.quizz').forEach(form => {
+  // compute the answer and send stats
   form.addEventListener('submit', e => {
     e.preventDefault()
     e.stopPropagation()
@@ -191,7 +268,9 @@ document.querySelectorAll('form.quizz').forEach(form => {
     const [badAnswerNames, allAnswerNames] = computeForm(formData, answers)
     markBadAnswers(badAnswerNames, answers)
     allAnswerNames.forEach(name => {
-      document.getElementById(name).parentElement.parentElement.classList.add('hasAnswer')
+      const ulWrapper = document.getElementById(name);
+      const quizzCustomBlock = ulWrapper.parentElement.parentElement;
+      quizzCustomBlock.classList.add('hasAnswer')
     })
     const questions = []
     badAnswerNames.forEach(result => {
@@ -205,13 +284,10 @@ document.querySelectorAll('form.quizz').forEach(form => {
     }
     let nbGood = 0
     let nbTotal = 0
-    console.log(answers)
     Object.keys(answers).forEach(name => {
       const element = document.querySelector(`.custom-block[data-name="${name}"]`)
       let title = element.querySelector('.custom-block-heading').textContent
       const correction = element.querySelector('.custom-block-body .custom-block')
-      console.log(correction)
-      console.log(title)
       if (correction && title.indexOf(correction.textContent) > 0) {
         title = title.substr(0, title.indexOf(correction.textContent))
       }
@@ -222,9 +298,9 @@ document.querySelectorAll('form.quizz').forEach(form => {
       statistics.expected[title] = {}
       const availableResponses = element.querySelectorAll('input')
       for (let i = 0; i < availableResponses.length; i++) {
-        let questionLabel = availableResponses[i].parentElement.textContent;
-        console.log(questionLabel)
-        console.log(questionLabel.indexOf(correction.textContent))
+        // wee need to get the question label for statistics
+        const liWrapper = availableResponses[i].parentElement;
+        let questionLabel = liWrapper.textContent
         if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
           questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
         }
@@ -238,7 +314,6 @@ document.querySelectorAll('form.quizz').forEach(form => {
           if (correction && label.indexOf(correction.textContent) !== -1) {
             label = label.substr(0, label.indexOf(correction.textContent))
           }
-
           statistics.result[title].labels.push(label.trim())
         })
       if (element.classList.contains('hasAnswer')) {
@@ -252,18 +327,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
         }
       }
     })
-    const csrfmiddlewaretoken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
-    const xhttp = new XMLHttpRequest()
-    xhttp.open('POST', form.getAttribute('action'))
-    xhttp.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
-    xhttp.setRequestHeader('Content-Type', 'application/json')
-    xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
-    statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
-    xhttp.send(JSON.stringify(statistics))
-    const percentOfAnswers = (100 * 1.0 * nbGood / nbTotal).toLocaleString('fr-FR', {
-      minimumIntegerDigits: 1,
-      useGrouping: false
-    })
-    form.querySelector('.result').innerText = `Vous avez bien répondu à ${percentOfAnswers}% des questions.`
+    sendQuizzStatistics(form, statistics);
+    displayResultAfterSubmitButton(nbGood, nbTotal, form);
   })
 })

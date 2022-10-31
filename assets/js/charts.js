@@ -195,10 +195,6 @@
         setupChart(el, chartFormatters[g])
       }
     }
-    const quizzCharts = $('.quizz-chart')
-    if (quizzCharts.length) {
-      setupPie(quizzCharts)
-    }
   }
 
   drawCharts()
