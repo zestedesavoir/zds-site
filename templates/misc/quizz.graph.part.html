@@ -15,8 +15,8 @@
                         <span>
                             <progress aria-label="{% trans 'Résultat pour' %} {{ answer_name }}"
                                       max="{{ stats.total }}" value="{{ answer_stats.nb }}"/>
-                            </span>
-                    <span class="over-progress">{{answer_stats.nb}} / {{ stats.total }}</span>
+                        </span>
+                        <span class="over-progress">{{answer_stats.nb}} / {{ stats.total }}</span>
                     </li>
                 {% endfor %}
             </ul>
