@@ -6,14 +6,13 @@ let index = 0
 
 function extractAnswer(inputDomElementList, answers) {
   inputDomElementList.forEach((rb) => {
-
-    let ulWrapperElement = rb.parentElement.parentElement;
+    const ulWrapperElement = rb.parentElement.parentElement
     // we give the ui an id to find the element in a more effective way later when the users answer the questions
     if (!ulWrapperElement.getAttribute('id')) {
       ulWrapperElement.setAttribute('id', 'id-' + (index++))
     }
     rb.setAttribute('name', ulWrapperElement.getAttribute('id'))
-    let questionBlock = ulWrapperElement.parentElement.parentElement;
+    const questionBlock = ulWrapperElement.parentElement.parentElement
     questionBlock.setAttribute('data-name', rb.getAttribute('name'))
     if (!answers[ulWrapperElement.getAttribute('id')]) {
       answers[ulWrapperElement.getAttribute('id')] = [rb.checked]
@@ -56,7 +55,6 @@ function extractAnswer(inputDomElementList, answers) {
  *         <div class="custom-block-body">a formatted text</div>
  *       </div></li>
  *       </ul>
-
  *     </div>
  *   </div>
  * </code>
@@ -268,8 +266,8 @@ document.querySelectorAll('form.quizz').forEach(form => {
     const [badAnswerNames, allAnswerNames] = computeForm(formData, answers)
     markBadAnswers(badAnswerNames, answers)
     allAnswerNames.forEach(name => {
-      const ulWrapper = document.getElementById(name);
-      const quizzCustomBlock = ulWrapper.parentElement.parentElement;
+      const ulWrapper = document.getElementById(name)
+      const quizzCustomBlock = ulWrapper.parentElement.parentElement
       quizzCustomBlock.classList.add('hasAnswer')
     })
     const questions = []
@@ -299,7 +297,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
       const availableResponses = element.querySelectorAll('input')
       for (let i = 0; i < availableResponses.length; i++) {
         // wee need to get the question label for statistics
-        const liWrapper = availableResponses[i].parentElement;
+        const liWrapper = availableResponses[i].parentElement
         let questionLabel = liWrapper.textContent
         if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
           questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
@@ -327,7 +325,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
         }
       }
     })
-    sendQuizzStatistics(form, statistics);
-    displayResultAfterSubmitButton(nbGood, nbTotal, form);
+    sendQuizzStatistics(form, statistics)
+    displayResultAfterSubmitButton(nbGood, nbTotal, form)
   })
 })
