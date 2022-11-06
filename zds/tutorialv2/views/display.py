@@ -155,6 +155,9 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                     * char_count
                     / settings.ZDS_APP["content"]["characters_per_minute"]
                 )
+            else:
+                logger.warning("For unknown reason content with id %s has no char count", self.object.pk)
+                context["reading_time"] = 0
         except ZeroDivisionError as e:
             logger.warning("could not compute reading time: setting characters_per_minute is set to zero (error=%s)", e)
 
