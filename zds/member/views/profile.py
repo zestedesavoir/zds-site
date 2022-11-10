@@ -2,6 +2,7 @@ from urllib.parse import unquote
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
@@ -385,6 +386,7 @@ class UpdatePasswordMember(UpdateMember):
 
     def update_profile(self, profile, form):
         profile.user.set_password(form.data["password_new"])
+        update_session_auth_hash(self.request, profile.user)
 
     def get_success_message(self):
         return _("Le mot de passe a correctement été mis à jour.")
