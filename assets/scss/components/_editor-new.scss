@@ -203,6 +203,10 @@
 
         .CodeMirror {
             width: 100%;
+
+            pre {
+                font-family: $font-monospace;
+            }
         }
 
         .editor-preview {
