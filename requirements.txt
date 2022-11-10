@@ -25,7 +25,6 @@ toml==0.10.2
 django-cors-headers==3.13.0
 django-filter==22.1
 django-oauth-toolkit==1.7.0
-djangorestframework-xml==2.0.0
 djangorestframework==3.13.1
 drf-extensions==0.7.1
 dry-rest-permissions==0.1.10
