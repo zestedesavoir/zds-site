@@ -163,6 +163,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         intro = self.find_element("div#div_id_introduction div.CodeMirror")
         action_chains = ActionChains(selenium)
+        scrollDriverTo(selenium, 0, 312)
         action_chains.click(intro).perform()
         action_chains.send_keys("Le cadavre exquis boira le vin nouveau.").perform()
 
