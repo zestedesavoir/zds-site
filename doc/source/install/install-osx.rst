@@ -32,14 +32,18 @@ macOS étant basé sur BSD, il faut remplacer les outils BSD par ceux de GNU (le
 Pré-requis
 ==========
 
-.. note::
+.. admonition:: Avis aux utilisateurs·trices avancé·es
 
-  **Si vous êtes un·e utilisateur·trice avancé·e** — Ces instructions expliquent
-  comment installer XCode, Homebrew, Python, pip, et les ``gnu-coreutils``, sur
-  macOS. Si vous avez déjà une installation fonctionnelle de Homebrew et de
-  Python 3.7+, et que vous avez configuré votre terminal pour utiliser les
-  ``gnu-coreutils`` à la place de ceux de BSD, vous pouvez passer à la section
-  suivante concernant l'installation de ``zds-site``.
+  Ces instructions expliquent comment installer XCode, Homebrew, Python, pip, et
+  les utilitaires GNU, sur macOS. Si vous avez déjà :
+
+  - une installation fonctionnelle de Homebrew et de Python 3.7+ ;
+  - configuré votre terminal pour utiliser les utilitaires GNU à la place de
+    ceux de BSD (avec `linuxify <https://github.com/darksonic37/linuxify#install>`_,
+    par exemple) ;
+
+  alors vous pouvez `passer à la section suivante <#dependances-systeme>`_
+  concernant l'installation de ``zds-site``.
 
 XCode
 -----
