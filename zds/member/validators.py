@@ -4,7 +4,7 @@ from django.core.validators import EmailValidator, ProhibitNullCharactersValidat
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
-from zds.utils.misc import contains_utf8mb4
+from zds.utils.misc import contains_utf8mb4, replace_utf8mb4
 from zds.member.models import BannedEmailProvider, Profile
 
 
@@ -68,6 +68,13 @@ class ZdSEmailValidator(EmailValidator):
 
 
 validate_zds_email = ZdSEmailValidator()
+
+
+def clean_username_social_auth(username):
+    """
+    Clean username of accounts created using social auth.
+    """
+    return replace_utf8mb4(username).replace(",", "").replace("/", "")
 
 
 def validate_zds_username(value, check_username_available=True):
