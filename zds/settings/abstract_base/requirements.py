@@ -15,6 +15,7 @@ SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = "zds.member.validators.clean_username_soci
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {"fields": "name,email"}
 
 SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",
