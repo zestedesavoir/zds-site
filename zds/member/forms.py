@@ -411,7 +411,7 @@ class ChangeUserForm(PasswordRequiredForm):
             Field("username", value=user.username),
             Field("email", value=user.email),
             Field("options"),
-            Field("password"),
+            self.insert_password_required_field(),
             ButtonHolder(
                 StrictButton(_("Enregistrer"), type="submit"),
             ),
@@ -449,7 +449,7 @@ class UnregisterForm(PasswordRequiredForm):
         self.user = user
 
         self.helper.layout = Layout(
-            Field("password"),
+            self.insert_password_required_field(),
             HTML(
                 _(
                     """
@@ -491,7 +491,7 @@ class ChangePasswordForm(PasswordRequiredForm):
         self.user = user
 
         self.helper.layout = Layout(
-            Field("password"),
+            self.insert_password_required_field(),
             Field("password_new"),
             Field("password_confirm"),
             ButtonHolder(
