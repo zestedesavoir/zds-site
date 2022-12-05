@@ -168,11 +168,17 @@ class PasswordRequiredForm(forms.Form):
         widget=forms.PasswordInput,
     )
 
+    def insert_password_required_field(self):
+        if self.user.has_usable_password():
+            return Field("password")
+        else:
+            del self.fields["password"]
+
     def clean(self):
         cleaned_data = super().clean()
         password = cleaned_data.get("password")
 
-        if password and self.user:
+        if password and self.user and self.user.has_usable_password():
             user_exist = authenticate(username=self.user.username, password=password)
             # Check if the user exist.
             if not user_exist and password != "":

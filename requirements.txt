@@ -19,7 +19,6 @@ lxml==4.9.1
 Pillow==9.2.0
 pymemcache==3.5.2
 requests==2.28.1
-toml==0.10.2
 
 # Api dependencies
 django-cors-headers==3.13.0
@@ -33,3 +32,7 @@ drf_yasg==1.21.3
 # Dependencies for slug generation, please be extra careful with those
 django-uuslug==2.0.0
 python-slugify==6.1.2
+
+# tomllib was added to the standard library in Python 3.11
+# tomli is only needed for older Python versions
+tomli==2.0.1 ; python_version < "3.11"
