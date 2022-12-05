@@ -386,6 +386,7 @@ class UpdatePasswordMember(UpdateMember):
 
     def update_profile(self, profile, form):
         profile.user.set_password(form.data["password_new"])
+        # to avoid being disconnected after changing the password:
         update_session_auth_hash(self.request, profile.user)
 
     def get_success_message(self):
