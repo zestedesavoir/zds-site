@@ -20,7 +20,7 @@ def publish_use_manifest(db_object, base_dir, versionable_content: VersionedCont
     md, metadata, __ = render_markdown(
         base_content, disable_jsfiddle=not db_object.js_support, full_json=True, stats=True
     )
-    publish_container_new(db_object, base_dir, versionable_content, md)
+    publish_container_new(db_object, base_dir, versionable_content, md, content=db_object)
     return metadata.get("stats", {}).get("signs", 0)
 
 
@@ -122,7 +122,7 @@ def render_chapter_or_minituto(base_dir, container, ctx, rendered, template):
 
 
 def publish_container(
-    db_object,
+    db_object: PublishableContent,
     base_dir,
     container,
     template="tutorialv2/export/chapter.html",
@@ -151,6 +151,8 @@ def publish_container(
 
     path_to_title_dict = collections.OrderedDict()
     ctx["relative"] = ctx.get("relative", ".")
+    ctx["content"] = db_object
+    ctx["public_content"] = db_object.public_version
     if not isinstance(container, Container):
         raise FailureDuringPublication(_("Le conteneur n'en est pas un !"))
 

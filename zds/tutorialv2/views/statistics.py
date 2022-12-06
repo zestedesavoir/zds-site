@@ -1,17 +1,24 @@
 import itertools
+import uuid
+from collections import OrderedDict, Counter
 import logging
 import urllib.parse
 from datetime import timedelta, datetime, date
+from json import loads, dumps
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db.models import Count
+from django.forms.utils import ErrorDict
+from django.http import StreamingHttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
-from zds.tutorialv2.forms import ContentCompareStatsURLForm
-from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin
+from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
+from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentFormViewMixin
+from zds.tutorialv2.models.quizz import QuizzUserAnswer, QuizzQuestion, QuizzAvailableAnswer
 from zds.tutorialv2.utils import NamedUrl
 
 
@@ -22,6 +29,44 @@ class StatisticsException(Exception):
 
     def __init__(self, logger, msg):
         super().__init__(logger, msg)
+
+
+class ContentQuizzStatistics(SingleOnlineContentFormViewMixin):
+    form_class = QuizzStatsForm
+
+    def get_form_kwargs(self):
+        return {
+            "json_dict": loads(self.request.body.decode("utf-8")),
+        }
+
+    def form_valid(self, form):
+        url = form.cleaned_data["url"]
+        answers = {k: v for k, v in form.cleaned_data["result"].items()}
+        resp_id = str(uuid.uuid4())
+        for question, answers in answers.items():
+            db_question = QuizzQuestion.objects.filter(question=question, url=url).first()
+            if not db_question:
+                db_question = QuizzQuestion(question=question, url=url, question_type="qcm")
+                db_question.save()
+            given_available_answers = form.cleaned_data["expected"][question]
+            answers_labels = list(given_available_answers.keys())
+            known_labels = QuizzAvailableAnswer.objects.filter(
+                related_question=db_question, label__in=answers_labels
+            ).values_list("label", flat=True)
+            not_existing_answers = [label for label in answers_labels if label not in known_labels]
+            QuizzAvailableAnswer.objects.exclude(label__in=answers_labels).filter(related_question=db_question).delete()
+
+            for label in not_existing_answers:
+                db_answer = QuizzAvailableAnswer(
+                    related_question=db_question, label=label, is_good=given_available_answers[label]
+                )
+                db_answer.save()
+            for answer in answers["labels"]:
+                stat = QuizzUserAnswer(
+                    related_content=self.object, related_question=db_question, full_answer_id=resp_id, answer=answer
+                )
+                stat.save()
+        return StreamingHttpResponse(dumps({"status": "ok"}))
 
 
 class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
@@ -117,7 +162,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             else:
                 y.append(val[0].get(metric_name, 0))
 
-        return (x, y)
+        return x, y
 
     @staticmethod
     def get_ref_metrics(data):
@@ -262,7 +307,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
             if display_mode.lower() == "global":
                 reports = {NamedUrl(display_mode, "", 0): self.merge_report_to_global(reports, report_field)}
-
+        quizz_stats = self.build_quizz_stats(end_date, start_date)
         context.update(
             {
                 "display": display_mode,
@@ -272,6 +317,50 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 "referrers": referrers,
                 "type_referrers": type_referrers,
                 "keywords": keywords,
+                "quizz": quizz_stats,
             }
         )
         return context
+
+    def build_quizz_stats(self, end_date, start_date):
+        quizz_stats = {}
+        base_questions = list(
+            QuizzUserAnswer.objects.filter(
+                date_answer__range=(start_date, end_date), related_content__pk=self.object.pk
+            ).values_list("related_question", flat=True)
+        )
+        total_per_question = list(
+            QuizzUserAnswer.objects.values("related_question__pk", "full_answer_id")
+            .filter(related_question__pk__in=base_questions, date_answer__range=(start_date, end_date))
+            .annotate(nb=Count("full_answer_id"))
+        )
+        total_per_question = Counter([a["related_question__pk"] for a in total_per_question])
+        total_per_label = list(
+            QuizzUserAnswer.objects.values(
+                "related_question__pk", "related_question__question", "related_question__url", "answer"
+            )
+            .filter(related_question__in=base_questions, date_answer__range=(start_date, end_date))
+            .annotate(nb=Count("answer"))
+        )
+        for base_question in set(base_questions):
+            full_answers_total = {}
+            url = ""
+            question = ""
+            for available_answer in (
+                QuizzAvailableAnswer.objects.filter(related_question__pk=base_question)
+                .prefetch_related("related_question")
+                .all()
+            ):
+                full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
+                url = available_answer.related_question.url
+                question = available_answer.related_question.question
+                for r in total_per_label:
+                    if (
+                        r["related_question__pk"] == base_question
+                        and r["answer"].strip() == available_answer.label.strip()
+                    ):
+                        full_answers_total[available_answer.label]["nb"] = r["nb"]
+            if url not in quizz_stats:
+                quizz_stats[url] = OrderedDict()
+            quizz_stats[url][question] = {"total": total_per_question[base_question], "responses": full_answers_total}
+        return quizz_stats

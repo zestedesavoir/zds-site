@@ -319,7 +319,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
     from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent, PublicContent
 
-    if "version" in json and json["version"] in (2, 2.1):  # add newest version of manifest
+    if "version" in json and json["version"] in (2, 2.1, 2.2):  # add newest version of manifest
         if not all_is_string_appart_from_given_keys(json, ("children", "ready_to_publish", "version")):
             raise BadManifestError(_("Le fichier manifest n'est pas bien formaté."))
         # create and fill the container
@@ -397,6 +397,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
             extract = Extract("text", "")
             if "text" in json:
                 extract.text = json["text"]  # probably 'text.md' !
+            extract.is_quizz = json.get("is_quizz", False)
             versioned.add_extract(extract, generate_slug=True)
 
         else:  # it's a tutorial
@@ -408,6 +409,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
                     )
                     if "text" in extract:
                         new_extract.text = extract["text"]
+                    new_extract.is_quizz = extract.get("is_quizz", False)
                     versioned.add_extract(new_extract, generate_slug=False)
 
             elif json["type"] == "BIG" and "parts" in json:
@@ -444,6 +446,7 @@ def get_content_from_json(json, sha, slug_last_draft, public=False, max_title_le
 
                                     if "text" in extract:
                                         new_extract.text = extract["text"]
+                                    new_extract.is_quizz = extract.get("is_quizz", False)
                                     new_chapter.add_extract(new_extract, generate_slug=False)
 
     return versioned
@@ -463,7 +466,7 @@ def fill_containers_from_json(json_sub, parent):
     if "children" in json_sub:
 
         for child in json_sub["children"]:
-            if not all_is_string_appart_from_given_keys(child, ("children", "ready_to_publish")):
+            if not all_is_string_appart_from_given_keys(child, ("children", "ready_to_publish", "is_quizz")):
                 raise BadManifestError(
                     _("Le fichier manifest n'est pas bien formaté dans le conteneur " + str(json_sub["title"]))
                 )
@@ -496,7 +499,7 @@ def fill_containers_from_json(json_sub, parent):
                 except KeyError:
                     pass
                 new_extract = Extract(child["title"], slug)
-
+                new_extract.is_quizz = child.get("is_quizz", False)
                 if "text" in child:
                     new_extract.text = child["text"]
                 try:
@@ -614,7 +617,7 @@ def export_extract(extract, with_text):
     dct["object"] = "extract"
     dct["slug"] = extract.slug
     dct["title"] = extract.title
-
+    dct["is_quizz"] = extract.is_quizz
     if extract.text and not with_text:
         dct["text"] = extract.text
     elif extract.text:
@@ -680,7 +683,7 @@ def export_content(content, with_text=False, ready_to_publish_only=False):
     dct = export_container(content, with_text, ready_to_publish_only)
 
     # append metadata :
-    dct["version"] = 2.1
+    dct["version"] = 2.2
     dct["description"] = content.description
     dct["type"] = content.type
     if content.licence:

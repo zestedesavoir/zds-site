@@ -1,0 +1,26 @@
+{% load i18n %}
+
+<div id="{{ tab_name }}" class="tabcontent">
+    {% for url, questions in quizz.items %}
+        <header>
+            <h3>{{ url }}</h3>
+        </header>
+        {% for question, stats in questions.items %}
+            <article class="stat-graph">
+            <h4>{% trans graph_title %} {{ question }}</h4>
+            <ul class="quizz-answers">
+                {% for answer_name, answer_stats in stats.responses.items %}
+                    <li class="{% if answer_stats.good %}quizz-forget{% endif %} quizz-stats">
+                        <span>{{ answer_name }}</span>
+                        <span>
+                            <progress aria-label="{% trans 'Résultat pour' %} {{ answer_name }}"
+                                      max="{{ stats.total }}" value="{{ answer_stats.nb }}"/>
+                        </span>
+                        <span class="over-progress">{{answer_stats.nb}} / {{ stats.total }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        </article>
+        {% endfor %}
+{% endfor %}
+</div>

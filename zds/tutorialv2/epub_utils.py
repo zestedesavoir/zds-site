@@ -63,7 +63,7 @@ def build_html_chapter_file(published_object, versioned_object, working_dir, roo
     :param versioned_object: the object representing the public version in git file system
     :type versioned_object: zds.tutorialv2.models.models_versioned.VersionedContent
     :param published_object: the published content as saved in database
-    :type published_object: zds.tutorialv2.models.models_database.PublishedContent
+    :type published_object: zds.tutorialv2.models.models_database.PublishableCOntent
     :type image_handler: ImageHandling
     :return: a generator of tuples composed as ``[splitted_html_file_relative_path, chapter-identifier, chapter-title]``
     """

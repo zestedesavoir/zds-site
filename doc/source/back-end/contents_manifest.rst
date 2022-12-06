@@ -100,7 +100,17 @@ Version 2.0
     6. ``children`` : tableau vers les enfants de niveau inférieur si l'enfant est de type *container*. **Obligatoire**
     7. ``text`` : nom du fichier contenant le texte quand l'enfant est de type *extract*. Nous conseillons de garder la convention ``nom de fichier = slug.md`` mais rien n'est obligatoire à ce sujet. **Obligatoire**
 
+Version 2.1
+-----------
 
+Cette version ajoute le paramètre "ready_to_publish" dans les ``Container`` qui vaut ``True`` par défaut.
+Cet attribut permet d'implémenter la fonctionnalité de "publication partielle".
+
+Version 2.2
+-----------
+
+Cette version ajoute le paramètre ``is_quizz`` dans les ``Extract`` afin de créer des extraits de type Quizz qui auront leur
+correction automatiquement calculée par le client.
 
 
 Version 1.0

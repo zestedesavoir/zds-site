@@ -42,6 +42,19 @@ class FormWithTitle(forms.Form):
         return cleaned_data
 
 
+class QuizzStatsForm(forms.Form):
+    url = forms.CharField(required=False)
+
+    def __init__(self, *args, json_dict=None, **kwargs):
+        super().__init__(data=json_dict, *args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        self.cleaned_data["result"] = self.data["result"]
+        self.cleaned_data["expected"] = self.data["expected"]
+        return self.cleaned_data
+
+
 class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.title

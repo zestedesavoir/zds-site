@@ -50,3 +50,17 @@
       margin: 0 auto;
     }
 }
+
+.stat-graph ul.quizz-answers {
+    max-width: 50%;
+    li.quizz-stats {
+        display: grid;
+        grid-template-columns:  3fr 3fr 1fr;
+        grid-gap: 1px;
+        .over-progress {
+            display: block;
+            position: relative;
+            left: -50%;
+        }
+    }
+}
