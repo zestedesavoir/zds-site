@@ -1,21 +1,19 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.db import transaction
-from django.http import Http404, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from django.shortcuts import redirect, get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, RedirectView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.list import MultipleObjectMixin
-from django.views.decorators.http import require_GET
 
-from zds.member.models import Profile
 from zds.mp import signals
 from zds.mp.commons import LeavePrivateTopic, UpdatePrivatePost
 from zds.mp.decorator import is_participant
@@ -24,54 +22,42 @@ from zds.forum.utils import CreatePostView
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.paginator import ZdSPagingListView
 from .forms import PrivateTopicForm, PrivatePostForm, PrivateTopicEditForm
-from .models import PrivateTopic, PrivateTopicRead, PrivatePost, mark_read, NotReachableError, PrivatePostVote
+from .models import (
+    PrivateTopic,
+    PrivateTopicRead,
+    PrivatePost,
+    mark_read,
+    PrivatePostVote,
+    is_reachable,
+)
 
 
-class PrivateTopicList(ZdSPagingListView):
-    """
-    Displays the list of private topics of a member given.
-    """
+class PrivateTopicList(LoginRequiredMixin, ZdSPagingListView):
+    """Display the list of private topics of a member."""
 
     context_object_name = "privatetopics"
     paginate_by = settings.ZDS_APP["forum"]["topics_per_page"]
     template_name = "mp/index.html"
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
     def get_queryset(self):
         return PrivateTopic.objects.get_private_topics_of_user(self.request.user.id)
 
 
-class PrivateTopicNew(CreateView):
-    """
-    Creates a new MP.
-    """
+class PrivateTopicNew(LoginRequiredMixin, CreateView):
+    """Create a new private topic."""
 
     form_class = PrivateTopicForm
     template_name = "mp/topic/new.html"
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
     def get(self, request, *args, **kwargs):
-        title = request.GET.get("title") if "title" in request.GET else None
+        title = request.GET.get("title", "")
 
-        participants = None
-        if "username" in request.GET:
-            dest_list = []
-            # check that usernames in url is in the database
-            for username in request.GET.getlist("username"):
-                try:
-                    dest_list.append(User.objects.get(username=username).username)
-                except ObjectDoesNotExist:
-                    pass
-            if len(dest_list) > 0:
-                participants = ", ".join(dest_list)
+        usernames = request.GET.getlist("username", [])
+        valid_usernames = User.objects.filter(username__in=usernames).values_list("username", flat=True)
+        participants = ", ".join(valid_usernames)
 
         form = self.form_class(username=request.user.username, initial={"participants": participants, "title": title})
+
         return render(request, self.template_name, {"form": form})
 
     def post(self, request, *args, **kwargs):
@@ -121,41 +107,35 @@ class PrivateTopicNew(CreateView):
         return redirect(p_topic.get_absolute_url())
 
 
-class PrivateTopicEdit(UpdateView):
-    """Update mp informations"""
+class PrivateTopicEdit(LoginRequiredMixin, UpdateView):
+    """Edit a private topic."""
 
     model = PrivateTopic
     template_name = "mp/topic/edit.html"
     form_class = PrivateTopicEditForm
-    pk_url_kwarg = "pk"
     context_object_name = "topic"
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get_object(self, queryset=None):
         topic = super().get_object(queryset)
-        if topic is not None and not topic.author == self.request.user:
+        if not topic.is_author(self.request.user):
             raise PermissionDenied
         return topic
 
 
-class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView):
-    """
-    Leaves a MP.
-    """
+class PrivateTopicLeaveDetail(LoginRequiredMixin, LeavePrivateTopic, SingleObjectMixin, RedirectView):
+    """Leave a private topic."""
 
     permanent = True
-    queryset = PrivateTopic.objects.all()
+    model = PrivateTopic
 
-    @method_decorator(login_required)
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
+        if not topic.is_participant(self.get_current_user()):
+            raise PermissionDenied
         self.perform_destroy(topic)
         messages.success(request, _("Vous avez quitté la conversation avec succès."))
         return redirect(reverse("mp:list"))
@@ -164,54 +144,45 @@ class PrivateTopicLeaveDetail(LeavePrivateTopic, SingleObjectMixin, RedirectView
         return self.request.user
 
 
-class PrivateTopicAddParticipant(SingleObjectMixin, RedirectView):
-    permanent = True
-    object = None
-    queryset = PrivateTopic.objects.all()
+class PrivateTopicAddParticipant(LoginRequiredMixin, SingleObjectMixin, RedirectView):
+    """Add a participant to a private topic."""
 
-    @method_decorator(login_required)
+    permanent = True
+    model = PrivateTopic
+
     @method_decorator(transaction.atomic)
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request, *args, **kwargs)
 
-    def get_object(self, queryset=None):
-        topic = super().get_object(self.queryset)
-        if topic is not None and not topic.author == self.request.user:
-            raise PermissionDenied
-        return topic
-
     def post(self, request, *args, **kwargs):
         topic = self.get_object()
 
-        try:
-            participant = get_object_or_404(Profile, user__username=request.POST.get("username"))
-            if topic.is_participant(participant.user):
-                messages.warning(request, _("Le membre n'a pas été ajouté à la conversation, car il y est déjà."))
-            else:
-                topic.add_participant(participant.user)
-                topic.save()
-                messages.success(request, _("Le membre a bien été ajouté à la conversation."))
-        except Http404:
-            messages.warning(request, _("""Le membre n'a pas été ajouté à la conversation, car il n'existe pas."""))
-        except NotReachableError:
-            messages.warning(request, _("""Le membre n'a pas été ajouté à la conversation, car il est injoignable."""))
+        if not topic.is_author(self.request.user):
+            raise PermissionDenied
+
+        user = User.objects.filter(username=request.POST.get("username")).first()
+
+        if user is None:
+            messages.warning(request, _("Le membre n'a pas été ajouté à la conversation, car il n'existe pas."))
+        elif not is_reachable(user):
+            messages.warning(request, _("Le membre n'a pas été ajouté à la conversation, car il est injoignable."))
+        elif topic.is_participant(user):
+            messages.warning(request, _("Le membre n'a pas été ajouté à la conversation, car il y est déjà."))
+        else:
+            topic.add_participant(user)
+            topic.save()
+            messages.success(request, _("Le membre a bien été ajouté à la conversation."))
 
         return redirect(reverse("mp:view", args=[topic.pk, topic.slug()]))
 
 
-class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView):
-    """
-    Leaves a list of MP.
-    """
+class PrivateTopicLeaveList(LoginRequiredMixin, LeavePrivateTopic, MultipleObjectMixin, RedirectView):
+    """Leave a list of private topics."""
 
     permanent = True
 
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
     def get_queryset(self):
-        list = self.request.POST.getlist("items")
+        list = self.request.POST.getlist("items", [])
         return PrivateTopic.objects.get_private_topics_selected(self.request.user.id, list)
 
     def post(self, request, *args, **kwargs):
@@ -223,18 +194,11 @@ class PrivateTopicLeaveList(LeavePrivateTopic, MultipleObjectMixin, RedirectView
         return self.request.user
 
 
-class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
-    """
-    Display a thread and its posts using a pager.
-    """
+class PrivatePostList(LoginRequiredMixin, ZdSPagingListView, SingleObjectMixin):
+    """Display a private topic and its posts using a pager."""
 
-    object = None
     paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]
     template_name = "mp/topic/index.html"
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object(queryset=PrivateTopic.objects.all())
@@ -266,18 +230,16 @@ class PrivatePostList(ZdSPagingListView, SingleObjectMixin):
 
 
 class PrivatePostAnswer(CreatePostView):
-    """
-    Creates a post to answer on a MP.
-    """
+    """Create a post to answer in a private topic."""
 
     model_quote = PrivatePost
     form_class = PrivatePostForm
     template_name = "mp/post/new.html"
-    queryset = PrivateTopic.objects.all()
-    object = None
-    posts = None
+    model = PrivateTopic
 
     @method_decorator(login_required)
+    # This checks that the user is a participant in the topic *and* avoids leaking posts from other private topics.
+    # It is NOT equivalent to checking topic.is_participant(user) only.
     @method_decorator(is_participant)
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -296,25 +258,22 @@ class PrivatePostAnswer(CreatePostView):
 
     def form_valid(self, form):
         send_message_mp(
-            self.request.user, self.object, form.data.get("text"), True, False, hat=get_hat_from_request(self.request)
+            self.request.user,
+            self.object,
+            form.data.get("text"),
+            send_by_mail=True,
+            force_email=False,
+            hat=get_hat_from_request(self.request),
         )
         return redirect(self.object.last_message.get_absolute_url())
 
 
-class PrivatePostEdit(UpdateView, UpdatePrivatePost):
-    """
-    Edits a post on a MP.
-    """
+class PrivatePostEdit(LoginRequiredMixin, UpdateView, UpdatePrivatePost):
+    """Edit a post in a private topic."""
 
-    post = None
-    topic = None
-    queryset = PrivatePost.objects.all()
+    model = PrivatePost
     template_name = "mp/post/edit.html"
     form_class = PrivatePostForm
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
 
     def get_object(self, queryset=None):
         self.post = super().get_object(queryset)
@@ -374,28 +333,22 @@ class PrivatePostEdit(UpdateView, UpdatePrivatePost):
         return redirect(self.post.get_absolute_url())
 
 
-class PrivatePostUnread(UpdateView):
-    queryset = PrivatePost.objects.all()
+class PrivatePostUnread(LoginRequiredMixin, UpdateView):
+    """Mark a private post as not read."""
 
-    @method_decorator(require_GET)
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        return super().dispatch(request, *args, **kwargs)
+    http_method_names = ["get"]
+    model = PrivatePost
 
     def get(self, request, *args, **kwargs):
-        if not self.object.privatetopic.author == request.user and request.user not in list(
-            self.object.privatetopic.participants.all()
-        ):
+        self.object = self.get_object()
+        if not self.object.privatetopic.is_participant(request.user):
             raise PermissionDenied
         self.perform_unread_private_post(self.object, self.request.user)
         return redirect(reverse("mp:list"))
 
     @staticmethod
     def perform_unread_private_post(post, user):
-        """
-        Mark the private post as unread.
-        """
+        """Mark the private post as unread."""
         previous_post = post.get_previous()
         topic_read = PrivateTopicRead.objects.filter(privatetopic=post.privatetopic, user=user).first()
         if topic_read is None and previous_post is not None:

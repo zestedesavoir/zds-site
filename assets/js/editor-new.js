@@ -903,7 +903,7 @@
           action: (evt) => {
             oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue(), easyMDE.codemirror.display.lineDiv)
           },
-          className: 'zdsicon zi-grammalecte',
+          className: 'fa zdsicon zi-grammalecte',
           title: 'Correcteur orthographique externe'
         },
         {

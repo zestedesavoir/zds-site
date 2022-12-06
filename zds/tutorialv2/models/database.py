@@ -44,7 +44,7 @@ from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.uuslug_wrapper import uuslug
 
-ALLOWED_TYPES = ["pdf", "md", "html", "epub", "zip", "tex"]
+ALLOWED_TYPES = ["pdf", "md", "epub", "zip", "tex"]
 logger = logging.getLogger(__name__)
 
 
@@ -789,14 +789,6 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         :rtype: bool
         """
         return self.has_type("md")
-
-    def has_html(self):
-        """Check if the html version of the content is available
-
-        :return: ``True`` if available, ``False`` otherwise
-        :rtype: bool
-        """
-        return self.has_type("html")
 
     def has_pdf(self):
         """Check if the pdf version of the content is available

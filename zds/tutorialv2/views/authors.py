@@ -1,7 +1,6 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.text import format_lazy
@@ -10,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.gallery.models import UserGallery, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
+from zds.mp.models import is_reachable
 from zds.tutorialv2 import signals
 
 from zds.tutorialv2.forms import AuthorForm, RemoveAuthorForm
@@ -127,7 +127,7 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             if RemoveAuthorFromContent.remove_author(self.object, user):
                 if user.pk == self.request.user.pk:
                     current_user = True
-                else:
+                elif is_reachable(user):
                     send_mp(
                         bot,
                         [user],
@@ -152,9 +152,9 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             else:  # if user is incorrect or alone
                 messages.error(
                     self.request,
-                    _(
-                        "Vous êtes le seul auteur de {} ou le membre sélectionné " "en a déjà quitté la rédaction."
-                    ).format(_type[0]),
+                    _("Vous êtes le seul auteur de {} ou le membre sélectionné en a déjà quitté la rédaction.").format(
+                        _type[0]
+                    ),
                 )
                 return redirect(self.object.get_absolute_url())
 

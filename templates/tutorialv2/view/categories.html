@@ -1,5 +1,6 @@
 {% extends "tutorialv2/view/base_categories.html" %}
 {% load i18n %}
+{% load captureas %}
 
 
 {% block content_category %}
@@ -20,6 +21,16 @@
         </div>
     </section>
     {% endcomment %}
+
+    <section>
+        {% captureas url_view_goals %}{% url "content:view-goals" %}{% endcaptureas %}
+        {% blocktrans %}
+        <p>
+            <strong>Avis aux curieux</strong> ! La nouvelle <a href="{{ url_view_goals }}">classification par objectifs</a> fait son avant-première.
+            Elle vient en complément de la classification par catégories et par tags.
+        </p>
+        {% endblocktrans %}
+    </section>
 
     <section>
         <h2 class="inline" itemprop="name">{% trans 'Domaines de savoir' %}</h2>

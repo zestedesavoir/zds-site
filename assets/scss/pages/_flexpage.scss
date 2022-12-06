@@ -222,6 +222,8 @@ $content-width: 1145px;
             color: white;
             font-size: $font-size-6;
 
+            overflow: hidden;
+
             .line {
                 display: block;
                 line-height: 1.5;
@@ -251,14 +253,8 @@ $content-width: 1145px;
                 font-size: $font-size-3;
                 line-height: 1;
 
-                @include mobile {
-                    display: flex;
-                    align-items: baseline;
-
-                    :first-child {
-                        flex: 12;
-                    }
-                }
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
 
             h2 {

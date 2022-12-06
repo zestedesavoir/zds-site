@@ -111,7 +111,7 @@ class Profile(models.Model):
         self._cached_city = (self.last_ip_address, geo_location)
         return geo_location
 
-    def get_avatar_url(self):
+    def get_avatar_url(self, size=80):
         """Get the avatar URL for this profile.
         If the user has defined a custom URL, use it.
         If not, use Gravatar.
@@ -124,8 +124,8 @@ class Profile(models.Model):
             else:
                 return self.avatar_url
         else:
-            return "https://secure.gravatar.com/avatar/{}?d=identicon".format(
-                md5(self.user.email.lower().encode("utf-8")).hexdigest()
+            return "https://secure.gravatar.com/avatar/{}?d=identicon&s={}".format(
+                md5(self.user.email.lower().encode("utf-8")).hexdigest(), size
             )
 
     def get_post_count(self):

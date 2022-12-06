@@ -3,7 +3,7 @@
 {% load category_url %}
 {% load set %}
 {% load displayable_authors %}
-{% load minute_to_duration %}
+{% load humanize_duration %}
 {% load captureas %}
 
 <aside class="meta">
@@ -68,13 +68,9 @@
             {% endfor %}
         </p>
 
-        <p>
-            {% if online and reading_time and not is_part_or_chapter %}
-                {% trans "Temps de lecture estimé : " %}{{ reading_time|minute_to_duration }}
-            {% elif online and not is_part_or_chapter %}
-                {% trans "Temps de lecture estimé à moins d’une minute." %}
-            {% endif %}
-        </p>
+        {% if online and not is_part_or_chapter %}
+            <p>{% blocktrans with reading_time=reading_time|humanize_duration %}Temps de lecture estimé à {{ reading_time }}.{% endblocktrans %}</p>
+        {% endif %}
 
         {% if online %}
             {% set public_object.last_publication_date as update_date %}

@@ -3,7 +3,6 @@
 {% load i18n %}
 {% load interventions %}
 {% load profile %}
-{% load remove_url_scheme %}
 {% load set %}
 {% load topbar %}
 {% load captureas %}
@@ -237,7 +236,7 @@
                                 <li>
                                     <a href="{{ notification.url }}">
                                         <header>
-                                            <img src="{{ notification.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                            <img src="{% avatar_url notification.author.profile %}" alt="" class="avatar">
                                             <span class="username">{{ notification.author.username }}</span>
                                             <span class="date">{{ notification.pubdate|format_date:True|capfirst }}</span>
                                         </header>
@@ -275,7 +274,7 @@
                                 <li>
                                     <a href="{{ first_unread.url }}">
                                       <header>
-                                          <img src="{{ first_unread.author.profile.get_avatar_url|remove_url_scheme }}" alt="" class="avatar">
+                                          <img src="{% avatar_url first_unread.author.profile %}" alt="" class="avatar">
                                           <span class="username">{{ first_unread.author.username }}</span>
                                           <span class="date">{{ first_unread.pubdate|format_date:True|capfirst }}</span>
                                       </header>
@@ -345,7 +344,7 @@
                            data-active="open-my-account"
                        {% endif %}
                     >
-                        <img src="{{ profile.get_avatar_url|remove_url_scheme }}" alt="Mon compte" class="avatar">
+                        <img src="{% avatar_url profile %}" alt="Mon compte" class="avatar">
                         <span class="username label">{{ user.username }}</span>
                     </a>
                 {% endwith %}
