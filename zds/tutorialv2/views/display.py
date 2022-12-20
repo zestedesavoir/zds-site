@@ -175,9 +175,10 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
         context["contributions"] = ContentContribution.objects.filter(content=self.object).order_by(
             "contribution_role__position"
         )
-        context["content_suggestions_random"] = ContentSuggestion.objects.filter(publication=self.object).order_by("?")[
-            : settings.ZDS_APP["content"]["suggestions_per_page"]
-        ]
+
+        context["content_suggestions_random"] = ContentSuggestion.get_random_public_suggestions(
+            self.object, count=settings.ZDS_APP["content"]["suggestions_per_page"]
+        )
 
         return context
 

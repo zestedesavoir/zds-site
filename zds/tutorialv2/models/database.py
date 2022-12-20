@@ -1475,6 +1475,16 @@ class ContentSuggestion(models.Model):
     def __str__(self):
         return f"<Suggest '{self.suggestion.title}' for content '{self.publication.title}', #{self.pk}>"
 
+    @staticmethod
+    def get_random_public_suggestions(publication: PublishableContent, count: int):
+        """
+        Get random public suggestions for the given publication.
+        At most `count` suggestions are returned.
+        """
+        all_suggestions = ContentSuggestion.objects.filter(publication=publication).order_by("?")
+        public_suggestions = [suggestion for suggestion in all_suggestions if suggestion.suggestion.in_public()]
+        return public_suggestions[:count]
+
 
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
