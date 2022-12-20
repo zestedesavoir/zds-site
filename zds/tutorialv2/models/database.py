@@ -250,64 +250,32 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             user_gallery.user = author
             user_gallery.save()
 
-    def in_beta(self):
-        """A tutorial is not in beta if sha_beta is ``None`` or empty
-
-
-        :return: ``True`` if the tutorial is in beta, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_beta(self) -> bool:
+        """Return True if a beta version of the content exists, and False otherwise."""
         return (self.sha_beta is not None) and (self.sha_beta.strip() != "")
 
-    def in_validation(self):
-        """A tutorial is not in validation if sha_validation is ``None`` or empty
-
-        :return: ``True`` if the tutorial is in validation, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_validation(self) -> bool:
+        """Return True if a version of the content is in validation, and False otherwise."""
         return (self.sha_validation is not None) and (self.sha_validation.strip() != "")
 
-    def in_drafting(self):
-        """A tutorial is not in draft if sha_draft is ``None`` or empty
-
-        :return: ``True`` if the tutorial is in draft, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_drafting(self) -> bool:
+        """Return True if a draft version of the content exists, and False otherwise."""
         return (self.sha_draft is not None) and (self.sha_draft.strip() != "")
 
-    def in_public(self):
-        """A tutorial is not in on line if sha_public is ``None`` or empty
-
-        :return: ``True`` if the tutorial is on line, ``False`` otherwise
-        :rtype: bool
-        """
+    def in_public(self) -> bool:
+        """Return True if a public version of the content exists, and False otherwise."""
         return (self.sha_public is not None) and (self.sha_public.strip() != "")
 
-    def is_beta(self, sha):
-        """Is this version of the content the beta version ?
-
-        :param sha: version
-        :return: ``True`` if the tutorial is in beta, ``False`` otherwise
-        :rtype: bool
-        """
+    def is_beta(self, sha: str) -> bool:
+        """Return True if the given sha corresponds to the beta version, and False otherwise."""
         return self.in_beta() and sha == self.sha_beta
 
-    def is_validation(self, sha):
-        """Is this version of the content the validation version ?
-
-        :param sha: version
-        :return: ``True`` if the tutorial is in validation, ``False`` otherwise
-        :rtype: bool
-        """
+    def is_validation(self, sha: str) -> bool:
+        """Return True if the given sha corresponds to the version in validation, and False otherwise."""
         return self.in_validation() and sha == self.sha_validation
 
-    def is_public(self, sha):
-        """Is this version of the content the published version ?
-
-        :param sha: version
-        :return: ``True`` if the tutorial is in public, ``False`` otherwise
-        :rtype: bool
-        """
+    def is_public(self, sha: str) -> bool:
+        """Return True if the given sha corresponds to the public version, and False otherwise."""
         return self.in_public() and sha == self.sha_public
 
     def is_permanently_unpublished(self):
