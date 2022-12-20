@@ -1483,9 +1483,9 @@ class ContentContribution(models.Model):
 
 
 class ContentSuggestion(models.Model):
-    """
-    Content suggestion
-    """
+    class Meta:
+        verbose_name = "Suggestion de contenu"
+        verbose_name_plural = "Suggestions de contenu"
 
     publication = models.ForeignKey(
         PublishableContent,
@@ -1505,7 +1505,7 @@ class ContentSuggestion(models.Model):
     )
 
     def __str__(self):
-        return f"<Suggest '{self.suggestion.title}' for content {self.publication.title}, #{self.pk}>"
+        return f"<Suggest '{self.suggestion.title}' for content '{self.publication.title}', #{self.pk}>"
 
 
 @receiver(models.signals.pre_delete, sender=User)
