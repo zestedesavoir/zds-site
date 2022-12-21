@@ -68,6 +68,8 @@
             {% endfor %}
         </p>
 
+        {% include "tutorialv2/includes/goals.part.html" with goals=publishablecontent.goals.all %}
+
         {% if online and not is_part_or_chapter %}
             <p>{% blocktrans with reading_time=reading_time|humanize_duration %}Temps de lecture estimé à {{ reading_time }}.{% endblocktrans %}</p>
         {% endif %}
