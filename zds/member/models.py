@@ -307,12 +307,6 @@ class Profile(models.Model):
         """
         return self.get_beta_contents(_type="ARTICLE")
 
-    def get_opinion_count(self):
-        """
-        :return: the count of opinions with this user as author. Count all opinions, no only published one.
-        """
-        return self.get_content_count(_type="OPINION")
-
     def get_opinions(self):
         """
         :return: All opinions with this user as author.
