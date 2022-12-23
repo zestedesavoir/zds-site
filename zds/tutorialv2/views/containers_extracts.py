@@ -88,7 +88,7 @@ class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
         context["containers_target"] = get_target_tagged_tree(container, self.versioned_object)
 
         if self.versioned_object.is_beta:
-            context["formWarnTypo"] = WarnTypoForm(
+            context["form_warn_typo"] = WarnTypoForm(
                 self.versioned_object, container, public=False, initial={"target": container.get_path(relative=True)}
             )
 

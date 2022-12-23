@@ -64,7 +64,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                 self.versioned_object, initial={"version": self.versioned_object.sha_public}
             )
 
-        context["formWarnTypo"] = WarnTypoForm(self.versioned_object, self.versioned_object)
+        context["form_warn_typo"] = WarnTypoForm(self.versioned_object, self.versioned_object)
 
         reactions = list(
             ContentReaction.objects.select_related("author")
@@ -222,7 +222,7 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
         context["container"] = container
         context["pm_link"] = self.object.get_absolute_contact_url(_("À propos de"))
 
-        context["formWarnTypo"] = WarnTypoForm(
+        context["form_warn_typo"] = WarnTypoForm(
             self.versioned_object, container, initial={"target": container.get_path(relative=True)}
         )
 

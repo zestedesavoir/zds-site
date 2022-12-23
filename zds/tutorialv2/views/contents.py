@@ -176,7 +176,7 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
             )
 
         if self.versioned_object.is_beta:
-            context["formWarnTypo"] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
+            context["form_warn_typo"] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
 
         context["validation"] = validation
         context["formJs"] = form_js
