@@ -129,17 +129,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertEqual(len(betatetutos), 1)
         self.assertEqual(betatetuto, betatetutos[0])
 
-    def test_get_article_count(self):
-        # Start with 0
-        self.assertEqual(self.user1.get_article_count(), 0)
-        # Create article !
-        minituto = PublishableContentFactory(type="ARTICLE")
-        minituto.authors.add(self.user1.user)
-        minituto.gallery = GalleryFactory()
-        minituto.save()
-        # Should be 1
-        self.assertEqual(self.user1.get_article_count(), 1)
-
     def test_get_articles(self):
         # Start with 0
         self.assertEqual(len(self.user1.get_articles()), 0)

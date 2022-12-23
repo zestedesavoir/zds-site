@@ -263,12 +263,6 @@ class Profile(models.Model):
         """
         return self.get_beta_contents(_type="TUTORIAL")
 
-    def get_article_count(self):
-        """
-        :return: the count of articles with this user as author. Count all articles, no only published one.
-        """
-        return self.get_content_count(_type="ARTICLE")
-
     def get_articles(self):
         """
         :return: All articles with this user as author.
