@@ -231,12 +231,6 @@ class Profile(models.Model):
         """
         return self.get_user_beta_contents_queryset(_type).all()
 
-    def get_tuto_count(self):
-        """
-        :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
-        """
-        return self.get_content_count(_type="TUTORIAL")
-
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
