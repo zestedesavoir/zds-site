@@ -1626,6 +1626,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_obsolete(self):
         # check that this function is only available for staff
+        message = _("Cette publication est obsolète.")
         self.client.force_login(self.user_author)
         result = self.client.post(reverse("validation:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
         self.assertEqual(result.status_code, 403)
@@ -1634,24 +1635,24 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # check that when the content is not marked as obsolete, the alert is not shown
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, _("Ce contenu est obsolète."))
+        self.assertNotContains(result, message)
         # now, let's mark the tutoriel as obsolete
         result = self.client.post(reverse("validation:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
         self.assertEqual(result.status_code, 302)
         # check that the alert is shown
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _("Ce contenu est obsolète."))
+        self.assertContains(result, message)
         # and on a chapter
         result = self.client.get(self.chapter1.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _("Ce contenu est obsolète."))
+        self.assertContains(result, message)
         # finally, check that this alert can be hidden
         result = self.client.post(reverse("validation:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
         self.assertEqual(result.status_code, 302)
         result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, _("Ce contenu est obsolète."))
+        self.assertNotContains(result, message)
 
     def test_list_publications(self):
         """Test the behavior of the publication list"""
