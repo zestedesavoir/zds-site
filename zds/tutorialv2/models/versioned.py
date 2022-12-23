@@ -1,6 +1,7 @@
 import contextlib
 import copy
 from pathlib import Path
+from typing import List
 
 from zds import json_handler
 from git import Repo
@@ -15,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template.loader import render_to_string
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
-from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_REQUIRING_VALIDATION
+from zds.tutorialv2.models import CONTENT_TYPES_REQUIRING_VALIDATION
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.tutorialv2.utils import get_blob
 from zds.utils.validators import InvalidSlugError, check_slug
@@ -265,8 +266,7 @@ class Container:
         """
         if not self.has_extracts():
             if self.get_tree_depth() < settings.ZDS_APP["content"]["max_tree_depth"] - 1:
-                if not self.top_container().type in SINGLE_CONTAINER_CONTENT_TYPES:
-                    return True
+                return True
         return False
 
     def can_add_extract(self):
@@ -1331,21 +1331,16 @@ class VersionedContent(Container, TemplatableContentModelMixin):
 
         return path
 
-    def get_list_of_chapters(self):
-        """
-        :return: a list of chapters (Container which contains Extracts) in the reading order
-        :rtype: list[Container]
-        """
+    def get_list_of_chapters(self) -> list[Container]:
         continuous_list = []
-        if self.type not in SINGLE_CONTAINER_CONTENT_TYPES:  # cannot be paginated
-            if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers!
-                for child in self.children:
-                    if len(child.children) != 0:
-                        if isinstance(child.children[0], Extract):
-                            continuous_list.append(child)  # it contains Extract, this is a chapter, so paginated
-                        else:  # Container is a part
-                            for sub_child in child.children:
-                                continuous_list.append(sub_child)  # even if empty `sub_child.childreen`, it's chapter
+        if len(self.children) != 0 and isinstance(self.children[0], Container):  # children must be Containers!
+            for child in self.children:
+                if len(child.children) != 0:
+                    if isinstance(child.children[0], Extract):
+                        continuous_list.append(child)  # it contains Extract, this is a chapter, so paginated
+                    else:  # Container is a part
+                        for sub_child in child.children:
+                            continuous_list.append(sub_child)  # even if empty `sub_child.childreen`, it's chapter
         return continuous_list
 
     def get_json(self):
