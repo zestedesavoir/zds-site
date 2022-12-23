@@ -349,12 +349,12 @@
     {% endif %}
     {# END AUTHORS #}
     {# CONTRIBUTORS #}
-    {% if can_add_something and formAddReviewer %}
+    {% if can_add_something %}
         <li>
             <a href="#add-contributor" class="open-modal ico-after more blue">
                 {% trans "Ajouter un contributeur" %}
             </a>
-            {% crispy formAddReviewer %}
+            {% crispy form_add_contributor %}
         </li>
         <li>
             <a href="#manage-contributions" class="open-modal ico-after gear blue">

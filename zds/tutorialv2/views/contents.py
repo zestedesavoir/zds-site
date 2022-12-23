@@ -203,11 +203,11 @@ class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
 
         context["gallery"] = self.object.gallery
         context["public_content_object"] = self.public_content_object
+        context["form_add_contributor"] = ContributionForm(content=self.object)
+        context["contributions"] = ContentContribution.objects.filter(content=self.object).order_by(
+            "contribution_role__position"
+        )
         if self.object.type.lower() != "opinion":
-            context["formAddReviewer"] = ContributionForm(content=self.object)
-            context["contributions"] = ContentContribution.objects.filter(content=self.object).order_by(
-                "contribution_role__position"
-            )
             context["content_suggestions"] = ContentSuggestion.objects.filter(publication=self.object)
             excluded_for_search = [str(x.suggestion.pk) for x in context["content_suggestions"]]
             excluded_for_search.append(str(self.object.pk))

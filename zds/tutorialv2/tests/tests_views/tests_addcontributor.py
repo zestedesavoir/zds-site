@@ -61,26 +61,14 @@ class AddContributorPermissionTests(TutorialTestMixin, TestCase):
         response = self.client.post(self.form_url, self.form_data)
         self.assertRedirects(response, self.content_url)
 
-    def test_authenticated_staff_tutorial(self):
+    def test_authenticated_staff(self):
         self.client.force_login(self.staff)
-        self.content.type = "TUTORIAL"
-        self.content.save()
-        response = self.client.post(self.form_url, self.form_data)
-        self.assertRedirects(response, self.content_url)
-
-    def test_authenticated_staff_article(self):
-        self.client.force_login(self.staff)
-        self.content.type = "ARTICLE"
-        self.content.save()
-        response = self.client.post(self.form_url, self.form_data)
-        self.assertRedirects(response, self.content_url)
-
-    def test_authenticated_staff_opinion(self):
-        self.client.force_login(self.staff)
-        self.content.type = "OPINION"
-        self.content.save()
-        response = self.client.post(self.form_url, self.form_data)
-        self.assertEqual(response.status_code, 403)
+        types = ["TUTORIAL", "ARTICLE", "OPINION"]
+        for type in types:
+            self.content.type = type
+            self.content.save()
+            response = self.client.post(self.form_url, self.form_data)
+            self.assertRedirects(response, self.content_url)
 
 
 class AddContributorWorkflowTests(TutorialTestMixin, TestCase):

@@ -40,19 +40,11 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
         return redirect(url, self.request.user)
 
     def form_valid(self, form):
-
-        _type = _("à l'article")
-
-        if self.object.is_tutorial:
-            _type = _("au tutoriel")
-        elif self.object.is_opinion:
-            raise PermissionDenied
-
         bot = get_bot_account()
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         user = form.cleaned_data["user"]
         if user.pk in all_authors_pk:
-            messages.error(self.request, _("Un auteur ne peut pas être désigné comme contributeur"))
+            messages.error(self.request, _("Un auteur ne peut pas être désigné comme contributeur."))
             return redirect(self.object.get_absolute_url())
         else:
             contribution_role = form.cleaned_data.get("contribution_role")
@@ -64,7 +56,7 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
                     self.request,
                     _(
                         "Ce membre fait déjà partie des "
-                        'contributeurs {} avec pour rôle "{}"'.format(_type, contribution_role.title)
+                        'contributeurs à la publication avec pour rôle "{}"'.format(contribution_role.title)
                     ),
                 )
                 return redirect(self.object.get_absolute_url())
@@ -77,13 +69,12 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [user],
-                format_lazy("{} {}", _("Contribution"), _type),
+                _("Contribution à la publication"),
                 self.versioned_object.title,
                 render_to_string(
                     "tutorialv2/messages/add_contribution_pm.md",
                     {
                         "content": self.object,
-                        "type": _type,
                         "url": self.object.get_absolute_url(),
                         "index": url_index,
                         "user": user.username,
@@ -114,12 +105,6 @@ class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFor
     authorized_for_staff = True
 
     def form_valid(self, form):
-        _type = _("cet article")
-        if self.object.is_tutorial:
-            _type = _("ce tutoriel")
-        elif self.object.is_opinion:
-            raise PermissionDenied
-
         contribution = get_object_or_404(ContentContribution, pk=form.cleaned_data["pk_contribution"])
         user = contribution.user
         contribution.delete()
@@ -127,7 +112,8 @@ class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFor
             sender=self.__class__, content=self.object, performer=self.request.user, contributor=user, action="remove"
         )
         messages.success(
-            self.request, _("Vous avez enlevé {} de la liste des contributeurs de {}.").format(user.username, _type)
+            self.request,
+            _("Vous avez enlevé {} de la liste des contributeurs de cette publication.").format(user.username),
         )
         self.success_url = self.object.get_absolute_url()
 
