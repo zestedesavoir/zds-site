@@ -8,7 +8,6 @@ CONTENT_TYPES = (
     # verbose_name_plural   User-friendly pluralized type name
     # category_name         User-friendly category name which contains this content
     # requires_validation   Boolean; whether this content has to be validated before publication
-    # single_container      Boolean; True if the content is a single container
     # beta                  Boolean; True if the content can be in beta
     {
         "name": "TUTORIAL",
@@ -16,7 +15,6 @@ CONTENT_TYPES = (
         "verbose_name_plural": "tutoriels",
         "category_name": "tutoriel",
         "requires_validation": True,
-        "single_container": False,
         "beta": True,
     },
     {
@@ -25,7 +23,6 @@ CONTENT_TYPES = (
         "verbose_name_plural": "articles",
         "category_name": "article",
         "requires_validation": True,
-        "single_container": True,
         "beta": True,
     },
     {
@@ -34,7 +31,6 @@ CONTENT_TYPES = (
         "verbose_name_plural": "billets",
         "category_name": "tribune",
         "requires_validation": False,
-        "single_container": True,
         "beta": False,
     },
 )
@@ -48,9 +44,6 @@ PICK_OPERATIONS = (
 
 # a list of contents which have to be validated before publication
 CONTENT_TYPES_REQUIRING_VALIDATION = [content["name"] for content in CONTENT_TYPES if content["requires_validation"]]
-
-# a list of contents which have one big container containing at least one small container
-SINGLE_CONTAINER_CONTENT_TYPES = [content["name"] for content in CONTENT_TYPES if content["single_container"]]
 
 # a list of contents which can be in beta
 CONTENT_TYPES_BETA = [content["name"] for content in CONTENT_TYPES if content["beta"]]
