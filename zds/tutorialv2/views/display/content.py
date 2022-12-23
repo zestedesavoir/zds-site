@@ -27,8 +27,8 @@ from zds.tutorialv2.forms import (
     UnpickOpinionForm,
     PromoteOpinionToArticleForm,
     SearchSuggestionForm,
-    ContributionForm,
 )
+from zds.tutorialv2.views.contributors import ContributionForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import (
     ContentSuggestion,
