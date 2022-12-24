@@ -192,15 +192,6 @@ class Profile(models.Model):
         """
         return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False)
 
-    def get_content_count(self, _type=None):
-        """
-        :param _type: if provided, request a specific type of content
-        :return: the count of contents with this user as author. Count all contents no only published one.
-        """
-        if self.is_private():
-            return 0
-        return self.get_user_contents_queryset(_type).count()
-
     def get_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
