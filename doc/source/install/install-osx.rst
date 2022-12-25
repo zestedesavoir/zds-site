@@ -4,10 +4,10 @@ Installation sous macOS
 
 .. Attention::
 
-  Il y a moins  de contributeurs·trices sur macOS que sur d'autres plateformes.
-  Il se peut que l'installation et les tests unitaires fonctionnent correctement,
-  partiellement ou pas du tout. Bref, en cas de problème n'hésitez pas à venir
-  demander de l'aide sur le `forum des Devs' de Zeste de Savoir
+  Il y a moins  de contributeurs·trices sur macOS que sur d’autres plateformes.
+  Il se peut que l’installation et les tests unitaires fonctionnent correctement,
+  partiellement ou pas du tout. Bref, en cas de problème n’hésitez pas à venir
+  demander de l’aide sur le `forum des Devs’ de Zeste de Savoir
   <https://zestedesavoir.com/forums/communaute/dev-zone/>`_ !
 
   Les instructions ci-dessous ont été testées avec succès sur un MacBook Pro
@@ -17,7 +17,7 @@ Pour installer une version locale de ZdS sur macOS, veuillez suivre les
 instructions suivantes. Si une commande ne passe pas, essayez de savoir pourquoi
 avant de continuer.
 
-macOS étant un système UNIX proche de Linux, l'installation fonctionne quasiment
+macOS étant un système UNIX proche de Linux, l’installation fonctionne quasiment
 comme pour cet OS, à quelques détails près. La principale différence est que
 macOS étant basé sur BSD, il faut remplacer les outils BSD par ceux de GNU (les
 ``gnu-coreutils``, utilisés sous Linux), et avec lesquels ``zds-site`` est conçu.
@@ -26,7 +26,7 @@ macOS étant basé sur BSD, il faut remplacer les outils BSD par ceux de GNU (le
 
   Les instructions ci-dessous sont écrites pour macOS, mais il se peut que leur
   philosophie (utiliser les ``gnu-coreutils`` au lieu de ceux de BSD) permette
-  d'installer ``zds-site`` sur un système \*BSD.
+  d’installer ``zds-site`` sur un système \*BSD.
 
 
 Pré-requis
@@ -43,7 +43,7 @@ Pré-requis
     par exemple) ;
 
   alors vous pouvez `passer à la section suivante <#dependances-systeme>`_
-  concernant l'installation de ``zds-site``.
+  concernant l’installation de ``zds-site``.
 
 XCode
 -----
@@ -65,18 +65,18 @@ votre terminal, exécutez cette commande pour les installer.
 Homebrew
 --------
 
-Vous aurez ensuite besoin d'**Homebrew**, un système permettant de télécharger et
-d'installer des logiciels sous macOS depuis la ligne de commande, et de les
+Vous aurez ensuite besoin d’**Homebrew**, un système permettant de télécharger et
+d’installer des logiciels sous macOS depuis la ligne de commande, et de les
 mettre à jour. Nous nous en servirons pour installer Python (si nécessaire) et
 les dépendances de ``zds-site``.
 
-`Les instructions d'installation d'Homebrew sont sur leur site web <http://brew.sh/>`_.
+`Les instructions d’installation d’Homebrew sont sur leur site web <http://brew.sh/>`_.
 
 Python 3
 --------
 
-``zds-site`` dépend d'une version récente de Python 3. Sous macOS Ventura et plus
-récent (macOS 13+), Python 3 est installé avec XCode, qu'on a installé plus haut.
+``zds-site`` dépend d’une version récente de Python 3. Sous macOS Ventura et plus
+récent (macOS 13+), Python 3 est installé avec XCode, qu’on a installé plus haut.
 Pour vérifier, exécutez la commande suivante :
 
 .. sourcecode:: bash
@@ -97,7 +97,7 @@ Il vous faut installer Python avec Homebrew. Exécutez dans un terminal :
 
   brew install python
 
-Puis revérifiez la version de Python avec ``python --version``. Si elle n'a pas
+Puis revérifiez la version de Python avec ``python --version``. Si elle n’a pas
 changé, tentez de redémarrer votre terminal.
 
 Si vous gardez la version native de Python
@@ -106,9 +106,9 @@ Si vous gardez la version native de Python
 Si vous avez décidé de garder la version native de Python, si elle est assez récente,
 vous allez quand même devoir installer ``pip``, un logiciel compagnon de Python
 servant à installer des bibliothèques externes en Python — des extensions
-permettant d'augmenter ses possibilités facilement.
+permettant d’augmenter ses possibilités facilement.
 
-Pour vérifier que vous disposez de ``pip``, exécutez l'une de ces commandes :
+Pour vérifier que vous disposez de ``pip``, exécutez l’une de ces commandes :
 
 .. sourcecode:: bash
 
@@ -124,7 +124,7 @@ Vous devriez obtenir un numéro de version de pip et de Python, comme cela :
   pip 22.3.1 from /opt/homebrew/lib/python3.10/site-packages/pip (python 3.10)
 
 Si ces commandes retournent toutes une erreur, et non un numéro de version,
-vous devez installer ``pip``. `Les instructions d'installation sont sur le site
+vous devez installer ``pip``. `Les instructions d’installation sont sur le site
 web de pip. <https://pip.pypa.io/en/stable/installation/>`_
 
 Utilitaires GNU/Linux au lieu de BSD
@@ -136,18 +136,18 @@ qui en est un lointain descendant).
 
 Le plus simple est le projet ``linuxify``, qui installe toutes les versions GNU
 de divers logiciels avec Homebrew. Par défaut, ces versions viennent préfixées,
-pour ne pas entrer en conflit avec les versions du système. En pratique, ce n'est
-pas un problème d'utiliser dans votre environnement local les versions de GNU,
+pour ne pas entrer en conflit avec les versions du système. En pratique, ce n’est
+pas un problème d’utiliser dans votre environnement local les versions de GNU,
 donc vous pouvez utiliser en permanence ces versions à la place de celles de BSD.
 
-Dans le doute, remplacez en permanence par les versions de GNU : c'est sans impact
+Dans le doute, remplacez en permanence par les versions de GNU : c’est sans impact
 négatif et ça permet à ``zds-site`` de fonctionner sans manipulation particulière.
 
 `Commencez par installer linuxify <https://github.com/darksonic37/linuxify#install>`_,
 tel que précisé sur leur site. Si vous avez une erreur disant ``command not found: git``,
 exécutez dans votre terminal la commande ``brew install git``.
 
-Lorsqu'il vous demande *Do you want to change your shell to the latest bash*,
+Lorsqu’il vous demande *Do you want to change your shell to the latest bash*,
 répondez non (``n``).
 
 Ensuite, si vous choisissez de remplacer en permanence les utilitaires BSD par
@@ -159,7 +159,7 @@ utilitaires GNU quand vous utilisez votre terminal, puis redémarrez votre termi
   echo ". ~/.linuxify" >> ~/.zshrc
 
 Si vous choisissez de ne **pas** le faire, alors il vous faudra exécuter cette
-commande dans *chaque* terminal où vous exécuterez des commandes d'installation
+commande dans *chaque* terminal où vous exécuterez des commandes d’installation
 ou de mise à jour de ``zds-site`` (une fois par terminal, pas besoin de la
 ré-exécuter à chaque fois) :
 
@@ -171,7 +171,7 @@ ré-exécuter à chaque fois) :
 Dépendances système
 ===================
 
-Le script d'installation n'installant pas encore les paquets automatiquement sur
+Le script d’installation n’installant pas encore les paquets automatiquement sur
 macOS, vous devez le faire à la main, via Homebrew. Exécutez la commande
 suivante pour tout installer.
 
@@ -181,42 +181,42 @@ suivante pour tout installer.
 
 
 Une fois les pré-requis terminés, vous pouvez vous lancer dans l‘installation
-de l'environnement de ``zds-site``.
+de l’environnement de ``zds-site``.
 
 
 Installation de ``zds-site``
 ============================
 
 Commencez par cloner le dépôt de ``zds-site``, ou idéalement, votre fork sur
-lequel vous travaillerez avant d'envoyer des *Pull-Requests*.
+lequel vous travaillerez avant d’envoyer des *Pull-Requests*.
 
 .. sourcecode:: bash
 
   git clone git@github.com:VOTRE-PSEUDO-GITHUB/zds-site.git
   cd zds-site
 
-``zds-site`` peut s'installer de deux façons :
+``zds-site`` peut s’installer de deux façons :
 
 - une version minimale, qui ne contient que le site lui-même, mais pas le moteur
-  de recherche ni le système d'export des PDF ;
+  de recherche ni le système d’export des PDF ;
 - une version complète, qui contient tout, et qui est aussi plus lourde à
   installer.
 
 .. Attention::
 
   La version complète **ne peut être automatiquement installée pour le moment**
-  car l'installeur télécharge une version de Java (pour ElasticSearch) spécifique
+  car l’installeur télécharge une version de Java (pour ElasticSearch) spécifique
   à Linux. Cependant, vous pouvez remplacer la version de Java installée dans
   ``zds-site/zdsenv/lib/jdk`` par une version fonctionnant sous macOS et ElasticSearch
   fonctionnera.
 
-  Le système de génération et d'export des PDF devrait fonctionner normalement.
+  Le système de génération et d’export des PDF devrait fonctionner normalement.
 
   La version minimale a été testée avec succès.
 
 .. seealso::
 
-  - `Installation d'Elasticsearch <extra-install-es.html>`_ ;
+  - `Installation d’Elasticsearch <extra-install-es.html>`_ ;
   - `installation de LaTeX <extra-install-latex.html>`_.
 
 Pour installer la version minimale, exécutez depuis la racine du dépôt que vous
@@ -234,22 +234,22 @@ Si vous voulez la version complète :
 
 .. note::
 
-  L'option ``-packages`` désactive l'installation automatique des dépendances
-  système, qui n'est pour le moment supportée que sous Linux.
+  L’option ``-packages`` désactive l’installation automatique des dépendances
+  système, qui n’est pour le moment supportée que sous Linux.
 
 .. note::
 
-  Vous pouvez relire le script avant de l'exécuter pour savoir ce qu'il fait.
-  Mais dans l'idée, ce script va :
+  Vous pouvez relire le script avant de l’exécuter pour savoir ce qu’il fait.
+  Mais dans l’idée, ce script va :
 
   - installer ``virtualenv`` (via ``pip``), un logiciel Python permettant de
     créer des environnements virtuels cloisonnés en Python ;
   - créer un environnement virtuel dans le sous-dossier ``zdsenv`` ;
   - installer dans votre dossier utilisateur le logiciel ``nvm`` (*Node Versions
-    Manager*), un outil permettant d'installer différentes versions de NodeJS ;
+    Manager*), un outil permettant d’installer différentes versions de NodeJS ;
   - installer la bonne version de NodeJS localement (uniquement pour ``zds-site``)
-    et intégrer le chargement de la cette bonne version à l'environnement virtuel ;
-  - installer les dépendances de ``zds-site`` dans l'environnement virtuel ;
+    et intégrer le chargement de la cette bonne version à l’environnement virtuel ;
+  - installer les dépendances de ``zds-site`` dans l’environnement virtuel ;
   - installer ``zmarkdown``, le moteur de rendu Markdown utilisé par ``zds-site`` ;
   - installer les dépendances du *front-end* avec ``npm`` puis compiler le
     *font-end* ;
@@ -262,11 +262,11 @@ Si vous voulez la version complète :
   Si vous installez la version complète, le script va, en plus :
 
   - installer une version de Java pour Linux dans le dossier ``zds-site/zdsenv/lib/jdk``
-    et modifier l'environnement virtuel pour que cette version de Java soit utilisée ;
+    et modifier l’environnement virtuel pour que cette version de Java soit utilisée ;
   - installer ElasticSearch dans le dossier ``zds-site/.local/elasticsearch`` ;
   - installer TeXLive (permettant de compiler du LaTeX en PDF, utilisé pour les
     exports PDF) dans le dossier ``zds-site/.local/texlive`` ;
-  - cloner le dépôt contenant le modèle LaTeX utilisé par l'export PDF dans le
+  - cloner le dépôt contenant le modèle LaTeX utilisé par l’export PDF dans le
     dossier ``zds-site/latex-template``.
 
 
@@ -276,9 +276,9 @@ Lancement de ``zds-site``
 Une fois dans votre environnement Python et toutes les dépendances installées,
 lançons ZdS.
 
-Il faut d'abord lancer ``zmarkdown``, le moteur de rendu Markdown utilisé par
+Il faut d’abord lancer ``zmarkdown``, le moteur de rendu Markdown utilisé par
 Zeste de Savoir. Ce moteur fonctionne sur un modèle client-serveur : ``zds-site``
-envoie une requête HTTP (en local) pour obtenir le rendu d'un document Markdown
+envoie une requête HTTP (en local) pour obtenir le rendu d’un document Markdown
 en HTML, ePub, ou LaTeX. Il faut donc démarrer le serveur ``zmarkdown`` en
 arrière-plan.
 
@@ -292,7 +292,7 @@ Ensuite, on démarre ``zds-site``.
 
 Le démarrage de ``zds-site`` entraîne celui du *backend* Python dans un mode
 optimisé pour le développement. Notamment, le cache est totalement désactivé
-et des outils de débogage rendent disponible plein d'informations sur chaque
+et des outils de débogage rendent disponible plein d’informations sur chaque
 page, les données techniques envoyées (paramètres de templates, …) et les
 requêtes SQL envoyées. Ces outils sont pratiques mais ils peuvent être lourds.
 Si vous avez une machine peu puissante et que vous voulez une version plus légère,
@@ -323,7 +323,7 @@ Pour lister toutes les options disponibles, exécutez simplement, sans argument 
 Données de test
 ===============
 
-L'installeur a créé pour nous le `jeu de données utile au développement
+L’installeur a créé pour nous le `jeu de données utile au développement
 <../utils/fixture_loaders.html>`_. Si pour une raison ou pour une autre, vous
 voulez repartir de zéro en écrasant toutes les données de votre installation
 locale, vous pouvez le faire.
@@ -334,7 +334,7 @@ locale, vous pouvez le faire.
   contenus que vous avez pu créer, sur votre instance locale**, puis recrée des
   données de test aléatoires à partir de zéro.
 
-  **Il n'est pas possible d'annuler cette opération.**
+  **Il n’est pas possible d’annuler cette opération.**
 
 .. sourcecode:: bash
 
