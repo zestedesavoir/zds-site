@@ -128,7 +128,7 @@ vous devez installer ``pip``. `Les instructions d’installation sont sur le sit
 web de pip. <https://pip.pypa.io/en/stable/installation/>`_
 
 Utilitaires GNU/Linux au lieu de BSD
------------------------------------
+------------------------------------
 
 ``zds-site`` est conçu pour fonctionner avec les utilitaires de Linux (les
 ``gnu-coreutils``), différents des utilitaires natifs de \*BSD (et donc de macOS,
