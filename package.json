@@ -25,12 +25,12 @@
   },
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
-    "autoprefixer": "10.4.8",
+    "autoprefixer": "10.4.13",
     "chart.js": "3.9.1",
-    "chartjs-adapter-moment": "1.0.0",
-    "cssnano": "5.1.13",
+    "chartjs-adapter-moment": "1.0.1",
+    "cssnano": "5.1.14",
     "del": "6.1.1",
-    "easymde": "2.17.0",
+    "easymde": "2.18.0",
     "gulp": "4.0.2",
     "gulp-concat": "2.6.1",
     "gulp-dart-sass": "1.0.2",
@@ -40,18 +40,18 @@
     "gulp-postcss": "9.0.1",
     "gulp-terser-js": "5.2.2",
     "gulp.spritesmith": "6.13.0",
-    "jquery": "3.6.1",
+    "jquery": "3.6.3",
     "moment": "2.29.4",
     "normalize.css": "8.0.1",
-    "postcss": "8.4.16"
+    "postcss": "8.4.21"
   },
   "devDependencies": {
-    "eslint": "8.23.0",
+    "eslint": "8.31.0",
     "eslint-config-standard": "17.0.0",
     "eslint-plugin-import": "2.26.0",
-    "eslint-plugin-jsdoc": "39.3.6",
-    "eslint-plugin-n": "15.2.5",
-    "eslint-plugin-promise": "6.0.1"
+    "eslint-plugin-jsdoc": "39.6.4",
+    "eslint-plugin-n": "15.6.1",
+    "eslint-plugin-promise": "6.1.1"
   },
   "browserslist": [
     "last 2 versions",
