@@ -133,9 +133,9 @@ Passez ensuite à la version 8 de java à l’aide de la commande <code class="d
 <section id="installer-elasticsearch">
 <h4>Installer Elasticsearch<a class="headerlink" href="#installer-elasticsearch" title="Lien permanent vers cette rubrique"></a></h4>
 <p>La procédure d’installation, si vous souhaitez utiliser Elasticsearch sans l’installer via le gestionnaire de paquets de votre distribution, est d’entrer les commandes suivantes dans votre <em>shell</em> préféré. Remplacez <code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> par la version spécifiée dans <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> !</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-X.Y.Z.zip
-unzip elasticsearch-X.Y.Z.zip
-<span class="nb">cd</span> elasticsearch-X.Y.Z/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-X.Y.Z.zip
+unzip<span class="w"> </span>elasticsearch-X.Y.Z.zip
+<span class="nb">cd</span><span class="w"> </span>elasticsearch-X.Y.Z/
 </pre></div>
 </div>
 <p>Pour démarrer Elasticsearch, utilisez</p>
@@ -153,13 +153,13 @@ Rendez-vous <a class="reference external" href="https://www.elastic.co/guide/en/
 <section id="sous-macos">
 <h3>Sous macOS<a class="headerlink" href="#sous-macos" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Utilisez les commandes suivantes pour installer Java 8 et Elasticsearch:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew update
-brew cask install java
-brew install elasticsearch
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>update
+brew<span class="w"> </span>cask<span class="w"> </span>install<span class="w"> </span>java
+brew<span class="w"> </span>install<span class="w"> </span>elasticsearch
 </pre></div>
 </div>
 <p>Pour démarrer Elasticsearch, utilisez la commande suivante:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>elasticsearch --config<span class="o">=</span>/usr/local/opt/elasticsearch/config/elasticsearch.yml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>elasticsearch<span class="w"> </span>--config<span class="o">=</span>/usr/local/opt/elasticsearch/config/elasticsearch.yml
 </pre></div>
 </div>
 <div class="admonition note">
@@ -212,7 +212,7 @@ Vous devriez observer une réponse du même genre que celle-ci :</p>
 </div>
 <p>Si ce n’est pas le cas, vérifiez que vous avez démarré Elasticsearch.</p>
 <p>Si c’est le cas, vous pouvez indexer les données à l’aide de la commande <code class="docutils literal notranslate"><span class="pre">es_manager</span></code>, comme suit :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py es_manager index_all
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>es_manager<span class="w"> </span>index_all
 </pre></div>
 </div>
 <p>Une fois que c’est fait, en vous rendant sur la page de recherche, <a class="reference external" href="http://localhost:8000/rechercher/">http://localhost:8000/rechercher/</a>, vous devriez être capable d’utiliser la recherche.
@@ -224,7 +224,7 @@ En particulier, vous ne devriez pas observer de message d’erreur :</p>
 </figcaption>
 </figure>
 <p>Pour réindexer les nouvelles données, utilisez la commande suivante :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py es_manager index_flagged
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>es_manager<span class="w"> </span>index_flagged
 </pre></div>
 </div>
 <p>Plus d’informations sur la commande <code class="docutils literal notranslate"><span class="pre">es_manager</span></code> sont disponibles sur la page <a class="reference external" href="../back-end/searchv2.html#indexer-les-donnees-de-zds">concernant la recherche sur ZdS</a>.</p>
@@ -242,7 +242,7 @@ En particulier, vous ne devriez pas observer de message d’erreur :</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

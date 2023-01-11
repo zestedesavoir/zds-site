@@ -101,7 +101,7 @@ problème ou proposer des améliorations !</p>
 </div>
 <p>L’installation de l’environnement de développement dans Docker se base sur <a class="reference external" href="install-linux.html">l’installation sous Linux</a>.</p>
 <p>Lancez un shell interactif dans un conteneur basé sur Debian :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker run -it -p <span class="m">8000</span>:8000 debian:bullseye
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>-p<span class="w"> </span><span class="m">8000</span>:8000<span class="w"> </span>debian:bullseye
 </pre></div>
 </div>
 <p>Une fois dans le conteneur, saisissez les commandes suivantes :</p>
@@ -112,25 +112,25 @@ problème ou proposer des améliorations !</p>
 <span class="nv">DEBIAN_FRONTEND</span><span class="o">=</span>noninteractive
 
 <span class="c1"># Installez les paquets minimaux requis</span>
-apt update
-apt install sudo make vim git
+apt<span class="w"> </span>update
+apt<span class="w"> </span>install<span class="w"> </span>sudo<span class="w"> </span>make<span class="w"> </span>vim<span class="w"> </span>git
 
 <span class="c1"># Clonez le dépôt de ZdS</span>
-git clone https://github.com/&lt;votre login&gt;/zds-site.git
-<span class="nb">cd</span> zds-site/
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;votre<span class="w"> </span>login&gt;/zds-site.git
+<span class="nb">cd</span><span class="w"> </span>zds-site/
 
 <span class="c1"># Installez ZdS</span>
-make install-linux
+make<span class="w"> </span>install-linux
 
 <span class="c1"># Nécessaire pour avoir nvm dans le PATH</span>
-<span class="nb">source</span> ../.bashrc
+<span class="nb">source</span><span class="w"> </span>../.bashrc
 
 <span class="c1"># À partir de maintenant, les commandes ne sont plus spécifiques à l&#39;utilisation de Docker.</span>
 
 <span class="c1"># Lancement de ZdS</span>
-<span class="nb">source</span> zdsenv/bin/activate
-make zmd-start
-make run-back
+<span class="nb">source</span><span class="w"> </span>zdsenv/bin/activate
+make<span class="w"> </span>zmd-start
+make<span class="w"> </span>run-back
 </pre></div>
 </div>
 </section>
@@ -146,7 +146,7 @@ make run-back
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

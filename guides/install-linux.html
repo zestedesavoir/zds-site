@@ -113,10 +113,10 @@
 <p>La deuxième étape est de créer <a class="reference external" href="https://help.github.com/en/github/getting-started-with-github/fork-a-repo">un fork</a>, votre copie personnelle du projet. Pour ce faire, une fois connecté à votre compte Github, rendez-vous sur <a class="reference external" href="https://github.com/zestedesavoir/zds-site">la page du dépôt zds-site</a> et cliquez sur le bouton <em>Fork</em> en haut à droite. Cette opération peut prendre quelques minutes, c’est tout à fait normal.</p>
 <p>La troisème étape consiste à installer le gestionnaire de version Git, un outil qui nous permet de travailler à plusieurs sur le projet sans se marcher dessus ! Ce logiciel est très probablement disponible dans le gestionnaire de paquet de votre distribution. Si ce n’est pas le cas, je vous invite à lire <a class="reference external" href="https://git-scm.com/downloads">la page d’installation de Git</a>.</p>
 <p>Enfin, la quatrième étape est la création d’une copie locale du projet, sur votre ordinateur, en utilisant l’outil Git fraîchement installé :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/&lt;VOTRE_PSEUDO_GITHUB&gt;/zds-site.git
-<span class="nb">cd</span> zds-site
-git remote add upstream https://github.com/zestedesavoir/zds-site.git
-git fetch upstream
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;VOTRE_PSEUDO_GITHUB&gt;/zds-site.git
+<span class="nb">cd</span><span class="w"> </span>zds-site
+git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>upstream<span class="w"> </span>https://github.com/zestedesavoir/zds-site.git
+git<span class="w"> </span>fetch<span class="w"> </span>upstream
 </pre></div>
 </div>
 <p>Bien entendu, <code class="docutils literal notranslate"><span class="pre">&lt;VOTRE_PSEUDO_GITHUB&gt;</span></code> doit être remplacé par votre pseudo sur Github.</p>
@@ -125,9 +125,9 @@ git fetch upstream
 <section id="preparation-pour-simplement-tester-le-projet">
 <h3>Préparation pour simplement tester le projet<a class="headerlink" href="#preparation-pour-simplement-tester-le-projet" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si vous ne souhaitez pas contribuer au projet mais simplement le tester, vous n’avez pas besoin de Git ! Il vous suffit de télécharger l’archive contenant le code source et extraire les fichiers :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://github.com/zestedesavoir/zds-site/archive/dev.zip
-unzip dev.zip
-<span class="nb">cd</span> dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>https://github.com/zestedesavoir/zds-site/archive/dev.zip
+unzip<span class="w"> </span>dev.zip
+<span class="nb">cd</span><span class="w"> </span>dev
 </pre></div>
 </div>
 </section>
@@ -145,7 +145,7 @@ unzip dev.zip
 <section id="installation-de-base">
 <h3>Installation de base<a class="headerlink" href="#installation-de-base" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Si notre projet est assez complexe et a besoin de beaucoup d’outils différents pour fonctionner, ce n’est pas pour autant qu’il est difficile de l’installer ! Une seule commande suffit :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-linux
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install-linux
 </pre></div>
 </div>
 <p>Et oui, c’est tout !</p>
@@ -161,7 +161,7 @@ unzip dev.zip
 <li><p>ElasticSearch, nécessaire pour la page de recherche.</p></li>
 </ul>
 <p>Là encore, une seule commande suffit :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-linux-full
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install-linux-full
 </pre></div>
 </div>
 </section>
@@ -191,7 +191,7 @@ unzip dev.zip
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

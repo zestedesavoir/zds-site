@@ -118,9 +118,9 @@
 <section id="verifier-que-les-bonnes-versions-sont-installees">
 <h3>Vérifier que les bonnes versions sont installées<a class="headerlink" href="#verifier-que-les-bonnes-versions-sont-installees" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour vérifier que Node.js et yarn sont installés et que vous avez les bonnes versions (<code class="docutils literal notranslate"><span class="pre">X.Y.Z</span></code> désigne la version spécifiée dans <code class="docutils literal notranslate"><span class="pre">.nvmrc</span></code>) :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ node -v
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>node<span class="w"> </span>-v
 vX.Y.Z
-$ yarn -v
+$<span class="w"> </span>yarn<span class="w"> </span>-v
 X.Y.Z
 </pre></div>
 </div>
@@ -130,7 +130,7 @@ X.Y.Z
 <section id="mise-a-jour-de-node-js-et-yarn">
 <h3>Mise à jour de Node.js et Yarn<a class="headerlink" href="#mise-a-jour-de-node-js-et-yarn" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Pour Yarn, il suffit de le mettre à jour avec cette commande :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npm install -g yarn
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>npm<span class="w"> </span>install<span class="w"> </span>-g<span class="w"> </span>yarn
 </pre></div>
 </div>
 <p>Pour ce qui est de Node.js, utilisez soit votre gestionnaire de paquet, soit nvm.</p>
@@ -138,11 +138,11 @@ X.Y.Z
 <section id="installation-des-dependances-yarn">
 <h3>Installation des dépendances Yarn<a class="headerlink" href="#installation-des-dependances-yarn" title="Lien permanent vers cette rubrique"></a></h3>
 <p>L’installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via Yarn dans le répertoire du projet :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make install-front
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>install-front
 </pre></div>
 </div>
 <p>Ou alors :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ yarn
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>yarn
 </pre></div>
 </div>
 </section>
@@ -161,11 +161,11 @@ X.Y.Z
 <section id="generer-les-fichiers-avec-build">
 <h4>Générer les fichiers avec <code class="docutils literal notranslate"><span class="pre">build</span></code><a class="headerlink" href="#generer-les-fichiers-avec-build" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Saisissez la commande suivante (elle vous permet de générer les fichiers Web du site pour vous permettre de consulter Zeste de Savoir sur votre navigateur, en local) :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ make build-front
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>build-front
 </pre></div>
 </div>
 <p>Ou alors :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ yarn run build
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>yarn<span class="w"> </span>run<span class="w"> </span>build
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">build</span></code> permet de :</p>
@@ -204,7 +204,7 @@ pratique pour vous (et nous) que vous lanciez cette commande en amont avec <code
 <h4>Coder plus simplement avec <code class="docutils literal notranslate"><span class="pre">watch</span></code><a class="headerlink" href="#coder-plus-simplement-avec-watch" title="Lien permanent vers cette rubrique"></a></h4>
 <p><code class="docutils literal notranslate"><span class="pre">watch</span></code> surveille les fichiers SCSS et Javascript lance la tâche <code class="docutils literal notranslate"><span class="pre">build</span></code> dès qu’ils sont modifiés. C’est très utile pour le développement car ça permet de ne pas avoir à relancer <code class="docutils literal notranslate"><span class="pre">build</span></code> manuellement. Pour lancer cette commande, faites <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">watch-front</span></code> ou <code class="docutils literal notranslate"><span class="pre">yarn</span> <span class="pre">run</span> <span class="pre">watch</span></code>. Pour arrêter cette commande, il suffit de presser <code class="docutils literal notranslate"><span class="pre">Ctrl+C</span></code>.</p>
 <p>Si votre ordinateur n’est pas très puissant ou la commande <code class="docutils literal notranslate"><span class="pre">watch</span></code> est lente. Vous aurez besoin de l’option <code class="docutils literal notranslate"><span class="pre">--speed</span></code>. Cette option permet de désactiver les fonctions de parsing pour la prod. Ainsi <code class="docutils literal notranslate"><span class="pre">watch</span></code> a besoin de moins de CPU.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npm run watch -- --speed
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>npm<span class="w"> </span>run<span class="w"> </span>watch<span class="w"> </span>--<span class="w"> </span>--speed
 </pre></div>
 </div>
 <hr class="docutils" />
@@ -221,7 +221,7 @@ Venez voir <a class="reference external" href="../front-end.html">la documentati
 <section id="desinstaller-les-dependances">
 <h3>Désinstaller les dépendances<a class="headerlink" href="#desinstaller-les-dependances" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Il suffit de supprimer le dossier <code class="docutils literal notranslate"><span class="pre">node_modules</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm -r node_modules/.
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-r<span class="w"> </span>node_modules/.
 </pre></div>
 </div>
 </section>
@@ -239,7 +239,7 @@ Venez voir <a class="reference external" href="../front-end.html">la documentati
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

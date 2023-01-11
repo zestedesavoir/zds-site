@@ -105,15 +105,15 @@
 <li><p>mettre à jour la copie locale du dépôt officiel (nommée <code class="docutils literal notranslate"><span class="pre">upstream</span></code>) ;</p></li>
 <li><p>se positionner sur la branche <code class="docutils literal notranslate"><span class="pre">dev</span></code> de cette copie.</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>git fetch upstream
-<span class="linenos">2</span>git checkout upstream/dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>git<span class="w"> </span>fetch<span class="w"> </span>upstream
+<span class="linenos">2</span>git<span class="w"> </span>checkout<span class="w"> </span>upstream/dev
 </pre></div>
 </div>
 </section>
 <section id="activer-l-environnement">
 <h2>Activer l’environnement<a class="headerlink" href="#activer-l-environnement" title="Lien permanent vers cette rubrique"></a></h2>
 <p>La première chose à faire avant de pouvoir travailler sur le projet est de se déplacer dans le dossier du projet et d’activer l’environnement :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> zdsenv/bin/activate
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>zdsenv/bin/activate
 </pre></div>
 </div>
 <p>Cet environnement permet de ne pas polluer votre distribution avec les logiciels installés spécifiquement pour Zeste de Savoir et de ne pas interférer avec vos autres projets de développement.</p>
@@ -126,23 +126,23 @@
 <li><p>les paquets Node.JS nécessaires pour les éléments graphiques (<em>frontend</em>) ;</p></li>
 <li><p>zmarkdown, notre moteur Markdown personnalisé.</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>make install-back
-<span class="linenos">2</span>make install-front
-<span class="linenos">3</span>make zmd-install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="linenos">1</span>make<span class="w"> </span>install-back
+<span class="linenos">2</span>make<span class="w"> </span>install-front
+<span class="linenos">3</span>make<span class="w"> </span>zmd-install
 </pre></div>
 </div>
 </section>
 <section id="generer-les-elements-graphiques">
 <h2>Générer les éléments graphiques<a class="headerlink" href="#generer-les-elements-graphiques" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Les éléments graphiques ont probablement été modifiés, il va falloir les générer à nouveau :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make build-front
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>build-front
 </pre></div>
 </div>
 </section>
 <section id="appliquer-les-migrations-sur-la-base-de-donnees">
 <h2>Appliquer les migrations sur la base de données<a class="headerlink" href="#appliquer-les-migrations-sur-la-base-de-donnees" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Il est possible que la structure de la base de données ait été légèrement modifiée, il nous faut donc appliquer ces changements :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make migrate-db
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>migrate-db
 </pre></div>
 </div>
 </section>
@@ -167,7 +167,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

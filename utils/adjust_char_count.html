@@ -99,12 +99,12 @@
 <p>Pour des raisons de performance ce nombre de caractère est calculé au moment de la publication d’un contenu et stocké dans une table.</p>
 <p>Pour différente raison (changement de la formule de calcul, recalcul d’un ancien contenu, etc.) on peut avoir envie
 de recalculer le nombre de caractères d’un contenu. Cette commande sert exactement à répondre à ce besoin.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py adjust_char_count
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>adjust_char_count
 </pre></div>
 </div>
 <p>Le nombre de caractère de tous les contenus publiés sera alors recalculé.</p>
 <p>Vous pouvez préciser une liste de contenus, pour celà l’argument <code class="docutils literal notranslate"><span class="pre">--id</span></code> existe:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py adjust_char_count --id<span class="o">=</span><span class="m">125</span>,142,56
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>adjust_char_count<span class="w"> </span>--id<span class="o">=</span><span class="m">125</span>,142,56
 </pre></div>
 </div>
 <div class="admonition attention">
@@ -124,7 +124,7 @@ de recalculer le nombre de caractères d’un contenu. Cette commande sert exact
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

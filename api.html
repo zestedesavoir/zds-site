@@ -115,25 +115,25 @@
 <section id="schema">
 <h3>Schéma<a class="headerlink" href="#schema" title="Lien permanent vers cette rubrique"></a></h3>
 <p>L’API est accessible à partir du domaine <code class="docutils literal notranslate"><span class="pre">zestedesavoir.com/api/</span></code> (prochainement <code class="docutils literal notranslate"><span class="pre">api.zestedesavoir.com</span></code>) et en HTTP ou en HTTPS. Dès lors que vous effectuez des requêtes authentifiées le HTTPS devient obligatoire. De base, toutes les réponses sont renvoyées en JSON.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -i https://zestedesavoir.com/api/membres/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-i<span class="w"> </span>https://zestedesavoir.com/api/membres/
 
-HTTP/1.1 <span class="m">200</span> OK
-Server: nginx
-Date: Sat, <span class="m">14</span> Feb <span class="m">2015</span> <span class="m">19</span>:41:29 GMT
-Content-Type: application/json
-Transfer-Encoding: chunked
-Connection: keep-alive
-Vary: Accept-Encoding
-ETag: <span class="s2">&quot;d8f9437e4f88b4e6e2ad0a6d770d970bfdd5bbbc689cc3b3390759d06d4f105a&quot;</span>
-Vary: Accept, Cookie
-Allow: GET, POST, HEAD, OPTIONS
-P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV&quot;</span>
+HTTP/1.1<span class="w"> </span><span class="m">200</span><span class="w"> </span>OK
+Server:<span class="w"> </span>nginx
+Date:<span class="w"> </span>Sat,<span class="w"> </span><span class="m">14</span><span class="w"> </span>Feb<span class="w"> </span><span class="m">2015</span><span class="w"> </span><span class="m">19</span>:41:29<span class="w"> </span>GMT
+Content-Type:<span class="w"> </span>application/json
+Transfer-Encoding:<span class="w"> </span>chunked
+Connection:<span class="w"> </span>keep-alive
+Vary:<span class="w"> </span>Accept-Encoding
+ETag:<span class="w"> </span><span class="s2">&quot;d8f9437e4f88b4e6e2ad0a6d770d970bfdd5bbbc689cc3b3390759d06d4f105a&quot;</span>
+Vary:<span class="w"> </span>Accept,<span class="w"> </span>Cookie
+Allow:<span class="w"> </span>GET,<span class="w"> </span>POST,<span class="w"> </span>HEAD,<span class="w"> </span>OPTIONS
+P3P:<span class="w"> </span><span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;ALL DSP COR PSAa PSDa OUR NOR ONL UNI COM NAV&quot;</span>
 
 <span class="o">{</span>
-  <span class="s2">&quot;count&quot;</span>:0,
-  <span class="s2">&quot;next&quot;</span>:null,
-  <span class="s2">&quot;previous&quot;</span>:null,
-  <span class="s2">&quot;results&quot;</span>:<span class="o">[]</span>
+<span class="w">  </span><span class="s2">&quot;count&quot;</span>:0,
+<span class="w">  </span><span class="s2">&quot;next&quot;</span>:null,
+<span class="w">  </span><span class="s2">&quot;previous&quot;</span>:null,
+<span class="w">  </span><span class="s2">&quot;results&quot;</span>:<span class="o">[]</span>
 <span class="o">}</span>
 </pre></div>
 </div>
@@ -152,7 +152,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <section id="les-formats-d-entrees-sorties">
 <h3>Les formats d’entrées/sorties<a class="headerlink" href="#les-formats-d-entrees-sorties" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Par défaut, le serveur renvoie les réponses au format <code class="docutils literal notranslate"><span class="pre">JSON</span></code> mais il gère aussi le <code class="docutils literal notranslate"><span class="pre">XML</span></code>. Pour demander au serveur de renvoyer les réponses en <code class="docutils literal notranslate"><span class="pre">XML</span></code>, il faut utiliser l’en-tête <code class="docutils literal notranslate"><span class="pre">Accept</span></code> en spécifiant <code class="docutils literal notranslate"><span class="pre">application/xml</span></code> comme valeur (<code class="docutils literal notranslate"><span class="pre">application/json</span></code> pour recevoir du <code class="docutils literal notranslate"><span class="pre">JSON</span></code>).</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -H <span class="s2">&quot;Accept: application/xml&quot;</span> https://zestedesavoir.com/api/membres/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Accept: application/xml&quot;</span><span class="w"> </span>https://zestedesavoir.com/api/membres/
 </pre></div>
 </div>
 <p>Les <a class="reference external" href="http://www.django-rest-framework.org/api-guide/renderers/">formats de sortie (en)</a> sont renseignés dans le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> sous l’attribut <code class="docutils literal notranslate"><span class="pre">DEFAULT_RENDERER_CLASSES</span></code> du dictionnaire <code class="docutils literal notranslate"><span class="pre">REST_FRAMEWORK</span></code>. Pour Django Rest Framework, tous les formats de sorties sont des <code class="docutils literal notranslate"><span class="pre">renderer</span></code>.</p>
@@ -166,7 +166,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 </pre></div>
 </div>
 <p>Plusieurs formats d’entrées sont supportés par le serveur, à savoir le <code class="docutils literal notranslate"><span class="pre">JSON</span></code> (par défaut), l”<code class="docutils literal notranslate"><span class="pre">XML</span></code>, le formulaire et le multi part (<code class="docutils literal notranslate"><span class="pre">x-www-form-urlencoded</span></code>). Ces formats peuvent être renseignées avec l’en-tête <code class="docutils literal notranslate"><span class="pre">Content-Type</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -H <span class="s2">&quot;Content-Type: application/xml&quot;</span> https://zestedesavoir.com/api/membres/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/xml&quot;</span><span class="w"> </span>https://zestedesavoir.com/api/membres/
 </pre></div>
 </div>
 <p>Les <a class="reference external" href="http://www.django-rest-framework.org/api-guide/parsers/">formats d’entrée (en)</a> sont renseignés dans le fichier <code class="docutils literal notranslate"><span class="pre">settings.py</span></code> sous l’attribut <code class="docutils literal notranslate"><span class="pre">DEFAULT_PARSER_CLASSES</span></code> du dictionnaire <code class="docutils literal notranslate"><span class="pre">REST_FRAMEWORK</span></code>. Pour Django Rest Framework, tous les formats d’entrée sont des <code class="docutils literal notranslate"><span class="pre">parser</span></code>.</p>
@@ -216,7 +216,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <p>Pour enrichir la clé de l’ETag, DRF-Extensions propose les <code class="docutils literal notranslate"><span class="pre">KeyConstructor</span></code>. Toutes les informations et les possibilités à ce sujet sont disponibles dans la <a class="reference external" href="http://chibisov.github.io/drf-extensions/docs/#key-constructor">documentation de cette librairie (en)</a>.</p>
 <p><strong>Note :</strong> L’ETag et le cache peuvent fonctionner ensemble. Une méthode peut être annotée avec <code class="docutils literal notranslate"><span class="pre">&#64;etag()</span></code> et <code class="docutils literal notranslate"><span class="pre">&#64;cache_response()</span></code>.</p>
 <p>Pour utiliser un ETag, faites une requête vers n’importe quelle ressource en <code class="docutils literal notranslate"><span class="pre">GET</span></code> ou <code class="docutils literal notranslate"><span class="pre">PUT</span></code>. Dans les en-têtes de la réponse figurera l’ETag et sa valeur. Pour les prochaines requêtes vers cette même ressource, renseignez l’en-tête <code class="docutils literal notranslate"><span class="pre">If-None-Match</span></code> avec l’ETag sauvegardé comme valeur.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -H <span class="s2">&quot;If-None-Match: da54a5d285fbfc52bf62637147ecb5c11c7199ed78848b7f43781df0cd039b89&quot;</span> https://zestedesavoir.com/api/membres/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;If-None-Match: da54a5d285fbfc52bf62637147ecb5c11c7199ed78848b7f43781df0cd039b89&quot;</span><span class="w"> </span>https://zestedesavoir.com/api/membres/
 </pre></div>
 </div>
 <p>Si le serveur constate qu’il n’y a aucun changement dans la ressource, il renverra une réponse <code class="docutils literal notranslate"><span class="pre">304</span> <span class="pre">Not</span> <span class="pre">Modified</span></code> avec un corps vide. Il n’est alors pas nécessaire de mettre à jour les valeurs sauvegardées en locale pour les ressources désirées. Dans le cas contraire, les ressources demandées seront renvoyées avec un nouvel ETag à sauvegarder.</p>
@@ -251,29 +251,29 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 </div>
 <p>Toutes les informations complémentaires à ce sujet sont disponibles dans la <a class="reference external" href="http://www.django-rest-framework.org/api-guide/pagination/">documentation de la pagination (en)</a>.</p>
 <p>Son utilisation est simple, il suffit de renseigner la page avec le paramètre <code class="docutils literal notranslate"><span class="pre">page</span></code> et, optionnellement, <code class="docutils literal notranslate"><span class="pre">page_size</span></code> pour renseigner la taille de la page. Par exemple, récupérer la page 2 d’une page de taille 3 ressemblera à la requête suivante.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl https://zestedesavoir.com/api/membres/?page<span class="o">=</span><span class="m">2</span><span class="p">&amp;</span><span class="nv">page_size</span><span class="o">=</span><span class="m">3</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>https://zestedesavoir.com/api/membres/?page<span class="o">=</span><span class="m">2</span><span class="p">&amp;</span><span class="nv">page_size</span><span class="o">=</span><span class="m">3</span>
 </pre></div>
 </div>
 <p>Dans la réponse, on retrouve des méta informations à propos de la liste : la taille totale de la liste, l’URL vers les pages suivantes et précédentes et la liste attendue avec la ressource souhaitée.</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">43</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://zestedesavoir.com/api/membres/?page=3&amp;page_size=2&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;previous&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://zestedesavoir.com/api/membres/?page=1&amp;page_size=2&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"></span>
-<span class="w">        </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;pk&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">41</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boo123451234&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;is_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;date_joined&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2015-02-08T15:53:12.666839&quot;</span><span class="w"></span>
-<span class="w">        </span><span class="p">},</span><span class="w"></span>
-<span class="w">        </span><span class="p">{</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;pk&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boo12345123&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;is_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"></span>
-<span class="w">            </span><span class="nt">&quot;date_joined&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2015-02-08T15:53:09.436657&quot;</span><span class="w"></span>
-<span class="w">        </span><span class="p">}</span><span class="w"></span>
-<span class="w">    </span><span class="p">]</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">43</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://zestedesavoir.com/api/membres/?page=3&amp;page_size=2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;previous&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://zestedesavoir.com/api/membres/?page=1&amp;page_size=2&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pk&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">41</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boo123451234&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;is_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;date_joined&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2015-02-08T15:53:12.666839&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;pk&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">40</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;boo12345123&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;is_active&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;date_joined&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2015-02-08T15:53:09.436657&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -309,13 +309,13 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <section id="recuperer-les-tokens-d-authentification">
 <h4>Récupérer les tokens d’authentification<a class="headerlink" href="#recuperer-les-tokens-d-authentification" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Pour récupérer les tokens, les développeurs doivent exécuter une requête en <code class="docutils literal notranslate"><span class="pre">POST</span></code> et en spécifiant l’identifiant et la clé secrète de l’application, le <cite>grant type</cite> spécifié dans l’application et le pseudo/mot de passe du compte utilisateur qui souhaite s’authentifier. Une requête basique ressemblerait à la commande ci-dessous. Toute fois, sachez que les caractères spéciaux doivent être échappés dans une commande <code class="docutils literal notranslate"><span class="pre">curl</span></code> comme celle exposé dans cette documentation. On ne peut que vous conseiller d’exécuter cette même requête plutôt dans une console REST comme il en existe des centaines.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -d <span class="s1">&#39;{</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">        &quot;username&quot;: &quot;YOUR_USERNAME&quot;,</span>
 <span class="s1">        &quot;password&quot;: &quot;YOUR_PASSWORD&quot;,</span>
 <span class="s1">        &quot;grant_type&quot;: &quot;password&quot;,</span>
 <span class="s1">        &quot;client_id&quot;: &quot;CLIENT_ID&quot;,</span>
 <span class="s1">        &quot;client_secret&quot;: &quot;CLIENT_SECRET&quot;</span>
-<span class="s1">    }&#39;</span> https://zestedesavoir.com/oauth2/token/
+<span class="s1">    }&#39;</span><span class="w"> </span>https://zestedesavoir.com/oauth2/token/
 </pre></div>
 </div>
 <p>Si l’application est bien en « confidentiel », la réponse à cette requête exposera 2 tokens, son type, sa date d’expiration et sa portée.</p>
@@ -326,13 +326,13 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <li><p><code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> : Permet d’effectuer une nouveau requête pour récupérer les tokens d’authentification sans spécifier le pseudo et le mot de passe utilisateur.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">scope</span></code> : Portée du token d’authentification générée pour le serveur.</p></li>
 </ul>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wERPXXHpYAsJV29eATLjSO2u5bamyw&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36000</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;refresh_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1HJaUfFYA5jE54e2Wz1yEMRi89z6er&quot;</span><span class="p">,</span><span class="w"></span>
-<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;read write&quot;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;access_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;wERPXXHpYAsJV29eATLjSO2u5bamyw&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;token_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Bearer&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;expires_in&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">36000</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;refresh_token&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1HJaUfFYA5jE54e2Wz1yEMRi89z6er&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;scope&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;read write&quot;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p><strong>Note :</strong> S’il existe déjà un token actif pour l’utilisateur final, l’ancien token sera invalidé au profit du nouveau.</p>
@@ -340,7 +340,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <section id="utiliser-un-access-token">
 <h4>Utiliser un access_token<a class="headerlink" href="#utiliser-un-access-token" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Pour utiliser l”<code class="docutils literal notranslate"><span class="pre">access_token</span></code>, il faut le renseigner dans l’en-tête de la requête sous l’attribut <code class="docutils literal notranslate"><span class="pre">Authorization</span></code> avec comme valeur <code class="docutils literal notranslate"><span class="pre">Bearer</span> <span class="pre">wERPXXHpYAsJV29eATLjSO2u5bamyw</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -H <span class="s2">&quot;Authorization: Bearer wERPXXHpYAsJV29eATLjSO2u5bamyw&quot;</span> https://zestedesavoir.com/api/membres/1/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer wERPXXHpYAsJV29eATLjSO2u5bamyw&quot;</span><span class="w"> </span>https://zestedesavoir.com/api/membres/1/
 </pre></div>
 </div>
 <p><strong>Attention :</strong> La requête doit se faire en HTTPS obligatoirement.</p>
@@ -348,12 +348,12 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
 <section id="utiliser-un-refresh-token">
 <h4>Utiliser un refresh_token<a class="headerlink" href="#utiliser-un-refresh-token" title="Lien permanent vers cette rubrique"></a></h4>
 <p>Si le token n’est plus valide ou que vous avez perdu l”<code class="docutils literal notranslate"><span class="pre">access_token</span></code> de l’utilisateur final, il faut en récupérer un nouveau grâce au <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>. Son utilisation est similaire à l’authentification sauf qu’il n’est pas nécessaire de renseigner le pseudo et le mot de passe mais le <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code> à la place et de spécifier un <code class="docutils literal notranslate"><span class="pre">grant_type</span></code> avec comme valeur <code class="docutils literal notranslate"><span class="pre">refresh_token</span></code>.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ curl -X POST -H <span class="s2">&quot;Content-Type: application/json&quot;</span> -d <span class="s1">&#39;{</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39;{</span>
 <span class="s1">        &quot;grant_type&quot;: &quot;refresh_token&quot;,</span>
 <span class="s1">        &quot;client_id&quot;: &quot;CLIENT_ID&quot;,</span>
 <span class="s1">        &quot;client_secret&quot;: &quot;CLIENT_SECRET&quot;,</span>
 <span class="s1">        &quot;refresh_token&quot;: &quot;YOUR_REFRESH_TOKEN&quot;</span>
-<span class="s1">    }&#39;</span> https://zestedesavoir.com/oauth2/token/
+<span class="s1">    }&#39;</span><span class="w"> </span>https://zestedesavoir.com/oauth2/token/
 </pre></div>
 </div>
 <p>A la suite de cela, de nouveaux tokens seront renvoyés et devront être sauvegardés pour une prochaine utilisation si nécessaire.</p>
@@ -384,7 +384,7 @@ P3P: <span class="nv">CP</span><span class="o">=</span><span class="s2">&quot;AL
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

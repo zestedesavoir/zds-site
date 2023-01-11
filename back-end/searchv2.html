@@ -280,7 +280,7 @@ Ensuite, différentes situations peuvent modifier le score.</p>
 <section id="indexer-les-donnees-de-zds">
 <h3>Indexer les données de ZdS<a class="headerlink" href="#indexer-les-donnees-de-zds" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Une fois Elasticsearch <a class="reference external" href="../install/install-es.html">installé</a> puis configuré et lancé, la commande suivante est utilisée :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py es_manager &lt;action&gt;
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>es_manager<span class="w"> </span>&lt;action&gt;
 </pre></div>
 </div>
 <p>où <code class="docutils literal notranslate"><span class="pre">&lt;action&gt;</span></code> peut être</p>
@@ -396,7 +396,7 @@ Les avantages de cette décision sont multiples :</p>
 En particulier, c’est la méthode <code class="docutils literal notranslate"><span class="pre">get_es_indexable()</span></code> qui est surchargée, profitant du fait que cette méthode peut renvoyer n’importe quel type de document à indexer.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">get_es_indexable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">force_reindexing</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Overridden to also include</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Overridden to also include</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">index_manager</span> <span class="o">=</span> <span class="n">ESIndexManager</span><span class="p">(</span><span class="o">**</span><span class="n">settings</span><span class="o">.</span><span class="n">ES_SEARCH_INDEX</span><span class="p">)</span>
@@ -447,7 +447,7 @@ Cette relation est utilisée pour la suppression, mais il est possible de l’ex
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

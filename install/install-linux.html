@@ -122,23 +122,23 @@
 </div>
 <p>Pour installer ZdS, vous aurez besoin d’abord des programmes <code class="docutils literal notranslate"><span class="pre">make</span></code> et <code class="docutils literal notranslate"><span class="pre">sudo</span></code>. S’ils ne sont pas déjà installés sur votre système, ils sont généralement disponibles dans les gestionnaires de paquets sous le même nom.</p>
 <p>Après avoir cloné le dépôt du code source, installer ZdS sous Linux est relativement simple. En effet, il suffit de lancer la commande suivante (qui se chargera d’installer ce qui est nécessaire, plus d’infos ci-dessous):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-linux
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install-linux
 </pre></div>
 </div>
 <p>Notez que si vous voulez installer une version complète (avec une version locale  <a class="reference external" href="#composant-tex-local-et-latex-template">de LaTeX</a> et <a class="reference external" href="#composant-elastic-local">de Elasticsearch</a>, plus d’infos ci-dessous), utilisez plutôt</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-linux-full
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install-linux-full
 </pre></div>
 </div>
 <p>Une fois que c’est fait, vous pouvez directement lancer votre instance à l’aide des commandes suivantes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> zdsenv/bin/activate <span class="c1"># activer le virtualenv</span>
-make zmd-start <span class="c1"># démarrer zmarkdown</span>
-make run-back <span class="c1"># démarer le serveur django</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>zdsenv/bin/activate<span class="w"> </span><span class="c1"># activer le virtualenv</span>
+make<span class="w"> </span>zmd-start<span class="w"> </span><span class="c1"># démarrer zmarkdown</span>
+make<span class="w"> </span>run-back<span class="w"> </span><span class="c1"># démarer le serveur django</span>
 </pre></div>
 </div>
 <p>Stoppez le serveur à l’aide de ctrl+c. Pour sortir de votre environnement, tapez <code class="docutils literal notranslate"><span class="pre">deactivate</span></code>.</p>
 <p>Vous pouvez également <a class="reference external" href="../utils/git-pre-hook.html">indiquer à Git de ne pas effectuer de commit s’il y a des erreurs de formatage dans le code</a>.</p>
 <p>Si vous utilisez un shell autre que bash, et que vous avez l’erreur suivante quand vous activez <code class="docutils literal notranslate"><span class="pre">zdsenv</span></code> :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>…/zds-site/zdsenv/bin/activate:67: <span class="nb">command</span> not found: nvm
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>…/zds-site/zdsenv/bin/activate:67:<span class="w"> </span><span class="nb">command</span><span class="w"> </span>not<span class="w"> </span>found:<span class="w"> </span>nvm
 </pre></div>
 </div>
 <p>Alors c’est très probablement dû au script d’installation de nvm qui ne gère que Bash. Pour corriger ce problème, ouvrez votre fichier <code class="docutils literal notranslate"><span class="pre">.bashrc</span></code> et copiez les lignes concernant nvm dans le fichier de configuration de votre shell. Ces fichiers se trouvent dans votre répertoire utilisateur, par exemple :</p>
@@ -181,7 +181,7 @@ De même que pour <a class="reference external" href="#composants-base">base</a>
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code><a class="headerlink" href="#composant-virtualenv" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe le <em>virtualenv</em> qui est un environnement python cloisonné prévu pour ne pas interférer avec d’autres installation de python (<a class="reference external" href="http://docs.python-guide.org/en/latest/dev/virtualenvs/">plus d’infos ici</a>).
 Ce que fait ce composant est tout simplement:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3 -m venv <span class="nv">$ZDS_VENV</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span><span class="nv">$ZDS_VENV</span>
 </pre></div>
 </div>
 <p>Le nom du <em>virtualenv</em> est donc controlé par la variable d’environnement <code class="docutils literal notranslate"><span class="pre">ZDS_VENV</span></code> (dont la valeur est par défaut <code class="docutils literal notranslate"><span class="pre">zdsenv</span></code>).</p>
@@ -197,8 +197,8 @@ La version de node installée est controlée par la variable d’environnement <
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">back</span></code><a class="headerlink" href="#composant-back" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe les packages python nécessaire au bon fonctionnement et au développement de ZdS, puis installe les migrations.
 Strictement équivalent au commande suivantes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-back <span class="c1"># Dépendances Python</span>
-make migrate-db <span class="c1"># Cf. &quot;migrate&quot; de Django</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install-back<span class="w"> </span><span class="c1"># Dépendances Python</span>
+make<span class="w"> </span>migrate-db<span class="w"> </span><span class="c1"># Cf. &quot;migrate&quot; de Django</span>
 </pre></div>
 </div>
 </section>
@@ -206,9 +206,9 @@ make migrate-db <span class="c1"># Cf. &quot;migrate&quot; de Django</span>
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">front</span></code><a class="headerlink" href="#composant-front" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe les dépendances du front-end en utilisant <code class="docutils literal notranslate"><span class="pre">yarn</span></code>, puis <em>build</em> le front-end.
 Strictement équivalent au commande suivantes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm -R node_modules
-make install-front
-make build-front
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>rm<span class="w"> </span>-R<span class="w"> </span>node_modules
+make<span class="w"> </span>install-front
+make<span class="w"> </span>build-front
 </pre></div>
 </div>
 <p>Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer les outils du front-end manuellement. Pour cela, rendez-vous sur <a class="reference external" href="frontend-install.html">la documentation dédiée au frontend</a>.</p>
@@ -217,7 +217,7 @@ make build-front
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">zmd</span></code><a class="headerlink" href="#composant-zmd" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe le serveur <em>zmarkdown</em>, nécessaire au bon fonctionement du site.
 Strictement équivalent à la commande suivantes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make zmd-install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>zmd-install
 </pre></div>
 </div>
 <p>Si vous ne souhaitez pas utiliser ce composant, il vous faut tout de même installer zmarkdown manuellement.
@@ -227,7 +227,7 @@ Pour cela, rendez-vous sur <a class="reference external" href="extra-zmd.html">l
 <h3>Composant <code class="docutils literal notranslate"><span class="pre">data</span></code><a class="headerlink" href="#composant-data" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Installe le jeu de données de test de ZdS, pour le développement.
 Strictement équivalent à la commande suivantes:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make generate-fixtures
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>generate-fixtures
 </pre></div>
 </div>
 <p>Plus d’info sur cette fonctionalité <a class="reference external" href="../utils/fixture_loaders.html">sur la page dédiée</a>.</p>
@@ -270,7 +270,7 @@ Si vous souhaitez réinstaller totalement TeX live, supprimez le dossier <code c
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

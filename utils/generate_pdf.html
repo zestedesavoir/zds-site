@@ -96,8 +96,8 @@
   <section id="generer-les-pdfs-des-differents-contenus">
 <h1>Générer les PDFs des différents contenus<a class="headerlink" href="#generer-les-pdfs-des-differents-contenus" title="Lien permanent vers cette rubrique"></a></h1>
 <p>Vous avez la possibilité de générer le (ou les) PDF(s) d’un (ou plusieurs) contenu(s) déjà publié(s) en une commande :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make generate-pdf <span class="c1"># ou la commande suivante :</span>
-python manage.py generate_pdf
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>generate-pdf<span class="w"> </span><span class="c1"># ou la commande suivante :</span>
+python<span class="w"> </span>manage.py<span class="w"> </span>generate_pdf
 </pre></div>
 </div>
 <p>Les PDFs de tout les contenus publiés seront alors (re)générés.</p>
@@ -106,7 +106,7 @@ python manage.py generate_pdf
 <p>Cette commande supprime le PDF déjà généré.</p>
 </div>
 <p>Vous pouvez préciser une liste de contenus dont les PDF doivent être (re)généré en employant l’argument <code class="docutils literal notranslate"><span class="pre">id</span></code> (ou <code class="docutils literal notranslate"><span class="pre">ids</span></code>). Par exemple, pour générer les PDFs des contenus dont l’id est <code class="docutils literal notranslate"><span class="pre">125</span></code>, <code class="docutils literal notranslate"><span class="pre">142</span></code> et <code class="docutils literal notranslate"><span class="pre">56</span></code> if faut mettre:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py generate_pdf <span class="nv">id</span><span class="o">=</span><span class="m">125</span>,142,56
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>generate_pdf<span class="w"> </span><span class="nv">id</span><span class="o">=</span><span class="m">125</span>,142,56
 </pre></div>
 </div>
 <p>Seuls ces PDFs seront alors (re)générés.</p>
@@ -127,7 +127,7 @@ python manage.py generate_pdf
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

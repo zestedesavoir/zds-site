@@ -98,11 +98,11 @@
 <section id="lancer-tous-les-tests">
 <h2>Lancer tous les tests<a class="headerlink" href="#lancer-tous-les-tests" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Si vous ne l’avez pas déjà fait, lancez le serveur zmarkdown avec la commande ci-dessous. Une fois que le serveur est lancé, il n’est pas nécessaire de répéter cette étape.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make zmd-start
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>zmd-start
 </pre></div>
 </div>
 <p>La commande suivante permet de lancer tous les tests du <em>backend</em>. La découverte des tests est automatique : tout ce qui est identifié comme un test Django dans le projet sera lancé. Les tests utilisent aussi une configuration légèrement différente, donc il faut l’indiquer pour que tous les tests fonctionnent correctement.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> --settings zds.settings.test
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>--settings<span class="w"> </span>zds.settings.test
 </pre></div>
 </div>
 <p>Comme cette commande peut prendre beaucoup de temps, il est en général préférable d’utiliser une commande plus ciblée.</p>
@@ -111,17 +111,17 @@
 <h2>Lancer des tests de manière ciblée<a class="headerlink" href="#lancer-des-tests-de-maniere-ciblee" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Django permet de cibler plus précisément les tests à lancer en ajoutant des arguments à la commande. C’est très pratique pendant le développement pour lancer et relancer des tests sur un morceau de code sans attendre pendant de longues minutes à chaque fois.</p>
 <p>La commande ci-dessous lancera tous les tests trouvés dans le <em>package</em> passé en argument.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views --settings zds.settings.test
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>zds.tutorialv2.tests.tests_views<span class="w"> </span>--settings<span class="w"> </span>zds.settings.test
 </pre></div>
 </div>
 <p>On peut cibler encore plus en indiquant un module, une classe ou une fonction de test.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views.tests_editcontentlicense --settings zds.settings.test
-./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests --settings zds.settings.test
-./manage.py <span class="nb">test</span> zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests.test_not_authenticated --settings zds.settings.test
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>zds.tutorialv2.tests.tests_views.tests_editcontentlicense<span class="w"> </span>--settings<span class="w"> </span>zds.settings.test
+./manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests<span class="w"> </span>--settings<span class="w"> </span>zds.settings.test
+./manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>zds.tutorialv2.tests.tests_views.tests_editcontentlicense.EditContentLicensePermissionTests.test_not_authenticated<span class="w"> </span>--settings<span class="w"> </span>zds.settings.test
 </pre></div>
 </div>
 <p>On peut aussi indiquer plusieurs arguments à la suite pour lancer plusieurs groupes de tests. La commande ci-dessous lancera les tests pour les trois <em>packages</em> mentionnés.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py <span class="nb">test</span> zds.mp zds.pages zds.tutorialv2 --settings zds.settings.test
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>zds.mp<span class="w"> </span>zds.pages<span class="w"> </span>zds.tutorialv2<span class="w"> </span>--settings<span class="w"> </span>zds.settings.test
 </pre></div>
 </div>
 </section>
@@ -164,7 +164,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

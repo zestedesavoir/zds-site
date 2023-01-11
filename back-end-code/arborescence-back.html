@@ -110,38 +110,38 @@
 <h2>Arborescence générale de <code class="docutils literal notranslate"><span class="pre">zds/</span></code><a class="headerlink" href="#arborescence-generale-de-zds" title="Lien permanent vers cette rubrique"></a></h2>
 <p>On retrouve un dossier pour chaque module du site :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zds/
-├── article/ <span class="c1"># module des articles</span>
-│   └── ...
-├── featured/ <span class="c1"># module des mises en avant</span>
-│   └── ...
-├── forum/ <span class="c1"># module des forums</span>
-│   └── ...
-├── gallery/ <span class="c1"># module des galleries</span>
-│   └── ...
-├── member/ <span class="c1"># module des membres</span>
-│   └── ...
-├── mp/ <span class="c1"># module des messages privés</span>
-│   └── ...
-├── munin/ <span class="c1"># module de Munin, utilisé pour le monitoring</span>
-│   └── ...
-├── pages/ <span class="c1"># module pour les autres pages, telles que la page d&#39;accueil, ...</span>
-│   └── ...
-├── search/ <span class="c1"># module de recherche</span>
-│   └── ...
-├── tutorial/ <span class="c1"># module des tutoriels</span>
-│   └── ...
-├── utils/ <span class="c1"># fonctions utiles à chaque module</span>
-│   └── ...
-├── middlewares/ <span class="c1"># codes provenant de sources externes</span>
-│   └── ...
+├──<span class="w"> </span>article/<span class="w"> </span><span class="c1"># module des articles</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>featured/<span class="w"> </span><span class="c1"># module des mises en avant</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>forum/<span class="w"> </span><span class="c1"># module des forums</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>gallery/<span class="w"> </span><span class="c1"># module des galleries</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>member/<span class="w"> </span><span class="c1"># module des membres</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>mp/<span class="w"> </span><span class="c1"># module des messages privés</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>munin/<span class="w"> </span><span class="c1"># module de Munin, utilisé pour le monitoring</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>pages/<span class="w"> </span><span class="c1"># module pour les autres pages, telles que la page d&#39;accueil, ...</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>search/<span class="w"> </span><span class="c1"># module de recherche</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>tutorial/<span class="w"> </span><span class="c1"># module des tutoriels</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>utils/<span class="w"> </span><span class="c1"># fonctions utiles à chaque module</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>middlewares/<span class="w"> </span><span class="c1"># codes provenant de sources externes</span>
+│<span class="w">   </span>└──<span class="w"> </span>...
 </pre></div>
 </div>
 <p>On retrouve également dans ce dossier les quelques fichiers suivants, nécessaires à la configuration et au fonctionnement de Django :</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>zds/
-├── urls.py <span class="c1"># définition générale des URLs du site, inclus celle de chacun des modules</span>
-├── settings.py <span class="c1"># paramètres du site</span>
-├── settings_test.py <span class="c1"># paramètres spécifiques aux tests</span>
-└── wsgi.py
+├──<span class="w"> </span>urls.py<span class="w"> </span><span class="c1"># définition générale des URLs du site, inclus celle de chacun des modules</span>
+├──<span class="w"> </span>settings.py<span class="w"> </span><span class="c1"># paramètres du site</span>
+├──<span class="w"> </span>settings_test.py<span class="w"> </span><span class="c1"># paramètres spécifiques aux tests</span>
+└──<span class="w"> </span>wsgi.py
 </pre></div>
 </div>
 </section>
@@ -149,23 +149,23 @@
 <h2>Contenu d’un module<a class="headerlink" href="#contenu-d-un-module" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Chacun des modules possède dans son dossier une arborescence fort semblable, et dans laquelle il est possible de trouver:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module/
-├── migrations/
-│   └── ...
-├── api/
-│   └── ...
-├── tests/
-│   ├── tests.py
-│   └── ...
-├── admin.py
-├── commons.py
-├── factories.py
-├── feeds.py
-├── forms.py
-├── managers.py
-├── models.py
-├── search_indexes.py
-├── urls.py
-└── views.py
+├──<span class="w"> </span>migrations/
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>api/
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>tests/
+│<span class="w">   </span>├──<span class="w"> </span>tests.py
+│<span class="w">   </span>└──<span class="w"> </span>...
+├──<span class="w"> </span>admin.py
+├──<span class="w"> </span>commons.py
+├──<span class="w"> </span>factories.py
+├──<span class="w"> </span>feeds.py
+├──<span class="w"> </span>forms.py
+├──<span class="w"> </span>managers.py
+├──<span class="w"> </span>models.py
+├──<span class="w"> </span>search_indexes.py
+├──<span class="w"> </span>urls.py
+└──<span class="w"> </span>views.py
 </pre></div>
 </div>
 <section id="fichiers-principaux">
@@ -176,7 +176,7 @@
 <section id="tests-unitaires">
 <h3>Tests unitaires<a class="headerlink" href="#tests-unitaires" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Une partie importante du développement est basée sur les tests unitaires : afin d’éviter qu’un développement futur ne brise une fonctionnalité, une série de test associé à chaque module est écrite dans des fichiers situés dans le dossier <code class="docutils literal notranslate"><span class="pre">tests/</span></code> de chaque module. Cette série de test peut être lancée en utilisant la commande suivante :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py <span class="nb">test</span> zds.module
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span><span class="nb">test</span><span class="w"> </span>zds.module
 </pre></div>
 </div>
 <p>où il est nécéssaire de remplacer <code class="docutils literal notranslate"><span class="pre">module</span></code> par le nom du module associé. Ces tests utilisent des données de tests générées par des <em>factories</em> (usines) qui sont définies dans <code class="docutils literal notranslate"><span class="pre">factories.py</span></code>.</p>
@@ -184,12 +184,12 @@
 <section id="gestion-de-la-base-de-donnees">
 <h3>Gestion de la base de données<a class="headerlink" href="#gestion-de-la-base-de-donnees" title="Lien permanent vers cette rubrique"></a></h3>
 <p>Le dossier <code class="docutils literal notranslate"><span class="pre">migrations/</span></code> permet à Django de consigner les changements effectués à des modèles qui modifient également la structure de la base de donnée. Son contenu ne devrait pas être modifié manuelement, il l’est cependant de manière automatique lorsque la commande suivante est utilisée :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py makemigrations
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>makemigrations
 </pre></div>
 </div>
 <p>Celle-ci doit être utilisée lorsqu’une variable d’un modèle (dans <code class="docutils literal notranslate"><span class="pre">models.py</span></code>) est modifiée, ajoutée ou supprimée. Si tel est le cas, n’oubliez pas d’inclure le fichier résultant (de la forme <code class="docutils literal notranslate"><span class="pre">xxxx_auto_yyy.py</span></code>) dans votre prochain <em>commit</em> !</p>
 <p>Cela permettra aux autres développeurs de répercuter les modifications en utilisant:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python manage.py migrate --fake-initial
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>manage.py<span class="w"> </span>migrate<span class="w"> </span>--fake-initial
 </pre></div>
 </div>
 </section>
@@ -217,7 +217,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

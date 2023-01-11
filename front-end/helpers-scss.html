@@ -124,38 +124,38 @@ plusieurs types d’écran :</p>
 automatiquement les <em>media-queries</em> correspondantes à différentes catégories
 ou ensembles de catégories d’écran. Par exemple, pour écrire du SCSS qui ne sera
 que pris en compte pour les mobiles, écrivez :</p>
-<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="k">@include</span><span class="nd"> mobile</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="k">@include</span><span class="nd"> mobile</span><span class="w"> </span><span class="p">{</span>
 <span class="w">  </span><span class="c1">// Votre code SCSS…</span>
-<span class="p">}</span><span class="w"></span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>ou encore, en SASS :</p>
-<div class="highlight-sass notranslate"><div class="highlight"><pre><span></span><span class="nd">+mobile</span><span class="w"></span>
-<span class="w">  </span><span class="c1">// Votre code SASS…</span><span class="w"></span>
+<div class="highlight-sass notranslate"><div class="highlight"><pre><span></span><span class="nd">+mobile</span>
+<span class="w">  </span><span class="c1">// Votre code SASS…</span>
 </pre></div>
 </div>
 <p>Il est tout aussi possible d’utiliser ceci pour définir tous les CSS spécifiques
 à une catégorie d’écran d’un coup, ou au fur et à mesure en spécifiant propriété
 par propriété. Ainsi, ces deux façons de faire sont valides :</p>
-<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.something</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">bold</span><span class="o">;</span><span class="w"></span>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.something</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">bold</span><span class="o">;</span>
 
-<span class="w">  </span><span class="o">@</span><span class="nt">include</span><span class="w"> </span><span class="nt">mobile</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">normal</span><span class="o">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="w">  </span><span class="o">@</span><span class="nt">include</span><span class="w"> </span><span class="nt">mobile</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">normal</span><span class="o">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
 
 <span class="c1">// -- ou --</span>
 
-<span class="nc">.something</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">bold</span><span class="o">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="nc">.something</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">bold</span><span class="o">;</span>
+<span class="p">}</span>
 
-<span class="k">@include</span><span class="nd"> mobile</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">  </span><span class="nc">.something</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">normal</span><span class="o">;</span><span class="w"></span>
-<span class="w">  </span><span class="p">}</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<span class="k">@include</span><span class="nd"> mobile</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nc">.something</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">font-weight</span><span class="nd">:</span><span class="w"> </span><span class="nt">normal</span><span class="o">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>Voici les différentes <em>mixins</em> disponibles, avec la largeur de l’écran
@@ -284,9 +284,9 @@ en liste horizontale.</p>
 </pre></div>
 </div>
 <p>avec le CSS suivant :</p>
-<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.my-horizontal-list</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">@include</span><span class="nd"> horizontal-list</span><span class="p">;</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.my-horizontal-list</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">@include</span><span class="nd"> horizontal-list</span><span class="p">;</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 <p>sera affichée ainsi si cette mixin est appliquée.</p>
@@ -295,9 +295,9 @@ en liste horizontale.</p>
 </div>
 <p>Vous pouvez personnaliser le séparateur ainsi que la distance entre les éléments. Par défaut, une puce (<code class="docutils literal notranslate"><span class="pre">•</span></code>) et une
 distance de 16 sont utilisées.</p>
-<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.my-horizontal-list</span><span class="w"> </span><span class="p">{</span><span class="w"></span>
-<span class="w">    </span><span class="k">@include</span><span class="nd"> horizontal-list</span><span class="p">(</span><span class="nv">$gap</span><span class="o">:</span><span class="w"> </span><span class="nv">$length-32</span><span class="o">,</span><span class="w"> </span><span class="nv">$separator</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot; — &quot;</span><span class="p">);</span><span class="w"></span>
-<span class="p">}</span><span class="w"></span>
+<div class="highlight-scss notranslate"><div class="highlight"><pre><span></span><span class="nc">.my-horizontal-list</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">@include</span><span class="nd"> horizontal-list</span><span class="p">(</span><span class="nv">$gap</span><span class="o">:</span><span class="w"> </span><span class="nv">$length-32</span><span class="o">,</span><span class="w"> </span><span class="nv">$separator</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot; — &quot;</span><span class="p">);</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </section>
@@ -314,7 +314,7 @@ distance de 16 sont utilisées.</p>
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

@@ -108,11 +108,11 @@ de manière automatique pour créer une nouvelle instance à des fins de test ou
 <h2>Chargement du jeu de données standard<a class="headerlink" href="#chargement-du-jeu-de-donnees-standard" title="Lien permanent vers cette rubrique"></a></h2>
 <p>En l’absence d’exigences particulières, le moyen le plus simple de charger un jeu de données est d’utiliser la
 commande suivante :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make generate-fixtures
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>generate-fixtures
 </pre></div>
 </div>
 <p>ou si vous souhaitez purger les données existantes au préalable :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make new-db
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>new-db
 </pre></div>
 </div>
 <p>Ces commandes chargent :</p>
@@ -169,15 +169,15 @@ appelés Factory qui sont dans chacun des fichiers <code class="docutils literal
 <p>Pour utiliser ces fabriques d’objet, vous aurez une nouvelle fois recours au format yaml afin de décrire les
 fabriques que vous désirez utiliser ainsi que les paramètres à envoyer auxdites fabriques.</p>
 <p>Le format du fichier est celui-ci:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w">   </span><span class="nt">factory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zds.module.factories.YourFactory</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fields</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">champ_string</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;valeur1&quot;</span><span class="w"></span>
-<span class="w">        </span><span class="nt">champ_int</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w"></span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w">   </span><span class="nt">factory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zds.module.factories.YourFactory</span>
+<span class="w">    </span><span class="nt">fields</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">champ_string</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;valeur1&quot;</span>
+<span class="w">        </span><span class="nt">champ_int</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 
-<span class="p p-Indicator">-</span><span class="w">   </span><span class="nt">factory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zds.utils.factories.YourFactory</span><span class="w"></span>
-<span class="w">    </span><span class="nt">fields</span><span class="p">:</span><span class="w"></span>
-<span class="w">        </span><span class="nt">champ_string</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;valeur2&quot;</span><span class="w"></span>
-<span class="w">        </span><span class="nt">champ_int</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w"></span>
+<span class="p p-Indicator">-</span><span class="w">   </span><span class="nt">factory</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zds.utils.factories.YourFactory</span>
+<span class="w">    </span><span class="nt">fields</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">champ_string</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;valeur2&quot;</span>
+<span class="w">        </span><span class="nt">champ_int</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 </pre></div>
 </div>
 <p>Les fichiers de factory déjà existants sont rangés dans le dossier <code class="docutils literal notranslate"><span class="pre">fixtures/advanced</span></code>.</p>
@@ -304,7 +304,7 @@ Ce coefficient sera à multiplier par le <em>coefficient de taille</em> dirrigé
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un

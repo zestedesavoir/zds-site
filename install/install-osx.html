@@ -111,30 +111,30 @@ Si une commande ne passe pas, essayez de savoir pourquoi avant de continuer.</p>
 <ul class="simple">
 <li><p>Installer XCode :</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>xcode-select --install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>xcode-select<span class="w"> </span>--install
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Installer <a class="reference external" href="http://brew.sh/">Homebrew</a>.</p></li>
 <li><p>Installer un nouveau Python par Homebrew :</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew install python --framework
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>python<span class="w"> </span>--framework
 <span class="c1"># Il se peut que votre système n&#39;utilise pas la nouvelle version de Python. Si c&#39;est le cas, lancez la commande suivante.</span>
-<span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/usr/local/bin:/usr/local/sbin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span>/usr/local/bin:/usr/local/sbin:<span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Si vous avez décidé de ne pas installer un nouveau python et que vous utilisez celui de base du système, installez pip :</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget https://bootstrap.pypa.io/get-pip.py
-python3 get-pip.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget<span class="w"> </span>https://bootstrap.pypa.io/get-pip.py
+python3<span class="w"> </span>get-pip.py
 </pre></div>
 </div>
 <ul class="simple">
 <li><p>Installer toutes les dépendances systèmes nécessaires :</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew install gettext cairo --without-x11 py2cairo node <span class="o">&amp;&amp;</span> <span class="se">\</span>
-pip3 install virtualenv virtualenvwrapper
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>gettext<span class="w"> </span>cairo<span class="w"> </span>--without-x11<span class="w"> </span>py2cairo<span class="w"> </span>node<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+pip3<span class="w"> </span>install<span class="w"> </span>virtualenv<span class="w"> </span>virtualenvwrapper
 </pre></div>
 </div>
 <p>Une fois les pré-requis terminés, vous pouvez vous lancer dans l’installaton de l’environnement de zds.</p>
@@ -142,21 +142,21 @@ pip3 install virtualenv virtualenvwrapper
 <section id="configuration-de-virtualenv">
 <h2>Configuration de virtualenv<a class="headerlink" href="#configuration-de-virtualenv" title="Lien permanent vers cette rubrique"></a></h2>
 <p>(Si vous n’utilisez pas bash mais un autre shell, par exemple zsh, remplacez <code class="docutils literal notranslate"><span class="pre">~/.bash_profile</span></code> par le fichier rc de votre shell, par exemple <code class="docutils literal notranslate"><span class="pre">~/.zshrc</span></code>.)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir ~/.virtualenvs
-<span class="nb">echo</span> <span class="s2">&quot;export WORKON_HOME=</span><span class="nv">$HOME</span><span class="s2">/.virtualenvs&quot;</span> &gt;&gt; ~/.bash_profile
-<span class="nb">echo</span> <span class="s2">&quot;source /usr/local/Cellar/python3/3*/Frameworks/Python.framework/Versions/3.*/bin/virtualenvwrapper.sh&quot;</span> &gt;&gt; ~/.bash_profile
-<span class="nb">source</span> ~/.bash_profile
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>~/.virtualenvs
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;export WORKON_HOME=</span><span class="nv">$HOME</span><span class="s2">/.virtualenvs&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bash_profile
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;source /usr/local/Cellar/python3/3*/Frameworks/Python.framework/Versions/3.*/bin/virtualenvwrapper.sh&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bash_profile
+<span class="nb">source</span><span class="w"> </span>~/.bash_profile
 </pre></div>
 </div>
 </section>
 <section id="usage-de-virtualenv">
 <h2>Usage de virtualenv<a class="headerlink" href="#usage-de-virtualenv" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Création d’un virtualenv :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkvirtualenv -p python3 zdsenv
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkvirtualenv<span class="w"> </span>-p<span class="w"> </span>python3<span class="w"> </span>zdsenv
 </pre></div>
 </div>
 <p>Lancer un virtualenv :</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>workon zdsenv
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>workon<span class="w"> </span>zdsenv
 </pre></div>
 </div>
 <p>Quitter un virtualenv :</p>
@@ -167,10 +167,10 @@ pip3 install virtualenv virtualenvwrapper
 <section id="installation-des-des-dependances-front-et-back">
 <h2>Installation des des dépendances front et back<a class="headerlink" href="#installation-des-des-dependances-front-et-back" title="Lien permanent vers cette rubrique"></a></h2>
 <p>On installe <a class="reference external" href="extra-install-frontend.html">les outils du front-end</a>, <a class="reference external" href="extra-zmd.html">zmarkdown</a> puis les packages python:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make install-front
-make build-front
-make zmd-install
-make install-back
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install-front
+make<span class="w"> </span>build-front
+make<span class="w"> </span>zmd-install
+make<span class="w"> </span>install-back
 </pre></div>
 </div>
 </section>
@@ -178,13 +178,13 @@ make install-back
 <h2>Lancer ZdS<a class="headerlink" href="#lancer-zds" title="Lien permanent vers cette rubrique"></a></h2>
 <p>Une fois dans votre environnement python et toutes les dépendances installées, lançons ZdS.
 On crée d’abord la base de donnée, puis le <a class="reference external" href="../utils/fixture_loaders.html">jeu de données utile au développement</a>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make migrate-db
-make generate-fixtures
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>migrate-db
+make<span class="w"> </span>generate-fixtures
 </pre></div>
 </div>
 <p>On peut finalement lancer zmarkdown, puis ZdS:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make zmd-start
-make run-back
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>zmd-start
+make<span class="w"> </span>run-back
 </pre></div>
 </div>
 </section>
@@ -210,7 +210,7 @@ make run-back
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2014-2022, Zeste de Savoir.</p>
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
   </div>
 
   Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
