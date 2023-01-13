@@ -1877,13 +1877,57 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         Test that the next and previous link in the opinion page take all the opinions
         into accounts and not only the ones of the author.
         """
+        
+        opinion_not_picked = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        opinion_not_picked.save()
 
         user_1_opinion_1 = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
-        user_2_opinion_1 = PublishedContentFactory(author_list=[self.user_guest], type="OPINION")
-        user_1_opinion_2 = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        user_1_opinion_1.sha_picked = user_1_opinion_1.sha_public
         user_1_opinion_1.save()
+        
+        
+        opinion_not_picked = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        opinion_not_picked.save()
+        
+        user_2_opinion_1 = PublishedContentFactory(author_list=[self.user_guest], type="OPINION")
+        user_2_opinion_1.sha_picked = user_2_opinion_1.sha_public
         user_2_opinion_1.save()
+        
+        
+        opinion_not_picked = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        opinion_not_picked.save()
+        
+        user_1_opinion_2 = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        user_1_opinion_2.sha_picked = user_1_opinion_2.sha_public
         user_1_opinion_2.save()
+        
+        opinion_not_picked = PublishedContentFactory(author_list=[self.user_author], type="OPINION")
+        opinion_not_picked.save()
+        
+        
+        
+        PickListOperation.objects.create(
+            content=user_1_opinion_1,
+            operation="PICK",
+            staff_user=self.user_staff,
+            operation_date=datetime.datetime.now(),
+            version=user_1_opinion_1.sha_public,
+        )
+        PickListOperation.objects.create(
+            content=user_2_opinion_1,
+            operation="PICK",
+            staff_user=self.user_staff,
+            operation_date=datetime.datetime.now(),
+            version=user_2_opinion_1.sha_public,
+        )
+        PickListOperation.objects.create(
+            content=user_1_opinion_2,
+            operation="PICK",
+            staff_user=self.user_staff,
+            operation_date=datetime.datetime.now(),
+            version=user_1_opinion_2.sha_public,
+        )
+        
 
         result = self.client.get(
             reverse("opinion:view", kwargs={"pk": user_1_opinion_2.pk, "slug": user_1_opinion_2.slug})
