@@ -213,7 +213,6 @@ class DisplayOnlineContainer(SingleOnlineContentDetailViewMixin):
     """Base class that can show any content in any state"""
 
     template_name = "tutorialv2/view/container_online.html"
-    current_content_type = "TUTORIAL"  # obviously, an article cannot have container !
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

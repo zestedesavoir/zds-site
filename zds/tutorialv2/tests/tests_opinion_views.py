@@ -30,7 +30,6 @@ from zds.utils.models import Alert
 @override_for_contents()
 class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         self.overridden_zds_app["member"]["bot_account"] = ProfileFactory().user.username
         self.bot_group = Group()
         self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
@@ -181,14 +180,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertContains(resp, "Version brouillon", msg_prefix="Author must access their draft directly")
         self.assertNotContains(resp, "{}?subcategory=".format(reverse("publication:list")))
         self.assertContains(resp, "{}?category=".format(reverse("opinion:list")))
-
-    def test_no_help_for_tribune(self):
-        self.client.force_login(self.user_author)
-
-    def test_help_for_article(self):
-        self.client.force_login(self.user_author)
-        resp = self.client.get(reverse("content:create-content", kwargs={"created_content_type": "ARTICLE"}))
-        self.assertEqual(200, resp.status_code)
 
     def test_opinion_publication_staff(self):
         """
