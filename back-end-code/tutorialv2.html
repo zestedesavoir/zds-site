@@ -222,9 +222,8 @@
 
 <dl class="py class">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.ContentSuggestion">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.models.database.</span></span><span class="sig-name descname"><span class="pre">ContentSuggestion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.ContentSuggestion" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Content suggestion</p>
-<dl class="py exception">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">zds.tutorialv2.models.database.</span></span><span class="sig-name descname"><span class="pre">ContentSuggestion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publication</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suggestion</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.ContentSuggestion" title="Lien permanent vers cette définition"></a></dt>
+<dd><dl class="py exception">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.ContentSuggestion.DoesNotExist">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#zds.tutorialv2.models.database.ContentSuggestion.DoesNotExist" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
@@ -233,6 +232,13 @@
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.ContentSuggestion.MultipleObjectsReturned">
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#zds.tutorialv2.models.database.ContentSuggestion.MultipleObjectsReturned" title="Lien permanent vers cette définition"></a></dt>
 <dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="zds.tutorialv2.models.database.ContentSuggestion.get_random_public_suggestions">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_random_public_suggestions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">publication</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#zds.tutorialv2.models.database.PublishableContent" title="zds.tutorialv2.models.database.PublishableContent"><span class="pre">PublishableContent</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.ContentSuggestion.get_random_public_suggestions" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Get random public suggestions for the given publication.
+At most <cite>count</cite> suggestions are returned.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -496,58 +502,26 @@ If a tag is unknown, it is added to the system.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.PublishableContent.in_beta">
-<span class="sig-name descname"><span class="pre">in_beta</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_beta" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>A tutorial is not in beta if sha_beta is <code class="docutils literal notranslate"><span class="pre">None</span></code> or empty</p>
-<dl class="field-list simple">
-<dt class="field-odd">Renvoie</dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the tutorial is in beta, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
-</dd>
-<dt class="field-even">Type renvoyé</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">in_beta</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_beta" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Return True if a beta version of the content exists, and False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.PublishableContent.in_drafting">
-<span class="sig-name descname"><span class="pre">in_drafting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_drafting" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>A tutorial is not in draft if sha_draft is <code class="docutils literal notranslate"><span class="pre">None</span></code> or empty</p>
-<dl class="field-list simple">
-<dt class="field-odd">Renvoie</dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the tutorial is in draft, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
-</dd>
-<dt class="field-even">Type renvoyé</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">in_drafting</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_drafting" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Return True if a draft version of the content exists, and False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.PublishableContent.in_public">
-<span class="sig-name descname"><span class="pre">in_public</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_public" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>A tutorial is not in on line if sha_public is <code class="docutils literal notranslate"><span class="pre">None</span></code> or empty</p>
-<dl class="field-list simple">
-<dt class="field-odd">Renvoie</dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the tutorial is on line, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
-</dd>
-<dt class="field-even">Type renvoyé</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">in_public</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_public" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Return True if a public version of the content exists, and False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.PublishableContent.in_validation">
-<span class="sig-name descname"><span class="pre">in_validation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_validation" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>A tutorial is not in validation if sha_validation is <code class="docutils literal notranslate"><span class="pre">None</span></code> or empty</p>
-<dl class="field-list simple">
-<dt class="field-odd">Renvoie</dt>
-<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the tutorial is in validation, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
-</dd>
-<dt class="field-even">Type renvoyé</dt>
-<dd class="field-even"><p>bool</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">in_validation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.in_validation" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Return True if a version of the content is in validation, and False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -563,19 +537,8 @@ If a tag is unknown, it is added to the system.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.PublishableContent.is_beta">
-<span class="sig-name descname"><span class="pre">is_beta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.is_beta" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Is this version of the content the beta version ?</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>sha</strong> – version</p>
-</dd>
-<dt class="field-even">Renvoie</dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the tutorial is in beta, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
-</dd>
-<dt class="field-odd">Type renvoyé</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">is_beta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.is_beta" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Return True if the given sha corresponds to the beta version, and False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -586,36 +549,14 @@ If a tag is unknown, it is added to the system.
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.PublishableContent.is_public">
-<span class="sig-name descname"><span class="pre">is_public</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.is_public" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Is this version of the content the published version ?</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>sha</strong> – version</p>
-</dd>
-<dt class="field-even">Renvoie</dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the tutorial is in public, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
-</dd>
-<dt class="field-odd">Type renvoyé</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">is_public</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.is_public" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Return True if the given sha corresponds to the public version, and False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="zds.tutorialv2.models.database.PublishableContent.is_validation">
-<span class="sig-name descname"><span class="pre">is_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.is_validation" title="Lien permanent vers cette définition"></a></dt>
-<dd><p>Is this version of the content the validation version ?</p>
-<dl class="field-list simple">
-<dt class="field-odd">Paramètres</dt>
-<dd class="field-odd"><p><strong>sha</strong> – version</p>
-</dd>
-<dt class="field-even">Renvoie</dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the tutorial is in validation, <code class="docutils literal notranslate"><span class="pre">False</span></code> otherwise</p>
-</dd>
-<dt class="field-odd">Type renvoyé</dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
+<span class="sig-name descname"><span class="pre">is_validation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#zds.tutorialv2.models.database.PublishableContent.is_validation" title="Lien permanent vers cette définition"></a></dt>
+<dd><p>Return True if the given sha corresponds to the version in validation, and False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
