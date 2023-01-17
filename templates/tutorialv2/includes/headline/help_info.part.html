@@ -1,0 +1,22 @@
+{% load i18n %}
+{% load pluralize_fr %}
+
+{% if content_helps %}
+    <div class="content-wrapper">
+        <div class="alert-box info">
+            {% if content.authors.count > 1 %}
+                {% trans "Les auteurs de ce contenu recherchent" %}
+            {% else %}
+                {% trans "L’auteur de ce contenu recherche" %}
+            {% endif %}
+
+            {% for help in content_helps %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
+
+            {% if not can_edit %}
+                {% blocktrans with plural=content.authors.count|pluralize_fr %}
+                    N’hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide !
+                {% endblocktrans %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}

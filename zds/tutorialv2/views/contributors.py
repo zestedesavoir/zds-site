@@ -24,7 +24,6 @@ from zds.utils.paginator import ZdSPagingListView
 
 
 class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    only_draft_version = True
     must_be_author = True
     form_class = ContributionForm
     authorized_for_staff = True
@@ -107,7 +106,6 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
 
 class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     form_class = RemoveContributionForm
-    only_draft_version = True
     must_be_author = True
     authorized_for_staff = True
 

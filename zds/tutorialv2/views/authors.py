@@ -19,7 +19,6 @@ from zds.mp.utils import send_mp
 
 
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    only_draft_version = True
     must_be_author = True
     form_class = AuthorForm
     authorized_for_staff = True
@@ -83,7 +82,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
 class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     form_class = RemoveAuthorForm
-    only_draft_version = True
     must_be_author = True
     authorized_for_staff = True
 

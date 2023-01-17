@@ -7,6 +7,7 @@ from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidde
 from django.urls import reverse
 from django.core.validators import MinLengthValidator
 
+from zds.tutorialv2.utils import get_content_version_url
 from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
@@ -697,7 +698,7 @@ class AskValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
-        self.previous_page_url = content.get_absolute_url() + "?version=" + content.current_version
+        self.previous_page_url = get_content_version_url(content, content.current_version)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:ask", kwargs={"pk": content.pk, "slug": content.slug})
@@ -773,11 +774,8 @@ class AcceptValidationForm(forms.Form):
         """
 
         # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        route_parameters = {"pk": validation.content.pk, "slug": validation.content.slug, "version": validation.version}
+        self.previous_page_url = reverse("content:view-version", kwargs=route_parameters)
 
         super().__init__(*args, **kwargs)
 
@@ -808,11 +806,8 @@ class CancelValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        route_parameters = {"pk": validation.content.pk, "slug": validation.content.slug, "version": validation.version}
+        self.previous_page_url = reverse("content:view-version", kwargs=route_parameters)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:cancel", kwargs={"pk": validation.pk})
@@ -863,11 +858,8 @@ class RejectValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        route_parameters = {"pk": validation.content.pk, "slug": validation.content.slug, "version": validation.version}
+        self.previous_page_url = reverse("content:view-version", kwargs=route_parameters)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:reject", kwargs={"pk": validation.pk})

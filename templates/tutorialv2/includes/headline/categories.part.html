@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load pluralize_fr %}
+
+<p>
+    {% trans "Catégorie" %}{{ content.subcategory.all|pluralize }} :
+
+    {% for category in content.subcategory.all %}
+        {% if forloop.first %}{% elif forloop.last %} {% trans "et" %}{% else %},{% endif %}
+        {% if content.is_opinion %}
+            <a href="{% url 'opinion:list' %}?category={{ category.slug }}">{{ category.title }}</a>
+        {% else %}
+            <a href="{% url 'publication:list' %}?subcategory={{ category.slug }}">{{ category.title }}</a>
+        {% endif %}
+    {% endfor %}
+</p>

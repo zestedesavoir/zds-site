@@ -15,7 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.template.loader import render_to_string
 
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
-from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_BETA, CONTENT_TYPES_REQUIRING_VALIDATION
+from zds.tutorialv2.models import SINGLE_CONTAINER_CONTENT_TYPES, CONTENT_TYPES_REQUIRING_VALIDATION
 from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
 from zds.tutorialv2.utils import get_blob
 from zds.utils.validators import InvalidSlugError, check_slug
@@ -78,6 +78,34 @@ class Container:
         cpy.introduction = self.introduction
         cpy.conclusion = self.conclusion
         return cpy
+
+    def get_url_path(self, base_url=""):
+        """
+        Return the path to the container for use in URLs.
+        Preprend with ``base_url`` if specified.
+        """
+        if self.is_top_container():
+            return base_url
+        else:
+            fragments = []
+            current = self
+            while current is not None and not current.is_top_container():
+                fragments.append(current.slug)
+                current = current.parent
+            fragments_reversed = reversed(fragments)
+            path = f"{'/'.join(fragments_reversed)}/"
+            return base_url + path
+
+    def get_list_of_containers(self):
+        """
+        Return a flat list of containers following the reading order. Extracts are not included.
+        Example, if called on the top container: [VersionedContent, Part1, Chapter1, Chapter2, Chapter3, Part2, ...]
+        """
+        reading_list = [self]
+        if not self.has_extracts():
+            for child in self.children:
+                reading_list.extend(child.get_list_of_containers())
+        return reading_list
 
     def has_extracts(self):
         """Note: This function relies on the fact that every child has the
@@ -156,13 +184,12 @@ class Container:
             return False
         return child_path.replace(self.get_path(True), "").replace("/", "") in self.children_dict
 
+    def is_top_container(self) -> bool:
+        return self.parent is None
+
     def top_container(self):
-        """
-        :return: Top container (for which parent is ``None``)
-        :rtype: VersionedContent
-        """
         current = self
-        while current.parent is not None:
+        while not current.is_top_container():
             current = current.parent
         return current
 
@@ -820,25 +847,6 @@ class Container:
             return True
         return False
 
-    def can_be_in_beta(self):
-        """
-        Check if content can be in beta.
-
-        :return: Whether content is in beta.
-        :rtype: bool
-        """
-        return self.type in CONTENT_TYPES_BETA
-
-    def requires_validation(self):
-        """
-        Check if content required a validation before publication.
-        Used to check if JsFiddle is available too.
-
-        :return: Whether validation is required before publication.
-        :rtype: bool
-        """
-        return self.type in CONTENT_TYPES_REQUIRING_VALIDATION
-
     def remove_children(self, children_slugs):
         for slug in children_slugs:
             if slug not in self.children_dict:
@@ -903,10 +911,7 @@ class Container:
         self.conclusion = None
 
     def is_validable(self):
-        """
-        Return ``true`` if the container can be validate ie. (would be in the public version if
-        the content is validate.
-        """
+        """Return ``True`` if the container would be in the public version if the content is validated."""
         if self.parent is not None and not self.parent.is_validable():
             return False
         return self.ready_to_publish
@@ -933,6 +938,9 @@ class Extract:
 
     def __str__(self):
         return f"<Extrait '{self.title}'>"
+
+    def get_url_path(self, base_url=""):
+        return f"{base_url}{self.container.get_url_path()}#{self.position_in_parent}-{self.slug}"
 
     def get_absolute_url(self):
         """Find the url that point to the offline version of this extract
@@ -1157,11 +1165,11 @@ class Extract:
 
 class VersionedContent(Container, TemplatableContentModelMixin):
     """
-    This class is used to handle a specific version of a tutorial.tutorial
+    This class is used to handle a specific version of a tutorial.
 
     It is created from the 'manifest.json' file, and could dump information in it.
 
-    For simplicity, it also contains DB information (but cannot modified them!), filled at the creation.
+    For simplicity, it also contains read-only DB information filled at the creation.
     """
 
     current_version = None
@@ -1239,6 +1247,9 @@ class VersionedContent(Container, TemplatableContentModelMixin):
 
     def __str__(self):
         return self.title
+
+    def requires_validation(self) -> bool:
+        return self.type in CONTENT_TYPES_REQUIRING_VALIDATION
 
     def get_absolute_url(self, version=None):
         return TemplatableContentModelMixin.get_absolute_url(self, version)
@@ -1434,13 +1445,8 @@ class PublicContent(VersionedContent):
         """
 
         super().__init__(current_version, _type, title, slug)
-        self.current_version = current_version
-        self.type = _type
-        self.PUBLIC = True  # this is a public version
+        self.PUBLIC = True
 
 
 class NotAPublicVersion(Exception):
     """Exception raised when a given version is not a public version as it should be"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(self, *args, **kwargs)

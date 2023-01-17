@@ -29,16 +29,18 @@ class TemplatableContentModelMixin:
         """
         return getattr(self, self.content_type_attribute) == "OPINION"
 
-    def get_absolute_url(self, version=None):
+    def get_absolute_url(self, version=None) -> str:
         """
-        :param version: obtional parameter to link a particulare version
-        :return: the url to access the tutorial when offline
-        :rtype: str
+        If no version is given, return the URL to the draft page of the content.
+        Otherwise, return the URL to the page of the specified version.
         """
-        url = reverse("content:view", args=[self.pk, self.slug])
+
+        route_parameters = {"pk": self.pk, "slug": self.slug}
+        url = reverse("content:view", kwargs=route_parameters)
 
         if version and version != self.sha_draft:
-            url += "?version=" + version
+            route_parameters["version"] = version
+            url = reverse("content:view-version", kwargs=route_parameters)
 
         return url
 

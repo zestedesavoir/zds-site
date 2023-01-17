@@ -4,7 +4,6 @@ from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import User
 from django.db import transaction
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
@@ -20,27 +19,14 @@ from zds.member.models import Profile
 from zds.member.utils import get_bot_account
 from zds.tutorialv2.forms import (
     ContentForm,
-    JsFiddleActivationForm,
-    AskValidationForm,
-    AcceptValidationForm,
-    RejectValidationForm,
-    RevokeValidationForm,
-    WarnTypoForm,
-    CancelValidationForm,
-    PublicationForm,
-    UnpublicationForm,
-    ContributionForm,
-    SearchSuggestionForm,
     EditContentLicenseForm,
-    EditContentTagsForm,
 )
 from zds.tutorialv2.mixins import (
-    SingleContentDetailViewMixin,
     SingleContentFormViewMixin,
     SingleContentViewMixin,
     FormWithPreview,
 )
-from zds.tutorialv2.models.database import PublishableContent, Validation, ContentContribution, ContentSuggestion
+from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
 from zds.tutorialv2.views.goals import EditGoalsForm
@@ -141,82 +127,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
     def get_success_url(self):
         return reverse("content:view", args=[self.content.pk, self.content.slug])
-
-
-class DisplayContent(LoginRequiredMixin, SingleContentDetailViewMixin):
-    """Base class that can show any content in any state"""
-
-    model = PublishableContent
-    template_name = "tutorialv2/view/content.html"
-    must_be_author = False  # as in beta state anyone that is logged can access to it
-    only_draft_version = False
-
-    def get_forms(self, context):
-        """get all the auxiliary forms about validation, js fiddle..."""
-
-        validation = Validation.objects.filter(content__pk=self.object.pk).order_by("-date_proposition").first()
-
-        form_js = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
-
-        context["formAskValidation"] = AskValidationForm(
-            content=self.versioned_object, initial={"source": self.object.source, "version": self.sha}
-        )
-
-        if validation:
-            context["formValid"] = AcceptValidationForm(validation, initial={"source": self.object.source})
-            context["formReject"] = RejectValidationForm(validation)
-            context["formCancel"] = CancelValidationForm(validation)
-
-        if self.versioned_object.sha_public:
-            context["formRevokeValidation"] = RevokeValidationForm(
-                self.versioned_object, initial={"version": self.versioned_object.sha_public}
-            )
-            context["formUnpublication"] = UnpublicationForm(
-                self.versioned_object, initial={"version": self.versioned_object.sha_public}
-            )
-
-        if self.versioned_object.is_beta:
-            context["formWarnTypo"] = WarnTypoForm(self.versioned_object, self.versioned_object, public=False)
-
-        context["validation"] = validation
-        context["formJs"] = form_js
-        context["form_edit_license"] = EditContentLicenseForm(self.versioned_object)
-        context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
-        context["form_edit_goals"] = EditGoalsForm(self.object)
-        context["form_edit_labels"] = EditLabelsForm(self.object)
-
-        if self.versioned_object.requires_validation:
-            context["formPublication"] = PublicationForm(self.versioned_object, initial={"source": self.object.source})
-        else:
-            context["formPublication"] = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # check whether this tuto support js fiddle
-        if self.object.js_support:
-            is_js = "js"
-        else:
-            is_js = ""
-        context["is_js"] = is_js
-
-        self.get_forms(context)
-
-        context["gallery"] = self.object.gallery
-        context["public_content_object"] = self.public_content_object
-        if self.object.type.lower() != "opinion":
-            context["formAddReviewer"] = ContributionForm(content=self.object)
-            context["contributions"] = ContentContribution.objects.filter(content=self.object).order_by(
-                "contribution_role__position"
-            )
-            context["content_suggestions"] = ContentSuggestion.objects.filter(publication=self.object)
-            excluded_for_search = [str(x.suggestion.pk) for x in context["content_suggestions"]]
-            excluded_for_search.append(str(self.object.pk))
-            context["formAddSuggestion"] = SearchSuggestionForm(
-                content=self.object, initial={"excluded_pk": ",".join(excluded_for_search)}
-            )
-
-        return context
 
 
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):

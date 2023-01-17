@@ -49,7 +49,6 @@ class DisplayDiff(LoggedWithReadWriteHability, SingleContentDetailViewMixin):
 
     model = PublishableContent
     template_name = "tutorialv2/view/diff.html"
-    only_draft_version = False
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

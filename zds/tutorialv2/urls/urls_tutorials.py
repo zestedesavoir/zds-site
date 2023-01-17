@@ -4,7 +4,7 @@ from zds.tutorialv2.views.contributors import ContentOfContributors
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor
 from zds.tutorialv2.views.download_online import DownloadOnlineTutorial
-from zds.tutorialv2.views.display import DisplayOnlineTutorial, DisplayOnlineContainer
+from zds.tutorialv2.views.display import TutorialOnlineView, ContainerOnlineView
 from zds.tutorialv2.views.redirect import RedirectContentSEO, RedirectOldBetaTuto
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
@@ -21,11 +21,11 @@ urlpatterns = [
     ),
     path(
         "<int:pk>/<slug:slug>/<slug:parent_container_slug>/<slug:container_slug>/",
-        DisplayOnlineContainer.as_view(),
+        ContainerOnlineView.as_view(),
         name="view-container",
     ),
-    path("<int:pk>/<slug:slug>/<slug:container_slug>/", DisplayOnlineContainer.as_view(), name="view-container"),
-    path("<int:pk>/<slug:slug>/", DisplayOnlineTutorial.as_view(), name="view"),
+    path("<int:pk>/<slug:slug>/<slug:container_slug>/", ContainerOnlineView.as_view(), name="view-container"),
+    path("<int:pk>/<slug:slug>/", TutorialOnlineView.as_view(), name="view"),
     # downloads:
     path("md/<int:pk>/<slug:slug>.md", DownloadOnlineTutorial.as_view(requested_file="md"), name="download-md"),
     path("pdf/<int:pk>/<slug:slug>.pdf", DownloadOnlineTutorial.as_view(requested_file="pdf"), name="download-pdf"),

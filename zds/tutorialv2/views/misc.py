@@ -78,7 +78,6 @@ class WarnTypo(SingleContentFormViewMixin):
     modal_form = True
     form_class = WarnTypoForm
     must_be_author = False
-    only_draft_version = False
 
     http_method_names = ["post"]
     object = None

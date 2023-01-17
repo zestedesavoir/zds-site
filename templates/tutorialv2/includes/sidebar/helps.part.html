@@ -1,0 +1,51 @@
+{% load i18n %}
+{% load captureas %}
+
+{% if can_edit and not content.is_opinion %}
+    <div class="actions">
+        <h3 id="title-help">
+            {% trans "Demander de l'aide" %}
+            <a href="#what-is-a-help" class="help-question-mark open-modal"
+               title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}" aria-haspopup="dialog">?</a>
+        </h3>
+        <div id="what-is-a-help" class="modal modal-flex" data-modal-title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}"
+             data-modal-close="{% trans "Fermer" %}">
+            {% url 'content:helps' as help_url %}
+            {% blocktrans%}
+                <p>
+                    Lorsque vous rédigez un tutoriel ou un article, il se peut que vous ayiez
+                    besoin d'aide. La communauté est là pour vous ! En sélectionnant un des éléments
+                    ci-dessous, votre contenu sera répertorié dans <a href="{{ help_url }}">la page des aides</a>
+                    et la communauté pourra vous contacter.
+                </p>
+            {% endblocktrans %}
+        </div>
+        <ul>
+            {# HELPS #}
+            {% for help in helps %}
+                {% captureas current_status %}
+                    {% if help in content_helps %}true{% else %}false{% endif %}
+                {% endcaptureas %}
+                {% captureas desired_status %}
+                    {% if help in content_helps %}false{% else %}true{% endif %}
+                {% endcaptureas %}
+                {% captureas classes_when_activated %}
+                    {% if help in content_helps %}selected ico-after tick green{% endif %}
+                {% endcaptureas %}
+                <li>
+                    <form action="{% url "content:helps-change" content.pk %}" method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="activated" value="{{ desired_status }}">
+                        <input type="hidden" name="help_wanted" value="{{ help.title }}">
+                        <button type="submit"
+                           class="button-toggle {{ classes_when_activated }} help-{{ help.slug }}"
+                           data-activated="{{ current_status }}">
+                            {{ help.title }}
+                        </button>
+                    </form>
+                </li>
+            {% endfor %}
+            {# END HELPS #}
+        </ul>
+    </div>
+{% endif %}
