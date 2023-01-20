@@ -162,6 +162,10 @@ start-publication-watchdog: ## Start the publication watchdog
 help: ## Show this help
 	@echo "Use 'make [command]' to run one of these commands:"
 	@echo ""
-	@fgrep --no-filename "##" ${MAKEFILE_LIST} | head -n '-1' | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2
+ifeq ($(shell uname), Darwin)
+	@fgrep --no-filename "##" ${MAKEFILE_LIST} | tail -r | tail -n +3 | tail -r | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2 | sed 's/(null)//g'
+else
+	@fgrep --no-filename "##" ${MAKEFILE_LIST} | head -n '-2' | sed 's/\:.*\#/\: \#/g' | column -s ':#' -t -c 2  # assume GNU tools
+endif
 	@echo ""
 	@echo "Open this Makefile to see what each command does."
