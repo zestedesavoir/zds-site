@@ -54,6 +54,11 @@ test-back-selenium: ## Run backend Selenium tests
 clean-back: ## Remove Python bytecode files (*.pyc)
 	find . -name '*.pyc' -exec rm {} \;
 
+list-outdated-back: ## List outdated Python packages
+	@echo "Package                 Version   Latest    Type"
+	@echo "----------------------- --------- --------- -----"
+	@pip list --outdated | grep "`awk -F== '{ print $$1 }' requirements*.txt | tr -s '\n' '\n' | sort`"
+
 ##
 ## ~ Frontend
 
