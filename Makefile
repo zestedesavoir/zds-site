@@ -80,6 +80,9 @@ lint-front: ## Lint the Javascript code
 clean-front: ## Clean the frontend builds
 	yarn run clean
 
+list-outdated-front: ## List outdated Node.js packages
+	@npx david || true
+
 ##
 ## ~ zmarkdown
 
