@@ -9,4 +9,4 @@ pre-commit==2.20.0
 PyYAML==6.0
 selenium==4.4.3
 Sphinx==5.1.1
-sphinx_rtd_theme==1.0.0
+sphinx-rtd-theme==1.0.0
