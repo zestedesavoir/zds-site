@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation de GeoLite2 &mdash; Documentation Zeste de Savoir dev</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/translations.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Installation de Elasticsearch (pour la recherche)" href="extra-install-es.html" />
+    <link rel="prev" title="Installation sous Windows" href="install-windows.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Zeste de Savoir
+          </a>
+              <div class="version">
+                dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../install.html">Installation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install-docker.html">Installation dans Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-linux.html">Installation sous Linux</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-macos.html">Installation sous macOS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-windows.html">Installation sous Windows</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation de GeoLite2</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mise-a-jour">Mise à jour</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#resolution-de-probleme">Résolution de problème</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#jai-des-avertissements-concernant-geoip2-dans-les-logs">J’ai des avertissements concernant GeoIP2 dans les logs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#la-localisation-de-lip-nest-pas-affichee-malgre-tout">La localisation de l’IP n’est pas affichée malgré tout</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="extra-install-es.html">Installation de Elasticsearch (pour la recherche)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-install-frontend.html">Installation du frontend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-install-latex.html">Installation de LaTeX et de la <em>template</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-zmd.html">Installation et utilisation de zmarkdown</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../install.html">Installation</a> &raquo;</li>
+      <li>Installation de GeoLite2</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/install/extra-geolite2.rst.txt" rel="nofollow"> Afficher la source de la page</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation-de-geolite2">
+<h1>Installation de GeoLite2<a class="headerlink" href="#installation-de-geolite2" title="Lien permanent vers cette rubrique"></a></h1>
+<p><a class="reference external" href="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data">GeoLite2</a> est une base de donnée gratuite donnant des informations de localisation sur les adresses IP, par exemple le pays d’origine probable. Zeste de Savoir l’utilise afin de localiser les adresses IP des membres à des fins de modération.</p>
+<p>L’installation de la base de donnée est optionnelle pour le bon fonctionnement du site. En particulier, l’environnement de développement peut fonctionner sans.</p>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Lien permanent vers cette rubrique"></a></h2>
+<p>La base de donnée doit être téléchargée depuis le site de l’éditeur.</p>
+<ol class="arabic simple">
+<li><p>Créer un <a class="reference external" href="https://www.maxmind.com/en/geolite2/signup?lang=en">compte utilisateur</a> gratuit.</p></li>
+<li><p>Se connecter et accéder à la <a class="reference external" href="https://www.maxmind.com/en/accounts/current/geoip/downloads">page de téléchargement</a>.</p></li>
+<li><p>Choisir la ligne « GeoLite2 City » ; vérifier que le format est bien <em>GeoIP2 Binary</em> et télécharger l’archive GZIP.</p></li>
+<li><p>Décompresser l’archive et renommer le dossier <code class="docutils literal notranslate"><span class="pre">GeoLite2-City_YYYYMMDD</span></code> en <code class="docutils literal notranslate"><span class="pre">geodata</span></code>.</p></li>
+<li><p>Placer ce dossier à la racine du projet.</p></li>
+</ol>
+<p>La localisation des adresses IP sera désormais indiquée sur les pages de profil si vous êtes connectés en tant que staff ou admin.</p>
+<p>Consultez la <a class="reference external" href="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data">documentation officielle</a> pour plus d’information.</p>
+</section>
+<section id="mise-a-jour">
+<h2>Mise à jour<a class="headerlink" href="#mise-a-jour" title="Lien permanent vers cette rubrique"></a></h2>
+<p>La mise à jour de la base de donnée peut se faire en téléchargeant une nouvelle version et en l’installant à la place de l’ancienne, en suivant la procédure décrite dans la section <a class="reference external" href="#installation">Installation</a>.</p>
+<p>Si vous souhaitez automatiser la mise à jour, d’autres options existent :</p>
+<ul class="simple">
+<li><p>le programme de mise à jour <a class="reference external" href="https://dev.maxmind.com/geoip/updating-databases?lang=en#using-geoip-update">GeoIP Update</a> ;</p></li>
+<li><p>l’utilisation des permaliens de la page de téléchargement, par exemple avec <code class="docutils literal notranslate"><span class="pre">wget</span></code> ou autre outil similaire.</p></li>
+</ul>
+<p>Dans tous les cas, vous aurez besoin de générer une clé de licence.</p>
+<p>Consultez la <a class="reference external" href="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data">documentation officielle</a> pour une information complète à ce sujet.</p>
+</section>
+<section id="resolution-de-probleme">
+<h2>Résolution de problème<a class="headerlink" href="#resolution-de-probleme" title="Lien permanent vers cette rubrique"></a></h2>
+<section id="jai-des-avertissements-concernant-geoip2-dans-les-logs">
+<h3>J’ai des avertissements concernant GeoIP2 dans les logs<a class="headerlink" href="#jai-des-avertissements-concernant-geoip2-dans-les-logs" title="Lien permanent vers cette rubrique"></a></h3>
+<p>Si le message d’erreur est le suivant :</p>
+<blockquote>
+<div><div class="highlight-none notranslate"><div class="highlight"><pre><span></span>GeoIP path must be a valid file or directory.
+</pre></div>
+</div>
+</div></blockquote>
+<p>alors la base de donnée n’est pas installée ou n’est pas installée au bon endroit.</p>
+<ul class="simple">
+<li><p>Vérifiez que vous avez placé le dossier au bon endroit.</p></li>
+<li><p>Vérifiez que le dossier a le bon nom.</p></li>
+<li><p>Vérifiez que le fichier <code class="docutils literal notranslate"><span class="pre">.mmdb</span></code> a le bon nom.</p></li>
+</ul>
+<p>À cette fin, consulter la configuration de votre environnement de développement peut être utile. Le module de localisation utilise les paramètres <code class="docutils literal notranslate"><span class="pre">GEOIP_PATH</span></code> pour le nom dudossier et <code class="docutils literal notranslate"><span class="pre">GEOIP_CITY</span></code> pour le nom du fichier. Ils sont définis dans <code class="docutils literal notranslate"><span class="pre">zds/settings/abstract_base/zds.py</span></code>.</p>
+<p>Si vous avez une autre erreur, contactez les développeurs. Il s’agit sûrement d’un bug et non d’un souci d’installation.</p>
+</section>
+<section id="la-localisation-de-lip-nest-pas-affichee-malgre-tout">
+<h3>La localisation de l’IP n’est pas affichée malgré tout<a class="headerlink" href="#la-localisation-de-lip-nest-pas-affichee-malgre-tout" title="Lien permanent vers cette rubrique"></a></h3>
+<p>Vérifiez d’abord votre installation encore une fois, et notamment l’absence d’avertissement concernant GeoIP2 dans les logs. Si vous avez des avertissements, consultez la <a class="reference external" href="#jai-des-avertissements-concernant-geoip2-dans-les-logs">section ci-dessus</a> pour les résoudre.</p>
+<p>Vérifiez que vous êtes bien connecté en tant que staff ou admin. Les adresses IP et leur localisation ne sont pas affichées pour les simples membres.</p>
+<p>Vérifiez que le profil ne s’est pas connecté depuis une IP locale telle que 127.0.0.1. Aucune localisation ne sera affichée pour ce type d’IP.</p>
+<p>Autrement, il est possible que la base de donnée ne connaisse pas la localisation de l’IP. Dans ce cas, Zeste de Savoir ne donnera aucune information de localisation. Notez également que la localisation peut être partielle (par exemple seulement le pays, mais pas la ville).</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="install-windows.html" class="btn btn-neutral float-left" title="Installation sous Windows" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="extra-install-es.html" class="btn btn-neutral float-right" title="Installation de Elasticsearch (pour la recherche)" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
