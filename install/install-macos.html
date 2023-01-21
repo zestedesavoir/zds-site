@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="fr" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation sous macOS &mdash; Documentation Zeste de Savoir dev</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/translations.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Recherche" href="../search.html" />
+    <link rel="next" title="Installation sous Windows" href="install-windows.html" />
+    <link rel="prev" title="Installation sous Linux" href="install-linux.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> Zeste de Savoir
+          </a>
+              <div class="version">
+                dev
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Rechercher docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../guides.html">Guides pas-à-pas</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../install.html">Installation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="install-docker.html">Installation dans Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install-linux.html">Installation sous Linux</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Installation sous macOS</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pre-requis">Pré-requis</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#xcode">XCode</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#homebrew">Homebrew</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#python-3">Python 3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#utilitaires-gnu-linux-au-lieu-de-bsd">Utilitaires GNU/Linux au lieu de BSD</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#dependances-systeme">Dépendances système</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#installation-de-zds-site">Installation de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lancement-de-zds-site">Lancement de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#donnees-de-test">Données de test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mettre-a-jour-votre-instance-locale">Mettre à jour votre instance locale</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="install-windows.html">Installation sous Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-install-es.html">Installation de Elasticsearch (pour la recherche)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-install-frontend.html">Installation du frontend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-install-latex.html">Installation de LaTeX et de la <em>template</em></a></li>
+<li class="toctree-l2"><a class="reference internal" href="extra-zmd.html">Installation et utilisation de zmarkdown</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contribuer à Zeste de Savoir</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html"><em>Workflow</em> et détails pratiques</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end.html">Le <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../back-end-code.html">Documentation technique du <em>back-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../front-end.html">Le <em>front-end</em></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Makefile et autres outils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../delay-issue.html">Problème de lenteur lors du dev ?</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Zeste de Savoir</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../install.html">Installation</a> &raquo;</li>
+      <li>Installation sous macOS</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/install/install-macos.rst.txt" rel="nofollow"> Afficher la source de la page</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation-sous-macos">
+<h1>Installation sous macOS<a class="headerlink" href="#installation-sous-macos" title="Lien permanent vers cette rubrique"></a></h1>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Il y a moins  de contributeurs·trices sur macOS que sur d’autres plateformes.
+Il se peut que l’installation et les tests unitaires fonctionnent correctement,
+partiellement ou pas du tout. Bref, en cas de problème n’hésitez pas à venir
+demander de l’aide sur le <a class="reference external" href="https://zestedesavoir.com/forums/communaute/dev-zone/">forum des Devs’ de Zeste de Savoir</a> !</p>
+<p>Les instructions ci-dessous ont été testées avec succès sur un MacBook Pro
+fin-2021, avec processeur M1 Pro, sous macOS 12 (Monterey) et 13 (Ventura).</p>
+</div>
+<p>Pour installer une version locale de ZdS sur macOS, veuillez suivre les
+instructions suivantes. Si une commande ne passe pas, essayez de savoir pourquoi
+avant de continuer.</p>
+<p>macOS étant un système UNIX proche de Linux, l’installation fonctionne quasiment
+comme pour cet OS, à quelques détails près. La principale différence est que
+macOS étant basé sur BSD, il faut remplacer les outils BSD par ceux de GNU (les
+<code class="docutils literal notranslate"><span class="pre">gnu-coreutils</span></code>, utilisés sous Linux), et avec lesquels <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> est conçu.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Les instructions ci-dessous sont écrites pour macOS, mais il se peut que leur
+philosophie (utiliser les <code class="docutils literal notranslate"><span class="pre">gnu-coreutils</span></code> au lieu de ceux de BSD) permette
+d’installer <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> sur un système *BSD.</p>
+</div>
+<section id="pre-requis">
+<h2>Pré-requis<a class="headerlink" href="#pre-requis" title="Lien permanent vers cette rubrique"></a></h2>
+<div class="admonition-avis-aux-utilisateurstrices-avancees admonition">
+<p class="admonition-title">Avis aux utilisateurs·trices avancé·es</p>
+<p>Ces instructions expliquent comment installer XCode, Homebrew, Python, pip, et
+les utilitaires GNU, sur macOS. Si vous avez déjà :</p>
+<ul class="simple">
+<li><p>une installation fonctionnelle de Homebrew et de Python 3.7+ ;</p></li>
+<li><p>configuré votre terminal pour utiliser les utilitaires GNU à la place de
+ceux de BSD (avec <a class="reference external" href="https://github.com/darksonic37/linuxify#install">linuxify</a>,
+par exemple) ;</p></li>
+</ul>
+<p>alors vous pouvez <a class="reference external" href="#dependances-systeme">passer à la section suivante</a>
+concernant l’installation de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code>.</p>
+</div>
+<section id="xcode">
+<h3>XCode<a class="headerlink" href="#xcode" title="Lien permanent vers cette rubrique"></a></h3>
+<p>Pour installer ou lancer <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> sur macOS, vous devrez utiliser un
+terminal pour pouvoir y entrer des commandes servant à installer ou lancer
+le site et ses composants annexes. <a class="reference external" href="https://support.apple.com/fr-fr/guide/terminal/apd5265185d-f365-44cb-8b09-71a064a42125/mac">macOS intègre un terminal nativement</a>,
+que vous pouvez utiliser.</p>
+<p>Pour utiliser complètement le terminal sous macOS, vous devez installer quelques
+outils supplémentaires qui ne sont pas installés de base avec macOS. Depuis
+votre terminal, exécutez cette commande pour les installer.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>xcode-select<span class="w"> </span>--install
+</pre></div>
+</div>
+</section>
+<section id="homebrew">
+<h3>Homebrew<a class="headerlink" href="#homebrew" title="Lien permanent vers cette rubrique"></a></h3>
+<p>Vous aurez ensuite besoin d’<strong>Homebrew</strong>, un système permettant de télécharger et
+d’installer des logiciels sous macOS depuis la ligne de commande, et de les
+mettre à jour. Nous nous en servirons pour installer Python (si nécessaire) et
+les dépendances de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code>.</p>
+<p><a class="reference external" href="http://brew.sh/">Les instructions d’installation d’Homebrew sont sur leur site web</a>.</p>
+</section>
+<section id="python-3">
+<h3>Python 3<a class="headerlink" href="#python-3" title="Lien permanent vers cette rubrique"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">zds-site</span></code> dépend d’une version récente de Python 3. Sous macOS Ventura et plus
+récent (macOS 13+), Python 3 est installé avec XCode, qu’on a installé plus haut.
+Pour vérifier, exécutez la commande suivante :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>Si vous obtenez une version inférieure à Python 3.7 (et notamment si vous voyez
+<code class="docutils literal notranslate"><span class="pre">Python</span> <span class="pre">2.7</span></code>), il vous faudra installer une version récente de Python avec
+Homebrew. Sinon, vous pouvez utiliser la version intégrée avec macOS de Python,
+mais vous devrez installer <code class="docutils literal notranslate"><span class="pre">pip</span></code>.</p>
+<section id="si-votre-version-de-python-est-trop-vieille">
+<h4>Si votre version de Python est trop vieille<a class="headerlink" href="#si-votre-version-de-python-est-trop-vieille" title="Lien permanent vers cette rubrique"></a></h4>
+<p>Il vous faut installer Python avec Homebrew. Exécutez dans un terminal :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>python
+</pre></div>
+</div>
+<p>Puis revérifiez la version de Python avec <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">--version</span></code>. Si elle n’a pas
+changé, tentez de redémarrer votre terminal.</p>
+</section>
+<section id="si-vous-gardez-la-version-native-de-python">
+<h4>Si vous gardez la version native de Python<a class="headerlink" href="#si-vous-gardez-la-version-native-de-python" title="Lien permanent vers cette rubrique"></a></h4>
+<p>Si vous avez décidé de garder la version native de Python, si elle est assez récente,
+vous allez quand même devoir installer <code class="docutils literal notranslate"><span class="pre">pip</span></code>, un logiciel compagnon de Python
+servant à installer des bibliothèques externes en Python — des extensions
+permettant d’augmenter ses possibilités facilement.</p>
+<p>Pour vérifier que vous disposez de <code class="docutils literal notranslate"><span class="pre">pip</span></code>, exécutez l’une de ces commandes :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>--version<span class="w">           </span><span class="c1"># ou</span>
+pip3<span class="w"> </span>--version<span class="w">          </span><span class="c1"># ou</span>
+python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>--version
+</pre></div>
+</div>
+<p>Vous devriez obtenir un numéro de version de pip et de Python, comme cela :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pip<span class="w"> </span>--version<span class="w">  </span><span class="c1"># ou une des autres commandes</span>
+pip<span class="w"> </span><span class="m">22</span>.3.1<span class="w"> </span>from<span class="w"> </span>/opt/homebrew/lib/python3.10/site-packages/pip<span class="w"> </span><span class="o">(</span>python<span class="w"> </span><span class="m">3</span>.10<span class="o">)</span>
+</pre></div>
+</div>
+<p>Si ces commandes retournent toutes une erreur, et non un numéro de version,
+vous devez installer <code class="docutils literal notranslate"><span class="pre">pip</span></code>. <a class="reference external" href="https://pip.pypa.io/en/stable/installation/">Les instructions d’installation sont sur le site
+web de pip.</a></p>
+</section>
+</section>
+<section id="utilitaires-gnu-linux-au-lieu-de-bsd">
+<h3>Utilitaires GNU/Linux au lieu de BSD<a class="headerlink" href="#utilitaires-gnu-linux-au-lieu-de-bsd" title="Lien permanent vers cette rubrique"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">zds-site</span></code> est conçu pour fonctionner avec les utilitaires de Linux (les
+<code class="docutils literal notranslate"><span class="pre">gnu-coreutils</span></code>), différents des utilitaires natifs de *BSD (et donc de macOS,
+qui en est un lointain descendant).</p>
+<p>Le plus simple est le projet <code class="docutils literal notranslate"><span class="pre">linuxify</span></code>, qui installe toutes les versions GNU
+de divers logiciels avec Homebrew. Par défaut, ces versions viennent préfixées,
+pour ne pas entrer en conflit avec les versions du système. En pratique, ce n’est
+pas un problème d’utiliser dans votre environnement local les versions de GNU,
+donc vous pouvez utiliser en permanence ces versions à la place de celles de BSD.</p>
+<p>Dans le doute, remplacez en permanence par les versions de GNU : c’est sans impact
+négatif et ça permet à <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> de fonctionner sans manipulation particulière.</p>
+<p><a class="reference external" href="https://github.com/darksonic37/linuxify#install">Commencez par installer linuxify</a>,
+tel que précisé sur leur site. Si vous avez une erreur disant <code class="docutils literal notranslate"><span class="pre">command</span> <span class="pre">not</span> <span class="pre">found:</span> <span class="pre">git</span></code>,
+exécutez dans votre terminal la commande <code class="docutils literal notranslate"><span class="pre">brew</span> <span class="pre">install</span> <span class="pre">git</span></code>.</p>
+<p>Lorsqu’il vous demande <em>Do you want to change your shell to the latest bash</em>,
+répondez non (<code class="docutils literal notranslate"><span class="pre">n</span></code>).</p>
+<p>Ensuite, si vous choisissez de remplacer en permanence les utilitaires BSD par
+ceux de GNU, exécutez la commande suivante pour automatiquement utiliser les
+utilitaires GNU quand vous utilisez votre terminal, puis redémarrez votre terminal.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;. ~/.linuxify&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.zshrc
+</pre></div>
+</div>
+<p>Si vous choisissez de ne <strong>pas</strong> le faire, alors il vous faudra exécuter cette
+commande dans <em>chaque</em> terminal où vous exécuterez des commandes d’installation
+ou de mise à jour de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> (une fois par terminal, pas besoin de la
+ré-exécuter à chaque fois) :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>.<span class="w"> </span>~/.linuxify
+</pre></div>
+</div>
+</section>
+</section>
+<section id="dependances-systeme">
+<h2>Dépendances système<a class="headerlink" href="#dependances-systeme" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Le script d’installation n’installant pas encore les paquets automatiquement sur
+macOS, vous devez le faire à la main, via Homebrew. Exécutez la commande
+suivante pour tout installer.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>brew<span class="w"> </span>install<span class="w"> </span>curl<span class="w"> </span>gettext<span class="w"> </span>cairo
+</pre></div>
+</div>
+<p>Une fois les pré-requis terminés, vous pouvez vous lancer dans l‘installation
+de l’environnement de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code>.</p>
+</section>
+<section id="installation-de-zds-site">
+<h2>Installation de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code><a class="headerlink" href="#installation-de-zds-site" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Commencez par cloner le dépôt de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code>, ou idéalement, votre fork sur
+lequel vous travaillerez avant d’envoyer des <em>Pull-Requests</em>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:VOTRE-PSEUDO-GITHUB/zds-site.git
+<span class="nb">cd</span><span class="w"> </span>zds-site
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">zds-site</span></code> peut s’installer de deux façons :</p>
+<ul class="simple">
+<li><p>une version minimale, qui ne contient que le site lui-même, mais pas le moteur
+de recherche ni le système d’export des PDF ;</p></li>
+<li><p>une version complète, qui contient tout, et qui est aussi plus lourde à
+installer.</p></li>
+</ul>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>La version complète <strong>ne peut être automatiquement installée pour le moment</strong>
+car l’installeur télécharge une version de Java (pour ElasticSearch) spécifique
+à Linux. Cependant, vous pouvez remplacer la version de Java installée dans
+<code class="docutils literal notranslate"><span class="pre">zds-site/zdsenv/lib/jdk</span></code> par une version fonctionnant sous macOS et ElasticSearch
+fonctionnera.</p>
+<p>Le système de génération et d’export des PDF devrait fonctionner normalement.</p>
+<p>La version minimale a été testée avec succès.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">Voir aussi</p>
+<ul class="simple">
+<li><p><a class="reference external" href="extra-install-es.html">Installation d’Elasticsearch</a> ;</p></li>
+<li><p><a class="reference external" href="extra-install-latex.html">installation de LaTeX</a>.</p></li>
+</ul>
+</div>
+<p>Pour installer la version minimale, exécutez depuis la racine du dépôt que vous
+venez de cloner :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./scripts/install_zds.sh<span class="w"> </span>+base<span class="w"> </span>-packages
+</pre></div>
+</div>
+<p>Si vous voulez la version complète :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./scripts/install_zds.sh<span class="w"> </span>+full<span class="w"> </span>-packages
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>L’option <code class="docutils literal notranslate"><span class="pre">-packages</span></code> désactive l’installation automatique des dépendances
+système, qui n’est pour le moment supportée que sous Linux.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Vous pouvez relire le script avant de l’exécuter pour savoir ce qu’il fait.
+Mais dans l’idée, ce script va :</p>
+<ul class="simple">
+<li><p>installer <code class="docutils literal notranslate"><span class="pre">virtualenv</span></code> (via <code class="docutils literal notranslate"><span class="pre">pip</span></code>), un logiciel Python permettant de
+créer des environnements virtuels cloisonnés en Python ;</p></li>
+<li><p>créer un environnement virtuel dans le sous-dossier <code class="docutils literal notranslate"><span class="pre">zdsenv</span></code> ;</p></li>
+<li><p>installer dans votre dossier utilisateur le logiciel <code class="docutils literal notranslate"><span class="pre">nvm</span></code> (<em>Node Versions
+Manager</em>), un outil permettant d’installer différentes versions de NodeJS ;</p></li>
+<li><p>installer la bonne version de NodeJS localement (uniquement pour <code class="docutils literal notranslate"><span class="pre">zds-site</span></code>)
+et intégrer le chargement de la cette bonne version à l’environnement virtuel ;</p></li>
+<li><p>installer les dépendances de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> dans l’environnement virtuel ;</p></li>
+<li><p>installer <code class="docutils literal notranslate"><span class="pre">zmarkdown</span></code>, le moteur de rendu Markdown utilisé par <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> ;</p></li>
+<li><p>installer les dépendances du <em>front-end</em> avec <code class="docutils literal notranslate"><span class="pre">npm</span></code> puis compiler le
+<em>font-end</em> ;</p></li>
+<li><p>créer la base de données utilisée par <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> (avec SQLite) et la
+remplir de données de test ;</p></li>
+<li><p>intégrer au dépôt local un <em>pre-commit hook</em> <a class="reference external" href="../utils/git-pre-hook.html">vérifiant que le code Python
+est correctement formaté à chaque commit</a>
+(et le formatant le cas échéant).</p></li>
+</ul>
+<p>Si vous installez la version complète, le script va, en plus :</p>
+<ul class="simple">
+<li><p>installer une version de Java pour Linux dans le dossier <code class="docutils literal notranslate"><span class="pre">zds-site/zdsenv/lib/jdk</span></code>
+et modifier l’environnement virtuel pour que cette version de Java soit utilisée ;</p></li>
+<li><p>installer ElasticSearch dans le dossier <code class="docutils literal notranslate"><span class="pre">zds-site/.local/elasticsearch</span></code> ;</p></li>
+<li><p>installer TeXLive (permettant de compiler du LaTeX en PDF, utilisé pour les
+exports PDF) dans le dossier <code class="docutils literal notranslate"><span class="pre">zds-site/.local/texlive</span></code> ;</p></li>
+<li><p>cloner le dépôt contenant le modèle LaTeX utilisé par l’export PDF dans le
+dossier <code class="docutils literal notranslate"><span class="pre">zds-site/latex-template</span></code>.</p></li>
+</ul>
+</div>
+</section>
+<section id="lancement-de-zds-site">
+<h2>Lancement de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code><a class="headerlink" href="#lancement-de-zds-site" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Une fois dans votre environnement Python et toutes les dépendances installées,
+lançons ZdS.</p>
+<p>Il faut d’abord lancer <code class="docutils literal notranslate"><span class="pre">zmarkdown</span></code>, le moteur de rendu Markdown utilisé par
+Zeste de Savoir. Ce moteur fonctionne sur un modèle client-serveur : <code class="docutils literal notranslate"><span class="pre">zds-site</span></code>
+envoie une requête HTTP (en local) pour obtenir le rendu d’un document Markdown
+en HTML, ePub, ou LaTeX. Il faut donc démarrer le serveur <code class="docutils literal notranslate"><span class="pre">zmarkdown</span></code> en
+arrière-plan.</p>
+<p>Ensuite, on démarre <code class="docutils literal notranslate"><span class="pre">zds-site</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Depuis la racine du dépôt zds-site</span>
+make<span class="w"> </span>zmd-start
+make<span class="w"> </span>run
+</pre></div>
+</div>
+<p>Le démarrage de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> entraîne celui du <em>backend</em> Python dans un mode
+optimisé pour le développement. Notamment, le cache est totalement désactivé
+et des outils de débogage rendent disponible plein d’informations sur chaque
+page, les données techniques envoyées (paramètres de templates, …) et les
+requêtes SQL envoyées. Ces outils sont pratiques mais ils peuvent être lourds.
+Si vous avez une machine peu puissante et que vous voulez une version plus légère,
+mais sans tous ces outils de développement, vous pouvez démarrer une version
+plus légère de <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> ainsi.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>run-fast
+</pre></div>
+</div>
+<p>Ces deux façons de lancer <code class="docutils literal notranslate"><span class="pre">zds-site</span></code> lancent aussi la compilation automatique
+à la moindre modification des fichiers du <em>front-end</em> (SCSS, JS, etc.). Si vous
+voulez également désactiver cela, car vous ne travaillez pas sur le <em>front-end</em>
+et/ou que vous voulez une version plus légère du site, vous pouvez ne lancer que
+le <em>back-end</em> :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>run-back<span class="w">       </span><span class="c1"># ou (cf. plus haut)</span>
+make<span class="w"> </span>run-back-fast
+</pre></div>
+</div>
+<p>Pour lister toutes les options disponibles, exécutez simplement, sans argument :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make
+</pre></div>
+</div>
+</section>
+<section id="donnees-de-test">
+<h2>Données de test<a class="headerlink" href="#donnees-de-test" title="Lien permanent vers cette rubrique"></a></h2>
+<p>L’installeur a créé pour nous le <a class="reference external" href="../utils/fixture_loaders.html">jeu de données utile au développement</a>. Si pour une raison ou pour une autre, vous
+voulez repartir de zéro en écrasant toutes les données de votre installation
+locale, vous pouvez le faire.</p>
+<div class="admonition warning">
+<p class="admonition-title">Avertissement</p>
+<p>Cette commande <strong>supprime totalement votre base de données, ainsi que tous les
+contenus que vous avez pu créer, sur votre instance locale</strong>, puis recrée des
+données de test aléatoires à partir de zéro.</p>
+<p><strong>Il n’est pas possible d’annuler cette opération.</strong></p>
+</div>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>new-db
+</pre></div>
+</div>
+</section>
+<section id="mettre-a-jour-votre-instance-locale">
+<h2>Mettre à jour votre instance locale<a class="headerlink" href="#mettre-a-jour-votre-instance-locale" title="Lien permanent vers cette rubrique"></a></h2>
+<p>Pour rapidement mettre votre instance locale à jour, par exemple pour tester une
+<em>Pull-Request</em> ou si vous vous êtes mis à jour depuis le dépôt principal, lancez :</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>update
+</pre></div>
+</div>
+<p>Cette commande va mettre à jour le <em>back-end</em> et le <em>front-end</em>, puis migrer la
+base de données (si nécessaire) et recompiler le <em>front-end</em>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Pied de page">
+        <a href="install-linux.html" class="btn btn-neutral float-left" title="Installation sous Linux" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Précédent</a>
+        <a href="install-windows.html" class="btn btn-neutral float-right" title="Installation sous Windows" accesskey="n" rel="next">Suivant <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2014-2023, Zeste de Savoir.</p>
+  </div>
+
+  Compilé avec <a href="https://www.sphinx-doc.org/">Sphinx</a> en utilisant un
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">thème</a>
+    fourni par <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
