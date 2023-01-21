@@ -1,4 +1,4 @@
-|Build Status| |Coverage Status| |Dependency Status| |Licence GPL|
+|Build Status| |Coverage Status| |Licence GPL|
 
 .. image:: https://github.com/zestedesavoir/zds-site/blob/36c6bbc50fdecd936768ef5a566d98f5d757fcbf/assets/images/logo-background.png
 
@@ -48,7 +48,5 @@ Conseils pour débuter
    :target: https://github.com/zestedesavoir/zds-site/actions
 .. |Coverage Status| image:: https://coveralls.io/repos/github/zestedesavoir/zds-site/badge.svg?branch=dev
    :target: https://coveralls.io/github/zestedesavoir/zds-site?branch=dev
-.. |Dependency Status| image:: https://david-dm.org/zestedesavoir/zds-site.svg
-   :target: https://david-dm.org/zestedesavoir/zds-site
 .. |Licence GPL| image:: https://img.shields.io/badge/license-GPL-blue.svg
    :target: https://www.gnu.org/licenses/quick-guide-gplv3.fr.html
