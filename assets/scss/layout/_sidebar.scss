@@ -84,12 +84,18 @@
     }
 
     h4 {
-        padding-top: $length-20;
+        padding-top: $length-16;
+        padding-bottom: $length-4;
         font-size: $font-size-8;
+        border-bottom: $length-1 solid $grey-100;
 
         a {
             text-decoration: none;
             color: $grey-800;
+        }
+
+        &:hover, &:focus {
+            background: $color-sidebar-hover;
         }
     }
 
@@ -178,7 +184,7 @@
 
                 &:hover, &:focus {
                     background: $color-sidebar-hover;
-                    outline: none;
+                    //outline: none;
                 }
 
                 color: $color-link;
