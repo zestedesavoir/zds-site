@@ -27,7 +27,7 @@ django-oauth-toolkit==1.7.0
 djangorestframework==3.14.0
 drf-extensions==0.7.1
 dry-rest-permissions==0.1.10
-drf_yasg==1.21.4
+drf-yasg==1.21.4
 
 # Dependencies for slug generation, please be extra careful with those
 django-uuslug==2.0.0
