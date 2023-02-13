@@ -13,6 +13,7 @@ from zds.tutorialv2.models.database import (
 )
 from zds.tutorialv2.models.events import Event
 from zds.tutorialv2.models.goals import Goal
+from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.help_requests import HelpWriting
 
 
@@ -119,6 +120,11 @@ class GoalAdmin(admin.ModelAdmin):
     ordering = ["position"]
 
 
+class LabelAdmin(admin.ModelAdmin):
+    list_display = ["name", "description"]
+    ordering = ["position"]
+
+
 admin.site.register(PublishableContent, PublishableContentAdmin)
 admin.site.register(PublishedContent, PublishedContentAdmin)
 admin.site.register(Validation, ValidationAdmin)
@@ -130,4 +136,5 @@ admin.site.register(ContentContributionRole, ContentReviewTypeAdmin)
 admin.site.register(HelpWriting)
 admin.site.register(Event)
 admin.site.register(Goal, GoalAdmin)
+admin.site.register(Label, LabelAdmin)
 admin.site.register(ContentSuggestion)
