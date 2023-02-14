@@ -4,6 +4,7 @@ from crispy_forms.layout import Layout, Field, ButtonHolder
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Count
 from django.forms import (
     forms,
     ModelMultipleChoiceField,
@@ -18,6 +19,7 @@ from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.labels import Label
 from zds.utils import get_current_user
+from zds.utils.paginator import ZdSPagingListView
 
 
 class EditLabelsForm(forms.Form):
@@ -76,3 +78,57 @@ class EditLabels(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormV
         messages.success(self.request, self.success_message)
         signals.goals_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
         return super().form_valid(form)
+
+
+class ContentsByLabelMixin:
+    context_object_name = "contents"
+
+    def get_queryset(self):
+        self.current_filter_pk = None
+
+        self.base_queryset = PublishableContent.objects.exclude(public_version=None)
+        self.num_all = self.base_queryset.count()
+
+        queryset_not_classified = self.base_queryset.filter(goals=None)
+        self.num_not_classified = queryset_not_classified.count()
+
+        self.only_not_classified = "non-classes" in self.request.GET
+        if self.only_not_classified:
+            return queryset_not_classified
+        else:
+            for label in Label.objects.all():
+                if f"label_{label.pk}" in self.request.GET:
+                    self.current_filter_pk = label.pk
+                    return self.base_queryset.filter(labels__in=[label])
+        return self.base_queryset
+
+    def get_context_data(self, **kwargs):
+        context = {
+            "labels": Label.objects.all().annotate(num_contents=Count("contents")),
+            "current_filter_pk": self.current_filter_pk,
+            "only_not_classified": self.only_not_classified,
+            "all": self.current_filter_pk is None and not self.only_not_classified,
+            "num_all": self.num_all,
+            "num_not_classified": self.num_not_classified,
+        }
+        context.update(kwargs)
+        return super().get_context_data(**context)
+
+
+class ViewContentsByLabel(ContentsByLabelMixin, ZdSPagingListView):
+    template_name = "tutorialv2/labels/view-labels.html"
+    ordering = ["-creation_date"]
+    paginate_by = settings.ZDS_APP["content"]["view_contents_by_label_content_per_page"]
+
+    def get_context_data(self, **kwargs):
+        if self.only_not_classified:
+            headline = _("Publications sans label")
+        elif self.current_filter_pk is not None:
+            headline = _("Publications avec pour label « {} »").format(
+                Label.objects.get(pk=self.current_filter_pk).name
+            )
+        else:
+            headline = _("Toutes les publications")
+        context = {"headline": headline}
+        context.update(kwargs)
+        return super().get_context_data(**context)

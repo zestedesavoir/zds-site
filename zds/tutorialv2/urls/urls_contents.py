@@ -4,7 +4,7 @@ from django.views.generic.base import RedirectView
 from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, EditContentLicense, DeleteContent
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
-from zds.tutorialv2.views.labels import EditLabels
+from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -192,4 +192,5 @@ urlpatterns = [
     path("objectifs/", ViewContentsByGoal.as_view(), name="view-goals"),
     # Label classification
     path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
+    path("labels/", ViewContentsByLabel.as_view(), name="view-labels"),
 ]
