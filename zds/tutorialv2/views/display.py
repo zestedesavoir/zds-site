@@ -30,6 +30,7 @@ from zds.tutorialv2.utils import search_container_or_404, last_participation_is_
 from zds.tutorialv2.views.containers_extracts import DisplayContainer
 from zds.tutorialv2.views.contents import DisplayContent
 from zds.tutorialv2.views.goals import EditGoalsForm
+from zds.tutorialv2.views.labels import EditLabelsForm
 from zds.utils.models import CommentVote
 from zds.utils.paginator import make_pagination
 
@@ -119,6 +120,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
 
         context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
         context["form_edit_goals"] = EditGoalsForm(self.object)
+        context["form_edit_labels"] = EditLabelsForm(self.object)
 
         # pagination of comments
         make_pagination(

@@ -19,6 +19,15 @@
         </li>
     {% endif %}
 
+    {% if is_staff %}
+    <li>
+        <a href="#edit-labels" class="open-modal ico-after gear blue">
+            {% trans "Modifier les labels" %}
+        </a>
+        {% crispy form_edit_labels %}
+    </li>
+    {% endif %}
+
     {% if is_staff and not content.is_opinion %}
         <li>
             <a href="#add-suggestion" class="open-modal ico-after more blue">
