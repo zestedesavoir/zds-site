@@ -47,7 +47,7 @@ class EditLabelsForm(forms.Form):
 
 
 class EditLabels(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormViewMixin):
-    """View managing the form used to modify the goals of a single content."""
+    """View managing the form used to modify the labels of a single content."""
 
     permission_required = "tutorialv2.change_publishablecontent"
     model = PublishableContent
@@ -76,7 +76,7 @@ class EditLabels(LoginRequiredMixin, PermissionRequiredMixin, SingleContentFormV
         new_labels = Label.objects.filter(id__in=form.cleaned_data["labels"])
         self.object.labels.add(*new_labels)
         messages.success(self.request, self.success_message)
-        signals.goals_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
+        signals.labels_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
         return super().form_valid(form)
 
 
@@ -89,7 +89,7 @@ class ContentsByLabelMixin:
         self.base_queryset = PublishableContent.objects.exclude(public_version=None)
         self.num_all = self.base_queryset.count()
 
-        queryset_not_classified = self.base_queryset.filter(goals=None)
+        queryset_not_classified = self.base_queryset.filter(labels=None)
         self.num_not_classified = queryset_not_classified.count()
 
         self.only_not_classified = "non-classes" in self.request.GET
