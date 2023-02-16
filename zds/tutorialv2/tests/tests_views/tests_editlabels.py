@@ -14,8 +14,8 @@ class EditLabelsPermissionTests(TestCase):
         self.staff = StaffProfileFactory().user
         self.content = PublishableContentFactory()
         self.content.authors.add(self.author)
-        self.good_url = reverse("content:edit-goals", kwargs={"pk": self.content.pk})
-        self.bad_url = reverse("content:edit-goals", kwargs={"pk": 42})
+        self.good_url = reverse("content:edit-labels", kwargs={"pk": self.content.pk})
+        self.bad_url = reverse("content:edit-labels", kwargs={"pk": 42})
         self.content_url = reverse("content:view", kwargs={"pk": self.content.pk, "slug": self.content.slug})
         self.success_url = self.content_url
 
@@ -71,11 +71,11 @@ class EditLabelsFunctionalTests(TestCase):
         self.staff = StaffProfileFactory().user
         self.content = PublishableContentFactory()
         self.content = PublishableContentFactory()
-        self.url = reverse("content:edit-goals", kwargs={"pk": self.content.pk})
+        self.url = reverse("content:edit-labels", kwargs={"pk": self.content.pk})
         self.labels = [LabelFactory() for _ in range(3)]
 
     @patch("zds.tutorialv2.signals.labels_management")
-    def test_goals_updated(self, labels_management):
+    def test_labels_updated(self, labels_management):
         self.client.force_login(self.staff)
         response = self.client.post(self.url, {"labels": [label.pk for label in self.labels]}, follow=True)
         self.assertEqual(list(self.content.labels.all()), self.labels)
