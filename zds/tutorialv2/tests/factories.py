@@ -16,6 +16,7 @@ from zds.tutorialv2.models.database import PublishableContent, Validation, Conte
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.utils import init_new_repo
+from zds.tutorialv2.models.labels import Label
 
 text_content = "Ceci est un texte bidon, **avec markown**"
 
@@ -321,3 +322,15 @@ class ContentContributionRoleFactory(factory.django.DjangoModelFactory):
         model = ContentContributionRole
 
     title = factory.Sequence("Rôle {}".format)
+
+
+class LabelFactory(factory.django.DjangoModelFactory):
+    """Factory that create a label for publications, for use in tests."""
+
+    class Meta:
+        model = Label
+
+    name = factory.Sequence("Mon label n°{}".format)
+    description = factory.Sequence("Très belle description n°{}".format)
+    position = factory.Sequence(lambda n: n)
+    slug = factory.Sequence("mon-label-{}".format)
