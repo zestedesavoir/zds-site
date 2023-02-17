@@ -3,9 +3,8 @@ from django.db import models
 
 class Label(models.Model):
     """
-    This model represents the labels used to highligh the quality of publications.
-    Here few example of labels : "well-written", "comprehensive", "well-researched", etc.
-    Only the validators could create, manage, remove labels.
+    This model represents the labels used to highlight the quality of publications.
+    Here few example of labels: "well-written", "comprehensive", "well-researched", etc.
     """
 
     class Meta:

@@ -325,8 +325,6 @@ class ContentContributionRoleFactory(factory.django.DjangoModelFactory):
 
 
 class LabelFactory(factory.django.DjangoModelFactory):
-    """Factory that create a label for publications, for use in tests."""
-
     class Meta:
         model = Label
 
