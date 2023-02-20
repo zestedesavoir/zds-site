@@ -9,6 +9,7 @@ from zds.tutorialv2.models.database import (
     ContentRead,
     PublicationEvent,
     ContentContributionRole,
+    ContentSuggestion,
 )
 from zds.tutorialv2.models.events import Event
 from zds.tutorialv2.models.goals import Goal
@@ -129,3 +130,4 @@ admin.site.register(ContentContributionRole, ContentReviewTypeAdmin)
 admin.site.register(HelpWriting)
 admin.site.register(Event)
 admin.site.register(Goal, GoalAdmin)
+admin.site.register(ContentSuggestion)
