@@ -319,7 +319,7 @@
 
             &.connected {
                 // Rules to avoid being overridden by .home .search-box::before background-image
-                max-width: $length-768;
+                max-width: $length-640;
                 margin: $length-16 auto 0;
             }
         }

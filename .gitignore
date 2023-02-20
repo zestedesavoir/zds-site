@@ -12,6 +12,7 @@ base.db
 /media
 /articles-data
 /zds/_version.py
+/geodata
 
 /tutoriels-private-test
 /tutoriels-public-test
