@@ -321,6 +321,34 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
     cd $ZDSSITE_DIR
 fi
 
+# local Typesense
+if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full" $@) ); then
+    print_info "* [+elastic-local] installing a local version of typesense (v$ZDS_TYPESENSE_VERSION)" --bold
+
+    mkdir -p .local
+    cd .local
+
+    typesense_path="typesense"
+
+    if [ -d "$typesense_path" ]; then # remove previous install
+        rm -r "$typesense_path"
+    fi
+
+    curl -O https://dl.typesense.org/releases/$ZDS_TYPESENSE_VERSION/typesense-server-$ZDS_TYPESENSE_VERSION-linux-amd64.tar.gz
+    if [[ $? == 0 ]]; then
+        tar -xzf typesense-server-${ZDS_TYPESENSE_VERSION}-linux-amd64.tar.gz
+        rm typesense-server-${ZDS_TYPESENSE_VERSION}-linux-amd64.tar.gz
+        mv typesense-server-${ZDS_TYPESENSE_VERSION}-linux-amd64 typesense
+
+        export TYPESENSE_API_KEY=xyz
+        mkdir -p $typesense_path/typesense-data
+        ./$typesense_path/typesense-server --data-dir=$(pwd)/typesense-data --api-key=$TYPESENSE_API_KEY --enable-cors
+    else
+        print_error "!! Cannot get typesense ${ZDS_TYPESENSE_VERSION}"
+        exit 1
+    fi
+    cd $ZDSSITE_DIR
+fi
 
 # local texlive
 if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) ); then
