@@ -36,3 +36,6 @@ python-slugify==6.1.2
 # tomllib was added to the standard library in Python 3.11
 # tomli is only needed for older Python versions
 tomli==2.0.1 ; python_version < "3.11"
+
+#Typsense 
+typesense==0.15.0
