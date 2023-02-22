@@ -14,7 +14,8 @@ client = typesense.Client(
     }
 )
 
-if __name__ == "__main__":
+
+def create_collection():
     topic = {
         "name": "topic",
         "fields": [
@@ -90,3 +91,46 @@ if __name__ == "__main__":
     client.collections.create(topic)
     client.collections.create(chapter)
     client.collections.create(publishedcontent)
+
+
+def add_content_json_l():
+    with open("content.jsonl") as jsonl_file:
+        documents = jsonl_file.read().encode("utf-8")
+        client.collections["publishedcontent"].documents.import_(documents, {"action": "create"})
+
+
+def add_content_schema():
+    document = {
+        "title": "Introduction to Machine Learning",
+        "content_pk": 9012,
+        "authors": ["Andrew Ng"],
+        "content_type": "article",
+        "publication_date": 1483228800,
+        "tags": ["machine learning", "data science", "course"],
+        "has_chapters": True,
+        "subcategories": ["data science"],
+        "categories": ["machine learning"],
+        "text": ["Week 1: Introduction to Machine Learning", "Week 2: Linear Regression"],
+        "description": ["A popular course on machine learning by Andrew Ng."],
+        "picked": True,
+        "get_absolute_url_online": "https://www.example.com/courses/9012",
+        "thumbnail": "https://www.example.com/courses/9012/thumbnail.jpg",
+    }
+
+    client.collections["publishedcontent"].documents.create(document)
+
+
+def test_search():
+    search_parameters = {"q": "Introduction to Machine Learning", "query_by": "title"}
+
+    result = client.collections["publishedcontent"].documents.search(search_parameters)
+
+    for result in result["hits"]:
+        print(result)
+
+
+if __name__ == "__main__":
+    # create_collection()
+    # add_content_schema()
+    # test_search()
+    pass
