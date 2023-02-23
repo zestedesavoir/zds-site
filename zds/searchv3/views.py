@@ -14,8 +14,8 @@ from django.urls import reverse
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 
-from zds.searchv2.forms import SearchForm
-from zds.searchv2.models import ESIndexManager
+from zds.searchv3.forms import SearchForm
+from zds.searchv3.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
 from functools import reduce
@@ -135,7 +135,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
 class SearchView(ZdSPagingListView):
     """Search view."""
 
-    template_name = "searchv2/search.html"
+    template_name = "searchv3/search.html"
     paginate_by = settings.ZDS_APP["search"]["results_per_page"]
 
     search_form_class = SearchForm
@@ -360,7 +360,7 @@ def opensearch(request):
 
     return render(
         request,
-        "searchv2/opensearch.xml",
+        "searchv3/opensearch.xml",
         {
             "site_name": settings.ZDS_APP["site"]["literal_name"],
             "site_url": settings.ZDS_APP["site"]["url"],
