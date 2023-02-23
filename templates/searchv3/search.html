@@ -45,13 +45,13 @@
                     {% for result in object_list %}
                         <article class="content-item topic-item">
                             {%  if result.meta.doc_type  == 'chapter' %}
-                                {% include "searchv2/includes/chapter.part.html" with search_result=result %}
+                                {% include "searchv3/includes/chapter.part.html" with search_result=result %}
                             {% elif result.meta.doc_type == 'publishedcontent' %}
-                                {% include "searchv2/includes/publishedcontent.part.html" with search_result=result %}
+                                {% include "searchv3/includes/publishedcontent.part.html" with search_result=result %}
                             {% elif result.meta.doc_type == 'topic' %}
-                                {% include "searchv2/includes/topic.part.html" with search_result=result %}
+                                {% include "searchv3/includes/topic.part.html" with search_result=result %}
                             {% elif result.meta.doc_type == 'post' %}
-                                {% include "searchv2/includes/post.part.html" with search_result=result %}
+                                {% include "searchv3/includes/post.part.html" with search_result=result %}
                             {% else %}
                                 {% trans "type d’objet inconnu" %} : {{ result.meta.doc_type }}
                             {% endif %}
