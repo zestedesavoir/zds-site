@@ -92,16 +92,16 @@
             text-decoration: none;
             color: $grey-800;
         }
-
-        &:hover, &:focus {
-            background: $color-sidebar-hover;
-        }
     }
 
     &.accordeon h4,
     &.summary h4 {
         cursor: pointer;
         border-bottom: $length-1 solid $grey-100;
+
+        &:hover, &:focus {
+            background: $color-sidebar-hover;
+        }
     }
     
     h4[data-num] {
