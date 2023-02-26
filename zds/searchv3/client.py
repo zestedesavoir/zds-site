@@ -117,7 +117,28 @@ def add_content_schema():
         "thumbnail": "https://www.example.com/courses/9012/thumbnail.jpg",
     }
 
+    document2 = {
+        "title": "The Hitchhiker's Guide to the Galaxy",
+        "content_pk": 5678,
+        "authors": ["Douglas Adams"],
+        "content_type": "tutorial",
+        "publication_date": 1208112000,
+        "tags": ["science fiction", "humor", "book"],
+        "has_chapters": True,
+        "subcategories": ["fiction"],
+        "categories": ["science fiction"],
+        "text": [
+            "Chapter 1: The Hitchhiker's Guide to the Galaxy",
+            "Chapter 2: The Restaurant at the End of the Universe",
+        ],
+        "description": ["A funny science fiction book about the end of the world."],
+        "picked": True,
+        "get_absolute_url_online": "https://www.example.com/books/5678",
+        "thumbnail": "https://www.example.com/books/5678/thumbnail.jpg",
+    }
+
     client.collections["publishedcontent"].documents.create(document)
+    client.collections["publishedcontent"].documents.create(document2)
 
 
 def test_search():
