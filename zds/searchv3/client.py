@@ -19,6 +19,7 @@ def create_collection():
     topic = {
         "name": "topic",
         "fields": [
+            {"name": "forum_pk", "type": "int32", "facet": False},
             {"name": "title", "type": "string"},
             {"name": "subtitle", "type": "string"},
             {"name": "forum_title", "type": "string", "facet": True},
@@ -62,7 +63,8 @@ def create_collection():
             {"name": "parent_publication_date", "type": "int64", "facet": False},
             {"name": "text", "type": "string[]", "facet": False},
             {"name": "get_absolute_url_online", "type": "string", "facet": False},
-            {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "parent_get_absolute_url_online",
+                "type": "string", "facet": False},
             {"name": "thumbnail", "type": "string", "facet": False},
         ],
     }
@@ -96,7 +98,8 @@ def create_collection():
 def add_content_json_l():
     with open("content.jsonl") as jsonl_file:
         documents = jsonl_file.read().encode("utf-8")
-        client.collections["publishedcontent"].documents.import_(documents, {"action": "create"})
+        client.collections["publishedcontent"].documents.import_(
+            documents, {"action": "create"})
 
 
 def add_content_schema():
@@ -142,9 +145,11 @@ def add_content_schema():
 
 
 def test_search():
-    search_parameters = {"q": "Introduction to Machine Learning", "query_by": "title"}
+    search_parameters = {
+        "q": "Introduction to Machine Learning", "query_by": "title"}
 
-    result = client.collections["publishedcontent"].documents.search(search_parameters)
+    result = client.collections["publishedcontent"].documents.search(
+        search_parameters)
 
     for result in result["hits"]:
         print(result)
