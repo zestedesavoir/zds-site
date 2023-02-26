@@ -1,0 +1,95 @@
+{
+    "pk": 5962,
+    "url": "https://www.example.com/forums/space/exploration-of-mars/posts/5962",
+    "topic_pk": 2765,
+    "topic_title": "Exploration of Mars",
+    "forum_title": "Space",
+    "position": 1,
+    "content": "I am really excited about the latest Mars rover mission! What do you think about it?",
+    "is_visible": 1,
+    "authors": [
+        "AstroFan"
+    ],
+    "pubdate": 1646004000,
+    "like_dislike_ratio": 3.5
+}
+
+{
+    "pk": 5963,
+    "url": "https://www.example.com/forums/space/exploration-of-mars/posts/5963",
+    "topic_pk": 2765,
+    "topic_title": "Exploration of Mars",
+    "forum_title": "Space",
+    "position": 2,
+    "content": "I agree, AstroFan! The Mars rover mission is really fascinating. Did you see the latest images that were released?",
+    "is_visible": 1,
+    "authors": [
+        "SpaceEnthusiast"
+    ],
+    "pubdate": 1646090400,
+    "like_dislike_ratio": 4.2
+}
+
+{
+    "pk": 7342,
+    "url": "https://www.example.com/forums/physics/general-relativity-and-black-holes/7342",
+    "topic_pk": 6324,
+    "topic_title": "General Relativity and Black Holes",
+    "forum_title": "Physics",
+    "position": 1,
+    "content": "I've been following the latest research on black holes and it's fascinating! Anyone have any new insights or theories to share?",
+    "is_visible": 1,
+    "authors": [
+        "AstroPhysicist"
+    ],
+    "pubdate": 1645831200,
+    "like_dislike_ratio": 2.5
+}
+
+{
+    "pk": 7343,
+    "url": "https://www.example.com/forums/physics/general-relativity-and-black-holes/7343",
+    "topic_pk": 6324,
+    "topic_title": "General Relativity and Black Holes",
+    "forum_title": "Physics",
+    "position": 2,
+    "content": "Yes, I recently read a paper on the possibility of black holes being wormholes instead. It's a mind-bending concept!",
+    "is_visible": 1,
+    "authors": [
+        "GravityExpert"
+    ],
+    "pubdate": 1645917600,
+    "like_dislike_ratio": 1.8
+}
+
+{
+    "pk": 8423,
+    "url": "https://www.example.com/forums/computer-science/ai-ethics/posts/8423",
+    "topic_pk": 7589,
+    "topic_title": "Artificial Intelligence Ethics",
+    "forum_title": "Computer Science",
+    "position": 1,
+    "content": "I think it's important to consider the ethical implications of AI technology before we let it progress too far. What do you all think?",
+    "is_visible": 1,
+    "authors": [
+        "AIResearcher"
+    ],
+    "pubdate": 1645459500,
+    "like_dislike_ratio": 3.5
+}
+    
+{
+    "pk": 8423,
+    "url": "https://www.example.com/forums/computer-science/ai-ethics/posts/9256",
+    "topic_pk": 7589,
+    "topic_title": "Artificial Intelligence Ethics",
+    "forum_title": "Computer Science",
+    "position": 2,
+    "content": "I completely agree with you, AIResearcher. We need to be very careful with how we develop and use AI technology. It has the potential to do a lot of good, but it could also be very dangerous if not used responsibly.",
+    "is_visible": 1,
+    "authors": [
+        "EthicsExpert"
+    ],
+    "pubdate": 1645463100,
+    "like_dislike_ratio": 4.2
+}
