@@ -133,10 +133,10 @@ class ProfileValidatorSerializer(serializers.ModelSerializer):
     is_active = serializers.BooleanField(source="user.is_active", required=False)
     date_joined = serializers.DateTimeField(source="user.date_joined", required=False)
     permissions = DRYPermissionsField(additional_actions=["ban"])
-    show_sign = serializers.NullBooleanField(required=False)
-    hide_forum_activity = serializers.NullBooleanField(required=False)
-    is_hover_enabled = serializers.NullBooleanField(required=False)
-    email_for_answer = serializers.NullBooleanField(required=False)
+    show_sign = serializers.BooleanField(allow_null=True, required=False)
+    hide_forum_activity = serializers.BooleanField(allow_null=True, required=False)
+    is_hover_enabled = serializers.BooleanField(allow_null=True, required=False)
+    email_for_answer = serializers.BooleanField(allow_null=True, required=False)
 
     class Meta:
         model = Profile
