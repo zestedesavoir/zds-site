@@ -186,7 +186,7 @@ class SearchView(ZdSPagingListView):
             if self.search_form.cleaned_data["from_library"] == "on":
                 self.from_library = True
             # test typesense
-            return self.get_queryset_publishedcontents()
+            return self.get_queryset_topics()
 
         return []
 
@@ -217,7 +217,7 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset_chapters(self):
         """Search in content chapters."""
-
+        filter = ""
         if self.content_category:
             filter = self._add_a_filter("categories", self.content_category, filter)
 
@@ -248,11 +248,12 @@ class SearchView(ZdSPagingListView):
         filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
         search_parameters = {
             "q": self.search_query,
-            "query_by": "title,subtitile,tags",
+            "query_by": "title,subtitle,tags",
             "filter": filter,
         }
 
         result = client.collections["topic"].documents.search(search_parameters)
+        print(result["hits"])
 
         return result["hits"]
 
@@ -266,32 +267,12 @@ class SearchView(ZdSPagingListView):
         + post has a like/dislike ratio above (has more likes than dislikes) or below (the other way around) 1.0.
         """
 
-        query = (
-            Match(_type="post")
-            & Terms(forum_pk=self.authorized_forums)
-            & Term(is_visible=True)
-            & MultiMatch(query=self.search_query, fields=["text_html"])
-        )
-
-        functions_score = [
-            {"filter": Match(position=1), "weight": settings.ZDS_APP["search"]["boosts"]["post"]["if_first"]},
-            {"filter": Match(is_useful=True), "weight": settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"]},
-            {
-                "filter": Range(like_dislike_ratio={"gt": 1}),
-                "weight": settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"],
-            },
-            {
-                "filter": Range(like_dislike_ratio={"lt": 1}),
-                "weight": settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"],
-            },
-        ]
-
         filter = ""
         filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
         filter = self._add_a_filter("is_visible", True, filter)
         search_parameters = {
             "q": self.search_query,
-            "query_by": "text_html",
+            "query_by": "content",
             "filter": filter,
         }
 
@@ -307,7 +288,7 @@ class SearchView(ZdSPagingListView):
         print(context)
         return context
 
-    def _add_a_filter(field, value, current_filter):
+    def _add_a_filter(self, field, value, current_filter):
         """
         field : it's a string with the name of the field to filter
         value : is the a string with value of the field

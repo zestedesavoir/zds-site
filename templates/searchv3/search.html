@@ -44,7 +44,7 @@
                 <div class="topic-list navigable-list search-results">
                     {% for result in object_list %}
                         <article class="content-item topic-item">
-                                {% include "searchv3/includes/publishedcontent.part.html" with search_result=result.document %}
+                                {% include "searchv3/includes/topic.part.html" with search_result=result.document %}
                 
                         </article>
                     {%  empty %}
