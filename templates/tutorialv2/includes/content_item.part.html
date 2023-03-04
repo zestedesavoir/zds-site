@@ -140,29 +140,15 @@
         </footer>
     </div>
     <ul class="content-tags" itemprop="keywords">
-        {% if content.labels.all %}
-            {% with label=content.labels.all|first %}
-                <li>
-                <a class="item-label" href="{% url 'content:view-labels' %}?label_{{ label.id }}">
-                    {{ label.name }}
-                </a>
-                </li>
-            {% endwith %}
-            {% for tag in content.tags.all|slice:":2" %}
-                <li>
-                <a href="{{ taglist }}?tag={{ tag.slug }}">
-                    {{ tag.title }}
-                </a>
-                </li>
-            {% endfor %}
-        {% else %}
+        {% if content.tags.all %}
+        <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
-                <a href="{{ taglist }}?tag={{ tag.slug }}">
+                  <a href="{{ taglist }}?tag={{ tag.slug }}">
                     {{ tag.title }}
-                </a>
+                  </a>
                 </li>
             {% endfor %}
-        {% endif %}
-    </ul>
+        </ul>
+    {% endif %}
 </article>
