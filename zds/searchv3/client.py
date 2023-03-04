@@ -63,8 +63,7 @@ def create_collection():
             {"name": "parent_publication_date", "type": "int64", "facet": False},
             {"name": "text", "type": "string[]", "facet": False},
             {"name": "get_absolute_url_online", "type": "string", "facet": False},
-            {"name": "parent_get_absolute_url_online",
-                "type": "string", "facet": False},
+            {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
             {"name": "thumbnail", "type": "string", "facet": False},
         ],
     }
@@ -98,8 +97,7 @@ def create_collection():
 def add_content_json_l():
     with open("content.jsonl") as jsonl_file:
         documents = jsonl_file.read().encode("utf-8")
-        client.collections["publishedcontent"].documents.import_(
-            documents, {"action": "create"})
+        client.collections["publishedcontent"].documents.import_(documents, {"action": "create"})
 
 
 def add_content_schema():
@@ -145,18 +143,45 @@ def add_content_schema():
 
 
 def test_search():
-    search_parameters = {
-        "q": "Introduction to Machine Learning", "query_by": "title"}
+    search_parameters = {"q": "Introduction to Machine Learning", "query_by": "title"}
 
-    result = client.collections["publishedcontent"].documents.search(
-        search_parameters)
+    result = client.collections["publishedcontent"].documents.search(search_parameters)
 
     for result in result["hits"]:
         print(result)
+
+
+def test_multisearch():
+    search_requests = {
+        "searches": [
+            {
+                "collection": "publishedcontent",
+                "q": "artificial",
+                "query_by": "title,description,categories,subcategories, tags, text",
+            },
+            {"collection": "topic", "q": "artificial", "query_by": "title,subtitle,tags"},
+            {"collection": "chapter", "q": "artificial", "query_by": "title,text"},
+            {"collection": "post", "q": "artificial", "query_by": "content"},
+        ]
+    }
+
+    collection_names = ["publishedcontent", "topic", "chapter", "post"]
+
+    results = client.multi_search.perform(search_requests, None)["results"]
+    all_collection_result = []
+    for k in range(len(results)):
+        for entry in results[k]["hits"]:
+            entry["collection"] = collection_names[k]
+            print(entry)
+            all_collection_result.append(entry)
+
+    all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
+    print([e["text_match"] for e in all_collection_result])
 
 
 if __name__ == "__main__":
     # create_collection()
     # add_content_schema()
     # test_search()
+    test_multisearch()
     pass

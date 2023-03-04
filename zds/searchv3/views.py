@@ -186,7 +186,35 @@ class SearchView(ZdSPagingListView):
             if self.search_form.cleaned_data["from_library"] == "on":
                 self.from_library = True
             # test typesense
-            return self.get_queryset_topics()
+            multiple_collections = [
+                {"name": "publishedcontent", "query_by": "title,description,categories,subcategories, tags, text"},
+                {"name": "topic", "query_by": "title,subtitle,tags"},
+                {"name": "chapter", "query_by": "title,text"},
+                {"name": "post", "query_by": "content"},
+            ]
+            search_requests = {
+                "searches": [
+                    {
+                        "collection": "publishedcontent",
+                        "q": self.search_query,
+                        "query_by": "title,description,categories,subcategories, tags, text",
+                    },
+                    {"collection": "topic", "q": self.search_query, "query_by": "title,subtitle,tags"},
+                    {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
+                    {"collection": "post", "q": self.search_query, "query_by": "content"},
+                ]
+            }
+
+            collection_names = ["publishedcontent", "topic", "chapter", "post"]
+
+            results = client.multi_search.perform(search_requests, None)["results"]
+            all_collection_result = []
+            for k in range(len(results)):
+                for entry in results[k]["hits"]:
+                    entry["collection"] = collection_names[k]
+                    all_collection_result.append(entry)
+            all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
+            return all_collection_result
 
         return []
 
@@ -253,7 +281,6 @@ class SearchView(ZdSPagingListView):
         }
 
         result = client.collections["topic"].documents.search(search_parameters)
-        print(result["hits"])
 
         return result["hits"]
 

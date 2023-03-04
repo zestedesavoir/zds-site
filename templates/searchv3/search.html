@@ -44,8 +44,17 @@
                 <div class="topic-list navigable-list search-results">
                     {% for result in object_list %}
                         <article class="content-item topic-item">
+                            {%  if result.collection  == 'chapter' %}
+                                {% include "searchv3/includes/chapter.part.html" with search_result=result.document %}
+                            {% elif result.collection == 'publishedcontent' %}
+                                {% include "searchv3/includes/publishedcontent.part.html" with search_result=result.document %}
+                            {% elif result.collection == 'topic' %}
                                 {% include "searchv3/includes/topic.part.html" with search_result=result.document %}
-                
+                            {% elif result.collection == 'post' %}
+                                {% include "searchv3/includes/post.part.html" with search_result=result.document %}
+                            {% else %}
+                                {% trans "type d’objet inconnu" %} : {{ result.collection }}
+                            {% endif %}
                         </article>
                     {%  empty %}
                         <p>
