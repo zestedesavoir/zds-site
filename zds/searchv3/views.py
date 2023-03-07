@@ -243,7 +243,10 @@ class SearchView(ZdSPagingListView):
 
         result = client.collections["publishedcontent"].documents.search(search_parameters)
 
-        return result["hits"]
+        for entry in result:
+            entry["collection"] = "publishedcontent"
+
+        return result
 
     def get_queryset_chapters(self):
         """Search in content chapters."""
@@ -260,9 +263,12 @@ class SearchView(ZdSPagingListView):
             "filter": filter,
         }
 
-        result = client.collections["chapter"].documents.search(search_parameters)
+        result = client.collections["chapter"].documents.search(search_parameters)["hits"]
 
-        return result["hits"]
+        for entry in result:
+            entry["collection"] = "chapter"
+
+        return result
 
     def get_queryset_topics(self):
         """Search in topics, and remove the result if the forum is not allowed for the user.
@@ -274,17 +280,20 @@ class SearchView(ZdSPagingListView):
         + topic is locked.
         """
 
-        filter = ""
-        filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
+        # filter = ""
+        # filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
         search_parameters = {
             "q": self.search_query,
             "query_by": "title,subtitle,tags",
-            "filter": filter,
+            # "filter": filter,
         }
 
-        result = client.collections["topic"].documents.search(search_parameters)
+        result = client.collections["topic"].documents.search(search_parameters)["hits"]
 
-        return result["hits"]
+        for entry in result:
+            entry["collection"] = "topic"
+
+        return result
 
     def get_queryset_posts(self):
         """Search in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
@@ -305,9 +314,12 @@ class SearchView(ZdSPagingListView):
             "filter": filter,
         }
 
-        result = client.collections["post"].documents.search(search_parameters)
+        result = client.collections["post"].documents.search(search_parameters)["hits"]
 
-        return result["hits"]
+        for entry in result:
+            entry["collection"] = "post"
+
+        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
