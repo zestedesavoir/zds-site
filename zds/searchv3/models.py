@@ -13,6 +13,7 @@ from elasticsearch_dsl.query import MatchAll
 from elasticsearch_dsl.connections import connections
 
 from django.db import transaction
+from zds.searchv3.client import client
 
 
 def es_document_mapper(force_reindexing, index, obj):
@@ -98,7 +99,8 @@ class AbstractESIndexable:
         """
 
         cls = self.__class__
-        fields = list(cls.get_es_mapping().properties.properties.to_dict().keys())
+        schema = cls.get_es_mapping()["fields"]
+        fields = list(schema[i]["name"] for i in range(len(schema)))
 
         data = {}
 
@@ -263,7 +265,7 @@ class ESIndexManager:
         """
 
         self.index = name
-        self.index_exists = False
+        self.index_exists = True
 
         self.number_of_shards = shards
         self.number_of_replicas = replicas
@@ -274,20 +276,20 @@ class ESIndexManager:
         self.connected_to_es = False
 
         if settings.ES_ENABLED:
-            self.es = connections.get_connection(alias=connection_alias)
+            self.es = client
             self.connected_to_es = True
 
             # test connection:
-            try:
-                self.es.info()
-            except ConnectionError:
-                self.connected_to_es = False
-                self.logger.warn("failed to connect to ES cluster")
-            else:
-                self.logger.info("connected to ES cluster")
+            # try:
+            #     self.es.info()
+            # except ConnectionError:
+            #     self.connected_to_es = False
+            #     self.logger.warn("failed to connect to ES cluster")
+            # else:
+            #     self.logger.info("connected to ES cluster")
 
-            if self.connected_to_es:
-                self.index_exists = self.es.indices.exists(self.index)
+            # if self.connected_to_es:
+            #     self.index_exists = self.es.indices.exists(self.index)
 
     def clear_es_index(self):
         """Clear index"""
@@ -295,11 +297,10 @@ class ESIndexManager:
         if not self.connected_to_es:
             return
 
-        if self.es.indices.exists(self.index):
-            self.es.indices.delete(self.index)
-            self.logger.info("index cleared")
-
-            self.index_exists = False
+        for collection in self.es.collections.retrieve():
+            self.es.collections[collection["name"]].delete()
+        self.logger.info("index cleared")
+        self.index_exists = False
 
     def reset_es_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
@@ -318,19 +319,9 @@ class ESIndexManager:
 
         self.clear_es_index()
 
-        mappings_def = {}
-
         for model in models:
             mapping = model.get_es_mapping()
-            mappings_def.update(mapping.to_dict())
-
-        self.es.indices.create(
-            self.index,
-            body={
-                "settings": {"number_of_shards": self.number_of_shards, "number_of_replicas": self.number_of_replicas},
-                "mappings": mappings_def,
-            },
-        )
+            self.es.collections.create(mapping)
 
         self.index_exists = True
 
@@ -579,7 +570,7 @@ class ESIndexManager:
         if not self.index_exists:
             raise NeedIndex()
 
-        self.es.indices.refresh(self.index)
+        # self.es.indices.refresh(self.index)
 
     def update_single_document(self, document, doc):
         """Update given fields of a single document.
@@ -598,10 +589,10 @@ class ESIndexManager:
         if not self.index_exists:
             raise NeedIndex()
 
-        arguments = {"index": self.index, "doc_type": document.get_es_document_type(), "id": document.es_id}
-        if self.es.exists(**arguments):
-            self.es.update(body={"doc": doc}, **arguments)
-            self.logger.info(f"partial_update {document.get_es_document_type()} with id {document.es_id}")
+        doc_type = document.get_es_document_type()
+        id = document.es_id
+        self.es.collections[doc_type].documents[id].update(doc)
+        self.logger.info(f"partial_update {document.get_es_document_type()} with id {document.es_id}")
 
     def delete_document(self, document):
         """Delete a given document, based on its ``es_id``
@@ -641,7 +632,7 @@ class ESIndexManager:
         if not self.index_exists:
             raise NeedIndex()
 
-        response = self.es.delete_by_query(index=self.index, doc_type=doc_type, body={"query": query})
+        response = self.es.client.collections[doc_type].documents.delete(query)
 
         self.logger.info("delete_by_query {}s ({})".format(doc_type, response["deleted"]))
 
@@ -686,4 +677,4 @@ class ESIndexManager:
         if not self.index_exists:
             raise NeedIndex()
 
-        return request.index(self.index).using(self.es)
+        return self.es.collections[self.name].documents.search(request)
