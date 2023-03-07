@@ -209,10 +209,12 @@ class SearchView(ZdSPagingListView):
 
             results = client.multi_search.perform(search_requests, None)["results"]
             all_collection_result = []
+
             for k in range(len(results)):
-                for entry in results[k]["hits"]:
-                    entry["collection"] = collection_names[k]
-                    all_collection_result.append(entry)
+                if "hits" in results[k]:
+                    for entry in results[k]["hits"]:
+                        entry["collection"] = collection_names[k]
+                        all_collection_result.append(entry)
             all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
             return all_collection_result
 
