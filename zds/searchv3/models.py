@@ -134,16 +134,16 @@ class AbstractESIndexable:
             raise ValueError("action must be `index`, `update` or `delete`")
 
         document = {"_op_type": action, "_index": index, "_type": self.get_es_document_type()}
-
+        document = self.get_es_document_source()
         if action == "index":
             if self.es_id:
-                document["_id"] = self.es_id
-            document["_source"] = self.get_es_document_source()
+                document["id"] = self.es_id
+            # document["_source"] = self.get_es_document_source()
         elif action == "update":
-            document["_id"] = self.es_id
-            document["doc"] = self.get_es_document_source()
+            document["id"] = self.es_id
+            # document["doc"] = self.get_es_document_source()
         elif action == "delete":
-            document["_id"] = self.es_id
+            document["id"] = self.es_id
 
         return document
 
@@ -178,8 +178,8 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         :rtype: elasticsearch_dsl.Mapping
         """
 
-        es_mapping = super().get_es_mapping()
-        es_mapping.field("pk", "integer")
+        es_mapping = cls.get_es_mapping()
+        es_mapping["fields"].append({"name": "id", "type": "string"})
         return es_mapping
 
     @classmethod
@@ -462,9 +462,28 @@ class ESIndexManager:
             self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
             return 0
 
-        documents_formatter = partial(es_document_mapper, force_reindexing, self.index)
+        last_pk = 0
+        object_source = model.get_es_indexable(force_reindexing)
         objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
+
+        # fetch a batch
+        objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
+
+        formatted_documents = objects
+        doc_type = model.get_es_document_type()
+        for obj in objects:
+            self.es.collections[doc_type].documents.create(es_document_mapper(force_reindexing, self.index, obj))
+            if self.logger.getEffectiveLevel() <= logging.INFO:
+                self.logger.info("{} {} with id {}".format("index", doc_type, obj.es_id))
+
+        # mark all these objects as indexed at once
+        model.objects.filter(pk__in=[o.pk for o in objects]).update(es_already_indexed=True, es_flagged=False)
+        indexed_counter += len(objects)
+        return indexed_counter
+
+        documents_formatter = partial(es_document_mapper, force_reindexing, self.index)
+
         if model.__name__ == "PublishedContent":
             generate = model.get_es_indexable(force_reindexing)
             while True:
@@ -590,9 +609,10 @@ class ESIndexManager:
             raise NeedIndex()
 
         doc_type = document.get_es_document_type()
-        id = document.es_id
-        self.es.collections[doc_type].documents[id].update(doc)
-        self.logger.info(f"partial_update {document.get_es_document_type()} with id {document.es_id}")
+        doc_id = document.es_id
+        if doc_type in self.es.collection and doc_id in self.es.collections[doc_type]:
+            self.es.collections[doc_type].documents[doc_id].update(doc)
+            self.logger.info(f"partial_update {document.get_es_document_type()} with id {document.es_id}")
 
     def delete_document(self, document):
         """Delete a given document, based on its ``es_id``
@@ -607,9 +627,10 @@ class ESIndexManager:
         if not self.index_exists:
             raise NeedIndex()
 
-        arguments = {"index": self.index, "doc_type": document.get_es_document_type(), "id": document.es_id}
-        if self.es.exists(**arguments):
-            self.es.delete(**arguments)
+        doc_type = document.get_es_document_type()
+        doc_id = document.es_id
+        if doc_type in self.es.collection and doc_id in self.es.collections[doc_type]:
+            self.es.collections[doc_type].documents[doc_id].delete()
             self.logger.info(f"delete {document.get_es_document_type()} with id {document.es_id}")
 
     def delete_by_query(self, doc_type="", query=MatchAll()):

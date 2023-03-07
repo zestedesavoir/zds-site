@@ -68,8 +68,8 @@ class Command(BaseCommand):
             if force_reindexing:
                 print(f"- indexing {model.get_es_document_type()}s")
 
-            # indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
-            # if force_reindexing:
-            #     print(f"  {indexed_counter}\titems indexed")
+            indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
+            if force_reindexing:
+                print(f"  {indexed_counter}\titems indexed")
 
         self.index_manager.refresh_index()
