@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from time import mktime
 from math import ceil
 
 from django.conf import settings
@@ -434,7 +435,6 @@ class Topic(AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_mapping(cls):
-        es_mapping = super().get_es_mapping()
         schema = {
             "name": "topic",
             "fields": [
@@ -442,32 +442,16 @@ class Topic(AbstractESDjangoIndexable):
                 {"name": "title", "type": "string"},
                 {"name": "subtitle", "type": "string"},
                 {"name": "forum_title", "type": "string", "facet": True},
-                {"name": "url", "type": "string"},
-                {"name": "authors", "type": "string[]", "facet": True},
                 {"name": "tags", "type": "string[]", "facet": True},
-                {"name": "is_locked", "type": "int32"},
-                {"name": "is_solved", "type": "int32"},
-                {"name": "is_sticky", "type": "int32"},
+                {"name": "is_locked", "type": "bool"},
+                {"name": "is_solved", "type": "bool"},
+                {"name": "is_sticky", "type": "bool"},
                 {"name": "pubdate", "type": "int64", "facet": True},
                 {"name": "get_absolute_url", "type": "string"},
                 {"name": "forum_get_absolute_url", "type": "string"},
             ],
             "default_sorting_field": "pubdate",
         }
-
-        es_mapping.field("title", Text(boost=1.5))
-        es_mapping.field("tags", Text(boost=2.0))
-        es_mapping.field("subtitle", Text())
-        es_mapping.field("is_solved", Boolean())
-        es_mapping.field("is_locked", Boolean())
-        es_mapping.field("is_sticky", Boolean())
-        es_mapping.field("pubdate", Date())
-        es_mapping.field("forum_pk", Integer())
-
-        # not indexed:
-        es_mapping.field("get_absolute_url", Keyword(index=False))
-        es_mapping.field("forum_title", Text(index=False))
-        es_mapping.field("forum_get_absolute_url", Keyword(index=False))
 
         return schema
 
@@ -482,14 +466,17 @@ class Topic(AbstractESDjangoIndexable):
         """Overridden to handle the case of tags (M2M field)"""
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url"])
+        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate"])
 
         data = super().get_es_document_source(excluded_fields=excluded_fields)
         data["tags"] = [tag.title for tag in self.tags.all()]
         data["forum_pk"] = self.forum.pk
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
-
+        # Date converted into Unix timestamps
+        data["pubdate"] = int(mktime(self.pubdate.timetuple()))
+        if data["subtitle"] is None:
+            data["subtitle"] = ""
         return data
 
     def save(self, *args, **kwargs):
