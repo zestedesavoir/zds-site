@@ -13,7 +13,7 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.forum import signals
-from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
+from zds.searchv3.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
 from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 
@@ -435,6 +435,25 @@ class Topic(AbstractESDjangoIndexable):
     @classmethod
     def get_es_mapping(cls):
         es_mapping = super().get_es_mapping()
+        schema = {
+            "name": "topic",
+            "fields": [
+                {"name": "forum_pk", "type": "int32", "facet": False},
+                {"name": "title", "type": "string"},
+                {"name": "subtitle", "type": "string"},
+                {"name": "forum_title", "type": "string", "facet": True},
+                {"name": "url", "type": "string"},
+                {"name": "authors", "type": "string[]", "facet": True},
+                {"name": "tags", "type": "string[]", "facet": True},
+                {"name": "is_locked", "type": "int32"},
+                {"name": "is_solved", "type": "int32"},
+                {"name": "is_sticky", "type": "int32"},
+                {"name": "pubdate", "type": "int64", "facet": True},
+                {"name": "get_absolute_url", "type": "string"},
+                {"name": "forum_get_absolute_url", "type": "string"},
+            ],
+            "default_sorting_field": "pubdate",
+        }
 
         es_mapping.field("title", Text(boost=1.5))
         es_mapping.field("tags", Text(boost=2.0))
@@ -450,7 +469,7 @@ class Topic(AbstractESDjangoIndexable):
         es_mapping.field("forum_title", Text(index=False))
         es_mapping.field("forum_get_absolute_url", Keyword(index=False))
 
-        return es_mapping
+        return schema
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
