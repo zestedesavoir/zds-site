@@ -1,15 +1,16 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from zds.searchv2.models import ESIndexManager, get_django_indexable_objects
+from zds.searchv3.models import ESIndexManager, get_django_indexable_objects
 from zds.tutorialv2.models.database import FakeChapter
+from zds.forum.models import Topic
 
 
 class Command(BaseCommand):
     help = "Index data in ES and manage them"
 
     index_manager = None
-    models = get_django_indexable_objects()
+    models = [Topic]
 
     def __init__(self, *args, **kwargs):
         """Overridden because FakeChapter needs to be present for mapping.
@@ -17,7 +18,7 @@ class Command(BaseCommand):
         """
 
         super().__init__(*args, **kwargs)
-        self.models.insert(0, FakeChapter)
+        # self.models.insert(0, FakeChapter)
 
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
@@ -45,7 +46,7 @@ class Command(BaseCommand):
     def setup_es(self):
 
         self.index_manager.reset_es_index(self.models)
-        self.index_manager.setup_custom_analyzer()
+        # self.index_manager.setup_custom_analyzer()
 
         self.index_manager.refresh_index()
 
@@ -67,8 +68,8 @@ class Command(BaseCommand):
             if force_reindexing:
                 print(f"- indexing {model.get_es_document_type()}s")
 
-            indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
-            if force_reindexing:
-                print(f"  {indexed_counter}\titems indexed")
+            # indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
+            # if force_reindexing:
+            #     print(f"  {indexed_counter}\titems indexed")
 
         self.index_manager.refresh_index()
