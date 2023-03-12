@@ -3,14 +3,14 @@ from django.conf import settings
 
 from zds.searchv3.models import ESIndexManager, get_django_indexable_objects
 from zds.tutorialv2.models.database import FakeChapter
-from zds.forum.models import Topic
+from zds.forum.models import Topic, Post
 
 
 class Command(BaseCommand):
     help = "Index data in ES and manage them"
 
     index_manager = None
-    models = [Topic]
+    models = [Topic, Post]
 
     def __init__(self, *args, **kwargs):
         """Overridden because FakeChapter needs to be present for mapping.

@@ -180,8 +180,8 @@ def test_multisearch():
 
 
 if __name__ == "__main__":
-    create_collection()
-    add_content_schema()
+    # create_collection()
+    # add_content_schema()
     # test_search()
     # test_multisearch()
     pass
