@@ -466,28 +466,9 @@ class ESIndexManager:
             self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
             return 0
 
-        last_pk = 0
-        object_source = model.get_es_indexable(force_reindexing)
+        documents_formatter = partial(es_document_mapper, force_reindexing, self.index)
         objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
-
-        # fetch a batch
-        objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
-
-        formatted_documents = objects
-        doc_type = model.get_es_document_type()
-        for obj in objects:
-            self.es.collections[doc_type].documents.create(es_document_mapper(force_reindexing, self.index, obj))
-            if self.logger.getEffectiveLevel() <= logging.INFO:
-                self.logger.info("{} {} with id {}".format("index", doc_type, obj.es_id))
-
-        # mark all these objects as indexed at once
-        model.objects.filter(pk__in=[o.pk for o in objects]).update(es_already_indexed=True, es_flagged=False)
-        indexed_counter += len(objects)
-        return indexed_counter
-
-        documents_formatter = partial(es_document_mapper, force_reindexing, self.index)
-
         if model.__name__ == "PublishedContent":
             generate = model.get_es_indexable(force_reindexing)
             while True:
@@ -499,20 +480,21 @@ class ESIndexManager:
                         break
                     if not objects:
                         break
-                    if hasattr(objects[0], "parent_model"):
+                    if hasattr(objects[0], "parent_id"):
                         model_to_update = objects[0].parent_model
                         pks = [o.parent_id for o in objects]
+                        doc_type = "chapter"
                     else:
                         model_to_update = model
                         pks = [o.pk for o in objects]
+                        doc_type = model.get_es_document_type()
 
                     formatted_documents = list(map(documents_formatter, objects))
 
-                    for _, hit in parallel_bulk(
-                        self.es, formatted_documents, chunk_size=objects_per_batch, request_timeout=30
-                    ):
-                        action = list(hit.keys())[0]
-                        self.logger.info("{} {} with id {}".format(action, hit[action]["_type"], hit[action]["_id"]))
+                    for document in formatted_documents:
+                        self.es.collections[doc_type].documents.create(document)
+                        if self.logger.getEffectiveLevel() <= logging.INFO:
+                            self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 
                     # mark all these objects as indexed at once
                     model_to_update.objects.filter(pk__in=pks).update(es_already_indexed=True, es_flagged=False)
@@ -528,19 +510,17 @@ class ESIndexManager:
                 with transaction.atomic():
                     # fetch a batch
                     objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
+
                     if not objects:
                         break
 
                     formatted_documents = list(map(documents_formatter, objects))
 
-                    for _, hit in parallel_bulk(
-                        self.es, formatted_documents, chunk_size=objects_per_batch, request_timeout=30
-                    ):
+                    doc_type = model.get_es_document_type()
+                    for document in formatted_documents:
+                        self.es.collections[doc_type].documents.create(document)
                         if self.logger.getEffectiveLevel() <= logging.INFO:
-                            action = list(hit.keys())[0]
-                            self.logger.info(
-                                "{} {} with id {}".format(action, hit[action]["_type"], hit[action]["_id"])
-                            )
+                            self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 
                     # mark all these objects as indexed at once
                     model.objects.filter(pk__in=[o.pk for o in objects]).update(
@@ -657,9 +637,9 @@ class ESIndexManager:
         if not self.index_exists:
             raise NeedIndex()
 
-        response = self.es.client.collections[doc_type].documents.delete(query)
+        response = self.es.collections[doc_type].documents.delete(query)
 
-        self.logger.info("delete_by_query {}s ({})".format(doc_type, response["deleted"]))
+        self.logger.info(f"delete_by_query {doc_type}s ({response})")
 
     def analyze_sentence(self, request):
         """Use the anlyzer on a given sentence. Get back the list of tokens.

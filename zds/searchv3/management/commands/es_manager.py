@@ -10,7 +10,7 @@ class Command(BaseCommand):
     help = "Index data in ES and manage them"
 
     index_manager = None
-    models = [Topic, Post]
+    models = get_django_indexable_objects()
 
     def __init__(self, *args, **kwargs):
         """Overridden because FakeChapter needs to be present for mapping.
@@ -18,7 +18,7 @@ class Command(BaseCommand):
         """
 
         super().__init__(*args, **kwargs)
-        # self.models.insert(0, FakeChapter)
+        self.models.insert(0, FakeChapter)
 
         self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 

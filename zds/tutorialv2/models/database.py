@@ -26,11 +26,12 @@ from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
-from zds.searchv2.models import (
+from zds.searchv3.models import (
     AbstractESDjangoIndexable,
     AbstractESIndexable,
     delete_document_in_elasticsearch,
     ESIndexManager,
+    convert_to_unix_timestamp,
 )
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
@@ -957,27 +958,27 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
     @classmethod
     def get_es_mapping(cls):
-        mapping = Mapping(cls.get_es_document_type())
 
-        mapping.field("content_pk", "integer")
-        mapping.field("publication_date", Date())
-        mapping.field("content_type", Keyword())
+        schema = {
+            "name": "publishedcontent",
+            "fields": [
+                {"name": "title", "type": "string", "facet": False},
+                {"name": "content_pk", "type": "int32", "facet": False},
+                {"name": "content_type", "type": "string", "facet": True},
+                {"name": "publication_date", "type": "int64", "facet": False},
+                {"name": "tags", "type": "string[]", "facet": True, "optional": True},
+                {"name": "has_chapters", "type": "bool", "facet": False},
+                {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
+                {"name": "categories", "type": "string[]", "facet": True, "optional": True},
+                {"name": "text", "type": "string", "facet": False, "optional": True},
+                {"name": "description", "type": "string", "facet": False, "optional": True},
+                {"name": "picked", "type": "bool", "facet": False},
+                {"name": "get_absolute_url_online", "type": "string", "facet": False},
+                {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
+            ],
+        }
 
-        # not from PublishedContent directly:
-        mapping.field("title", Text(boost=1.5))
-        mapping.field("description", Text(boost=1.5))
-        mapping.field("tags", Text(boost=2.0))
-        mapping.field("categories", Keyword(boost=1.5))
-        mapping.field("subcategories", Keyword(boost=1.5))
-        mapping.field("text", Text())  # for article and mini-tuto, text is directly included into the main object
-        mapping.field("has_chapters", Boolean())  # ... otherwise, it is written
-        mapping.field("picked", Boolean())
-
-        # not indexed:
-        mapping.field("get_absolute_url_online", Keyword(index=False))
-        mapping.field("thumbnail", Keyword(index=False))
-
-        return mapping
+        return schema
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
@@ -1015,7 +1016,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                     # delete possible previous chapters
                     if content.es_already_indexed:
                         index_manager.delete_by_query(
-                            FakeChapter.get_es_document_type(), ES_Q("match", _routing=content.es_id)
+                            FakeChapter.get_es_document_type(), {"filter_by": "parent_id:=" + str(content.es_id)}
                         )
 
                     # (re)index the new one(s)
@@ -1039,7 +1040,9 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         """Overridden to handle the fact that most information are versioned"""
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(["title", "description", "tags", "categories", "text", "thumbnail", "picked"])
+        excluded_fields.extend(
+            ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date"]
+        )
 
         data = super().get_es_document_source(excluded_fields=excluded_fields)
 
@@ -1075,6 +1078,8 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         if self.content_type == "OPINION" and self.content.sha_picked is not None:
             data["picked"] = True
+
+        data["publication_date"] = convert_to_unix_timestamp(self.publication_date)
 
         return data
 
@@ -1160,22 +1165,35 @@ class FakeChapter(AbstractESIndexable):
     def get_es_mapping(self):
         """Define mapping and parenting"""
 
-        mapping = Mapping(self.get_es_document_type())
-        mapping.meta("parent", type="publishedcontent")
+        schema = {
+            "name": "chapter",
+            "fields": [
+                {"name": "parent_id", "type": "string", "facet": False},
+                {"name": "title", "type": "string", "facet": False},
+                {"name": "parent_title", "type": "string"},
+                {"name": "subcategories", "type": "string[]", "facet": True},
+                {"name": "categories", "type": "string[]", "facet": True},
+                {"name": "parent_publication_date", "type": "int64", "facet": False},
+                {"name": "text", "type": "string", "facet": False},
+                {"name": "get_absolute_url_online", "type": "string", "facet": False},
+                {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
+                {"name": "thumbnail", "type": "string", "facet": False},
+            ],
+        }
 
-        mapping.field("title", Text(boost=1.5))
-        mapping.field("text", Text())
-        mapping.field("categories", Keyword(boost=1.5))
-        mapping.field("subcategories", Keyword(boost=1.5))
+        return schema
 
-        # not indexed:
-        mapping.field("get_absolute_url_online", Keyword(index=False))
-        mapping.field("parent_title", Text(index=False))
-        mapping.field("parent_get_absolute_url_online", Keyword(index=False))
-        mapping.field("parent_publication_date", Date(index=False))
-        mapping.field("thumbnail", Keyword(index=False))
+    def get_es_document_source(self, excluded_fields=None):
+        """Overridden to handle the fact that most information are versioned"""
 
-        return mapping
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(["parent_publication_date"])
+
+        data = super().get_es_document_source(excluded_fields=excluded_fields)
+
+        data["parent_publication_date"] = convert_to_unix_timestamp(self.parent_publication_date)
+
+        return data
 
     def get_es_document_as_bulk_action(self, index, action="index"):
         """Overridden to handle parenting between chapter and PublishedContent"""
