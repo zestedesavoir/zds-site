@@ -143,9 +143,9 @@ def add_content_schema():
 
 
 def test_search():
-    search_parameters = {"q": "Introduction to Machine Learning", "query_by": "title"}
+    search_parameters = {"q": "Profond", "query_by": "title"}
 
-    result = client.collections["publishedcontent"].documents.search(search_parameters)
+    result = client.collections["topic"].documents.search(search_parameters)
 
     for result in result["hits"]:
         print(result)
@@ -180,8 +180,8 @@ def test_multisearch():
 
 
 if __name__ == "__main__":
-    # create_collection()
-    # add_content_schema()
+    create_collection()
+    add_content_schema()
     # test_search()
-    test_multisearch()
+    # test_multisearch()
     pass

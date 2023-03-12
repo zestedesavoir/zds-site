@@ -185,43 +185,56 @@ class SearchView(ZdSPagingListView):
             self.from_library = False
             if self.search_form.cleaned_data["from_library"] == "on":
                 self.from_library = True
-            # test typesense
-            multiple_collections = [
-                {"name": "publishedcontent", "query_by": "title,description,categories,subcategories, tags, text"},
-                {"name": "topic", "query_by": "title,subtitle,tags"},
-                {"name": "chapter", "query_by": "title,text"},
-                {"name": "post", "query_by": "content"},
-            ]
-            search_requests = {
-                "searches": [
-                    {
-                        "collection": "publishedcontent",
-                        "q": self.search_query,
-                        "query_by": "title,description,categories,subcategories, tags, text",
-                    },
-                    {"collection": "topic", "q": self.search_query, "query_by": "title,subtitle,tags"},
-                    {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
-                    {"collection": "post", "q": self.search_query, "query_by": "content"},
-                ]
+
+            # Check which collections needs to search
+            search_collections = self.search_form.cleaned_data["models"]
+            if "content" in search_collections:
+                search_collections[search_collections.index("content")] = "publishedcontent"
+            search_collection_count = len(search_collections)
+
+            # Typesense Search
+            search_requests = {"searches": []}
+
+            searches = {
+                "publishedcontent": {
+                    "collection": "publishedcontent",
+                    "q": self.search_query,
+                    "query_by": "title,description,categories,subcategories, tags, text",
+                },
+                "topic": {"collection": "topic", "q": self.search_query, "query_by": "title,subtitle,tags"},
+                "chapter": {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
+                "post": {"collection": "post", "q": self.search_query, "query_by": "content"},
             }
-
-            collection_names = ["publishedcontent", "topic", "chapter", "post"]
-
-            results = client.multi_search.perform(search_requests, None)["results"]
-            all_collection_result = []
-
-            for k in range(len(results)):
-                if "hits" in results[k]:
-                    for entry in results[k]["hits"]:
-                        entry["collection"] = collection_names[k]
-                        all_collection_result.append(entry)
-            all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
-            return all_collection_result
-
+            result = None
+            if search_collection_count == 1:
+                result = self._choose_single_collection_method(search_collections[0])
+            else:
+                if search_collection_count == 0:
+                    search_collections = ["publishedcontent", "topic", "chapter", "post"]
+                for name in search_collections:
+                    search_requests["searches"].append(searches[name])
+                result = self.get_queryset_multisearch(search_requests, search_collections)
+            return result
         return []
 
+    def get_queryset_multisearch(self, search_requests, collection_names):
+        """Return search in several collections
+        @search_requests : parameters of search
+        @collection_names : name of the collection to search
+        """
+        results = client.multi_search.perform(search_requests, None)["results"]
+        all_collection_result = []
+
+        for k in range(len(results)):
+            if "hits" in results[k]:
+                for entry in results[k]["hits"]:
+                    entry["collection"] = collection_names[k]
+                    all_collection_result.append(entry)
+        all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
+        return all_collection_result
+
     def get_queryset_publishedcontents(self):
-        """Search in PublishedContent objects."""
+        """Search in PublishedContent collection."""
         filter = ""
         if self.from_library:
             filter = self._add_a_filter("content_type", "[`TUTORIAL`, `ARTICLE`]", filter)
@@ -241,7 +254,7 @@ class SearchView(ZdSPagingListView):
             "filter": filter,
         }
 
-        result = client.collections["publishedcontent"].documents.search(search_parameters)
+        result = client.collections["publishedcontent"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "publishedcontent"
@@ -249,7 +262,7 @@ class SearchView(ZdSPagingListView):
         return result
 
     def get_queryset_chapters(self):
-        """Search in content chapters."""
+        """Search in chapters collection."""
         filter = ""
         if self.content_category:
             filter = self._add_a_filter("categories", self.content_category, filter)
@@ -325,8 +338,6 @@ class SearchView(ZdSPagingListView):
         context = super().get_context_data(**kwargs)
         context["form"] = self.search_form
         context["query"] = self.search_query is not None
-        print("context")
-        print(context)
         return context
 
     def _add_a_filter(self, field, value, current_filter):
@@ -340,6 +351,19 @@ class SearchView(ZdSPagingListView):
         else:
             current_filter = f"{field} == {str(value)}"
         return current_filter
+
+    def _choose_single_collection_method(self, name):
+        """
+        Return the result of search according the @name of the collection
+        """
+        if name == "publishedcontent":
+            return self.get_queryset_publishedcontents()
+        elif name == "post":
+            return self.get_queryset_posts()
+        elif name == "topic":
+            return self.get_queryset_topics()
+        else:
+            raise "Unknown collection name"
 
 
 def opensearch(request):
