@@ -203,7 +203,7 @@ class SearchView(ZdSPagingListView):
                 },
                 "topic": {"collection": "topic", "q": self.search_query, "query_by": "title,subtitle,tags"},
                 "chapter": {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
-                "post": {"collection": "post", "q": self.search_query, "query_by": "content"},
+                "post": {"collection": "post", "q": self.search_query, "query_by": "text_html"},
             }
             result = None
             if search_collection_count == 1:
@@ -323,8 +323,8 @@ class SearchView(ZdSPagingListView):
         filter = self._add_a_filter("is_visible", True, filter)
         search_parameters = {
             "q": self.search_query,
-            "query_by": "content",
-            "filter": filter,
+            "query_by": "text_html",
+            # "filter": filter,
         }
 
         result = client.collections["post"].documents.search(search_parameters)["hits"]
