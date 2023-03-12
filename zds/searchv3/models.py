@@ -222,6 +222,10 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         return super().save(*args, **kwargs)
 
 
+def convert_to_unix_timestamp(date):
+    return int(time.mktime(date.timetuple()))
+
+
 def delete_document_in_elasticsearch(instance):
     """Delete a ESDjangoIndexable from ES database.
     Must be implemented by all classes that derive from AbstractESDjangoIndexable.

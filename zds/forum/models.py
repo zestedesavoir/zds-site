@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from time import mktime
 from math import ceil
 
 from django.conf import settings
@@ -14,7 +13,12 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.forum import signals
-from zds.searchv3.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
+from zds.searchv3.models import (
+    AbstractESDjangoIndexable,
+    delete_document_in_elasticsearch,
+    ESIndexManager,
+    convert_to_unix_timestamp,
+)
 from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 
@@ -440,7 +444,7 @@ class Topic(AbstractESDjangoIndexable):
             "fields": [
                 {"name": "forum_pk", "type": "int32", "facet": False},
                 {"name": "title", "type": "string"},
-                {"name": "subtitle", "type": "string"},
+                {"name": "subtitle", "type": "string", "optional": True},
                 {"name": "forum_title", "type": "string", "facet": True},
                 {"name": "tags", "type": "string[]", "facet": True},
                 {"name": "is_locked", "type": "bool"},
@@ -473,10 +477,8 @@ class Topic(AbstractESDjangoIndexable):
         data["forum_pk"] = self.forum.pk
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
-        # Date converted into Unix timestamps
-        data["pubdate"] = int(mktime(self.pubdate.timetuple()))
-        if data["subtitle"] is None:
-            data["subtitle"] = ""
+        data["pubdate"] = convert_to_unix_timestamp(self.pubdate)
+
         return data
 
     def save(self, *args, **kwargs):
