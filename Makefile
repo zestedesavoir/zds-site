@@ -106,6 +106,9 @@ zmd-stop: ## Stop the zmarkdown server
 run-elasticsearch: ## Run the Elastic Search server
 	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elastic-local`)'
 
+run-typesense: ## Run the Typesense Search server
+	./.local/typesense-server --data-dir=.local/typesense/typesense-data --api-key=xyz --enable-cors
+
 index-all: ## Index the database in a new Elastic Search index
 	python manage.py es_manager index_all
 
