@@ -530,24 +530,27 @@ class Post(Comment, AbstractESDjangoIndexable):
 
     @classmethod
     def get_es_mapping(cls):
-        es_mapping = super().get_es_mapping()
 
-        es_mapping.field("text_html", Text())
-        es_mapping.field("is_useful", Boolean())
-        es_mapping.field("is_visible", Boolean())
-        es_mapping.field("position", Integer())
-        es_mapping.field("like_dislike_ratio", Float())
-        es_mapping.field("pubdate", Date())
-        es_mapping.field("forum_pk", Integer())
-        es_mapping.field("topic_pk", Integer())
+        schema = {
+            "name": "post",
+            "fields": [
+                {"name": "topic_pk", "type": "int64"},
+                {"name": "forum_pk", "type": "int64"},
+                {"name": "topic_title", "type": "string", "facet": True},
+                {"name": "forum_title", "type": "string", "facet": True},
+                {"name": "position", "type": "int64"},
+                {"name": "text_html", "type": "string"},
+                {"name": "is_visible", "type": "bool"},
+                {"name": "is_useful", "type": "bool"},
+                {"name": "pubdate", "type": "int64"},
+                {"name": "get_absolute_url", "type": "string"},
+                {"name": "forum_get_absolute_url", "type": "string"},
+                {"name": "like_dislike_ratio", "type": "float"},
+            ],
+            "default_sorting_field": "pubdate",
+        }
 
-        # not indexed:
-        es_mapping.field("get_absolute_url", Keyword(index=False))
-        es_mapping.field("topic_title", Text(index=False))
-        es_mapping.field("forum_title", Text(index=False))
-        es_mapping.field("forum_get_absolute_url", Keyword(index=False))
-
-        return es_mapping
+        return schema
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
@@ -562,7 +565,15 @@ class Post(Comment, AbstractESDjangoIndexable):
 
         excluded_fields = excluded_fields or []
         excluded_fields.extend(
-            ["like_dislike_ratio", "topic_title", "topic_pk", "forum_title", "forum_pk", "forum_get_absolute_url"]
+            [
+                "like_dislike_ratio",
+                "topic_title",
+                "topic_pk",
+                "forum_title",
+                "forum_pk",
+                "forum_get_absolute_url",
+                "pubdate",
+            ]
         )
 
         data = super().get_es_document_source(excluded_fields=excluded_fields)
@@ -577,6 +588,7 @@ class Post(Comment, AbstractESDjangoIndexable):
         data["forum_pk"] = self.topic.forum.pk
         data["forum_title"] = self.topic.forum.title
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
+        data["pubdate"] = convert_to_unix_timestamp(self.pubdate)
 
         return data
 
