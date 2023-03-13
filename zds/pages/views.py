@@ -85,7 +85,9 @@ class ContactView(ListView):
     """
 
     model = GroupContact
-    queryset = GroupContact.objects.order_by("position").prefetch_related("group")
+    queryset = GroupContact.objects.prefetch_related("persons_in_charge__profile", "group__user_set__profile").order_by(
+        "position"
+    )
     template_name = "pages/contact.html"
     context_object_name = "groups"
 
