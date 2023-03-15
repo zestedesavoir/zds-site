@@ -543,7 +543,7 @@ class ESIndexManager:
 
         doc_type = document.get_es_document_type()
         doc_id = document.es_id
-        if doc_type in self.es.collection and doc_id in self.es.collections[doc_type]:
+        if doc_type in self.es.collections and doc_id in self.es.collections[doc_type]:
             self.es.collections[doc_type].documents[doc_id].delete()
             self.logger.info(f"delete {document.get_es_document_type()} with id {document.es_id}")
 
