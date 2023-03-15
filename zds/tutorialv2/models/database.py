@@ -1016,7 +1016,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                     # delete possible previous chapters
                     if content.es_already_indexed:
                         index_manager.delete_by_query(
-                            FakeChapter.get_es_document_type(), {"filter_by": "parent_id:=" + str(content.es_id)}
+                            FakeChapter.get_es_document_type(), {"filter_by": "parent_id:=" + content.es_id}
                         )
 
                     # (re)index the new one(s)
@@ -1092,8 +1092,7 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
-    if index_manager.index_exists:
-        index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q("match", _routing=instance.es_id))
+    index_manager.delete_by_query(FakeChapter.get_es_document_type(), {"filter_by": "parent_id:=" + instance.es_id})
 
     return delete_document_in_elasticsearch(instance)
 
