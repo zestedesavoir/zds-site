@@ -48,8 +48,6 @@ class Command(BaseCommand):
         self.index_manager.reset_es_index(self.models)
         # self.index_manager.setup_custom_analyzer()
 
-        self.index_manager.refresh_index()
-
     def clear_es(self):
         self.index_manager.clear_es_index()
 
@@ -71,5 +69,3 @@ class Command(BaseCommand):
             indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
             if force_reindexing:
                 print(f"  {indexed_counter}\titems indexed")
-
-        self.index_manager.refresh_index()

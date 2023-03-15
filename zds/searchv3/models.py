@@ -236,9 +236,7 @@ def delete_document_in_elasticsearch(instance):
 
     index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
 
-    if index_manager.index_exists:
-        index_manager.delete_document(instance)
-        index_manager.refresh_index()
+    index_manager.delete_document(instance)
 
 
 def get_django_indexable_objects():
@@ -557,24 +555,6 @@ class ESIndexManager:
 
             return indexed_counter
 
-    def refresh_index(self):
-        """Force the refreshing the index. The task is normally done periodically, but may be forced with this method.
-
-        See https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-refresh.html.
-
-        .. note::
-
-            The use of this function is mandatory if you want to use the search right after an indexing.
-        """
-
-        if not self.connected_to_es:
-            return
-
-        if not self.index_exists:
-            raise NeedIndex()
-
-        # self.es.indices.refresh(self.index)
-
     def update_single_document(self, document, doc):
         """Update given fields of a single document.
 
@@ -640,46 +620,3 @@ class ESIndexManager:
         response = self.es.collections[doc_type].documents.delete(query)
 
         self.logger.info(f"delete_by_query {doc_type}s ({response})")
-
-    def analyze_sentence(self, request):
-        """Use the anlyzer on a given sentence. Get back the list of tokens.
-
-        See http://www.elastic.co/guide/en/elasticsearch/reference/current/indices-analyze.html.
-
-        This is useful to perform "terms" queries instead of full-text queries.
-
-        :param request: a sentence from user input
-        :type request: str
-        :return: the tokens
-        :rtype: list
-        """
-
-        if not self.connected_to_es:
-            return
-
-        if not self.index_exists:
-            raise NeedIndex()
-
-        document = {"text": request}
-        tokens = []
-        for token in self.es.indices.analyze(index=self.index, body=document)["tokens"]:
-            tokens.append(token["token"])
-
-        return tokens
-
-    def setup_search(self, request):
-        """Setup search to the good index
-
-        :param request: the search request
-        :type request: elasticsearch_dsl.Search
-        :return: formated search
-        :rtype: elasticsearch_dsl.Search
-        """
-
-        if not self.connected_to_es:
-            return
-
-        if not self.index_exists:
-            raise NeedIndex()
-
-        return self.es.collections[self.name].documents.search(request)
