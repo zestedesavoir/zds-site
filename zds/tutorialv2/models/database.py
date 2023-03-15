@@ -1194,10 +1194,10 @@ class FakeChapter(AbstractESIndexable):
 
         return data
 
-    def get_es_document_as_bulk_action(self, index, action="index"):
+    def get_es_document_as_bulk_action(self, action="index"):
         """Overridden to handle parenting between chapter and PublishedContent"""
 
-        document = super().get_es_document_as_bulk_action(index, action)
+        document = super().get_es_document_as_bulk_action(action)
         document["_parent"] = self.parent_id
         return document
 

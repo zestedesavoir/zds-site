@@ -6,18 +6,13 @@ from django.apps import apps
 from django.db import models
 from django.conf import settings
 
-from elasticsearch.helpers import parallel_bulk
-from elasticsearch import ConnectionError
-from elasticsearch_dsl.query import MatchAll
-from elasticsearch_dsl.connections import connections
-
 from django.db import transaction
 from zds.searchv3.client import client
 
 
-def es_document_mapper(force_reindexing, index, obj):
+def es_document_mapper(force_reindexing, obj):
     action = "update" if obj.es_already_indexed and not force_reindexing else "index"
-    return obj.get_es_document_as_bulk_action(index, action)
+    return obj.get_es_document_as_bulk_action(action)
 
 
 class AbstractESIndexable:
@@ -117,7 +112,7 @@ class AbstractESIndexable:
 
         return data
 
-    def get_es_document_as_bulk_action(self, index, action="index"):
+    def get_es_document_as_bulk_action(self, action="index"):
         """Create a document formatted for a ``_bulk`` operation. Formatting is done based on action.
 
         See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
@@ -133,15 +128,14 @@ class AbstractESIndexable:
         if action not in ["index", "update", "delete"]:
             raise ValueError("action must be `index`, `update` or `delete`")
 
-        document = {"_op_type": action, "_index": index, "_type": self.get_es_document_type()}
         document = self.get_es_document_source()
         if action == "index":
             if self.es_id:
                 document["id"] = self.es_id
-            # document["_source"] = self.get_es_document_source()
+            document["_source"] = self.get_es_document_source()
         elif action == "update":
             document["id"] = self.es_id
-            # document["doc"] = self.get_es_document_source()
+            document["doc"] = self.get_es_document_source()
         elif action == "delete":
             document["id"] = self.es_id
 
@@ -244,12 +238,6 @@ def get_django_indexable_objects():
     return [model for model in apps.get_models() if issubclass(model, AbstractESDjangoIndexable)]
 
 
-class NeedIndex(Exception):
-    """Raised when an action requires an index, but it is not created (yet)."""
-
-    pass
-
-
 class ESIndexManager:
     """Manage a given index with different taylor-made functions"""
 
@@ -266,13 +254,7 @@ class ESIndexManager:
         :type connection_alias: str
         """
 
-        self.index = name
-        self.index_exists = True
-
-        self.number_of_shards = shards
-        self.number_of_replicas = replicas
-
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}:{self.index}")
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.es = None
         self.connected_to_es = False
@@ -290,7 +272,6 @@ class ESIndexManager:
         for collection in self.es.collections.retrieve():
             self.es.collections[collection["name"]].delete()
         self.logger.info("index cleared")
-        self.index_exists = False
 
     def reset_es_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
@@ -312,8 +293,6 @@ class ESIndexManager:
         for model in models:
             schema = model.get_es_schema()
             self.es.collections.create(schema)
-
-        self.index_exists = True
 
         self.logger.info("index created")
 
@@ -338,11 +317,6 @@ class ESIndexManager:
 
         if not self.connected_to_es:
             return
-
-        if not self.index_exists:
-            raise NeedIndex()
-
-        self.es.indices.close(self.index)
 
         document = {
             "analysis": {
@@ -399,9 +373,6 @@ class ESIndexManager:
             }
         }
 
-        self.es.indices.put_settings(index=self.index, body=document)
-        self.es.indices.open(self.index)
-
         self.logger.info("setup analyzer")
 
     def clear_indexing_of_model(self, model):
@@ -444,15 +415,12 @@ class ESIndexManager:
         if not self.connected_to_es:
             return
 
-        if not self.index_exists:
-            raise NeedIndex()
-
         # better safe than sorry
         if model.__name__ == "FakeChapter":
             self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
             return 0
 
-        documents_formatter = partial(es_document_mapper, force_reindexing, self.index)
+        documents_formatter = partial(es_document_mapper, force_reindexing)
         objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
         if model.__name__ == "PublishedContent":
@@ -557,9 +525,6 @@ class ESIndexManager:
         if not self.connected_to_es:
             return
 
-        if not self.index_exists:
-            raise NeedIndex()
-
         doc_type = document.get_es_document_type()
         doc_id = document.es_id
         if doc_type in self.es.collection and doc_id in self.es.collections[doc_type]:
@@ -576,16 +541,13 @@ class ESIndexManager:
         if not self.connected_to_es:
             return
 
-        if not self.index_exists:
-            raise NeedIndex()
-
         doc_type = document.get_es_document_type()
         doc_id = document.es_id
         if doc_type in self.es.collection and doc_id in self.es.collections[doc_type]:
             self.es.collections[doc_type].documents[doc_id].delete()
             self.logger.info(f"delete {document.get_es_document_type()} with id {document.es_id}")
 
-    def delete_by_query(self, doc_type="", query=MatchAll()):
+    def delete_by_query(self, doc_type="", query="filter_by=id:>=0"):
         """Perform a deletion trough the ``_delete_by_query`` API.
 
         See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
@@ -601,9 +563,6 @@ class ESIndexManager:
 
         if not self.connected_to_es:
             return
-
-        if not self.index_exists:
-            raise NeedIndex()
 
         response = self.es.collections[doc_type].documents.delete(query)
 
