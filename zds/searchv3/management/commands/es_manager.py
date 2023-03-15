@@ -13,8 +13,8 @@ class Command(BaseCommand):
     models = get_django_indexable_objects()
 
     def __init__(self, *args, **kwargs):
-        """Overridden because FakeChapter needs to be present for mapping.
-        Also, its mapping needs to be defined before the one of PublishedContent for parenting reasons (!!!).
+        """Overridden because FakeChapter needs to be present for schema.
+        Also, its schema needs to be defined before the one of PublishedContent for parenting reasons (!!!).
         """
 
         super().__init__(*args, **kwargs)

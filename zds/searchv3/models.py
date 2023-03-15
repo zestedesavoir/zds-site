@@ -8,7 +8,6 @@ from django.conf import settings
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch import ConnectionError
-from elasticsearch_dsl import Mapping
 from elasticsearch_dsl.query import MatchAll
 from elasticsearch_dsl.connections import connections
 
@@ -29,8 +28,8 @@ class AbstractESIndexable:
     You (may) need to override :
 
     - ``get_indexable()`` ;
-    - ``get_mapping()`` (not mandatory, but otherwise, ES will choose the mapping by itself) ;
-    - ``get_document()`` (not mandatory, but may be useful if data differ from mapping or extra stuffs need to be done).
+    - ``get_schema()`` (not mandatory, but otherwise, ES will choose the schema by itself) ;
+    - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
 
     You also need to maintain ``es_id`` and ``es_already_indexed`` for bulk indexing/updating (if any).
     """
@@ -53,24 +52,25 @@ class AbstractESIndexable:
         return content_type
 
     @classmethod
-    def get_es_mapping(self):
-        """Setup mapping (data scheme).
+    def get_es_schema(self):
+        """Setup schema (data scheme).
 
         .. note::
             You will probably want to change the analyzer and boost value.
             Also consider the ``index='not_analyzed'`` option to improve performances.
 
-        See https://elasticsearch-dsl.readthedocs.io/en/latest/persistence.html#mappings
+        See https://elasticsearch-dsl.readthedocs.io/en/latest/persistence.html#schemas
 
         .. attention::
-            You *may* want to override this method (otherwise ES choose the mapping by itself).
+            You *may* want to override this method (otherwise ES choose the schema by itself).
 
-        :return: mapping object
-        :rtype: elasticsearch_dsl.Mapping
+        :return: schema object
+        :rtype: elasticsearch_dsl.schema
         """
-
-        es_mapping = Mapping(self.get_es_document_type())
-        return es_mapping
+        es_schema = dict()
+        es_schema["name"] = self.get_es_document_type()
+        es_schema["fields"] = []
+        return es_schema
 
     @classmethod
     def get_es_indexable(cls, force_reindexing=False):
@@ -87,10 +87,10 @@ class AbstractESIndexable:
         return []
 
     def get_es_document_source(self, excluded_fields=None):
-        """Create a document from the variable of the class, based on the mapping.
+        """Create a document from the variable of the class, based on the schema.
 
         .. attention::
-            You may need to override this method if the data differ from the mapping for some reason.
+            You may need to override this method if the data differ from the schema for some reason.
 
         :param excluded_fields: exclude some field from the default method
         :type excluded_fields: list
@@ -99,7 +99,7 @@ class AbstractESIndexable:
         """
 
         cls = self.__class__
-        schema = cls.get_es_mapping()["fields"]
+        schema = cls.get_es_schema()["fields"]
         fields = list(schema[i]["name"] for i in range(len(schema)))
 
         data = {}
@@ -151,7 +151,7 @@ class AbstractESIndexable:
 class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
     """Version of AbstractESIndexable for a Django object, with some improvements :
 
-    - Already include ``pk`` in mapping ;
+    - Already include ``pk`` in schema ;
     - Match ES ``_id`` field and ``pk`` ;
     - Override ``es_already_indexed`` to a database field.
     - Define a ``es_flagged`` field to restrict the number of object to be indexed ;
@@ -171,16 +171,16 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         self.es_id = str(self.pk)
 
     @classmethod
-    def get_es_mapping(cls):
-        """Overridden to add pk into mapping.
+    def get_es_schema(cls):
+        """Overridden to add pk into schema.
 
-        :return: mapping object
-        :rtype: elasticsearch_dsl.Mapping
+        :return: schema object
+        :rtype: elasticsearch_dsl.schema
         """
 
-        es_mapping = cls.get_es_mapping()
-        es_mapping["fields"].append({"name": "id", "type": "string"})
-        return es_mapping
+        es_schema = super().get_es_schema()
+        es_schema["fields"].append({"name": "id", "type": "string"})
+        return es_schema
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
@@ -281,18 +281,6 @@ class ESIndexManager:
             self.es = client
             self.connected_to_es = True
 
-            # test connection:
-            # try:
-            #     self.es.info()
-            # except ConnectionError:
-            #     self.connected_to_es = False
-            #     self.logger.warn("failed to connect to ES cluster")
-            # else:
-            #     self.logger.info("connected to ES cluster")
-
-            # if self.connected_to_es:
-            #     self.index_exists = self.es.indices.exists(self.index)
-
     def clear_es_index(self):
         """Clear index"""
 
@@ -306,7 +294,7 @@ class ESIndexManager:
 
     def reset_es_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
-        Then, set mappings for the different models.
+        Then, set schemas for the different models.
 
         :param models: list of models
         :type models: list
@@ -322,8 +310,8 @@ class ESIndexManager:
         self.clear_es_index()
 
         for model in models:
-            mapping = model.get_es_mapping()
-            self.es.collections.create(mapping)
+            schema = model.get_es_schema()
+            self.es.collections.create(schema)
 
         self.index_exists = True
 
@@ -489,8 +477,8 @@ class ESIndexManager:
 
                     formatted_documents = list(map(documents_formatter, objects))
 
+                    self.es.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
                     for document in formatted_documents:
-                        self.es.collections[doc_type].documents.create(document)
                         if self.logger.getEffectiveLevel() <= logging.INFO:
                             self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 
@@ -513,10 +501,10 @@ class ESIndexManager:
                         break
 
                     formatted_documents = list(map(documents_formatter, objects))
-
                     doc_type = model.get_es_document_type()
+
+                    self.es.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
                     for document in formatted_documents:
-                        self.es.collections[doc_type].documents.create(document)
                         if self.logger.getEffectiveLevel() <= logging.INFO:
                             self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 

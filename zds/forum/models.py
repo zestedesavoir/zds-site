@@ -438,10 +438,11 @@ class Topic(AbstractESDjangoIndexable):
         return TopicRead.objects.is_topic_last_message_read(self, user, check_auth)
 
     @classmethod
-    def get_es_mapping(cls):
-        schema = {
-            "name": "topic",
-            "fields": [
+    def get_es_schema(cls):
+        ts_schema = super().get_es_schema()
+
+        ts_schema["fields"].extend(
+            [
                 {"name": "forum_pk", "type": "int32", "facet": False},
                 {"name": "title", "type": "string"},
                 {"name": "subtitle", "type": "string", "optional": True},
@@ -453,11 +454,10 @@ class Topic(AbstractESDjangoIndexable):
                 {"name": "pubdate", "type": "int64", "facet": True},
                 {"name": "get_absolute_url", "type": "string"},
                 {"name": "forum_get_absolute_url", "type": "string"},
-            ],
-            "default_sorting_field": "pubdate",
-        }
+            ]
+        )
 
-        return schema
+        return ts_schema
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
@@ -529,11 +529,11 @@ class Post(Comment, AbstractESDjangoIndexable):
         return self.topic.title
 
     @classmethod
-    def get_es_mapping(cls):
+    def get_es_schema(cls):
+        ts_schema = super().get_es_schema()
 
-        schema = {
-            "name": "post",
-            "fields": [
+        ts_schema["fields"].extend(
+            [
                 {"name": "topic_pk", "type": "int64"},
                 {"name": "forum_pk", "type": "int64"},
                 {"name": "topic_title", "type": "string", "facet": True},
@@ -546,11 +546,10 @@ class Post(Comment, AbstractESDjangoIndexable):
                 {"name": "get_absolute_url", "type": "string"},
                 {"name": "forum_get_absolute_url", "type": "string"},
                 {"name": "like_dislike_ratio", "type": "float"},
-            ],
-            "default_sorting_field": "pubdate",
-        }
+            ]
+        )
 
-        return schema
+        return ts_schema
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):

@@ -16,7 +16,6 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from elasticsearch_dsl import Mapping, Q as ES_Q
 from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from git import Repo, BadObject
 from gitdb.exc import BadName
@@ -957,11 +956,11 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
-    def get_es_mapping(cls):
+    def get_es_schema(cls):
+        ts_schema = super().get_es_schema()
 
-        schema = {
-            "name": "publishedcontent",
-            "fields": [
+        ts_schema["fields"].extend(
+            [
                 {"name": "title", "type": "string", "facet": False},
                 {"name": "content_pk", "type": "int32", "facet": False},
                 {"name": "content_type", "type": "string", "facet": True},
@@ -975,10 +974,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                 {"name": "picked", "type": "bool", "facet": False},
                 {"name": "get_absolute_url_online", "type": "string", "facet": False},
                 {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
-            ],
-        }
+            ]
+        )
 
-        return schema
+        return ts_schema
 
     @classmethod
     def get_es_django_indexable(cls, force_reindexing=False):
@@ -1115,7 +1114,7 @@ def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instanc
 class FakeChapter(AbstractESIndexable):
     """A simple class that is used by ES to index chapters, constructed from the containers.
 
-    In mapping, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
+    In schema, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
 
     Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
     """
@@ -1161,12 +1160,13 @@ class FakeChapter(AbstractESIndexable):
         return "chapter"
 
     @classmethod
-    def get_es_mapping(self):
-        """Define mapping and parenting"""
+    def get_es_schema(self):
+        """Define schema and parenting"""
+        ts_schema = super().get_es_schema()
+        ts_schema["name"] = self.get_es_document_type()
 
-        schema = {
-            "name": "chapter",
-            "fields": [
+        ts_schema["fields"].extend(
+            [
                 {"name": "parent_id", "type": "string", "facet": False},
                 {"name": "title", "type": "string", "facet": False},
                 {"name": "parent_title", "type": "string"},
@@ -1177,10 +1177,10 @@ class FakeChapter(AbstractESIndexable):
                 {"name": "get_absolute_url_online", "type": "string", "facet": False},
                 {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
                 {"name": "thumbnail", "type": "string", "facet": False},
-            ],
-        }
+            ]
+        )
 
-        return schema
+        return ts_schema
 
     def get_es_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned"""
