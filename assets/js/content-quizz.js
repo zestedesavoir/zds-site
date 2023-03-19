@@ -6,8 +6,8 @@ let index = 0
 
 function extractAnswer(inputDomElementList, answers) {
   
- 
-  if (Object.keys(answers).length === 0) {
+  
+  // if (Object.keys(answers).length === 0) {
     inputDomElementList.forEach((rb) => {
       const ulWrapperElement = rb.parentElement.parentElement
       // we give the ui an id to find the element in a more effective way later when the users answer the questions
@@ -26,7 +26,7 @@ function extractAnswer(inputDomElementList, answers) {
       rb.disabled = false
       rb.checked = false
     })
-  }
+  // }
 }
 
 /**
@@ -71,7 +71,7 @@ function initializeCheckboxes(answers) {
  
     const checkboxes = document.querySelectorAll('.quizz ul li input[type=checkbox]')
     extractAnswer(checkboxes, answers)
-    sessionStorage.setItem('answers', JSON.stringify(answers));
+    // sessionStorage.setItem('answers', JSON.stringify(answers));
 }
 
 
@@ -190,16 +190,13 @@ function injectForms(quizz, answers) {
     
   });
 
-  
-
-  
   const searchedTitle = quizz.getAttribute('data-heading-level') || 'h3'
   const submitLabel = quizz.getAttribute('data-quizz-validate') || 'Validate'
   const headings = {}
   const wrappers = []
 
   Object.keys(answers).forEach(blockId => {
-   
+
     
     const blockNode = document.getElementById(blockId)
     if (!blockNode) {
@@ -209,14 +206,17 @@ function injectForms(quizz, answers) {
     // this is the custom-block-quizz node
     const questionNode = blockNode.parentElement.parentElement
     const heading = getWantedHeading(questionNode, searchedTitle, 'previousSibling') || quizz
-    console.log(heading);
+
     if (!heading.getAttribute('id')) {
       heading.setAttribute('id', `quizz-form-${idBias}`)
       idBias++
     }
+
+
     if (heading && !headings[heading.getAttribute('id')]) {
 
 
+      // console.log(1);
       // this is just for convenience, this add a "known" element that will always be there
       const wrapper = document.createElement('div')
 
@@ -305,7 +305,6 @@ function sendQuizzStatistics(form, statistics) {
   xhttp.setRequestHeader('Content-Type', 'application/json')
   xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
   statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
-  // console.log(JSON.stringify(statistics));
   xhttp.send(JSON.stringify(statistics))
 
 }
