@@ -527,9 +527,11 @@ class ESIndexManager:
 
         doc_type = document.get_es_document_type()
         doc_id = document.es_id
-        if doc_type in self.es.collection and doc_id in self.es.collections[doc_type]:
+        try:
             self.es.collections[doc_type].documents[doc_id].update(doc)
             self.logger.info(f"partial_update {document.get_es_document_type()} with id {document.es_id}")
+        except:
+            pass
 
     def delete_document(self, document):
         """Delete a given document, based on its ``es_id``
@@ -543,9 +545,11 @@ class ESIndexManager:
 
         doc_type = document.get_es_document_type()
         doc_id = document.es_id
-        if doc_type in self.es.collections and doc_id in self.es.collections[doc_type]:
+        try:
             self.es.collections[doc_type].documents[doc_id].delete()
             self.logger.info(f"delete {document.get_es_document_type()} with id {document.es_id}")
+        except:
+            pass
 
     def delete_by_query(self, doc_type="", query="filter_by=id:>=0"):
         """Perform a deletion trough the ``_delete_by_query`` API.
