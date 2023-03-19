@@ -94,7 +94,7 @@ class TopicManager(models.Manager):
         return (
             self.filter(forum__pk=forum_pk, is_sticky=is_sticky)
             .order_by("-last_message__pubdate")
-            .select_related("author__profile")
+            .select_related("author__profile", "solved_by")
             .prefetch_related("last_message", "tags")
             .all()
         )
