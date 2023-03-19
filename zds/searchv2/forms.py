@@ -39,6 +39,17 @@ class SearchForm(forms.Form):
         choices=content_type_values,
     )
 
+    validated_content_labels = sorted(
+        ((k, v[0]) for k, v in settings.ZDS_APP["search"]["search_validated_content"].items()), key=lambda pair: pair[1]
+    )
+
+    validated_content = forms.MultipleChoiceField(
+        label="",
+        widget=forms.CheckboxSelectMultiple(attrs={"class": "search-filters", "form": "search-form"}),
+        required=False,
+        choices=validated_content_labels,
+    )
+
     category = forms.CharField(widget=forms.HiddenInput, required=False)
     subcategory = forms.CharField(widget=forms.HiddenInput, required=False)
     from_library = forms.CharField(widget=forms.HiddenInput, required=False)

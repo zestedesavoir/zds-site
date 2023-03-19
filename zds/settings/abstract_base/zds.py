@@ -236,7 +236,11 @@ ZDS_APP = {
         "search_content_type": {
             "tutorial": (_("Tutoriels"), ["tutorial"]),
             "article": (_("Articles"), ["article"]),
-            "opinion": (_("Opinion"), ["opinion"]),
+            "opinion": (_("Billet"), ["opinion"]),
+        },
+        "search_validated_content": {
+            "validated": (_("Contenus validés"), ["validated"]),
+            "no_validated": (_("Contenus libres"), ["no_validated"]),
         },
         "boosts": {
             "publishedcontent": {
