@@ -145,6 +145,8 @@ class SearchView(ZdSPagingListView):
     search_query = None
     content_category = None
     content_subcategory = None
+    search_content_types = None
+    search_content_types_count = None
 
     authorized_forums = ""
 
@@ -188,9 +190,11 @@ class SearchView(ZdSPagingListView):
 
             # Check which collections needs to search
             search_collections = self.search_form.cleaned_data["models"]
-            if "content" in search_collections:
-                search_collections[search_collections.index("content")] = "publishedcontent"
             search_collection_count = len(search_collections)
+
+            # Check which type of content is needed
+            self.search_content_types = self.search_form.cleaned_data["content_types"]
+            self.search_content_types_count = len(self.search_content_types)
 
             # Typesense Search
             search_requests = {"searches": []}
@@ -205,6 +209,13 @@ class SearchView(ZdSPagingListView):
                 "chapter": {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
                 "post": {"collection": "post", "q": self.search_query, "query_by": "text_html"},
             }
+            if self.search_content_types_count > 0:
+                searches["publishedcontent"]["filter"] = self._add_a_filter(
+                    "content_type", self.search_content_types, ""
+                )
+                search_collections = ["publishedcontent"]
+                search_collection_count += 1
+
             result = None
             if search_collection_count == 1:
                 result = self._choose_single_collection_method(search_collections[0])
@@ -236,8 +247,8 @@ class SearchView(ZdSPagingListView):
     def get_queryset_publishedcontents(self):
         """Search in PublishedContent collection."""
         filter = ""
-        if self.from_library:
-            filter = self._add_a_filter("content_type", "[`TUTORIAL`, `ARTICLE`]", filter)
+        if self.search_content_types_count > 0:
+            filter = self._add_a_filter("content_type", self.search_content_types, filter)
             # filter += "content_type == [`TUTORIAL`, `ARTICLE`]"
 
         if self.content_category:
@@ -251,7 +262,7 @@ class SearchView(ZdSPagingListView):
         search_parameters = {
             "q": self.search_query,
             "query_by": "title,description,categories,subcategories, tags, text",
-            "filter": filter,
+            "filter_by": filter,
         }
 
         result = client.collections["publishedcontent"].documents.search(search_parameters)["hits"]
@@ -346,10 +357,10 @@ class SearchView(ZdSPagingListView):
         value : is the a string with value of the field
         current_filter : is the current string which represent the value to filter
         """
-        if len(field) > 0:
-            current_filter += f"&& {field} == {str(value)}"
+        if len(current_filter) > 0:
+            current_filter += f"&& {field}:{str(value)}"
         else:
-            current_filter = f"{field} == {str(value)}"
+            current_filter = f"{field}:{str(value)}"
         return current_filter
 
     def _choose_single_collection_method(self, name):

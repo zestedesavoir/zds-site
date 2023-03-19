@@ -229,9 +229,14 @@ ZDS_APP = {
         "mark_keywords": ["javafx", "haskell", "groovy", "powershell", "latex", "linux", "windows"],
         "results_per_page": 20,
         "search_groups": {
-            "content": (_("Contenus publiés"), ["publishedcontent", "chapter"]),
+            "publishedcontent": (_("Contenus publiés"), ["publishedcontent", "chapter"]),
             "topic": (_("Sujets du forum"), ["topic"]),
             "post": (_("Messages du forum"), ["post"]),
+        },
+        "search_content_type": {
+            "tutorial": (_("Tutoriels"), ["tutorial"]),
+            "article": (_("Articles"), ["article"]),
+            "opinion": (_("Opinion"), ["opinion"]),
         },
         "boosts": {
             "publishedcontent": {
