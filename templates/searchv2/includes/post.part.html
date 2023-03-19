@@ -13,7 +13,7 @@
 
         <p class="content-description">
             <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.topic_title }}">
-                {{ search_result.text_html }}
+                {{ search_result.text_html|striptags }}
             </a>
         </p>
     </header>
