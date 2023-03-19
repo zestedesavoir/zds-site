@@ -45,8 +45,8 @@
                 &bullet;
 
                 <time class="content-pubdate" pubdate="{{ search_result.publication_date }}">
-                    <span class="long">{{ search_result.publication_date}}</span>
-                    <span class="short">{{ search_result.publication_date }}</span>
+                    <span class="long">{{ search_result.publication_date|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.publication_date|format_date:True|capfirst }}</span>
                 </time>
             </p>
         </div>
