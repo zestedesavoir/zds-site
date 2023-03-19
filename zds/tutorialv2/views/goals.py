@@ -114,7 +114,7 @@ class ContentsByGoalMixin:
     def get_queryset(self):
         self.current_filter_pk = None
 
-        self.base_queryset = PublishableContent.objects.exclude(public_version=None)
+        self.base_queryset = PublishableContent.objects.exclude(public_version=None).prefetch_related("goals")
         self.num_all = self.base_queryset.count()
 
         queryset_not_classified = self.base_queryset.filter(goals=None)
