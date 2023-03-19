@@ -316,9 +316,9 @@ function displayResultAfterSubmitButton(nbGood, nbTotal, form) {
   const resultElement = form.querySelector('.result');
 
   if (nbTotal === 0) {
-    explanationElement.innerText = `please answer first`;
+    explanationElement.innerText = ``;
     // explanationElement.classList.add('error');
-    resultElement.innerText = '';
+    resultElement.innerText = 'please answer first';
     return;
   }
 
@@ -330,11 +330,13 @@ function displayResultAfterSubmitButton(nbGood, nbTotal, form) {
   if (percentOfAnswers == 100) {
     resultElement.innerText = `La reponse est correcte :)`;
     explanationElement.classList.remove('explanation_on');
+    explanationElement.classList.remove('please answer first');
     explanationElement.classList.add('explanation_off');
 
   } else {
-    resultElement.innerText = '';
+    resultElement.innerText = 'Il existe au moins une réponse fausse';
     explanationElement.classList.remove('explanation_off');
+    explanationElement.classList.remove('please answer first');
     explanationElement.classList.add('explanation_on');
   }
 }
