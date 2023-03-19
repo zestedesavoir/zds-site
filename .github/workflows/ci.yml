@@ -1,6 +1,10 @@
 name: CI
 
-on: ["push", "pull_request"]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
   NODE_VERSION: "16" # needs to be also updated in .nvmrc
@@ -24,6 +28,9 @@ jobs:
     name: Lint back-end
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -43,6 +50,9 @@ jobs:
   build-doc:
     name: Build Sphinx documentation
     runs-on: ubuntu-22.04
+
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
@@ -85,6 +95,9 @@ jobs:
   build-front:
     name: Lint and build front-end
     runs-on: ubuntu-22.04
+
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
