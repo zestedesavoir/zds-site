@@ -210,7 +210,7 @@ class TopicAnswerSubscriptionManager(SubscriptionManager):
             user=user, is_active=True, content_type=ContentType.objects.get_for_model(Topic)
         ).values_list("object_id", flat=True)
 
-        return Topic.objects.filter(id__in=topic_list).order_by("-last_message__pubdate")
+        return Topic.objects.filter(id__in=topic_list).select_related("solved_by").order_by("-last_message__pubdate")
 
     def unfollow_and_mark_read_everybody_at(self, topic):
         """

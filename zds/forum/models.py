@@ -262,7 +262,7 @@ class Topic(AbstractESDjangoIndexable):
         """
         :return: the last post in the thread.
         """
-        return self.last_message
+        return Post.objects.filter(pk=self.last_message).select_related("author").first()
 
     def get_last_answer(self):
         """
