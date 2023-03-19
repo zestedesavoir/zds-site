@@ -1,8 +1,11 @@
+import logging
+import numbers
 from typing import Tuple, List, Iterator, Iterable
 
 from django import template
 from django.utils.translation import ngettext, gettext as _
 
+logger = logging.getLogger(__file__)
 register = template.Library()
 
 
@@ -14,6 +17,9 @@ def humanize_duration(duration_min: int) -> str:
 
     See the unit tests for examples of results.
     """
+    if not isinstance(duration_min, int):
+        logger.warning("Invalid duration %s", duration_min)
+        return humanize_duration(0)
     duration_min = max(duration_min, 0)  # to avoid surprises with modulo operations
     truncated_value = _truncate_duration(
         duration_min,

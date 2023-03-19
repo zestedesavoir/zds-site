@@ -1,5 +1,5 @@
 import logging
-
+from django.db.models import F
 from django.conf import settings
 from django.http import Http404
 from django.utils.translation import gettext_lazy as _
@@ -86,6 +86,8 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                 content_type=self.current_content_type, must_redirect=False
             )
 
+            if self.current_content_type == "OPINION":
+                queryset_pagination = queryset_pagination.filter(content__sha_picked=F("sha_public"))
             context["previous_content"] = (
                 queryset_pagination.filter(publication_date__lt=self.public_content_object.publication_date)
                 .order_by("-publication_date")
@@ -155,6 +157,9 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
                     * char_count
                     / settings.ZDS_APP["content"]["characters_per_minute"]
                 )
+            else:
+                logger.warning("For unknown reason content with id %s has no char count", self.object.pk)
+                context["reading_time"] = 0
         except ZeroDivisionError as e:
             logger.warning("could not compute reading time: setting characters_per_minute is set to zero (error=%s)", e)
 

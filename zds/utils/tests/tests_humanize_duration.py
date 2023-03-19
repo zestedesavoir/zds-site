@@ -17,6 +17,7 @@ class TemplateTagsTest(TestCase):
             {"input": 110, "expected": "1 heure et 45 minutes"},
             {"input": 125, "expected": "2 heures"},
             {"input": 155, "expected": "2 heures et 30 minutes"},
+            {"input": "", "expected": "moins d'une minute"},
             {"input": 24 * 60, "expected": "24 heures"},
             {"input": 48 * 60, "expected": "48 heures"},
         ]
