@@ -322,8 +322,8 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
 fi
 
 # local Typesense
-if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full" $@) ); then
-    print_info "* [+elastic-local] installing a local version of typesense (v$ZDS_TYPESENSE_VERSION)" --bold
+if  ! $(_in "-typesense-local" $@) && ( $(_in "+typesense-local" $@) || $(_in "+full" $@) ); then
+    print_info "* [+typesense-local] installing a local version of typesense (v$ZDS_TYPESENSE_VERSION)" --bold
 
     mkdir -p .local
     cd .local

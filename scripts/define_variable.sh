@@ -18,6 +18,10 @@ if [[ $ZDS_TYPESENSE_VERSION == "" ]]; then
     ZDS_TYPESENSE_VERSION="0.24.0"
 fi
 
+if [[ $ZDS_TYPESENSE_VERSION == "" ]]; then
+    ZDS_TYPESENSE_VERSION="xyz"
+fi
+
 if [[ $ZDS_LATEX_REPO == "" ]]; then
     ZDS_LATEX_REPO="https://github.com/zestedesavoir/latex-template.git"
 fi
