@@ -25,7 +25,7 @@ from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
-from zds.searchv3.models import (
+from zds.searchv2.models import (
     AbstractESDjangoIndexable,
     AbstractESIndexable,
     delete_document_in_elasticsearch,

@@ -13,7 +13,7 @@ from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
 
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.forum import signals
-from zds.searchv3.models import (
+from zds.searchv2.models import (
     AbstractESDjangoIndexable,
     delete_document_in_elasticsearch,
     ESIndexManager,

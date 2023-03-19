@@ -20,9 +20,7 @@
         <p class="content-description" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
             <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
                 {% if search_result.text %}
-                    {% highlight search_result "text" %}
-                {% else %}
-                    {{ search_result.description }}
+                    {{ search_result.description|first }}
                 {% endif %}
             </a>
         </p>
@@ -46,9 +44,9 @@
 
                 &bullet;
 
-                <time class="content-pubdate" pubdate="{{ search_result.publication_date|from_elasticsearch_date }}">
-                    <span class="long">{{ search_result.publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
-                    <span class="short">{{ search_result.publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ search_result.publication_date }}">
+                    <span class="long">{{ search_result.publication_date}}</span>
+                    <span class="short">{{ search_result.publication_date }}</span>
                 </time>
             </p>
         </div>

@@ -20,6 +20,8 @@ from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
 from functools import reduce
 
+from .client import client
+
 
 class SimilarTopicsView(CreateView, SingleObjectMixin):
     search_query = None
@@ -173,12 +175,6 @@ class SearchView(ZdSPagingListView):
             return []
 
         if self.search_query:
-
-            # Searches forums the user is allowed to visit
-            self.authorized_forums = get_authorized_forums(self.request.user)
-
-            search_queryset = Search()
-
             # Restrict (sub)category if any
             if self.search_form.cleaned_data["category"]:
                 self.content_category = self.search_form.cleaned_data["category"]
@@ -190,102 +186,102 @@ class SearchView(ZdSPagingListView):
             if self.search_form.cleaned_data["from_library"] == "on":
                 self.from_library = True
 
-            # Setting the different querysets (according to the selected models, if any)
-            part_querysets = []
-            chosen_groups = self.search_form.cleaned_data["models"]
+            # Check which collections needs to search
+            search_collections = self.search_form.cleaned_data["models"]
+            if "content" in search_collections:
+                search_collections[search_collections.index("content")] = "publishedcontent"
+            search_collection_count = len(search_collections)
 
-            if chosen_groups:
-                models = []
-                for group in chosen_groups:
-                    if group in settings.ZDS_APP["search"]["search_groups"]:
-                        models.append(settings.ZDS_APP["search"]["search_groups"][group][1])
+            # Typesense Search
+            search_requests = {"searches": []}
+
+            searches = {
+                "publishedcontent": {
+                    "collection": "publishedcontent",
+                    "q": self.search_query,
+                    "query_by": "title,description,categories,subcategories, tags, text",
+                },
+                "topic": {"collection": "topic", "q": self.search_query, "query_by": "title,subtitle,tags"},
+                "chapter": {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
+                "post": {"collection": "post", "q": self.search_query, "query_by": "text_html"},
+            }
+            result = None
+            if search_collection_count == 1:
+                result = self._choose_single_collection_method(search_collections[0])
             else:
-                models = [v[1] for k, v in settings.ZDS_APP["search"]["search_groups"].items()]
-
-            models = reduce(operator.concat, models)
-
-            for model in models:
-                part_querysets.append(getattr(self, f"get_queryset_{model}s")())
-
-            queryset = part_querysets[0]
-            for query in part_querysets[1:]:
-                queryset |= query
-
-            # Weighting:
-            weight_functions = []
-            for _type, weights in list(settings.ZDS_APP["search"]["boosts"].items()):
-                if _type in models:
-                    weight_functions.append({"filter": Match(_type=_type), "weight": weights["global"]})
-
-            scored_queryset = FunctionScore(query=queryset, boost_mode="multiply", functions=weight_functions)
-            search_queryset = search_queryset.query(scored_queryset)
-
-            # Highlighting:
-            search_queryset = search_queryset.highlight_options(
-                fragment_size=150, number_of_fragments=5, pre_tags=["[hl]"], post_tags=["[/hl]"]
-            )
-            search_queryset = search_queryset.highlight("text").highlight("text_html")
-
-            # Executing:
-            return self.index_manager.setup_search(search_queryset)
-
+                if search_collection_count == 0:
+                    search_collections = ["publishedcontent", "topic", "chapter", "post"]
+                for name in search_collections:
+                    search_requests["searches"].append(searches[name])
+                result = self.get_queryset_multisearch(search_requests, search_collections)
+            return result
         return []
 
+    def get_queryset_multisearch(self, search_requests, collection_names):
+        """Return search in several collections
+        @search_requests : parameters of search
+        @collection_names : name of the collection to search
+        """
+        results = client.multi_search.perform(search_requests, None)["results"]
+        all_collection_result = []
+
+        for k in range(len(results)):
+            if "hits" in results[k]:
+                for entry in results[k]["hits"]:
+                    entry["collection"] = collection_names[k]
+                    all_collection_result.append(entry)
+        all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
+        return all_collection_result
+
     def get_queryset_publishedcontents(self):
-        """Search in PublishedContent objects."""
-
-        query = Match(_type="publishedcontent") & MultiMatch(
-            query=self.search_query, fields=["title", "description", "categories", "subcategories", "tags", "text"]
-        )
-
+        """Search in PublishedContent collection."""
+        filter = ""
         if self.from_library:
-            query &= Match(content_type="TUTORIAL") | Match(content_type="ARTICLE")
+            filter = self._add_a_filter("content_type", "[`TUTORIAL`, `ARTICLE`]", filter)
+            # filter += "content_type == [`TUTORIAL`, `ARTICLE`]"
 
         if self.content_category:
-            query &= Match(categories=self.content_category)
+            filter = self._add_a_filter("categories", self.content_category, filter)
+            # filter += f"categories == {self.content_category}"
 
         if self.content_subcategory:
-            query &= Match(subcategories=self.content_subcategory)
+            filter = self._add_a_filter("subcategories", self.content_subcategory, filter)
+            # filter += f"subcategories == {self.content_subcategory}"
 
-        functions_score = [
-            {
-                "filter": Match(content_type="TUTORIAL"),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"],
-            },
-            {
-                "filter": Match(content_type="TUTORIAL") & Match(has_chapters=True),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"],
-            },
-            {
-                "filter": Match(content_type="ARTICLE"),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"],
-            },
-            {
-                "filter": Match(content_type="OPINION"),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"],
-            },
-            {
-                "filter": Match(content_type="OPINION") & Match(picked=False),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"],
-            },
-        ]
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,description,categories,subcategories, tags, text",
+            "filter": filter,
+        }
 
-        scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
+        result = client.collections["publishedcontent"].documents.search(search_parameters)["hits"]
 
-        return scored_query
+        for entry in result:
+            entry["collection"] = "publishedcontent"
+
+        return result
 
     def get_queryset_chapters(self):
-        """Search in content chapters."""
-
-        query = Match(_type="chapter") & MultiMatch(query=self.search_query, fields=["title", "text"])
-
+        """Search in chapters collection."""
+        filter = ""
         if self.content_category:
-            query &= Match(categories=self.content_category)
+            filter = self._add_a_filter("categories", self.content_category, filter)
 
         if self.content_subcategory:
-            query &= Match(subcategories=self.content_subcategory)
+            filter = self._add_a_filter("subcategories", self.content_subcategory, filter)
 
-        return query
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,text",
+            "filter": filter,
+        }
+
+        result = client.collections["chapter"].documents.search(search_parameters)["hits"]
+
+        for entry in result:
+            entry["collection"] = "chapter"
+
+        return result
 
     def get_queryset_topics(self):
         """Search in topics, and remove the result if the forum is not allowed for the user.
@@ -297,21 +293,20 @@ class SearchView(ZdSPagingListView):
         + topic is locked.
         """
 
-        query = (
-            Match(_type="topic")
-            & Terms(forum_pk=self.authorized_forums)
-            & MultiMatch(query=self.search_query, fields=["title", "subtitle", "tags"])
-        )
+        # filter = ""
+        # filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,subtitle,tags",
+            # "filter": filter,
+        }
 
-        functions_score = [
-            {"filter": Match(is_solved=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]},
-            {"filter": Match(is_sticky=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]},
-            {"filter": Match(is_locked=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]},
-        ]
+        result = client.collections["topic"].documents.search(search_parameters)["hits"]
 
-        scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
+        for entry in result:
+            entry["collection"] = "topic"
 
-        return scored_query
+        return result
 
     def get_queryset_posts(self):
         """Search in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
@@ -323,36 +318,52 @@ class SearchView(ZdSPagingListView):
         + post has a like/dislike ratio above (has more likes than dislikes) or below (the other way around) 1.0.
         """
 
-        query = (
-            Match(_type="post")
-            & Terms(forum_pk=self.authorized_forums)
-            & Term(is_visible=True)
-            & MultiMatch(query=self.search_query, fields=["text_html"])
-        )
+        filter = ""
+        filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
+        filter = self._add_a_filter("is_visible", True, filter)
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "text_html",
+            # "filter": filter,
+        }
 
-        functions_score = [
-            {"filter": Match(position=1), "weight": settings.ZDS_APP["search"]["boosts"]["post"]["if_first"]},
-            {"filter": Match(is_useful=True), "weight": settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"]},
-            {
-                "filter": Range(like_dislike_ratio={"gt": 1}),
-                "weight": settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"],
-            },
-            {
-                "filter": Range(like_dislike_ratio={"lt": 1}),
-                "weight": settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"],
-            },
-        ]
+        result = client.collections["post"].documents.search(search_parameters)["hits"]
 
-        scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
+        for entry in result:
+            entry["collection"] = "post"
 
-        return scored_query
+        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = self.search_form
         context["query"] = self.search_query is not None
-
         return context
+
+    def _add_a_filter(self, field, value, current_filter):
+        """
+        field : it's a string with the name of the field to filter
+        value : is the a string with value of the field
+        current_filter : is the current string which represent the value to filter
+        """
+        if len(field) > 0:
+            current_filter += f"&& {field} == {str(value)}"
+        else:
+            current_filter = f"{field} == {str(value)}"
+        return current_filter
+
+    def _choose_single_collection_method(self, name):
+        """
+        Return the result of search according the @name of the collection
+        """
+        if name == "publishedcontent":
+            return self.get_queryset_publishedcontents()
+        elif name == "post":
+            return self.get_queryset_posts()
+        elif name == "topic":
+            return self.get_queryset_topics()
+        else:
+            raise "Unknown collection name"
 
 
 def opensearch(request):

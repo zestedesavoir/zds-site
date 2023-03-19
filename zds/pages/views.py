@@ -17,7 +17,7 @@ from zds.featured.models import FeaturedResource, FeaturedMessage
 from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.models import GroupContact
-from zds.searchv3.forms import SearchForm
+from zds.searchv2.forms import SearchForm
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.context_processor import get_repository_url
 from zds.utils.models import Alert, CommentEdit, Comment

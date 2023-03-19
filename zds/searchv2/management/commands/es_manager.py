@@ -3,6 +3,7 @@ from django.conf import settings
 
 from zds.searchv2.models import ESIndexManager, get_django_indexable_objects
 from zds.tutorialv2.models.database import FakeChapter
+from zds.forum.models import Topic, Post
 
 
 class Command(BaseCommand):
@@ -12,8 +13,8 @@ class Command(BaseCommand):
     models = get_django_indexable_objects()
 
     def __init__(self, *args, **kwargs):
-        """Overridden because FakeChapter needs to be present for mapping.
-        Also, its mapping needs to be defined before the one of PublishedContent for parenting reasons (!!!).
+        """Overridden because FakeChapter needs to be present for schema.
+        Also, its schema needs to be defined before the one of PublishedContent for parenting reasons (!!!).
         """
 
         super().__init__(*args, **kwargs)
@@ -45,9 +46,7 @@ class Command(BaseCommand):
     def setup_es(self):
 
         self.index_manager.reset_es_index(self.models)
-        self.index_manager.setup_custom_analyzer()
-
-        self.index_manager.refresh_index()
+        # self.index_manager.setup_custom_analyzer()
 
     def clear_es(self):
         self.index_manager.clear_es_index()
@@ -70,5 +69,3 @@ class Command(BaseCommand):
             indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
             if force_reindexing:
                 print(f"  {indexed_counter}\titems indexed")
-
-        self.index_manager.refresh_index()

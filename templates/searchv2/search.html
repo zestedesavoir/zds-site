@@ -44,16 +44,16 @@
                 <div class="topic-list navigable-list search-results">
                     {% for result in object_list %}
                         <article class="content-item topic-item">
-                            {%  if result.meta.doc_type  == 'chapter' %}
-                                {% include "searchv2/includes/chapter.part.html" with search_result=result %}
-                            {% elif result.meta.doc_type == 'publishedcontent' %}
-                                {% include "searchv2/includes/publishedcontent.part.html" with search_result=result %}
-                            {% elif result.meta.doc_type == 'topic' %}
-                                {% include "searchv2/includes/topic.part.html" with search_result=result %}
-                            {% elif result.meta.doc_type == 'post' %}
-                                {% include "searchv2/includes/post.part.html" with search_result=result %}
+                            {%  if result.collection  == 'chapter' %}
+                                {% include "searchv2/includes/chapter.part.html" with search_result=result.document %}
+                            {% elif result.collection == 'publishedcontent' %}
+                                {% include "searchv2/includes/publishedcontent.part.html" with search_result=result.document %}
+                            {% elif result.collection == 'topic' %}
+                                {% include "searchv2/includes/topic.part.html" with search_result=result.document %}
+                            {% elif result.collection == 'post' %}
+                                {% include "searchv2/includes/post.part.html" with search_result=result.document %}
                             {% else %}
-                                {% trans "type d’objet inconnu" %} : {{ result.meta.doc_type }}
+                                {% trans "type d’objet inconnu" %} : {{ result.collection }}
                             {% endif %}
                         </article>
                     {%  empty %}
