@@ -1,6 +1,10 @@
 name: CI
 
-on: ["push", "pull_request"]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
   NODE_VERSION: "16" # needs to be also updated in .nvmrc
@@ -24,6 +28,9 @@ jobs:
     name: Lint back-end
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,6 +51,9 @@ jobs:
     name: Build Sphinx documentation
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -58,7 +68,7 @@ jobs:
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
         uses: actions/cache@v3
@@ -86,6 +96,9 @@ jobs:
     name: Lint and build front-end
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -97,7 +110,7 @@ jobs:
 
       - name: Retrieve yarn cache directory
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Node modules
         uses: actions/cache@v3
@@ -201,8 +214,7 @@ jobs:
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
         uses: actions/cache@v3
