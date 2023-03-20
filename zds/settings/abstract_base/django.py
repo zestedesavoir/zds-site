@@ -182,8 +182,6 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
 )
 
-SITE_ID = 1
-
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "zds.api.pagination.DefaultPagination",
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
