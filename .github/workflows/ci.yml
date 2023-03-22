@@ -164,6 +164,7 @@ jobs:
           command: /opt/typesense-server --data-dir /data --api-key=xyz --enable-cors
         ports:
           - "8108:8108"
+        run: mkdir /data
         volumes:
           - typesense-data:/data
 
@@ -286,6 +287,3 @@ jobs:
           FOLDER: doc/build/html
           CLEAN: true
 
-  volumes:
-  typesense-data:
-    driver: local
