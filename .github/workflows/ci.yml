@@ -142,18 +142,6 @@ jobs:
             "zds.forum zds.featured zds.mp zds.notification zds.utils",
           ]
 
-    services:
-      typesense:
-        image: typesense/typesense:0.24.0
-        command: sh -c "/opt/typesense-server --data-dir /data --api-key=xyz --enable-cors"
-        ports:
-          - "8108:8108"
-        volumes:
-          - typesense-data:/data
-    volumes:
-      typesense-data:
-        driver: local
-
     steps:
       - name: Shutdown Ubuntu MySQL
         run: sudo service mysql stop
@@ -169,6 +157,15 @@ jobs:
 
       - name: Install Firefox
         run: sudo apt-get update && sudo apt-get install firefox
+
+      - name: Install Typesense
+        uses: docker://typesense/typesense:0.24.0
+        with:
+          command: /opt/typesense-server --data-dir /data --api-key=xyz --enable-cors
+        ports:
+          - "8108:8108"
+        volumes:
+          - typesense-data:/data
 
       - name: Install Geckodriver
         run: |
@@ -288,3 +285,7 @@ jobs:
           BRANCH: gh-pages
           FOLDER: doc/build/html
           CLEAN: true
+
+  volumes:
+  typesense-data:
+    driver: local
