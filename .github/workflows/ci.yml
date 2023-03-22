@@ -15,7 +15,7 @@ env:
   # reference. If you update these versions, you HAVE TO
   # update the versions in the services definitions of the
   # test job.
-  ELASTICSEARCH_VERSION: "5.5.2"
+  TYPESENSE_VERSION: "0.24.0"
   MEMCACHED_VERSION: "1.6"
 
 jobs:
@@ -143,26 +143,16 @@ jobs:
           ]
 
     services:
-      elasticsearch:
-        image: "elasticsearch:5.5.2"
+      typesense:
+        image: typesense/typesense:0.24.0
+        entrypoint: sh -c "/opt/typesense-server --data-dir /data --api-key=xyz --enable-cors"
         ports:
-          - "9200:9200"
-        env:
-          "http.host": "0.0.0.0"
-          "transport.host": "127.0.0.1"
-          "xpack.security.enabled": false
-          "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
-        options: >-
-          -e="discovery.type=single-node"
-          --health-cmd="curl http://localhost:9200/_cluster/health"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
-      memcached:
-        image: "memcached:1.6"
-        ports:
-          - "11211:11211"
+          - "8108:8108"
+        volumes:
+          - typesense-data:/data
+      volumes:
+        typesense-data:
+          driver: local
 
     steps:
       - name: Shutdown Ubuntu MySQL
