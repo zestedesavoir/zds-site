@@ -2,6 +2,7 @@
 elasticsearch-dsl==5.4.0
 elasticsearch==5.5.3
 social-auth-app-django==5.0.0
+social-auth-core==4.3.0
 
 # Explicit dependencies (references in code)
 beautifulsoup4==4.11.1
