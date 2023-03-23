@@ -5,16 +5,18 @@
 let index = 0
 
 function extractAnswer(inputDomElementList, answers) {
-  
-  
-  // if (Object.keys(answers).length === 0) {
+
+
     inputDomElementList.forEach((rb) => {
+      
       const ulWrapperElement = rb.parentElement.parentElement
       // we give the ui an id to find the element in a more effective way later when the users answer the questions
       if (!ulWrapperElement.getAttribute('id')) {
         ulWrapperElement.setAttribute('id', 'id-' + (index++))
       }
+
       rb.setAttribute('name', ulWrapperElement.getAttribute('id'))
+
       const questionBlock = ulWrapperElement.parentElement.parentElement
       questionBlock.setAttribute('data-name', rb.getAttribute('name'))
       if (!answers[ulWrapperElement.getAttribute('id')]) {
@@ -25,8 +27,8 @@ function extractAnswer(inputDomElementList, answers) {
       rb.setAttribute('value', answers[ulWrapperElement.getAttribute('id')].length - 1)
       rb.disabled = false
       rb.checked = false
+
     })
-  // }
 }
 
 /**
@@ -69,9 +71,33 @@ function extractAnswer(inputDomElementList, answers) {
  */
 function initializeCheckboxes(answers) {
  
+
+
+    document.querySelectorAll('div.quizz').forEach(quizz => {
+
+      
+      const quizzDivs = quizz.querySelectorAll('div.custom-block.custom-block-quizz');
+      quizzDivs.forEach(quizzDiv => {
+        const ul = quizzDiv.querySelector('ul')
+        const lastLi = ul.lastElementChild
+        const explanationText = lastLi.innerText
+    
+        const explanation = document.createElement('p')
+        explanation.classList.add('explanation_off')
+        explanation.innerText = explanationText
+        lastLi.parentNode.removeChild(lastLi);
+        quizzDiv.appendChild(explanation)
+    
+        
+      });
+
+    
+    })
+
     const checkboxes = document.querySelectorAll('.quizz ul li input[type=checkbox]')
+
     extractAnswer(checkboxes, answers)
-    // sessionStorage.setItem('answers', JSON.stringify(answers));
+  
 }
 
 
@@ -86,7 +112,6 @@ function computeForm(formdata, answers) {
   const badAnswers = []
   const allAnswerNames = []
   for (const entry of formdata.entries()) {
-    // console.log(entry);
     const name = entry[0]
     const values = parseInt(entry[1], 10)
     allAnswerNames.push(name)
@@ -105,26 +130,42 @@ function computeForm(formdata, answers) {
   return [badAnswers, allAnswerNames]
 }
 
-function markBadAnswers(names, answers) {
+function markBadAnswers(form,names, answers) {
   
   const toAdd = []
-  // if (names.length === 0) {
-  //   Object.keys(answers).forEach(answer => {
-  //     let mustMarkBad = false
-  //     answers[answer].forEach((value, index) => {
-  //       const inputAnswer = document.querySelector(`#${answer} input[value="${index}"]`)
-  //       if (value && !inputAnswer.checked) {
-  //         inputAnswer.parentElement.classList.add('quizz-forget')
-  //         mustMarkBad = true
-  //       }
-  //     })
-  //     if (mustMarkBad) {
-  //       document.querySelector(`div[data-name="${answer}"]`).classList.add('quizz-bad')
-  //     }
-  //   })
-  // }
+ 
+  Object.keys(answers).forEach(answer => {
+
+    const inputs = form.querySelectorAll(`#${answer} input`);
+
+    let numChecked = 0;
+    inputs.forEach(input => {
+      if (input.hasAttribute('checked')) {
+        numChecked++;
+      }
+    });
+
+    // question with more than one correct answer
+    if(numChecked > 1){
+
+      let AnsweredWell = true
+      answers[answer].forEach((value, index) => {
+        const inputAnswer = document.querySelector(`#${answer} input[value="${index}"]`)
+        if (value && !inputAnswer.checked) {
+          AnsweredWell = false
+        }
+      })
+      if (!AnsweredWell) {
+        form.querySelector(`div[data-name="${answer}"]`).classList.add('quizz-multiple')
+      }
+    }
+  })
+  
   names.forEach(({ name }) => {
-    document.querySelectorAll('input[name="' + name + '"]').forEach(field => {
+
+    form.querySelectorAll('input[name="' + name + '"]').forEach(field => {
+    
+ 
       if (answers[name][parseInt(field.getAttribute('value'), 10)] && !field.checked) {
         
         toAdd.push({
@@ -134,16 +175,17 @@ function markBadAnswers(names, answers) {
       }
     })
     
-    document.querySelector(`.custom-block[data-name=${name}]`).classList.add('quizz-bad')
+    form.querySelector(`.custom-block[data-name=${name}]`).classList.add('quizz-bad')
   })
+
   names.forEach(({
     name,
     value
   }) => {
     
-    document.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`)
-      .parentElement.classList.add('quizz-bad')
+    form.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`).parentElement.classList.add('quizz-bad')
   })
+
   toAdd.forEach(name => names.push(name))
 }
 
@@ -174,21 +216,6 @@ function getWantedHeading(questionNode, nodeName, attr) {
  */
 function injectForms(quizz, answers) {
 
-  
-  const quizzDivs = quizz.querySelectorAll('div.custom-block.custom-block-quizz');
-  quizzDivs.forEach(quizzDiv => {
-    const ul = quizzDiv.querySelector('ul')
-    const lastLi = ul.lastElementChild
-    const explanationText = lastLi.innerText
-
-    const explanation = document.createElement('p')
-    explanation.classList.add('explanation_off')
-    explanation.innerText = explanationText
-    lastLi.parentNode.removeChild(lastLi);
-    quizzDiv.appendChild(explanation)
-
-    
-  });
 
   const searchedTitle = quizz.getAttribute('data-heading-level') || 'h3'
   const submitLabel = quizz.getAttribute('data-quizz-validate') || 'Validate'
@@ -199,6 +226,7 @@ function injectForms(quizz, answers) {
 
     
     const blockNode = document.getElementById(blockId)
+
     if (!blockNode) {
       // if the node was treated and  therefore the clone has not been reinserted yet
       return
@@ -216,7 +244,6 @@ function injectForms(quizz, answers) {
     if (heading && !headings[heading.getAttribute('id')]) {
 
 
-      // console.log(1);
       // this is just for convenience, this add a "known" element that will always be there
       const wrapper = document.createElement('div')
 
@@ -229,8 +256,14 @@ function injectForms(quizz, answers) {
       submit.innerText = submitLabel
      
       submit.classList.add('btn', 'btn-submit')
+      submit.setAttribute('id', `my-button-${idBias}`);
       const result = document.createElement('p')
       result.classList.add('result')
+
+
+      const notAnswered = document.createElement('p')
+      notAnswered.classList.add('notAnswered')
+     
 
 
       let nodeToAddToForm
@@ -251,8 +284,8 @@ function injectForms(quizz, answers) {
         current.parentNode.removeChild(current)
       }
       form.appendChild(result)
-      // form.appendChild(explanation)
       form.appendChild(submit)
+      form.appendChild(notAnswered)
       wrappers.push(wrapper)
       if (nodeToAddToForm && nodeToAddToForm.nodeName === searchedTitle.toUpperCase()) {
         wrapper.append(form)
@@ -274,14 +307,8 @@ function injectForms(quizz, answers) {
 }
 
 
+let answers = {}
 
-// let storedAnswers = sessionStorage.getItem('answers');
-
-// const answers = storedAnswers ? JSON.parse(storedAnswers) : {};
-
-const answers = {}
-
-console.log(answers);
 
 initializePipeline.forEach(func => func(answers))
 
@@ -289,13 +316,10 @@ let idCounter = 0
 let idBias = 0
 
 document.querySelectorAll('div.quizz').forEach(div => {
-
   
   injectForms(div, answers)
 
 })
-
-
 
 function sendQuizzStatistics(form, statistics) {
   const csrfmiddlewaretoken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
@@ -311,35 +335,26 @@ function sendQuizzStatistics(form, statistics) {
 
 function displayResultAfterSubmitButton(nbGood, nbTotal, form) {
 
-  
-  const explanationElement = form.querySelector('.explanation_off') ? form.querySelector('.explanation_off') : form.querySelector('.explanation_on');
   const resultElement = form.querySelector('.result');
 
-  if (nbTotal === 0) {
-    explanationElement.innerText = `please answer first`;
-    // explanationElement.classList.add('error');
-    resultElement.innerText = '';
-    return;
+  const questions = form.querySelectorAll('.custom-block-quizz');
+
+
+  for (let question of questions) {
+
+    const explanationElement = question.querySelector('.explanation_off')
+    if(explanationElement!==null){
+      explanationElement.classList.remove('explanation_off');
+      explanationElement.classList.add('explanation_on');
+    }
+
   }
 
-  const percentOfAnswers = (100 * 1.0 * nbGood / nbTotal).toLocaleString('fr-FR', {
-    minimumIntegerDigits: 1,
-    useGrouping: false
-  });
-
-  if (percentOfAnswers == 100) {
-    resultElement.innerText = `La reponse est correcte :)`;
-    explanationElement.classList.remove('explanation_on');
-    explanationElement.classList.add('explanation_off');
-
-  } else {
-    resultElement.innerText = '';
-    explanationElement.classList.remove('explanation_off');
-    explanationElement.classList.add('explanation_on');
-  }
+  resultElement.innerText = `Vous avez répondu correctement à ${nbGood}/${nbTotal} des questions`;
 }
 
-function validateQuizz(form) {
+// test if the quizz is totally answered or not
+function QuizzAnswered(form) {
 
   const questions = form.querySelectorAll('.custom-block-quizz');
   for (let question of questions) {
@@ -352,105 +367,125 @@ function validateQuizz(form) {
       }
     }
     if (!isQuestionValid) {
-      alert(1);
-      break;
+      return false
     }
   }
+  return true
 }
 
 document.querySelectorAll('form.quizz').forEach(form => {
 
   const submitBtn = form.querySelector('.btn-submit');
-  submitBtn.onclick = () => validateQuizz(form);
-
+  
   form.addEventListener('submit', e => {
   
     e.preventDefault()
     e.stopPropagation()
-    const formData = new FormData(form)
-    // result = name of bad answers
-    const [badAnswerNames, allAnswerNames] = computeForm(formData, answers)
 
+    const notAnswered = form.querySelector('.notAnswered');
+
+    if (QuizzAnswered(form)) {
       
-    const length = form.children.length
+      const formData = new FormData(form)
+      // result = name of bad answers
+      const [badAnswerNames, allAnswerNames] = computeForm(formData, answers)
 
-    const current_quizz = form.firstElementChild.getAttribute('data-name')
-      
-    const elementt = document.querySelector(`.custom-block[data-name="${current_quizz}"]`)
-    elementt.classList.remove('quizz-bad')
-    elementt.classList.remove('quizz-good')
-    elementt.classList.remove('hasAnswer')
+      // Select all the custom-block-quizz divs
+      const quizzDivs = form.querySelectorAll('.custom-block-quizz');
+     
+      quizzDivs.forEach(div => {
 
-    markBadAnswers(badAnswerNames, answers)
-    allAnswerNames.forEach(name => {
-      const ulWrapper = document.getElementById(name)
-      const quizzCustomBlock = ulWrapper.parentElement.parentElement
-      quizzCustomBlock.classList.add('hasAnswer')
-    })
-    const questions = []
-    badAnswerNames.forEach(result => {
-      if (questions.indexOf(result.name) === -1) {
-        questions.push(result.name)
-      }
-    })
-    const statistics = {
-      expected: {},
-      result: {}
-    }
-    let nbGood = 0
-    let nbTotal = 0
-    Object.keys(answers).forEach(name => {
-      const element = document.querySelector(`.custom-block[data-name="${name}"]`)
-      let title = element.querySelector('.custom-block-heading').textContent
-      const correction = element.querySelector('.custom-block-body .custom-block')
-      if (correction && title.indexOf(correction.textContent) > 0) {
-        title = title.substr(0, title.indexOf(correction.textContent))
-      }
-      statistics.result[title] = {
-        evaluation: 'bad',
-        labels: []
-      }
-      statistics.expected[title] = {}
-      const availableResponses = element.querySelectorAll('input')
-      for (let i = 0; i < availableResponses.length; i++) {
-        // wee need to get the question label for statistics
-        const liWrapper = availableResponses[i].parentElement
-        let questionLabel = liWrapper.textContent
-        if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
-          questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
+        div.classList.remove('quizz-bad');
+        div.classList.remove('quizz-good');
+        div.classList.remove('hasAnswer');
+        div.classList.remove('quizz-multiple');
+      });
+
+
+      markBadAnswers(form,badAnswerNames, answers)
+
+      allAnswerNames.forEach(name => {
+        const ulWrapper = document.getElementById(name)
+        const quizzCustomBlock = ulWrapper.parentElement.parentElement
+        quizzCustomBlock.classList.add('hasAnswer')
+      })
+      const questions = []
+      badAnswerNames.forEach(result => {
+        if (questions.indexOf(result.name) === -1) {
+          questions.push(result.name)
         }
-        statistics.expected[title][questionLabel] = answers[name][i]
+      })
+      const statistics = {
+        expected: {},
+        result: {}
       }
-      // now determine answers and their labels
-      element.querySelectorAll('input:checked')
-        .forEach(node => {
-          
-          // remove eventual glued corretion
+      let nbGood = 0
+      let nbTotal = 0
+      Object.keys(answers).forEach(name => {
+        const element = document.querySelector(`.custom-block[data-name="${name}"]`)
+        let title = element.querySelector('.custom-block-heading').textContent
+        const correction = element.querySelector('.custom-block-body .custom-block')
+        if (correction && title.indexOf(correction.textContent) > 0) {
+          title = title.substr(0, title.indexOf(correction.textContent))
+        }
+        statistics.result[title] = {
+          evaluation: 'bad',
+          labels: []
+        }
+        statistics.expected[title] = {}
+        const availableResponses = element.querySelectorAll('input')
+        for (let i = 0; i < availableResponses.length; i++) {
+          // wee need to get the question label for statistics
+          const liWrapper = availableResponses[i].parentElement
+          let questionLabel = liWrapper.textContent
+          if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
+            questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
+          }
+          statistics.expected[title][questionLabel] = answers[name][i]
+        }
+        // now determine answers and their labels
+        element.querySelectorAll('input:checked').forEach(node => {
+            
+            // remove eventual glued corretion
           let label = node.parentElement.textContent
           if (correction && label.indexOf(correction.textContent) !== -1) {
             label = label.substr(0, label.indexOf(correction.textContent))
           }
           statistics.result[title].labels.push(label.trim())
         })
-      if (element.classList.contains('hasAnswer')) {
-        nbTotal++
 
+        if (element.classList.contains('hasAnswer')) {
+          nbTotal++
+          
+          if (!element.classList.contains('quizz-bad') && !element.classList.contains('quizz-multiple')) {
+            
+            element.classList.add('quizz-good')
+            statistics.result[title].evaluation = 'ok'
+            nbGood++
 
-        if (!element.classList.contains('quizz-bad') &&
-          !element.classList.contains('quizz-forget')) {
-          element.classList.add('quizz-good')
-          statistics.result[title].evaluation = 'ok'
-          nbGood++
-
+          }
+        
         }
-      }
-    })
 
-    if (nbTotal!=0) {
+      })
+
+     
       sendQuizzStatistics(form, statistics)
-    }
-    displayResultAfterSubmitButton(nbGood, nbTotal, form)
+      // submitBtn.setAttribute('disabled', true);
+      displayResultAfterSubmitButton(nbGood, nbTotal, form)
+      notAnswered.innerText = ''
+
+
+    // not all questions answered
+    }else {
+        
+        notAnswered.innerText = 'Veuillez répondre à toutes les questions'
+        
+      }
+   
   })
 })
+
+
 
 

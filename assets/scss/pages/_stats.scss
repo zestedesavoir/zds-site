@@ -8,6 +8,10 @@
     }
 }
 
+.quizz-multiple.custom-block-body{
+    color: #fc3605;
+}
+
  /* Style the tab */
 .tab {
     border: $length-1 solid $grey-100;
@@ -65,9 +69,6 @@
     }
 }
 
-.error {
-    color: red;
-}
 
 
 .result {
@@ -98,7 +99,7 @@
     padding: 1rem;
     
     border: 1px solid #f5c6cb; /* dark red */
-    color: #fc3605; /* dark text */
+    color: #0a0706; /* dark text */
     border-radius: 0.25rem;
     font-size: 1.2rem;
     line-height: 1.5;
@@ -110,9 +111,25 @@
     }
 }
 
-.explanation{
-    display: none;
+.notAnswered{
+    margin-top: 1rem;
+    padding: 1rem;
+    margin-right: 17rem;
+    
+    border: 1px solid #f5c6cb; /* dark red */
+    color: #f72f0c; /* dark text */
+    border-radius: 0.25rem;
+    font-size: 1.2rem;
+    line-height: 1.5;
+    &.active {
+        background-color: #02ca44; /* light red */
+    }
+    &:empty {
+        display: none;
+    }   
 }
+
+
 
 
   
