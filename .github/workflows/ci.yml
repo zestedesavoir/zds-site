@@ -1,6 +1,10 @@
 name: CI
 
-on: ["push", "pull_request"]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
   NODE_VERSION: "16" # needs to be also updated in .nvmrc
@@ -15,7 +19,7 @@ env:
   # reference. If you update these versions, you HAVE TO
   # update the versions in the services definitions of the
   # test job.
-  TYPESENSE_VERSION: "0.24.0"
+  ELASTICSEARCH_VERSION: "5.5.2"
   MEMCACHED_VERSION: "1.6"
 
 jobs:
@@ -23,6 +27,9 @@ jobs:
   lint-back:
     name: Lint back-end
     runs-on: ubuntu-22.04
+
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
@@ -44,6 +51,9 @@ jobs:
     name: Build Sphinx documentation
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -58,7 +68,7 @@ jobs:
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
         uses: actions/cache@v3
@@ -86,6 +96,9 @@ jobs:
     name: Lint and build front-end
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -97,7 +110,7 @@ jobs:
 
       - name: Retrieve yarn cache directory
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Node modules
         uses: actions/cache@v3
@@ -142,6 +155,18 @@ jobs:
             "zds.forum zds.featured zds.mp zds.notification zds.utils",
           ]
 
+    services:
+      typesense:
+        image: typesense/typesense:latest
+        ports:
+          - "8108:8108"
+
+
+      memcached:
+        image: "memcached:1.6"
+        ports:
+          - "11211:11211"
+
     steps:
       - name: Shutdown Ubuntu MySQL
         run: sudo service mysql stop
@@ -158,15 +183,11 @@ jobs:
       - name: Install Firefox
         run: sudo apt-get update && sudo apt-get install firefox
 
-      - name: Install Typesense
-        uses: docker://typesense/typesense:0.24.0
-        with:
-          command: /opt/typesense-server --data-dir /data --api-key=xyz --enable-cors
-        ports:
-          - "8108:8108"
-        run: mkdir /data
-        volumes:
-          - typesense-data:/data
+      - name: Install and configure Typesense
+      run: |
+        curl -L https://downloads.typesense.org/releases/0.21.0/typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb -o typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
+        sudo dpkg -i typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
+        sudo service typesense-server start
 
       - name: Install Geckodriver
         run: |
@@ -189,8 +210,7 @@ jobs:
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
         uses: actions/cache@v3
@@ -280,10 +300,7 @@ jobs:
           path: doc/build/html
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: doc/build/html
-          CLEAN: true
-
+          folder: doc/build/html
+          clean: true
