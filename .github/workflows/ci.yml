@@ -155,7 +155,7 @@ jobs:
             "zds.forum zds.featured zds.mp zds.notification zds.utils",
           ]
 
-   services:
+    services:
       typesense:
         image: typesense/typesense:0.24.0
         ports:
@@ -188,7 +188,6 @@ jobs:
           tar -xzf typesense-server-${{ env.TYPESENSE_VERSION }}-linux-arm64.tar.gz
           mkdir $(pwd)/typesense-data 
           ./typesense-server --data-dir=$(pwd)/typesense-data --api-key=xyz --enable-cors
-
 
       - name: Install Geckodriver
         run: |
