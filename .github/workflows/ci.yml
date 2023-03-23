@@ -184,8 +184,8 @@ jobs:
 
       - name: Install and configure Typesense
         run: |
-          curl -O https://dl.typesense.org/releases/${{ env.TYPESENSE_VERSION }}/typesense-server-${{ env.TYPESENSE_VERSION }}-linux-arm64.tar.gz
-          tar -xzf typesense-server-${{ env.TYPESENSE_VERSION }}-linux-arm64.tar.gz
+          curl -O https://dl.typesense.org/releases/${{ env.TYPESENSE_VERSION }}/typesense-server-${{ env.TYPESENSE_VERSION }}-linux-amd64.tar.gz
+          tar -xzf typesense-server-${{ env.TYPESENSE_VERSION }}-linux-amd64.tar.gz
           mkdir $(pwd)/typesense-data 
           ./typesense-server --data-dir=$(pwd)/typesense-data --api-key=xyz --enable-cors
 
