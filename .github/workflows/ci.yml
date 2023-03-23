@@ -157,7 +157,7 @@ jobs:
 
     services:
       typesense:
-        image: typesense/typesense:${{ env.TYPESENSE_VERSION }}
+        image: typesense/typesense:0.24.0
         ports:
           - "8108:8108"
 
