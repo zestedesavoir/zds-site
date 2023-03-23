@@ -184,7 +184,7 @@ jobs:
 
       - name: Install and configure Typesense
         run: |
-          curl -L https://downloads.typesense.org/releases/0.21.0/typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb -o typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
+          curl -L https://downloads.typesense.org/releases/${{ env.TYPESENSE_VERSION }}/typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb -o typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
           sudo dpkg -i typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
           sudo service typesense-server start
 
