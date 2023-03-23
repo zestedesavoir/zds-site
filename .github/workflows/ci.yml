@@ -19,7 +19,7 @@ env:
   # reference. If you update these versions, you HAVE TO
   # update the versions in the services definitions of the
   # test job.
-  ELASTICSEARCH_VERSION: "5.5.2"
+  TYPESENSE_VERSION: "0.24.0"
   MEMCACHED_VERSION: "1.6"
 
 jobs:
