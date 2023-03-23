@@ -155,15 +155,11 @@ jobs:
             "zds.forum zds.featured zds.mp zds.notification zds.utils",
           ]
 
-    services:
+   services:
       typesense:
         image: typesense/typesense:0.24.0
-        restart: on-failure
         ports:
           - "8108:8108"
-        volumes:
-          - ./typesense-data:/data
-        command: '--data-dir /data --api-key=xyz --enable-cors'
 
       memcached:
         image: "memcached:1.6"
@@ -188,9 +184,11 @@ jobs:
 
       - name: Install and configure Typesense
         run: |
-          curl -L https://dl.typesense.org/releases/${{ env.TYPESENSE_VERSION }}/typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb -o typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
-          sudo dpkg -i typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
-          sudo service typesense-server start
+          curl -O https://dl.typesense.org/releases/${{ env.TYPESENSE_VERSION }}/typesense-server-${{ env.TYPESENSE_VERSION }}-linux-arm64.tar.gz
+          tar -xzf typesense-server-${{ env.TYPESENSE_VERSION }}-linux-arm64.tar.gz
+          mkdir $(pwd)/typesense-data 
+          ./typesense-server --data-dir=$(pwd)/typesense-data --api-key=xyz --enable-cors
+
 
       - name: Install Geckodriver
         run: |
