@@ -158,8 +158,12 @@ jobs:
     services:
       typesense:
         image: typesense/typesense:0.24.0
+        restart: on-failure
         ports:
           - "8108:8108"
+        volumes:
+          - ./typesense-data:/data
+        command: '--data-dir /data --api-key=xyz --enable-cors'
 
       memcached:
         image: "memcached:1.6"
@@ -181,12 +185,6 @@ jobs:
 
       - name: Install Firefox
         run: sudo apt-get update && sudo apt-get install firefox
-
-      - name: Install and configure Typesense
-        run: |
-          curl -L https://downloads.typesense.org/releases/${{ env.TYPESENSE_VERSION }}/typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb -o typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
-          sudo dpkg -i typesense-server-${{ env.TYPESENSE_VERSION }}-amd64.deb
-          sudo service typesense-server start
 
       - name: Install Geckodriver
         run: |
