@@ -1,6 +1,3 @@
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import MatchAll
-
 from django.conf import settings
 from django.test import TestCase
 from django.core.management import call_command
@@ -11,11 +8,11 @@ from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
-from zds.searchv2.models import ESIndexManager
+from zds.searchv2.models import SearchIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_for_contents(ES_ENABLED=True, ES_SEARCH_INDEX={"name": "zds_search_test", "shards": 5, "replicas": 0})
+@override_for_contents(SEARCH_ENABLED=True, SEARCH_INDEX={"name": "zds_search_test", "shards": 5, "replicas": 0})
 class UtilsTests(TutorialTestMixin, TestCase):
     def setUp(self):
 
@@ -28,12 +25,12 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
-    def test_es_manager(self):
+    def test_manager(self):
         """Test the behavior of the ``es_manager`` command"""
 
-        if not self.index_manager.connected_to_es:
+        if not self.index_manager.connected_to_search:
             return
 
         # in the beginning: the void
@@ -175,4 +172,4 @@ class UtilsTests(TutorialTestMixin, TestCase):
         super().tearDown()
 
         # delete index:
-        self.index_manager.clear_es_index()
+        self.index_manager.clear_index()

@@ -12,15 +12,15 @@ LOGOUT_REDIRECT_URL = "homepage"
 GEOIP_PATH = str(BASE_DIR / "geodata")
 GEOIP_CITY = "GeoLite2-City.mmdb"
 
-ES_ENABLED = True
+SEARCH_ENABLED = True
 
-ES_CONNECTIONS = {
+SEARCH_CONNECTIONS = {
     "default": {
         "hosts": ["localhost:9200"],
     }
 }
 
-ES_SEARCH_INDEX = {
+SEARCH_INDEX = {
     "name": "zds_search",
     "shards": 3,
     "replicas": 0,

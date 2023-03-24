@@ -26,10 +26,10 @@ from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
-    AbstractESDjangoIndexable,
-    AbstractESIndexable,
-    delete_document_in_elasticsearch,
-    ESIndexManager,
+    AbstractSearchDjangoIndexable,
+    AbstractSearchIndexable,
+    delete_document_in_search,
+    SearchIndexManager,
     convert_to_unix_timestamp,
 )
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
@@ -619,7 +619,7 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
+class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -956,8 +956,8 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
-    def get_es_schema(cls):
-        ts_schema = super().get_es_schema()
+    def get_document_schema(cls):
+        ts_schema = super().get_document_schema()
 
         ts_schema["fields"].extend(
             [
@@ -980,10 +980,10 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         return ts_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_django_indexable(cls, force_reindexing=False):
         """Overridden to remove must_redirect=True (and prefetch stuffs)."""
 
-        q = super().get_es_django_indexable(force_reindexing)
+        q = super().get_django_indexable(force_reindexing)
         return (
             q.prefetch_related("content")
             .prefetch_related("content__tags")
@@ -993,14 +993,14 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         )
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
+    def get_indexable(cls, force_reindexing=False):
         """Overridden to also include chapters"""
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
         # fetch initial batch
         last_pk = 0
-        objects_source = super().get_es_indexable(force_reindexing)
+        objects_source = super().get_indexable(force_reindexing)
         objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
         while objects:
@@ -1015,12 +1015,12 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                     # delete possible previous chapters
                     if content.es_already_indexed:
                         index_manager.delete_by_query(
-                            FakeChapter.get_es_document_type(), {"filter_by": "parent_id:=" + content.es_id}
+                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.index_id}
                         )
 
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
-                        chapters.append(FakeChapter(chapter, versioned, content.es_id))
+                        chapters.append(FakeChapter(chapter, versioned, content.index_id))
 
             if chapters:
                 # since we want to return at most PublishedContent.objects_per_batch items
@@ -1035,7 +1035,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             last_pk = objects[-1].pk
             objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned"""
 
         excluded_fields = excluded_fields or []
@@ -1043,7 +1043,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date"]
         )
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_document_source(excluded_fields=excluded_fields)
 
         # fetch versioned information
         versioned = self.load_public_version()
@@ -1089,11 +1089,11 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     chapters.
     """
 
-    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+    index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
-    index_manager.delete_by_query(FakeChapter.get_es_document_type(), {"filter_by": "parent_id:=" + instance.es_id})
+    index_manager.delete_by_query(FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.index_id})
 
-    return delete_document_in_elasticsearch(instance)
+    return delete_document_in_search(instance)
 
 
 @receiver(pre_save, sender=PublishedContent)
@@ -1111,7 +1111,7 @@ def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instanc
             delete_published_content_in_elasticsearch(sender, instance, **kwargs)
 
 
-class FakeChapter(AbstractESIndexable):
+class FakeChapter(AbstractSearchIndexable):
     """A simple class that is used by ES to index chapters, constructed from the containers.
 
     In schema, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
@@ -1137,7 +1137,9 @@ class FakeChapter(AbstractESIndexable):
         self.parent_id = parent_id
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
-        self.es_id = main_container.slug + "__" + chapter.slug  # both slugs are unique by design, so id remains unique
+        self.index_id = (
+            main_container.slug + "__" + chapter.slug
+        )  # both slugs are unique by design, so id remains unique
 
         self.parent_title = main_container.title
         self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
@@ -1156,14 +1158,14 @@ class FakeChapter(AbstractESIndexable):
                 self.categories.append(parent_category.slug)
 
     @classmethod
-    def get_es_document_type(cls):
+    def get_document_type(cls):
         return "chapter"
 
     @classmethod
-    def get_es_schema(self):
+    def get_document_schema(self):
         """Define schema and parenting"""
-        ts_schema = super().get_es_schema()
-        ts_schema["name"] = self.get_es_document_type()
+        ts_schema = super().get_document_schema()
+        ts_schema["name"] = self.get_document_type()
 
         ts_schema["fields"].extend(
             [
@@ -1182,22 +1184,22 @@ class FakeChapter(AbstractESIndexable):
 
         return ts_schema
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned"""
 
         excluded_fields = excluded_fields or []
         excluded_fields.extend(["parent_publication_date"])
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_document_source(excluded_fields=excluded_fields)
 
         data["parent_publication_date"] = convert_to_unix_timestamp(self.parent_publication_date)
 
         return data
 
-    def get_es_document_as_bulk_action(self, action="index"):
+    def get_document_as_bulk_action(self, action="index"):
         """Overridden to handle parenting between chapter and PublishedContent"""
 
-        document = super().get_es_document_as_bulk_action(action)
+        document = super().get_document_as_bulk_action(action)
         document["_parent"] = self.parent_id
         return document
 

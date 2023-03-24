@@ -3,17 +3,17 @@ from elasticsearch_dsl.connections import connections
 
 from django.conf import settings
 
-DEFAULT_ES_CONNECTIONS = {
+DEFAULT_SEARCH_CONNECTIONS = {
     "default": {
         "hosts": ["localhost:9200"],
     }
 }
 
-CONNECTIONS = getattr(settings, "ES_CONNECTIONS", DEFAULT_ES_CONNECTIONS)
-ENABLED = getattr(settings, "ES_ENABLED", False)
+CONNECTIONS = getattr(settings, "SEARCH_CONNECTIONS", DEFAULT_SEARCH_CONNECTIONS)
+ENABLED = getattr(settings, "SEARCH_ENABLED", False)
 
 
-def setup_es_connections():
+def setup_connections():
     """Create connection(s) to Elasticsearch from parameters defined in the settings.
 
     CONNECTIONS is a dict, where the keys are connection aliases and the values are parameters to the
@@ -30,4 +30,4 @@ def setup_es_connections():
 
 
 if ENABLED:
-    setup_es_connections()
+    setup_connections()

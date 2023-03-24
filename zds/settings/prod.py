@@ -143,7 +143,7 @@ SOCIAL_AUTH_PIPELINE = (
 # ZESTE DE SAVOIR SETTINGS
 
 
-ES_SEARCH_INDEX["shards"] = config["elasticsearch"].get("shards", 3)
+SEARCH_INDEX["shards"] = config["elasticsearch"].get("shards", 3)
 
 
 ZDS_APP["site"]["association"]["email"] = "communication@zestedesavoir.com"
