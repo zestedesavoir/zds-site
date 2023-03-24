@@ -7,7 +7,7 @@ from django.db import models
 from django.conf import settings
 
 from django.db import transaction
-from zds.searchv2.client import client
+from typesense import Client
 
 
 def document_indexer(force_reindexing, obj):
@@ -260,7 +260,7 @@ class SearchIndexManager:
         self.connected_to_search = False
 
         if settings.SEARCH_ENABLED:
-            self.search = client
+            self.search = Client(settings.SEARCH_CONNECTIONS[connection_alias])
             self.connected_to_search = True
 
     def clear_index(self):
