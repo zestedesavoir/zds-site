@@ -91,47 +91,44 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
             self.search_query = "".join(request.GET["q"])
         excluded_content_ids = request.GET.get("excluded", "").split(",")
         results = []
-        if self.index_manager.connected_to_es and self.search_query:
-            self.authorized_forums = get_authorized_forums(self.request.user)
-
-            search_queryset = Search()
+        # if self.index_manager.connected_to_es and self.search_query:
+        if self.search_query:
+            search_parameters = {
+                "q": self.search_query,
+                "query_by": "title,description",
+            }
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
-                search_queryset = search_queryset.exclude("terms", content_pk=excluded_content_ids)
-            query = Match(_type="publishedcontent") & MultiMatch(
-                query=self.search_query, fields=["title", "description"]
-            )
+                search_parameters["filter_by"] = self._add_a_negative_numerical_filter(
+                    "content_pk", excluded_content_ids
+                )
 
-            functions_score = [
-                {
-                    "filter": Match(content_type="TUTORIAL"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"],
-                },
-                {
-                    "filter": Match(content_type="ARTICLE"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"],
-                },
-                {
-                    "filter": Match(content_type="OPINION"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"],
-                },
-            ]
-
-            scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
-            search_queryset = search_queryset.query(scored_query)[:10]
+            hits = client.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
-            for hit in search_queryset.execute():
+            for hit in hits:
+                document = hit["document"]["_source"]
                 result = {
-                    "id": hit.content_pk,
-                    "pubdate": hit.publication_date,
-                    "title": str(hit.title),
-                    "description": str(hit.description),
+                    "id": document["content_pk"],
+                    "pubdate": document["publication_date"],
+                    "title": str(document["title"]),
+                    "description": str(document["description"]),
                 }
                 results.append(result)
-
         data = {"results": results}
 
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
+
+    def _add_a_negative_numerical_filter(self, field, values):
+        """
+        Add a filter to the current filter, this filter is used for numerical negation
+        Indeed, in 0.24.0, Typesense doesn't allow numerical negation
+        field : it's a string with the name of the field to filter
+        values : is a list of strings with value that we don't want for the field
+        """
+        filter = f"({field}:<{values[0]}||{field}:>{values[0]})"
+        for value in values[1:]:
+            filter += f"&&({field}:<{value}||{field}:>{value})"
+        return filter
 
 
 class SearchView(ZdSPagingListView):
@@ -367,9 +364,10 @@ class SearchView(ZdSPagingListView):
 
     def _add_a_filter(self, field, value, current_filter):
         """
+        Add a filter to the current filter, this filter can't be used for negation
         field : it's a string with the name of the field to filter
         value : is the a string with value of the field
-        current_filter : is the current string which represent the value to filter
+        current_filter : is the current string which represents the value to filter
         """
         if len(current_filter) > 0:
             current_filter += f"&& {field}:{str(value)}"
