@@ -21,13 +21,17 @@ from .client import client
 
 
 class SimilarTopicsView(CreateView, SingleObjectMixin):
+    """
+    This view allows you to suggest similar topics when creating a new topic on a forum.
+    The idea is to avoid the creation of a topic on a subject already treated on the forum.
+    """
+
     search_query = None
     authorized_forums = ""
     index_manager = None
 
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
-
         super().__init__(**kwargs)
         self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
@@ -82,6 +86,12 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
 
 
 class SuggestionContentView(CreateView, SingleObjectMixin):
+    """
+    Site members who are part of the staff can choose at the end of a publication to suggest another content of the site.
+    When they want to add a suggestion, they write in a text field the name of the content to suggest,
+    content proposals are then made.
+    """
+
     search_query = None
     authorized_forums = ""
     index_manager = None
