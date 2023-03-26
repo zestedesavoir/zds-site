@@ -37,7 +37,7 @@
     <div>
         {% crispy form %}
     </div>
-
+    
     {% if form.text.value %}
         {% include "misc/preview.part.html" with text=form.text.value %}
     {% endif %}

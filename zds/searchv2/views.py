@@ -1,8 +1,6 @@
 from zds import json_handler
-import operator
 
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Terms, Range
+from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -18,7 +16,6 @@ from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import SearchIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
-from functools import reduce
 
 from .client import client
 
@@ -41,38 +38,47 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         results = []
         if self.index_manager.connected_to_search and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
+            filter = self._add_a_numerical_filter("forum_pk", self.authorized_forums)
+            search_parameters = {
+                "q": self.search_query,
+                "query_by": "title,subtitle,tags",
+                "filter_by": filter,
+            }
 
-            search_queryset = Search()
-            query = (
-                Match(_type="topic")
-                & Terms(forum_pk=self.authorized_forums)
-                & MultiMatch(query=self.search_query, fields=["title", "subtitle", "tags"])
-            )
+            result = client.collections["topic"].documents.search(search_parameters)["hits"]
 
-            functions_score = [
-                {"filter": Match(is_solved=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]},
-                {"filter": Match(is_sticky=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]},
-                {"filter": Match(is_locked=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]},
-            ]
+            for entry in result:
+                entry["collection"] = "topic"
 
-            scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
-            search_queryset = search_queryset.query(scored_query)[:10]
+            hits = client.collections["topic"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
-            for hit in search_queryset.execute():
+            for hit in hits:
+                document = hit["document"]["_source"]
                 result = {
-                    "id": hit.pk,
-                    "url": str(hit.get_absolute_url),
-                    "title": str(hit.title),
-                    "subtitle": str(hit.subtitle),
-                    "forumTitle": str(hit.forum_title),
-                    "forumUrl": str(hit.forum_get_absolute_url),
-                    "pubdate": str(hit.pubdate),
+                    "id": document["id"],
+                    "url": str(document["get_absolute_url"]),
+                    "title": str(document["title"]),
+                    "subtitle": str(document["subtitle"]),
+                    "forumTitle": str(document["forum_title"]),
+                    "forumUrl": str(document["forum_get_absolute_url"]),
+                    "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
                 }
                 results.append(result)
 
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
+
+    def _add_a_numerical_filter(self, field, values):
+        """
+        Return a filter (string), this filter is used for numerical values necessary for the field
+        field : it's a string with the name of the field to filter
+        values : is a list of int with value that we want for the field
+        """
+        filter = f"{field}:={values[0]}"
+        for value in values[1:]:
+            filter += f"||{field}:={value}"
+        return filter
 
 
 class SuggestionContentView(CreateView, SingleObjectMixin):
