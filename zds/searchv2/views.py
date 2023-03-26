@@ -94,7 +94,11 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         if self.index_manager.connected_to_search and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
 
-            search_queryset = Search()
+            search_parameters = {
+                "q": self.search_query,
+                "query_by": "title,description",
+            }
+
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
                 search_parameters["filter_by"] = self._add_a_negative_numerical_filter(
                     "content_pk", excluded_content_ids
