@@ -15,7 +15,7 @@ from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 
 from zds.searchv2.forms import SearchForm
-from zds.searchv2.models import ESIndexManager
+from zds.searchv2.models import SearchIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
 from functools import reduce
@@ -32,14 +32,14 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super().__init__(**kwargs)
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
 
         results = []
-        if self.index_manager.connected_to_es and self.search_query:
+        if self.index_manager.connected_to_search and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_queryset = Search()
@@ -84,19 +84,17 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super().__init__(**kwargs)
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
         excluded_content_ids = request.GET.get("excluded", "").split(",")
         results = []
-        # if self.index_manager.connected_to_es and self.search_query:
-        if self.search_query:
-            search_parameters = {
-                "q": self.search_query,
-                "query_by": "title,description",
-            }
+        if self.index_manager.connected_to_search and self.search_query:
+            self.authorized_forums = get_authorized_forums(self.request.user)
+
+            search_queryset = Search()
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
                 search_parameters["filter_by"] = self._add_a_negative_numerical_filter(
                     "content_pk", excluded_content_ids
@@ -154,7 +152,7 @@ class SearchView(ZdSPagingListView):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super().__init__(**kwargs)
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""
@@ -170,7 +168,7 @@ class SearchView(ZdSPagingListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        if not self.index_manager.connected_to_es:
+        if not self.index_manager.connected_to_search:
             messages.warning(self.request, _("Impossible de se connecter à Elasticsearch"))
             return []
 

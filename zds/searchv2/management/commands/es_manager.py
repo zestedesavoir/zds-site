@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from zds.searchv2.models import ESIndexManager, get_django_indexable_objects
+from zds.searchv2.models import SearchIndexManager, get_django_indexable_objects
 from zds.tutorialv2.models.database import FakeChapter
-from zds.forum.models import Topic, Post
 
 
 class Command(BaseCommand):
@@ -20,10 +19,10 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
         self.models.insert(0, FakeChapter)
 
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
-        if not self.index_manager.connected_to_es:
-            raise Exception("Unable to connect to Elasticsearch, aborting.")
+        if not self.index_manager.connected_to_search:
+            raise Exception("Unable to connect to Typesense, aborting.")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -45,11 +44,11 @@ class Command(BaseCommand):
 
     def setup_es(self):
 
-        self.index_manager.reset_es_index(self.models)
+        self.index_manager.reset_index(self.models)
         # self.index_manager.setup_custom_analyzer()
 
     def clear_es(self):
-        self.index_manager.clear_es_index()
+        self.index_manager.clear_index()
 
         for model in self.models:
             self.index_manager.clear_indexing_of_model(model)
@@ -64,7 +63,7 @@ class Command(BaseCommand):
                 continue
 
             if force_reindexing:
-                print(f"- indexing {model.get_es_document_type()}s")
+                print(f"- indexing {model.get_document_type()}s")
 
             indexed_counter = self.index_manager.es_bulk_indexing_of_model(model, force_reindexing=force_reindexing)
             if force_reindexing:

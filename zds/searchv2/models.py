@@ -7,15 +7,15 @@ from django.db import models
 from django.conf import settings
 
 from django.db import transaction
-from zds.searchv2.client import client
+from typesense import Client
 
 
-def es_document_mapper(force_reindexing, obj):
+def document_indexer(force_reindexing, obj):
     action = "update" if obj.es_already_indexed and not force_reindexing else "index"
-    return obj.get_es_document_as_bulk_action(action)
+    return obj.get_document_as_bulk_action(action)
 
 
-class AbstractESIndexable:
+class AbstractSearchIndexable:
     """Mixin for indexable objects.
 
     Define a number of different functions that can be overridden to tune the behavior of indexing into elasticsearch.
@@ -26,28 +26,28 @@ class AbstractESIndexable:
     - ``get_schema()`` (not mandatory, but otherwise, ES will choose the schema by itself) ;
     - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
 
-    You also need to maintain ``es_id`` and ``es_already_indexed`` for bulk indexing/updating (if any).
+    You also need to maintain ``index_id`` and ``es_already_indexed`` for bulk indexing/updating (if any).
     """
 
     es_already_indexed = False
-    es_id = ""
+    index_id = ""
 
     objects_per_batch = 100
 
     @classmethod
-    def get_es_document_type(cls):
+    def get_document_type(cls):
         """value of the ``_type`` field in the index"""
         content_type = cls.__name__.lower()
 
         # fetch parents
         for base in cls.__bases__:
-            if issubclass(base, AbstractESIndexable) and base != AbstractESDjangoIndexable:
+            if issubclass(base, AbstractSearchIndexable) and base != AbstractSearchDjangoIndexable:
                 content_type = base.__name__.lower() + "_" + content_type
 
         return content_type
 
     @classmethod
-    def get_es_schema(self):
+    def get_document_schema(self):
         """Setup schema (data scheme).
 
         .. note::
@@ -63,12 +63,12 @@ class AbstractESIndexable:
         :rtype: elasticsearch_dsl.schema
         """
         es_schema = dict()
-        es_schema["name"] = self.get_es_document_type()
+        es_schema["name"] = self.get_document_type()
         es_schema["fields"] = []
         return es_schema
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
+    def get_indexable(cls, force_reindexing=False):
         """Return objects to index.
 
         .. attention::
@@ -81,7 +81,7 @@ class AbstractESIndexable:
 
         return []
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=None):
         """Create a document from the variable of the class, based on the schema.
 
         .. attention::
@@ -94,7 +94,7 @@ class AbstractESIndexable:
         """
 
         cls = self.__class__
-        schema = cls.get_es_schema()["fields"]
+        schema = cls.get_document_schema()["fields"]
         fields = list(schema[i]["name"] for i in range(len(schema)))
 
         data = {}
@@ -112,7 +112,7 @@ class AbstractESIndexable:
 
         return data
 
-    def get_es_document_as_bulk_action(self, action="index"):
+    def get_document_as_bulk_action(self, action="index"):
         """Create a document formatted for a ``_bulk`` operation. Formatting is done based on action.
 
         See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
@@ -128,29 +128,29 @@ class AbstractESIndexable:
         if action not in ["index", "update", "delete"]:
             raise ValueError("action must be `index`, `update` or `delete`")
 
-        document = self.get_es_document_source()
+        document = self.get_document_source()
         if action == "index":
-            if self.es_id:
-                document["id"] = self.es_id
-            document["_source"] = self.get_es_document_source()
+            if self.index_id:
+                document["id"] = self.index_id
+            document["_source"] = self.get_document_source()
         elif action == "update":
-            document["id"] = self.es_id
-            document["doc"] = self.get_es_document_source()
+            document["id"] = self.index_id
+            document["doc"] = self.get_document_source()
         elif action == "delete":
-            document["id"] = self.es_id
+            document["id"] = self.index_id
 
         return document
 
 
-class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
-    """Version of AbstractESIndexable for a Django object, with some improvements :
+class AbstractSearchDjangoIndexable(AbstractSearchIndexable, models.Model):
+    """Version of AbstractSearchIndexable for a Django object, with some improvements :
 
     - Already include ``pk`` in schema ;
     - Match ES ``_id`` field and ``pk`` ;
     - Override ``es_already_indexed`` to a database field.
     - Define a ``es_flagged`` field to restrict the number of object to be indexed ;
     - Override ``save()`` to manage the field ;
-    - Define a ``get_es_django_indexable()`` method that can be overridden to change the queryset to fetch object.
+    - Define a ``get_django_indexable()`` method that can be overridden to change the queryset to fetch object.
     """
 
     class Meta:
@@ -162,22 +162,22 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
     def __init__(self, *args, **kwargs):
         """Override to match ES ``_id`` field and ``pk``"""
         super().__init__(*args, **kwargs)
-        self.es_id = str(self.pk)
+        self.index_id = str(self.pk)
 
     @classmethod
-    def get_es_schema(cls):
+    def get_document_schema(cls):
         """Overridden to add pk into schema.
 
         :return: schema object
         :rtype: elasticsearch_dsl.schema
         """
 
-        es_schema = super().get_es_schema()
+        es_schema = super().get_document_schema()
         es_schema["fields"].append({"name": "id", "type": "string"})
         return es_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_django_indexable(cls, force_reindexing=False):
         """Method that can be overridden to filter django objects from database based on any criterion.
 
         :param force_reindexing: force to return all objects, even if they may be already indexed.
@@ -194,14 +194,14 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
         return query
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
-        """Override ``get_es_indexable()`` in order to use the Django querysets and batch objects.
+    def get_indexable(cls, force_reindexing=False):
+        """Override ``get_indexable()`` in order to use the Django querysets and batch objects.
 
         :return: a queryset
         :rtype: django.db.models.query.QuerySet
         """
 
-        return cls.get_es_django_indexable(force_reindexing).order_by("pk").all()
+        return cls.get_django_indexable(force_reindexing).order_by("pk").all()
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object if saved
@@ -211,7 +211,7 @@ class AbstractESDjangoIndexable(AbstractESIndexable, models.Model):
             Flagging can be prevented using ``save(es_flagged=False)``.
         """
 
-        self.es_flagged = kwargs.pop("es_flagged", True)
+        self.search_flagged = kwargs.pop("es_flagged", True)
 
         return super().save(*args, **kwargs)
 
@@ -220,25 +220,25 @@ def convert_to_unix_timestamp(date):
     return int(time.mktime(date.timetuple()))
 
 
-def delete_document_in_elasticsearch(instance):
+def delete_document_in_search(instance):
     """Delete a ESDjangoIndexable from ES database.
-    Must be implemented by all classes that derive from AbstractESDjangoIndexable.
+    Must be implemented by all classes that derive from AbstractSearchDjangoIndexable.
 
     :param instance: the document to delete
-    :type instance: AbstractESIndexable
+    :type instance: AbstractSearchIndexable
     """
 
-    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+    index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
     index_manager.delete_document(instance)
 
 
 def get_django_indexable_objects():
     """Return all indexable objects registered in Django"""
-    return [model for model in apps.get_models() if issubclass(model, AbstractESDjangoIndexable)]
+    return [model for model in apps.get_models() if issubclass(model, AbstractSearchDjangoIndexable)]
 
 
-class ESIndexManager:
+class SearchIndexManager:
     """Manage a given index with different taylor-made functions"""
 
     def __init__(self, name, shards=5, replicas=0, connection_alias="default"):
@@ -256,24 +256,24 @@ class ESIndexManager:
 
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
-        self.es = None
-        self.connected_to_es = False
+        self.search = None
+        self.connected_to_search = False
 
-        if settings.ES_ENABLED:
-            self.es = client
-            self.connected_to_es = True
+        if settings.SEARCH_ENABLED:
+            self.search = Client(settings.SEARCH_CONNECTIONS[connection_alias])
+            self.connected_to_search = True
 
-    def clear_es_index(self):
+    def clear_index(self):
         """Clear index"""
 
-        if not self.connected_to_es:
+        if not self.connected_to_search:
             return
 
-        for collection in self.es.collections.retrieve():
-            self.es.collections[collection["name"]].delete()
+        for collection in self.search.collections.retrieve():
+            self.search.collections[collection["name"]].delete()
         self.logger.info("index cleared")
 
-    def reset_es_index(self, models):
+    def reset_index(self, models):
         """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
         Then, set schemas for the different models.
 
@@ -285,14 +285,14 @@ class ESIndexManager:
         :type number_replicas: int
         """
 
-        if not self.connected_to_es:
+        if not self.connected_to_search:
             return
 
-        self.clear_es_index()
+        self.clear_index()
 
         for model in models:
-            schema = model.get_es_schema()
-            self.es.collections.create(schema)
+            schema = model.get_document_schema()
+            self.search.collections.create(schema)
 
         self.logger.info("index created")
 
@@ -315,7 +315,7 @@ class ESIndexManager:
             You need to run ``manage.py es_manager index_all`` if you modified this !!
         """
 
-        if not self.connected_to_es:
+        if not self.connected_to_search:
             return
 
         document = {
@@ -378,21 +378,21 @@ class ESIndexManager:
     def clear_indexing_of_model(self, model):
         """Nullify the indexing of a given model by setting ``es_already_index=False`` to all objects.
 
-        Use full updating for ``AbstractESDjangoIndexable``, instead of saving all of them.
+        Use full updating for ``AbstractSearchDjangoIndexable``, instead of saving all of them.
 
         :param model: the model
         :type model: class
         """
 
-        if issubclass(model, AbstractESDjangoIndexable):  # use a global update with Django
-            objs = model.get_es_django_indexable(force_reindexing=True)
+        if issubclass(model, AbstractSearchDjangoIndexable):  # use a global update with Django
+            objs = model.get_django_indexable(force_reindexing=True)
             objs.update(es_flagged=True, es_already_indexed=False)
         else:
-            for objects in model.get_es_indexable(force_reindexing=True):
+            for objects in model.get_indexable(force_reindexing=True):
                 for obj in objects:
                     obj.es_already_indexed = False
 
-        self.logger.info(f"unindex {model.get_es_document_type()}")
+        self.logger.info(f"unindex {model.get_document_type()}")
 
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
         """Perform a bulk action on documents of a given model. Use the ``objects_per_batch`` property to index.
@@ -402,7 +402,7 @@ class ESIndexManager:
 
         .. attention::
             + Currently only implemented with "index" and "update" !
-            + Currently only working with ``AbstractESDjangoIndexable``.
+            + Currently only working with ``AbstractSearchDjangoIndexable``.
 
         :param model: and model
         :type model: class
@@ -412,7 +412,7 @@ class ESIndexManager:
         :rtype: int
         """
 
-        if not self.connected_to_es:
+        if not self.connected_to_search:
             return
 
         # better safe than sorry
@@ -420,11 +420,11 @@ class ESIndexManager:
             self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
             return 0
 
-        documents_formatter = partial(es_document_mapper, force_reindexing)
+        documents_formatter = partial(document_indexer, force_reindexing)
         objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
         if model.__name__ == "PublishedContent":
-            generate = model.get_es_indexable(force_reindexing)
+            generate = model.get_indexable(force_reindexing)
             while True:
                 with transaction.atomic():
                     try:
@@ -441,11 +441,11 @@ class ESIndexManager:
                     else:
                         model_to_update = model
                         pks = [o.pk for o in objects]
-                        doc_type = model.get_es_document_type()
+                        doc_type = model.get_document_type()
 
                     formatted_documents = list(map(documents_formatter, objects))
 
-                    self.es.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
+                    self.search.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
                     for document in formatted_documents:
                         if self.logger.getEffectiveLevel() <= logging.INFO:
                             self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
@@ -458,7 +458,7 @@ class ESIndexManager:
             then = time.time()
             prev_obj_per_sec = False
             last_pk = 0
-            object_source = model.get_es_indexable(force_reindexing)
+            object_source = model.get_indexable(force_reindexing)
 
             while True:
                 with transaction.atomic():
@@ -469,9 +469,9 @@ class ESIndexManager:
                         break
 
                     formatted_documents = list(map(documents_formatter, objects))
-                    doc_type = model.get_es_document_type()
+                    doc_type = model.get_document_type()
 
-                    self.es.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
+                    self.search.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
                     for document in formatted_documents:
                         if self.logger.getEffectiveLevel() <= logging.INFO:
                             self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
@@ -517,37 +517,37 @@ class ESIndexManager:
         See https://www.elastic.co/guide/en/elasticsearch/guide/current/partial-updates.html.
 
         :param document: the document
-        :type document: AbstractESIndexable
+        :type document: AbstractSearchIndexable
         :param doc: fields to update
         :type doc: dict
         """
 
-        if not self.connected_to_es:
+        if not self.connected_to_search:
             return
 
-        doc_type = document.get_es_document_type()
-        doc_id = document.es_id
+        doc_type = document.get_document_type()
+        doc_id = document.index_id
         try:
-            self.es.collections[doc_type].documents[doc_id].update(doc)
-            self.logger.info(f"partial_update {document.get_es_document_type()} with id {document.es_id}")
+            self.search.collections[doc_type].documents[doc_id].update(doc)
+            self.logger.info(f"partial_update {document.get_document_type()} with id {document.index_id}")
         except:
             pass
 
     def delete_document(self, document):
-        """Delete a given document, based on its ``es_id``
+        """Delete a given document, based on its ``index_id``
 
         :param document: the document
-        :type document: AbstractESIndexable
+        :type document: AbstractSearchIndexable
         """
 
-        if not self.connected_to_es:
+        if not self.connected_to_search:
             return
 
-        doc_type = document.get_es_document_type()
-        doc_id = document.es_id
+        doc_type = document.get_document_type()
+        doc_id = document.index_id
         try:
-            self.es.collections[doc_type].documents[doc_id].delete()
-            self.logger.info(f"delete {document.get_es_document_type()} with id {document.es_id}")
+            self.search.collections[doc_type].documents[doc_id].delete()
+            self.logger.info(f"delete {document.get_document_type()} with id {document.index_id}")
         except:
             pass
 
@@ -565,9 +565,9 @@ class ESIndexManager:
         :type query: elasticsearch_dsl.query.Query
         """
 
-        if not self.connected_to_es:
+        if not self.connected_to_search:
             return
 
-        response = self.es.collections[doc_type].documents.delete(query)
+        response = self.search.collections[doc_type].documents.delete(query)
 
         self.logger.info(f"delete_by_query {doc_type}s ({response})")

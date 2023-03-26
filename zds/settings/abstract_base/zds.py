@@ -12,15 +12,23 @@ LOGOUT_REDIRECT_URL = "homepage"
 GEOIP_PATH = str(BASE_DIR / "geodata")
 GEOIP_CITY = "GeoLite2-City.mmdb"
 
-ES_ENABLED = True
+SEARCH_ENABLED = True
 
-ES_CONNECTIONS = {
+SEARCH_CONNECTIONS = {
     "default": {
-        "hosts": ["localhost:9200"],
+        "nodes": [
+            {
+                "host": "localhost",  # For Typesense Cloud use xxx.a1.typesense.net
+                "port": "8108",  # For Typesense Cloud use 443
+                "protocol": "http",  # For Typesense Cloud use https
+            }
+        ],
+        "api_key": "xyz",
+        "connection_timeout_seconds": 2,
     }
 }
 
-ES_SEARCH_INDEX = {
+SEARCH_INDEX = {
     "name": "zds_search",
     "shards": 3,
     "replicas": 0,

@@ -9,14 +9,12 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 
-from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
-
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.forum import signals
 from zds.searchv2.models import (
-    AbstractESDjangoIndexable,
-    delete_document_in_elasticsearch,
-    ESIndexManager,
+    AbstractSearchDjangoIndexable,
+    delete_document_in_search,
+    SearchIndexManager,
     convert_to_unix_timestamp,
 )
 from zds.utils import get_current_user, old_slugify
@@ -174,7 +172,7 @@ class Forum(models.Model):
         return self._nb_group > 0
 
 
-class Topic(AbstractESDjangoIndexable):
+class Topic(AbstractSearchDjangoIndexable):
     """
     A Topic is a thread of posts.
     A topic has several states, witch are all independent:
@@ -438,8 +436,8 @@ class Topic(AbstractESDjangoIndexable):
         return TopicRead.objects.is_topic_last_message_read(self, user, check_auth)
 
     @classmethod
-    def get_es_schema(cls):
-        ts_schema = super().get_es_schema()
+    def get_document_schema(cls):
+        ts_schema = super().get_document_schema()
 
         ts_schema["fields"].extend(
             [
@@ -460,19 +458,19 @@ class Topic(AbstractESDjangoIndexable):
         return ts_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_django_indexable(cls, force_reindexing=False):
         """Overridden to prefetch tags and forum"""
 
-        query = super().get_es_django_indexable(force_reindexing)
+        query = super().get_django_indexable(force_reindexing)
         return query.prefetch_related("tags").select_related("forum")
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=None):
         """Overridden to handle the case of tags (M2M field)"""
 
         excluded_fields = excluded_fields or []
         excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate"])
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_document_source(excluded_fields=excluded_fields)
         data["tags"] = [tag.title for tag in self.tags.all()]
         data["forum_pk"] = self.forum.pk
         data["forum_title"] = self.forum.title
@@ -495,12 +493,12 @@ class Topic(AbstractESDjangoIndexable):
 
 
 @receiver(pre_delete, sender=Topic)
-def delete_topic_in_elasticsearch(sender, instance, **kwargs):
+def delete_topic_in_search(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_elasticsearch(instance)
+    return delete_document_in_search(instance)
 
 
-class Post(Comment, AbstractESDjangoIndexable):
+class Post(Comment, AbstractSearchDjangoIndexable):
     """
     A forum post written by a user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
@@ -529,8 +527,8 @@ class Post(Comment, AbstractESDjangoIndexable):
         return self.topic.title
 
     @classmethod
-    def get_es_schema(cls):
-        ts_schema = super().get_es_schema()
+    def get_document_schema(cls):
+        ts_schema = super().get_document_schema()
 
         ts_schema["fields"].extend(
             [
@@ -552,14 +550,14 @@ class Post(Comment, AbstractESDjangoIndexable):
         return ts_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_django_indexable(cls, force_reindexing=False):
         """Overridden to prefetch stuffs"""
 
-        q = super().get_es_django_indexable(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
+        q = super().get_django_indexable(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
 
         return q
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=None):
         """Overridden to handle the information of the topic"""
 
         excluded_fields = excluded_fields or []
@@ -575,7 +573,7 @@ class Post(Comment, AbstractESDjangoIndexable):
             ]
         )
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_document_source(excluded_fields=excluded_fields)
 
         data["like_dislike_ratio"] = (
             (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
@@ -596,14 +594,14 @@ class Post(Comment, AbstractESDjangoIndexable):
 
         super().hide_comment_by_user(user, text_hidden)
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
         index_manager.update_single_document(self, {"is_visible": False})
 
 
 @receiver(pre_delete, sender=Post)
-def delete_post_in_elasticsearch(sender, instance, **kwargs):
+def delete_post_in_search(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_elasticsearch(instance)
+    return delete_document_in_search(instance)
 
 
 class TopicRead(models.Model):

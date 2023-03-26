@@ -1,9 +1,6 @@
 from zds import json_handler
 import datetime
 
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import MatchAll
-
 from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
@@ -13,7 +10,7 @@ from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, Ta
 from zds.forum.tests.factories import create_category_and_forum
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.searchv2.models import ESIndexManager
+from zds.searchv2.models import SearchIndexManager
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
@@ -26,7 +23,7 @@ from zds.tutorialv2.models.database import PublishedContent, FakeChapter, Publis
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_for_contents(ES_ENABLED=True, ES_SEARCH_INDEX={"name": "zds_search_test", "shards": 1, "replicas": 0})
+@override_for_contents(SEARCH_ENABLED=True, SEARCH_INDEX={"name": "zds_search_test", "shards": 1, "replicas": 0})
 class ViewsTests(TutorialTestMixin, TestCase):
     def setUp(self):
 
@@ -39,17 +36,17 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.manager = SearchIndexManager(**settings.SEARCH_INDEX)
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
-        self.manager.reset_es_index(self.indexable)
+        self.manager.reset_index(self.indexable)
         self.manager.setup_custom_analyzer()
         self.manager.refresh_index()
 
     def test_basic_search(self):
         """Basic search and filtering"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         # 1. Index and test search:
@@ -104,9 +101,9 @@ class ViewsTests(TutorialTestMixin, TestCase):
         published = PublishedContent.objects.get(pk=published.pk)
 
         ids = {
-            "topic": [topic_1.es_id],
-            "post": [post_1.es_id],
-            "content": [published.es_id, published.content_public_slug + "__" + chapter1.slug],
+            "topic": [topic_1.index_id],
+            "post": [post_1.index_id],
+            "content": [published.index_id, published.content_public_slug + "__" + chapter1.slug],
         }
 
         search_groups = [k for k, v in settings.ZDS_APP["search"]["search_groups"].items()]
@@ -126,7 +123,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_get_similar_topics(self):
         """Get similar topics lists"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         text = "Clem ne se mange pas"
@@ -171,7 +168,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_hidden_post_are_not_result(self):
         """Hidden posts should not show up in the search results"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         # 1. Index and test search:
@@ -191,7 +188,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_1 = Post.objects.get(pk=post_1.pk)
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -199,14 +196,14 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"].execute()
 
         self.assertEqual(response.hits.total, 1)
-        self.assertEqual(response[0].meta.id, post_1.es_id)
+        self.assertEqual(response[0].meta.id, post_1.index_id)
 
         # 2. Hide, reindex and search again:
         post_1.hide_comment_by_user(self.staff, "Un abus de pouvoir comme un autre ;)")
         self.manager.refresh_index()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -216,7 +213,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_hidden_forums_give_no_results_if_user_not_allowed(self):
         """Long name, isn't ?"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         # 1. Create a hidden forum belonging to a hidden staff group.
@@ -268,7 +265,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_boosts(self):
         """Check if boosts are doing their job"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         # 1. Create topics (with identical titles), posts (with identical texts), an article and a tuto
@@ -352,7 +349,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # 3. Test posts
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -365,7 +362,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["if_first"] = 2.0
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -379,7 +376,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"] = 2.0
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -393,7 +390,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"] = 2.0
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -407,7 +404,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"] = 2.0  # no one would do that in real life
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -421,7 +418,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # 4. Test topics
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -434,7 +431,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"] = 2.0
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -448,7 +445,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"] = 2.0
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -462,7 +459,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"] = 2.0  # no one would do that in real life
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -549,7 +546,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
 
             # set a huge number to overcome the small differences:
-            settings.ZDS_APP["search"]["boosts"][model.get_es_document_type()]["global"] = 10.0
+            settings.ZDS_APP["search"]["boosts"][model.get_document_type()]["global"] = 10.0
 
             result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
@@ -557,13 +554,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
             response = result.context["object_list"].execute()
             self.assertEqual(response.hits.total, 10)
 
-            self.assertEqual(response[0].meta.doc_type, model.get_es_document_type())  # obvious
+            self.assertEqual(response[0].meta.doc_type, model.get_document_type())  # obvious
 
-            settings.ZDS_APP["search"]["boosts"][model.get_es_document_type()]["global"] = 1.0
+            settings.ZDS_APP["search"]["boosts"][model.get_document_type()]["global"] = 1.0
 
     def test_change_topic_impacts_posts(self):
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         # 1. Create a hidden forum belonging to a hidden group and add staff in it.
@@ -588,13 +585,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"].execute()
         self.assertEqual(response.hits.total, 1)  # ok
-        self.assertEqual(response[0].meta.doc_type, Post.get_es_document_type())
+        self.assertEqual(response[0].meta.doc_type, Post.get_document_type())
         self.assertEqual(response[0].forum_pk, self.forum.pk)
         self.assertEqual(response[0].topic_pk, topic_1.pk)
         self.assertEqual(response[0].topic_title, topic_1.title)
@@ -608,7 +605,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.refresh_index()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -630,7 +627,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.refresh_index()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -643,7 +640,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_es_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -652,7 +649,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
     def test_change_publishedcontents_impacts_chapter(self):
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         # 1. Create middle-size content and index it
@@ -692,7 +689,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(response.hits.total, 2)
 
         chapters = [r for r in response if r.meta.doc_type == "chapter"]
-        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_es_document_type())
+        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_document_type())
         self.assertEqual(chapters[0].meta.id, published.content_public_slug + "__" + chapter1.slug)
 
         # 2. Change tuto: delete chapter and insert new one !
@@ -736,7 +733,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"].execute()
         chapters = [r for r in response if r.meta.doc_type == "chapter"]
         self.assertEqual(response.hits.total, 1)
-        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_es_document_type())
+        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_document_type())
         self.assertEqual(chapters[0].meta.id, published.content_public_slug + "__" + chapter2.slug)  # got new chapter
 
     def test_opensearch(self):
@@ -751,7 +748,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_upercase_and_lowercase_search_give_same_results(self):
         """Pretty self-explanatory function name, isn't it ?"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         # 1. Index lowercase stuffs
@@ -856,7 +853,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_category_and_subcategory_impact_search(self):
         """If two contents do not belong to the same (sub)category"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search:
             return
 
         text = "Did you ever hear the tragedy of Darth Plagueis The Wise?"
@@ -960,4 +957,4 @@ class ViewsTests(TutorialTestMixin, TestCase):
         super().tearDown()
 
         # delete index:
-        self.manager.clear_es_index()
+        self.manager.clear_index()
