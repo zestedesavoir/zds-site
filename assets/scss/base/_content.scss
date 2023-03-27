@@ -659,15 +659,13 @@ li.task-list-item {
 
         background-color: $true-white !important;
     }
-    &.quizz-forget {
-        font-weight: bolder;
-    }
-    &.quizz-forget {
-            font-weight: bolder;
-        }
-    &.quizz-bad {
+    &.answer-bad {
         color: $color-danger;
     }
+    &.answer-good {
+        color:green;
+    }
+
 }
 
 

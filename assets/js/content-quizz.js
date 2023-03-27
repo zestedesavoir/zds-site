@@ -141,6 +141,7 @@ function markBadAnswers(form,names, answers) {
     let numChecked = 0;
     inputs.forEach(input => {
       if (input.hasAttribute('checked')) {
+        input.parentElement.classList.add('answer-good')
         numChecked++;
       }
     });
@@ -156,7 +157,7 @@ function markBadAnswers(form,names, answers) {
         }
       })
       if (!AnsweredWell) {
-        form.querySelector(`div[data-name="${answer}"]`).classList.add('quizz-multiple')
+        form.querySelector(`div[data-name="${answer}"]`).classList.add('quizz-bad')
       }
     }
   })
@@ -183,7 +184,7 @@ function markBadAnswers(form,names, answers) {
     value
   }) => {
     
-    form.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`).parentElement.classList.add('quizz-bad')
+    form.querySelector(`input[type=checkbox][name="${name}"][value="${value}"]`).parentElement.classList.add('answer-bad')
   })
 
   toAdd.forEach(name => names.push(name))
@@ -336,7 +337,6 @@ function sendQuizzStatistics(form, statistics) {
 function displayResultAfterSubmitButton(nbGood, nbTotal, form) {
 
   const resultElement = form.querySelector('.result');
-
   const questions = form.querySelectorAll('.custom-block-quizz');
 
 
@@ -373,34 +373,35 @@ function QuizzAnswered(form) {
   return true
 }
 
-document.querySelectorAll('form.quizz').forEach(form => {
 
-  const submitBtn = form.querySelector('.btn-submit');
+document.querySelectorAll('form.quizz').forEach(form => {
   
   form.addEventListener('submit', e => {
   
+    // Select all the custom-block-quizz divs
+    const quizzDivs = form.querySelectorAll('.custom-block-quizz');
+  
+    quizzDivs.forEach(div => {
+
+      div.classList.remove('quizz-bad');
+      div.classList.remove('quizz-good');
+      div.classList.remove('hasAnswer');
+      div.classList.remove('quizz-multiple');
+    });
+    
     e.preventDefault()
     e.stopPropagation()
 
     const notAnswered = form.querySelector('.notAnswered');
+    const submitBtn = form.querySelector('.btn-submit');
 
     if (QuizzAnswered(form)) {
+
+      let nbTotal = 0;
+      let nbGood = 0;
       
       const formData = new FormData(form)
-      // result = name of bad answers
       const [badAnswerNames, allAnswerNames] = computeForm(formData, answers)
-
-      // Select all the custom-block-quizz divs
-      const quizzDivs = form.querySelectorAll('.custom-block-quizz');
-     
-      quizzDivs.forEach(div => {
-
-        div.classList.remove('quizz-bad');
-        div.classList.remove('quizz-good');
-        div.classList.remove('hasAnswer');
-        div.classList.remove('quizz-multiple');
-      });
-
 
       markBadAnswers(form,badAnswerNames, answers)
 
@@ -419,9 +420,9 @@ document.querySelectorAll('form.quizz').forEach(form => {
         expected: {},
         result: {}
       }
-      let nbGood = 0
-      let nbTotal = 0
+
       Object.keys(answers).forEach(name => {
+        
         const element = document.querySelector(`.custom-block[data-name="${name}"]`)
         let title = element.querySelector('.custom-block-heading').textContent
         const correction = element.querySelector('.custom-block-body .custom-block')
@@ -446,18 +447,18 @@ document.querySelectorAll('form.quizz').forEach(form => {
         // now determine answers and their labels
         element.querySelectorAll('input:checked').forEach(node => {
             
-            // remove eventual glued corretion
+          // remove eventual glued corretion
           let label = node.parentElement.textContent
           if (correction && label.indexOf(correction.textContent) !== -1) {
             label = label.substr(0, label.indexOf(correction.textContent))
           }
           statistics.result[title].labels.push(label.trim())
         })
-
+        console.log(element);
         if (element.classList.contains('hasAnswer')) {
           nbTotal++
           
-          if (!element.classList.contains('quizz-bad') && !element.classList.contains('quizz-multiple')) {
+          if (!element.classList.contains('quizz-bad')) {
             
             element.classList.add('quizz-good')
             statistics.result[title].evaluation = 'ok'
@@ -468,14 +469,11 @@ document.querySelectorAll('form.quizz').forEach(form => {
         }
 
       })
-
      
       sendQuizzStatistics(form, statistics)
       // submitBtn.setAttribute('disabled', true);
       displayResultAfterSubmitButton(nbGood, nbTotal, form)
       notAnswered.innerText = ''
-
-
     // not all questions answered
     }else {
         
