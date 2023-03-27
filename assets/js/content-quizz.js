@@ -258,8 +258,6 @@ function injectForms(quizz, answers) {
      
       submit.classList.add('btn', 'btn-submit')
       submit.setAttribute('id', `my-button-${idBias}`);
-      const result = document.createElement('p')
-      result.classList.add('result')
 
 
       const notAnswered = document.createElement('p')
@@ -284,7 +282,6 @@ function injectForms(quizz, answers) {
         form.appendChild(current.cloneNode(true))
         current.parentNode.removeChild(current)
       }
-      form.appendChild(result)
       form.appendChild(submit)
       form.appendChild(notAnswered)
       wrappers.push(wrapper)
@@ -334,7 +331,7 @@ function sendQuizzStatistics(form, statistics) {
 
 }
 
-function displayResultAfterSubmitButton(nbGood, nbTotal, form) {
+function displayResultAfterSubmitButton(form) {
 
   const resultElement = form.querySelector('.result');
   const questions = form.querySelectorAll('.custom-block-quizz');
@@ -350,7 +347,6 @@ function displayResultAfterSubmitButton(nbGood, nbTotal, form) {
 
   }
 
-  resultElement.innerText = `Vous avez répondu correctement à ${nbGood}/${nbTotal} des questions`;
 }
 
 // test if the quizz is totally answered or not
@@ -374,10 +370,12 @@ function QuizzAnswered(form) {
 }
 
 
+      
 document.querySelectorAll('form.quizz').forEach(form => {
   
   form.addEventListener('submit', e => {
   
+
     // Select all the custom-block-quizz divs
     const quizzDivs = form.querySelectorAll('.custom-block-quizz');
   
@@ -472,8 +470,10 @@ document.querySelectorAll('form.quizz').forEach(form => {
      
       sendQuizzStatistics(form, statistics)
       // submitBtn.setAttribute('disabled', true);
-      displayResultAfterSubmitButton(nbGood, nbTotal, form)
+      displayResultAfterSubmitButton(form)
       notAnswered.innerText = ''
+      nbGood = 0;
+      nbTotal = 0;
     // not all questions answered
     }else {
         
