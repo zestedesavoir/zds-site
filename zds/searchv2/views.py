@@ -1,8 +1,6 @@
 from zds import json_handler
-import operator
 
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Terms, Range
+from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -18,19 +16,22 @@ from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import SearchIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
-from functools import reduce
 
 from .client import client
 
 
 class SimilarTopicsView(CreateView, SingleObjectMixin):
+    """
+    This view allows you to suggest similar topics when creating a new topic on a forum.
+    The idea is to avoid the creation of a topic on a subject already treated on the forum.
+    """
+
     search_query = None
     authorized_forums = ""
     index_manager = None
 
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
-
         super().__init__(**kwargs)
         self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
@@ -41,41 +42,56 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         results = []
         if self.index_manager.connected_to_search and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
+            filter = self._add_a_numerical_filter("forum_pk", self.authorized_forums)
+            search_parameters = {
+                "q": self.search_query,
+                "query_by": "title,subtitle,tags",
+                "filter_by": filter,
+            }
 
-            search_queryset = Search()
-            query = (
-                Match(_type="topic")
-                & Terms(forum_pk=self.authorized_forums)
-                & MultiMatch(query=self.search_query, fields=["title", "subtitle", "tags"])
-            )
+            result = client.collections["topic"].documents.search(search_parameters)["hits"]
 
-            functions_score = [
-                {"filter": Match(is_solved=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]},
-                {"filter": Match(is_sticky=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]},
-                {"filter": Match(is_locked=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]},
-            ]
+            for entry in result:
+                entry["collection"] = "topic"
 
-            scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
-            search_queryset = search_queryset.query(scored_query)[:10]
+            hits = client.collections["topic"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
-            for hit in search_queryset.execute():
+            for hit in hits:
+                document = hit["document"]["_source"]
                 result = {
-                    "id": hit.pk,
-                    "url": str(hit.get_absolute_url),
-                    "title": str(hit.title),
-                    "subtitle": str(hit.subtitle),
-                    "forumTitle": str(hit.forum_title),
-                    "forumUrl": str(hit.forum_get_absolute_url),
-                    "pubdate": str(hit.pubdate),
+                    "id": document["id"],
+                    "url": str(document["get_absolute_url"]),
+                    "title": str(document["title"]),
+                    "subtitle": str(document["subtitle"]),
+                    "forumTitle": str(document["forum_title"]),
+                    "forumUrl": str(document["forum_get_absolute_url"]),
+                    "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
                 }
                 results.append(result)
 
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
 
+    def _add_a_numerical_filter(self, field, values):
+        """
+        Return a filter (string), this filter is used for numerical values necessary for the field
+        field : it's a string with the name of the field to filter
+        values : is a list of int with value that we want for the field
+        """
+        filter = f"{field}:={values[0]}"
+        for value in values[1:]:
+            filter += f"||{field}:={value}"
+        return filter
+
 
 class SuggestionContentView(CreateView, SingleObjectMixin):
+    """
+    Site members who are part of the staff can choose at the end of a publication to suggest another content of the site.
+    When they want to add a suggestion, they write in a text field the name of the content to suggest,
+    content proposals are then made.
+    """
+
     search_query = None
     authorized_forums = ""
     index_manager = None
@@ -94,44 +110,43 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         if self.index_manager.connected_to_search and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
 
-            search_queryset = Search()
+            search_parameters = {
+                "q": self.search_query,
+                "query_by": "title,description",
+            }
+
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
-                search_queryset = search_queryset.exclude("terms", content_pk=excluded_content_ids)
-            query = Match(_type="publishedcontent") & MultiMatch(
-                query=self.search_query, fields=["title", "description"]
-            )
+                search_parameters["filter_by"] = self._add_a_negative_numerical_filter(
+                    "content_pk", excluded_content_ids
+                )
 
-            functions_score = [
-                {
-                    "filter": Match(content_type="TUTORIAL"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"],
-                },
-                {
-                    "filter": Match(content_type="ARTICLE"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"],
-                },
-                {
-                    "filter": Match(content_type="OPINION"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"],
-                },
-            ]
-
-            scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
-            search_queryset = search_queryset.query(scored_query)[:10]
+            hits = client.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
-            for hit in search_queryset.execute():
+            for hit in hits:
+                document = hit["document"]["_source"]
                 result = {
-                    "id": hit.content_pk,
-                    "pubdate": hit.publication_date,
-                    "title": str(hit.title),
-                    "description": str(hit.description),
+                    "id": document["content_pk"],
+                    "pubdate": document["publication_date"],
+                    "title": str(document["title"]),
+                    "description": str(document["description"]),
                 }
                 results.append(result)
-
         data = {"results": results}
 
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
+
+    def _add_a_negative_numerical_filter(self, field, values):
+        """
+        Add a filter to the current filter, this filter is used for numerical negation
+        Indeed, in 0.24.0, Typesense doesn't allow numerical negation
+        field : it's a string with the name of the field to filter
+        values : is a list of strings with value that we don't want for the field
+        """
+        filter = f"({field}:<{values[0]}||{field}:>{values[0]})"
+        for value in values[1:]:
+            filter += f"&&({field}:<{value}||{field}:>{value})"
+        return filter
 
 
 class SearchView(ZdSPagingListView):
@@ -367,9 +382,10 @@ class SearchView(ZdSPagingListView):
 
     def _add_a_filter(self, field, value, current_filter):
         """
+        Add a filter to the current filter, this filter can't be used for negation
         field : it's a string with the name of the field to filter
         value : is the a string with value of the field
-        current_filter : is the current string which represent the value to filter
+        current_filter : is the current string which represents the value to filter
         """
         if len(current_filter) > 0:
             current_filter += f"&& {field}:{str(value)}"
