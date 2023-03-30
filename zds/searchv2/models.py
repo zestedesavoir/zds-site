@@ -165,18 +165,6 @@ class AbstractSearchDjangoIndexable(AbstractSearchIndexable, models.Model):
         self.index_id = str(self.pk)
 
     @classmethod
-    def get_document_schema(cls):
-        """Overridden to add pk into schema.
-
-        :return: schema object
-        :rtype: elasticsearch_dsl.schema
-        """
-
-        es_schema = super().get_document_schema()
-        es_schema["fields"].append({"name": "id", "type": "string"})
-        return es_schema
-
-    @classmethod
     def get_django_indexable(cls, force_reindexing=False):
         """Method that can be overridden to filter django objects from database based on any criterion.
 
@@ -241,7 +229,7 @@ def get_django_indexable_objects():
 class SearchIndexManager:
     """Manage a given index with different taylor-made functions"""
 
-    def __init__(self, name, shards=5, replicas=0, connection_alias="default"):
+    def __init__(self, connection_alias="default"):
         """Create a manager for a given index
 
         :param name: the index name
