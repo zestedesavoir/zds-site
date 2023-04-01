@@ -15,7 +15,7 @@ Il va donc bel et bien falloir créer deux actions. Pour cela, nous allons utili
 
 La méthode pour afficher le formulaire s'appellera `public ActionResult Create()`
 
-Lorsque vous allez envoyer vos données, ASP.NET est capable de construire seul l'objet Article à partir de ce qui a été envoyé.  
+Lorsque vous allez envoyer vos données, ASP.NET est capable de construire seul l'objet Article à partir de ce qui a été envoyé.
 De ce fait, vous allez pouvoir appeler la méthode qui traitera le formulaire `public ActionResult Create(Article article)`. Elle devra comporter deux annotations qui seront détaillées ci-dessous :
 
 ```csharp
@@ -29,7 +29,7 @@ public ActionResult Create(Article article)
 Code: Protection contre la faille CSRF
 
 C'est pour cela que de base, lorsque vous créerez la vue `Create.cshtml`, vous allez choisir comme modèle `Article` et comme template `Create`.
-Ce template génère un formulaire complet qui possède deux capacités : 
+Ce template génère un formulaire complet qui possède deux capacités :
 
 - envoyer un article quand vous le remplissez ;
 - afficher les erreurs si jamais l'utilisateur a envoyé des données incomplètes ou mal formées.
@@ -45,12 +45,12 @@ Le jeu sera donc de savoir :
 - comment on valide
 - comment on fait une redirection.
 
-Je vous conseille de lancer l'application pour voir le rendu du formulaire. 
+Je vous conseille de lancer l'application pour voir le rendu du formulaire.
 
 Faites un clic-droit sur "*afficher le code source de la page*", je vous conseille de comparer le code HTML généré avec votre code `create.cshtml` pour voir le rendu des différents éléments de la page.
 
 
-Il y a trois *helpers* à retenir (et uniquement trois !!) : 
+Il y a trois *helpers* à retenir (et uniquement trois !!) :
 
 - `Html.LabelFor(model=>model.Propriete)` pour le label (exemple `Html.LabelFor(model => model.Titre)`)
 - `Html.EditorFor(model=>model.Propriete)` pour le champ (exemple `Html.EditorFor(model => model.Titre)`)
@@ -84,7 +84,7 @@ Ces actions sont distinguées en deux verbes :
 | Vous avez sûrement remarqué : je n'ai pas encore parlé de sécurité. La raison est simple, `GET` ou `POST` n'apportent **aucune** différence du point de vue sécurité.
 | Si quelqu'un vous dit le contraire, c'est qu'il a sûrement mal sécurisé son site.
 
-Pour rappel un formulaire en HTML ressemble à ceci : 
+Pour rappel un formulaire en HTML ressemble à ceci :
 
 ```html
 <!-- permet de créer un formulaire qui ouvrira la page zestedesavoir.com/rechercher
@@ -97,9 +97,9 @@ l'attribut method="get", permet de dire qu'on va "lister" des choses
 
 </form>
 ```
-Code: un formulaire de recherche sur ZDS[^liste_type_input] 
+Code: un formulaire de recherche sur ZDS[^liste_type_input]
 
-En syntaxe Razor, la balise `<form>` donne `HTML.BeginForm`, il existe différents paramètres pour définir si on est en "mode" GET ou POST, quel contrôleur appeler etc.. 
+En syntaxe Razor, la balise `<form>` donne `HTML.BeginForm`, il existe différents paramètres pour définir si on est en "mode" GET ou POST, quel contrôleur appeler etc..
 Bien sûr on peut très bien écrire le formulaire en HTML comme ci-dessus.
 
 # Particularités d'un formulaire GET
@@ -109,7 +109,7 @@ Comme vous devez lister le contenu, le formulaire GET possède quelques proprié
 - Toutes les valeurs se retrouvent placées à la fin de l'URL sous la forme :
 `url_de_base/?nom_champ_1=valeur1&nom_champ2=valeur2`;
 - L'url complète (url de base + les valeurs) ne doit pas contenir plus de 255 caractères;
-- Si vous copiez/collez l'url complète dans un autre onglet ou un autre navigateur : vous aurez accès au **même résultat** (sauf si la page demande à ce que vous soyez enregistré!)[^indempotence]. 
+- Si vous copiez/collez l'url complète dans un autre onglet ou un autre navigateur : vous aurez accès au **même résultat** (sauf si la page demande à ce que vous soyez enregistré!)[^indempotence].
 
 # Particularités d'un formulaire POST
 
@@ -132,7 +132,7 @@ Les formulaires razor sont très intelligents et vous permettent d'afficher rapi
 - les erreurs qui ont été détectées lors de l'envoi grâce à javascript (attention, c'est un confort, pas une sécurité);
 - les erreurs qui ont été détectées par le serveur (là, c'est une sécurité).
 
-Pour que razor soit capable de définir le bon type de champ à montrer, il faut que vous lui donniez cette indication dans votre classe de modèle. Cela permet aussi d'indiquer ce que c'est qu'un article *valide*.  
+Pour que razor soit capable de définir le bon type de champ à montrer, il faut que vous lui donniez cette indication dans votre classe de modèle. Cela permet aussi d'indiquer ce que c'est qu'un article *valide*.
 
 Voici quelques attributs que l'on rencontre très souvent :
 
@@ -150,7 +150,7 @@ Voici quelques attributs que l'on rencontre très souvent :
 |.DataAnnotations.RangeAttriute     | intervalle donné                 |                                 |
 +-----------------------------------+----------------------------------+---------------------------------+
 |System.ComponentModel              |Permet d'indiquer que la chaîne de|`[Phone]`                        |
-|.PhoneAnnotations                  |caractères est un numéro de       |                                 | 
+|.PhoneAnnotations                  |caractères est un numéro de       |                                 |
 |                                   |téléphone                         |                                 |
 +-----------------------------------+----------------------------------+---------------------------------+
 Table: Les attributs communs
@@ -166,7 +166,7 @@ Avec ces attributs, décrivons notre classe Article. Par exemple de cette maniè
 | using System.ComponentModel.DataAnnotations;
 | using System.Linq;
 | using System.Web;
-| 
+|
 | namespace Blog.Models
 | {
 |     /// <summary>
@@ -198,7 +198,7 @@ Avec ces attributs, décrivons notre classe Article. Par exemple de cette maniè
 |     }
 | }
 | ```
-|  
+|
 
 Maintenant, au sein de la méthode `Create(Article article)`, nous allons demander de valider les données.
 
@@ -223,7 +223,7 @@ Comme nous l'avons vu dans le diagramme de flux, nous allons devoir rediriger l'
 Dans le premier cas, il faut se rendre compte que, de base, ASP.NET MVC, enregistre des "filtres d'exception" qui, lorsqu'une erreur se passe, vont afficher une page "customisée".
 Le comportement de ce filtre est celui-ci :
 
-- Si l'exception attrapée hérite de `HttpException`, le moteur va essayer de trouver une page "personnalisée" correspondant au code d'erreur. 
+- Si l'exception attrapée hérite de `HttpException`, le moteur va essayer de trouver une page "personnalisée" correspondant au code d'erreur.
 - Sinon, il traite l'exception comme une erreur 500.
 
 Pour "customiser" la page d'erreur 500, il faudra attendre un peu, ce n'est pas nécessaire maintenant, au contraire, les informations de débogage que vous apportent la page par défaut sont très intéressantes.
@@ -232,16 +232,16 @@ Ce qui va nous intéresser, c'est plutôt la redirection "quand tout va bien".
 
 Il existe deux méthodes pour rediriger selon vos besoin. La plupart du temps, vous utiliserez `RedirectToAction`. Cette méthode retourne un objet `ActionResult`.
 
-Pour une question de lisibilité, je vous propose d'utiliser `RedirectToAction` avec deux (ou trois selon les besoins) arguments : 
+Pour une question de lisibilité, je vous propose d'utiliser `RedirectToAction` avec deux (ou trois selon les besoins) arguments :
 
 ```csharp
-RedirectToAction("NomDeL'action", "Nom du Contrôleur");//une redirection simple 
+RedirectToAction("NomDeL'action", "Nom du Contrôleur");//une redirection simple
 ```
 ```csharp
 RedirectToAction("List","Article",new {page= 0});///Une redirection avec des paramètres pour l'URL
 ```
 
-#Le code final 
+#Le code final
 
 A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour bien comprendre les choses il faut regarder pas à pas les différentes actions, mettre des points d’arrêt dans les contrôleurs et regarder les différents objet.
 
@@ -249,7 +249,7 @@ A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour
 
 ## l'entité Article
 [[secret]]
-| 
+|
 | ```csharp
 | public class Article
 |     {
@@ -282,18 +282,18 @@ A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour
 [[secret]]
 | ```html
 | @model Blog.Models.Article
-| 
+|
 | @{
 |     ViewBag.Title = "Create";
 | }
-| 
+|
 | <h2>Create</h2>
-| 
-| 
-| @using (Html.BeginForm()) 
+|
+|
+| @using (Html.BeginForm())
 | {
 |     @Html.AntiForgeryToken()
-|     
+|
 |     <div class="form-horizontal">
 |         <h4>Article</h4>
 |         <hr />
@@ -305,7 +305,7 @@ A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour
 |                 @Html.ValidationMessageFor(model => model.Pseudo, "", new { @class = "text-danger" })
 |             </div>
 |         </div>
-| 
+|
 |         <div class="form-group">
 |             @Html.LabelFor(model => model.Titre, htmlAttributes: new { @class = "control-label col-md-2" })
 |             <div class="col-md-10">
@@ -313,7 +313,7 @@ A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour
 |                 @Html.ValidationMessageFor(model => model.Titre, "", new { @class = "text-danger" })
 |             </div>
 |         </div>
-| 
+|
 |         <div class="form-group">
 |             @Html.LabelFor(model => model.Contenu, htmlAttributes: new { @class = "control-label col-md-2" })
 |             <div class="col-md-10">
@@ -321,7 +321,7 @@ A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour
 |                 @Html.ValidationMessageFor(model => model.Contenu, "", new { @class = "text-danger" })
 |             </div>
 |         </div>
-| 
+|
 |         <div class="form-group">
 |             <div class="col-md-offset-2 col-md-10">
 |                 <input type="submit" value="Create" class="btn btn-default" />
@@ -329,15 +329,15 @@ A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour
 |         </div>
 |     </div>
 | }
-| 
+|
 | <div>
 |     @Html.ActionLink("Back to List", "List")
 | </div>
-| 
+|
 | <script src="~/Scripts/jquery-1.10.2.min.js"></script>
 | <script src="~/Scripts/jquery.validate.min.js"></script>
 | <script src="~/Scripts/jquery.validate.unobtrusive.min.js"></script>
-| 
+|
 | ```
 
 ## le contrôleur
@@ -348,7 +348,7 @@ A chaque partie le code final est donnée, il ne faut pas copier bêtement. Pour
 |         {
 |             return View();
 |         }
-| 
+|
 |         //POST : Create
 |         [HttpPost]
 |         [ValidateAntiForgeryToken]

@@ -69,4 +69,3 @@ Lancement des tests
 ~~~~~~~~~~~~~~~~~~~
 
 Il suffit d'utiliser le Makefile et de lancer ``make test-back-selenium``.
-

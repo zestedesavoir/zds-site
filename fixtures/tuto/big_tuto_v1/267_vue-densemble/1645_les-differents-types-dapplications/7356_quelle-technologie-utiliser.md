@@ -10,10 +10,10 @@ La popularité de MVC est surtout due à une chose : lorsque vous êtes sur un s
 
 création->validation->enregistrement->affichage->modification->validation->enregistrement->affichage.
 
-Imaginons que nous avons un blog.  
-En tant qu'auteur, nous voulons ajouter des articles.  
+Imaginons que nous avons un blog.
+En tant qu'auteur, nous voulons ajouter des articles.
 
-1. Alors nous allons **créer** cet article ;  
+1. Alors nous allons **créer** cet article ;
 2. Puis le programme va vérifier qu'il est correct (par exemple : le titre est-il renseigné?) ;
 3. Puis nous allons l'afficher pour pouvoir le lire ;
 4. Nous allons vouloir corriger nos fautes d'orthographe et donc nous allons modifier ;

@@ -19,4 +19,3 @@ Le membre **{{ username }}** souhaiterait adhérer à l'association.
 {{ justification }}
 
 [{% trans "Voir son profil sur le site" %}]({{ profile_url }}).
-

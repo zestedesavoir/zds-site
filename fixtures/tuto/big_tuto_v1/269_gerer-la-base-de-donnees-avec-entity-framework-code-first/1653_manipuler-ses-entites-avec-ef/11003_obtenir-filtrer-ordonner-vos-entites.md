@@ -39,7 +39,7 @@ Quoi qu'il arrive, les méthodes utilisées seront toujours les mêmes.
 
 # Obtenir la liste complète
 
-Il n'y a pas de code plus simple : `bdd.Articles.ToList();`. Et encore, le `ToList()` n'est nécessaire que si vous désirez que votre vue manipule une `List<Article>` au lieu d'un `IEnumerable<Article>`. La différence entre les deux : la liste est totalement chargée en mémoire alors que le `IEnumerable` ne fera en sorte de charger qu'un objet à la fois. 
+Il n'y a pas de code plus simple : `bdd.Articles.ToList();`. Et encore, le `ToList()` n'est nécessaire que si vous désirez que votre vue manipule une `List<Article>` au lieu d'un `IEnumerable<Article>`. La différence entre les deux : la liste est totalement chargée en mémoire alors que le `IEnumerable` ne fera en sorte de charger qu'un objet à la fois.
 
 Certains cas sont plus pratiques avec une liste, donc pour rester le plus simple possible, gardons cette idée là !
 
@@ -71,20 +71,20 @@ Vous n'aurez droit qu'à deux méthodes :
 - `Take` : permet de définir le nombre d'objet à prendre;
 - `Skip` : permet de définir le saut à faire.
 
-Néanmoins, avant toute chose, il faudra que vous indiquiez à EntityFramework comment ordonner les entités. 
+Néanmoins, avant toute chose, il faudra que vous indiquiez à EntityFramework comment ordonner les entités.
 
 Pour s'assurer que notre liste est bien ordonnée par la date de publication (au cas où nous aurions des articles dont la publication ne s'est pas faite juste après l'écriture), il faudra utiliser la méthode `OrderBy`.
 
 Cette dernière attend en argument une fonction qui retourne le paramètre utilisé pour ordonner.
 
-Par exemple, pour nos articles, rangeons-les par ordre alphabétique de titre : 
+Par exemple, pour nos articles, rangeons-les par ordre alphabétique de titre :
 
 ```csharp
 bdd.Articles.OrderBy(a => a.Titre).ToList();
 ```
 Code: La liste est ordonnée
 
-Ainsi, avec la pagination, nous obtiendrons : 
+Ainsi, avec la pagination, nous obtiendrons :
 
 ```csharp
 public ActionResult List(int page = 0)
@@ -141,7 +141,7 @@ N° article | Pris
 
 ## La méthode Where
 
-Avant de filtrer notre liste, nous allons légèrement modifier notre entité `Article` et lui ajouter un paramètre booléen nommé `EstPublie`. 
+Avant de filtrer notre liste, nous allons légèrement modifier notre entité `Article` et lui ajouter un paramètre booléen nommé `EstPublie`.
 ```csharp
      public class Article
     {
@@ -170,7 +170,7 @@ delegate bool Where(TEntity entity)
 ```
 Code: Signature de la méthode Where
 
-Dans le cadre de notre liste, nous pourrions donc utiliser : 
+Dans le cadre de notre liste, nous pourrions donc utiliser :
 
 ```csharp hl_lines="6"
 public ActionResult List(int page = 0)
@@ -192,7 +192,7 @@ public ActionResult List(int page = 0)
 Code: Filtrage de la liste en fonction de l'état de l'article
 
 [[a]]
-|Dans vos filtres, toutes les fonctions ne sont pas utilisables dès qu'on traite les chaînes de caractères, les dates... 
+|Dans vos filtres, toutes les fonctions ne sont pas utilisables dès qu'on traite les chaînes de caractères, les dates...
 
 ## Filtre à plusieurs conditions
 

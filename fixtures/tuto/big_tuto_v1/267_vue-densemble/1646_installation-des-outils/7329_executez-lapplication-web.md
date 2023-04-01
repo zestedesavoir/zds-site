@@ -1,6 +1,6 @@
 Maintenant, il est temps de voir le rendu de l'application Web sur navigateur. Il ne suffit pas de cliquer sur un fichier HTML comme vous avez l'habitude de la faire, mais avant tout de **générer** le projet. Cette phase permet de compiler le code côté serveur, le C#.
 
-Allez dans le menu Déboguer et cliquez sur Démarrer le débogage ou appuyez directement sur la touche ||F5|| de votre clavier. 
+Allez dans le menu Déboguer et cliquez sur Démarrer le débogage ou appuyez directement sur la touche ||F5|| de votre clavier.
 
 ->![Fenêtre de sortie](/media/galleries/304/091618ff-0bc3-4696-ae24-1d42e0bfb1f5.png.960x960_q85.jpg)<-
 
@@ -18,5 +18,5 @@ Nous pouvons ensuite nous balader sur les différents liens qu'offre l'applicati
 
 ->![rendu sur navigateur petit format](/media/galleries/304/af632495-7ea2-4722-b8ed-ceb82c341743.png.960x960_q85.png)<-
 
-Ainsi le menu se retrouve soit directement sur la page de l'application, soit dans un menu déroulant. 
+Ainsi le menu se retrouve soit directement sur la page de l'application, soit dans un menu déroulant.
 L'application propose aussi un support de connexion et d'enregistrement implémenté. Lorsque nous créerons notre application, nous partirons de zéro. Ce projet tout fait vous permet d'avoir un avant-gout de ce que nous pouvons faire avec ASP.NET.

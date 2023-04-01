@@ -2,7 +2,7 @@
 |Les explications qui vont suivre s'adressent surtout aux personnes qui ont une bonne connaissance des bases de données.
 |Nous l'avons mis dans ce tutoriel car vous trouverez rapidement des cas où il faut en passer par là, mais ils ne seront pas votre quotidien, rassurez-vous.
 
-Si vous vous souvenez de l'introduction à l'approche *Code First*, je vous avais parlé de trois outils dont un qui s'appelle la *Fluent API*. 
+Si vous vous souvenez de l'introduction à l'approche *Code First*, je vous avais parlé de trois outils dont un qui s'appelle la *Fluent API*.
 
 Cette API est très complète et permet en fait de personnaliser d'une manière encore plus complète vos entités quand bien même aucune Annotation n'existe.
 
@@ -24,7 +24,7 @@ Le premier cas, on peut le représenter très simplement sous la forme d'un sch�
 
 Nous avons donc à un moment dans notre modèle, une entité C qui est liée fortement à une instance d'une entité B qui est liée à une instance d'une entité A qui est liée à une instance d'une entité C.
 
-Sauf qu'il est tout à fait possible que l'instance C de départ et celle d'arrivée soient... une seule et unique instance. Si vous pensez que ça n'arrive pas dans votre cas précis, souvenez vous de la loi de Murphy "S'il existe une manière pour que l'action en cours se terminent par une catastrophe, alors, ça finira par arriver". 
+Sauf qu'il est tout à fait possible que l'instance C de départ et celle d'arrivée soient... une seule et unique instance. Si vous pensez que ça n'arrive pas dans votre cas précis, souvenez vous de la loi de Murphy "S'il existe une manière pour que l'action en cours se terminent par une catastrophe, alors, ça finira par arriver".
 
 Maintenant, imaginez vous, que vous avez besoin de supprimer l'entité A.
 
@@ -36,7 +36,7 @@ Plus globalement, cette situation peut arriver selon deux schéma : le cycle (ce
 
 La solution la plus simple est de décider une entité dont la suppression n'engendrera pas de suppression en cascade. Le problème c'est que cela génèrera la possibilité que l'entité liée ne soit liée à rien. Il faudra donc dire que la relation est "optionnelle".
 
-Pour cela, il faudra aller dans le fichier qui contient notre contexte de données. Nous allons y surcharger la méthode `OnModelCreating`, comme ceci : 
+Pour cela, il faudra aller dans le fichier qui contient notre contexte de données. Nous allons y surcharger la méthode `OnModelCreating`, comme ceci :
 
 ```csharp
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

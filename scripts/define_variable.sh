@@ -27,4 +27,3 @@ fi
 if [[ $ZMD_URL == "" ]]; then
     ZMD_URL="http://localhost:27272"
 fi
-

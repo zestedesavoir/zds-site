@@ -13,7 +13,7 @@ En effet, si on simplifie beaucoup les choses, quand vous développez un site we
 
 ![Méthode de développement d'un projet](/media/galleries/304/0ff84a4e-cfb6-4d34-8987-e554e75ea885.png.960x960_q85.jpg)
 
-Premièrement, nous essayons de comprendre de quoi on a besoin. Jusqu'à maintenant, nous avons fait le travail pour vous. Par exemple, comme nous voulons créer un blog, nous vous avons dit "il faudra ajouter, modifier, supprimer  des articles". 
+Premièrement, nous essayons de comprendre de quoi on a besoin. Jusqu'à maintenant, nous avons fait le travail pour vous. Par exemple, comme nous voulons créer un blog, nous vous avons dit "il faudra ajouter, modifier, supprimer  des articles".
 
 Le besoin est là, maintenant on va "concevoir". Là encore, nous vous avons bien dirigé jusqu'à présent. Par exemple, nous avons dit "un article est composé d'un texte, un titre, un auteur et éventuellement une icône".
 

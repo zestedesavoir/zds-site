@@ -61,7 +61,7 @@ Code: Web.config, ConnectionString
 
 Pour persister une entité, il n'y a qu'une seule ligne à ajouter à notre DbContext : `public DbSet<TEntity> Nom { get; set; }`.
 
-Ce qui donne, dans le cas des articles : 
+Ce qui donne, dans le cas des articles :
 
 ```csharp hlines="7"
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>

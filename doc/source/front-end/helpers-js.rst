@@ -50,7 +50,7 @@ et en cas d'erreur.
 
 La première méthode prend en argument un objet issu de la désérialisation du JSON.
 
-Exemple: 
+Exemple:
 
 .. sourcecode:: javascript
 

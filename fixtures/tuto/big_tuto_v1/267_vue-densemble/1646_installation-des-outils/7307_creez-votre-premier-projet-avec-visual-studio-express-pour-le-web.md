@@ -2,7 +2,7 @@
 
 Nous allons vérifier que l'installation de Visual Studio Express pour le Web a bien fonctionné. Et pour ce faire, nous allons le démarrer et commencer à prendre en main ce formidable outil de développement.
 
-Il y a une multitudes d'options mais c'est un outil très simple d'utilisation, si vous suivez ce tutoriel pas à pas, vous allez apprendre les fonctionnalités indispensables. Vous avez utilisé Visual C# pour faire vos applications en C# et maintenant vous utilisez Visual Studio Express pour le Web pour faire vos applications Web. 
+Il y a une multitudes d'options mais c'est un outil très simple d'utilisation, si vous suivez ce tutoriel pas à pas, vous allez apprendre les fonctionnalités indispensables. Vous avez utilisé Visual C# pour faire vos applications en C# et maintenant vous utilisez Visual Studio Express pour le Web pour faire vos applications Web.
 
 Visual C# et Visual Studio Express pour le Web possède des fonctionnalités communes. Commencez par démarrer l'IDE. Le logiciel s’ouvre sur la page de démarrage de Studio Express pour le Web :
 

@@ -45,8 +45,8 @@ namespace Blog.Models
 ```
 
 Pour aller plus vite, je vous propose un exemple de liste d'article au format JSON. Ce fichier permet de stocker ses articles, nous utiliserons la base de données dans le prochain chapitre.
- 
-Téléchargez le [fichier](https://onedrive.live.com/redir?resid=598BC65CD25E0735!2581&authkey=!AC5VhEAGFqfDjIk&ithint=file%2cjson), placez-le dans le dossier App_Data.  
+
+Téléchargez le [fichier](https://onedrive.live.com/redir?resid=598BC65CD25E0735!2581&authkey=!AC5VhEAGFqfDjIk&ithint=file%2cjson), placez-le dans le dossier App_Data.
 Puis, pour qu'il apparaisse dans visual studio, cliquez-droit sur le dossier App_Data, et "Ajouter un élément existant". Sélectionnez le fichier.
 
 Il est extrêmement facile de lire un fichier de ce type contrairement à un fichier texte. JSON est un format de données textuelles, tout comme le XML. Il est très répandu dans le monde du développement web.

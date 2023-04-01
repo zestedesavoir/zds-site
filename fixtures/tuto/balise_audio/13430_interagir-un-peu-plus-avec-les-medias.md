@@ -17,7 +17,7 @@ Voici la structure de base que nous allons respecter :
     <source src="http://clips.vorwaerts-gmbh.de/VfE_html5.mp4" type="video/mp4">
     <source src="http://clips.vorwaerts-gmbh.de/VfE.webm" type="video/webm">
     <source src="http://clips.vorwaerts-gmbh.de/VfE.ogv" type="video/ogg">
-    
+
     <p class="alert">
         Votre navigateur ne supporte pas la balise vidéo ! Mettez-vous à jour !
     </p>
@@ -74,31 +74,31 @@ function creerBoutons() {
     var btnStop = document.createElement("button");
     var btnReculer = document.createElement("button");
     var btnAvancer = document.createElement("button");
-    
+
     var controlesBox = document.getElementById("controles");
     lecteur = document.getElementById("mavideo");
-    
+
     // Ajoute un peu de texte
     btnLecture.textContent = "Lecture";
     btnPause.textContent = "Pause";
     btnStop.textContent = "Stop";
     btnReculer.textContent = "-10s";
     btnAvancer.textContent = "+10s";
-    
+
     // Ajoute les boutons à l'interface
     controlesBox.appendChild(btnLecture);
     controlesBox.appendChild(btnPause);
     controlesBox.appendChild(btnStop);
     controlesBox.appendChild(btnReculer);
     controlesBox.appendChild(btnAvancer);
-    
+
     // Lie les fonctions aux boutons
     btnLecture.addEventListener("click", lecture, false);
     btnPause.addEventListener("click", pause, false);
     btnStop.addEventListener("click", stop, false);
     btnReculer.addEventListener("click", function(){reculer(10)}, false);
     btnAvancer.addEventListener("click", function(){avancer(10)}, false);
-    
+
     // Affiche les nouveaux boutons et supprime l'interface originale
     controlesBox.removeAttribute("hidden");
     lecteur.removeAttribute("controls");
