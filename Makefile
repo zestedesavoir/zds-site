@@ -146,9 +146,6 @@ generate-doc: ## Generate the project's documentation
 	@echo ""
 	@echo "Open 'doc/build/html/index.html' to read the documentation'"
 
-generate-release-summary: ## Generate a release summary from Github's issues and PRs
-	@python scripts/generate_release_summary.py
-
 start-publication-watchdog: ## Start the publication watchdog
 	@if curl -s $(ZMD_URL) > /dev/null; then \
 		python manage.py publication_watchdog; \
