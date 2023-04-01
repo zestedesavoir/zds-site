@@ -45,7 +45,7 @@ version = zds_version
 # The full version, including alpha/beta/rc tags
 release = zds_version
 
-rst_epilog = ".. |django_version| replace:: {}.{}".format(django.VERSION[0], django.VERSION[1])
+rst_epilog = f".. |django_version| replace:: {django.VERSION[0]}.{django.VERSION[1]}"
 
 
 # -- General configuration ---------------------------------------------------
