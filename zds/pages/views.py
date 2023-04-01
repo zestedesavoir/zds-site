@@ -60,7 +60,10 @@ def index(request):
 
 
 def about(request):
-    """Display many informations about the website."""
+    """
+    Display information about the website, the French non-profit behind it, other projects, partnerships, tech,
+    and some legal stuff.
+    """
     return render(
         request,
         "pages/technologies.html",
@@ -70,6 +73,7 @@ def about(request):
             ),
             "django_major_version": django.VERSION[0],
             "python_major_version": sys.version_info.major,
+            "contents_count": PublishedContent.objects.get_contents_count(),
         },
     )
 

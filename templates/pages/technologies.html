@@ -1,5 +1,7 @@
 {% extends "pages/base.html" %}
+
 {% load i18n %}
+{% load pluralize_fr %}
 {% load static %}
 {% load set %}
 
@@ -24,7 +26,7 @@
             <h1>
                 {% blocktrans %}
                     {{ site_name }} est un média d’auto-formation, de vulgarisation, et d’information scientifique et
-                    culturelle, depuis 2014.
+                    culturelle, en activité depuis 2014.
                 {% endblocktrans %}
             </h1>
         </header>
@@ -34,9 +36,19 @@
                 {% blocktrans %}
                     Nous publions — et permettons à des tiers de publier — des articles et actualités culturelles et
                     scientifiques, ainsi que des cours. Nos contenus sont relus par une équipe éditoriale qualifiée
-                    avant
-                    publication, à l'exception des billets, publiés sous la seule responsabilité de leurs auteurs ou
-                    autrices.
+                    avant publication — à l'exception des billets, publiés sous la seule responsabilité de leurs auteurs
+                    ou autrices.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans with plural=contents_count|pluralize_fr %}
+                    Nous vous proposons actuellement {{ contents_count }} publication{{ plural }} dans de nombreux
+                    domaines, allant de l’informatique aux sciences sociales, en passant par les sciences naturelles…
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Nous participons également à des événements de médiation et culture scientifique.
                 {% endblocktrans %}
             </p>
             <p>
