@@ -11,7 +11,6 @@ env:
   PYTHON_VERSION: "3.7"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
-  BLACK_VERSION: "23.3.0" # needs to be also updated in requirements-dev.txt and .pre-commit-config.yaml
   GECKODRIVER_VERSION: "0.33.0"
 
   # As GitHub Action does not allow environment variables
@@ -23,9 +22,9 @@ env:
   MEMCACHED_VERSION: "1.6"
 
 jobs:
-  # Lint the Python back-end with flake8.
-  lint-back:
-    name: Lint back-end
+  # Lint all source files by executing pre-commit hooks.
+  lint:
+    name: Lint
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
@@ -40,11 +39,8 @@ jobs:
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - name: Install python dependencies
-        run: pip install black==${{ env.BLACK_VERSION }}
-
-      - name: Lint back-end
-        run: make lint-back
+      - name: Execute pre-commit
+        uses: pre-commit/action@v3.0.0
 
   # Build the documentation and upload it as an artifact.
   build-doc:
