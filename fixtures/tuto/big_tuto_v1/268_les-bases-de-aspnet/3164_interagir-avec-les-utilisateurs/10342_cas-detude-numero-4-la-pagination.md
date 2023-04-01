@@ -1,6 +1,6 @@
 # Ce qu'est la pagination
 
-La pagination, c'est une technique très utile quand vous devez afficher des listes très longues de contenu.  
+La pagination, c'est une technique très utile quand vous devez afficher des listes très longues de contenu.
 Sur un blog, vous aurez - à partir d'un moment - une liste assez importante d'articles. Disons pour faire simple que vous en avez 42.
 
 Pensez-vous qu'afficher les 42 articles sur la page d'accueil soit une bonne chose?
@@ -9,9 +9,9 @@ Pensez-vous qu'afficher les 42 articles sur la page d'accueil soit une bonne cho
 
 De ce fait, vous allez décider de n'afficher que 5 articles et de mettre les 5 suivants dans une autre page et ainsi de suite.
 
-Votre but sera donc d'afficher la liste des articles puis de mettre à disposition de vos utilisateurs un bouton "page précédente", un autre "page suivante", et un formulaire permettant de se rendre à une page quelconque. 
+Votre but sera donc d'afficher la liste des articles puis de mettre à disposition de vos utilisateurs un bouton "page précédente", un autre "page suivante", et un formulaire permettant de se rendre à une page quelconque.
 
-Voici un petit aperçu du contrôle proposé : 
+Voici un petit aperçu du contrôle proposé :
 
 -> ![Aperçu formulaire pagination](/media/galleries/304/5f1b9af0-3999-4039-9a9b-b8a61210c4db.png.960x960_q85.png) <-
 
@@ -25,10 +25,10 @@ Comme c'est notre dernier cas d'étude pour ce chapitre, vous allez utiliser tou
 4. Déterminez si vous devez utiliser un formulaire GET ou POST et créez-le. (url de type url/Article/List?page=0)
 
 [[secret]]
-| 
+|
 | ```csharp
 |         public readonly static int ARTICLEPERPAGE = 5;
-| 
+|
 |         // GET: List
 |         public ActionResult List(int page = 0)
 |         {
@@ -45,14 +45,14 @@ Comme c'est notre dernier cas d'étude pour ce chapitre, vous allez utiliser tou
 |         }
 | ```
 | Code : le contrôleur
-| 
+|
 | ```csharp
 | @model IEnumerable<Blog.Models.Article>
-| 
+|
 | @{
 |     ViewBag.Title = "Blog";
 | }
-| 
+|
 | <section>
 |     <p>
 |         @Html.ActionLink("Create New", "Create")
@@ -70,7 +70,7 @@ Comme c'est notre dernier cas d'étude pour ce chapitre, vous allez utiliser tou
 |             </th>
 |             <th></th>
 |         </tr>
-| 
+|
 |         @foreach (var item in Model)
 |         {
 |             <tr>
@@ -99,7 +99,7 @@ Comme c'est notre dernier cas d'étude pour ce chapitre, vous allez utiliser tou
 |             </tr>
 |         }
 |     </table>
-| 
+|
 |     <footer class="pagination-nav">
 |         <ul>
 |             <li>

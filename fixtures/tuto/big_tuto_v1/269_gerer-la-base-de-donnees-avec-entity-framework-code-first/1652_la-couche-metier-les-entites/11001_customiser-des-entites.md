@@ -21,7 +21,7 @@ Table: La table SQL générée à partir de notre entité
 
 # Changer le nom des tables et colonnes
 
-Dans certaines applications, les gens aiment bien faire en sorte que les tables aient un préfixe qui symbolisent leur application. Cela permet, par exemple, de mettre plusieurs applications dans une seule même base de données mais sans changer l'annuaire des membres. 
+Dans certaines applications, les gens aiment bien faire en sorte que les tables aient un préfixe qui symbolisent leur application. Cela permet, par exemple, de mettre plusieurs applications dans une seule même base de données mais sans changer l'annuaire des membres.
 
 Pour cela, il faudra expliquer à EntityFramework que vous désirez changer le nom de la table voire des colonnes grâce aux **[attributs](http://msdn.microsoft.com/fr-fr/data/jj193542.aspx)** `[Table("nom de la table")]` et `[Column("Nom de la colonne")]`.
 
@@ -51,7 +51,7 @@ Cet attribut, par défaut est compris par le programme comme possédant les part
 - entiers positifs
 - valeurs générées par la base de données : de manière séquentielle et unique à chaque instance
 
-Si nous devions coder cela nous mettrions : 
+Si nous devions coder cela nous mettrions :
 
 ```csharp
 public class Article{

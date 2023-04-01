@@ -4,13 +4,13 @@ Un framework est très utilisé dans le domaine de la programmation et nous allo
 [[question]]
 | Qu’est-ce que ça va m’apporter d’utiliser un framework ?
 
-Tout d’abord, décortiquons le mot : framework vient de l'anglais et se traduit littéralement par « **cadre de travail** ». Pour simplifier la chose, nous pouvons dire qu’un framework est une grosse boîte à fonctionnalités et de règles de codage qui va nous permettre de réaliser nos applications informatiques.  
+Tout d’abord, décortiquons le mot : framework vient de l'anglais et se traduit littéralement par « **cadre de travail** ». Pour simplifier la chose, nous pouvons dire qu’un framework est une grosse boîte à fonctionnalités et de règles de codage qui va nous permettre de réaliser nos applications informatiques.
 Il est entre autres destiné au développement d’une application Web, ce qui nous intéresse.
 
 Lors du développement d’une application (Web ou autre) le développeur utilise un langage de programmation, prenons le **C#**.
 Afin d’être efficace et éviter de se casser la tête à sans cesse repartir de zéro, le langage de programmation est accompagné d'un framework :
 
-Celui-ci contient des espaces de noms, des classes, des méthodes, des structures et d’autres outils que le développeur peut utiliser en relation ici avec le C#.  
+Celui-ci contient des espaces de noms, des classes, des méthodes, des structures et d’autres outils que le développeur peut utiliser en relation ici avec le C#.
 Il s'occupe de la forme et permet au développeur de se concentrer sur le fond.
 
 La taille d’un Framework comme ASP.NET est telle qu’il est impossible pour nous de tout connaître, c’est pour cette raison qu’il existe une documentation associée afin de s’y retrouver.
@@ -27,7 +27,7 @@ Après avoir introduit la notion de framework, nous allons exposer les avantages
 
 Nous pouvons commencer par énumérer la **rapidité** : le Framework est un ensemble de briques qui nous évite à réinventer la roue.
 En effet, ces briques sont développées par des équipes de développeurs à plein temps, elles sont donc très flexibles et très robustes.
-Vous économisez ainsi des heures de développement ! 
+Vous économisez ainsi des heures de développement !
 Par exemple, un Framework peut proposer des composants graphiques avec des propriétés toutes prêtes sans que vous ayez à tout refaire vous même.
 
 L'**organisation** du développement de l'application : utiliser un Framework demande de respecter l'architecture de celui-ci.
@@ -43,7 +43,7 @@ Un Framework se base sur une grosse communauté de développeurs.
 Elle fournit toutes les ressources nécessaires afin d'éviter de se perdre lors du développement d'une application.
 Citons comme exemple la documentation (MSDN) ou encore ce tutoriel sur l'ASP.NET.
 De plus, nous n'avons pas à nous soucier des bugs internes au Framework, nous ne sommes qu'*utilisateurs* de celui-ci.
-Les développeurs travaillant sur le Framework sont suffisamment chevronnées pour régler les problèmes rapidement, donc il y a une **sécurité** supplémentaire.  
+Les développeurs travaillant sur le Framework sont suffisamment chevronnées pour régler les problèmes rapidement, donc il y a une **sécurité** supplémentaire.
 Et pour renforcer l'esprit communautaire, toute la pile technologique autour de ASP.NET MVC est [open source](http://aspnetwebstack.codeplex.com/)!
 
 
@@ -93,7 +93,7 @@ Public Module Coucou
 End Module
 ```
 
-Le deux codes font la même action: afficher un message à l'écran. Malgré la différence entre les deux langages, nous retrouvons des éléments en commun : 
+Le deux codes font la même action: afficher un message à l'écran. Malgré la différence entre les deux langages, nous retrouvons des éléments en commun :
 
 - utilisation de la même bibliothèque `System` ;
 - la classe `Console` ;

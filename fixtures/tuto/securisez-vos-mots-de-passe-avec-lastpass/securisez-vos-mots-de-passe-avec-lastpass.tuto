@@ -29,7 +29,7 @@ Heureusement, il existe des solutions ! J'en utilise moi-même une qui s'appelle
 
 ]]></introduction>
   <sousparties>
-    
+
       <souspartie id="766156">
 	<titre>
 	  <![CDATA[Pourquoi il ne faut pas utiliser le même mot de passe partout]]>
@@ -61,7 +61,7 @@ Inquiétant ? En fait, il n'y a qu'une seule vraie solution : utiliser des mots 
 
 ]]></texte>
       </souspartie>
-    
+
       <souspartie id="766632">
 	<titre>
 	  <![CDATA[Installer Lastpass]]>
@@ -197,7 +197,7 @@ A vous de décider si vous voulez que Lastpass se déconnecte à chaque fois que
 
 ]]></texte>
       </souspartie>
-    
+
       <souspartie id="766701">
 	<titre>
 	  <![CDATA[Utiliser Lastpass pour gérer ses mots de passe]]>
@@ -335,7 +335,7 @@ Les petites icônes à droite vous permettent respectivement de :
 
 ]]></texte>
       </souspartie>
-    
+
       <souspartie id="766726">
 	<titre>
 	  <![CDATA[Améliorer la sécurité avec la double authentification]]>
@@ -399,9 +399,9 @@ Avec ça vous êtes parés ! Pour que quelqu'un vole vos mots de passe, il doit 
 
 ]]></texte>
       </souspartie>
-    
+
   </sousparties>
-  
+
   <conclusion><![CDATA[
 
 ]]></conclusion>

@@ -23,4 +23,3 @@ En espérant que tu te plairas ici, je te laisse maintenant faire un petit tour.
 Clem'
 
 {% endblocktrans %}
-

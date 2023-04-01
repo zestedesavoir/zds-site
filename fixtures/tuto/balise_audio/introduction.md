@@ -15,9 +15,9 @@ A la fin de ce tutoriel, vous serez en mesure de réaliser votre propre lecteur 
 
 [[secret]]
 | ![Daily Motion](http://zestedesavoir.com/media/galleries/1599/8fccef77-3ed3-4e92-864a-ac467acbe2d6.png.960x960_q85.jpg)
-| 
+|
 | ![YouTube](http://zestedesavoir.com/media/galleries/1599/9b8538b1-1c69-4147-ac09-7fed90355a7e.png.960x960_q85.jpg)
-| 
+|
 | ![Projekktor](http://zestedesavoir.com/media/galleries/1599/8af34001-12fd-4258-aaa2-32df3845c3fa.png.960x960_q85.jpg)
-| 
+|
 | ![Interface native](http://zestedesavoir.com/media/galleries/1599/47bdc80f-a062-438c-bd55-e7412dca5550.png.960x960_q85.jpg)

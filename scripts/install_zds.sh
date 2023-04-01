@@ -242,7 +242,7 @@ fi
 export ZDS_ENV=$(realpath $ZDS_VENV)
 
 
-# local jdk 
+# local jdk
 if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) ); then
     print_info "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)" --bold
 
@@ -303,7 +303,7 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
 
     wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip -q --show-progress
     if [[ $? == 0 ]]; then
-        unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip 
+        unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip
         rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
         mv elasticsearch-${ZDS_ELASTIC_VERSION} elasticsearch
 

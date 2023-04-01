@@ -32,7 +32,7 @@ _Quelques screenshots d'applications réalisées avec Irrlicht._
 
 ]]></introduction>
   <parties>
-    
+
       <partie id="5550">
 	<titre>
 	  <![CDATA[Chapitres de base]]>
@@ -47,7 +47,7 @@ _Quelques screenshots d'applications réalisées avec Irrlicht._
 
 ]]></introduction>
 	<chapitres>
-	  
+
 	    <chapitre id="5551">
 	      <titre>
 		    <![CDATA[Introduction]]>
@@ -67,7 +67,7 @@ Si vous savez déjà de quoi il s'agit ou que vous n'avez pas besoin de le savoi
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5552">
 		    <titre>
 		      <![CDATA[Ce qu'est un moteur 3D]]>
@@ -125,7 +125,7 @@ Voici un petit graphique récapitulatif de tout ce que nous venons de voir par n
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5554">
 		    <titre>
 		      <![CDATA[Irrlicht]]>
@@ -173,14 +173,14 @@ Si vous avez un doute sur le moteur que vous voulez utiliser ou que vous êtes j
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5559">
 	      <titre>
 		    <![CDATA[Mise en place]]>
@@ -202,7 +202,7 @@ Si vous avez un doute sur le moteur que vous voulez utiliser ou que vous êtes j
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5560">
 		    <titre>
 		      <![CDATA[Installation]]>
@@ -277,7 +277,7 @@ Une fois que vous avez votre fichier (qui devrait s'appeler **libIrrlicht.a**), 
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5561">
 		    <titre>
 		      <![CDATA[Configurer un projet]]>
@@ -290,7 +290,7 @@ Commencez donc par ouvrir votre IDE favori et créez-y un nouveau projet. Même 
 
 ```cpp
 #include <iostream>
- 
+
 int main(void) {
   std::cout << "Hello world!" << std::endl;
   return 0;
@@ -327,7 +327,7 @@ Où **source.cpp** est bien sûr le nom du fichier source et **executable** le n
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5562">
 		    <titre>
 		      <![CDATA[Premier projet]]>
@@ -489,19 +489,19 @@ Voici un récapitulatif du code que vous devriez avoir:
 
 ```cpp
 #include <irr rrlicht.h="">
- 
+
 int main(void) {
 
     irr::IrrlichtDevice *device = irr::createDevice( // creation device
         irr::video::EDT_OPENGL,                      // l'API est OpenGL
         irr::core::dimension2d<irr::u32>(800,600),   // taille de la fenetre 800x600
         32, false, true, false, 0);
- 
+
     irr::video::IVideoDriver* driver =
         device->getVideoDriver();                    // creation driver
     irr::scene::ISceneManager *sceneManager =
         device->getSceneManager ();                  // creation scene manager
- 
+
     sceneManager->addCameraSceneNode (0,             // ajout camera fixe
         irr::core::vector3df (0,0,0),
         irr::core::vector3df (5,0,0));
@@ -529,14 +529,14 @@ Dans le chapitre suivant le prochain nous ajouterons quelques lignes pour ajoute
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5567">
 	      <titre>
 		    <![CDATA[Structures de données]]>
@@ -554,7 +554,7 @@ Dans le chapitre suivant le prochain nous ajouterons quelques lignes pour ajoute
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5568">
 		    <titre>
 		      <![CDATA[Arbre binaire]]>
@@ -583,7 +583,7 @@ Voilà vous connaissez maintenant l'essentiel sur les arbres binaires. Il existe
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5569">
 		    <titre>
 		      <![CDATA[Octree]]>
@@ -616,7 +616,7 @@ Quoi qu'il en soit tout cela ne nous concerne pas vraiment pour l'instant puisqu
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5570">
 		    <titre>
 		      <![CDATA[Graphe de scène]]>
@@ -633,14 +633,14 @@ Ce qui signifie que si on effectue une rotation de 90° sur le nœud "salle", le
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="405691">
 	      <titre>
 		    <![CDATA[Scene nodes et caméras]]>
@@ -654,13 +654,13 @@ Ce qui signifie que si on effectue une rotation de 90° sur le nœud "salle", le
           <temps>
             <![CDATA[0]]>
           </temps>
-	      <introduction><![CDATA[Dans ce chapitre nous allons voir les derniers éléments manquant avant de pouvoir réaliser notre première véritable scène 3D. Humble certes, mais véritable quand même.  :D 
+	      <introduction><![CDATA[Dans ce chapitre nous allons voir les derniers éléments manquant avant de pouvoir réaliser notre première véritable scène 3D. Humble certes, mais véritable quand même.  :D
 
 Lisez le attentivement dans la mesure où la plupart de ce qui s'y trouve est fondamental et nous servira pour toute la suite du tutoriel dans la compréhension de ce qui se passe.
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="405692">
 		    <titre>
 		      <![CDATA[Ce qu'est un scene node]]>
@@ -718,7 +718,7 @@ Il existe bien d'autres méthodes pour récupérer un accès à un ou plusieurs 
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="405698">
 		    <titre>
 		      <![CDATA[Types de données propres à Irrlicht]]>
@@ -825,7 +825,7 @@ irr::core::vector3df vec(1.0f, 1.0f, 1.0f);
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="405694">
 		    <titre>
 		      <![CDATA[Les caméras]]>
@@ -838,7 +838,7 @@ irr::core::vector3df vec(1.0f, 1.0f, 1.0f);
 ## La caméra statique
 
 
-C'est la caméra de base et comme son nom l'indique, il n'y a rien de prévu pour qu'elle bouge. Nous verrons plus tard lors du [chapitre dédié aux caméras et leurs animators](http://www.siteduzero.com/tutoriel-3-186777-des-cameras-et-des-animators.html) que tout est possible et que par un miracle de la technologie moderne une caméra statique peut devenir mobile. Mais d'ici là on va considérer qu'elle ne peut pas bouger.  ;) 
+C'est la caméra de base et comme son nom l'indique, il n'y a rien de prévu pour qu'elle bouge. Nous verrons plus tard lors du [chapitre dédié aux caméras et leurs animators](http://www.siteduzero.com/tutoriel-3-186777-des-cameras-et-des-animators.html) que tout est possible et que par un miracle de la technologie moderne une caméra statique peut devenir mobile. Mais d'ici là on va considérer qu'elle ne peut pas bouger.  ;)
 
 
 
@@ -935,7 +935,7 @@ Il est important de préciser la taille exacte de la keymap, autrement il y a de
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="405696">
 		    <titre>
 		      <![CDATA[Création d'une scène]]>
@@ -947,7 +947,7 @@ Il est important de préciser la taille exacte de la keymap, autrement il y a de
 IMeshSceneNode* ISceneManager::addCubeSceneNode (
     f32 size,                  // longueur d'une arrete
     ISceneNode* parent,        //
-    s32 id,                    // 
+    s32 id,                    //
     core::vector3df& position, // position du cube
     core::vector3df& rotation, // orientation du cube
     core::vector3df& scale))   // echelle du cube
@@ -971,7 +971,7 @@ Le code complet final donne donc :
 
 
 int main(void) {
- 
+
     irr::IrrlichtDevice* device = irr::createDevice(  // creation du device
         irr::video::EDT_OPENGL,                       // API = OpenGL
         irr::core::dimension2d<irr::u32>(200,200),    // taille fenetre 640x480p
@@ -981,10 +981,10 @@ int main(void) {
         device->getVideoDriver ();
     irr::scene::ISceneManager* sceneManager =         // scene manager
         device->getSceneManager ();
- 
+
     device->getCursorControl ()-> setVisible (false); // curseur invisible
- 
-    
+
+
     /* CUBE */
 
     irr::scene::IMeshSceneNode* cube =         // pointeur vers le node
@@ -996,12 +996,12 @@ int main(void) {
                 0.0f,                          // origine en X
                 0.0f,                          // origine en Y
                 20.0f));                       // +20 unites en Z
-    
+
     cube->setMaterialFlag(irr::video::EMF_WIREFRAME, true);
-    
+
 
     /* CAMERA */
-    
+
     irr::SKeyMap keyMap[5];                    // re-assigne les commandes
     keyMap[0].Action = irr::EKA_MOVE_FORWARD;  // avancer
     keyMap[0].KeyCode = irr::KEY_KEY_W;        // w
@@ -1021,22 +1021,22 @@ int main(void) {
         -1,                                    // pas de numero d'ID
         keyMap,                                // on change la keymap
         5);                                    // avec une taille de 5
-    
-    
+
+
     /* RENDU */
-    
+
     irr::video::SColor color(                  // contient la couleur blanc
         255,                                   // composante A alpha (transparence)
         255,                                   // composante R rouge
         255,                                   // composante G verte
         255);                                  // composante B bleue
-    
+
     while (device->run()) {                    // la boucle de rendu
         driver->beginScene(true, true, color); // demarre le rendu
         sceneManager->drawAll ();              // calcule le rendu
         driver->endScene ();                   // affiche le rendu
     }
- 
+
     device->drop ();                           // libere la memoire
     return 0;
 }
@@ -1049,14 +1049,14 @@ Pour ceux qui n'admirent pas le résultat directement sur leur écran, voici un 
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5575">
 	      <titre>
 		    <![CDATA[Modèles 3D]]>
@@ -1076,12 +1076,12 @@ Ce chapitre comporte une grosse partie théorique dans la mesure où Irrlicht g�
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5576">
 		    <titre>
 		      <![CDATA[Ce qu'est un modèle 3D]]>
 		    </titre>
-		    <texte><![CDATA[Comment représenter un objet dans un espace en 3 dimensions quand on part de rien ? La réponse courte est : en le numérisant. Puisqu'il est bien sûr impossible de reproduire la structure physique réelle de l'objet, c'est à dire tous les atomes qui le composent, on se contente de reproduire sa **surface** avec plus ou moins de détails. 
+		    <texte><![CDATA[Comment représenter un objet dans un espace en 3 dimensions quand on part de rien ? La réponse courte est : en le numérisant. Puisqu'il est bien sûr impossible de reproduire la structure physique réelle de l'objet, c'est à dire tous les atomes qui le composent, on se contente de reproduire sa **surface** avec plus ou moins de détails.
 
 Pour ce faire on crée pleins de petites surfaces plates qui seront stockées dans un fichier, puis exploité par le moteur pour être rendues à l'écran. Une fois assemblées comme il faut, ces petites surfaces (qu'on appelle **polygones**) auront la même apparence que l'objet reproduit. Enfin plus ou moins... Et bien entendu, plus le nombre de polygones est élevé et plus le modèle 3D est fin, donc ressemblant à l'objet réel.
 
@@ -1107,7 +1107,7 @@ Notez que le nombre de sommets n'a pas changé, on les a juste relié de façon 
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="405891">
 		    <titre>
 		      <![CDATA[Fichiers et format 3D]]>
@@ -1158,7 +1158,7 @@ f 3 4 1
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="405893">
 		    <titre>
 		      <![CDATA[Animation d'un modèle]]>
@@ -1198,7 +1198,7 @@ http://www.youtube.com/watch?v=87qdmuOesRs
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5577">
 		    <titre>
 		      <![CDATA[Chargement et utilisation]]>
@@ -1270,7 +1270,7 @@ sydney->setMaterialTexture( 0, driver->getTexture("sydney.bmp") );
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5579">
 		    <titre>
 		      <![CDATA[Réalisation de la scène]]>
@@ -1283,34 +1283,34 @@ sydney->setMaterialTexture( 0, driver->getTexture("sydney.bmp") );
 
 
 int main(void) {
- 
+
   irr::IrrlichtDevice* device = irr::createDevice(    // creation du device
     irr::video::EDT_OPENGL,                           // API = OpenGL
     irr::core::dimension2d<irr::u32>(640,480),        // taille fenetre 640x480p
     32);                                              // 32 bits par pixel
   irr::video::IVideoDriver* driver =                  // creation du driver video
-    device->getVideoDriver ();    
+    device->getVideoDriver ();
   irr::scene::ISceneManager* sceneManager =           // creation du scene manager
     device->getSceneManager ();
   device->getCursorControl ()-> setVisible (false);   // rend le curseur invisible
- 
-  
+
+
   /* MODELE */
-    
+
   irr::scene::IAnimatedMeshSceneNode *sydney =        // cree un scene node nomme sydney
     sceneManager->addAnimatedMeshSceneNode (          // via le scene manager
       sceneManager->getMesh ("sydney.md2"));          // en chargeant le mesh "sydney.md2"
-      
+
   sydney->setMaterialFlag(
     irr::video::EMF_LIGHTING, false);
   sydney->setMaterialTexture(
     0, driver->getTexture("sydney.bmp"));
- 
+
   sydney->setMD2Animation(irr::scene::EMAT_STAND);    // joue l'animation STAND en boucle
-  
+
 
   /* CAMERA */
-    
+
   irr::SKeyMap keyMap[5];                             // re-assigne les commandes
   keyMap[0].Action = irr::EKA_MOVE_FORWARD;           // avancer
   keyMap[0].KeyCode = irr::KEY_KEY_W;                 // w
@@ -1328,14 +1328,14 @@ int main(void) {
 
 
     /* RENDU */
-    
+
   while (device->run()) {                             // la boucle de rendu
     driver->beginScene(true, true,                    // demarre le rendu
       irr::video::SColor(0,255,255,255));
     sceneManager->drawAll ();                         // calcule le rendu
     driver->endScene ();                              // affiche le rendu
   }
- 
+
   device->drop ();                                    // libere la memoire
   return 0;
 }
@@ -1346,14 +1346,14 @@ Et voilà. Vous remarquerez sans doute en y regardant de près que le modèle "o
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5595">
 	      <titre>
 		    <![CDATA[Materials]]>
@@ -1371,7 +1371,7 @@ Et voilà. Vous remarquerez sans doute en y regardant de près que le modèle "o
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5596">
 		    <titre>
 		      <![CDATA[Ce qu'est un material]]>
@@ -1401,7 +1401,7 @@ De gauche à droite, le mesh est affiché avec les méthodes suivantes :
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5597">
 		    <titre>
 		      <![CDATA[Utilisation]]>
@@ -1429,36 +1429,36 @@ Voici le code minimal de l'application. On y voit la sphere en mode **solid** (q
 
 
 int main(void) {
- 
+
   irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_OPENGL,
     irr::core::dimension2d<irr::u32>(640,480), 32);
   irr::video::IVideoDriver* driver = device->getVideoDriver();
   irr::scene::ISceneManager* sceneManager = device->getSceneManager();
- 
-  
+
+
   /* MODELE */
-    
+
   irr::scene::IAnimatedMeshSceneNode *sphere =   // cree un scene node nomme sphere
     sceneManager->addAnimatedMeshSceneNode (     // via le scene manager
-      sceneManager->getMesh ("earth.x"));        // en chargeant le mesh "earth.x" 
-  
+      sceneManager->getMesh ("earth.x"));        // en chargeant le mesh "earth.x"
+
 
   /* CAMERA */
-    
+
   sceneManager->addCameraSceneNode(0,            // cree une camera fixe
     irr::core::vector3df(0.0f, 0.0f, -2.0f),     // position de la cam
     irr::core::vector3df(0.0f, 0.0f, 0.0f));     // cible de la cam
 
 
     /* RENDU */
-    
+
   while (device->run()) {                        // la boucle de rendu
     driver->beginScene(true, true,               // demarre le rendu
       irr::video::SColor(0,255,255,255));        // couleur blanche
     sceneManager->drawAll ();                    // calcule le rendu
     driver->endScene ();                         // affiche le rendu
   }
- 
+
   device->drop ();                               // libere la memoire
   return 0;
 }
@@ -1508,7 +1508,7 @@ La seule chose dont il faut se méfier est de ne pas activer les deux en même t
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5598">
 		    <titre>
 		      <![CDATA[Brouillard]]>
@@ -1529,32 +1529,32 @@ Avec une camera mobile, il est possible de voir la sphère disparaître ou appar
 
 
 int main(void) {
- 
+
   irr::IrrlichtDevice* device = irr::createDevice(    // creation du device
     irr::video::EDT_OPENGL,                           // API = OpenGL
     irr::core::dimension2d<irr::u32>(640,480),        // taille fenetre 640x480p
     32);                                              // 32 bits par pixel
   irr::video::IVideoDriver* driver =                  // creation du driver video
-    device->getVideoDriver ();    
+    device->getVideoDriver ();
   irr::scene::ISceneManager* sceneManager =           // creation du scene manager
     device->getSceneManager ();
   device->getCursorControl ()-> setVisible (false);   // rend le curseur invisible
- 
-  
+
+
   /* MODELE */
-    
+
   irr::scene::IAnimatedMeshSceneNode *sydney =        // cree un scene node nomme sydney
     sceneManager->addAnimatedMeshSceneNode (          // via le scene manager
       sceneManager->getMesh ("sydney.md2"));          // en chargeant le mesh "sydney.md2"
- 
+
   sydney->setMD2Animation(irr::scene::EMAT_STAND);    // joue l'animation STAND en boucle
-      
+
   sydney->setMaterialFlag(                            // modifie un material flag
     irr::video::EMF_FOG_ENABLE, true);                // active le brouillard
-  
+
 
   /* CAMERA */
-    
+
   irr::SKeyMap keyMap[5];                             // re-assigne les commandes
   keyMap[0].Action = irr::EKA_MOVE_FORWARD;           // avancer
   keyMap[0].KeyCode = irr::KEY_KEY_W;                 // w
@@ -1572,14 +1572,14 @@ int main(void) {
 
 
     /* RENDU */
-    
+
   while (device->run()) {                             // la boucle de rendu
     driver->beginScene(true, true,                    // demarre le rendu
       irr::video::SColor(0,255,255,255));
     sceneManager->drawAll ();                         // calcule le rendu
     driver->endScene ();                              // affiche le rendu
   }
- 
+
   device->drop ();                                    // libere la memoire
   return 0;
 }
@@ -1607,7 +1607,7 @@ driver->setFog(
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="182205">
 		    <titre>
 		      <![CDATA[Override material]]>
@@ -1633,15 +1633,15 @@ Pour commencer nous allons simplement modifier la représentation des meshs en a
 
 
 int main(void) {
- 
+
   irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_OPENGL,
     irr::core::dimension2d<irr::u32>(640,480), 32);
   irr::video::IVideoDriver* driver = device->getVideoDriver();
   irr::scene::ISceneManager* sceneManager = device->getSceneManager();
- 
-  
+
+
   /* MODELE */
-    
+
   irr::scene::IAnimatedMeshSceneNode* sphere =        // cree un scene node nomme sphere
     sceneManager->addAnimatedMeshSceneNode (          // via le scene manager
       sceneManager->getMesh ("earth.x"),              // en chargeant le mesh "earth.x"
@@ -1649,12 +1649,12 @@ int main(void) {
       irr::core::vector3df(0.0f, 0.0f, 25.0f),        // position de la sphere
       irr::core::vector3df(0.0f, 0.0f, 0.0f),         // rotation
       irr::core::vector3df(15.0f, 15.0f, 15.0f));     // echelle
-    
+
   irr::scene::IAnimatedMeshSceneNode* sydney =        // cree un scene node nomme sydney
     sceneManager->addAnimatedMeshSceneNode (          // via le scene manager
       sceneManager->getMesh ("sydney.md2"));          // en chargeant le mesh "sydney.md2"
-    
-    
+
+
   /* OVERRIDE MATERIAL */
 
   driver->getOverrideMaterial().EnableFlags =         // indique que le flag EMF_WIREFRAME
@@ -1664,23 +1664,23 @@ int main(void) {
   driver->getOverrideMaterial().EnablePasses =        // indique le type de node affectes
     irr::scene::ESNRP_SOLID;                          // par l'override material
 
-  
+
   /* CAMERA */
-    
+
   sceneManager->addCameraSceneNode(0,                 // cree une camera fixe
     irr::core::vector3df(40.0f, 10.0f, 15.0f),        // position de la cam
     irr::core::vector3df(0.0f, 9.0f, 15.0f));         // cible de la cam
 
 
     /* RENDU */
-    
+
   while (device->run()) {                        // la boucle de rendu
     driver->beginScene(true, true,               // demarre le rendu
       irr::video::SColor(0,255,255,255));        // couleur blanche
     sceneManager->drawAll ();                    // calcule le rendu
     driver->endScene ();                         // affiche le rendu
   }
- 
+
   device->drop ();                               // libere la memoire
   return 0;
 }
@@ -1693,14 +1693,14 @@ C'est aussi simple que ça. Le code ci-dessus donne le résultat visible sur le 
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="407968">
 	      <titre>
 		    <![CDATA[Documentation]]>
@@ -1718,7 +1718,7 @@ C'est aussi simple que ça. Le code ci-dessus donne le résultat visible sur le 
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="449538">
 		    <titre>
 		      <![CDATA[Que chercher ? Où le chercher ?]]>
@@ -1741,7 +1741,7 @@ Maintenant, tentons de classer les différents types de recherche en fonction du
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="407969">
 		    <titre>
 		      <![CDATA[Namespaces]]>
@@ -1752,20 +1752,20 @@ parler de doxygen
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	</chapitres>
 	<conclusion><![CDATA[
 
 ]]></conclusion>
       </partie>
-    
+
       <partie id="5641">
 	<titre>
 	  <![CDATA[Chapitres intermédiaires]]>
@@ -1780,7 +1780,7 @@ parler de doxygen
 
 ]]></introduction>
 	<chapitres>
-	  
+
 	    <chapitre id="5660">
 	      <titre>
 		    <![CDATA[Textures]]>
@@ -1802,7 +1802,7 @@ parler de doxygen
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5661">
 		    <titre>
 		      <![CDATA[Le texture mapping en une leçon]]>
@@ -1842,7 +1842,7 @@ Le problème va être que la grille de texels de la texture doit d'une manière 
 
 [![](images/88752.png)](http://uploads.siteduzero.com/files/88001_89000/88752.png)
 Dans le cas merveilleux où chaque texel correspond à un pixel (image à droite), pas de problème, tout concorde.
-Seulement ce cas très particulier n'arrive quasiment jamais. 
+Seulement ce cas très particulier n'arrive quasiment jamais.
 
 [![](images/88754.png)](http://uploads.siteduzero.com/files/88001_89000/88754.png)
 Imaginons par exemple que vous décidiez de vous éloigner, les texels seront alors plus petits que les pixels, et un pixel contiendra plusieurs texels (image à gauche).
@@ -1861,7 +1861,7 @@ Et si vous voulez en savoir plus, vous pouvez toujours vous mettre cet article s
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5662">
 		    <titre>
 		      <![CDATA[Les textures, parlons en !]]>
@@ -1897,7 +1897,7 @@ En règle générale, Irrlicht génère automatiquement des niveaux de mip map p
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5663">
 		    <titre>
 		      <![CDATA[De la bonne manière de texturer un modèle]]>
@@ -1962,7 +1962,7 @@ sceneNode->setMaterialTexture( 0, driver->getTexture("le_nom_de_la_texture") );
 ```
 
 Le 0 du premier paramètre indique le niveau de cette texture.
-En effet, il est possible d'appliquer plusieurs niveaux de textures sur un mesh. 
+En effet, il est possible d'appliquer plusieurs niveaux de textures sur un mesh.
 
 
 
@@ -2007,14 +2007,14 @@ Si vous ne savez pas ce qu'est une bounding box, pas de panique. On le verra dan
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5603">
 	      <titre>
 		    <![CDATA[Eclairage]]>
@@ -2034,7 +2034,7 @@ Dans ce chapitre nous allons aborder les différents types d'éclairages et scen
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5604">
 		    <titre>
 		      <![CDATA[Lumière ambiante]]>
@@ -2061,7 +2061,7 @@ Par défaut, la lumière ambiante est égale à (0,0,0). Ce qui signifie que si 
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5605">
 		    <titre>
 		      <![CDATA[Voyons par nous-même]]>
@@ -2073,7 +2073,7 @@ Pour cette scène vous allez avoir besoin de 2 fichiers présents dans le dossie
 
 ```cpp
 #include <irr rrlicht.h="">
- 
+
 int main(void)
 {
     irr::IrrlichtDevice *device = irr::createDevice (
@@ -2082,17 +2082,17 @@ int main(void)
         32,true,true,false,0);
     irr::video::IVideoDriver* driver = device->getVideoDriver ();
     irr::scene::ISceneManager *sceneManager = device->getSceneManager ();
- 
+
     irr::scene::ICameraSceneNode *camera =                        // creation de la camera
         sceneManager->addCameraSceneNodeFPS (0,80.0f,100.0f);
     camera->setPosition(irr::core::vector3df(10.0, 50.0, -50.0)); // positionnement
- 
+
     irr::scene::IAnimatedMesh *room =                             // chargement du modele
-        sceneManager->getMesh("room.3ds"); 
+        sceneManager->getMesh("room.3ds");
     irr::scene::IMeshSceneNode *Nroom =                           // creation du node
         sceneManager->addMeshSceneNode(room->getMesh(0));
     Nroom->setMaterialFlag(irr::video::EMF_LIGHTING, true);            // sensible a la lumiere
- 
+
     sceneManager->getMeshManipulator()->                          // parametrage de la texture
         makePlanarTextureMapping(room->getMesh(0), 0.004f);
     Nroom->setMaterialTexture(0,                                  // application de la texture
@@ -2100,15 +2100,15 @@ int main(void)
 
     sceneManager->setAmbientLight(                                // ajout lumiere
         irr::video::SColorf(1.0, 1.0, 1.0,0.0));
- 
+
     while (device->run ())                                        // la boucle de rendu
     {
-        driver->beginScene (true, true,             
+        driver->beginScene (true, true,
             irr::video::SColor (255,255,255,255));
         sceneManager->drawAll ();
         driver->endScene ();
     }
- 
+
     device->drop ();
     return 0;
 }
@@ -2123,7 +2123,7 @@ Maintenant qu'on dispose d'une scène sympa pour faire des tests, on est prêt p
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5606">
 		    <titre>
 		      <![CDATA[Lumière diffuse]]>
@@ -2219,12 +2219,12 @@ En cherchant un peu on finit forcément par trouver le réglage qui nous convien
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5607">
 		    <titre>
 		      <![CDATA[Lumière émissive]]>
 		    </titre>
-		    <texte><![CDATA[Pour finir nous allons revenir à un type de lumière moins compliqué à gérer. Une lumière émissive correspond à la lumière **émise** par un objet. Un peu comme les autocollants fluorescents qu'on trouve... heu... je ne sais pas où d'ailleurs. Bref... toujours est-il qu'ils brillent dans le noir.  ;) 
+		    <texte><![CDATA[Pour finir nous allons revenir à un type de lumière moins compliqué à gérer. Une lumière émissive correspond à la lumière **émise** par un objet. Un peu comme les autocollants fluorescents qu'on trouve... heu... je ne sais pas où d'ailleurs. Bref... toujours est-il qu'ils brillent dans le noir.  ;)
 
 Chaque mesh peut avoir sa propre lumière émissive. Il s'agit donc d'un material : [EmissiveColor](http://irrlicht.sourceforge.net/docu/structirr_1_1video_1_1_s_material.html#o5). Pour y accéder on va utiliser la même technique que pour changer la taille des spéculaires :
 
@@ -2238,14 +2238,14 @@ On peut voir sur l'image de droite ce que donne le code au dessus. Et... c'est t
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="165805">
 	      <titre>
 		    <![CDATA[Systèmes de particules]]>
@@ -2259,13 +2259,13 @@ On peut voir sur l'image de droite ce que donne le code au dessus. Et... c'est t
           <temps>
             <![CDATA[0]]>
           </temps>
-	      <introduction><![CDATA[Les systèmes de particules sont un grand incontournable des scènes 3D. Principalement car ils sont un excellent moyen de représenter des phénomènes naturels courants; tels que la neige, le feu, la pluie, la fumée d'une trainée de roquette et l'explosion qui suit...  :-° 
+	      <introduction><![CDATA[Les systèmes de particules sont un grand incontournable des scènes 3D. Principalement car ils sont un excellent moyen de représenter des phénomènes naturels courants; tels que la neige, le feu, la pluie, la fumée d'une trainée de roquette et l'explosion qui suit...  :-°
 
 Ce n'est malheureusement pas pour autant qu'ils sont simples à manipuler. Mais par chance nous allons voir dans ce chapitre qu'Irrlicht fait quasiment tout le boulot. Tout ce qu'il nous reste à faire est de bien comprendre comment pour arriver à en tirer le meilleur.
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="165813">
 		    <titre>
 		      <![CDATA[Comment ça marche ?]]>
@@ -2320,7 +2320,7 @@ Les modificateurs permettent d'agir sur les particules émises par un émetteur.
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="165877">
 		    <titre>
 		      <![CDATA[Le système global]]>
@@ -2406,7 +2406,7 @@ Mais le IParticleSystemSceneNode permet également de gérer d'autres choses (co
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="165875">
 		    <titre>
 		      <![CDATA[Les émetteurs]]>
@@ -2491,7 +2491,7 @@ L'ajout de texture est fondamental pour reproduire des phénomènes physiques na
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="165879">
 		    <titre>
 		      <![CDATA[Les modificateurs]]>
@@ -2521,7 +2521,7 @@ affector->drop();                            // plus besoin de ca
 [![](images/190285.png)](http://uploads.siteduzero.com/files/190001_191000/190285.png)[![](images/190286.png)](http://uploads.siteduzero.com/files/190001_191000/190286.png)[![](images/190287.png)](http://uploads.siteduzero.com/files/190001_191000/190287.png)
 Vous pouvez voir sur les screens à droite que les particules disparaissent maintenant progressivement, ce qui donne l'impression que les flammes sont plus fortes en bas du brasier qu'en haut (logique).
 
-Les autres modificateurs sont peut être un peu plus spécialisés, IParticleRotationAffector par exemple propose un effet sympathique mais peu commun dans le monde réel. A l'inverse, certains modificateurs évidents ne sont pas présents dans le moteur. Le vent par exemple ne peut pas être simulé avec ceux listés au dessus. Quoi qu'il en soit ce n'est pas un problème très gênant puisqu'il est bien sûr possible de créer ses propres modificateurs et de les utiliser sans même avoir à recompiler le moteur. Magie de la POO.  :magicien: 
+Les autres modificateurs sont peut être un peu plus spécialisés, IParticleRotationAffector par exemple propose un effet sympathique mais peu commun dans le monde réel. A l'inverse, certains modificateurs évidents ne sont pas présents dans le moteur. Le vent par exemple ne peut pas être simulé avec ceux listés au dessus. Quoi qu'il en soit ce n'est pas un problème très gênant puisqu'il est bien sûr possible de créer ses propres modificateurs et de les utiliser sans même avoir à recompiler le moteur. Magie de la POO.  :magicien:
 
 
 
@@ -2538,9 +2538,9 @@ L'important ici sont les particules de neige. Inutile de faire un sol ou une int
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[La gestion des particules par Irrlicht est suffisante pour créer de jolis effets et produire des scènes relativement réalistes, mais elle est tout de même assez rudimentaire dans l'absolu. Par exemple, il n'y a pas de gestion des particules en 3 dimensions. Alors que c'est incontournable pour reproduire certaines choses.
 
 Aussi, le moteur montre assez rapidement ses limites par rapport au nombre de particules à gérer simultanément. En effet, si vous faites le test de prendre un générateur tout bête et d'augmenter la durée de vie des particules, ça va rapidement ramer.
@@ -2549,7 +2549,7 @@ Mais après tout, tous ces défauts n'en sont pas. Car il est tout à fait possi
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5642">
 	      <titre>
 		    <![CDATA[Gestion des périphériques]]>
@@ -2564,13 +2564,13 @@ Mais après tout, tous ces défauts n'en sont pas. Car il est tout à fait possi
             <![CDATA[0]]>
           </temps>
 	      <introduction><![CDATA[Pour ce premier chapitre des techniques intermédiaires, on attaque fort avec les événements !
-Vous allez enfin pouvoir interagir avec vos applications Irrlicht en temps réel.  :) 
+Vous allez enfin pouvoir interagir avec vos applications Irrlicht en temps réel.  :)
 
 Il s'agit donc d'un chapitre fondamental, et s'il n'est pas placé plus tôt dans ce tutoriel, c'est parce que la gestion des événements sous Irrlicht est loin d'être aisée. Mais pas de panique, on a tout notre temps alors on va y aller par étapes en expliquant bien à chaque fois de quoi il retourne.
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5643">
 		    <titre>
 		      <![CDATA[Les événements à la source]]>
@@ -2625,7 +2625,7 @@ while (device->run())
 
 Réfléchissons un instant, comment cette fonction sait-elle si elle doit retourner true pour que l'application continue ou false pour qu'elle s'arrête ? En détectant les événements bien sûr ! Par exemple, un appui simultané sur Alt et F4 ferme l'application. C'est cette fonction qui va se charger de capter tous les événements, et d'appeler la méthode OnEvent() de la classe IEventReceiver.
 
-On peut donc retrouver le code de cette fonction dans le fichier contenant le code de CDevice. Pas de chance, il y a deux versions possibles de ce fichier. L'une d'entre elles contient le code de CDevice dans le cas d'une utilisation sous systèmes de [type Unix](http://fr.wikipedia.org/wiki/Type_Unix) (Linux par exemple), et l'autre contient le code pour une utilisation sous Windows. La raison de cette séparation est que, avant de renvoyer un événement de type [SEvent](http://irrlicht.sourceforge.net/docu/structirr_1_1_s_event.html) (donc un type propre à Irrlicht), celui-ci est obligé de passer par une API système. 
+On peut donc retrouver le code de cette fonction dans le fichier contenant le code de CDevice. Pas de chance, il y a deux versions possibles de ce fichier. L'une d'entre elles contient le code de CDevice dans le cas d'une utilisation sous systèmes de [type Unix](http://fr.wikipedia.org/wiki/Type_Unix) (Linux par exemple), et l'autre contient le code pour une utilisation sous Windows. La raison de cette séparation est que, avant de renvoyer un événement de type [SEvent](http://irrlicht.sourceforge.net/docu/structirr_1_1_s_event.html) (donc un type propre à Irrlicht), celui-ci est obligé de passer par une API système.
 
 Au tout début de la chaîne, un événement n'est qu'un signal électrique partant du clavier jusqu'à l'unité centrale pour indiquer que telle ou telle touche a été enfoncée par exemple. La première couche logicielle à intercepter ce signal pour le traiter est l'OS (le système d'exploitation). Et il existe une bibliothèque permettant de "dialoguer" avec l'OS pour lui demander, par exemple, de nous prévenir quand une touche est enfoncée et de nous dire laquelle, etc... Cette bibliothèque s'appelle une API système et elle est bien sûr différente en fonction de l'OS. Irrlicht va donc se servir des ces API systèmes et c'est ce qui explique les 2 versions différentes de CDevice.
 
@@ -2637,23 +2637,23 @@ Après ces quelques explications un peu théoriques, nous allons examiner un mor
 ```cpp
 bool CIrrDeviceLinux::run()
 {
- 
+
     /* ... */
- 
+
     //Une instance de SEvent est cree
     irr::SEvent irrevent;
- 
+
     /* ... */
- 
+
     //Sert a recuperer les events
     XNextEvent(display, &event);
- 
+
     //On teste le type d'event
     switch (event.type)
     {
- 
+
         /* ... */
- 
+
         //Dans le cas d'un deplacement de souris
         case MotionNotify:
             irrevent.EventType = irr::EET_MOUSE_INPUT_EVENT;
@@ -2662,9 +2662,9 @@ bool CIrrDeviceLinux::run()
             irrevent.MouseInput.Y = event.xbutton.y;
             postEventFromUser(irrevent);
             break;
- 
+
         /* ... */
- 
+
     }
 }
 ```
@@ -2682,33 +2682,33 @@ Ne reculant devant rien dans notre quête de savoir, allons voir dans la classe 
 void CIrrDeviceStub::postEventFromUser(SEvent event)
 {
         bool absorbed = false;
- 
+
         if (UserReceiver)
                 absorbed = UserReceiver->OnEvent(event);
- 
+
         if (!absorbed && GUIEnvironment)
                 absorbed = GUIEnvironment->postEventFromUser(event);
- 
+
         scene::ISceneManager* inputReceiver = InputReceivingSceneManager;
         if (!inputReceiver)
                 inputReceiver = SceneManager;
- 
+
         if (!absorbed && inputReceiver)
                 absorbed = inputReceiver->postEventFromUser(event);
 }
 ```
 
 
-Bon, normalement à ce stade, j'ai perdu la moitié des lecteurs.  :p  
+Bon, normalement à ce stade, j'ai perdu la moitié des lecteurs.  :p
 Qu'à cela ne tienne, nous n'allons pas nous arrêter en si bon chemin !
 
 Le but de cette fonction est de faire parvenir l'événement aux différents capteurs d'événements. Comment ça ? J'ai oublié de préciser qu'il y en a plusieurs ?  :-°  C'est assez simple en fait : en premier lieu, la fonction envoie l'événement à "UserReceiver" (ligne 6). Le user c'est nous, il s'agit donc d'une instance de notre classe dérivée de IEventReceiver que nous allons associer au device (c'est la phase 3 du schéma du début). Notez au passage que la ligne 5 sert à vérifier que nous avons bien associé un capteur au device.
 
 Il se trouve que la méthode OnEvent renvoie un booléen. Et celui-ci indique si l'événement a été traité ou pas. Eh oui, il est possible que l'événement détecté soit un clic de souris et que seuls les appuis sur les touches du clavier nous intéressent. Dans ce cas là, la fonction OnEvent renvoie false pour indiquer qu'elle n'a pas traité l'événement.
 
-Seulement voilà, un clic de souris ce n'est pas rien quand même, il se peut que ça intéresse quelqu'un d'autre... la GUI par exemple. C'est tout l'intérêt de la ligne 9. On commence par tester ligne 8 que le booléen renvoyé par **notre** capteur est bien false, et qu'il existe bien un environnement de GUI. Si la condition est remplie, on envoie l'événement à l'environnement GUI, et il se débrouille avec. On pourrait farfouiller là aussi dans le code source pour découvrir des choses intéressantes mais je crois qu'on fera ça dans un autre chapitre sinon vous allez être dégoûtés d'Irrlicht pour de bon.  ^^ 
+Seulement voilà, un clic de souris ce n'est pas rien quand même, il se peut que ça intéresse quelqu'un d'autre... la GUI par exemple. C'est tout l'intérêt de la ligne 9. On commence par tester ligne 8 que le booléen renvoyé par **notre** capteur est bien false, et qu'il existe bien un environnement de GUI. Si la condition est remplie, on envoie l'événement à l'environnement GUI, et il se débrouille avec. On pourrait farfouiller là aussi dans le code source pour découvrir des choses intéressantes mais je crois qu'on fera ça dans un autre chapitre sinon vous allez être dégoûtés d'Irrlicht pour de bon.  ^^
 
-De même, pour simplifier, nous allons dire que les lignes restantes servent à envoyer l'événement au scene manager puisqu'il gère la (l'éventuelle) caméra. En partant bien sûr du principe que la fonction OnEvent du capteur de la GUI a elle aussi renvoyé un false. Cette simplification est correcte, c'est véritablement ce qu'il se passe. Mais pas seulement... 
+De même, pour simplifier, nous allons dire que les lignes restantes servent à envoyer l'événement au scene manager puisqu'il gère la (l'éventuelle) caméra. En partant bien sûr du principe que la fonction OnEvent du capteur de la GUI a elle aussi renvoyé un false. Cette simplification est correcte, c'est véritablement ce qu'il se passe. Mais pas seulement...
 
 
 
@@ -2748,7 +2748,7 @@ Alors ? Qui a dis que c'était compliqué ?  ^^
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5644">
 		    <titre>
 		      <![CDATA[Le mouvement en action]]>
@@ -2758,13 +2758,13 @@ Alors ? Qui a dis que c'était compliqué ?  ^^
 
 ```cpp
 #include <irr rrlicht.h="">
- 
- 
+
+
 class CEventReceiver : public irr::IEventReceiver
 {
- 
+
 public :
- 
+
     //Capte automatiquement les events.
     virtual bool OnEvent(const irr::SEvent &event);
 };
@@ -2782,22 +2782,22 @@ Notre déclaration se transforme donc en :
 
 ```cpp
 #include <irr rrlicht.h="">
- 
+
 class CEventReceiver : public irr::IEventReceiver
 {
- 
+
 public :
- 
+
     //Le constructeur.
     CEventReceiver(irr::scene::IAnimatedMeshSceneNode* Nmodele);
     //Capte automatiquement les events.
     virtual bool OnEvent(const irr::SEvent &event);
     //Met a jour la position du mesh.
     void majPosMesh();
- 
- 
+
+
 private :
- 
+
     //Le modele qu'on va controler.
     irr::scene::IAnimatedMeshSceneNode* m_Nmodele;
     //Indique si on est deja en mouvement ou pas.
@@ -2806,12 +2806,12 @@ private :
 ```
 
 
-Voyons maintenant l'implémentation : 
+Voyons maintenant l'implémentation :
 
 
 ```cpp
 #include "CEventReceiver.h"
- 
+
 CEventReceiver::CEventReceiver(irr::scene::IAnimatedMeshSceneNode* Nmodele)
 {
     //On pointe le mesh passe en parametre.
@@ -2819,8 +2819,8 @@ CEventReceiver::CEventReceiver(irr::scene::IAnimatedMeshSceneNode* Nmodele)
     //Par defaut on ne bouge pas
     m_isMoving = false;
 }
- 
- 
+
+
 bool CEventReceiver::OnEvent(const irr::SEvent &event)
 {
     //On verifie que le pointeur est ok
@@ -2842,8 +2842,8 @@ bool CEventReceiver::OnEvent(const irr::SEvent &event)
     //Si on arrive la, c'est qu'on a pas traite l'event
     return false;
 }
- 
- 
+
+
 void CEventReceiver::majPosMesh()
 {
     //On verifie que le pointeur vers le mesh est
@@ -2885,44 +2885,44 @@ bool CEventReceiver::OnEvent(const irr::SEvent &event)
 ```
 
 
-Ne reste qu'à trouver une application de test pour faire tourner la bête. Allez je suis sympa, je vous fournis le code : 
+Ne reste qu'à trouver une application de test pour faire tourner la bête. Allez je suis sympa, je vous fournis le code :
 
 
 ```cpp
 #include "CEventReceiver.h"
- 
- 
+
+
 int main(void)
 {
- 
+
     //Device, driver et graphe de scene.
     irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_OPENGL,
         irr::core::dimension2d<irr::u32>(800,800),32,false,false,false);
     irr::video::IVideoDriver* driver = device->getVideoDriver ();
     irr::scene::ISceneManager *sceneManager = device->getSceneManager ();
- 
+
     //On rend invisible le curseur.
     device->getCursorControl ()-> setVisible (false);
- 
+
     //Sydney
     irr::scene::IAnimatedMeshMD2* modele;
     modele = (irr::scene::IAnimatedMeshMD2*)sceneManager->getMesh("sydney.md2");
     irr::scene::IAnimatedMeshSceneNode* Nmodele =
     sceneManager->addAnimatedMeshSceneNode(modele);
- 
+
     //On modifie les proprietes de Sydney
     Nmodele->setMaterialFlag(irr::video::EMF_LIGHTING, false);
     Nmodele->setFrameLoop(0, 0);
     Nmodele->setMaterialTexture( 0, driver->getTexture("sydney.bmp") );
- 
+
     //La camera
     irr::scene::ICameraSceneNode *camera;
     camera = sceneManager->addCameraSceneNodeFPS (0,100.0f,300.0f);
- 
+
     //On cree le capteur d'event et on l'associe au device.
     CEventReceiver receiver(Nmodele);
     device->setEventReceiver(&receiver);
- 
+
     //La boucle de rendu
     while (device->run())
     {
@@ -2932,7 +2932,7 @@ int main(void)
         sceneManager->drawAll ();
         driver->endScene ();
     }
- 
+
     device->drop ();
     return 0;
 }
@@ -2949,12 +2949,12 @@ Maintenant que vous savez comment ça marche, vous pouvez vous entraîner à ajo
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5645">
 		    <titre>
 		      <![CDATA[Caméra personnalisée]]>
 		    </titre>
-		    <texte><![CDATA[Si vous avez bonne mémoire, vous devez vous rappeler que lors du chapitre "votre deuxième scène", j'ai passé sous silence certains paramètres de la fonction de création d'une caméra FPS en disant que nous y reviendrions dans le chapitre consacré aux événements. Et bien nous y sommes, alors voyons voir de quoi il retourne.  :) 
+		    <texte><![CDATA[Si vous avez bonne mémoire, vous devez vous rappeler que lors du chapitre "votre deuxième scène", j'ai passé sous silence certains paramètres de la fonction de création d'une caméra FPS en disant que nous y reviendrions dans le chapitre consacré aux événements. Et bien nous y sommes, alors voyons voir de quoi il retourne.  :)
 
 Je remets le prototype de la fonction en question :
 
@@ -2986,7 +2986,7 @@ Il existe 5 actions possibles :
 - EKA_JUMP_UP
 
 
-Quant aux touches... Jetez un oeil à votre clavier.  ;) 
+Quant aux touches... Jetez un oeil à votre clavier.  ;)
 
 
 Le but de la manoeuvre est d'associer une (ou plusieurs) touche(s) à une action, de sorte que lorsqu'un événement sur cette (ces) touche(s) est capté, l'action soit effectuée. Par défaut pour une caméra FPS, les associations sont les suivantes :
@@ -3047,12 +3047,12 @@ camera = sceneManager->addCameraSceneNodeFPS (0, 100.0f, 300.0f, -1, keyMap, 5, 
 C'est au cinquième paramètre que l'on passe le tableau, et au sixième qu'on spécifie sa taille. C'est important ! Si vous spécifiez une taille plus petite par exemple, les cases dépassant ce nombre ne seront pas prises en compte et n'effectueront pas les actions quelles devraient.
 
 
-Il est maintenant temps de tester tout ça dans un petit exemple. Vous aurez besoin pour cela du fichier "map-20kdm2.pk3" que vous pouvez trouver dans le dossier media du SDK. Le code suivant va charger une map de type .bsp dans laquelle nous allons nous déplacer avec nos toutes nouvelles commandes. Le seul souci c'est qu'on n'a pas encore vu comment charger des fichiers .bsp (et encore moins quand ils sont compressés). Il va donc falloir que vous attendiez un prochain chapitre pour comprendre les quelques lignes concernant la map (ou que vous alliez voir dans la doc ;) ). 
+Il est maintenant temps de tester tout ça dans un petit exemple. Vous aurez besoin pour cela du fichier "map-20kdm2.pk3" que vous pouvez trouver dans le dossier media du SDK. Le code suivant va charger une map de type .bsp dans laquelle nous allons nous déplacer avec nos toutes nouvelles commandes. Le seul souci c'est qu'on n'a pas encore vu comment charger des fichiers .bsp (et encore moins quand ils sont compressés). Il va donc falloir que vous attendiez un prochain chapitre pour comprendre les quelques lignes concernant la map (ou que vous alliez voir dans la doc ;) ).
 
 
 ```cpp
 #include <irr rrlicht.h="">
- 
+
 int main(void)
 {
     //Device, driver et graphe de scene
@@ -3060,11 +3060,11 @@ int main(void)
         irr::core::dimension2d<irr::u32>(800,800),32,false,false,false);
     irr::video::IVideoDriver* driver = device->getVideoDriver ();
     irr::scene::ISceneManager *sceneManager = device->getSceneManager ();
- 
+
     //On rend invisible le curseur
     device->getCursorControl ()-> setVisible (false);
- 
- 
+
+
     //Sert a charger la map
     device->getFileSystem()->addZipFileArchive("map-20kdm2.pk3");
     irr::scene::IAnimatedMesh* mesh = sceneManager->getMesh("20kdm2.bsp");
@@ -3074,8 +3074,8 @@ int main(void)
     if (node)
         node->setPosition(irr::core::vector3df(-1300,-144,-1249));
     sceneManager->setAmbientLight(irr::video::SColorf(1.0,1.0,1.0,0.0));
- 
- 
+
+
     //On cree la keymap associe a la camera
     irr::SKeyMap keyMap[5];
     //avancer
@@ -3093,11 +3093,11 @@ int main(void)
     //saut
     keyMap[4].Action = irr::EKA_JUMP_UP;
     keyMap[4].KeyCode = irr::KEY_SPACE;
- 
+
     //La camera
     irr::scene::ICameraSceneNode *camera;
     camera = sceneManager->addCameraSceneNodeFPS (0, 100.0f, 0.3f, -1, keyMap, 5, false, 0.4);
- 
+
     //La boucle de rendu
     while (device->run())
     {
@@ -3105,7 +3105,7 @@ int main(void)
         sceneManager->drawAll ();
         driver->endScene ();
     }
- 
+
     device->drop ();
     return 0;
 }
@@ -3114,7 +3114,7 @@ int main(void)
 
 [![](images/85832.jpg)](http://uploads.siteduzero.com/files/85001_86000/85832.jpg)[![](images/85833.jpg)](http://uploads.siteduzero.com/files/85001_86000/85833.jpg)[![](images/85834.jpg)](http://uploads.siteduzero.com/files/85001_86000/85834.jpg)
 
-Pas mal hein ? Il ne manquerait plus qu'une skybox et on s'y croirait vraiment. Bon forcément, vu qu'on n'a pas implémenté de gravité le saut ressemble plutôt à un envol... Mais ça permet d'admirer la map de haut... 
+Pas mal hein ? Il ne manquerait plus qu'une skybox et on s'y croirait vraiment. Bon forcément, vu qu'on n'a pas implémenté de gravité le saut ressemble plutôt à un envol... Mais ça permet d'admirer la map de haut...
 
 
 [[attention]]
@@ -3124,16 +3124,16 @@ Pas mal hein ? Il ne manquerait plus qu'une skybox et on s'y croirait vraiment. 
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA["[That's all folks](http://en.wikipedia.org/wiki/Image:Merriemelodies-title-end.jpg)". J'espère que le chapitre vous aura plu. J'ai tenté ici de vous faire comprendre un peu de la mécanique sous-jacente d'Irrlicht qu'on ne voit pas en restant dans la doc.
 
 Si vous avez bonne mémoire, vous devez vous souvenir que j'insistais parfois au début du tutoriel pour que vous alliez fouiner dans la doc. Eh bien les temps changent et il est peut-être temps pour vous d'aller maintenant fouiner dans le code source. Dans la plupart des cas ce n'est pas nécessaire à la compréhension de la fonctionnalité, mais parfois (comme ici) ça permet d'avoir accès à des parties non documentées du code, et on y fait souvent des découvertes intéressantes.  ;)
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="186540">
 	      <titre>
 		    <![CDATA[Des caméras et des animators]]>
@@ -3153,7 +3153,7 @@ Ainsi la deuxième partie de ce chapitre va être dédiée à une petite applica
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="186541">
 		    <titre>
 		      <![CDATA[Fonctionnement des caméras]]>
@@ -3254,7 +3254,7 @@ bool CCameraSceneNode::OnEvent(const SEvent& event)
     // send events to event receiving animators
 
     core::list<iscenenodeanimator*>::Iterator ait = Animators.begin();
-	
+
     for (; ait != Animators.end(); ++ait)
 	if ((*ait)->isEventReceiverEnabled() && (*ait)->OnEvent(event))
             return true;
@@ -3271,7 +3271,7 @@ Nous avons également vu lors du chapitre sur le rendu des scene nodes, que la m
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="186547">
 		    <titre>
 		      <![CDATA[Réalisation d'une caméra trackball]]>
@@ -3343,7 +3343,7 @@ Les trois quarts des fonctions (toutes à part les accesseurs en fait) sont dire
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="186579">
 		    <titre>
 		      <![CDATA[Implémentation de la caméra]]>
@@ -3457,7 +3457,7 @@ Et voici **la** fonction qu'il faut absolument comprendre. Les premières lignes
 
 Si la condition est vérifiée donc, on commence par récupérer un vecteur indiquant la position de la caméra sur le plan ZY (lignes 14/15/17). Cette étape correspond exactement au calcul du vecteur _r_ rouge grâce à l'angle $\phi$ sur le [schéma de Kayl](images/4111.png). Au détail près que les axes Z et Y sont inversés, puisque lui définit Z comme étant la verticale alors que c'est l'axe Y qui l'est par défaut dans Irrlicht. C'est lors de cette étape que le rayon de la sphère, donc la distance entre la caméra et l'origine du repère est pris en compte (lignes 14/15).
 
-Une fois qu'on a ce vecteur (qui représente directement des coordonnées absolues puisqu'on part du principe que l'origine du repère est 0,0,0) il ne nous reste plus qu'à effectuer une rotation d'angle $\theta$ (toujours par rapport [à ce schéma](images/4111.png)) autour de l'axe vertical (Y pour nous), et nous obtiendrons les coordonnées absolues définitives de la caméra. C'est la ligne 18 qui s'en charge grâce à une fonction interne d'Irrlicht concernant les vecteurs. On aurait également pu passer par une matrice, mais autant utiliser tout ce qui est à notre disposition.  :) 
+Une fois qu'on a ce vecteur (qui représente directement des coordonnées absolues puisqu'on part du principe que l'origine du repère est 0,0,0) il ne nous reste plus qu'à effectuer une rotation d'angle $\theta$ (toujours par rapport [à ce schéma](images/4111.png)) autour de l'axe vertical (Y pour nous), et nous obtiendrons les coordonnées absolues définitives de la caméra. C'est la ligne 18 qui s'en charge grâce à une fonction interne d'Irrlicht concernant les vecteurs. On aurait également pu passer par une matrice, mais autant utiliser tout ce qui est à notre disposition.  :)
 
 
 
@@ -3482,10 +3482,10 @@ Nous commençons par ajouter une caméra banale, donc statique ligne 1. Puis on 
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
-	      <conclusion><![CDATA[Voilà, vous êtes maintenant capable de créer n'importe quel type de caméra qui vous plaira. 
+
+	      <conclusion><![CDATA[Voilà, vous êtes maintenant capable de créer n'importe quel type de caméra qui vous plaira.
 
 Néanmoins et pour conclure, si vous avez testé celle que nous venons de réaliser vous avez dû remarquer un petit défaut. En effet lors de la première mise à jour de la position de la caméra, donc lors du premier mouvement de souris, la caméra "saute" d'un endroit à l'autre. Cela est dû au fait que sa position est calculée à partir de la variable **m_rotation**, qui est initialisée tout à fait arbitrairement dans notre constructeur.
 
@@ -3495,13 +3495,13 @@ Vous savez ce qu'il vous reste à faire.  ;)
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	</chapitres>
 	<conclusion><![CDATA[
 
 ]]></conclusion>
       </partie>
-    
+
       <partie id="406289">
 	<titre>
 	  <![CDATA[Fonctionnalités 2D]]>
@@ -3516,7 +3516,7 @@ Vous savez ce qu'il vous reste à faire.  ;)
 
 ]]></introduction>
 	<chapitres>
-	  
+
 	    <chapitre id="5613">
 	      <titre>
 		    <![CDATA[Introduction à la GUI 1/2]]>
@@ -3541,7 +3541,7 @@ Et commençons donc, par le commencement.
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5614">
 		    <titre>
 		      <![CDATA[L'organisation interne]]>
@@ -3613,7 +3613,7 @@ Et voilà, rien de nouveau sous le soleil. Maintenant que nous avons ce qu'il fa
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5615">
 		    <titre>
 		      <![CDATA[Afficher un texte à  l'écran]]>
@@ -3635,7 +3635,7 @@ Vous pouvez cliquer sur l'image pour l'agrandir. La première chose qui saute au
 | Si vous ne validez pas le retour à la ligne (quatrième paramètre), vous ne pourrez pas faire de retours manuels (\n) !
 
 
-La seconde chose qui doit vous turlupiner, c'est ce L devant la chaîne de caractères. il signifie en fait que vous pouvez y mettre des caractères en dehors de la table ASCII standard, étant donné que ce ne sont pas des chars qui vont les contenir mais des wchar_t. À nous donc les caractères accentués ou étranges tels que é, ï, ç ou encore ù. Pour en savoir plus : 
+La seconde chose qui doit vous turlupiner, c'est ce L devant la chaîne de caractères. il signifie en fait que vous pouvez y mettre des caractères en dehors de la table ASCII standard, étant donné que ce ne sont pas des chars qui vont les contenir mais des wchar_t. À nous donc les caractères accentués ou étranges tels que é, ï, ç ou encore ù. Pour en savoir plus :
 
 
 - [Une explication sur "String Literals" sur le site d'IBM.](http://publib.boulder.ibm.com/infocenter/macxhelp/v6v81/index.jsp?topic=/com.ibm.vacpp6m.doc/language/ref/clrc02stricn.htm)
@@ -3685,7 +3685,7 @@ Et vous avez la valeur en hexadécimal ! Pour le 'é' par exemple, ça nous donn
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5616">
 		    <titre>
 		      <![CDATA[Les polices de caractère]]>
@@ -3746,7 +3746,7 @@ Ce qui nous donne l'image de droite.
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5618">
 		    <titre>
 		      <![CDATA[Le curseur]]>
@@ -3776,7 +3776,7 @@ En mettant true comme paramètre, nous aurions rendu le curseur visible (comme i
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5619">
 		    <titre>
 		      <![CDATA[Un titre accrocheur]]>
@@ -3809,7 +3809,7 @@ Il existe une méthode qui permet de récupérer directement le nombre de FPS. E
 irr::core::stringw titre = driver->getFPS();
 device->setWindowCaption(titre.c_str ());
 ```
- 
+
 
 Comme vous pouvez le voir sur la première ligne, nous commençons par créer une chaîne de caractères made in Irrlicht. Elle s'utilise comme une std::string, vous ne devriez donc pas être trop dépaysé. La principale différence est qu'elle manipule des wchar_t et non des char, comme expliqué dans la deuxième sous-partie de ce chapitre. Nous allons directement initialiser cette stringw avec le nombre de FPS. Ainsi, il n'y a plus qu'à la mettre en titre de la fenêtre et le tour est joué.
 
@@ -3820,7 +3820,7 @@ Dernière petite difficulté : si on regarde le prototype de setWindowCaption, o
 
 ## La position de la caméra
 
-Si vous avez compris tout ce qui précède, vous ne devriez pas avoir de mal avec ce qui va suivre. Pour commencer, avant de pouvoir afficher la position de la caméra, il faut bien sûr la connaître. Et comme d'habitude, nous avons la chance d'avoir une fonction toute faite qui s'occupe de tout. Il s'agit de [irr::scene::ISceneNode::getPosition](http://irrlicht.sourceforge.net/docu/classirr_1_1scene_1_1_i_scene_node.html#a15). Cette méthode n'est pas spécifique à la caméra, elle est accessible pour tous les nodes. Donc si vous voulez savoir précisément où se trouve le cocotier que vous avez mis sur votre plage virtuelle, vous savez ce qu'il vous reste à faire. ;) 
+Si vous avez compris tout ce qui précède, vous ne devriez pas avoir de mal avec ce qui va suivre. Pour commencer, avant de pouvoir afficher la position de la caméra, il faut bien sûr la connaître. Et comme d'habitude, nous avons la chance d'avoir une fonction toute faite qui s'occupe de tout. Il s'agit de [irr::scene::ISceneNode::getPosition](http://irrlicht.sourceforge.net/docu/classirr_1_1scene_1_1_i_scene_node.html#a15). Cette méthode n'est pas spécifique à la caméra, elle est accessible pour tous les nodes. Donc si vous voulez savoir précisément où se trouve le cocotier que vous avez mis sur votre plage virtuelle, vous savez ce qu'il vous reste à faire. ;)
 
 
 ```cpp
@@ -3886,14 +3886,14 @@ device->setWindowCaption(titre);
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Même si on ne peut pas réellement parler d'interface en temps que telle, ce chapitre est riche en nouveautés intéressantes et va nous servir pour la suite. Notamment l'affichage des coordonnées de la caméra qui est idéal pour repérer les coordonnées exactes d'un endroit de la scène.
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5627">
 	      <titre>
 		    <![CDATA[Introduction à la GUI 2/2]]>
@@ -3907,18 +3907,18 @@ device->setWindowCaption(titre);
           <temps>
             <![CDATA[0]]>
           </temps>
-	      <introduction><![CDATA[Suite et fin de notre saga de l'été consacrée au relooking de nos programmes. :soleil: 
+	      <introduction><![CDATA[Suite et fin de notre saga de l'été consacrée au relooking de nos programmes. :soleil:
 
 Nous allons ici voir comment mettre en place la plupart des choses utiles à une interface : boutons, boîtes de dialogue... Mais comme il y existe beaucoup trop d'éléments possibles, nous n'allons voir que les plus courant en abordant le principe et en voyant un code minimal.
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5628">
 		    <titre>
 		      <![CDATA[Les boutons]]>
 		    </titre>
-		    <texte><![CDATA[On commence par quelque chose de facile : ajouter un bouton. Si vous avez bien suivi le chapitre précédent, vous devriez déjà savoir comment on va s'y prendre. 
+		    <texte><![CDATA[On commence par quelque chose de facile : ajouter un bouton. Si vous avez bien suivi le chapitre précédent, vous devriez déjà savoir comment on va s'y prendre.
 
 
 ```cpp
@@ -3927,7 +3927,7 @@ gui->addButton(irr::core::rect<irr::s32>(100,80,200,120), 0, -1, L"tagada tsoin 
 ```
 
 
-Si on prend un code de base comme celui-ci : 
+Si on prend un code de base comme celui-ci :
 
 
 ```cpp
@@ -3995,7 +3995,7 @@ bouton->setPressedImage(driver->getTexture("rouge.png"));
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5629">
 		    <titre>
 		      <![CDATA[Les zones de texte]]>
@@ -4018,7 +4018,7 @@ Vous vous demandez peut être à quoi cela peut servir. Les trois quarts du temp
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5630">
 		    <titre>
 		      <![CDATA[Les menus déroulants]]>
@@ -4058,7 +4058,7 @@ Ensuite vous pouvez à tout moment récupérer l'item choisi par l'utilisateur a
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5631">
 		    <titre>
 		      <![CDATA[Les boîtes de dialogue]]>
@@ -4087,7 +4087,7 @@ Le résultat :
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5632">
 		    <titre>
 		      <![CDATA[Style global]]>
@@ -4113,16 +4113,16 @@ Et voilà le résultat sur l'image de droite. Je crois qu'on peut dire mission a
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Je pense que vous connaissez maintenant les bases de la création d'une interface avec Irrlicht. Bien sûr ce n'était qu'une introduction et il y a encore beaucoup à voir, mais vous pouvez déjà faire des choses intéressantes avec ce qu'il y a dans ce chapitre.
 
 Essayez notamment de combiner les événements avec votre interface. Cela lui donnera la flexibilité et la puissance indispensable à toute bonne GUI.
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5585">
 	      <titre>
 		    <![CDATA[Les images]]>
@@ -4140,14 +4140,14 @@ Essayez notamment de combiner les événements avec votre interface. Cela lui do
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5586">
 		    <titre>
 		      <![CDATA[Récupérer une image]]>
 		    </titre>
 		    <texte><![CDATA[La première chose à faire est de mettre la main sur une image à afficher. Histoire de donner dans l'originalité, on va aller faire un tour dans le SDK (le dossier irrlicht-1.7 pour la version 1.7).
 
-Toujours dans le dossier _media_, il y a un fichier qui s'appelle "2ddemo.bmp". D'ailleurs il n'est pas placé là par hasard. Si vous êtes un peu curieux vous vous apercevrez que tous les fichiers dans le dossier _media_ sont utilisés pour faire tourner des applications de démo correspondantes aux [tutos officiels d'Irrlicht](http://irrlicht.sourceforge.net/tutorials.html). ;) 
+Toujours dans le dossier _media_, il y a un fichier qui s'appelle "2ddemo.bmp". D'ailleurs il n'est pas placé là par hasard. Si vous êtes un peu curieux vous vous apercevrez que tous les fichiers dans le dossier _media_ sont utilisés pour faire tourner des applications de démo correspondantes aux [tutos officiels d'Irrlicht](http://irrlicht.sourceforge.net/tutorials.html). ;)
 
 Une fois que vous l'avez, copiez-le à un endroit pas trop loin de votre exécutable et commençons. Pour démarrer, rien d'inhabituel : on crée un _device_, un _driver_, et un _scene manager_. Entamons tout de suite les hostilités avec le type de variable qui permet de stocker un fichier image :
 
@@ -4197,7 +4197,7 @@ Quant au deuxième paramètre, il s'agit d'un booléen tout ce qu'il y a de plus
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5587">
 		    <titre>
 		      <![CDATA[Les variables made in Irrlicht]]>
@@ -4273,7 +4273,7 @@ position0.Y = 0;
 irr::core::position2d<irr::s32> position1;
 position1.X = 300;
 position1.Y = 300;
- 
+
 // Puis on les associe aux coins d'un rectangle
 irr::core::rect<irr::s32> rectangle;
 rectangle.UpperLeftCorner = position0;
@@ -4288,7 +4288,7 @@ Vous l'aurez remarqué, les deux attributs de **core::rect<t></t>** sont :
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5588">
 		    <titre>
 		      <![CDATA[Afficher une image]]>
@@ -4327,18 +4327,18 @@ Voilà le code complet qui récapitule tout ce qu'on a vu depuis le début du ch
 
 ```cpp
 #include <irr rrlicht.h="">
- 
- 
+
+
 int main(void)
 {
- 
+
     irr::IrrlichtDevice* device = irr::createDevice(irr::video::EDT_OPENGL,
         irr::core::dimension2d<irr::u32>(640,480), 32);
     irr::video::IVideoDriver* driver = device->getVideoDriver ();
     irr::scene::ISceneManager *sceneManager = device->getSceneManager ();
- 
+
     irr::video::ITexture *image = driver->getTexture ("2ddemo.bmp");  // chargement de la texture
-    
+
     while(device->run ())                                             // la boucle de rendu
     {
         driver->beginScene(true, true,
@@ -4351,7 +4351,7 @@ int main(void)
             true);
         driver->endScene ();
     }
- 
+
     device->drop ();
     return 0;
 }
@@ -4369,7 +4369,7 @@ Maintenant soyez attentifs le code qui suit est un méga-mix de tout ce qu'on vu
 ```cpp
 #include <irr rrlicht.h="">
 
- 
+
 int main(void)
 {
     irr::IrrlichtDevice* device = irr::createDevice(
@@ -4377,10 +4377,10 @@ int main(void)
         irr::core::dimension2d<irr::u32>(640,480),32);
     irr::video::IVideoDriver* driver = device->getVideoDriver ();
     irr::scene::ISceneManager *sceneManager = device->getSceneManager ();
- 
+
     irr::video::ITexture *image = driver->getTexture("2ddemo.bmp");  // chargement image
     irr::core::dimension2d<irr::s32> taille = image->getSize ();     // recuperation dimensions image
- 
+
     irr::core::position2d<irr::s32> position0;                        // creation position origine
     position0.X = 0;
     position0.Y = 0;
@@ -4390,7 +4390,7 @@ int main(void)
     irr::core::rect<irr::s32> rectangle;                              // creation rectangle
     rectangle.UpperLeftCorner = position0;                            // contenant l'image
     rectangle.LowerRightCorner = position1;
- 
+
     while(device->run ())                                             // boucle de rendu
     {
       driver->beginScene(true, true,
@@ -4413,7 +4413,7 @@ Comme vous pouvez le voir (sur le screenshot de droite, si ce n'est sur votre é
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5589">
 		    <titre>
 		      <![CDATA[La transparence]]>
@@ -4460,24 +4460,24 @@ Je crois que nous avons maintenant tout ce qu'il nous faut pour faire un truc sy
 
 ```cpp
 #include <irr rrlicht.h="">
-  
+
 int main(void)
 {
- 
+
     irr::IrrlichtDevice* device = irr::createDevice(
         irr::video::EDT_OPENGL,
         irr::core::dimension2d<irr::u32>(640,480),
         32,false,false,false);
     irr::video::IVideoDriver* driver = device->getVideoDriver ();
     irr::scene::ISceneManager *sceneManager = device->getSceneManager ();
- 
+
     irr::video::ITexture *image = driver->getTexture("2ddemo.bmp");    // chargement de l'image
     driver->makeColorKeyTexture (image,                                // transparence pour le fond
-        irr::core::position2d<irr::s32> (0,0));       
+        irr::core::position2d<irr::s32> (0,0));
 
     irr::video::SColor blanc;                                          // creation variable couleur blanche
     blanc.set(255,255,255,255);
- 
+
     while(device->run ())                                              // la boucle de rendu
     {
         driver->beginScene(true, true,
@@ -4496,7 +4496,7 @@ int main(void)
             0, blanc, true);
          driver->endScene ();
     }
- 
+
     device->drop ();
     return 0;
 }
@@ -4509,22 +4509,22 @@ Bon ok, j'avais dit rien de nouveau et finalement on a utilisé une variable vid
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Et bien, nous étions partis pour faire un petit chapitre facile et voilà le résultat. ^^ Je suis sûr que vous avez appris plein de trucs, non ?
 
 Si vous aimez les jeux 2D façon Old School, sachez qu'il est tout à fait possible d'en réaliser avec Irrlicht. Même si à la base ce n'est pas forcément prévu pour ça. Pour ceux qui seraient intéressés, voilà [un site](http://www.tonypa.pri.ee/tbw/start.html) qui devrait vous aider. Il n'explique pas comment faire avec Irrlicht précisément, mais de manière générale tous les concepts pour faire des jeux 2D à base de tiles. Enjoy ! :D
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	</chapitres>
 	<conclusion><![CDATA[
 
 ]]></conclusion>
       </partie>
-    
+
       <partie id="169116">
 	<titre>
 	  <![CDATA[Chapitres avancés]]>
@@ -4539,7 +4539,7 @@ Si vous aimez les jeux 2D façon Old School, sachez qu'il est tout à fait possi
 
 ]]></introduction>
 	<chapitres>
-	  
+
 	    <chapitre id="5650">
 	      <titre>
 		    <![CDATA[Dans les entrailles de la bête]]>
@@ -4559,7 +4559,7 @@ Il est néanmoins important (voir indispensable) de savoir comment les choses fo
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5651">
 		    <titre>
 		      <![CDATA[Les namespaces]]>
@@ -4577,7 +4577,7 @@ Il y a 6 namespaces dans Irrlicht. Le premier est **irr** qui contient absolumen
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5652">
 		    <titre>
 		      <![CDATA[Du polymorphisme et de la GUI]]>
@@ -4663,13 +4663,13 @@ void CGUIEnvironment::drawAll()
                         AbsoluteClippingRect = DesiredRect;
                         AbsoluteRect = DesiredRect;
                         updateAbsolutePosition();
-                }               
+                }
         }
- 
+
         // make sure tooltip is always on top
         if (ToolTip.Element)
                 bringToFront(ToolTip.Element);
- 
+
         draw();
         OnPostRender ( os::Timer::getTime () );
 }
@@ -4686,7 +4686,7 @@ virtual void draw()
         {
                 if (!IsVisible)
                         return;
- 
+
                 core::list<iguielement*>::Iterator it = Children.begin();
                 for (; it != Children.end(); ++it)
                         (*it)->draw();
@@ -4702,7 +4702,7 @@ Le code qu'on voit plus haut reste quelle que soit la classe, mais le code perme
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5653">
 		    <titre>
 		      <![CDATA[Du polymorphisme et du scene manager]]>
@@ -4729,7 +4729,7 @@ La principale différence avec la GUI se trouve au niveau du rendu des scene nod
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5654">
 		    <titre>
 		      <![CDATA[Un codé pour un rendu]]>
@@ -4753,16 +4753,16 @@ Vous en savez maintenant un peu plus sur le processus de rendu. Bien entendu rie
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Il est possible que vous ne voyiez pas l'intérêt pour le moment de descendre autant dans le code source. Après tout si Irrlicht doit nous faciliter la vie en s'occupant de tout ça, pourquoi s'y intéresser ? Mais comme expliqué dans l'introduction, une bonne compréhension est quasi indispensable à une bonne utilisation, et complètement indispensable à une bonne modification.
 
 Vous croyez qu'on a fait le tour de tout ce qui touche à la GUI par exemple ? Que nenni ! Nous en sommes loin. Il est tout à fait possible de créer ses propres types d'éléments de GUI, comme de créer ses propres types de scene node, et bien d'autres choses encore... Mais avant d'en arriver là, il nous reste quelques chapitres à voir, et quelques autres morceaux de code source à examiner.  ^^
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="42913">
 	      <titre>
 		    <![CDATA[Rendu des scene nodes]]>
@@ -4782,7 +4782,7 @@ Autant vous dire que la tâche ne va pas être aisée, mais un peu de courage, d
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="42914">
 		    <titre>
 		      <![CDATA[Au début il y avait le code source]]>
@@ -5055,7 +5055,7 @@ Et beh quoi ?! Partez pas ! Ça parait impressionnant comme ça mais en fait... 
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="181552">
 		    <titre>
 		      <![CDATA[Préparation]]>
@@ -5113,7 +5113,7 @@ driver->setAllowZWriteOnTransparent(Parameters.getAttributeAsBool( ALLOW_ZWRITE_
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="181681">
 		    <titre>
 		      <![CDATA[Pré-rendu]]>
@@ -5186,7 +5186,7 @@ if(LightManager)
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="42915">
 		    <titre>
 		      <![CDATA[Rendu]]>
@@ -5224,7 +5224,7 @@ Là on attaque du lourd, le "véritable" rendu commence maintenant. Première co
 
 
 La ligne 3 est intéressante, et va se retrouver au début de chaque "bloc de rendu". **CurrentRendertime** est un attribut du scene manager de type **E_SCENE_NODE_RENDER_PASS**. En fouillant un peu dans le fichier ISceneManager.h (à ce stade vous pouvez tout simplement oublier la doc... ![](images/15837.gif) ) on peut trouver l'énumération de cette chose. Je vous mets la version longue qui, certes l'est, mais permet de tout comprendre d'un coup :
- 
+
 
 ```cpp
 //! Enumeration for render passes.
@@ -5333,10 +5333,10 @@ Le prochain bloc est un peu plus complexe (si si c'est possible, vous allez voir
 
 Lignes 19 et 20, une boucle est faite permettant à la liste "sorted" de dupliquer la liste originale en stockant pour chaque noeud la distance par rapport à la camera. C'est alors un jeu d'enfant en ligne 23 de trier la liste, pour ensuite la re-basculer (l.25-26) en bonne et due forme dans la liste originale gérée par le scene manager. La seule subtilité réside dans le cast qui permet de revenir à un **ILightSceneNode** classique, sachant que la liste chainée "sorted" était de type **DistanceNodeEntry**.
 
-La ligne 29 est on ne peut plus explicite, et la ligne 31 est tout à fait logique quand on se souvient que c'est le scene manager et non le driver qui gère la lumière ambiante ([comme nous l'avons déjà vu ici](http://www.siteduzero.com/tutoriel-3-5603-1-que-la-lumiere-soit.html#ss_part_1)). Enfin ligne 33, une variable contenant la taille de la liste chainée est créée, et est utilisée ligne 38 pour passer tous les éléments en revue et ainsi pouvoir appeler leur fonction **render**. Retenez au passage que cette fois-ci la liste chainée n'a pas été réduite à 0, ce sera pour plus tard.  ;) 
+La ligne 29 est on ne peut plus explicite, et la ligne 31 est tout à fait logique quand on se souvient que c'est le scene manager et non le driver qui gère la lumière ambiante ([comme nous l'avons déjà vu ici](http://www.siteduzero.com/tutoriel-3-5603-1-que-la-lumiere-soit.html#ss_part_1)). Enfin ligne 33, une variable contenant la taille de la liste chainée est créée, et est utilisée ligne 38 pour passer tous les éléments en revue et ainsi pouvoir appeler leur fonction **render**. Retenez au passage que cette fois-ci la liste chainée n'a pas été réduite à 0, ce sera pour plus tard.  ;)
 
 
-Le bloc suivant est une promenade de santé en comparaison. A vrai dire il n'y a rien que nous n'ayons déjà vu, aussi allons nous directement passer à celui d'après.  :) 
+Le bloc suivant est une promenade de santé en comparaison. A vrai dire il n'y a rien que nous n'ayons déjà vu, aussi allons nous directement passer à celui d'après.  :)
 
 
 ```cpp
@@ -5519,7 +5519,7 @@ CurrentRendertime = ESNRP_NONE;
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="42916">
 		    <titre>
 		      <![CDATA[Et le rendu fut]]>
@@ -5568,16 +5568,16 @@ Voila qui pourra servir de pense bête au cas où (si si je vous assure qu'il es
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Une fois encore l'intérêt de descendre aussi bas dans le code source n'est peut être pas évident. Au delà du fait que c'est amusant (comment ça pas pour vous ?), c'est très utile dès qu'on veut modifier quelque chose. Histoire de ne pas jouer à la roulette russe quand on dérive une classe.
 
 Et depuis le temps qu'on en parle, c'est au prochain chapitre que nous allons enfin créer nos propres types de scene node. De grandes réjouissances en perspectives. ;)
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="182902">
 	      <titre>
 		    <![CDATA[Creation de scene nodes]]>
@@ -5597,7 +5597,7 @@ Que ce soit pour apporter une modification mineure à un type de scene node exis
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="182913">
 		    <titre>
 		      <![CDATA[Déclaration]]>
@@ -5622,8 +5622,8 @@ public:
     CSceneNodePerso(irr::scene::ISceneNode* parent,
         irr::scene::ISceneManager* mgr, s32 id=0);
 
-    virtual void OnRegisterSceneNode();            
-    virtual void render();                         
+    virtual void OnRegisterSceneNode();
+    virtual void render();
 
     virtual const irr::core::aabbox3d<irr::f32>& getBoundingBox() const;
     virtual irr::u32 getMaterialCount() const;
@@ -5632,8 +5632,8 @@ public:
 
 private :
 
-    irr::core::aabbox3d<irr::f32> m_box;           
-    irr::video::SMaterial m_material;              
+    irr::core::aabbox3d<irr::f32> m_box;
+    irr::video::SMaterial m_material;
 };
 
 
@@ -5661,7 +5661,7 @@ Et enfin lignes 27 et 28, les deux attributs de notre scene node (on commence pe
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="182914">
 		    <titre>
 		      <![CDATA[Implémentation]]>
@@ -5737,7 +5737,7 @@ void irr::scene::CSceneNodePerso::render()
 Et enfin ligne 8, ce qui nous intéresse le plus, le rendu en lui même du cube à l'écran. Pour ce faire rien de plus simple, il existe une fonction intégrée au driver permettant de dessiner une boite. Nous allons donc y faire appel en passant notre **m_box** en paramètre et en spécifiant une couleur blanche.
 
 
-Il ne reste plus qu'à implémenter les accesseurs. Je vous laisse jeter un oeil par vous même, il n'y a rien d'extraordinaire.  ;) 
+Il ne reste plus qu'à implémenter les accesseurs. Je vous laisse jeter un oeil par vous même, il n'y a rien d'extraordinaire.  ;)
 
 
 ```cpp
@@ -5794,7 +5794,7 @@ Notez ligne 16 qu'on peut se débarrasser tout de suite du pointeur qu'on vient 
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="183206">
 		    <titre>
 		      <![CDATA[Du haut de cette pyramide, 14 chapitres vous contemplent]]>
@@ -5814,7 +5814,7 @@ Pour mieux comprendre ce qui va suivre, je vous ai fait un petit schéma maison 
 
 Les sommets, qui sont représentés par des lettres, ont donc des coordonnées en 3D. Maintenant imaginons que nous ayons un tableau de 8 cases contenant chacune une coordonnée en 3D, qu'on peut donc assimiler à un sommet. On aimerait bien pouvoir construire le cube ci-dessus à partir de ces 8 sommets. C'est faisable bien sûr, à condition d'indiquer quel sommet fait parti de quelle face. La face du haut par exemple contient les points A,B,C et D. La face de droite les points C,D,E et F, etc...
 
-Le driver, qui va se charger de dessiner tout ça **uniquement avec des triangles**, a donc besoin d'une liste qui lui permette de comprendre dans quel ordre relier les points pour former les triangles. En fait, du point de vue de la syntaxe on se contente de lui passer une liste ininterrompue de valeurs correspondant aux sommets, qu'il va regrouper par paquets de 3 pour dessiner les triangles. Ce qui nous donne pour dessiner la face du haut : 
+Le driver, qui va se charger de dessiner tout ça **uniquement avec des triangles**, a donc besoin d'une liste qui lui permette de comprendre dans quel ordre relier les points pour former les triangles. En fait, du point de vue de la syntaxe on se contente de lui passer une liste ininterrompue de valeurs correspondant aux sommets, qu'il va regrouper par paquets de 3 pour dessiner les triangles. Ce qui nous donne pour dessiner la face du haut :
 
 
 ```
@@ -5888,16 +5888,16 @@ Vous savez ce qu'il reste à faire. Mélangez, compilez, et admirez le résultat
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
-	      <conclusion><![CDATA[Et voilà. Que rajouter ? Si ce n'est insister encore sur le fait que nous venons de franchir un palier dans la maîtrise du moteur. 
+
+	      <conclusion><![CDATA[Et voilà. Que rajouter ? Si ce n'est insister encore sur le fait que nous venons de franchir un palier dans la maîtrise du moteur.
 
 Vous êtes maintenant capables de créer vos propres types de scene nodes, d'utiliser la plupart de ceux existants, et vous maitrisez une bonne partie du processus de rendu. Un peu d'auto-satisfaction n'a jamais fait de mal, alors je pense que nous pouvons nous féliciter un moment pour le travail accompli (surtout moi d'ailleurs ![](images/15837.gif) ).
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="183448">
 	      <titre>
 		    <![CDATA[Introduction aux shaders]]>
@@ -5917,7 +5917,7 @@ Nous allons nous attarder sur la manière de les intégrer à un programme utili
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="183652">
 		    <titre>
 		      <![CDATA[Théorie générale]]>
@@ -5958,7 +5958,7 @@ Du point de vue d'Irrlicht, un shader est un type de material qui n'est pas pré
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="183449">
 		    <titre>
 		      <![CDATA[Création de la classe contenant le shader]]>
@@ -5978,7 +5978,7 @@ class CShaderPerso : public irr::video::IShaderConstantSetCallBack
 
 public:
 
-    virtual void OnSetConstants(irr::video::IMaterialRendererServices* 
+    virtual void OnSetConstants(irr::video::IMaterialRendererServices*
         services, irr::s32 userData);
 
 };
@@ -6040,7 +6040,7 @@ void main (void)
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="183457">
 		    <titre>
 		      <![CDATA[Enregistrement auprès du moteur]]>
@@ -6096,22 +6096,22 @@ La condition de ce test est de vérifier que les pixels shaders soient pris en c
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Comme l'indique son titre, ce chapitre n'est réellement qu'une introduction aux shaders sous Irrlicht. Il existe beaucoup d'autres moyen de s'en servir que celui que nous avons vu. Néanmoins je pense que c'est la plus pratique. Vous pouvez par exemple modifier les fichiers contenant les shaders sans avoir à recompiler l'application, ce qui est très agréable quand on fait des tests dessus.
 
 Bref, vous devriez avoir de quoi vous occuper pour le moment, en attendant un prochain chapitre plus détaillé sur le sujet.  ;)
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	</chapitres>
 	<conclusion><![CDATA[
 
 ]]></conclusion>
       </partie>
-    
+
       <partie id="187190">
 	<titre>
 	  <![CDATA[Chapitres sibyllins]]>
@@ -6126,7 +6126,7 @@ Bref, vous devriez avoir de quoi vous occuper pour le moment, en attendant un pr
 
 ]]></introduction>
 	<chapitres>
-	  
+
 	    <chapitre id="184248">
 	      <titre>
 		    <![CDATA[Le driver vidéo]]>
@@ -6151,7 +6151,7 @@ Mais commençons par préciser ce qui existe déjà.
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="184256">
 		    <titre>
 		      <![CDATA[Les différents drivers]]>
@@ -6169,7 +6169,7 @@ Mais commençons par préciser ce qui existe déjà.
 
 
 
-Comme vous le savez, **IVideoDriver** n'est qu'une interface déclarant toutes les fonctions du driver sans les implémenter. Et est donc inutilisable pour l'utilisateur en l'état. **CNullDriver** que nous voyons pour la première fois dans ce tutoriel sait se faire discret. En fait c'est lui qui réalise le lien entre les classes réellement instanciées lors de la création d'un driver (donc toutes les autres de cette liste) et IVideoDriver. Il implémente tout ce qui peut l'être sans perdre son aspect générique, donc sans faire appel à une API. Il est par conséquent lui aussi inutilisable pour l'utilisateur, même s'il contient beaucoup de choses intéressantes. 
+Comme vous le savez, **IVideoDriver** n'est qu'une interface déclarant toutes les fonctions du driver sans les implémenter. Et est donc inutilisable pour l'utilisateur en l'état. **CNullDriver** que nous voyons pour la première fois dans ce tutoriel sait se faire discret. En fait c'est lui qui réalise le lien entre les classes réellement instanciées lors de la création d'un driver (donc toutes les autres de cette liste) et IVideoDriver. Il implémente tout ce qui peut l'être sans perdre son aspect générique, donc sans faire appel à une API. Il est par conséquent lui aussi inutilisable pour l'utilisateur, même s'il contient beaucoup de choses intéressantes.
 
 Ensuite le reste est plus classique. On peut voir les versions Direct3D et OpenGL ainsi que les versions software (softwareDriver et burningVideoDriver) qui sont en fait des versions émulant elles mêmes une API 3D. Qui sont un peu plus lentes car ne disposant pas d'accélération matérielle, mais qui fonctionnent théoriquement sur n'importe quel hardware. Comme nous utilisons **OpenGL** depuis le début de ce tutoriel, continuons sur notre lancée et examinons plus en détails COpenGLDriver. Voici un petit diagramme (qu'on dirait de loin [UML](http://fr.wikipedia.org/wiki/Unified_Modeling_Language)) qui va permettre d'éclairer la situation :
 
@@ -6191,7 +6191,7 @@ Toutes ces classes font parties du namespace **irr::video::**, bien que je ne l'
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="186893">
 		    <titre>
 		      <![CDATA[Meshs rebelles et implémentations multiples]]>
@@ -6336,7 +6336,7 @@ Comme vous pouvez le voir, cette fonction n'est pas définie dans le CNullDriver
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="184371">
 		    <titre>
 		      <![CDATA[Faces à l'écran]]>
@@ -6446,7 +6446,7 @@ Néanmoins, pour que vous ne restiez pas totalement sur votre faim tenons le rai
 # Récapitulatif
 
 
-Des tribulations de notre mesh à travers les méandres d'Irrlicht, en supposant que tout se déroule sans accrocs. Attention ce tableau ne tient pas compte de bon nombre d'étapes intermédiaires. 
+Des tribulations de notre mesh à travers les méandres d'Irrlicht, en supposant que tout se déroule sans accrocs. Attention ce tableau ne tient pas compte de bon nombre d'étapes intermédiaires.
 
 
 
@@ -6470,7 +6470,7 @@ Des tribulations de notre mesh à travers les méandres d'Irrlicht, en supposant
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="186966">
 		    <titre>
 		      <![CDATA[Détournement de driver]]>
@@ -6530,16 +6530,16 @@ void CNullDriver::drawIndexedTriangleList(const S3DVertex* vertices,
 [![](images/201663.png)](http://uploads.siteduzero.com/files/201001_202000/201663.png)[![](images/201662.png)](http://uploads.siteduzero.com/files/201001_202000/201662.png)
 Et voilà, le tour est joué. Enfin pas tout à fait. Il faut également ajouter la déclaration de cette fonction dans CNullDriver.h et IVideoDriver.h (pensez aussi à remplacer l'ancienne version de IVideoDriver.h). Une fois que c'est fait, recompilez le moteur et utilisez la nouvelle bibliothèque. Vous pouvez maintenant utiliser des listes ayant 2^32 indices.
 
-Les screenshots de droite montrent le résultat d'un petit viewer de terrain perso qui affiche 66049 vertices d'un coup sans broncher. Alors bien sûr le framerate toussote un peu, mais ça fonctionne !  :D 
+Les screenshots de droite montrent le résultat d'un petit viewer de terrain perso qui affiche 66049 vertices d'un coup sans broncher. Alors bien sûr le framerate toussote un peu, mais ça fonctionne !  :D
 
 
 Quelques précisions tout de même avant de conclure. Nous avons dit plus haut que la limitation venait de l'appel à **drawVertexPrimitiveList**, et nous n'avons redéfini que drawIndexedTriangleList. Hors il existe beaucoup d'autres fonctions du driver qui font appel à **drawVertexPrimitiveList**. Si jamais l'envie vous prenait de véritablement passer au tout 32 bits, il faudrait toutes les redéfinir. Certains [forks](http://fr.wikipedia.org/wiki/Fork#Embranchement_d.27un_projet_informatique) d'Irrlicht implémentent cette fonctionnalité, mais ils ont souvent la fâcheuse tendance à ne plus être maintenus au bout de quelques mois. A vous de voir.
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Et nous voilà au bout de ce chapitre, qui je l'espère vous aura plu. Il est bien loin le temps du "moteur haut niveau qui fait tout pour vous". A partir de maintenant on va attaquer du costaud comme vous avez pu le remarquer.
 
 La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La mauvaise est que ça demande quelques efforts.
@@ -6551,13 +6551,13 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	</chapitres>
 	<conclusion><![CDATA[
 
 ]]></conclusion>
       </partie>
-    
+
       <partie id="5668">
 	<titre>
 	  <![CDATA[Annexe]]>
@@ -6572,7 +6572,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></introduction>
 	<chapitres>
-	  
+
 	    <chapitre id="402662">
 	      <titre>
 		    <![CDATA[Références]]>
@@ -6590,7 +6590,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="407970">
 		    <titre>
 		      <![CDATA[Général]]>
@@ -6620,7 +6620,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="402665">
 		    <titre>
 		      <![CDATA[Irrlicht & moteurs 3D]]>
@@ -6644,7 +6644,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="404061">
 		    <titre>
 		      <![CDATA[Algorithmes & programmation 3D]]>
@@ -6683,7 +6683,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="408229">
 		    <titre>
 		      <![CDATA[Textures]]>
@@ -6715,7 +6715,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="435026">
 		    <titre>
 		      <![CDATA[Mathématiques]]>
@@ -6733,7 +6733,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="435072">
 		    <titre>
 		      <![CDATA[Formats de fichier 3D]]>
@@ -6759,14 +6759,14 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5669">
 	      <titre>
 		    <![CDATA[Aide mémoire]]>
@@ -6784,7 +6784,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5671">
 		    <titre>
 		      <![CDATA[Lexique]]>
@@ -6915,7 +6915,7 @@ La bonne nouvelle est que plus on connaît un outil et plus on le maitrise. La m
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="406640">
 		    <titre>
 		      <![CDATA[Formats de fichier 3D]]>
@@ -6962,14 +6962,14 @@ Le tableau sera complété et probablement agrandi au fil du temps, mais vous po
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5675">
 	      <titre>
 		    <![CDATA[Recompiler Irrlicht]]>
@@ -6992,7 +6992,7 @@ Le tableau sera complété et probablement agrandi au fil du temps, mais vous po
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5676">
 		    <titre>
 		      <![CDATA[Sous Windows]]>
@@ -7016,7 +7016,7 @@ A moins que vous n'y ayez touché, les headers restent les mêmes. En revanche l
 
 ## Code::Blocks
 
-La procédure est simple comme bonjour : ouvrez le SDK, allez dans le dossier 'source', puis le dossier 'Irrlicht', et cherchez-y le fichier **Irrlicht2-gcc.cbp**. Il s'agit d'un fichier projet que vous pouvez ouvrir avec code::blocks. Faîtes le, lancez la compilation, et allez vous chercher un jus de fruit en attendant que ce soit terminé.  :) 
+La procédure est simple comme bonjour : ouvrez le SDK, allez dans le dossier 'source', puis le dossier 'Irrlicht', et cherchez-y le fichier **Irrlicht2-gcc.cbp**. Il s'agit d'un fichier projet que vous pouvez ouvrir avec code::blocks. Faîtes le, lancez la compilation, et allez vous chercher un jus de fruit en attendant que ce soit terminé.  :)
 
 Une fois que c'est le cas vous pouvez récupérer la bibliothèque statique dans le dossier **SDK/lib/**, et la bibliothèque dynamique dans le dossier **SDK/bin/**.
 
@@ -7036,7 +7036,7 @@ La démarche est identique pour Visual C++. Toujours dans le même dossier se tr
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5677">
 		    <titre>
 		      <![CDATA[Sous GNU/Linux]]>
@@ -7083,14 +7083,14 @@ Une fois la compilation terminée, vous pouvez récupérer la bibliothèque stat
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Vous aurez remarqué que la liste des cas de figure n'est pas exhaustive, et ce pour des raisons matérielles évidentes. Je n'ai ni le temps ni les moyens de tester la compilation du moteur sur toutes les plateformes existantes. Il se peut donc que votre configuration ne figure pas dans ce chapitre. Si c'est le cas et que vous avez envie d'aider ce tuto, vous pouvez m'envoyer la démarche que vous avez suivie et je l'intégrerais à ce chapitre.  :)
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	    <chapitre id="5681">
 	      <titre>
 		    <![CDATA[Créer ses modèles avec Blender]]>
@@ -7112,12 +7112,12 @@ Voici un exemple de ce qu'il sera possible d'obtenir avec cette méthode :
 
 [![](images/88638.jpg)](http://uploads.siteduzero.com/files/88001_89000/88638.jpg)[![](images/88639.jpg)](http://uploads.siteduzero.com/files/88001_89000/88639.jpg)[![](images/88640.jpg)](http://uploads.siteduzero.com/files/88001_89000/88640.jpg)[![](images/88641.jpg)](http://uploads.siteduzero.com/files/88001_89000/88641.jpg)[![](images/88642.jpg)](http://uploads.siteduzero.com/files/88001_89000/88642.jpg)
 
-J'ai jamais dit que ça serait beau. ^^  
+J'ai jamais dit que ça serait beau. ^^
 Je vous rassure, il est possible de faire bien mieux. C'est juste que j'ai un peu de mal avec l'UV-Mapping...
 
 ]]></introduction>
 	      <sousparties>
-		
+
 		  <souspartie id="5682">
 		    <titre>
 		      <![CDATA[Modelisation]]>
@@ -7130,7 +7130,7 @@ Si vous ne vous êtes jamais servi de Blender, je vous conseil ce très bon tuto
 Je vous fais confiance pour réaliser des choses intéressantes, en ce qui me concerne j'ai fait une place :
 
 
-Si vous ne vous sentez pas très à l'aise avec le logiciel ou que vous n'avez pas envie de vous prendre la tête, commencez par quelque chose de (très) simple. 
+Si vous ne vous sentez pas très à l'aise avec le logiciel ou que vous n'avez pas envie de vous prendre la tête, commencez par quelque chose de (très) simple.
 Un simple cube suffit à comprendre le principe, c'est le plus important.
 
 Si vous êtes vraiment mauvais en modélisation mais que vous voulez tout de même voir comment texturer un modèle 3D sous Blender, vous pouvez [télécharger le fichier](http://kevinleonhart.110mb.com/divers/packPlaceIrr.zip) .blend de ma... superbe place (en même temps c'est un tutoriel de programmation hein, pas d'infographie ;) ).
@@ -7142,7 +7142,7 @@ Si vous êtes vraiment mauvais en modélisation mais que vous voulez tout de mê
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5683">
 		    <titre>
 		      <![CDATA[Texturing]]>
@@ -7169,7 +7169,7 @@ Vous noterez que je n'ai pas eu le courage d'aller jusqu'au bout (si vous saviez
 
 ]]></texte>
 		  </souspartie>
-		
+
 		  <souspartie id="5684">
 		    <titre>
 		      <![CDATA[Import]]>
@@ -7189,7 +7189,7 @@ Si tout se passe bien vous récupérez un fichier .obj contenant le modèle.
 
 ```cpp
 #include <irr rrlicht.h="">
- 
+
 int main(void)
 {
     //Device, driver et graphe de scene.
@@ -7197,10 +7197,10 @@ int main(void)
         irr::core::dimension2d<irr::u32>(800,800),32,false,false,false);
     irr::video::IVideoDriver* driver = device->getVideoDriver ();
     irr::scene::ISceneManager *sceneManager = device->getSceneManager ();
- 
+
     //On rend invisible le curseur.
     device->getCursorControl ()-> setVisible (false);
- 
+
     //La camera
     irr::SKeyMap keyMap[5];
     keyMap[0].Action = irr::EKA_MOVE_FORWARD;
@@ -7215,7 +7215,7 @@ int main(void)
     keyMap[4].KeyCode = irr::KEY_SPACE;
     irr::scene::ICameraSceneNode *camera;
     camera = sceneManager->addCameraSceneNodeFPS (0,100.0f,20.0f, -1, keyMap, 5, false, 0.4);
- 
+
     //On charge le mesh
     irr::scene::IAnimatedMesh *mesh = sceneManager->getMesh("nom_du_fichier.obj");
     //On l'associe a un noeud de la scene
@@ -7225,7 +7225,7 @@ int main(void)
     meshNode->setMaterialTexture(0, driver->getTexture("texture_du_modele.png"));
     //On rend le mesh insensible a la lumiere
     meshNode->setMaterialFlag(irr::video::EMF_LIGHTING, false);
- 
+
     //La boucle de rendu
     while (device->run())
     {
@@ -7233,7 +7233,7 @@ int main(void)
         sceneManager->drawAll ();
         driver->endScene ();
     }
- 
+
     device->drop();
     return 0;
 }
@@ -7255,7 +7255,7 @@ Vous pouvez supprimer manuellement ce(s) défaut(s) ou encore tenter d'exporter 
 
 
 
-**S**i vous n'avez pas envie de faire tout ce qui a été dit depuis le début du chapitre ou si vous êtes juste curieux de voir le résultat, vous pouvez 
+**S**i vous n'avez pas envie de faire tout ce qui a été dit depuis le début du chapitre ou si vous êtes juste curieux de voir le résultat, vous pouvez
 
 [télécharger ce dossier zippé contenant des exécutables Windows et Linux, le fichier .blend de la place ainsi que les textures et le code source de l'application.](http://kevinleonhart.110mb.com/divers/packPlaceIrr.zip)
 
@@ -7265,9 +7265,9 @@ De cette manière vous pourrez par exemple constater les différences de rendu s
 
 ]]></texte>
 		  </souspartie>
-		
+
 	      </sousparties>
-	      
+
 	      <conclusion><![CDATA[Bon, je vous laisse refaire la map de [GTA SA](images/mapsavierge.jpg), moi je vais écrire le prochain chapitre. ^^
 
 Au passage, si vous connaissez des astuces sur Blender qui permettraient de réduire le temps de mapping ou quoi que ce soit d'intéressant, n'hésitez pas à le mettre dans les commentaires du chapitre. :)
@@ -7276,21 +7276,21 @@ Au passage, si vous connaissez des astuces sur Blender qui permettraient de réd
 
 ]]></conclusion>
 	    </chapitre>
-	  
+
 	</chapitres>
 	<conclusion><![CDATA[
 
 ]]></conclusion>
       </partie>
-    
+
   </parties>
   <conclusion><![CDATA[Concernant l'avenir de ce tutoriel, j'en ai débuté la rédaction il y a maintenant plusieurs années et il est en ligne depuis quasiment autant de temps. Bien avant l'apparition du système d'[historique](http://www.siteduzero.com/tutoriel-21-5690-petit-guide-d-irrlicht.html) d'ailleurs. Il a subit de nombreuses évolutions, tant sur la forme que sur le fond, notamment dues aux évolutions d'Irrlicht lui-même.
 
-Bref, tout ça pour dire que je suis un peu passé à autre chose depuis le temps. Et comme les éventuels prochains chapitres demanderaient de plus en plus d'efforts et de temps à rédiger, il n'est pas évident du tout qu'ils seront publiés un jour... Bien entendu si vous voulez vous baser dessus pour le continuer ou approfondir certains points, je vous y encourage de tout cœur. C'est notamment pour cette raison qu'il est sous licence [CC-By-Sa](http://creativecommons.org/licenses/by-sa/2.0/fr/). :) 
+Bref, tout ça pour dire que je suis un peu passé à autre chose depuis le temps. Et comme les éventuels prochains chapitres demanderaient de plus en plus d'efforts et de temps à rédiger, il n'est pas évident du tout qu'ils seront publiés un jour... Bien entendu si vous voulez vous baser dessus pour le continuer ou approfondir certains points, je vous y encourage de tout cœur. C'est notamment pour cette raison qu'il est sous licence [CC-By-Sa](http://creativecommons.org/licenses/by-sa/2.0/fr/). :)
 
 Si vous rencontrez un problème, que vous avez besoin d'aide ou de conseils pour un projet, créez un sujet sur les [forums](http://www.siteduzero.com/forum-81-237-langage-c.html) (pas de MP s'il vous plait). Si un code source donné dans un chapitre ne fonctionne pas, ne vous précipitez pas sur les commentaires du tutoriel. La plupart du temps il s'agit d'une erreur "bête" comme un mauvais type de donnée ou un namespace manquant. Si vraiment le code comporte une erreur vous pouvez le signaler aux validateurs par le lien correspondant (en bas à droite).
 
-Au cas où ce tutoriel ne contient pas d'explication sur un point particulier dont vous avez besoin, faîtes ce que tout le monde devrait faire dans ce cas là : galérez, ramez, galérez, puis quand vous arrivez à surnager commencez à prendre des notes. Galérez encore un peu puis quand vous arrivez enfin à maîtriser le sujet, écrivez un papier dessus et soumettez le aux gens susceptibles d'êtres intéressés. Une fois que tout ça est validé, faîtes en un tutoriel. De cette manière le prochain qui rencontrera le problème gagnera un temps fou et vous gagnerez la satisfaction d'avoir aidé quelqu'un.  :) 
+Au cas où ce tutoriel ne contient pas d'explication sur un point particulier dont vous avez besoin, faîtes ce que tout le monde devrait faire dans ce cas là : galérez, ramez, galérez, puis quand vous arrivez à surnager commencez à prendre des notes. Galérez encore un peu puis quand vous arrivez enfin à maîtriser le sujet, écrivez un papier dessus et soumettez le aux gens susceptibles d'êtres intéressés. Une fois que tout ça est validé, faîtes en un tutoriel. De cette manière le prochain qui rencontrera le problème gagnera un temps fou et vous gagnerez la satisfaction d'avoir aidé quelqu'un.  :)
 
 Un peu de philosophie enfin pour se quitter. Ce tutoriel répond partiellement à la question **comment ?**, mais celle-ci reste quoi qu'il arrive secondaire (vous l'aurez je pense compris si avez suivi ce tutoriel du début à la fin). Il est maintenant temps de répondre à la question **pourquoi ?**. Voici quelques ouvrages qui devraient vous mettre sur la voie :
 

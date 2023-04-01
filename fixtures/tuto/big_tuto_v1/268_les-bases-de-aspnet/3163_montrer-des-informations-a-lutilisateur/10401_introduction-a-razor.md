@@ -45,7 +45,7 @@ Tout ce qui se situe entre ces délimiteurs doivent respecter les règles du lan
 
 ### Exemple
 
-Dans notre application de blog, créons un nouveau contrôleur vide. Nous l'appellerons **DemoController**. 
+Dans notre application de blog, créons un nouveau contrôleur vide. Nous l'appellerons **DemoController**.
 
 ```csharp
 public class DemoController : Controller
@@ -75,7 +75,7 @@ A l'aide du clique droit, ajoutons une vue appelée **Index**.
     <title>Index</title>
 </head>
 <body>
-    <div> 
+    <div>
     </div>
 </body>
 </html>
@@ -93,7 +93,7 @@ Layout est une variable initialisé à null car nous n'utilisons pas de mise en 
 
 ```html
 <body>
-    <div> 
+    <div>
         @{
             String nom = "Clem";
             String message = "Salut " + nom;

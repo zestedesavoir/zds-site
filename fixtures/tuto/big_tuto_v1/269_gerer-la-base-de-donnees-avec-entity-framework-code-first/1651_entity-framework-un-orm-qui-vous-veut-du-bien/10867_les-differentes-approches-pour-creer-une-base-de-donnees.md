@@ -50,7 +50,7 @@ Quand vous démarrez un projet, vous allez souvent vous poser beaucoup de questi
 - Est-ce que vous êtes seuls? Si oui, vous faites **comme vous préférez**, c'est comme ça que vous serez le plus efficace, mais si vous êtes à plusieurs il vous faudra vous poser une troisième question primordiale :
 - Qui s'occupe de la BDD : un codeur ou un expert qui a réfléchi son modèle sur un diagramme? Il y a fort à parier que s'adapter à l'expertise de la personne qui gère la BDD est une bonne pratique, non?
 
-Pour être plus visuel, on peut dire les choses ainsi : 
+Pour être plus visuel, on peut dire les choses ainsi :
 
 
 ![Choix de l'approche](http://zestedesavoir.com/media/galleries/304/4eca47a4-852f-4b64-8a64-aee222c95513.png.960x960_q85.jpg)

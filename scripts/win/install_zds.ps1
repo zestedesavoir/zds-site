@@ -110,7 +110,7 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
   }
 
   PrintInfo " | -> Unzip node."
-  
+
   # unzip
   Expand-Archive "temp_download\node.zip" -DestinationPath "$APP_PATH"; $exVal=$LASTEXITCODE + 0
   ren "$APP_PATH\$node_filename" "node"; $exVal=($LASTEXITCODE + $exVal)
@@ -129,7 +129,7 @@ if (-not (_in "-node") -and ((_in "+node") -or (_in "+base") -or (_in "+full")))
     Add-Content zdsenv\Scripts\activate.ps1 $text
     $text = "`$PATH.add(`$VIRTUAL_ENV + _get_sep() + `"App`" + _get_sep() + `"node`", front=True, replace=True)"
     Add-Content zdsenv\Scripts\activate.xsh $text
-  } 
+  }
 
   PrintInfo "* Install yarn"
   PrintInfo " | -> Downloading yarn..."
@@ -264,7 +264,7 @@ if (-not (_in "-data") -and ((_in "+data") -or (_in "+base") -or (_in "+full")))
   if ($exVal -ne 0) {
     Error "Error: Cannot start zmd to generate-fixtures." 11
   }
-  
+
   # prevent error, wait zmd
   # TODO add curl to check if zmd is ready
   Start-Sleep -s 5
