@@ -205,11 +205,12 @@ function watch() {
   gulp.watch('assets/js/*.js', js)
   gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images)
   gulp.watch(['assets/scss/**/*.scss'], css)
+  gulp.watch(['errors/scss/main.scss'], errors)
   gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 }
 
 // Build the front
-const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
+const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, errors, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 
 exports.build = build
 exports.watch = gulp.series(build, watch)

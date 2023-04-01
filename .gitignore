@@ -13,6 +13,7 @@ base.db
 /articles-data
 /zds/_version.py
 /geodata
+/errors/css
 
 /tutoriels-private-test
 /tutoriels-public-test
