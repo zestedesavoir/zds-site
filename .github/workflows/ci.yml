@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
-    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
-    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
-    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
