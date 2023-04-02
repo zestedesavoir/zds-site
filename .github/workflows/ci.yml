@@ -1,6 +1,10 @@
 name: CI
 
-on: ["push", "pull_request"]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
   NODE_VERSION: "16" # needs to be also updated in .nvmrc
@@ -24,12 +28,15 @@ jobs:
     name: Lint back-end
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -44,12 +51,15 @@ jobs:
     name: Build Sphinx documentation
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -58,10 +68,10 @@ jobs:
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
@@ -74,33 +84,34 @@ jobs:
       - name: Build documentation
         run: make generate-doc
 
-      - name: Upload documentation as an artifact
-        uses: actions/upload-artifact@v2
+      - name: Upload documentation as a page artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          name: doc
           path: doc/build/html
-          retention-days: 1
 
   # Build the website front-end and upload built assets as an artifact.
   build-front:
     name: Lint and build front-end
     runs-on: ubuntu-22.04
 
+    # do not execute scheduled jobs on forks:
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "${{ env.NODE_VERSION }}"
 
       - name: Retrieve yarn cache directory
         id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -118,7 +129,7 @@ jobs:
         run: make build-front
 
       - name: Upload font-end assets for subsequent tests
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: assets
           path: dist
@@ -187,10 +198,10 @@ jobs:
           tar -xzf geckodriver-v${{ env.GECKODRIVER_VERSION }}-linux64.tar.gz -C geckodriver
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Download previously built assets
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: assets
           path: dist
@@ -201,11 +212,10 @@ jobs:
 
       - name: Retrieve pip cache directory
         id: pip-cache
-        run: |
-          echo "::set-output name=dir::$(pip cache dir)"
+        run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
@@ -213,7 +223,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Cache Node modules
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('zmd/package-lock.json') }}
@@ -221,12 +231,12 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "${{ env.NODE_VERSION }}"
 
@@ -265,7 +275,7 @@ jobs:
 
     steps:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -284,17 +294,16 @@ jobs:
     runs-on: ubuntu-22.04
     if: "github.ref == 'refs/heads/dev'"
 
-    steps:
-      - name: Download previously built documentation
-        uses: actions/download-artifact@v2
-        with:
-          name: doc
-          path: doc/build/html
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@3.7.1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH: gh-pages
-          FOLDER: doc/build/html
-          CLEAN: true
+        id: deployment
+        uses: actions/deploy-pages@v2

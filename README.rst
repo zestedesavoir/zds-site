@@ -1,6 +1,6 @@
 |Build Status| |Coverage Status| |Licence GPL|
 
-.. image:: https://github.com/zestedesavoir/zds-site/blob/36c6bbc50fdecd936768ef5a566d98f5d757fcbf/assets/images/logo-background.png
+.. image:: https://raw.githubusercontent.com/zestedesavoir/zds-site/36c6bbc50fdecd936768ef5a566d98f5d757fcbf/assets/images/logo-background.png
 
 Qu'est-ce que Zeste de Savoir ?
 ===============================
