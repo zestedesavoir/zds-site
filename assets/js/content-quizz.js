@@ -6,7 +6,6 @@ let index = 0
 
 function extractAnswer(inputDomElementList, answers) {
 
-
     inputDomElementList.forEach((rb) => {
       
       const ulWrapperElement = rb.parentElement.parentElement
@@ -73,8 +72,8 @@ function initializeCheckboxes(answers) {
  
 
 
+    // add explanation to all questions
     document.querySelectorAll('div.quizz').forEach(quizz => {
-
       
       const quizzDivs = quizz.querySelectorAll('div.custom-block.custom-block-quizz');
       quizzDivs.forEach(quizzDiv => {
@@ -307,7 +306,6 @@ function injectForms(quizz, answers) {
 
 let answers = {}
 
-
 initializePipeline.forEach(func => func(answers))
 
 let idCounter = 0
@@ -320,6 +318,13 @@ document.querySelectorAll('div.quizz').forEach(div => {
 })
 
 function sendQuizzStatistics(form, statistics) {
+
+  const Result = statistics.result;
+  const questions = [...form.querySelectorAll('.custom-block-heading')].map(question => question.innerText);
+  Object.keys(Result).forEach(key => {
+    if (!questions.includes(key)) Result[key].labels = [];
+  });
+
   const csrfmiddlewaretoken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
   const xhttp = new XMLHttpRequest()
   xhttp.open('POST', form.getAttribute('action'))
@@ -333,7 +338,6 @@ function sendQuizzStatistics(form, statistics) {
 
 function displayResultAfterSubmitButton(form) {
 
-  const resultElement = form.querySelector('.result');
   const questions = form.querySelectorAll('.custom-block-quizz');
 
 
@@ -369,8 +373,6 @@ function QuizzAnswered(form) {
   return true
 }
 
-
-      
 document.querySelectorAll('form.quizz').forEach(form => {
   
   form.addEventListener('submit', e => {
@@ -395,8 +397,6 @@ document.querySelectorAll('form.quizz').forEach(form => {
 
     if (QuizzAnswered(form)) {
 
-      let nbTotal = 0;
-      let nbGood = 0;
       
       const formData = new FormData(form)
       const [badAnswerNames, allAnswerNames] = computeForm(formData, answers)
@@ -452,28 +452,19 @@ document.querySelectorAll('form.quizz').forEach(form => {
           }
           statistics.result[title].labels.push(label.trim())
         })
-        console.log(element);
-        if (element.classList.contains('hasAnswer')) {
-          nbTotal++
-          
-          if (!element.classList.contains('quizz-bad')) {
-            
-            element.classList.add('quizz-good')
-            statistics.result[title].evaluation = 'ok'
-            nbGood++
+        if (element.classList.contains('hasAnswer') && !element.classList.contains('quizz-bad')) {
 
-          }
-        
+          element.classList.add('quizz-good')
+          statistics.result[title].evaluation = 'ok'
+
         }
-
+        
       })
      
       sendQuizzStatistics(form, statistics)
       // submitBtn.setAttribute('disabled', true);
       displayResultAfterSubmitButton(form)
       notAnswered.innerText = ''
-      nbGood = 0;
-      nbTotal = 0;
     // not all questions answered
     }else {
         
