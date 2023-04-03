@@ -344,7 +344,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         )
         for base_question in set(base_questions):
             full_answers_total = {}
-            url = ""
+            name = ""
             question = ""
             for available_answer in (
                 QuizzAvailableAnswer.objects.filter(related_question__pk=base_question)
@@ -352,7 +352,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 .all()
             ):
                 full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
-                url = available_answer.related_question.url
+                name = available_answer.related_question.url.split("#")[-1]
                 question = available_answer.related_question.question
                 for r in total_per_label:
                     if (
@@ -360,7 +360,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                         and r["answer"].strip() == available_answer.label.strip()
                     ):
                         full_answers_total[available_answer.label]["nb"] = r["nb"]
-            if url not in quizz_stats:
-                quizz_stats[url] = OrderedDict()
-            quizz_stats[url][question] = {"total": total_per_question[base_question], "responses": full_answers_total}
+            if name not in quizz_stats:
+                quizz_stats[name] = OrderedDict()
+            quizz_stats[name][question] = {"total": total_per_question[base_question], "responses": full_answers_total}
         return quizz_stats

@@ -1,9 +1,9 @@
 {% load i18n %}
 
 <div id="{{ tab_name }}" class="tabcontent">
-    {% for url, questions in quizz.items %}
+    {% for quizz_name, questions in quizz.items %}
         <header>
-            <h3>{{ url }}</h3>
+            <h3>{{ quizz_name }}</h3>
         </header>
         {% for question, stats in questions.items %}
             <article class="stat-graph">
