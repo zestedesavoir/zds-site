@@ -369,7 +369,6 @@ function QuizzAnswered(form) {
   return true
 }
 
-
 document.querySelectorAll('form.quizz').forEach(form => {
   
   form.addEventListener('submit', e => {
