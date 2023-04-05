@@ -256,7 +256,7 @@ function injectForms(quizz, answers) {
       submit.innerText = submitLabel
      
       submit.classList.add('btn', 'btn-submit')
-      submit.setAttribute('id', `my-button-${idBias}`);
+      submit.setAttribute('id', `my-button`);
 
 
       const notAnswered = document.createElement('p')
@@ -319,11 +319,6 @@ document.querySelectorAll('div.quizz').forEach(div => {
 
 function sendQuizzStatistics(form, statistics) {
 
-  const Result = statistics.result;
-  const questions = [...form.querySelectorAll('.custom-block-heading')].map(question => question.innerText);
-  Object.keys(Result).forEach(key => {
-    if (!questions.includes(key)) Result[key].labels = [];
-  });
 
   const csrfmiddlewaretoken = document.querySelector('input[name=\'csrfmiddlewaretoken\']').value
   const xhttp = new XMLHttpRequest()
@@ -332,6 +327,7 @@ function sendQuizzStatistics(form, statistics) {
   xhttp.setRequestHeader('Content-Type', 'application/json')
   xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
   statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
+  
   xhttp.send(JSON.stringify(statistics))
 
 }
@@ -372,6 +368,7 @@ function QuizzAnswered(form) {
   }
   return true
 }
+
 
 document.querySelectorAll('form.quizz').forEach(form => {
   
@@ -414,6 +411,8 @@ document.querySelectorAll('form.quizz').forEach(form => {
           questions.push(result.name)
         }
       })
+      
+
       const statistics = {
         expected: {},
         result: {}
@@ -432,35 +431,42 @@ document.querySelectorAll('form.quizz').forEach(form => {
           labels: []
         }
         statistics.expected[title] = {}
-        const availableResponses = element.querySelectorAll('input')
-        for (let i = 0; i < availableResponses.length; i++) {
-          // wee need to get the question label for statistics
-          const liWrapper = availableResponses[i].parentElement
-          let questionLabel = liWrapper.textContent
-          if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
-            questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
-          }
-          statistics.expected[title][questionLabel] = answers[name][i]
-        }
-        // now determine answers and their labels
-        element.querySelectorAll('input:checked').forEach(node => {
-            
-          // remove eventual glued corretion
-          let label = node.parentElement.textContent
-          if (correction && label.indexOf(correction.textContent) !== -1) {
-            label = label.substr(0, label.indexOf(correction.textContent))
-          }
-          statistics.result[title].labels.push(label.trim())
-        })
-        if (element.classList.contains('hasAnswer') && !element.classList.contains('quizz-bad')) {
+       
+        //make statistics of concerned form only
 
-          element.classList.add('quizz-good')
-          statistics.result[title].evaluation = 'ok'
+        const CurrentFormQuestions = [...form.querySelectorAll('.custom-block-heading')].map(question => question.textContent);
 
-        }
-        
+        if (CurrentFormQuestions.includes(title)){
+
+          const availableResponses = element.querySelectorAll('input')
+          for (let i = 0; i < availableResponses.length; i++) {
+            // wee need to get the question label for statistics
+            const liWrapper = availableResponses[i].parentElement
+            let questionLabel = liWrapper.textContent
+            if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
+              questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
+            }
+            statistics.expected[title][questionLabel] = answers[name][i]
+          }
+          // now determine answers and their labels
+          element.querySelectorAll('input:checked').forEach(node => {
+              
+            // remove eventual glued corretion
+            let label = node.parentElement.textContent
+            if (correction && label.indexOf(correction.textContent) !== -1) {
+              label = label.substr(0, label.indexOf(correction.textContent))
+            }
+            statistics.result[title].labels.push(label.trim())
+          })
+          if (element.classList.contains('hasAnswer') && !element.classList.contains('quizz-bad')) {
+
+            element.classList.add('quizz-good')
+            statistics.result[title].evaluation = 'ok'
+
+          }
+        }  
       })
-     
+      
       sendQuizzStatistics(form, statistics)
       // submitBtn.setAttribute('disabled', true);
       displayResultAfterSubmitButton(form)
