@@ -659,6 +659,13 @@ li.task-list-item {
 
         background-color: $true-white !important;
     }
+    input[type=radio] {
+        position: absolute;
+        top: $length-2;
+        left: -$length-24;
+
+        background-color: $true-white !important;
+    }
     &.answer-bad {
         color: $color-danger;
     }

@@ -80,17 +80,9 @@
     margin-top: 1rem;
     padding: 1rem;
     
-    border: 1px solid #f5c6cb; /* dark red */
+    border: 1px solid #d19ea4; /* dark red */
     color: #0a0706; /* dark text */
     border-radius: 0.25rem;
-    font-size: 1.2rem;
-    line-height: 1.5;
-    &.active {
-        background-color: #02ca44; /* light red */
-    }
-    &:empty {
-        display: none;
-    }
 }
 
 .notAnswered{
@@ -103,9 +95,6 @@
     border-radius: 0.25rem;
     font-size: 1.2rem;
     line-height: 1.5;
-    &.active {
-        background-color: #02ca44; /* light red */
-    }
     &:empty {
         display: none;
     }   
