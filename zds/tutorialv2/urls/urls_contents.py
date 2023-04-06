@@ -1,7 +1,14 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import DisplayContent, CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.contents import (
+    DisplayContent,
+    CreateContent,
+    EditContent,
+    EditContentLicense,
+    DeleteContent,
+    Generate_quizz,
+)
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
@@ -202,4 +209,5 @@ urlpatterns = [
     path("objectifs/", ViewContentsByGoal.as_view(), name="view-goals"),
     # quizz
     path("reponses/<int:pk>/<slug:slug>/", ContentQuizzStatistics.as_view(), name="answer-quizz"),
+    path("quizz_generateur/<int:pk>/", Generate_quizz.as_view(), name="generate-quizz"),
 ]
