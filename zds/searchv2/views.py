@@ -137,7 +137,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
     def _add_negative_numerical_filter(self, field, values):
         """
         Add a filter to the current filter, this filter is used for numerical negation
-        Indeed, in 0.24.0, Typesense doesn't allow numerical negation
+        Indeed, in 0.24.0, Typesense doesn't allow excluding a numerical value
         field : it's a string with the name of the field to filter
         values : is a list of strings with value that we don't want for the field
         """
@@ -202,18 +202,17 @@ class SearchView(ZdSPagingListView):
             if self.search_form.cleaned_data["from_library"] == "on":
                 self.from_library = True
 
-            # Check which collections needs to search
+            # Check in which collections search is performed
             search_collections = self.search_form.cleaned_data["models"]
             search_collection_count = len(search_collections)
 
-            # Check which type of content is needed
+            # Check which content types are searched
             self.search_content_types = self.search_form.cleaned_data["content_types"]
             self.search_content_types_count = len(self.search_content_types)
 
-            # Check if the conent must be validated
+            # Check if the content must be validated
             self.search_validated_content = self.search_form.cleaned_data["validated_content"]
 
-            # Typesense Search
             search_requests = {"searches": []}
 
             searches = {
