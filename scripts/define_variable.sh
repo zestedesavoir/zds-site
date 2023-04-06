@@ -10,16 +10,12 @@ if [[ $ZDS_NVM_VERSION == "" ]]; then
     ZDS_NVM_VERSION="0.33.11"
 fi
 
-if [[ $ZDS_ELASTIC_VERSION == "" ]]; then
-    ZDS_ELASTIC_VERSION="5.5.2"
-fi
-
 if [[ $ZDS_TYPESENSE_VERSION == "" ]]; then
     ZDS_TYPESENSE_VERSION="0.24.0"
 fi
 
-if [[ $ZDS_TYPESENSE_VERSION == "" ]]; then
-    ZDS_TYPESENSE_VERSION="xyz"
+if [[ $ZDS_TYPESENSE_API_KEY == "" ]]; then
+    ZDS_TYPESENSE_API_KEY="xyz"
 fi
 
 if [[ $ZDS_LATEX_REPO == "" ]]; then

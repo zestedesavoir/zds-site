@@ -41,7 +41,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.manager.reset_index(self.indexable)
         self.manager.setup_custom_analyzer()
-        self.manager.refresh_index()
+        # self.manager.refresh_index()
 
     def test_basic_search(self):
         """Basic search and filtering"""

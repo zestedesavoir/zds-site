@@ -18,17 +18,15 @@ SEARCH_CONNECTIONS = {
     "default": {
         "nodes": [
             {
-                "host": "localhost",  # For Typesense Cloud use xxx.a1.typesense.net
-                "port": "8108",  # For Typesense Cloud use 443
-                "protocol": "http",  # For Typesense Cloud use https
+                "host": "localhost",
+                "port": "8108",
+                "protocol": "http",
             }
         ],
         "api_key": "xyz",
         "connection_timeout_seconds": 2,
     }
 }
-
-SEARCH_INDEX = {}
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
 VOTES_ID_LIMIT = zds_config.get("VOTES_ID_LIMIT", 0)
