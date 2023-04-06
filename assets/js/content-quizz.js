@@ -81,7 +81,7 @@ function initializeCheckboxes(answers) {
         const lastLi = ul.lastElementChild
         const explanationText = lastLi.innerText
     
-        const explanation = document.createElement('p')
+        const explanation = document.createElement('div')
         explanation.classList.add('explanation_off')
         explanation.innerText = explanationText
         lastLi.parentNode.removeChild(lastLi);
@@ -329,7 +329,6 @@ function sendQuizzStatistics(form, statistics) {
   xhttp.setRequestHeader('Content-Type', 'application/json')
   xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
   statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
-  
   xhttp.send(JSON.stringify(statistics))
 
 }
@@ -384,6 +383,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
     // test if the user is connected
     if(document.querySelector('input[name=\'csrfmiddlewaretoken\']')){
 
+      // test if the whole quizz is answered
       if (QuizzAnswered(form)) {
 
         const formData = new FormData(form)
