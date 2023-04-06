@@ -87,9 +87,9 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
 
 class SuggestionContentView(CreateView, SingleObjectMixin):
     """
-    Site members who are part of the staff can choose at the end of a publication to suggest another content of the site.
+    Staff members can choose at the end of a publication to suggest another content of the site. can choose at the end of a publication to suggest another content of the site.
     When they want to add a suggestion, they write in a text field the name of the content to suggest,
-    content proposals are then made.
+    content proposals are then made, using the search engine through this view.
     """
 
     search_query = None
@@ -116,9 +116,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
             }
 
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
-                search_parameters["filter_by"] = self._add_a_negative_numerical_filter(
-                    "content_pk", excluded_content_ids
-                )
+                search_parameters["filter_by"] = self._add_negative_numerical_filter("content_pk", excluded_content_ids)
 
             hits = client.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
 
@@ -136,7 +134,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
 
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
 
-    def _add_a_negative_numerical_filter(self, field, values):
+    def _add_negative_numerical_filter(self, field, values):
         """
         Add a filter to the current filter, this filter is used for numerical negation
         Indeed, in 0.24.0, Typesense doesn't allow numerical negation
