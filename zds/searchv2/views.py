@@ -205,6 +205,8 @@ class SearchView(ZdSPagingListView):
             # Check in which collections search is performed
             search_collections = self.search_form.cleaned_data["models"]
             search_collection_count = len(search_collections)
+            if search_collection_count == 0:
+                search_collections = ["publishedcontent", "topic", "chapter", "post"]
 
             # Check which content types are searched
             self.search_content_types = self.search_form.cleaned_data["content_types"]
@@ -244,8 +246,6 @@ class SearchView(ZdSPagingListView):
             if search_collection_count == 1:
                 result = self._choose_single_collection_method(search_collections[0])
             else:
-                if search_collection_count == 0:
-                    search_collections = ["publishedcontent", "topic", "chapter", "post"]
                 for name in search_collections:
                     search_requests["searches"].append(searches[name])
                 result = self.get_queryset_multisearch(search_requests, search_collections)
