@@ -996,7 +996,7 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
     def get_indexable(cls, force_reindexing=False):
         """Overridden to also include chapters"""
 
-        index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        index_manager = SearchIndexManager()
 
         # fetch initial batch
         last_pk = 0

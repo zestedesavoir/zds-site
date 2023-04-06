@@ -216,7 +216,7 @@ def delete_document_in_search(instance):
     :type instance: AbstractSearchIndexable
     """
 
-    index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+    index_manager = SearchIndexManager()
 
     index_manager.delete_document(instance)
 

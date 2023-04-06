@@ -33,7 +33,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
         super().__init__(**kwargs)
-        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        self.index_manager = SearchIndexManager()
 
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
@@ -42,7 +42,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         results = []
         if self.index_manager.connected_to_search and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
-            filter = self._add_a_numerical_filter("forum_pk", self.authorized_forums)
+            filter = self._add_numerical_filter("forum_pk", self.authorized_forums)
             search_parameters = {
                 "q": self.search_query,
                 "query_by": "title,subtitle,tags",
@@ -73,7 +73,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
 
-    def _add_a_numerical_filter(self, field, values):
+    def _add_numerical_filter(self, field, values):
         """
         Return a filter (string), this filter is used for numerical values necessary for the field
         field : it's a string with the name of the field to filter
@@ -100,7 +100,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super().__init__(**kwargs)
-        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        self.index_manager = SearchIndexManager()
 
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
@@ -172,7 +172,7 @@ class SearchView(ZdSPagingListView):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super().__init__(**kwargs)
-        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        self.index_manager = SearchIndexManager()
 
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""
@@ -229,9 +229,7 @@ class SearchView(ZdSPagingListView):
                 "post": {"collection": "post", "q": self.search_query, "query_by": "text_html"},
             }
             if self.search_content_types:
-                searches["publishedcontent"]["filter"] = self._add_a_filter(
-                    "content_type", self.search_content_types, ""
-                )
+                searches["publishedcontent"]["filter"] = self._add_filter("content_type", self.search_content_types, "")
                 search_collections = ["publishedcontent"]
                 search_collection_count = 1
 
@@ -277,15 +275,15 @@ class SearchView(ZdSPagingListView):
         """Search in PublishedContent collection."""
         filter = ""
         if self.search_content_types:
-            filter = self._add_a_filter("content_type", self.search_content_types, filter)
+            filter = self._add_filter("content_type", self.search_content_types, filter)
             # filter += "content_type == [`TUTORIAL`, `ARTICLE`]"
 
         if self.content_category:
-            filter = self._add_a_filter("categories", self.content_category, filter)
+            filter = self._add_filter("categories", self.content_category, filter)
             # filter += f"categories == {self.content_category}"
 
         if self.content_subcategory:
-            filter = self._add_a_filter("subcategories", self.content_subcategory, filter)
+            filter = self._add_filter("subcategories", self.content_subcategory, filter)
             # filter += f"subcategories == {self.content_subcategory}"
 
         search_parameters = {
@@ -305,10 +303,10 @@ class SearchView(ZdSPagingListView):
         """Search in chapters collection."""
         filter = ""
         if self.content_category:
-            filter = self._add_a_filter("categories", self.content_category, filter)
+            filter = self._add_filter("categories", self.content_category, filter)
 
         if self.content_subcategory:
-            filter = self._add_a_filter("subcategories", self.content_subcategory, filter)
+            filter = self._add_filter("subcategories", self.content_subcategory, filter)
 
         search_parameters = {
             "q": self.search_query,
@@ -334,7 +332,7 @@ class SearchView(ZdSPagingListView):
         """
 
         # filter = ""
-        # filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
+        # filter = self._add_filter("forum_pk", self.authorized_forums, filter)
         search_parameters = {
             "q": self.search_query,
             "query_by": "title,subtitle,tags",
@@ -359,8 +357,8 @@ class SearchView(ZdSPagingListView):
         """
 
         filter = ""
-        filter = self._add_a_filter("forum_pk", self.authorized_forums, filter)
-        filter = self._add_a_filter("is_visible", True, filter)
+        filter = self._add_filter("forum_pk", self.authorized_forums, filter)
+        filter = self._add_filter("is_visible", True, filter)
         search_parameters = {
             "q": self.search_query,
             "query_by": "text_html",
@@ -380,7 +378,7 @@ class SearchView(ZdSPagingListView):
         context["query"] = self.search_query is not None
         return context
 
-    def _add_a_filter(self, field, value, current_filter):
+    def _add_filter(self, field, value, current_filter):
         """
         Add a filter to the current filter, this filter can't be used for negation
         field : it's a string with the name of the field to filter

@@ -19,7 +19,7 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
         self.models.insert(0, FakeChapter)
 
-        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        self.index_manager = SearchIndexManager()
 
         if not self.index_manager.connected_to_search:
             raise Exception("Unable to connect to Typesense, aborting.")
