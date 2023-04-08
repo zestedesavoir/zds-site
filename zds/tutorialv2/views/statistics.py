@@ -17,7 +17,11 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
 from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
-from zds.tutorialv2.mixins import SingleOnlineContentDetailViewMixin, SingleOnlineContentFormViewMixin
+from zds.tutorialv2.mixins import (
+    SingleContentDetailViewMixin,
+    SingleOnlineContentDetailViewMixin,
+    SingleOnlineContentFormViewMixin,
+)
 from zds.tutorialv2.models.quizz import QuizzUserAnswer, QuizzQuestion, QuizzAvailableAnswer
 from zds.tutorialv2.utils import NamedUrl
 
@@ -364,3 +368,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 quizz_stats[name] = OrderedDict()
             quizz_stats[name][question] = {"total": total_per_question[base_question], "responses": full_answers_total}
         return quizz_stats
+
+
+class QuizzContentStatistics(ContentStatisticsView):
+    template_name = "tutorialv2/stats/quizz_stats.html"
