@@ -224,7 +224,10 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         if queryset is None:
             queryset = Topic.objects
         result = (
-            queryset.filter(pk=self.kwargs.get("topic_pk")).select_related("solved_by").select_related("author").first()
+            queryset.filter(pk=self.kwargs.get("topic_pk"))
+            .select_related("solved_by", "author")
+            .prefetch_related("tags")
+            .first()
         )
         if result is None:
             raise Http404(f"Pas de forum avec l'identifiant {self.kwargs.get('topic_pk')}")
