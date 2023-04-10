@@ -105,7 +105,9 @@ class TopicManager(models.Manager):
         return queryset.order_by("-pubdate").all()
 
     def get_all_topics_of_a_tag(self, tag, user):
-        queryset = self.filter(tags__in=[tag]).prefetch_related("author", "last_message", "tags")
+        queryset = (
+            self.filter(tags__in=[tag]).select_related("solved_by").prefetch_related("author", "last_message", "tags")
+        )
         queryset = queryset.filter(self.visibility_check_query(user)).distinct()
         return queryset.order_by("-last_message__pubdate")
 
