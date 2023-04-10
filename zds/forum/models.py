@@ -223,6 +223,7 @@ class Topic(AbstractESDjangoIndexable):
         self._last_user_post = dict()
         self._last_post = None
         self._first_post = None
+        self._is_read = None
 
     def __str__(self):
         return self.title
@@ -439,7 +440,9 @@ class Topic(AbstractESDjangoIndexable):
 
     @property
     def is_read(self):
-        return self.is_read_by_user(get_current_user())
+        if self._is_read is None:
+            self._is_read = self.is_read_by_user(get_current_user())
+        return self._is_read
 
     def is_read_by_user(self, user=None, check_auth=True):
         return TopicRead.objects.is_topic_last_message_read(self, user, check_auth)
