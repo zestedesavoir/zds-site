@@ -61,6 +61,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             queryset.prefetch_related("content")
             .prefetch_related("content__subcategory")
             .prefetch_related("content__authors")
+            .prefetch_related("content__tags")
             .select_related("content__licence")
             .select_related("content__image")
             .select_related("content__last_note")
