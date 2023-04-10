@@ -71,6 +71,7 @@ class Profile(models.Model):
     last_visit = models.DateTimeField("Date de dernière visite", null=True, blank=True)
     _permissions = {}
     _groups = None
+    _hats = None
     _cached_city = None
 
     objects = ProfileManager()
@@ -409,15 +410,16 @@ class Profile(models.Model):
         """
         Return all hats the user is allowed to use.
         """
-        profile_hats = list(self.hats.all())
-        groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
-        hats = profile_hats + groups_hats
+        if self._hats is None:
+            profile_hats = list(self.hats.all())
+            groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
+            self._hats = profile_hats + groups_hats
 
-        # We sort internal hats before the others, and we slugify for sorting to sort correctly
-        # with diatrics.
-        hats.sort(key=lambda hat: f'{"a" if hat.is_staff else "b"}-{old_slugify(hat.name)}')
+            # We sort internal hats before the others, and we slugify for sorting to sort correctly
+            # with diatrics.
+            self._hats.sort(key=lambda hat: f'{"a" if hat.is_staff else "b"}-{old_slugify(hat.name)}')
 
-        return hats
+        return self._hats
 
     def get_requested_hats(self):
         """
