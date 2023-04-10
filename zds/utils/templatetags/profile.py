@@ -11,7 +11,7 @@ register = template.Library()
 
 
 @register.filter("profile")
-@lru_cache
+@lru_cache()
 def profile(current_user):
     # we currently expect to receive a User in most cases, but as we move
     # toward using Profiles instead, we have to handle them as well.
