@@ -144,7 +144,11 @@ class PostManager(InheritanceManager):
         if not current.has_perm("forum.change_post"):
             queryset = queryset.filter(is_visible=True)
 
-        queryset = queryset.filter(self.visibility_check_query(current)).prefetch_related("author").order_by("-pubdate")
+        queryset = (
+            queryset.filter(self.visibility_check_query(current))
+            .prefetch_related("author", "topic")
+            .order_by("-pubdate")
+        )
 
         return queryset
 
@@ -161,11 +165,11 @@ class TopicReadManager(models.Manager):
         :param check_auth: if True will shortcut to ``False`` if user is not authenticated
         :return: ``True`` if topic has been read by user
         """
-        if not hasattr(topic, "_is_read"):
-            setattr(topic, "_is_read", {})
+        if not hasattr(topic, "_user_has_read"):
+            setattr(topic, "_user_has_read", {})
         if user is None or (check_auth and not user.is_authenticated):
             return False
-        cache_is_read = getattr(topic, "_is_read")
+        cache_is_read = getattr(topic, "_user_has_read")
         if user.username not in cache_is_read:
             cache_is_read[user.username] = self.filter(post=topic.last_message, topic=topic, user=user).exists()
         return cache_is_read[user.username]
