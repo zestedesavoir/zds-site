@@ -169,7 +169,7 @@
     start = text.slice(0, startPoint.ch)
     end = text.slice(startPoint.ch)
     let offset = 0
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
+    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral' || type === 'blocquizz') {
       unShiftLines(cm, startPoint.line, endPoint.line)
       startPoint.ch = 0
     } else if (type === 'checklist') {
@@ -228,7 +228,7 @@
 
   function enableBlockZmd(cm, type, start, end, startPoint, endPoint) {
     let i, text
-    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral') {
+    if (type === 'blocInformation' || type === 'blocQuestion' || type === 'blocWarning' || type === 'blocError' || type === 'blocSecret' || type === 'blocNeutral'|| type === 'blocquizz') {
       // blocs
       for (i = startPoint.line; i <= endPoint.line; i++) {
         text = start + cm.getLine(i)
@@ -246,6 +246,9 @@
         shiftLines(cm, startPoint.line, '[[secret]]')
       } else if (type === 'blocNeutral') {
         shiftLines(cm, startPoint.line, '[[neutre|titre]]')
+      }
+      else if (type === 'blocquizz') {
+        shiftLines(cm, startPoint.line, '\n[[quizz | question ?]]\n| - [ ] réponse\n| - [x] bonne réponse\n| - [ ] réponse\n| - explication : \n')
       }
       startPoint.ch = 0
       endPoint.line += 1
@@ -831,6 +834,14 @@
               title: ':ninja:'
             }
           ]
+        },
+        {
+          name: 'blocquizz',
+          action: (e) => {
+            _toggleBlockZmd(e, 'blocquizz', '')
+          },
+          className: 'fas fa-question',
+          title: 'Bloc quizz'
         },
         '|',
         {
