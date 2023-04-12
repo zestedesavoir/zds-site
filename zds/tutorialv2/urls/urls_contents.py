@@ -7,7 +7,6 @@ from zds.tutorialv2.views.contents import (
     EditContent,
     EditContentLicense,
     DeleteContent,
-    Generate_quizz,
 )
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
@@ -209,6 +208,5 @@ urlpatterns = [
     path("objectifs/", ViewContentsByGoal.as_view(), name="view-goals"),
     # quizz
     path("reponses/<int:pk>/<slug:slug>/", ContentQuizzStatistics.as_view(), name="answer-quizz"),
-    path("quizz_generateur/<int:pk>/", Generate_quizz.as_view(), name="generate-quizz"),
     path("stats_quizz/<int:pk>/<slug:slug>/", QuizzContentStatistics.as_view(), name="stats-quizz"),
 ]

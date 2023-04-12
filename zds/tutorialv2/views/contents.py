@@ -452,8 +452,3 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
             messages.success(self.request, _("Vous avez bien supprimé {}.").format(_type))
 
         return redirect(reverse(object_type + ":find-" + object_type, args=[request.user.username]))
-
-
-class Generate_quizz(SingleContentDetailViewMixin):
-
-    template_name = "tutorialv2/view/quizz_generator.html"
