@@ -118,6 +118,10 @@
         } else if (_type === 'n' || _type === 'neutre') {
           ret.blocNeutral = true
         }
+        // else if (_type === 'q' || _type === 'quizz') {
+        //   ret.blocNeutral = true
+        // }
+        
       }
     } else {
       // find checklist
@@ -248,7 +252,7 @@
         shiftLines(cm, startPoint.line, '[[neutre|titre]]')
       }
       else if (type === 'blocquizz') {
-        shiftLines(cm, startPoint.line, '\n[[quizz | question ?]]\n| - [ ] réponse\n| - [x] bonne réponse\n| - [ ] réponse\n| - explication : \n')
+        shiftLines(cm, startPoint.line, '[[quizz|Question]]\n|- [ ] réponse\n| - [x] bonne réponse\n| - [ ] réponse\n| - Explication : ');
       }
       startPoint.ch = 0
       endPoint.line += 1
