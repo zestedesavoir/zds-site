@@ -5,7 +5,7 @@
 let index = 0
 
 function extractAnswer(inputDomElementList, answers) {
-
+  
   inputDomElementList.forEach((rb) => {
 
     const ulWrapperElement = rb.parentElement.parentElement
@@ -25,8 +25,7 @@ function extractAnswer(inputDomElementList, answers) {
     }
     rb.setAttribute('value', answers[ulWrapperElement.getAttribute('id')].length - 1)
     rb.disabled = false
-    rb.checked = false
-
+    rb.checked = false  
   })
 }
 
@@ -74,7 +73,6 @@ function initializeCheckboxes(answers) {
 
   // add explanation to all questions
   document.querySelectorAll('div.quizz').forEach(quizz => {
-
     const quizzDivs = quizz.querySelectorAll('div.custom-block.custom-block-quizz');
     quizzDivs.forEach(quizzDiv => {
       const ul = quizzDiv.querySelector('ul')
@@ -88,26 +86,10 @@ function initializeCheckboxes(answers) {
       quizzDiv.appendChild(explanation)
 
     });
-
-
-    // const listItemElems = .querySelectorAll('.task-list-item');
-
-    // listItemElems.forEach((listItemElem) => {
-    //   const inputElem = listItemElem.querySelector('input[type="checkbox"]');
-    //   const labelElem = document.createElement('label');
-    //   const id = inputElem.id;
-    //   labelElem.setAttribute('for', id);
-    //   labelElem.textContent = listItemElem.textContent.trim();
-    //   inputElem.parentNode.insertBefore(labelElem, inputElem);
-    //   labelElem.appendChild(inputElem);
-    //   listItemElem.removeChild(listItemElem.lastChild);
-    // });
-
   })
 
 
   const checkboxes = document.querySelectorAll('.quizz ul li input[type=checkbox]')
-
   extractAnswer(checkboxes, answers)
 
 }
@@ -219,18 +201,17 @@ function getWantedHeading(questionNode, nodeName, attr) {
   return potentialHeading
 }
 
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+  });
+}
+
 /**
- * As we are using forms to capture the answer and send the result back to user (and flushing stats for authors),
- * we need to add an html form.
- *
- * The main issue is that it was asked to have many quizz inside a tutorial section, not just a list of questions in a
- * specific section. As a result we had to find an heuristic :
- * - if the current section has no h3 headings, we just span the form from the beggining to the end of section
- * - if the current section has one or more h3 headings, we start the form just after it and end it at just before the
- * next h3 heading if there is one or the end of form
- *
- * @param quizz current quizz container
- * @param answers answers dictionary
+
  */
 function injectForms(quizz, answers) {
 
@@ -240,9 +221,12 @@ function injectForms(quizz, answers) {
   const headings = {}
   const wrappers = []
 
+
+  const QuizzQstNum = quizz.querySelectorAll('.custom-block-quizz').length
+
   Object.keys(answers).forEach(blockId => {
 
-
+    
     const blockNode = document.getElementById(blockId)
 
     if (!blockNode) {
@@ -254,6 +238,7 @@ function injectForms(quizz, answers) {
     const heading = getWantedHeading(questionNode, searchedTitle, 'previousSibling') || quizz
 
     if (!heading.getAttribute('id')) {
+  
       heading.setAttribute('id', `quizz-form-${idBias}`)
       idBias++
     }
@@ -271,9 +256,11 @@ function injectForms(quizz, answers) {
 
       const submit = document.createElement('button')
       submit.innerText = submitLabel
+      submit.style.marginTop = '-22px'
 
       submit.classList.add('btn', 'btn-submit')
-      submit.setAttribute('id', `my-button-${idBias}`);
+      
+      submit.setAttribute('id', `my-button-${generateUUID()}`);
 
 
       const notAnswered = document.createElement('p')
@@ -283,34 +270,53 @@ function injectForms(quizz, answers) {
 
       let nodeToAddToForm
       if (heading === quizz) {
+
         nodeToAddToForm = quizz.firstChild
       } else {
         nodeToAddToForm = heading.nextSibling
       }
+
+
+      // add any element before  the first question to the wrapper
+      while (nodeToAddToForm.nodeName !== "DIV" && nodeToAddToForm.className !== "custom-block custom-block-quizz"){
+
+        const current = nodeToAddToForm
+        nodeToAddToForm = nodeToAddToForm.nextSibling
+        wrapper.appendChild(current.cloneNode(true))
+        current.parentNode.removeChild(current)
+
+      }
+      
       form.method = 'POST'
       form.setAttribute('action', quizz.getAttribute('data-answer-url'))
       form.setAttribute('id', `my-form-${idCounter}`);
       idCounter++;
-      // gather all the questions of this current subsection, until the next h3 heading
+
+
+      // add elements between 1st and last question to form
+      let num = 0;
       while (nodeToAddToForm && nodeToAddToForm.nodeName !== searchedTitle.toUpperCase()) {
         const current = nodeToAddToForm
+        if ( current.nodeName === "DIV" && current.className === "custom-block custom-block-quizz") num++;
         nodeToAddToForm = nodeToAddToForm.nextSibling
         form.appendChild(current.cloneNode(true))
         current.parentNode.removeChild(current)
+        if ( num === QuizzQstNum )  {form.appendChild(submit) ; break};
       }
-      form.appendChild(submit)
-      form.appendChild(notAnswered)
+      wrapper.append(form)
+
+      // add elements after last question until next h3 to wrapper
+      while (nodeToAddToForm && nodeToAddToForm.nodeName !== searchedTitle.toUpperCase()) {
+
+        const current = nodeToAddToForm
+        nodeToAddToForm = nodeToAddToForm.nextSibling
+        wrapper.appendChild(current.cloneNode(true))
+        current.parentNode.removeChild(current)
+      }
+
+      wrapper.appendChild(notAnswered)
       wrappers.push(wrapper)
-      if (nodeToAddToForm && nodeToAddToForm.nodeName === searchedTitle.toUpperCase()) {
-        wrapper.append(form)
-        wrappers.push(nodeToAddToForm.cloneNode(true))
-      } else {
-        wrapper.appendChild(form)
-        if (heading.nextSibling) {
-          wrapper.appendChild(heading.nextSibling.cloneNode(true))
-          heading.parentNode.removeChild(heading.nextSibling)
-        }
-      }
+      
     }
     // avoid doubly
     if (heading.nodeName === searchedTitle.toUpperCase()) {
@@ -319,7 +325,6 @@ function injectForms(quizz, answers) {
   })
   wrappers.forEach((wrapper) => quizz.appendChild(wrapper))
 }
-
 
 let answers = {}
 
@@ -330,7 +335,10 @@ let idBias = 0
 
 document.querySelectorAll('div.quizz').forEach(div => {
 
-  injectForms(div, answers)
+  const quizInside = div.querySelector('.custom-block-quizz ul li input[type=checkbox]');
+  if (quizInside) {
+    injectForms(div, answers)
+  }
 
 })
 
@@ -393,7 +401,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
     e.preventDefault()
     e.stopPropagation()
 
-    const notAnswered = form.querySelector('.notAnswered');
+    const notAnswered = form.parentElement.querySelector('.notAnswered');
     const submitBtn = form.querySelector('.btn-submit');
 
 
@@ -487,7 +495,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
 
         sendQuizzStatistics(form, statistics)
       }
-      // submitBtn.setAttribute('disabled', true);
+      submitBtn.setAttribute('disabled', true);
       displayResultAfterSubmitButton(form)
       notAnswered.innerText = ''
       // not all questions answered
