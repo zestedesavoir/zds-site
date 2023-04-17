@@ -153,6 +153,13 @@ function markBadAnswers(form, names, answers) {
       const divquizz = form.querySelector(`div[data-name="${answer}"]`)
       if (!AnsweredWell) {
         divquizz.classList.add('quizz-bad')
+        const icon = document.createElement('i');
+        icon.classList.add('fas', 'fa-exclamation-triangle'); 
+        icon.style.fontSize = '24px'; 
+        icon.style.transform = 'scale(2)'; 
+        icon.style.marginLeft='-92px'
+        // Append the icon to the element
+        divquizz.querySelector('div.custom-block-body').appendChild(icon);
       } else {
         divquizz.classList.add('quizz-good')
       }
@@ -174,7 +181,18 @@ function markBadAnswers(form, names, answers) {
     })
 
     const divquizz = form.querySelector(`.custom-block[data-name=${name}]`)
-    if (!divquizz.classList.contains('quizz-good')) divquizz.classList.add('quizz-bad');
+    if (!divquizz.classList.contains('quizz-good')) {
+      
+      divquizz.classList.add('quizz-bad')
+      // Create a new icon element
+      const icon = document.createElement('i');
+      icon.classList.add('fas', 'fa-exclamation-triangle'); 
+      icon.style.fontSize = '24px'; 
+      icon.style.transform = 'scale(2)'; 
+      icon.style.marginLeft='-92px'
+      // Append the icon to the element
+      divquizz.querySelector('div.custom-block-body').appendChild(icon);
+  }
   })
 
   names.forEach(({
@@ -198,15 +216,6 @@ function getWantedHeading(questionNode, nodeName, attr) {
     return null
   }
   return potentialHeading
-}
-
-
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = Math.random() * 16 | 0;
-      const v = c === 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
-  });
 }
 
 /**
@@ -487,6 +496,17 @@ document.querySelectorAll('form.quizz').forEach(form => {
           if (element.classList.contains('hasAnswer') && !element.classList.contains('quizz-bad')) {
 
             element.classList.add('quizz-good')
+            
+            // Create a new icon element
+            const icon = document.createElement('i');
+            icon.classList.add('fas', 'fa-check'); // Use Font Awesome checkmark icon
+            icon.style.fontSize = '24px'; // Set font size to 24 pixels
+            icon.style.transform = 'scale(2)'; // Scale icon to twice its 
+            icon.style.marginLeft='-92px'
+            // Append the icon to the element
+            element.querySelector('div.custom-block-body').appendChild(icon);
+
+
             statistics.result[title].evaluation = 'ok'
 
           }
