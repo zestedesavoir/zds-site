@@ -178,6 +178,8 @@ class SearchView(ZdSPagingListView):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
 
+        self.authorized_forums = get_authorized_forums(self.request.user)
+
         self.search_form = self.search_form_class(data=self.request.GET)
 
         if self.search_query and not self.search_form.is_valid():
@@ -215,6 +217,10 @@ class SearchView(ZdSPagingListView):
             # Check if the content must be validated
             self.search_validated_content = self.search_form.cleaned_data["validated_content"]
 
+            # Check if the forum is authori
+            filter = ""
+            filter = self._add_filter("forum_pk", self.authorized_forums, filter)
+
             search_requests = {"searches": []}
 
             searches = {
@@ -223,9 +229,14 @@ class SearchView(ZdSPagingListView):
                     "q": self.search_query,
                     "query_by": "title,description,categories,subcategories, tags, text",
                 },
-                "topic": {"collection": "topic", "q": self.search_query, "query_by": "title,subtitle,tags"},
+                "topic": {
+                    "collection": "topic",
+                    "q": self.search_query,
+                    "query_by": "title,subtitle,tags",
+                    "filter_by": filter,
+                },
                 "chapter": {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
-                "post": {"collection": "post", "q": self.search_query, "query_by": "text_html"},
+                "post": {"collection": "post", "q": self.search_query, "query_by": "text_html", "filter_by": filter},
             }
             if self.search_content_types:
                 searches["publishedcontent"]["filter"] = self._add_filter("content_type", self.search_content_types, "")
@@ -273,15 +284,12 @@ class SearchView(ZdSPagingListView):
         filter = ""
         if self.search_content_types:
             filter = self._add_filter("content_type", self.search_content_types, filter)
-            # filter += "content_type == [`TUTORIAL`, `ARTICLE`]"
 
         if self.content_category:
             filter = self._add_filter("categories", self.content_category, filter)
-            # filter += f"categories == {self.content_category}"
 
         if self.content_subcategory:
             filter = self._add_filter("subcategories", self.content_subcategory, filter)
-            # filter += f"subcategories == {self.content_subcategory}"
 
         search_parameters = {
             "q": self.search_query,
@@ -327,14 +335,10 @@ class SearchView(ZdSPagingListView):
         + topic is sticky;
         + topic is locked.
         """
+        filter = ""
+        filter = self._add_filter("forum_pk", self.authorized_forums, filter)
 
-        # filter = ""
-        # filter = self._add_filter("forum_pk", self.authorized_forums, filter)
-        search_parameters = {
-            "q": self.search_query,
-            "query_by": "title,subtitle,tags",
-            # "filter": filter,
-        }
+        search_parameters = {"q": self.search_query, "query_by": "title,subtitle,tags", "filter_by": filter}
 
         result = client.collections["topic"].documents.search(search_parameters)["hits"]
 
@@ -355,11 +359,11 @@ class SearchView(ZdSPagingListView):
 
         filter = ""
         filter = self._add_filter("forum_pk", self.authorized_forums, filter)
-        filter = self._add_filter("is_visible", True, filter)
+        filter = self._add_filter("is_visible", "true", filter)
         search_parameters = {
             "q": self.search_query,
             "query_by": "text_html",
-            # "filter": filter,
+            "filter_by": filter,
         }
 
         result = client.collections["post"].documents.search(search_parameters)["hits"]
