@@ -73,17 +73,16 @@ function initializeCheckboxes(answers) {
 
   // add explanation to all questions
   document.querySelectorAll('div.quizz').forEach(quizz => {
-    const quizzDivs = quizz.querySelectorAll('div.custom-block.custom-block-quizz');
+    const quizzDivs = quizz.querySelectorAll('div.custom-block-quizz');
     quizzDivs.forEach(quizzDiv => {
       const ul = quizzDiv.querySelector('ul')
       const lastLi = ul.lastElementChild
-      const explanationText = lastLi.innerText
-
+      const explanationText = '<b>Explication :</b>' + lastLi.innerText
       const explanation = document.createElement('div')
       explanation.classList.add('explanation_off')
-      explanation.innerText = explanationText
+      explanation.innerHTML = explanationText
       lastLi.parentNode.removeChild(lastLi);
-      quizzDiv.appendChild(explanation)
+      quizzDiv.querySelector('div.custom-block-body').appendChild(explanation)
 
     });
   })
@@ -260,13 +259,11 @@ function injectForms(quizz, answers) {
 
       submit.classList.add('btn', 'btn-submit')
       
-      submit.setAttribute('id', `my-button-${generateUUID()}`);
-
+      submit.setAttribute('id', `my-button-${idButton}`);
+      idButton++
 
       const notAnswered = document.createElement('p')
       notAnswered.classList.add('notAnswered')
-
-
 
       let nodeToAddToForm
       if (heading === quizz) {
@@ -286,7 +283,7 @@ function injectForms(quizz, answers) {
         current.parentNode.removeChild(current)
 
       }
-      
+  
       form.method = 'POST'
       form.setAttribute('action', quizz.getAttribute('data-answer-url'))
       form.setAttribute('id', `my-form-${idCounter}`);
@@ -332,6 +329,11 @@ initializePipeline.forEach(func => func(answers))
 
 let idCounter = 0
 let idBias = 0
+
+
+let idButton =  0;
+
+// parseInt(sessionStorage.getItem('idButton')) ||
 
 document.querySelectorAll('div.quizz').forEach(div => {
 
