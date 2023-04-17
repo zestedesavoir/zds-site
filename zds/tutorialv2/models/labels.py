@@ -11,7 +11,7 @@ class Label(models.Model):
         verbose_name = "Label"
         verbose_name_plural = "Labels"
 
-    name = models.CharField("Nom", max_length=80, help_text="Nom du lable")
+    name = models.CharField("Nom", max_length=80, help_text="Nom du label")
     description = models.TextField("Description", blank=True, help_text="Description du label")
     slug = models.SlugField(
         max_length=80,
