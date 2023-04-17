@@ -85,6 +85,7 @@ class ContentsByLabelMixin:
 
     def get_queryset(self):
         self.current_filter_pk = None
+        self.current_description = None
 
         self.base_queryset = PublishableContent.objects.exclude(public_version=None)
         self.num_all = self.base_queryset.count()
@@ -99,6 +100,7 @@ class ContentsByLabelMixin:
             for label in Label.objects.all():
                 if f"label_{label.pk}" in self.request.GET:
                     self.current_filter_pk = label.pk
+                    self.current_description = label.description
                     return self.base_queryset.filter(labels__in=[label])
         return self.base_queryset
 
@@ -106,6 +108,7 @@ class ContentsByLabelMixin:
         context = {
             "labels": Label.objects.all().annotate(num_contents=Count("contents")),
             "current_filter_pk": self.current_filter_pk,
+            "current_description": self.current_description,
             "only_not_classified": self.only_not_classified,
             "all": self.current_filter_pk is None and not self.only_not_classified,
             "num_all": self.num_all,
