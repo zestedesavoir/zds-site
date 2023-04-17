@@ -103,7 +103,7 @@ class ContentsByLabelMixin:
 
 
 class ViewContentsByLabel(ContentsByLabelMixin, ZdSPagingListView):
-    template_name = "tutorialv2/labels/view-labels.html"
+    template_name = "tutorialv2/labels/view_labels.html"
     ordering = ["-creation_date"]
     paginate_by = settings.ZDS_APP["content"]["view_contents_by_label_content_per_page"]
 
