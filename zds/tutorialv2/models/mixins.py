@@ -46,6 +46,7 @@ class TemplatableContentModelMixin:
     def validation_message_title(self):
         """
         Generate validation private message title
+
         :return: the generated title
         """
         if self.is_article:
@@ -57,6 +58,7 @@ class TemplatableContentModelMixin:
 
     def textual_type(self):
         """Create a internationalized string with the human readable type of this content e.g The Article
+
         :return: internationalized string
         :rtype: str
         """
