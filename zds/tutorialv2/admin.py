@@ -122,7 +122,7 @@ class GoalAdmin(admin.ModelAdmin):
 
 class LabelAdmin(admin.ModelAdmin):
     list_display = ["name", "description"]
-    ordering = ["position"]
+    ordering = ["name"]
 
 
 admin.site.register(PublishableContent, PublishableContentAdmin)
