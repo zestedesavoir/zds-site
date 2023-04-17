@@ -256,15 +256,6 @@ $content-item-padding-vertical: $length-14;
                     background-color: $grey-200;
                     color: $grey-900;
                 }
-
-               
-            }
-            .item-label {
-                background-color: $red-300;
-                &:hover, &:focus {
-                    background-color: $red-400;
-                    color: $grey-900;
-                }
             }
         }
     }
