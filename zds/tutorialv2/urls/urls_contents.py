@@ -192,5 +192,5 @@ urlpatterns = [
     path("objectifs/", ViewContentsByGoal.as_view(), name="view-goals"),
     # Label classification
     path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
-    path("labels/", ViewContentsByLabel.as_view(), name="view-labels"),
+    path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
 ]

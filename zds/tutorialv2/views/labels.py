@@ -84,35 +84,19 @@ class ContentsByLabelMixin:
     context_object_name = "contents"
 
     def get_queryset(self):
-        self.current_filter_pk = None
-        self.current_description = None
+        self.current_label = None
 
         self.base_queryset = PublishableContent.objects.exclude(public_version=None)
         self.num_all = self.base_queryset.count()
-
-        queryset_not_classified = self.base_queryset.filter(labels=None)
-        self.num_not_classified = queryset_not_classified.count()
-
-        self.only_not_classified = "non-classes" in self.request.GET
-        if self.only_not_classified:
-            return queryset_not_classified
-        else:
-            for label in Label.objects.all():
-                if f"label_{label.pk}" in self.request.GET:
-                    self.current_filter_pk = label.pk
-                    self.current_description = label.description
-                    return self.base_queryset.filter(labels__in=[label])
-        return self.base_queryset
+        self.current_label = get_object_or_404(Label, slug=self.kwargs["slug"])
+        return self.base_queryset.filter(labels__in=[self.current_label])
 
     def get_context_data(self, **kwargs):
         context = {
             "labels": Label.objects.all().annotate(num_contents=Count("contents")),
-            "current_filter_pk": self.current_filter_pk,
-            "current_description": self.current_description,
-            "only_not_classified": self.only_not_classified,
-            "all": self.current_filter_pk is None and not self.only_not_classified,
+            "current_description": self.current_label.description,
+            "current_filter_pk": self.current_label.pk,
             "num_all": self.num_all,
-            "num_not_classified": self.num_not_classified,
         }
         context.update(kwargs)
         return super().get_context_data(**context)
@@ -124,14 +108,7 @@ class ViewContentsByLabel(ContentsByLabelMixin, ZdSPagingListView):
     paginate_by = settings.ZDS_APP["content"]["view_contents_by_label_content_per_page"]
 
     def get_context_data(self, **kwargs):
-        if self.only_not_classified:
-            headline = _("Publications sans label")
-        elif self.current_filter_pk is not None:
-            headline = _("Publications avec pour label « {} »").format(
-                Label.objects.get(pk=self.current_filter_pk).name
-            )
-        else:
-            headline = _("Toutes les publications")
+        headline = _("Publications avec pour label « {} »").format(self.current_label.name)
         context = {"headline": headline}
         context.update(kwargs)
         return super().get_context_data(**context)

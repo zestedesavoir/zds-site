@@ -27,7 +27,7 @@
         <ul>
             {% for label in labels %}
                 <li>
-                    <a href="{% url 'content:view-labels' %}?label_{{ label.id }}" class="{% if current_filter_pk == label.pk %}selected{% endif %}">{{ label.name }} ({{ label.num_contents }})</a>
+                    <a href="{% url 'content:view-labels' label.slug %}" class="{% if current_filter_pk == label.pk %}selected{% endif %}">{{ label.name }} ({{ label.num_contents }})</a>
                 </li>
             {% endfor %}
         </ul>
