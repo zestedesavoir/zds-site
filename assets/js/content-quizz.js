@@ -153,12 +153,7 @@ function markBadAnswers(form, names, answers) {
       const divquizz = form.querySelector(`div[data-name="${answer}"]`)
       if (!AnsweredWell) {
         divquizz.classList.add('quizz-bad')
-        const icon = document.createElement('i');
-        icon.classList.add('fas', 'fa-exclamation-triangle'); 
-        icon.style.fontSize = '24px'; 
-        icon.style.transform = 'scale(2)'; 
-        icon.style.marginLeft='-92px'
-        // Append the icon to the element
+        const icon = iconMaker(false)
         divquizz.querySelector('div.custom-block-body').appendChild(icon);
       } else {
         divquizz.classList.add('quizz-good')
@@ -185,12 +180,7 @@ function markBadAnswers(form, names, answers) {
       
       divquizz.classList.add('quizz-bad')
       // Create a new icon element
-      const icon = document.createElement('i');
-      icon.classList.add('fas', 'fa-exclamation-triangle'); 
-      icon.style.fontSize = '24px'; 
-      icon.style.transform = 'scale(2)'; 
-      icon.style.marginLeft='-92px'
-      // Append the icon to the element
+      const icon = iconMaker(false)
       divquizz.querySelector('div.custom-block-body').appendChild(icon);
   }
   })
@@ -403,7 +393,16 @@ function QuizzAnswered(form) {
   return true
 }
 
-
+function iconMaker(isGood){
+    // Create a new icon element
+    const icon = document.createElement('i');
+    icon.classList.add('fas');
+    isGood ? icon.classList.add('fa-check') : icon.classList.add('fa-exclamation-triangle')
+    icon.style.fontSize = '24px';
+    icon.style.transform = 'scale(2)';
+    icon.style.marginLeft='-92px'
+    return icon
+}
 
 document.querySelectorAll('form.quizz').forEach(form => {
 
@@ -497,12 +496,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
 
             element.classList.add('quizz-good')
             
-            // Create a new icon element
-            const icon = document.createElement('i');
-            icon.classList.add('fas', 'fa-check'); // Use Font Awesome checkmark icon
-            icon.style.fontSize = '24px'; // Set font size to 24 pixels
-            icon.style.transform = 'scale(2)'; // Scale icon to twice its 
-            icon.style.marginLeft='-92px'
+            const icon = iconMaker(true)
             // Append the icon to the element
             element.querySelector('div.custom-block-body').appendChild(icon);
 
