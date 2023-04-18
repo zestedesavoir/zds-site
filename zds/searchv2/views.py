@@ -228,15 +228,29 @@ class SearchView(ZdSPagingListView):
                     "collection": "publishedcontent",
                     "q": self.search_query,
                     "query_by": "title,description,categories,subcategories, tags, text",
+                    # "query_by_weights": "10,2,2,2,2,2",
+                    # "sort_by": "score:asc"
                 },
                 "topic": {
                     "collection": "topic",
                     "q": self.search_query,
                     "query_by": "title,subtitle,tags",
                     "filter_by": filter,
+                    # "query_by_weights": "1,1,1"
                 },
-                "chapter": {"collection": "chapter", "q": self.search_query, "query_by": "title,text"},
-                "post": {"collection": "post", "q": self.search_query, "query_by": "text_html", "filter_by": filter},
+                "chapter": {
+                    "collection": "chapter",
+                    "q": self.search_query,
+                    "query_by": "title,text",
+                    # "query_by_weights": "5,5"
+                },
+                "post": {
+                    "collection": "post",
+                    "q": self.search_query,
+                    "query_by": "text_html",
+                    "filter_by": filter,
+                    # "query_by_weights": "2",
+                },
             }
             if self.search_content_types:
                 searches["publishedcontent"]["filter"] = self._add_filter("content_type", self.search_content_types, "")

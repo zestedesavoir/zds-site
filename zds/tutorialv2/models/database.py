@@ -974,6 +974,7 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
                 {"name": "picked", "type": "bool", "facet": False},
                 {"name": "get_absolute_url_online", "type": "string", "facet": False},
                 {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
+                {"name": "score", "type": "int32", "facet": False},
             ]
         )
 
@@ -1040,7 +1041,7 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
 
         excluded_fields = excluded_fields or []
         excluded_fields.extend(
-            ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date"]
+            ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date", "score"]
         )
 
         data = super().get_document_source(excluded_fields=excluded_fields)
@@ -1080,7 +1081,32 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
 
         data["publication_date"] = convert_to_unix_timestamp(self.publication_date)
 
+        is_medium_big_tutorial = versioned.has_sub_containers()
+        data["score"] = self._compute_score(self.content_type, is_medium_big_tutorial, data["picked"])
+
         return data
+
+    def _compute_score(self, type_content: str, is_medium_big_tutorial: Boolean, is_picked: Boolean):
+        """
+        This function calculates a score for publishedcontent in order to sort them according to different boosts.
+        There is a boost according to the type of content (article, opinion, tutorial),
+        if it is a big tutorial or if it is picked.
+        """
+        is_article = 1 if type_content == "ARTICLE" else 0
+        is_tutorial = 1 if type_content == "TUTORIAL" else 0
+        is_opinion = 1 if type_content == "OPINION" else 0
+        weight_article = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"]
+        weight_tutorial = (
+            settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"]
+            if not is_medium_big_tutorial
+            else settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"]
+        )
+        weight_opinion = (
+            settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"]
+            if is_picked
+            else settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"]
+        )
+        return weight_article * is_article + weight_opinion * is_opinion + weight_tutorial * is_tutorial
 
 
 @receiver(pre_delete, sender=PublishedContent)
