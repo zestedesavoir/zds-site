@@ -974,7 +974,7 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
                 {"name": "picked", "type": "bool", "facet": False},
                 {"name": "get_absolute_url_online", "type": "string", "facet": False},
                 {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
-                {"name": "score", "type": "int32", "facet": False},
+                {"name": "score", "type": "float", "facet": False},
             ]
         )
 
