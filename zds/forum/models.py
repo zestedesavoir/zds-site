@@ -12,7 +12,7 @@ from django.db.models.signals import pre_delete
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.forum import signals
 from zds.searchv2.models import (
-    AbstractSearchDjangoIndexable,
+    AbstractSearchIndexableModel,
     delete_document_in_search,
     SearchIndexManager,
     convert_to_unix_timestamp,
@@ -172,7 +172,7 @@ class Forum(models.Model):
         return self._nb_group > 0
 
 
-class Topic(AbstractSearchDjangoIndexable):
+class Topic(AbstractSearchIndexableModel):
     """
     A Topic is a thread of posts.
     A topic has several states, witch are all independent:
@@ -458,10 +458,10 @@ class Topic(AbstractSearchDjangoIndexable):
         return ts_schema
 
     @classmethod
-    def get_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to prefetch tags and forum"""
 
-        query = super().get_django_indexable(force_reindexing)
+        query = super().get_indexable_objects(force_reindexing)
         return query.prefetch_related("tags").select_related("forum")
 
     def get_document_source(self, excluded_fields=None):
@@ -498,7 +498,7 @@ def delete_topic_in_search(sender, instance, **kwargs):
     return delete_document_in_search(instance)
 
 
-class Post(Comment, AbstractSearchDjangoIndexable):
+class Post(Comment, AbstractSearchIndexableModel):
     """
     A forum post written by a user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
@@ -550,10 +550,10 @@ class Post(Comment, AbstractSearchDjangoIndexable):
         return ts_schema
 
     @classmethod
-    def get_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to prefetch stuffs"""
 
-        q = super().get_django_indexable(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
+        q = super().get_indexable_objects(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
 
         return q
 

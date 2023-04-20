@@ -26,7 +26,7 @@ from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
-    AbstractSearchDjangoIndexable,
+    AbstractSearchIndexableModel,
     AbstractSearchIndexable,
     delete_document_in_search,
     SearchIndexManager,
@@ -619,7 +619,7 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
+class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -981,10 +981,10 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
         return ts_schema
 
     @classmethod
-    def get_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to remove must_redirect=True (and prefetch stuffs)."""
 
-        q = super().get_django_indexable(force_reindexing)
+        q = super().get_indexable_objects(force_reindexing)
         return (
             q.prefetch_related("content")
             .prefetch_related("content__tags")

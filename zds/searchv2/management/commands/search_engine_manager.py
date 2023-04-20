@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from zds.searchv2.models import SearchIndexManager, get_django_indexable_objects
+from zds.searchv2.models import SearchIndexManager, get_all_indexable_objects
 from zds.tutorialv2.models.database import FakeChapter
 
 
@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = "Index data in ES and manage them"
 
     search_engine_manager = None
-    models = get_django_indexable_objects()
+    models = get_all_indexable_objects()
 
     def __init__(self, *args, **kwargs):
         """Overridden because FakeChapter needs to be present for schema.

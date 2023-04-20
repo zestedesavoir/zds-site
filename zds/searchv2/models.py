@@ -41,7 +41,7 @@ class AbstractSearchIndexable:
 
         # fetch parents
         for base in cls.__bases__:
-            if issubclass(base, AbstractSearchIndexable) and base != AbstractSearchDjangoIndexable:
+            if issubclass(base, AbstractSearchIndexable) and base != AbstractSearchIndexableModel:
                 content_type = base.__name__.lower() + "_" + content_type
 
         return content_type
@@ -142,7 +142,7 @@ class AbstractSearchIndexable:
         return document
 
 
-class AbstractSearchDjangoIndexable(AbstractSearchIndexable, models.Model):
+class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     """Version of AbstractSearchIndexable for a Django object, with some improvements :
 
     - Already include ``pk`` in schema ;
@@ -150,7 +150,7 @@ class AbstractSearchDjangoIndexable(AbstractSearchIndexable, models.Model):
     - Override ``es_already_indexed`` to a database field.
     - Define a ``es_flagged`` field to restrict the number of object to be indexed ;
     - Override ``save()`` to manage the field ;
-    - Define a ``get_django_indexable()`` method that can be overridden to change the queryset to fetch object.
+    - Define a ``get_indexable_objects()`` method that can be overridden to change the queryset to fetch object.
     """
 
     class Meta:
@@ -165,7 +165,7 @@ class AbstractSearchDjangoIndexable(AbstractSearchIndexable, models.Model):
         self.search_engine_id = str(self.pk)
 
     @classmethod
-    def get_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Method that can be overridden to filter django objects from database based on any criterion.
 
         :param force_reindexing: force to return all objects, even if they may be already indexed.
@@ -189,7 +189,7 @@ class AbstractSearchDjangoIndexable(AbstractSearchIndexable, models.Model):
         :rtype: django.db.models.query.QuerySet
         """
 
-        return cls.get_django_indexable(force_reindexing).order_by("pk").all()
+        return cls.get_indexable_objects(force_reindexing).order_by("pk").all()
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object if saved
@@ -210,7 +210,7 @@ def convert_to_unix_timestamp(date):
 
 def delete_document_in_search(instance):
     """Delete a ESDjangoIndexable from ES database.
-    Must be implemented by all classes that derive from AbstractSearchDjangoIndexable.
+    Must be implemented by all classes that derive from AbstractSearchIndexableModel.
 
     :param instance: the document to delete
     :type instance: AbstractSearchIndexable
@@ -221,9 +221,9 @@ def delete_document_in_search(instance):
     search_engine_manager.delete_document(instance)
 
 
-def get_django_indexable_objects():
+def get_all_indexable_objects():
     """Return all indexable objects registered in Django"""
-    return [model for model in apps.get_models() if issubclass(model, AbstractSearchDjangoIndexable)]
+    return [model for model in apps.get_models() if issubclass(model, AbstractSearchIndexableModel)]
 
 
 class SearchIndexManager:
@@ -357,14 +357,14 @@ class SearchIndexManager:
     def clear_indexing_of_model(self, model):
         """Nullify the indexing of a given model by setting ``es_already_index=False`` to all objects.
 
-        Use full updating for ``AbstractSearchDjangoIndexable``, instead of saving all of them.
+        Use full updating for ``AbstractSearchIndexableModel``, instead of saving all of them.
 
         :param model: the model
         :type model: class
         """
 
-        if issubclass(model, AbstractSearchDjangoIndexable):  # use a global update with Django
-            objs = model.get_django_indexable(force_reindexing=True)
+        if issubclass(model, AbstractSearchIndexableModel):  # use a global update with Django
+            objs = model.get_indexable_objects(force_reindexing=True)
             objs.update(es_flagged=True, es_already_indexed=False)
         else:
             for objects in model.get_indexable(force_reindexing=True):
@@ -381,7 +381,7 @@ class SearchIndexManager:
 
         .. attention::
             + Currently only implemented with "index" and "update" !
-            + Currently only working with ``AbstractSearchDjangoIndexable``.
+            + Currently only working with ``AbstractSearchIndexableModel``.
 
         :param model: and model
         :type model: class
