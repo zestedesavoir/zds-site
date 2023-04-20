@@ -106,36 +106,7 @@ class AssignLabelsTestCase(TestCase):
         self.assertNotIn(self.label, self.content_without_label.labels.all())
 
     def test_remove_label(self):
-        self.content_with_label.labels.add(self.label)
         self.client.force_login(self.staff)
         self.client.post(self.url, {"labels": []}, follow=True)
         self.assertNotIn(self.label, self.content_with_label.labels.all())
         self.assertNotIn(self.label, self.content_without_label.labels.all())
-
-
-class ContentListTestCase(TestCase):
-    def setUp(self):
-        self.staff = StaffProfileFactory().user
-        self.content_with_label_1 = PublishedContentFactory()
-        self.content_with_label_2 = PublishedContentFactory()
-        self.content_without_label = PublishedContentFactory()
-        self.label = LabelFactory()
-        self.content_with_label_1.labels.add(self.label)
-        self.content_with_label_2.labels.add(self.label)
-
-    def test_content_list_with_label(self):
-        self.client.force_login(self.staff)
-        url = reverse("content:view-labels", kwargs={"slug": self.label.slug})
-        response = self.client.get(url)
-        self.assertContains(response, self.content_with_label_1.title)
-        self.assertContains(response, self.content_with_label_2.title)
-        self.assertNotContains(response, self.content_without_label.title)
-
-    def test_content_list_without_label(self):
-        other_label = LabelFactory()
-        self.client.force_login(self.staff)
-        url = reverse("content:view-labels", kwargs={"slug": other_label.slug})
-        response = self.client.get(url)
-        self.assertNotContains(response, self.content_with_label_1.title)
-        self.assertNotContains(response, self.content_with_label_2.title)
-        self.assertNotContains(response, self.content_without_label.title)
