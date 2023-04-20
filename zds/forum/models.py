@@ -594,8 +594,8 @@ class Post(Comment, AbstractSearchDjangoIndexable):
 
         super().hide_comment_by_user(user, text_hidden)
 
-        index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
-        index_manager.update_single_document(self, {"is_visible": False})
+        search_engine_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        search_engine_manager.update_single_document(self, {"is_visible": False})
 
 
 @receiver(pre_delete, sender=Post)

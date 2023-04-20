@@ -77,7 +77,7 @@ Sans entrer dans les détails, l'*analyzer* utilisé par ES pour ZdS :
 
 Les différents *tokens* qui resortent de cette phase d'analyse sont alors indexés, et c'est de ces *tokens* dont ES se servira ensuite pour la recherche, plutôt que de réaliser des recherches *full-text*.
 
-La phase d'indexation est réalisée à l'aide de la commande ``python manage.py es_manager`` (voir ci-dessous).
+La phase d'indexation est réalisée à l'aide de la commande ``python manage.py search_engine_manager`` (voir ci-dessous).
 
 Phase de recherche
 ++++++++++++++++++
@@ -185,7 +185,7 @@ Ensuite, différentes situations peuvent modifier le score.
 .. attention::
 
     Pour que les changements dans ``'mark_keywords'`` soient pris en compte, il est nécessaire de réindexer **tout** le contenu
-    (grâce à ``python manage.py es_manager index_all``).
+    (grâce à ``python manage.py search_engine_manager index_all``).
 
 Indexer les données de ZdS
 --------------------------
@@ -194,7 +194,7 @@ Une fois Elasticsearch `installé <../install/install-es.html>`_ puis configuré
 
 .. sourcecode:: bash
 
-      python manage.py es_manager <action>
+      python manage.py search_engine_manager <action>
 
 où ``<action>`` peut être
 
@@ -326,7 +326,7 @@ En particulier, c'est la méthode ``get_es_indexable()`` qui est surchargée, pr
         """Overridden to also include
         """
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        search_engine_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
         last_pk = 0
         objects_source = super(PublishedContent, cls).get_es_indexable(force_reindexing)
         objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
@@ -340,7 +340,7 @@ En particulier, c'est la méthode ``get_es_indexable()`` qui est surchargée, pr
 
                     # delete possible previous chapters
                     if content.es_already_indexed:
-                        index_manager.delete_by_query(
+                        search_engine_manager.delete_by_query(
                             FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
 
                     # (re)index the new one(s)

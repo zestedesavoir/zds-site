@@ -26,11 +26,11 @@ class AbstractSearchIndexable:
     - ``get_schema()`` (not mandatory, but otherwise, ES will choose the schema by itself) ;
     - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
 
-    You also need to maintain ``index_id`` and ``es_already_indexed`` for bulk indexing/updating (if any).
+    You also need to maintain ``search_engine_id`` and ``es_already_indexed`` for bulk indexing/updating (if any).
     """
 
     es_already_indexed = False
-    index_id = ""
+    search_engine_id = ""
 
     objects_per_batch = 100
 
@@ -130,14 +130,14 @@ class AbstractSearchIndexable:
 
         document = self.get_document_source()
         if action == "index":
-            if self.index_id:
-                document["id"] = self.index_id
+            if self.search_engine_id:
+                document["id"] = self.search_engine_id
             document["_source"] = self.get_document_source()
         elif action == "update":
-            document["id"] = self.index_id
+            document["id"] = self.search_engine_id
             document["doc"] = self.get_document_source()
         elif action == "delete":
-            document["id"] = self.index_id
+            document["id"] = self.search_engine_id
 
         return document
 
@@ -162,7 +162,7 @@ class AbstractSearchDjangoIndexable(AbstractSearchIndexable, models.Model):
     def __init__(self, *args, **kwargs):
         """Override to match ES ``_id`` field and ``pk``"""
         super().__init__(*args, **kwargs)
-        self.index_id = str(self.pk)
+        self.search_engine_id = str(self.pk)
 
     @classmethod
     def get_django_indexable(cls, force_reindexing=False):
@@ -216,9 +216,9 @@ def delete_document_in_search(instance):
     :type instance: AbstractSearchIndexable
     """
 
-    index_manager = SearchIndexManager()
+    search_engine_manager = SearchIndexManager()
 
-    index_manager.delete_document(instance)
+    search_engine_manager.delete_document(instance)
 
 
 def get_django_indexable_objects():
@@ -232,12 +232,7 @@ class SearchIndexManager:
     def __init__(self, connection_alias="default"):
         """Create a manager for a given index
 
-        :param name: the index name
-        :type name: str
-        :param shards: number of shards
-        :type shards: int
-        :param replicas: number of replicas
-        :type replicas: int
+
         :param connection_alias: the alias for connection
         :type connection_alias: str
         """
@@ -262,15 +257,11 @@ class SearchIndexManager:
         self.logger.info("index cleared")
 
     def reset_index(self, models):
-        """Delete old index and create an new one (with the same name). Setup the number of shards and replicas.
+        """Delete old collections and create new ones.
         Then, set schemas for the different models.
 
         :param models: list of models
         :type models: list
-        :param number_shards: number of shards
-        :type number_shards: int
-        :param number_replicas: number of replicas
-        :type number_replicas: int
         """
 
         if not self.connected_to_search:
@@ -300,7 +291,7 @@ class SearchIndexManager:
 
         .. warning::
 
-            You need to run ``manage.py es_manager index_all`` if you modified this !!
+            You need to run ``manage.py search_engine_manager index_all`` if you modified this !!
         """
 
         if not self.connected_to_search:
@@ -514,15 +505,15 @@ class SearchIndexManager:
             return
 
         doc_type = document.get_document_type()
-        doc_id = document.index_id
+        doc_id = document.search_engine_id
         try:
             self.search.collections[doc_type].documents[doc_id].update(doc)
-            self.logger.info(f"partial_update {document.get_document_type()} with id {document.index_id}")
+            self.logger.info(f"partial_update {document.get_document_type()} with id {document.search_engine_id}")
         except:
             pass
 
     def delete_document(self, document):
-        """Delete a given document, based on its ``index_id``
+        """Delete a given document, based on its ``search_engine_id``
 
         :param document: the document
         :type document: AbstractSearchIndexable
@@ -532,10 +523,10 @@ class SearchIndexManager:
             return
 
         doc_type = document.get_document_type()
-        doc_id = document.index_id
+        doc_id = document.search_engine_id
         try:
             self.search.collections[doc_type].documents[doc_id].delete()
-            self.logger.info(f"delete {document.get_document_type()} with id {document.index_id}")
+            self.logger.info(f"delete {document.get_document_type()} with id {document.search_engine_id}")
         except:
             pass
 

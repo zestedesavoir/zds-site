@@ -25,16 +25,16 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        self.search_engine_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
     def test_manager(self):
-        """Test the behavior of the ``es_manager`` command"""
+        """Test the behavior of the ``search_engine_manager`` command"""
 
-        if not self.index_manager.connected_to_search:
+        if not self.search_engine_manager.connected_to_search:
             return
 
         # in the beginning: the void
-        self.assertTrue(self.index_manager.index not in self.index_manager.es.cat.indices())
+        self.assertTrue(self.search_engine_manager.index not in self.search_engine_manager.es.cat.indices())
 
         text = "Ceci est un texte de test"
 
@@ -74,9 +74,9 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(published.es_flagged)
 
         # 1. test "index-all"
-        call_command("es_manager", "index_all")
-        self.assertTrue(self.index_manager.es.indices.exists(self.index_manager.index))
-        self.index_manager.index_exists = True
+        call_command("search_engine_manager", "index_all")
+        self.assertTrue(self.search_engine_manager.es.indices.exists(self.search_engine_manager.index))
+        self.search_engine_manager.index_exists = True
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
@@ -92,7 +92,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         s = Search()
         s.query(MatchAll())
-        results = self.index_manager.setup_search(s).execute()
+        results = self.search_engine_manager.setup_search(s).execute()
         self.assertEqual(len(results), 4)  # get 4 results, one of each type
 
         must_contain = {"post": False, "topic": False, "publishedcontent": False, "chapter": False}
@@ -111,11 +111,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(all(must_contain))
 
         # 2. test "clear"
-        self.assertTrue(self.index_manager.index in self.index_manager.es.cat.indices())  # index in
+        self.assertTrue(self.search_engine_manager.index in self.search_engine_manager.es.cat.indices())  # index in
 
-        call_command("es_manager", "clear")
-        self.assertFalse(self.index_manager.es.indices.exists(self.index_manager.index))
-        self.index_manager.index_exists = False
+        call_command("search_engine_manager", "clear")
+        self.assertFalse(self.search_engine_manager.es.indices.exists(self.search_engine_manager.index))
+        self.search_engine_manager.index_exists = False
 
         # must reset every object
         topic = Topic.objects.get(pk=topic.pk)
@@ -130,26 +130,30 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertFalse(published.es_already_indexed)
         self.assertTrue(published.es_flagged)
 
-        self.assertTrue(self.index_manager.index not in self.index_manager.es.cat.indices())  # index wiped out !
+        self.assertTrue(
+            self.search_engine_manager.index not in self.search_engine_manager.es.cat.indices()
+        )  # index wiped out !
 
         # 3. test "setup"
-        call_command("es_manager", "setup")
-        self.assertTrue(self.index_manager.es.indices.exists(self.index_manager.index))
-        self.index_manager.index_exists = True
+        call_command("search_engine_manager", "setup")
+        self.assertTrue(self.search_engine_manager.es.indices.exists(self.search_engine_manager.index))
+        self.search_engine_manager.index_exists = True
 
-        self.assertTrue(self.index_manager.index in self.index_manager.es.cat.indices())  # index back in ...
+        self.assertTrue(
+            self.search_engine_manager.index in self.search_engine_manager.es.cat.indices()
+        )  # index back in ...
 
         s = Search()
         s.query(MatchAll())
-        results = self.index_manager.setup_search(s).execute()
+        results = self.search_engine_manager.setup_search(s).execute()
         self.assertEqual(len(results), 0)  # ... but with nothing in it
 
-        result = self.index_manager.es.indices.get_settings(index=self.index_manager.index)
-        settings_index = result[self.index_manager.index]["settings"]["index"]
+        result = self.search_engine_manager.es.indices.get_settings(index=self.search_engine_manager.index)
+        settings_index = result[self.search_engine_manager.index]["settings"]["index"]
         self.assertTrue("analysis" in settings_index)  # custom analyzer was setup
 
         # 4. test "index-flagged" once ...
-        call_command("es_manager", "index_flagged")
+        call_command("search_engine_manager", "index_flagged")
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
@@ -165,11 +169,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         s = Search()
         s.query(MatchAll())
-        results = self.index_manager.setup_search(s).execute()
+        results = self.search_engine_manager.setup_search(s).execute()
         self.assertEqual(len(results), 4)  # get the 4 results back
 
     def tearDown(self):
         super().tearDown()
 
         # delete index:
-        self.index_manager.clear_index()
+        self.search_engine_manager.clear_index()

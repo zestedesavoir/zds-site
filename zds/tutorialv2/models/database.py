@@ -997,7 +997,7 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
     def get_indexable(cls, force_reindexing=False):
         """Overridden to also include chapters"""
 
-        index_manager = SearchIndexManager()
+        search_engine_manager = SearchIndexManager()
 
         # fetch initial batch
         last_pk = 0
@@ -1015,13 +1015,13 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
 
                     # delete possible previous chapters
                     if content.es_already_indexed:
-                        index_manager.delete_by_query(
-                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.index_id}
+                        search_engine_manager.delete_by_query(
+                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
                         )
 
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
-                        chapters.append(FakeChapter(chapter, versioned, content.index_id))
+                        chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
 
             if chapters:
                 # since we want to return at most PublishedContent.objects_per_batch items
@@ -1115,9 +1115,11 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     chapters.
     """
 
-    index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+    search_engine_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
-    index_manager.delete_by_query(FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.index_id})
+    search_engine_manager.delete_by_query(
+        FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.search_engine_id}
+    )
 
     return delete_document_in_search(instance)
 
@@ -1163,7 +1165,7 @@ class FakeChapter(AbstractSearchIndexable):
         self.parent_id = parent_id
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
-        self.index_id = (
+        self.search_engine_id = (
             main_container.slug + "__" + chapter.slug
         )  # both slugs are unique by design, so id remains unique
 
