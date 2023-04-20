@@ -1,17 +1,21 @@
 {% load i18n %}
-
+<link rel="stylesheet" href="https://unpkg.com/katex@0.13.9/dist/katex.min.css">
+<script src="https://unpkg.com/katex@0.13.9/dist/katex.min.js"></script>
 <div id="{{ tab_name }}" class="tabcontent">
+
+   
     {% for quizz_name, questions in quizz.items %}
         <header>
             <h3>{{ quizz_name }}</h3>
+            <button class="init-stats-button" data-quizz="{{ quizz_name }}">Initialize Stats</button>
         </header>
         {% for question, stats in questions.items %}
             <article class="stat-graph">
-            <h4>{% trans graph_title %} {{ question }}</h4>
+            <h4>{% trans graph_title %} <span id="formule">{{ question }}</span></h4>
             <ul class="quizz-answers">
                 {% for answer_name, answer_stats in stats.responses.items %}
                     <li class="{% if answer_stats.good %}quizz-forget{% endif %} quizz-stats">
-                        <span>{{ answer_name }}</span>
+                        <span id="formule">{{ answer_name }}</span>
                         <span>
                             <progress aria-label="{% trans 'Résultat pour' %} {{ answer_name }}"
                                       max="{{ stats.total }}" value="{{ answer_stats.nb }}"/>
@@ -24,3 +28,13 @@
         {% endfor %}
 {% endfor %}
 </div>
+<script>
+
+    var elements = document.querySelectorAll("#formule");
+    
+    for (var i = 0; i < elements.length; i++) {
+        katex.render(elements[i].textContent, elements[i]);
+    }
+</script>
+
+
