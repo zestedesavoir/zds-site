@@ -26,7 +26,7 @@ from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
-    AbstractSearchDjangoIndexable,
+    AbstractSearchIndexableModel,
     AbstractSearchIndexable,
     delete_document_in_search,
     SearchIndexManager,
@@ -619,7 +619,7 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
+class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -981,10 +981,10 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
         return ts_schema
 
     @classmethod
-    def get_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to remove must_redirect=True (and prefetch stuffs)."""
 
-        q = super().get_django_indexable(force_reindexing)
+        q = super().get_indexable_objects(force_reindexing)
         return (
             q.prefetch_related("content")
             .prefetch_related("content__tags")
@@ -997,7 +997,7 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
     def get_indexable(cls, force_reindexing=False):
         """Overridden to also include chapters"""
 
-        index_manager = SearchIndexManager()
+        search_engine_manager = SearchIndexManager()
 
         # fetch initial batch
         last_pk = 0
@@ -1015,13 +1015,13 @@ class PublishedContent(AbstractSearchDjangoIndexable, TemplatableContentModelMix
 
                     # delete possible previous chapters
                     if content.es_already_indexed:
-                        index_manager.delete_by_query(
-                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.index_id}
+                        search_engine_manager.delete_by_query(
+                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
                         )
 
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
-                        chapters.append(FakeChapter(chapter, versioned, content.index_id))
+                        chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
 
             if chapters:
                 # since we want to return at most PublishedContent.objects_per_batch items
@@ -1115,9 +1115,11 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
     chapters.
     """
 
-    index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+    search_engine_manager = SearchIndexManager(**settings.SEARCH_INDEX)
 
-    index_manager.delete_by_query(FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.index_id})
+    search_engine_manager.delete_by_query(
+        FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.search_engine_id}
+    )
 
     return delete_document_in_search(instance)
 
@@ -1163,7 +1165,7 @@ class FakeChapter(AbstractSearchIndexable):
         self.parent_id = parent_id
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
-        self.index_id = (
+        self.search_engine_id = (
             main_container.slug + "__" + chapter.slug
         )  # both slugs are unique by design, so id remains unique
 

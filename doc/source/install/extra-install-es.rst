@@ -140,11 +140,11 @@ Vous devriez observer une réponse du même genre que celle-ci :
 
 Si ce n'est pas le cas, vérifiez que vous avez démarré Elasticsearch.
 
-Si c'est le cas, vous pouvez indexer les données à l'aide de la commande ``es_manager``, comme suit :
+Si c'est le cas, vous pouvez indexer les données à l'aide de la commande ``search_engine_manager``, comme suit :
 
 .. sourcecode:: bash
 
-    python manage.py es_manager index_all
+    python manage.py search_engine_manager index_all
 
 Une fois que c'est fait, en vous rendant sur la page de recherche, `http://localhost:8000/rechercher/ <http://localhost:8000/rechercher/>`_, vous devriez être capable d'utiliser la recherche.
 En particulier, vous ne devriez pas observer de message d'erreur :
@@ -158,7 +158,7 @@ Pour réindexer les nouvelles données, utilisez la commande suivante :
 
 .. sourcecode:: bash
 
-    python manage.py es_manager index_flagged
+    python manage.py search_engine_manager index_flagged
 
-Plus d'informations sur la commande ``es_manager`` sont disponibles sur la page `concernant la recherche sur ZdS <../back-end/searchv2.html#indexer-les-donnees-de-zds>`_.
+Plus d'informations sur la commande ``search_engine_manager`` sont disponibles sur la page `concernant la recherche sur ZdS <../back-end/searchv2.html#indexer-les-donnees-de-zds>`_.
 

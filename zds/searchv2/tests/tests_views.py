@@ -101,9 +101,9 @@ class ViewsTests(TutorialTestMixin, TestCase):
         published = PublishedContent.objects.get(pk=published.pk)
 
         ids = {
-            "topic": [topic_1.index_id],
-            "post": [post_1.index_id],
-            "content": [published.index_id, published.content_public_slug + "__" + chapter1.slug],
+            "topic": [topic_1.search_engine_id],
+            "post": [post_1.search_engine_id],
+            "content": [published.search_engine_id, published.content_public_slug + "__" + chapter1.slug],
         }
 
         search_groups = [k for k, v in settings.ZDS_APP["search"]["search_groups"].items()]
@@ -196,7 +196,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"].execute()
 
         self.assertEqual(response.hits.total, 1)
-        self.assertEqual(response[0].meta.id, post_1.index_id)
+        self.assertEqual(response[0].meta.id, post_1.search_engine_id)
 
         # 2. Hide, reindex and search again:
         post_1.hide_comment_by_user(self.staff, "Un abus de pouvoir comme un autre ;)")
