@@ -228,7 +228,7 @@ class SearchView(ZdSPagingListView):
                     "collection": "publishedcontent",
                     "q": self.search_query,
                     "query_by": "title,description,categories,subcategories, tags, text",
-                    # "query_by_weights": "10,2,2,2,2,2",
+                    "query_by_weights": "10,2,2,2,2,2",
                     # "sort_by": "score:asc"
                 },
                 "topic": {
@@ -290,7 +290,9 @@ class SearchView(ZdSPagingListView):
                 for entry in results[k]["hits"]:
                     entry["collection"] = collection_names[k]
                     all_collection_result.append(entry)
-        all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
+        all_collection_result.sort(
+            key=lambda result: (result["document"]["score"] + result["text_match"]), reverse=True
+        )
         return all_collection_result
 
     def get_queryset_publishedcontents(self):

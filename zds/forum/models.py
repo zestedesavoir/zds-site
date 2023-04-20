@@ -452,6 +452,7 @@ class Topic(AbstractSearchDjangoIndexable):
                 {"name": "pubdate", "type": "int64", "facet": True},
                 {"name": "get_absolute_url", "type": "string"},
                 {"name": "forum_get_absolute_url", "type": "string"},
+                {"name": "score", "type": "float", "facet": False},
             ]
         )
 
@@ -468,7 +469,7 @@ class Topic(AbstractSearchDjangoIndexable):
         """Overridden to handle the case of tags (M2M field)"""
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate"])
+        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "score"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
         data["tags"] = [tag.title for tag in self.tags.all()]
@@ -476,6 +477,7 @@ class Topic(AbstractSearchDjangoIndexable):
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
         data["pubdate"] = convert_to_unix_timestamp(self.pubdate)
+        data["score"] = self._compute_score()
 
         return data
 
@@ -490,6 +492,19 @@ class Topic(AbstractSearchDjangoIndexable):
             if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
                 Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
         return super().save(*args, **kwargs)
+
+    def _compute_score(self):
+        """
+        This function calculates a score for topics in order to sort them according to different boosts.
+        There is a boost according to the state of the topic :
+            - Solved: it was a question, and this question has been answered. The "solved" state is set at author's discretion.
+            - Locked: none can write on a locked topic.
+            - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
+        """
+        weight_solved = settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]
+        weight_sticky = settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]
+        weight_locked = settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]
+        return weight_solved * self.is_solved + weight_sticky * self.is_sticky + weight_locked * self.is_locked
 
 
 @receiver(pre_delete, sender=Topic)
@@ -544,6 +559,7 @@ class Post(Comment, AbstractSearchDjangoIndexable):
                 {"name": "get_absolute_url", "type": "string"},
                 {"name": "forum_get_absolute_url", "type": "string"},
                 {"name": "like_dislike_ratio", "type": "float"},
+                {"name": "score", "type": "float", "facet": False},
             ]
         )
 
@@ -570,6 +586,7 @@ class Post(Comment, AbstractSearchDjangoIndexable):
                 "forum_pk",
                 "forum_get_absolute_url",
                 "pubdate",
+                "score",
             ]
         )
 
@@ -587,6 +604,8 @@ class Post(Comment, AbstractSearchDjangoIndexable):
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
         data["pubdate"] = convert_to_unix_timestamp(self.pubdate)
 
+        data["score"] = self._compute_score(data["like_dislike_ratio"])
+
         return data
 
     def hide_comment_by_user(self, user, text_hidden):
@@ -596,6 +615,25 @@ class Post(Comment, AbstractSearchDjangoIndexable):
 
         index_manager = SearchIndexManager(**settings.SEARCH_INDEX)
         index_manager.update_single_document(self, {"is_visible": False})
+
+    def _compute_score(self, ratio: float):
+        """
+        This function calculates a score for post in order to sort them according to different boosts.
+        There is a boost according to the position, the usefulness and the ration of likes.
+        """
+        weight_first = settings.ZDS_APP["search"]["boosts"]["post"]["if_first"]
+        weight_useful = settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"]
+        weight_ld_ratio_above_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"]
+        weight_ld_ratio_below_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"]
+        is_ratio_above_1 = 1 if ratio >= 1 else 0
+        is_ratio_below_1 = 1 - is_ratio_above_1
+        is_first = 1 if self.position == 1 else 0
+        return (
+            weight_first * is_first
+            + weight_useful * self.is_useful
+            + weight_ld_ratio_above_1 * is_ratio_above_1
+            + weight_ld_ratio_below_1 * is_ratio_below_1
+        )
 
 
 @receiver(pre_delete, sender=Post)
