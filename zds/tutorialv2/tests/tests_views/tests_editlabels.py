@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory, LabelFactory
+from zds.tutorialv2.tests.factories import PublishableContentFactory, LabelFactory, PublishedContentFactory
 
 
 class EditLabelsPermissionTests(TestCase):
@@ -94,8 +94,8 @@ class EditLabelsFunctionalTests(TestCase):
 class AssignLabelsTestCase(TestCase):
     def setUp(self):
         self.staff = StaffProfileFactory().user
-        self.content_with_label = PublishableContentFactory()
-        self.content_without_label = PublishableContentFactory()
+        self.content_with_label = PublishedContentFactory()
+        self.content_without_label = PublishedContentFactory()
         self.url = reverse("content:edit-labels", kwargs={"pk": self.content_with_label.pk})
         self.label = LabelFactory()
 
@@ -116,9 +116,9 @@ class AssignLabelsTestCase(TestCase):
 class ContentListTestCase(TestCase):
     def setUp(self):
         self.staff = StaffProfileFactory().user
-        self.content_with_label_1 = PublishableContentFactory()
-        self.content_with_label_2 = PublishableContentFactory()
-        self.content_without_label = PublishableContentFactory()
+        self.content_with_label_1 = PublishedContentFactory()
+        self.content_with_label_2 = PublishedContentFactory()
+        self.content_without_label = PublishedContentFactory()
         self.label = LabelFactory()
         self.content_with_label_1.labels.add(self.label)
         self.content_with_label_2.labels.add(self.label)
