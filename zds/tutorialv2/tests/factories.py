@@ -330,5 +330,4 @@ class LabelFactory(factory.django.DjangoModelFactory):
 
     name = factory.Sequence("Mon label n°{}".format)
     description = factory.Sequence("Très belle description n°{}".format)
-    position = factory.Sequence(lambda n: n)
     slug = factory.Sequence("mon-label-{}".format)

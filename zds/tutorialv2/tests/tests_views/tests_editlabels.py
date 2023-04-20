@@ -125,7 +125,7 @@ class ContentListTestCase(TestCase):
 
     def test_content_list_with_label(self):
         self.client.force_login(self.staff)
-        url = reverse("content:label-list", kwargs={"slug": self.label.slug})
+        url = reverse("content:view-labels", kwargs={"slug": self.label.slug})
         response = self.client.get(url)
         self.assertContains(response, self.content_with_label_1.title)
         self.assertContains(response, self.content_with_label_2.title)
@@ -134,7 +134,7 @@ class ContentListTestCase(TestCase):
     def test_content_list_without_label(self):
         other_label = LabelFactory()
         self.client.force_login(self.staff)
-        url = reverse("content:label-list", kwargs={"slug": other_label.slug})
+        url = reverse("content:view-labels", kwargs={"slug": other_label.slug})
         response = self.client.get(url)
         self.assertNotContains(response, self.content_with_label_1.title)
         self.assertNotContains(response, self.content_with_label_2.title)
