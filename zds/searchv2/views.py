@@ -228,28 +228,27 @@ class SearchView(ZdSPagingListView):
                     "collection": "publishedcontent",
                     "q": self.search_query,
                     "query_by": "title,description,categories,subcategories, tags, text",
-                    "query_by_weights": "10,2,2,2,2,2",
-                    # "sort_by": "score:asc"
+                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['publishedcontent']['title']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['description']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['categories']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['subcategories']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['tags']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['text']}",
                 },
                 "topic": {
                     "collection": "topic",
                     "q": self.search_query,
                     "query_by": "title,subtitle,tags",
                     "filter_by": filter,
-                    # "query_by_weights": "1,1,1"
+                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['topic']['title']},{settings.ZDS_APP['search']['boosts']['topic']['subtitle']},{settings.ZDS_APP['search']['boosts']['topic']['tags']}",
                 },
                 "chapter": {
                     "collection": "chapter",
                     "q": self.search_query,
                     "query_by": "title,text",
-                    # "query_by_weights": "5,5"
+                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['chapter']['title']},{settings.ZDS_APP['search']['boosts']['chapter']['text']}",
                 },
                 "post": {
                     "collection": "post",
                     "q": self.search_query,
                     "query_by": "text_html",
                     "filter_by": filter,
-                    # "query_by_weights": "2",
+                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['post']['text_html']}",
                 },
             }
             if self.search_content_types:
@@ -284,15 +283,23 @@ class SearchView(ZdSPagingListView):
         """
         results = client.multi_search.perform(search_requests, None)["results"]
         all_collection_result = []
-
         for k in range(len(results)):
             if "hits" in results[k]:
                 for entry in results[k]["hits"]:
                     entry["collection"] = collection_names[k]
                     all_collection_result.append(entry)
-        all_collection_result.sort(
-            key=lambda result: (result["document"]["score"] + result["text_match"]), reverse=True
-        )
+        all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
+        count_results = len(all_collection_result)
+        if count_results > 10:
+            for i in range(int(count_results / 10)):
+                print(all_collection_result[i * 10 : (i + 1) * 10])
+                all_collection_result[i * 10 : (i + 1) * 10] = sorted(
+                    all_collection_result[i * 10 : (i + 1) * 10],
+                    key=lambda result: result["document"]["score"],
+                    reverse=True,
+                )
+                print(all_collection_result[i * 10 : (i + 1) * 10])
+
         return all_collection_result
 
     def get_queryset_publishedcontents(self):
@@ -311,6 +318,7 @@ class SearchView(ZdSPagingListView):
             "q": self.search_query,
             "query_by": "title,description,categories,subcategories, tags, text",
             "filter_by": filter,
+            "sort_by": "score:desc",
         }
 
         result = client.collections["publishedcontent"].documents.search(search_parameters)["hits"]
@@ -333,6 +341,7 @@ class SearchView(ZdSPagingListView):
             "q": self.search_query,
             "query_by": "title,text",
             "filter": filter,
+            "sort_by": "score:desc",
         }
 
         result = client.collections["chapter"].documents.search(search_parameters)["hits"]
@@ -354,7 +363,12 @@ class SearchView(ZdSPagingListView):
         filter = ""
         filter = self._add_filter("forum_pk", self.authorized_forums, filter)
 
-        search_parameters = {"q": self.search_query, "query_by": "title,subtitle,tags", "filter_by": filter}
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,subtitle,tags",
+            "filter_by": filter,
+            "sort_by": "score:desc",
+        }
 
         result = client.collections["topic"].documents.search(search_parameters)["hits"]
 
@@ -380,6 +394,7 @@ class SearchView(ZdSPagingListView):
             "q": self.search_query,
             "query_by": "text_html",
             "filter_by": filter,
+            "sort_by": "score:desc",
         }
 
         result = client.collections["post"].documents.search(search_parameters)["hits"]
