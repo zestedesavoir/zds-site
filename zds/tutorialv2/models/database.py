@@ -1206,6 +1206,7 @@ class FakeChapter(AbstractSearchIndexable):
                 {"name": "get_absolute_url_online", "type": "string", "facet": False},
                 {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
                 {"name": "thumbnail", "type": "string", "facet": False},
+                {"name": "score", "type": "float", "facet": False},
             ]
         )
 
@@ -1220,6 +1221,8 @@ class FakeChapter(AbstractSearchIndexable):
         data = super().get_document_source(excluded_fields=excluded_fields)
 
         data["parent_publication_date"] = convert_to_unix_timestamp(self.parent_publication_date)
+
+        data["score"] = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"]
 
         return data
 
