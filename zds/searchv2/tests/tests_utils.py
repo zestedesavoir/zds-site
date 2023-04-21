@@ -30,7 +30,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
     def test_manager(self):
         """Test the behavior of the ``search_engine_manager`` command"""
 
-        if not self.search_engine_manager.connected_to_search:
+        if not self.search_engine_manager.connected_to_search_engine:
             return
 
         # in the beginning: the void
@@ -47,10 +47,10 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.es_already_indexed)
-        self.assertTrue(topic.es_flagged)
-        self.assertFalse(post.es_already_indexed)
-        self.assertTrue(post.es_flagged)
+        self.assertFalse(topic.search_engine_already_indexed)
+        self.assertTrue(topic.search_engine_flagged)
+        self.assertFalse(post.search_engine_already_indexed)
+        self.assertTrue(post.search_engine_flagged)
 
         # create a middle-tutorial and publish it
         tuto = PublishableContentFactory(type="TUTORIAL")
@@ -70,8 +70,8 @@ class UtilsTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.es_already_indexed)
-        self.assertTrue(published.es_flagged)
+        self.assertFalse(published.search_engine_already_indexed)
+        self.assertTrue(published.search_engine_flagged)
 
         # 1. test "index-all"
         call_command("search_engine_manager", "index_all")
@@ -81,14 +81,14 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.es_already_indexed)
-        self.assertFalse(topic.es_flagged)
-        self.assertTrue(post.es_already_indexed)
-        self.assertFalse(post.es_flagged)
+        self.assertTrue(topic.search_engine_already_indexed)
+        self.assertFalse(topic.search_engine_flagged)
+        self.assertTrue(post.search_engine_already_indexed)
+        self.assertFalse(post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.es_already_indexed)
-        self.assertFalse(published.es_flagged)
+        self.assertTrue(published.search_engine_already_indexed)
+        self.assertFalse(published.search_engine_flagged)
 
         s = Search()
         s.query(MatchAll())
@@ -121,14 +121,14 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.es_already_indexed)
-        self.assertTrue(topic.es_flagged)
-        self.assertFalse(post.es_already_indexed)
-        self.assertTrue(post.es_flagged)
+        self.assertFalse(topic.search_engine_already_indexed)
+        self.assertTrue(topic.search_engine_flagged)
+        self.assertFalse(post.search_engine_already_indexed)
+        self.assertTrue(post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.es_already_indexed)
-        self.assertTrue(published.es_flagged)
+        self.assertFalse(published.search_engine_already_indexed)
+        self.assertTrue(published.search_engine_flagged)
 
         self.assertTrue(
             self.search_engine_manager.index not in self.search_engine_manager.es.cat.indices()
@@ -158,14 +158,14 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.es_already_indexed)
-        self.assertFalse(topic.es_flagged)
-        self.assertTrue(post.es_already_indexed)
-        self.assertFalse(post.es_flagged)
+        self.assertTrue(topic.search_engine_already_indexed)
+        self.assertFalse(topic.search_engine_flagged)
+        self.assertTrue(post.search_engine_already_indexed)
+        self.assertFalse(post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.es_already_indexed)
-        self.assertFalse(published.es_flagged)
+        self.assertTrue(published.search_engine_already_indexed)
+        self.assertFalse(published.search_engine_flagged)
 
         s = Search()
         s.query(MatchAll())

@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
         self.search_engine_manager = SearchIndexManager()
 
-        if not self.search_engine_manager.connected_to_search:
+        if not self.search_engine_manager.connected_to_search_engine:
             raise Exception("Unable to connect to Typesense, aborting.")
 
     def add_arguments(self, parser):

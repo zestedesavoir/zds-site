@@ -10,14 +10,14 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="publishedcontent",
-            name="es_already_indexed",
+            name="search_engine_already_indexed",
             field=models.BooleanField(
                 default=False, db_index=True, verbose_name=b"D\xc3\xa9j\xc3\xa0 index\xc3\xa9 par ES"
             ),
         ),
         migrations.AddField(
             model_name="publishedcontent",
-            name="es_flagged",
+            name="search_engine_flagged",
             field=models.BooleanField(
                 default=True, db_index=True, verbose_name=b"Doit \xc3\xaatre (r\xc3\xa9)index\xc3\xa9 par ES"
             ),

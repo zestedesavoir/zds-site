@@ -55,12 +55,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="post",
-            name="es_already_indexed",
+            name="search_engine_already_indexed",
             field=models.BooleanField(db_index=True, default=False, verbose_name="Déjà indexé par ES"),
         ),
         migrations.AlterField(
             model_name="post",
-            name="es_flagged",
+            name="search_engine_flagged",
             field=models.BooleanField(db_index=True, default=True, verbose_name="Doit être (ré)indexé par ES"),
         ),
         migrations.AlterField(
@@ -87,12 +87,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="topic",
-            name="es_already_indexed",
+            name="search_engine_already_indexed",
             field=models.BooleanField(db_index=True, default=False, verbose_name="Déjà indexé par ES"),
         ),
         migrations.AlterField(
             model_name="topic",
-            name="es_flagged",
+            name="search_engine_flagged",
             field=models.BooleanField(db_index=True, default=True, verbose_name="Doit être (ré)indexé par ES"),
         ),
         migrations.AlterField(

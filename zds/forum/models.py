@@ -13,7 +13,7 @@ from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicRea
 from zds.forum import signals
 from zds.searchv2.models import (
     AbstractSearchIndexableModel,
-    delete_document_in_search,
+    delete_document_in_search_engine,
     SearchIndexManager,
     convert_to_unix_timestamp,
 )
@@ -488,14 +488,14 @@ class Topic(AbstractSearchIndexableModel):
             pass
         else:
             if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
-                Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
+                Post.objects.filter(topic__pk=self.pk).update(search_engine_flagged=True)
         return super().save(*args, **kwargs)
 
 
 @receiver(pre_delete, sender=Topic)
 def delete_topic_in_search(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_search(instance)
+    return delete_document_in_search_engine(instance)
 
 
 class Post(Comment, AbstractSearchIndexableModel):
@@ -601,7 +601,7 @@ class Post(Comment, AbstractSearchIndexableModel):
 @receiver(pre_delete, sender=Post)
 def delete_post_in_search(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_search(instance)
+    return delete_document_in_search_engine(instance)
 
 
 class TopicRead(models.Model):

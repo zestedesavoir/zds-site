@@ -339,7 +339,7 @@ En particulier, c'est la méthode ``get_es_indexable()`` qui est surchargée, pr
                 if versioned.has_sub_containers():  # chapters are only indexed for middle and big tuto
 
                     # delete possible previous chapters
-                    if content.es_already_indexed:
+                    if content.search_engine_already_indexed:
                         search_engine_manager.delete_by_query(
                             FakeChapter.get_es_document_type(), ES_Q('match', _routing=content.es_id))
 

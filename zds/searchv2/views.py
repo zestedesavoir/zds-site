@@ -40,7 +40,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
             self.search_query = "".join(request.GET["q"])
 
         results = []
-        if self.search_engine_manager.connected_to_search and self.search_query:
+        if self.search_engine_manager.connected_to_search_engine and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
             filter = self._add_numerical_filter("forum_pk", self.authorized_forums)
             search_parameters = {
@@ -107,7 +107,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
             self.search_query = "".join(request.GET["q"])
         excluded_content_ids = request.GET.get("excluded", "").split(",")
         results = []
-        if self.search_engine_manager.connected_to_search and self.search_query:
+        if self.search_engine_manager.connected_to_search_engine and self.search_query:
             self.authorized_forums = get_authorized_forums(self.request.user)
 
             search_parameters = {
@@ -188,7 +188,7 @@ class SearchView(ZdSPagingListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        if not self.search_engine_manager.connected_to_search:
+        if not self.search_engine_manager.connected_to_search_engine:
             messages.warning(self.request, _("Impossible de se connecter à Elasticsearch"))
             return []
 

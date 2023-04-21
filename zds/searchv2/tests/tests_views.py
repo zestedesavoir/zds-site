@@ -46,7 +46,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_basic_search(self):
         """Basic search and filtering"""
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Index and test search:
@@ -123,7 +123,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_get_similar_topics(self):
         """Get similar topics lists"""
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         text = "Clem ne se mange pas"
@@ -168,7 +168,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_hidden_post_are_not_result(self):
         """Hidden posts should not show up in the search results"""
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Index and test search:
@@ -213,7 +213,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_hidden_forums_give_no_results_if_user_not_allowed(self):
         """Long name, isn't ?"""
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Create a hidden forum belonging to a hidden staff group.
@@ -265,7 +265,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_boosts(self):
         """Check if boosts are doing their job"""
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Create topics (with identical titles), posts (with identical texts), an article and a tuto
@@ -560,7 +560,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
     def test_change_topic_impacts_posts(self):
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Create a hidden forum belonging to a hidden group and add staff in it.
@@ -649,7 +649,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
     def test_change_publishedcontents_impacts_chapter(self):
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Create middle-size content and index it
@@ -748,7 +748,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_upercase_and_lowercase_search_give_same_results(self):
         """Pretty self-explanatory function name, isn't it ?"""
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Index lowercase stuffs
@@ -853,7 +853,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_category_and_subcategory_impact_search(self):
         """If two contents do not belong to the same (sub)category"""
 
-        if not self.manager.connected_to_search:
+        if not self.manager.connected_to_search_engine:
             return
 
         text = "Did you ever hear the tragedy of Darth Plagueis The Wise?"

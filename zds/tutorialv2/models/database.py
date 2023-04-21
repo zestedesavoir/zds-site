@@ -16,7 +16,6 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from git import Repo, BadObject
 from gitdb.exc import BadName
 
@@ -28,7 +27,7 @@ from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
     AbstractSearchIndexableModel,
     AbstractSearchIndexable,
-    delete_document_in_search,
+    delete_document_in_search_engine,
     SearchIndexManager,
     convert_to_unix_timestamp,
 )
@@ -1014,7 +1013,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
                 if versioned.has_sub_containers():
 
                     # delete possible previous chapters
-                    if content.es_already_indexed:
+                    if content.search_engine_already_indexed:
                         search_engine_manager.delete_by_query(
                             FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
                         )
@@ -1086,7 +1085,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         return data
 
-    def _compute_score(self, type_content: str, is_medium_big_tutorial: Boolean, is_picked: Boolean):
+    def _compute_score(self, type_content: str, is_medium_big_tutorial: bool, is_picked: bool):
         """
         This function calculates a score for publishedcontent in order to sort them according to different boosts.
         There is a boost according to the type of content (article, opinion, tutorial),
@@ -1110,7 +1109,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
 
 @receiver(pre_delete, sender=PublishedContent)
-def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
+def delete_published_content_in_search_engine(sender, instance, **kwargs):
     """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
     chapters.
     """
@@ -1121,11 +1120,11 @@ def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
         FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.search_engine_id}
     )
 
-    return delete_document_in_search(instance)
+    return delete_document_in_search_engine(instance)
 
 
 @receiver(pre_save, sender=PublishedContent)
-def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instance, **kwargs):
+def delete_published_content_in_search_engine_if_set_to_redirect(sender, instance, **kwargs):
     """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
     PublishedContnent is created. To avoid duplicates, the previous ones must be removed from ES.
     """
@@ -1136,7 +1135,7 @@ def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instanc
         pass  # nothing to worry about
     else:
         if not obj.must_redirect and instance.must_redirect:
-            delete_published_content_in_elasticsearch(sender, instance, **kwargs)
+            delete_published_content_in_search_engine(sender, instance, **kwargs)
 
 
 class FakeChapter(AbstractSearchIndexable):
@@ -1144,7 +1143,7 @@ class FakeChapter(AbstractSearchIndexable):
 
     In schema, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
 
-    Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
+    Note that this class is only indexable, not updatable, since it does not maintain value of ``search_engine_already_indexed``
     """
 
     parent_model = PublishedContent

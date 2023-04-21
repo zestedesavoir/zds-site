@@ -11,7 +11,7 @@ from typesense import Client
 
 
 def document_indexer(force_reindexing, obj):
-    action = "update" if obj.es_already_indexed and not force_reindexing else "index"
+    action = "update" if obj.search_engine_already_indexed and not force_reindexing else "index"
     return obj.get_document_as_bulk_action(action)
 
 
@@ -26,10 +26,10 @@ class AbstractSearchIndexable:
     - ``get_schema()`` (not mandatory, but otherwise, ES will choose the schema by itself) ;
     - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
 
-    You also need to maintain ``search_engine_id`` and ``es_already_indexed`` for bulk indexing/updating (if any).
+    You also need to maintain ``search_engine_id`` and ``search_engine_already_indexed`` for bulk indexing/updating (if any).
     """
 
-    es_already_indexed = False
+    search_engine_already_indexed = False
     search_engine_id = ""
 
     objects_per_batch = 100
@@ -147,8 +147,8 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
 
     - Already include ``pk`` in schema ;
     - Match ES ``_id`` field and ``pk`` ;
-    - Override ``es_already_indexed`` to a database field.
-    - Define a ``es_flagged`` field to restrict the number of object to be indexed ;
+    - Override ``search_engine_already_indexed`` to a database field.
+    - Define a ``search_engine_flagged`` field to restrict the number of object to be indexed ;
     - Override ``save()`` to manage the field ;
     - Define a ``get_indexable_objects()`` method that can be overridden to change the queryset to fetch object.
     """
@@ -156,8 +156,8 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     class Meta:
         abstract = True
 
-    es_flagged = models.BooleanField("Doit être (ré)indexé par ES", default=True, db_index=True)
-    es_already_indexed = models.BooleanField("Déjà indexé par ES", default=False, db_index=True)
+    search_engine_flagged = models.BooleanField("Doit être (ré)indexé par ES", default=True, db_index=True)
+    search_engine_already_indexed = models.BooleanField("Déjà indexé par ES", default=False, db_index=True)
 
     def __init__(self, *args, **kwargs):
         """Override to match ES ``_id`` field and ``pk``"""
@@ -177,7 +177,7 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
         query = cls.objects
 
         if not force_reindexing:
-            query = query.filter(es_flagged=True)
+            query = query.filter(search_engine_flagged=True)
 
         return query
 
@@ -196,10 +196,10 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
         (which assumes a modification of the object, so the need to reindex).
 
         .. note::
-            Flagging can be prevented using ``save(es_flagged=False)``.
+            Flagging can be prevented using ``save(search_engine_flagged=False)``.
         """
 
-        self.search_flagged = kwargs.pop("es_flagged", True)
+        self.search_flagged = kwargs.pop("search_engine_flagged", True)
 
         return super().save(*args, **kwargs)
 
@@ -208,7 +208,7 @@ def convert_to_unix_timestamp(date):
     return int(time.mktime(date.timetuple()))
 
 
-def delete_document_in_search(instance):
+def delete_document_in_search_engine(instance):
     """Delete a ESDjangoIndexable from ES database.
     Must be implemented by all classes that derive from AbstractSearchIndexableModel.
 
@@ -239,21 +239,21 @@ class SearchIndexManager:
 
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
-        self.search = None
-        self.connected_to_search = False
+        self.search_engine = None
+        self.connected_to_search_engine = False
 
         if settings.SEARCH_ENABLED:
-            self.search = Client(settings.SEARCH_CONNECTIONS[connection_alias])
-            self.connected_to_search = True
+            self.search_engine = Client(settings.SEARCH_CONNECTIONS[connection_alias])
+            self.connected_to_search_engine = True
 
     def clear_index(self):
         """Clear index"""
 
-        if not self.connected_to_search:
+        if not self.connected_to_search_engine:
             return
 
-        for collection in self.search.collections.retrieve():
-            self.search.collections[collection["name"]].delete()
+        for collection in self.search_engine.collections.retrieve():
+            self.search_engine.collections[collection["name"]].delete()
         self.logger.info("index cleared")
 
     def reset_index(self, models):
@@ -264,14 +264,14 @@ class SearchIndexManager:
         :type models: list
         """
 
-        if not self.connected_to_search:
+        if not self.connected_to_search_engine:
             return
 
         self.clear_index()
 
         for model in models:
             schema = model.get_document_schema()
-            self.search.collections.create(schema)
+            self.search_engine.collections.create(schema)
 
         self.logger.info("index created")
 
@@ -294,7 +294,7 @@ class SearchIndexManager:
             You need to run ``manage.py search_engine_manager index_all`` if you modified this !!
         """
 
-        if not self.connected_to_search:
+        if not self.connected_to_search_engine:
             return
 
         document = {
@@ -365,11 +365,11 @@ class SearchIndexManager:
 
         if issubclass(model, AbstractSearchIndexableModel):  # use a global update with Django
             objs = model.get_indexable_objects(force_reindexing=True)
-            objs.update(es_flagged=True, es_already_indexed=False)
+            objs.update(search_engine_flagged=True, search_engine_already_indexed=False)
         else:
             for objects in model.get_indexable(force_reindexing=True):
                 for obj in objects:
-                    obj.es_already_indexed = False
+                    obj.search_engine_already_indexed = False
 
         self.logger.info(f"unindex {model.get_document_type()}")
 
@@ -391,7 +391,7 @@ class SearchIndexManager:
         :rtype: int
         """
 
-        if not self.connected_to_search:
+        if not self.connected_to_search_engine:
             return
 
         # better safe than sorry
@@ -424,13 +424,17 @@ class SearchIndexManager:
 
                     formatted_documents = list(map(documents_formatter, objects))
 
-                    self.search.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
+                    self.search_engine.collections[doc_type].documents.import_(
+                        formatted_documents, {"action": "create"}
+                    )
                     for document in formatted_documents:
                         if self.logger.getEffectiveLevel() <= logging.INFO:
                             self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 
                     # mark all these objects as indexed at once
-                    model_to_update.objects.filter(pk__in=pks).update(es_already_indexed=True, es_flagged=False)
+                    model_to_update.objects.filter(pk__in=pks).update(
+                        search_engine_already_indexed=True, search_engine_flagged=False
+                    )
                     indexed_counter += len(objects)
             return indexed_counter
         else:
@@ -450,14 +454,16 @@ class SearchIndexManager:
                     formatted_documents = list(map(documents_formatter, objects))
                     doc_type = model.get_document_type()
 
-                    self.search.collections[doc_type].documents.import_(formatted_documents, {"action": "create"})
+                    self.search_engine.collections[doc_type].documents.import_(
+                        formatted_documents, {"action": "create"}
+                    )
                     for document in formatted_documents:
                         if self.logger.getEffectiveLevel() <= logging.INFO:
                             self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 
                     # mark all these objects as indexed at once
                     model.objects.filter(pk__in=[o.pk for o in objects]).update(
-                        es_already_indexed=True, es_flagged=False
+                        search_engine_already_indexed=True, search_engine_flagged=False
                     )
                     indexed_counter += len(objects)
 
@@ -501,13 +507,13 @@ class SearchIndexManager:
         :type doc: dict
         """
 
-        if not self.connected_to_search:
+        if not self.connected_to_search_engine:
             return
 
         doc_type = document.get_document_type()
         doc_id = document.search_engine_id
         try:
-            self.search.collections[doc_type].documents[doc_id].update(doc)
+            self.search_engine.collections[doc_type].documents[doc_id].update(doc)
             self.logger.info(f"partial_update {document.get_document_type()} with id {document.search_engine_id}")
         except:
             pass
@@ -519,18 +525,18 @@ class SearchIndexManager:
         :type document: AbstractSearchIndexable
         """
 
-        if not self.connected_to_search:
+        if not self.connected_to_search_engine:
             return
 
         doc_type = document.get_document_type()
         doc_id = document.search_engine_id
         try:
-            self.search.collections[doc_type].documents[doc_id].delete()
+            self.search_engine.collections[doc_type].documents[doc_id].delete()
             self.logger.info(f"delete {document.get_document_type()} with id {document.search_engine_id}")
         except:
             pass
 
-    def delete_by_query(self, doc_type="", query="filter_by=id:>=0"):
+    def delete_by_query(self, doc_type="", query="*"):
         """Perform a deletion trough the ``_delete_by_query`` API.
 
         See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
@@ -544,9 +550,9 @@ class SearchIndexManager:
         :type query: elasticsearch_dsl.query.Query
         """
 
-        if not self.connected_to_search:
+        if not self.connected_to_search_engine:
             return
 
-        response = self.search.collections[doc_type].documents.delete(query)
+        response = self.search_engine.collections[doc_type].documents.delete(query)
 
         self.logger.info(f"delete_by_query {doc_type}s ({response})")
