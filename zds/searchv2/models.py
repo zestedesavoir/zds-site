@@ -556,3 +556,18 @@ class SearchIndexManager:
         response = self.search_engine.collections[doc_type].documents.delete(query)
 
         self.logger.info(f"delete_by_query {doc_type}s ({response})")
+
+    def setup_search(self, request):
+        """Setup search
+        :param request: a string, the search request
+        :type request: dictionary
+        :return: formated search
+        """
+        if not self.connected_to_search_engine:
+            return
+
+        search_requests = {"searches": []}
+
+        for collection in self.search_engine.collections.retrieve():
+            search_requests["searches"].append({"collection": collection["name"], "q": request})
+        return self.search_engine.multi_search.perform(search_requests, None)["results"]
