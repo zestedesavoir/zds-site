@@ -139,7 +139,8 @@
             {% endif %}
         </footer>
     </div>
-        {% if content.tags.all %}
+
+    {% if content.tags.all %}
         <ul class="content-tags" itemprop="keywords">
             {% for tag in content.tags.all|slice:":3" %}
                 <li>
