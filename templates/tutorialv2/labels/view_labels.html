@@ -38,16 +38,10 @@
 {% block content %}
 <section class="flexpage-wrapper">
     {% if current_description %}
-        <p>{{ current_description }}<br>
-    {% else %}
-        <p>
+        <p>{{ current_description }}</p>
     {% endif %}
-        {% blocktrans %}
-        Cette page est un aperçu de la labellisation. Elle vise à valoriser les publications de manière permanente sur le site.
-        {% endblocktrans %}
-    </p>
     {% if not contents %}
-        <p>{% trans "Il n'y a pas de publication à lister." %}</p>
+        <p>{% trans "Il n'y a pas de publication avec ce label." %}</p>
     {% else %}
         {% include "misc/paginator.html" with position="top" %}
         <div class="content-item-list">

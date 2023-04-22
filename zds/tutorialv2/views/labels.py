@@ -84,11 +84,8 @@ class ContentsByLabelMixin:
     context_object_name = "contents"
 
     def get_queryset(self):
-        self.current_label = None
-
-        self.base_queryset = PublishableContent.objects.exclude(public_version=None)
-        self.num_all = self.base_queryset.count()
         self.current_label = get_object_or_404(Label, slug=self.kwargs["slug"])
+        self.base_queryset = PublishableContent.objects.exclude(public_version=None)
         return self.base_queryset.filter(labels__in=[self.current_label])
 
     def get_context_data(self, **kwargs):
@@ -96,7 +93,6 @@ class ContentsByLabelMixin:
             "labels": Label.objects.all().annotate(num_contents=Count("contents")),
             "current_description": self.current_label.description,
             "current_filter_pk": self.current_label.pk,
-            "num_all": self.num_all,
         }
         context.update(kwargs)
         return super().get_context_data(**context)
