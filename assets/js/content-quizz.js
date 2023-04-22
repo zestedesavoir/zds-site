@@ -73,16 +73,17 @@ function initializeCheckboxes(answers) {
 
   // add explanation to all questions
   document.querySelectorAll('div.quizz').forEach(quizz => {
-    const quizzDivs = quizz.querySelectorAll('div.custom-block-quizz');
+    const quizzDivs = quizz.querySelectorAll('div.custom-block.custom-block-quizz');
     quizzDivs.forEach(quizzDiv => {
       const ul = quizzDiv.querySelector('ul')
       const lastLi = ul.lastElementChild
-      const explanationText = '<b>Explication :</b>' + lastLi.innerText
+      const explanationText = lastLi.innerText
+
       const explanation = document.createElement('div')
       explanation.classList.add('explanation_off')
-      explanation.innerHTML = explanationText
+      explanation.innerText = explanationText
       lastLi.parentNode.removeChild(lastLi);
-      quizzDiv.querySelector('div.custom-block-body').appendChild(explanation)
+      quizzDiv.appendChild(explanation)
 
     });
   })
@@ -153,8 +154,6 @@ function markBadAnswers(form, names, answers) {
       const divquizz = form.querySelector(`div[data-name="${answer}"]`)
       if (!AnsweredWell) {
         divquizz.classList.add('quizz-bad')
-        const icon = iconMaker(false)
-        divquizz.querySelector('div.custom-block-body').appendChild(icon);
       } else {
         divquizz.classList.add('quizz-good')
       }
@@ -176,13 +175,7 @@ function markBadAnswers(form, names, answers) {
     })
 
     const divquizz = form.querySelector(`.custom-block[data-name=${name}]`)
-    if (!divquizz.classList.contains('quizz-good')) {
-      
-      divquizz.classList.add('quizz-bad')
-      // Create a new icon element
-      const icon = iconMaker(false)
-      divquizz.querySelector('div.custom-block-body').appendChild(icon);
-  }
+    if (!divquizz.classList.contains('quizz-good')) divquizz.classList.add('quizz-bad');
   })
 
   names.forEach(({
@@ -206,6 +199,15 @@ function getWantedHeading(questionNode, nodeName, attr) {
     return null
   }
   return potentialHeading
+}
+
+
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+  });
 }
 
 /**
@@ -258,11 +260,13 @@ function injectForms(quizz, answers) {
 
       submit.classList.add('btn', 'btn-submit')
       
-      submit.setAttribute('id', `my-button-${idButton}`);
-      idButton++
+      submit.setAttribute('id', `my-button-${generateUUID()}`);
+
 
       const notAnswered = document.createElement('p')
       notAnswered.classList.add('notAnswered')
+
+
 
       let nodeToAddToForm
       if (heading === quizz) {
@@ -282,7 +286,7 @@ function injectForms(quizz, answers) {
         current.parentNode.removeChild(current)
 
       }
-  
+      
       form.method = 'POST'
       form.setAttribute('action', quizz.getAttribute('data-answer-url'))
       form.setAttribute('id', `my-form-${idCounter}`);
@@ -328,11 +332,6 @@ initializePipeline.forEach(func => func(answers))
 
 let idCounter = 0
 let idBias = 0
-
-
-let idButton =  0;
-
-// parseInt(sessionStorage.getItem('idButton')) ||
 
 document.querySelectorAll('div.quizz').forEach(div => {
 
@@ -393,16 +392,7 @@ function QuizzAnswered(form) {
   return true
 }
 
-function iconMaker(isGood){
-    // Create a new icon element
-    const icon = document.createElement('i');
-    icon.classList.add('fas');
-    isGood ? icon.classList.add('fa-check') : icon.classList.add('fa-exclamation-triangle')
-    icon.style.fontSize = '24px';
-    icon.style.transform = 'scale(2)';
-    icon.style.marginLeft='-92px'
-    return icon
-}
+
 
 document.querySelectorAll('form.quizz').forEach(form => {
 
@@ -495,12 +485,6 @@ document.querySelectorAll('form.quizz').forEach(form => {
           if (element.classList.contains('hasAnswer') && !element.classList.contains('quizz-bad')) {
 
             element.classList.add('quizz-good')
-            
-            const icon = iconMaker(true)
-            // Append the icon to the element
-            element.querySelector('div.custom-block-body').appendChild(icon);
-
-
             statistics.result[title].evaluation = 'ok'
 
           }
