@@ -228,27 +228,43 @@ class SearchView(ZdSPagingListView):
                     "collection": "publishedcontent",
                     "q": self.search_query,
                     "query_by": "title,description,categories,subcategories, tags, text",
-                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['publishedcontent']['title']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['description']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['categories']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['subcategories']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['tags']},{settings.ZDS_APP['search']['boosts']['publishedcontent']['text']}",
+                    "query_by_weights": "{},{},{},{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["categories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["subcategories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
+                    ),
                 },
                 "topic": {
                     "collection": "topic",
                     "q": self.search_query,
                     "query_by": "title,subtitle,tags",
                     "filter_by": filter,
-                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['topic']['title']},{settings.ZDS_APP['search']['boosts']['topic']['subtitle']},{settings.ZDS_APP['search']['boosts']['topic']['tags']}",
+                    "query_by_weights": "{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
+                    ),
                 },
                 "chapter": {
                     "collection": "chapter",
                     "q": self.search_query,
                     "query_by": "title,text",
-                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['chapter']['title']},{settings.ZDS_APP['search']['boosts']['chapter']['text']}",
+                    "query_by_weights": "{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
+                    ),
                 },
                 "post": {
                     "collection": "post",
                     "q": self.search_query,
                     "query_by": "text_html",
                     "filter_by": filter,
-                    "query_by_weights": f"{settings.ZDS_APP['search']['boosts']['post']['text_html']}",
+                    "query_by_weights": "{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
+                    ),
                 },
             }
             if self.search_content_types:
