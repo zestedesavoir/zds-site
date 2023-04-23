@@ -17,7 +17,7 @@ from zds.searchv2.models import SearchIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
 
-from .client import client
+from typesense import Client as SearchEngineClient
 
 
 class SimilarTopicsView(CreateView, SingleObjectMixin):
@@ -35,6 +35,11 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         super().__init__(**kwargs)
         self.search_engine_manager = SearchIndexManager()
 
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
@@ -49,12 +54,12 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
                 "filter_by": filter,
             }
 
-            result = client.collections["topic"].documents.search(search_parameters)["hits"]
+            result = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"]
 
             for entry in result:
                 entry["collection"] = "topic"
 
-            hits = client.collections["topic"].documents.search(search_parameters)["hits"][:10]
+            hits = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
             for hit in hits:
@@ -102,6 +107,11 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         super().__init__(**kwargs)
         self.search_engine_manager = SearchIndexManager()
 
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
@@ -118,7 +128,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
                 search_parameters["filter_by"] = self._add_negative_numerical_filter("content_pk", excluded_content_ids)
 
-            hits = client.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
+            hits = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
             for hit in hits:
@@ -172,6 +182,11 @@ class SearchView(ZdSPagingListView):
         super().__init__(**kwargs)
         self.search_engine_manager = SearchIndexManager()
 
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""
 
@@ -189,7 +204,7 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset(self):
         if not self.search_engine_manager.connected_to_search_engine:
-            messages.warning(self.request, _("Impossible de se connecter à Elasticsearch"))
+            messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
             return []
 
         if self.search_query:
@@ -297,7 +312,7 @@ class SearchView(ZdSPagingListView):
         @search_requests : parameters of search
         @collection_names : name of the collection to search
         """
-        results = client.multi_search.perform(search_requests, None)["results"]
+        results = self.search_engine.multi_search.perform(search_requests, None)["results"]
         all_collection_result = []
         for k in range(len(results)):
             if "hits" in results[k]:
@@ -337,7 +352,7 @@ class SearchView(ZdSPagingListView):
             "sort_by": "score:desc",
         }
 
-        result = client.collections["publishedcontent"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "publishedcontent"
@@ -360,7 +375,7 @@ class SearchView(ZdSPagingListView):
             "sort_by": "score:desc",
         }
 
-        result = client.collections["chapter"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["chapter"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "chapter"
@@ -386,7 +401,7 @@ class SearchView(ZdSPagingListView):
             "sort_by": "score:desc",
         }
 
-        result = client.collections["topic"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "topic"
@@ -413,7 +428,7 @@ class SearchView(ZdSPagingListView):
             "sort_by": "score:desc",
         }
 
-        result = client.collections["post"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["post"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "post"
