@@ -353,6 +353,7 @@ function sendQuizzStatistics(form, statistics) {
   xhttp.setRequestHeader('Content-Type', 'application/json')
   xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
   statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
+  console.log(statistics);
   xhttp.send(JSON.stringify(statistics))
 
 }
@@ -402,6 +403,34 @@ function iconMaker(isGood){
     icon.style.transform = 'scale(2)';
     icon.style.marginLeft='-92px'
     return icon
+}
+
+
+function getQuestionText(question){
+
+  let title
+  if (question.querySelector('.math')) {
+    const annotation = question.querySelector('.math annotation');
+    title = annotation.textContent.trim();
+  }
+  else {
+    title = question.textContent;
+  }
+  return title
+}
+
+
+function getAnswerText(liWrapper){
+
+  const mathElement = liWrapper.querySelector('span.math');
+  let answer;
+  if (mathElement) {
+    const annotationElement = mathElement.querySelector('annotation');
+    answer = annotationElement.textContent.trim();
+  } else {
+    answer = liWrapper.textContent;
+  }
+  return answer
 }
 
 document.querySelectorAll('form.quizz').forEach(form => {
@@ -455,11 +484,9 @@ document.querySelectorAll('form.quizz').forEach(form => {
       Object.keys(answers).forEach(name => {
 
         const element = document.querySelector(`.custom-block[data-name="${name}"]`)
-        let title = element.querySelector('.custom-block-heading').textContent
-        const correction = element.querySelector('.custom-block-body .custom-block')
-        if (correction && title.indexOf(correction.textContent) > 0) {
-          title = title.substr(0, title.indexOf(correction.textContent))
-        }
+
+        let title = getQuestionText(element.querySelector('.custom-block-heading'))
+
         statistics.result[title] = {
           evaluation: 'bad',
           labels: []
@@ -468,7 +495,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
 
         //make statistics of concerned form only
 
-        const CurrentFormQuestions = [...form.querySelectorAll('.custom-block-heading')].map(question => question.textContent);
+        const CurrentFormQuestions = [...form.querySelectorAll('.custom-block-heading')].map(question => getQuestionText(question));
 
         if (CurrentFormQuestions.includes(title)) {
 
@@ -476,10 +503,8 @@ document.querySelectorAll('form.quizz').forEach(form => {
           for (let i = 0; i < availableResponses.length; i++) {
             // wee need to get the question label for statistics
             const liWrapper = availableResponses[i].parentElement
-            let questionLabel = liWrapper.textContent
-            if (correction && questionLabel.indexOf(correction.textContent) !== -1) {
-              questionLabel = questionLabel.substring(0, questionLabel.indexOf(correction.textContent))
-            }
+            let questionLabel = getAnswerText(liWrapper)
+            
             statistics.expected[title][questionLabel] = answers[name][i]
           }
           // now determine answers and their labels
@@ -487,9 +512,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
 
             // remove eventual glued corretion
             let label = node.parentElement.textContent
-            if (correction && label.indexOf(correction.textContent) !== -1) {
-              label = label.substr(0, label.indexOf(correction.textContent))
-            }
+      
             statistics.result[title].labels.push(label.trim())
           })
           if (element.classList.contains('hasAnswer') && !element.classList.contains('quizz-bad')) {
