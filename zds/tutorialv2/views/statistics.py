@@ -356,7 +356,11 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 .all()
             ):
                 full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
-                name = available_answer.related_question.url.split("#")[-1]
+                name = (
+                    available_answer.related_question.url.split("/")[-2]
+                    + "/"
+                    + available_answer.related_question.url.split("/")[-1].split("#")[-1]
+                )
                 question = available_answer.related_question.question
                 for r in total_per_label:
                     if (
