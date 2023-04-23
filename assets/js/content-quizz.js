@@ -77,17 +77,16 @@ function initializeCheckboxes(answers) {
     quizzDivs.forEach(quizzDiv => {
       const ul = quizzDiv.querySelector('ul')
       const lastLi = ul.lastElementChild
-      const explanationText = lastLi.innerText
+      const explanationText = '<b>Explication : </b>' + lastLi.innerText
 
       const explanation = document.createElement('div')
       explanation.classList.add('explanation_off')
-      explanation.innerText = explanationText
+      explanation.innerHTML = explanationText
       lastLi.parentNode.removeChild(lastLi);
-      quizzDiv.appendChild(explanation)
+      quizzDiv.querySelector('div.custom-block-body').appendChild(explanation)
 
     });
   })
-
 
   const checkboxes = document.querySelectorAll('.quizz ul li input[type=checkbox]')
   extractAnswer(checkboxes, answers)
