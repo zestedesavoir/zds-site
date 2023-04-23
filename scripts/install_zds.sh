@@ -341,7 +341,7 @@ if  ! $(_in "-typesense-local" $@) && ( $(_in "+typesense-local" $@) || $(_in "+
         mv typesense-server-${ZDS_TYPESENSE_VERSION}-linux-amd64 typesense
 
         mkdir -p $typesense_path/typesense-data
-        ./$typesense_path/typesense-server --data-dir=$(pwd)/typesense-data --api-key=$ZDS_TYPESENSE_API_KEY --enable-cors
+        ./$typesense_path/typesense-server --data-dir=$(pwd)/typesense-data --api-key=$ZDS_TYPESENSE_API_KEY 
     else
         print_error "!! Cannot get typesense ${ZDS_TYPESENSE_VERSION}"
         exit 1

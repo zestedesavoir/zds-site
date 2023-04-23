@@ -7,7 +7,7 @@ from django.db import models
 from django.conf import settings
 
 from django.db import transaction
-from typesense import Client
+from typesense import Client as SearchEngineClient
 
 
 def document_indexer(force_reindexing, obj):
@@ -23,7 +23,7 @@ class AbstractSearchIndexable:
     You (may) need to override :
 
     - ``get_indexable()`` ;
-    - ``get_schema()`` (not mandatory, but otherwise, ES will choose the schema by itself) ;
+    - ``get_schema()`` (not mandatory, but otherwise, the search engine will choose the schema by itself) ;
     - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
 
     You also need to maintain ``search_engine_id`` and ``search_engine_already_indexed`` for bulk indexing/updating (if any).
@@ -57,7 +57,7 @@ class AbstractSearchIndexable:
         See https://elasticsearch-dsl.readthedocs.io/en/latest/persistence.html#schemas
 
         .. attention::
-            You *may* want to override this method (otherwise ES choose the schema by itself).
+            You *may* want to override this method (otherwise the search engine choose the schema by itself).
 
         :return: schema object
         :rtype: elasticsearch_dsl.schema
@@ -146,7 +146,7 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     """Version of AbstractSearchIndexable for a Django object, with some improvements :
 
     - Already include ``pk`` in schema ;
-    - Match ES ``_id`` field and ``pk`` ;
+    - Match the search engine ``_id`` field and ``pk`` ;
     - Override ``search_engine_already_indexed`` to a database field.
     - Define a ``search_engine_flagged`` field to restrict the number of object to be indexed ;
     - Override ``save()`` to manage the field ;
@@ -156,11 +156,15 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     class Meta:
         abstract = True
 
-    search_engine_flagged = models.BooleanField("Doit être (ré)indexé par ES", default=True, db_index=True)
-    search_engine_already_indexed = models.BooleanField("Déjà indexé par ES", default=False, db_index=True)
+    search_engine_flagged = models.BooleanField(
+        "Doit être (ré)indexé par le moteur de recherche", default=True, db_index=True
+    )
+    search_engine_already_indexed = models.BooleanField(
+        "Déjà indexé par le moteur de recherche", default=False, db_index=True
+    )
 
     def __init__(self, *args, **kwargs):
-        """Override to match ES ``_id`` field and ``pk``"""
+        """Override to match the search engine ``_id`` field and ``pk``"""
         super().__init__(*args, **kwargs)
         self.search_engine_id = str(self.pk)
 
@@ -209,7 +213,7 @@ def convert_to_unix_timestamp(date):
 
 
 def delete_document_in_search_engine(instance):
-    """Delete a ESDjangoIndexable from ES database.
+    """Delete a AbstractSearchIndexable from the search engine database.
     Must be implemented by all classes that derive from AbstractSearchIndexableModel.
 
     :param instance: the document to delete
@@ -243,7 +247,7 @@ class SearchIndexManager:
         self.connected_to_search_engine = False
 
         if settings.SEARCH_ENABLED:
-            self.search_engine = Client(settings.SEARCH_CONNECTIONS[connection_alias])
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS[connection_alias])
             self.connected_to_search_engine = True
 
     def clear_index(self):
@@ -355,7 +359,7 @@ class SearchIndexManager:
         self.logger.info("setup analyzer")
 
     def clear_indexing_of_model(self, model):
-        """Nullify the indexing of a given model by setting ``es_already_index=False`` to all objects.
+        """Nullify the indexing of a given model by setting ``search_engine_already_index=False`` to all objects.
 
         Use full updating for ``AbstractSearchIndexableModel``, instead of saving all of them.
 
