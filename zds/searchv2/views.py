@@ -80,9 +80,14 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
 
     def _add_numerical_filter(self, field, values):
         """
-        Return a filter (string), this filter is used for numerical values necessary for the field
-        field : it's a string with the name of the field to filter
-        values : is a list of int with value that we want for the field
+        Return a filter string that is used to filter numerical values for the specified field.
+
+        :param field: Name of the field to filter.
+        :type field: str
+        :param values: A list of integers containing the values to filter for the field.
+        :type values: list[int]
+        :return: Represents the numerical filter.
+        :rtype: str
         """
         filter = f"{field}:={values[0]}"
         for value in values[1:]:
@@ -146,10 +151,14 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
 
     def _add_negative_numerical_filter(self, field, values):
         """
-        Add a filter to the current filter, this filter is used for numerical negation
-        Indeed, in 0.24.0, Typesense doesn't allow excluding a numerical value
-        field : it's a string with the name of the field to filter
-        values : is a list of strings with value that we don't want for the field
+        Add a filter to the current filter to exclude specified numerical values.
+
+        :param field: Name of the field to filter.
+        :type field: str
+        :param values: A list of strings containing the values to exclude for the field.
+        :type values: list[str]
+        :return: Represents the negative numerical filter.
+        :rtype: str
         """
         filter = f"({field}:<{values[0]}||{field}:>{values[0]})"
         for value in values[1:]:
@@ -443,10 +452,16 @@ class SearchView(ZdSPagingListView):
 
     def _add_filter(self, field, value, current_filter):
         """
-        Add a filter to the current filter, this filter can't be used for negation
-        field : it's a string with the name of the field to filter
-        value : is the a string with value of the field
-        current_filter : is the current string which represents the value to filter
+        Add a filter to the current filter. This filter cannot be used for negation.
+
+        :param field: Name of the field to filter.
+        :type field: str
+        :param value: Value of the field.
+        :type value: str
+        :param current_filter: Represents the current value to filter.
+        :type current_filter: str
+        :return: Represents the updated filter.
+        :rtype: str
         """
         if len(current_filter) > 0:
             current_filter += f"&& {field}:{str(value)}"
