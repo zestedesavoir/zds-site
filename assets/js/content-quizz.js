@@ -1,3 +1,8 @@
+var currentURL = window.location.href;
+
+if (currentURL.includes("/tutoriels/")) {
+
+
 // to handle a new type of answer, you just need to create a method called
 // initializeXXX(answers) that will add the reset the field content and mark good answer
 // then add the two methods in the callback lists
@@ -401,7 +406,7 @@ function iconMaker(isGood){
     isGood ? icon.classList.add('fa-check') : icon.classList.add('fa-exclamation-triangle')
     icon.style.fontSize = '24px';
     icon.style.transform = 'scale(2)';
-    icon.style.marginLeft='-92px'
+    icon.style.marginLeft='700px'
     return icon
 }
 
@@ -547,5 +552,4 @@ document.querySelectorAll('form.quizz').forEach(form => {
 })
 
 
-
-
+}
