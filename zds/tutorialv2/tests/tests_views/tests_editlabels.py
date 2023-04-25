@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import PublishableContentFactory, LabelFactory, PublishedContentFactory
@@ -21,7 +22,7 @@ class EditLabelsPermissionTests(TestCase):
 
     def test_display(self):
         """We shall display the form only for staff, not for authors."""
-        fragment = "Modifier les labels"
+        fragment = _("Modifier les labels")
 
         self.client.force_login(self.author)
         response = self.client.get(self.content_url)
@@ -107,6 +108,7 @@ class AssignLabelsTestCase(TestCase):
 
     def test_remove_label(self):
         self.client.force_login(self.staff)
-        self.client.post(self.url, {"labels": []}, follow=True)
+        self.client.post(self.url, {"labels": [self.label.pk]}, follow=True)
+        self.content_with_label.labels.remove(self.label)
         self.assertNotIn(self.label, self.content_with_label.labels.all())
         self.assertNotIn(self.label, self.content_without_label.labels.all())
