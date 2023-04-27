@@ -2,7 +2,6 @@ var currentURL = window.location.href;
 
 if (currentURL.includes("/tutoriels/")) {
 
-
 // to handle a new type of answer, you just need to create a method called
 // initializeXXX(answers) that will add the reset the field content and mark good answer
 // then add the two methods in the callback lists
@@ -262,9 +261,12 @@ function injectForms(quizz, answers) {
       submit.style.marginTop = '-22px'
 
       submit.classList.add('btn', 'btn-submit')
-      
+
+      var parts = quizz.previousElementSibling.firstElementChild.href.split("/");
+      var idButton = parts[parts.length - 4] + "/" + parts[parts.length - 3] + "/" + parts[parts.length - 2] + "/" + parts[parts.length - 1];
+
       submit.setAttribute('id', `my-button-${idButton}`);
-      idButton++
+  
 
       const notAnswered = document.createElement('p')
       notAnswered.classList.add('notAnswered')
@@ -334,11 +336,6 @@ initializePipeline.forEach(func => func(answers))
 let idCounter = 0
 let idBias = 0
 
-
-let idButton =  0;
-
-// parseInt(sessionStorage.getItem('idButton')) ||
-
 document.querySelectorAll('div.quizz').forEach(div => {
 
   const quizInside = div.querySelector('.custom-block-quizz ul li input[type=checkbox]');
@@ -358,7 +355,6 @@ function sendQuizzStatistics(form, statistics) {
   xhttp.setRequestHeader('Content-Type', 'application/json')
   xhttp.setRequestHeader('X-CSRFToken', csrfmiddlewaretoken)
   statistics.url = form.parentElement.parentElement.previousElementSibling.firstElementChild.href
-  console.log(statistics);
   xhttp.send(JSON.stringify(statistics))
 
 }
@@ -456,7 +452,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
       } else {
         // If the quiz has already been submitted, disable the submit button
         submitBtn.setAttribute('disabled', true);
-        alert('Vous avez deja repondu, Veuillez se connecter');
+        alert('Vous avez deja répondu, Veuillez se connecter');
         return;
       }
     }
@@ -527,8 +523,6 @@ document.querySelectorAll('form.quizz').forEach(form => {
             const icon = iconMaker(true)
             // Append the icon to the element
             element.querySelector('div.custom-block-body').appendChild(icon);
-
-
             statistics.result[title].evaluation = 'ok'
 
           }
@@ -536,7 +530,6 @@ document.querySelectorAll('form.quizz').forEach(form => {
       })
 
       if (document.querySelector('input[name=\'csrfmiddlewaretoken\']')) {
-
         sendQuizzStatistics(form, statistics)
       }
       submitBtn.setAttribute('disabled', true);
