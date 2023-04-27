@@ -35,6 +35,7 @@ from zds.searchv2.models import (
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
 from zds.tutorialv2.models.goals import Goal
+from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
 from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
@@ -76,6 +77,10 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     tags = models.ManyToManyField(Tag, verbose_name="Tags du contenu", blank=True, db_index=True)
     goals = models.ManyToManyField(
         Goal, verbose_name="Objectifs du contenu", blank=True, db_index=True, related_name="contents"
+    )
+
+    labels = models.ManyToManyField(
+        Label, verbose_name="Labels du contenu", blank=True, db_index=True, related_name="contents"
     )
 
     # store the thumbnail for tutorial or article
