@@ -333,13 +333,11 @@ class SearchView(ZdSPagingListView):
             count_results = len(all_collection_result)
             if count_results > 10:
                 for i in range(int(count_results / 10)):
-                    print(all_collection_result[i * 10 : (i + 1) * 10])
                     all_collection_result[i * 10 : (i + 1) * 10] = sorted(
                         all_collection_result[i * 10 : (i + 1) * 10],
                         key=lambda result: result["document"]["score"],
                         reverse=True,
                     )
-                    print(all_collection_result[i * 10 : (i + 1) * 10])
 
         return all_collection_result
 
