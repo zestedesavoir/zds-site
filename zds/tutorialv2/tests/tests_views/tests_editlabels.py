@@ -108,7 +108,7 @@ class AssignLabelsTestCase(TestCase):
 
     def test_remove_label(self):
         self.client.force_login(self.staff)
-        self.client.post(self.url, {"labels": [self.label.pk]}, follow=True)
-        self.content_with_label.labels.remove(self.label)
+        self.content_with_label.labels.add(self.label)
+        self.client.post(self.url, {"labels": []}, follow=True)
         self.assertNotIn(self.label, self.content_with_label.labels.all())
         self.assertNotIn(self.label, self.content_without_label.labels.all())

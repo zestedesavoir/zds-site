@@ -2,12 +2,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.tutorialv2.tests.factories import LabelFactory, PublishedContentFactory
-from zds.member.tests.factories import StaffProfileFactory
 
 
 class ViewContentsByLabelTests(TestCase):
     def setUp(self):
-        self.staff = StaffProfileFactory().user
         self.content_with_label_1 = PublishedContentFactory()
         self.content_with_label_2 = PublishedContentFactory()
         self.content_without_label = PublishedContentFactory()
