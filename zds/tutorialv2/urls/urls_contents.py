@@ -37,7 +37,12 @@ from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestio
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
 from zds.tutorialv2.views.misc import RequestFeaturedContent, FollowNewContent, WarnTypo
-from zds.tutorialv2.views.statistics import ContentStatisticsView, ContentQuizzStatistics, QuizzContentStatistics
+from zds.tutorialv2.views.statistics import (
+    ContentStatisticsView,
+    ContentQuizzStatistics,
+    DeleteQuizz,
+    QuizzContentStatistics,
+)
 from zds.tutorialv2.views.comments import (
     SendNoteFormView,
     UpdateNoteView,
@@ -209,4 +214,5 @@ urlpatterns = [
     # quizz
     path("reponses/<int:pk>/<slug:slug>/", ContentQuizzStatistics.as_view(), name="answer-quizz"),
     path("stats_quizz/<int:pk>/<slug:slug>/", QuizzContentStatistics.as_view(), name="stats-quizz"),
+    path("delete_quizz/", DeleteQuizz.as_view(), name="delete_quizz"),
 ]

@@ -1,24 +1,29 @@
 import itertools
+import json
 import uuid
 from collections import OrderedDict, Counter
 import logging
 import urllib.parse
 from datetime import timedelta, datetime, date
 from json import loads, dumps
-
+from django.shortcuts import get_object_or_404, redirect
+from django.views import View
+from django.db.models import Subquery
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
 from django.forms.utils import ErrorDict
-from django.http import StreamingHttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, StreamingHttpResponse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView
+from django.views.generic import FormView, DeleteView
+from zds.member.decorator import LoggedWithReadWriteHability
 
 from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
 from zds.tutorialv2.mixins import (
     SingleContentDetailViewMixin,
+    SingleContentViewMixin,
     SingleOnlineContentDetailViewMixin,
     SingleOnlineContentFormViewMixin,
 )
@@ -356,11 +361,7 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                 .all()
             ):
                 full_answers_total[available_answer.label] = {"good": available_answer.is_good, "nb": 0}
-                name = (
-                    available_answer.related_question.url.split("/")[-2]
-                    + "/"
-                    + available_answer.related_question.url.split("/")[-1].split("#")[-1]
-                )
+                name = available_answer.related_question.url
                 question = available_answer.related_question.question
                 for r in total_per_label:
                     if (
@@ -371,8 +372,72 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             if name not in quizz_stats:
                 quizz_stats[name] = OrderedDict()
             quizz_stats[name][question] = {"total": total_per_question[base_question], "responses": full_answers_total}
-        return quizz_stats
+        sorted_quizz_stats = {}
+        for name in sorted(quizz_stats.keys()):
+            sorted_quizz_stats[name] = quizz_stats[name]
+        return sorted_quizz_stats
 
 
 class QuizzContentStatistics(ContentStatisticsView):
     template_name = "tutorialv2/stats/quizz_stats.html"
+
+
+class DeleteQuizz(View):
+    def get_start_and_end_dates(self):
+        end_date = self.request.GET.get("end_date", None)
+        try:
+            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
+        except TypeError:
+            end_date = date.today()
+        except ValueError:
+            end_date = date.today()
+            messages.error(self.request, _("La date de fin fournie est invalide."))
+
+        start_date = self.request.GET.get("start_date", None)
+        try:
+            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
+        except TypeError:
+            start_date = end_date - timedelta(days=7)
+        except ValueError:
+            start_date = end_date - timedelta(days=7)
+            messages.error(self.request, _("La date de début fournie est invalide."))
+
+        if start_date > end_date:
+            end_date, start_date = start_date, end_date
+
+        return start_date, end_date
+
+    def post(self, request):
+
+        start_date, end_date = self.get_start_and_end_dates()
+
+        data = json.loads(request.body)
+
+        # Extract the quizzName from the data
+        quizz_name = data.get("quizzName")
+        question = data.get("question")
+
+        if question:
+            related_question_ids = QuizzQuestion.objects.filter(url=quizz_name, question=question).values_list(
+                "id", flat=True
+            )
+        else:
+            related_question_ids = QuizzQuestion.objects.filter(url=quizz_name).values_list("id", flat=True)
+
+        try:
+            QuizzUserAnswer.objects.filter(
+                related_question_id__in=Subquery(related_question_ids), date_answer__range=(start_date, end_date)
+            ).delete()
+        except Exception as e:
+            return HttpResponseBadRequest(f"An error occurred while deleting the quiz: {str(e)}")
+
+        # Delete all QuizzUserAnswer objects
+        QuizzUserAnswer.objects.all().delete()
+
+        # Delete all QuizzAvailableAnswer objects
+        QuizzAvailableAnswer.objects.all().delete()
+
+        # Delete all QuizzQuestion objects
+        QuizzQuestion.objects.all().delete()
+
+        return StreamingHttpResponse(dumps({"status": "ok"}))

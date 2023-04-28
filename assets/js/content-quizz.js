@@ -412,7 +412,7 @@ function getQuestionText(question){
   let title
   if (question.querySelector('.math')) {
     const annotation = question.querySelector('.math annotation');
-    title = annotation.textContent.trim();
+    title = '$'+annotation.textContent.trim()+'$';
   }
   else {
     title = question.textContent;
@@ -427,7 +427,7 @@ function getAnswerText(liWrapper){
   let answer;
   if (mathElement) {
     const annotationElement = mathElement.querySelector('annotation');
-    answer = annotationElement.textContent.trim();
+    answer = '$'+annotationElement.textContent.trim()+'$';
   } else {
     answer = liWrapper.textContent;
   }
@@ -482,23 +482,23 @@ document.querySelectorAll('form.quizz').forEach(form => {
         result: {}
       }
 
+      const CurrentFormQuestions = [...form.querySelectorAll('.custom-block-heading')].map(question => getQuestionText(question));
+      
       Object.keys(answers).forEach(name => {
 
         const element = document.querySelector(`.custom-block[data-name="${name}"]`)
 
         let title = getQuestionText(element.querySelector('.custom-block-heading'))
 
-        statistics.result[title] = {
-          evaluation: 'bad',
-          labels: []
-        }
-        statistics.expected[title] = {}
 
         //make statistics of concerned form only
-
-        const CurrentFormQuestions = [...form.querySelectorAll('.custom-block-heading')].map(question => getQuestionText(question));
-
         if (CurrentFormQuestions.includes(title)) {
+
+          statistics.result[title] = {
+            evaluation: 'bad',
+            labels: []
+          }
+          statistics.expected[title] = {}
 
           const availableResponses = element.querySelectorAll('input')
           for (let i = 0; i < availableResponses.length; i++) {
@@ -512,7 +512,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
           element.querySelectorAll('input:checked').forEach(node => {
 
             // remove eventual glued corretion
-            let label = node.parentElement.textContent
+            let label = getAnswerText(node.parentElement)
       
             statistics.result[title].labels.push(label.trim())
           })
