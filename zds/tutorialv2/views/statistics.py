@@ -431,13 +431,4 @@ class DeleteQuizz(View):
         except Exception as e:
             return HttpResponseBadRequest(f"An error occurred while deleting the quiz: {str(e)}")
 
-        # Delete all QuizzUserAnswer objects
-        QuizzUserAnswer.objects.all().delete()
-
-        # Delete all QuizzAvailableAnswer objects
-        QuizzAvailableAnswer.objects.all().delete()
-
-        # Delete all QuizzQuestion objects
-        QuizzQuestion.objects.all().delete()
-
         return StreamingHttpResponse(dumps({"status": "ok"}))
