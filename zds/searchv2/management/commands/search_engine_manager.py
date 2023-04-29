@@ -45,7 +45,6 @@ class Command(BaseCommand):
     def setup_es(self):
 
         self.search_engine_manager.reset_index(self.models)
-        # self.search_engine_manager.setup_custom_analyzer()
 
     def clear_es(self):
         self.search_engine_manager.clear_index()

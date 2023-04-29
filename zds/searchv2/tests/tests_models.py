@@ -27,10 +27,9 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
         self.manager.reset_index(self.indexable)
-        self.manager.setup_custom_analyzer()
 
     def test_setup_functions(self):
-        """Test the behavior of the reset_index(), setup_custom_analyzer() and clear_index() functions"""
+        """Test the behavior of the reset_index() and clear_index() functions"""
 
         if not self.manager.connected_to_search_engine:
             return

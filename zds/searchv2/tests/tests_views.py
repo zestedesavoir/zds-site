@@ -40,7 +40,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
         self.manager.reset_index(self.indexable)
-        self.manager.setup_custom_analyzer()
         # self.manager.refresh_index()
 
     def test_basic_search(self):
