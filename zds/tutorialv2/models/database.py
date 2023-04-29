@@ -1222,7 +1222,7 @@ class FakeChapter(AbstractSearchIndexable):
 
         data["parent_publication_date"] = convert_to_unix_timestamp(self.parent_publication_date)
 
-        data["score"] = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"]
+        data["score"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
 
         return data
 

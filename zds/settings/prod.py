@@ -142,6 +142,7 @@ SOCIAL_AUTH_PIPELINE = (
 ###############################################################################
 # ZESTE DE SAVOIR SETTINGS
 
+SEARCH_CONNECTIONS["default"]["api_key"] = config["typesense"].get("api_key", "xyz")
 
 ZDS_APP["site"]["association"]["email"] = "communication@zestedesavoir.com"
 

@@ -497,9 +497,9 @@ class Topic(AbstractSearchIndexableModel):
         """
         This function calculates a score for topics in order to sort them according to different boosts.
         There is a boost according to the state of the topic :
-            - Solved: it was a question, and this question has been answered. The "solved" state is set at author's discretion.
-            - Locked: none can write on a locked topic.
-            - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
+        - Solved: it was a question, and this question has been answered. The "solved" state is set at author's discretion.
+        - Locked: none can write on a locked topic.
+        - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
         """
         weight_solved = settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]
         weight_sticky = settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]

@@ -17,7 +17,7 @@ from zds.searchv2.models import SearchIndexManager
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
 
-from .client import client
+from typesense import Client as SearchEngineClient
 
 
 class SimilarTopicsView(CreateView, SingleObjectMixin):
@@ -35,6 +35,11 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         super().__init__(**kwargs)
         self.search_engine_manager = SearchIndexManager()
 
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
@@ -49,12 +54,12 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
                 "filter_by": filter,
             }
 
-            result = client.collections["topic"].documents.search(search_parameters)["hits"]
+            result = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"]
 
             for entry in result:
                 entry["collection"] = "topic"
 
-            hits = client.collections["topic"].documents.search(search_parameters)["hits"][:10]
+            hits = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
             for hit in hits:
@@ -75,9 +80,14 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
 
     def _add_numerical_filter(self, field, values):
         """
-        Return a filter (string), this filter is used for numerical values necessary for the field
-        field : it's a string with the name of the field to filter
-        values : is a list of int with value that we want for the field
+        Return a filter string that is used to filter numerical values for the specified field.
+
+        :param field: Name of the field to filter.
+        :type field: str
+        :param values: A list of integers containing the values to filter for the field.
+        :type values: list[int]
+        :return: Represents the numerical filter.
+        :rtype: str
         """
         filter = f"{field}:={values[0]}"
         for value in values[1:]:
@@ -102,6 +112,11 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         super().__init__(**kwargs)
         self.search_engine_manager = SearchIndexManager()
 
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
@@ -118,7 +133,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
                 search_parameters["filter_by"] = self._add_negative_numerical_filter("content_pk", excluded_content_ids)
 
-            hits = client.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
+            hits = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
             for hit in hits:
@@ -136,10 +151,14 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
 
     def _add_negative_numerical_filter(self, field, values):
         """
-        Add a filter to the current filter, this filter is used for numerical negation
-        Indeed, in 0.24.0, Typesense doesn't allow excluding a numerical value
-        field : it's a string with the name of the field to filter
-        values : is a list of strings with value that we don't want for the field
+        Add a filter to the current filter to exclude specified numerical values.
+
+        :param field: Name of the field to filter.
+        :type field: str
+        :param values: A list of strings containing the values to exclude for the field.
+        :type values: list[str]
+        :return: Represents the negative numerical filter.
+        :rtype: str
         """
         filter = f"({field}:<{values[0]}||{field}:>{values[0]})"
         for value in values[1:]:
@@ -172,6 +191,11 @@ class SearchView(ZdSPagingListView):
         super().__init__(**kwargs)
         self.search_engine_manager = SearchIndexManager()
 
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""
 
@@ -189,7 +213,7 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset(self):
         if not self.search_engine_manager.connected_to_search_engine:
-            messages.warning(self.request, _("Impossible de se connecter à Elasticsearch"))
+            messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
             return []
 
         if self.search_query:
@@ -228,28 +252,43 @@ class SearchView(ZdSPagingListView):
                     "collection": "publishedcontent",
                     "q": self.search_query,
                     "query_by": "title,description,categories,subcategories, tags, text",
-                    "query_by_weights": "10,2,2,2,2,2",
-                    # "sort_by": "score:asc"
+                    "query_by_weights": "{},{},{},{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["categories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["subcategories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
+                    ),
                 },
                 "topic": {
                     "collection": "topic",
                     "q": self.search_query,
                     "query_by": "title,subtitle,tags",
                     "filter_by": filter,
-                    # "query_by_weights": "1,1,1"
+                    "query_by_weights": "{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
+                    ),
                 },
                 "chapter": {
                     "collection": "chapter",
                     "q": self.search_query,
                     "query_by": "title,text",
-                    # "query_by_weights": "5,5"
+                    "query_by_weights": "{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
+                    ),
                 },
                 "post": {
                     "collection": "post",
                     "q": self.search_query,
                     "query_by": "text_html",
                     "filter_by": filter,
-                    # "query_by_weights": "2",
+                    "query_by_weights": "{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
+                    ),
                 },
             }
             if self.search_content_types:
@@ -282,17 +321,24 @@ class SearchView(ZdSPagingListView):
         @search_requests : parameters of search
         @collection_names : name of the collection to search
         """
-        results = client.multi_search.perform(search_requests, None)["results"]
+        results = self.search_engine.multi_search.perform(search_requests, None)["results"]
         all_collection_result = []
-
         for k in range(len(results)):
             if "hits" in results[k]:
                 for entry in results[k]["hits"]:
                     entry["collection"] = collection_names[k]
                     all_collection_result.append(entry)
-        all_collection_result.sort(
-            key=lambda result: (result["document"]["score"] + result["text_match"]), reverse=True
-        )
+        if self.search_query != "*":
+            all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
+            count_results = len(all_collection_result)
+            if count_results > 10:
+                for i in range(int(count_results / 10)):
+                    all_collection_result[i * 10 : (i + 1) * 10] = sorted(
+                        all_collection_result[i * 10 : (i + 1) * 10],
+                        key=lambda result: result["document"]["score"],
+                        reverse=True,
+                    )
+
         return all_collection_result
 
     def get_queryset_publishedcontents(self):
@@ -311,9 +357,10 @@ class SearchView(ZdSPagingListView):
             "q": self.search_query,
             "query_by": "title,description,categories,subcategories, tags, text",
             "filter_by": filter,
+            "sort_by": "score:desc",
         }
 
-        result = client.collections["publishedcontent"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "publishedcontent"
@@ -333,9 +380,10 @@ class SearchView(ZdSPagingListView):
             "q": self.search_query,
             "query_by": "title,text",
             "filter": filter,
+            "sort_by": "score:desc",
         }
 
-        result = client.collections["chapter"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["chapter"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "chapter"
@@ -354,9 +402,14 @@ class SearchView(ZdSPagingListView):
         filter = ""
         filter = self._add_filter("forum_pk", self.authorized_forums, filter)
 
-        search_parameters = {"q": self.search_query, "query_by": "title,subtitle,tags", "filter_by": filter}
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,subtitle,tags",
+            "filter_by": filter,
+            "sort_by": "score:desc",
+        }
 
-        result = client.collections["topic"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "topic"
@@ -380,9 +433,10 @@ class SearchView(ZdSPagingListView):
             "q": self.search_query,
             "query_by": "text_html",
             "filter_by": filter,
+            "sort_by": "score:desc",
         }
 
-        result = client.collections["post"].documents.search(search_parameters)["hits"]
+        result = self.search_engine.collections["post"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "post"
@@ -397,10 +451,16 @@ class SearchView(ZdSPagingListView):
 
     def _add_filter(self, field, value, current_filter):
         """
-        Add a filter to the current filter, this filter can't be used for negation
-        field : it's a string with the name of the field to filter
-        value : is the a string with value of the field
-        current_filter : is the current string which represents the value to filter
+        Add a filter to the current filter. This filter cannot be used for negation.
+
+        :param field: Name of the field to filter.
+        :type field: str
+        :param value: Value of the field.
+        :type value: str
+        :param current_filter: Represents the current value to filter.
+        :type current_filter: str
+        :return: Represents the updated filter.
+        :rtype: str
         """
         if len(current_filter) > 0:
             current_filter += f"&& {field}:{str(value)}"

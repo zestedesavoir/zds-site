@@ -63,8 +63,6 @@
                                 {% include "searchv2/includes/topic.part.html" with search_result=result.document %}
                             {% elif result.collection == 'post' %}
                                 {% include "searchv2/includes/post.part.html" with search_result=result.document %}
-                            {% else %}
-                                {% trans "type d’objet inconnu" %} : {{ result.collection }}
                             {% endif %}
                         </article>
                     {%  empty %}
