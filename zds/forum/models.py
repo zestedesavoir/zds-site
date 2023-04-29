@@ -437,9 +437,9 @@ class Topic(AbstractSearchIndexableModel):
 
     @classmethod
     def get_document_schema(cls):
-        ts_schema = super().get_document_schema()
+        search_engine_schema = super().get_document_schema()
 
-        ts_schema["fields"].extend(
+        search_engine_schema["fields"].extend(
             [
                 {"name": "forum_pk", "type": "int32", "facet": False},
                 {"name": "title", "type": "string"},
@@ -456,7 +456,7 @@ class Topic(AbstractSearchIndexableModel):
             ]
         )
 
-        return ts_schema
+        return search_engine_schema
 
     @classmethod
     def get_indexable_objects(cls, force_reindexing=False):
@@ -543,9 +543,9 @@ class Post(Comment, AbstractSearchIndexableModel):
 
     @classmethod
     def get_document_schema(cls):
-        ts_schema = super().get_document_schema()
+        search_engine_schema = super().get_document_schema()
 
-        ts_schema["fields"].extend(
+        search_engine_schema["fields"].extend(
             [
                 {"name": "topic_pk", "type": "int64"},
                 {"name": "forum_pk", "type": "int64"},
@@ -563,7 +563,7 @@ class Post(Comment, AbstractSearchIndexableModel):
             ]
         )
 
-        return ts_schema
+        return search_engine_schema
 
     @classmethod
     def get_indexable_objects(cls, force_reindexing=False):

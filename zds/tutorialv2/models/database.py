@@ -956,9 +956,9 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
     @classmethod
     def get_document_schema(cls):
-        ts_schema = super().get_document_schema()
+        search_engine_schema = super().get_document_schema()
 
-        ts_schema["fields"].extend(
+        search_engine_schema["fields"].extend(
             [
                 {"name": "title", "type": "string", "facet": False},
                 {"name": "content_pk", "type": "int32", "facet": False},
@@ -977,7 +977,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             ]
         )
 
-        return ts_schema
+        return search_engine_schema
 
     @classmethod
     def get_indexable_objects(cls, force_reindexing=False):
@@ -1017,7 +1017,6 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
                         search_engine_manager.delete_by_query(
                             FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
                         )
-
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
                         chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
@@ -1191,10 +1190,10 @@ class FakeChapter(AbstractSearchIndexable):
     @classmethod
     def get_document_schema(self):
         """Define schema and parenting"""
-        ts_schema = super().get_document_schema()
-        ts_schema["name"] = self.get_document_type()
+        search_engine_schema = super().get_document_schema()
+        search_engine_schema["name"] = self.get_document_type()
 
-        ts_schema["fields"].extend(
+        search_engine_schema["fields"].extend(
             [
                 {"name": "parent_id", "type": "string", "facet": False},
                 {"name": "title", "type": "string", "facet": False},
@@ -1210,7 +1209,7 @@ class FakeChapter(AbstractSearchIndexable):
             ]
         )
 
-        return ts_schema
+        return search_engine_schema
 
     def get_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned"""
