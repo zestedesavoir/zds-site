@@ -540,10 +540,10 @@ class SearchIndexManager:
         except:
             pass
 
-    def delete_by_query(self, doc_type="", query="*"):
-        """Perform a deletion trough the ``_delete_by_query`` API.
+    def delete_by_query(self, doc_type="", query={"filter_by": ""}):
+        """Delete a bunch of documents that match a specific filter_by condition.
 
-        See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-delete-by-query.html
+        See https://typesense.org/docs/0.23.0/api/documents.html#delete-by-query
 
         .. attention ::
             Call to this function must be done with great care!
@@ -551,7 +551,7 @@ class SearchIndexManager:
         :param doc_type: the document type
         :type doc_type: str
         :param query: the query to match all document to be deleted
-        :type query: elasticsearch_dsl.query.Query
+        :type query: search request with filter_by in the search parameters
         """
 
         if not self.connected_to_search_engine:
