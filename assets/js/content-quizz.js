@@ -452,7 +452,7 @@ document.querySelectorAll('form.quizz').forEach(form => {
       } else {
         // If the quiz has already been submitted, disable the submit button
         submitBtn.setAttribute('disabled', true);
-        alert('Vous avez deja répondu, Veuillez se connecter');
+        alert('Vous avez deja répondu, Veuillez vous connecter');
         return;
       }
     }
