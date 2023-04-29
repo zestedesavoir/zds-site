@@ -1225,13 +1225,6 @@ class FakeChapter(AbstractSearchIndexable):
 
         return data
 
-    def get_document_as_bulk_action(self, action="index"):
-        """Overridden to handle parenting between chapter and PublishedContent"""
-
-        document = super().get_document_as_bulk_action(action)
-        document["_parent"] = self.parent_id
-        return document
-
 
 class ContentReaction(Comment):
     """

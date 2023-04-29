@@ -10,9 +10,8 @@ from django.db import transaction
 from typesense import Client as SearchEngineClient
 
 
-def document_indexer(force_reindexing, obj):
-    action = "update" if obj.search_engine_already_indexed and not force_reindexing else "index"
-    return obj.get_document_as_bulk_action(action)
+def document_indexer(obj):
+    return obj.get_document_for_indexing()
 
 
 class AbstractSearchIndexable:
@@ -108,32 +107,17 @@ class AbstractSearchIndexable:
 
         return data
 
-    def get_document_as_bulk_action(self, action="index"):
-        """Create a document formatted for a ``_bulk`` operation. Formatting is done based on action.
+    def get_document_for_indexing(self, action="index"):
+        """Create a document formatted for indexing.
 
-        See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
+        See https://typesense.org/docs/0.19.0/api/documents.html#index-a-document
 
-        :param index: index in witch the document will be inserted
-        :type index: str
-        :param action: action, either "index", "update" or "delete"
-        :type action: str
         :return: the document
         :rtype: dict
         """
 
-        if action not in ["index", "update", "delete"]:
-            raise ValueError("action must be `index`, `update` or `delete`")
-
         document = self.get_document_source()
-        if action == "index":
-            if self.search_engine_id:
-                document["id"] = self.search_engine_id
-            document["_source"] = self.get_document_source()
-        elif action == "update":
-            document["id"] = self.search_engine_id
-            document["doc"] = self.get_document_source()
-        elif action == "delete":
-            document["id"] = self.search_engine_id
+        document["id"] = self.search_engine_id
 
         return document
 
@@ -294,7 +278,7 @@ class SearchIndexManager:
 
         self.logger.info(f"unindex {model.get_document_type()}")
 
-    def es_bulk_indexing_of_model(self, model, force_reindexing=False):
+    def indexing_of_model(self, model, force_reindexing=False):
         """Index documents of a given model. Use the ``objects_per_batch`` property to index.
 
         See https://typesense.org/docs/0.23.0/api/documents.html#index-multiple-documents
@@ -318,7 +302,7 @@ class SearchIndexManager:
             self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
             return 0
 
-        documents_formatter = partial(document_indexer, force_reindexing)
+        documents_formatter = partial(document_indexer)
         objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
         if model.__name__ == "PublishedContent":
