@@ -26,7 +26,7 @@ class AbstractSearchIndexable:
     - ``get_schema()`` (not mandatory, but otherwise, the search engine will choose the schema by itself) ;
     - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
 
-    You also need to maintain ``search_engine_id`` and ``search_engine_already_indexed`` for bulk indexing/updating (if any).
+    You also need to maintain ``search_engine_id`` and ``search_engine_already_indexed`` for indexing (if any).
     """
 
     search_engine_already_indexed = False
@@ -48,23 +48,19 @@ class AbstractSearchIndexable:
 
     @classmethod
     def get_document_schema(self):
-        """Setup schema (data scheme).
+        """Setup schema for the model(data scheme).
 
-        .. note::
-            You will probably want to change the analyzer and boost value.
-            Also consider the ``index='not_analyzed'`` option to improve performances.
-
-        See https://elasticsearch-dsl.readthedocs.io/en/latest/persistence.html#schemas
+        See https://typesense.org/docs/0.23.0/api/collections.html#with-pre-defined-schema
 
         .. attention::
             You *may* want to override this method (otherwise the search engine choose the schema by itself).
 
-        :return: schema object
-        :rtype: elasticsearch_dsl.schema
+        :return: schema object.  A dictionary containing the name, fields of the collection.
+        :rtype: dict
         """
         es_schema = dict()
         es_schema["name"] = self.get_document_type()
-        es_schema["fields"] = []
+        es_schema["fields"] = [{"name": ".*", "type": "auto"}]
         return es_schema
 
     @classmethod
@@ -378,13 +374,11 @@ class SearchIndexManager:
         self.logger.info(f"unindex {model.get_document_type()}")
 
     def es_bulk_indexing_of_model(self, model, force_reindexing=False):
-        """Perform a bulk action on documents of a given model. Use the ``objects_per_batch`` property to index.
+        """Index documents of a given model. Use the ``objects_per_batch`` property to index.
 
-        See http://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.Elasticsearch.bulk
-        and http://elasticsearch-py.readthedocs.io/en/master/helpers.html#elasticsearch.helpers.parallel_bulk
+        See https://typesense.org/docs/0.23.0/api/documents.html#index-multiple-documents
 
         .. attention::
-            + Currently only implemented with "index" and "update" !
             + Currently only working with ``AbstractSearchIndexableModel``.
 
         :param model: and model
@@ -503,7 +497,7 @@ class SearchIndexManager:
     def update_single_document(self, document, doc):
         """Update given fields of a single document.
 
-        See https://www.elastic.co/guide/en/elasticsearch/guide/current/partial-updates.html.
+        See https://typesense.org/docs/0.23.0/api/documents.html#update-a-document
 
         :param document: the document
         :type document: AbstractSearchIndexable
