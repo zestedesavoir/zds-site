@@ -233,7 +233,6 @@ ZDS_APP = {
     },
     "paginator": {"folding_limit": 4},
     "search": {
-        "mark_keywords": ["javafx", "haskell", "groovy", "powershell", "latex", "linux", "windows"],
         "results_per_page": 20,
         "search_groups": {
             "publishedcontent": (_("Contenus publiés"), ["publishedcontent", "chapter"]),

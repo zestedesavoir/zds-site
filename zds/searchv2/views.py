@@ -241,7 +241,7 @@ class SearchView(ZdSPagingListView):
             # Check if the content must be validated
             self.search_validated_content = self.search_form.cleaned_data["validated_content"]
 
-            # Check if the forum is authori
+            # Check if the forum is authorized
             filter = ""
             filter = self._add_filter("forum_pk", self.authorized_forums, filter)
 
@@ -291,6 +291,8 @@ class SearchView(ZdSPagingListView):
                     ),
                 },
             }
+
+            # Add filter if it is necessary
             if self.search_content_types:
                 searches["publishedcontent"]["filter"] = self._add_filter("content_type", self.search_content_types, "")
                 search_collections = ["publishedcontent"]
@@ -306,6 +308,8 @@ class SearchView(ZdSPagingListView):
                     else:
                         self.search_content_types = "opinion"
                         self.search_content_types_count = 1
+
+            # Check if the search is in several collections or not
             result = None
             if search_collection_count == 1:
                 result = self._choose_single_collection_method(search_collections[0])
