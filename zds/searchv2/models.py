@@ -1,6 +1,7 @@
 from functools import partial
 import logging
 import time
+from datetime import datetime
 
 from django.apps import apps
 from django.db import models
@@ -189,7 +190,7 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
 
 
 def convert_to_unix_timestamp(date):
-    return int(time.mktime(date.timetuple()))
+    return int(datetime.timestamp(date))
 
 
 def delete_document_in_search_engine(instance):
