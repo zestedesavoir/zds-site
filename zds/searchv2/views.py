@@ -65,7 +65,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
             for hit in hits:
                 document = hit["document"]["_source"]
                 result = {
-                    "id": document["id"],
+                    "id": document["forum_pk"],
                     "url": str(document["get_absolute_url"]),
                     "title": str(document["title"]),
                     "subtitle": str(document["subtitle"]),
