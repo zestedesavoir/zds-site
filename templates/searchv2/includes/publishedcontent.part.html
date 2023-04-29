@@ -20,7 +20,7 @@
         <p class="content-description" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
             <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
                 {% if search_result.text %}
-                    {{ search_result.description|first }}
+                    {{ search_result.description }}
                 {% endif %}
             </a>
         </p>
