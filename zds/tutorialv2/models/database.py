@@ -956,28 +956,26 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
     @classmethod
     def get_document_schema(cls):
-        ts_schema = super().get_document_schema()
+        search_engine_schema = super().get_document_schema()
 
-        ts_schema["fields"].extend(
-            [
-                {"name": "title", "type": "string", "facet": False},
-                {"name": "content_pk", "type": "int32", "facet": False},
-                {"name": "content_type", "type": "string", "facet": True},
-                {"name": "publication_date", "type": "int64", "facet": False},
-                {"name": "tags", "type": "string[]", "facet": True, "optional": True},
-                {"name": "has_chapters", "type": "bool", "facet": False},
-                {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
-                {"name": "categories", "type": "string[]", "facet": True, "optional": True},
-                {"name": "text", "type": "string", "facet": False, "optional": True},
-                {"name": "description", "type": "string", "facet": False, "optional": True},
-                {"name": "picked", "type": "bool", "facet": False},
-                {"name": "get_absolute_url_online", "type": "string", "facet": False},
-                {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
-                {"name": "score", "type": "float", "facet": False},
-            ]
-        )
+        search_engine_schema["fields"] = [
+            {"name": "title", "type": "string", "facet": False},
+            {"name": "content_pk", "type": "int32", "facet": False},
+            {"name": "content_type", "type": "string", "facet": True},
+            {"name": "publication_date", "type": "int64", "facet": False},
+            {"name": "tags", "type": "string[]", "facet": True, "optional": True},
+            {"name": "has_chapters", "type": "bool", "facet": False},
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},
+            {"name": "text", "type": "string", "facet": False, "optional": True},
+            {"name": "description", "type": "string", "facet": False, "optional": True},
+            {"name": "picked", "type": "bool", "facet": False},
+            {"name": "get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
-        return ts_schema
+        return search_engine_schema
 
     @classmethod
     def get_indexable_objects(cls, force_reindexing=False):
@@ -1017,7 +1015,6 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
                         search_engine_manager.delete_by_query(
                             FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
                         )
-
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
                         chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
@@ -1191,26 +1188,24 @@ class FakeChapter(AbstractSearchIndexable):
     @classmethod
     def get_document_schema(self):
         """Define schema and parenting"""
-        ts_schema = super().get_document_schema()
-        ts_schema["name"] = self.get_document_type()
+        search_engine_schema = super().get_document_schema()
+        search_engine_schema["name"] = self.get_document_type()
 
-        ts_schema["fields"].extend(
-            [
-                {"name": "parent_id", "type": "string", "facet": False},
-                {"name": "title", "type": "string", "facet": False},
-                {"name": "parent_title", "type": "string"},
-                {"name": "subcategories", "type": "string[]", "facet": True},
-                {"name": "categories", "type": "string[]", "facet": True},
-                {"name": "parent_publication_date", "type": "int64", "facet": False},
-                {"name": "text", "type": "string", "facet": False},
-                {"name": "get_absolute_url_online", "type": "string", "facet": False},
-                {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
-                {"name": "thumbnail", "type": "string", "facet": False},
-                {"name": "score", "type": "float", "facet": False},
-            ]
-        )
+        search_engine_schema["fields"] = [
+            {"name": "parent_id", "type": "string", "facet": False},
+            {"name": "title", "type": "string", "facet": False},
+            {"name": "parent_title", "type": "string"},
+            {"name": "subcategories", "type": "string[]", "facet": True},
+            {"name": "categories", "type": "string[]", "facet": True},
+            {"name": "parent_publication_date", "type": "int64", "facet": False},
+            {"name": "text", "type": "string", "facet": False},
+            {"name": "get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "thumbnail", "type": "string", "facet": False},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
-        return ts_schema
+        return search_engine_schema
 
     def get_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned"""
@@ -1225,13 +1220,6 @@ class FakeChapter(AbstractSearchIndexable):
         data["score"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
 
         return data
-
-    def get_document_as_bulk_action(self, action="index"):
-        """Overridden to handle parenting between chapter and PublishedContent"""
-
-        document = super().get_document_as_bulk_action(action)
-        document["_parent"] = self.parent_id
-        return document
 
 
 class ContentReaction(Comment):

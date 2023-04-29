@@ -27,10 +27,9 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
         self.manager.reset_index(self.indexable)
-        self.manager.setup_custom_analyzer()
 
     def test_setup_functions(self):
-        """Test the behavior of the reset_index(), setup_custom_analyzer() and clear_index() functions"""
+        """Test the behavior of the reset_index() and clear_index() functions"""
 
         if not self.manager.connected_to_search_engine:
             return
@@ -92,7 +91,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)
+            self.manager.indexing_of_model(model, force_reindexing=False)
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
@@ -148,7 +147,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         for model in self.indexable:  # ok, so let's index that
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)
+            self.manager.indexing_of_model(model, force_reindexing=False)
 
         results = self.manager.setup_search("*")
         number_of_results = sum(result["found"] for result in results)
@@ -242,7 +241,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
-        self.manager.es_bulk_indexing_of_model(PublishedContent, force_reindexing=True)  # index
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)  # index
 
         first_publication = PublishedContent.objects.get(content_pk=tuto.pk)
         self.assertTrue(first_publication.search_engine_already_indexed)
@@ -278,7 +277,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.assertEqual(number_of_results, 0)  # the old one is gone (and we need to reindex to get the new one)
 
         # 3. Check if indexation brings the new one, and not the old one
-        self.manager.es_bulk_indexing_of_model(PublishedContent, force_reindexing=True)  # index
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)  # index
 
         first_publication = PublishedContent.objects.get(pk=first_publication.pk)
         second_publication = PublishedContent.objects.get(pk=second_publication.pk)

@@ -45,7 +45,6 @@ class Command(BaseCommand):
     def setup_es(self):
 
         self.search_engine_manager.reset_index(self.models)
-        # self.search_engine_manager.setup_custom_analyzer()
 
     def clear_es(self):
         self.search_engine_manager.clear_index()
@@ -65,8 +64,6 @@ class Command(BaseCommand):
             if force_reindexing:
                 print(f"- indexing {model.get_document_type()}s")
 
-            indexed_counter = self.search_engine_manager.es_bulk_indexing_of_model(
-                model, force_reindexing=force_reindexing
-            )
+            indexed_counter = self.search_engine_manager.indexing_of_model(model, force_reindexing=force_reindexing)
             if force_reindexing:
                 print(f"  {indexed_counter}\titems indexed")

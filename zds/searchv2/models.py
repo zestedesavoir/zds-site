@@ -1,6 +1,7 @@
 from functools import partial
 import logging
 import time
+from datetime import datetime
 
 from django.apps import apps
 from django.db import models
@@ -10,9 +11,8 @@ from django.db import transaction
 from typesense import Client as SearchEngineClient
 
 
-def document_indexer(force_reindexing, obj):
-    action = "update" if obj.search_engine_already_indexed and not force_reindexing else "index"
-    return obj.get_document_as_bulk_action(action)
+def document_indexer(obj):
+    return obj.get_document_for_indexing()
 
 
 class AbstractSearchIndexable:
@@ -26,7 +26,7 @@ class AbstractSearchIndexable:
     - ``get_schema()`` (not mandatory, but otherwise, the search engine will choose the schema by itself) ;
     - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
 
-    You also need to maintain ``search_engine_id`` and ``search_engine_already_indexed`` for bulk indexing/updating (if any).
+    You also need to maintain ``search_engine_id`` and ``search_engine_already_indexed`` for indexing (if any).
     """
 
     search_engine_already_indexed = False
@@ -48,23 +48,19 @@ class AbstractSearchIndexable:
 
     @classmethod
     def get_document_schema(self):
-        """Setup schema (data scheme).
+        """Setup schema for the model(data scheme).
 
-        .. note::
-            You will probably want to change the analyzer and boost value.
-            Also consider the ``index='not_analyzed'`` option to improve performances.
-
-        See https://elasticsearch-dsl.readthedocs.io/en/latest/persistence.html#schemas
+        See https://typesense.org/docs/0.23.0/api/collections.html#with-pre-defined-schema
 
         .. attention::
             You *may* want to override this method (otherwise the search engine choose the schema by itself).
 
-        :return: schema object
-        :rtype: elasticsearch_dsl.schema
+        :return: schema object.  A dictionary containing the name, fields of the collection.
+        :rtype: dict
         """
         es_schema = dict()
         es_schema["name"] = self.get_document_type()
-        es_schema["fields"] = []
+        es_schema["fields"] = [{"name": ".*", "type": "auto"}]
         return es_schema
 
     @classmethod
@@ -112,32 +108,17 @@ class AbstractSearchIndexable:
 
         return data
 
-    def get_document_as_bulk_action(self, action="index"):
-        """Create a document formatted for a ``_bulk`` operation. Formatting is done based on action.
+    def get_document_for_indexing(self, action="index"):
+        """Create a document formatted for indexing.
 
-        See https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-bulk.html.
+        See https://typesense.org/docs/0.19.0/api/documents.html#index-a-document
 
-        :param index: index in witch the document will be inserted
-        :type index: str
-        :param action: action, either "index", "update" or "delete"
-        :type action: str
         :return: the document
         :rtype: dict
         """
 
-        if action not in ["index", "update", "delete"]:
-            raise ValueError("action must be `index`, `update` or `delete`")
-
         document = self.get_document_source()
-        if action == "index":
-            if self.search_engine_id:
-                document["id"] = self.search_engine_id
-            document["_source"] = self.get_document_source()
-        elif action == "update":
-            document["id"] = self.search_engine_id
-            document["doc"] = self.get_document_source()
-        elif action == "delete":
-            document["id"] = self.search_engine_id
+        document["id"] = self.search_engine_id
 
         return document
 
@@ -209,7 +190,7 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
 
 
 def convert_to_unix_timestamp(date):
-    return int(time.mktime(date.timetuple()))
+    return int(datetime.timestamp(date))
 
 
 def delete_document_in_search_engine(instance):
@@ -279,85 +260,6 @@ class SearchIndexManager:
 
         self.logger.info("index created")
 
-    def setup_custom_analyzer(self):
-        """Override the default analyzer.
-
-        See https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis.html.
-
-        Our custom analyzer is based on the "french" analyzer
-        (https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-lang-analyzer.html#french-analyzer)
-        but with some difference
-
-        - "custom_tokenizer", to deal with punctuation and all kind of (non-breaking) spaces, but keep dashes and
-          other stuffs intact (in order to keep "c++" or "c#", for example).
-        - "protect_c_language", a pattern replace filter to prevent "c" from being wiped out by the stopper.
-        - "french_keywords", a keyword stopper prevent some programming language from being stemmed.
-
-        .. warning::
-
-            You need to run ``manage.py search_engine_manager index_all`` if you modified this !!
-        """
-
-        if not self.connected_to_search_engine:
-            return
-
-        document = {
-            "analysis": {
-                "filter": {
-                    "french_elision": {
-                        "type": "elision",
-                        "articles_case": True,
-                        "articles": [
-                            "l",
-                            "m",
-                            "t",
-                            "qu",
-                            "n",
-                            "s",
-                            "j",
-                            "d",
-                            "c",
-                            "jusqu",
-                            "quoiqu",
-                            "lorsqu",
-                            "puisqu",
-                        ],
-                    },
-                    "protect_c_language": {"type": "pattern_replace", "pattern": "^c$", "replacement": "langage_c"},
-                    "french_stop": {"type": "stop", "stopwords": "_french_"},
-                    "french_keywords": {
-                        "type": "keyword_marker",
-                        "keywords": settings.ZDS_APP["search"]["mark_keywords"],
-                    },
-                    "french_stemmer": {"type": "stemmer", "language": "light_french"},
-                },
-                "tokenizer": {
-                    "custom_tokenizer": {
-                        "type": "pattern",
-                        "pattern": "[ .,!?%\u2026\u00AB\u00A0\u00BB\u202F\uFEFF\u2013\u2014\n]",
-                    }
-                },
-                "analyzer": {
-                    "default": {
-                        "tokenizer": "custom_tokenizer",
-                        "filter": [
-                            "lowercase",
-                            "protect_c_language",
-                            "french_elision",
-                            "french_stop",
-                            "french_keywords",
-                            "french_stemmer",
-                        ],
-                        "char_filter": [
-                            "html_strip",
-                        ],
-                    }
-                },
-            }
-        }
-
-        self.logger.info("setup analyzer")
-
     def clear_indexing_of_model(self, model):
         """Nullify the indexing of a given model by setting ``search_engine_already_index=False`` to all objects.
 
@@ -377,14 +279,12 @@ class SearchIndexManager:
 
         self.logger.info(f"unindex {model.get_document_type()}")
 
-    def es_bulk_indexing_of_model(self, model, force_reindexing=False):
-        """Perform a bulk action on documents of a given model. Use the ``objects_per_batch`` property to index.
+    def indexing_of_model(self, model, force_reindexing=False):
+        """Index documents of a given model. Use the ``objects_per_batch`` property to index.
 
-        See http://elasticsearch-py.readthedocs.io/en/master/api.html#elasticsearch.Elasticsearch.bulk
-        and http://elasticsearch-py.readthedocs.io/en/master/helpers.html#elasticsearch.helpers.parallel_bulk
+        See https://typesense.org/docs/0.23.0/api/documents.html#index-multiple-documents
 
         .. attention::
-            + Currently only implemented with "index" and "update" !
             + Currently only working with ``AbstractSearchIndexableModel``.
 
         :param model: and model
@@ -403,7 +303,7 @@ class SearchIndexManager:
             self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
             return 0
 
-        documents_formatter = partial(document_indexer, force_reindexing)
+        documents_formatter = partial(document_indexer)
         objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
         if model.__name__ == "PublishedContent":
@@ -503,7 +403,7 @@ class SearchIndexManager:
     def update_single_document(self, document, doc):
         """Update given fields of a single document.
 
-        See https://www.elastic.co/guide/en/elasticsearch/guide/current/partial-updates.html.
+        See https://typesense.org/docs/0.23.0/api/documents.html#update-a-document
 
         :param document: the document
         :type document: AbstractSearchIndexable

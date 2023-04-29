@@ -40,7 +40,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
         self.manager.reset_index(self.indexable)
-        self.manager.setup_custom_analyzer()
         # self.manager.refresh_index()
 
     def test_basic_search(self):
@@ -233,8 +232,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_1.text = post_1.text_html = text
         post_1.save()
 
-        self.manager.es_bulk_indexing_of_model(Topic)
-        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.indexing_of_model(Topic)
+        self.manager.indexing_of_model(Post)
         self.manager.refresh_index()
 
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
@@ -340,7 +339,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model)
+            self.manager.indexing_of_model(model)
         self.manager.refresh_index()
 
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 10)
@@ -581,8 +580,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_1.text = post_1.text_html = text
         post_1.save()
 
-        self.manager.es_bulk_indexing_of_model(Topic)
-        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.indexing_of_model(Topic)
+        self.manager.indexing_of_model(Post)
         self.manager.refresh_index()
 
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
@@ -603,8 +602,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         topic_1.title = "new title"
         topic_1.save()
 
-        self.manager.es_bulk_indexing_of_model(Topic)
-        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.indexing_of_model(Topic)
+        self.manager.indexing_of_model(Post)
         self.manager.refresh_index()
 
         result = self.client.get(
@@ -625,8 +624,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(302, response.status_code)
 
-        self.manager.es_bulk_indexing_of_model(Topic)
-        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.indexing_of_model(Topic)
+        self.manager.indexing_of_model(Post)
         self.manager.refresh_index()
 
         result = self.client.get(
@@ -679,7 +678,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
-        self.manager.es_bulk_indexing_of_model(PublishedContent)
+        self.manager.indexing_of_model(PublishedContent)
         self.manager.refresh_index()
 
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
@@ -716,7 +715,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
-        self.manager.es_bulk_indexing_of_model(PublishedContent)
+        self.manager.indexing_of_model(PublishedContent)
         self.manager.refresh_index()
 
         self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # 2 objects, not 3 !
@@ -835,7 +834,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model)
+            self.manager.indexing_of_model(model)
         self.manager.refresh_index()
 
         result = self.client.get(reverse("search:query") + "?q=" + text_lc, follow=False)
@@ -918,7 +917,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model)
+            self.manager.indexing_of_model(model)
         self.manager.refresh_index()
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
