@@ -234,16 +234,17 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
-        self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # indexing ok
 
         # 2. search without connection and get not result
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 0)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 0)
 
         # 3. Connect with user (not a member of the group), search, and get no result
         self.client.force_login(self.user)
@@ -251,8 +252,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 0)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 0)
 
         # 4. Connect with staff, search, and get the topic and the post
         self.client.logout()
@@ -261,8 +262,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)  # ok !
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)  # ok !
 
     def test_boosts(self):
         """Check if boosts are doing their job"""
