@@ -63,7 +63,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
 
             # Build the result
             for hit in hits:
-                document = hit["document"]["_source"]
+                document = hit["document"]
                 result = {
                     "id": document["forum_pk"],
                     "url": str(document["get_absolute_url"]),

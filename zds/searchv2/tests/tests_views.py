@@ -40,7 +40,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
         self.manager.reset_index(self.indexable)
-        # self.manager.refresh_index()
 
     def test_basic_search(self):
         """Basic search and filtering"""
@@ -86,7 +85,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model)
+            self.manager.indexing_of_model(model)
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
@@ -120,7 +119,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 print(ids[doc_type][i])
                 print(r)
                 id = "forum_pk" if group_to_model[doc_type][0] != "publishedcontent" else "content_pk"
-                self.assertEqual(r["document"]["_source"][id], int(ids[doc_type][i]))  # … with the right id !
+                print(r)
+                self.assertEqual(r["document"][id], int(ids[doc_type][i]))  # … with the right id !
 
     def test_get_similar_topics(self):
         """Get similar topics lists"""
@@ -152,7 +152,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model)
+            self.manager.indexing_of_model(model)
 
         # 2. Should get exactly one result
         result = self.client.get(reverse("search:similar") + "?q=mange", follow=False)
@@ -180,8 +180,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_1.text = post_1.text_html = text
         post_1.save()
 
-        self.manager.es_bulk_indexing_of_model(Topic)
-        self.manager.es_bulk_indexing_of_model(Post)
+        self.manager.indexing_of_model(Topic)
+        self.manager.indexing_of_model(Post)
 
         results = self.manager.setup_search("*")
         number_of_results = sum(result["found"] for result in results)
@@ -198,8 +198,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
 
         self.assertEqual(len(response), 1)
-        self.assertEqual(response[0]["document"]["_source"]["position"], post_1.position)
-        self.assertEqual(response[0]["document"]["_source"]["topic_pk"], post_1.topic.pk)
+        self.assertEqual(response[0]["document"]["position"], post_1.position)
+        self.assertEqual(response[0]["document"]["topic_pk"], post_1.topic.pk)
 
         # 2. Hide, reindex and search again:
         post_1.hide_comment_by_user(self.staff, "Un abus de pouvoir comme un autre ;)")
