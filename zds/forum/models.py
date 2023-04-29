@@ -439,22 +439,20 @@ class Topic(AbstractSearchIndexableModel):
     def get_document_schema(cls):
         search_engine_schema = super().get_document_schema()
 
-        search_engine_schema["fields"].extend(
-            [
-                {"name": "forum_pk", "type": "int32", "facet": False},
-                {"name": "title", "type": "string"},
-                {"name": "subtitle", "type": "string", "optional": True},
-                {"name": "forum_title", "type": "string", "facet": True},
-                {"name": "tags", "type": "string[]", "facet": True},
-                {"name": "is_locked", "type": "bool"},
-                {"name": "is_solved", "type": "bool"},
-                {"name": "is_sticky", "type": "bool"},
-                {"name": "pubdate", "type": "int64", "facet": True},
-                {"name": "get_absolute_url", "type": "string"},
-                {"name": "forum_get_absolute_url", "type": "string"},
-                {"name": "score", "type": "float", "facet": False},
-            ]
-        )
+        search_engine_schema["fields"] = [
+            {"name": "forum_pk", "type": "int32", "facet": False},
+            {"name": "title", "type": "string"},
+            {"name": "subtitle", "type": "string", "optional": True},
+            {"name": "forum_title", "type": "string", "facet": True},
+            {"name": "tags", "type": "string[]", "facet": True},
+            {"name": "is_locked", "type": "bool"},
+            {"name": "is_solved", "type": "bool"},
+            {"name": "is_sticky", "type": "bool"},
+            {"name": "pubdate", "type": "int64", "facet": True},
+            {"name": "get_absolute_url", "type": "string"},
+            {"name": "forum_get_absolute_url", "type": "string"},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
         return search_engine_schema
 
@@ -545,23 +543,21 @@ class Post(Comment, AbstractSearchIndexableModel):
     def get_document_schema(cls):
         search_engine_schema = super().get_document_schema()
 
-        search_engine_schema["fields"].extend(
-            [
-                {"name": "topic_pk", "type": "int64"},
-                {"name": "forum_pk", "type": "int64"},
-                {"name": "topic_title", "type": "string", "facet": True},
-                {"name": "forum_title", "type": "string", "facet": True},
-                {"name": "position", "type": "int64"},
-                {"name": "text_html", "type": "string"},
-                {"name": "is_visible", "type": "bool"},
-                {"name": "is_useful", "type": "bool"},
-                {"name": "pubdate", "type": "int64"},
-                {"name": "get_absolute_url", "type": "string"},
-                {"name": "forum_get_absolute_url", "type": "string"},
-                {"name": "like_dislike_ratio", "type": "float"},
-                {"name": "score", "type": "float", "facet": False},
-            ]
-        )
+        search_engine_schema["fields"] = [
+            {"name": "topic_pk", "type": "int64"},
+            {"name": "forum_pk", "type": "int64"},
+            {"name": "topic_title", "type": "string", "facet": True},
+            {"name": "forum_title", "type": "string", "facet": True},
+            {"name": "position", "type": "int64"},
+            {"name": "text_html", "type": "string"},
+            {"name": "is_visible", "type": "bool"},
+            {"name": "is_useful", "type": "bool"},
+            {"name": "pubdate", "type": "int64"},
+            {"name": "get_absolute_url", "type": "string"},
+            {"name": "forum_get_absolute_url", "type": "string"},
+            {"name": "like_dislike_ratio", "type": "float"},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
         return search_engine_schema
 

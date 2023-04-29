@@ -958,24 +958,22 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
     def get_document_schema(cls):
         search_engine_schema = super().get_document_schema()
 
-        search_engine_schema["fields"].extend(
-            [
-                {"name": "title", "type": "string", "facet": False},
-                {"name": "content_pk", "type": "int32", "facet": False},
-                {"name": "content_type", "type": "string", "facet": True},
-                {"name": "publication_date", "type": "int64", "facet": False},
-                {"name": "tags", "type": "string[]", "facet": True, "optional": True},
-                {"name": "has_chapters", "type": "bool", "facet": False},
-                {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
-                {"name": "categories", "type": "string[]", "facet": True, "optional": True},
-                {"name": "text", "type": "string", "facet": False, "optional": True},
-                {"name": "description", "type": "string", "facet": False, "optional": True},
-                {"name": "picked", "type": "bool", "facet": False},
-                {"name": "get_absolute_url_online", "type": "string", "facet": False},
-                {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
-                {"name": "score", "type": "float", "facet": False},
-            ]
-        )
+        search_engine_schema["fields"] = [
+            {"name": "title", "type": "string", "facet": False},
+            {"name": "content_pk", "type": "int32", "facet": False},
+            {"name": "content_type", "type": "string", "facet": True},
+            {"name": "publication_date", "type": "int64", "facet": False},
+            {"name": "tags", "type": "string[]", "facet": True, "optional": True},
+            {"name": "has_chapters", "type": "bool", "facet": False},
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},
+            {"name": "text", "type": "string", "facet": False, "optional": True},
+            {"name": "description", "type": "string", "facet": False, "optional": True},
+            {"name": "picked", "type": "bool", "facet": False},
+            {"name": "get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
         return search_engine_schema
 
@@ -1193,21 +1191,19 @@ class FakeChapter(AbstractSearchIndexable):
         search_engine_schema = super().get_document_schema()
         search_engine_schema["name"] = self.get_document_type()
 
-        search_engine_schema["fields"].extend(
-            [
-                {"name": "parent_id", "type": "string", "facet": False},
-                {"name": "title", "type": "string", "facet": False},
-                {"name": "parent_title", "type": "string"},
-                {"name": "subcategories", "type": "string[]", "facet": True},
-                {"name": "categories", "type": "string[]", "facet": True},
-                {"name": "parent_publication_date", "type": "int64", "facet": False},
-                {"name": "text", "type": "string", "facet": False},
-                {"name": "get_absolute_url_online", "type": "string", "facet": False},
-                {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
-                {"name": "thumbnail", "type": "string", "facet": False},
-                {"name": "score", "type": "float", "facet": False},
-            ]
-        )
+        search_engine_schema["fields"] = [
+            {"name": "parent_id", "type": "string", "facet": False},
+            {"name": "title", "type": "string", "facet": False},
+            {"name": "parent_title", "type": "string"},
+            {"name": "subcategories", "type": "string[]", "facet": True},
+            {"name": "categories", "type": "string[]", "facet": True},
+            {"name": "parent_publication_date", "type": "int64", "facet": False},
+            {"name": "text", "type": "string", "facet": False},
+            {"name": "get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "thumbnail", "type": "string", "facet": False},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
         return search_engine_schema
 
