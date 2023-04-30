@@ -41,18 +41,21 @@ var currentURL = window.location.href;
 
 if (currentURL.includes("/contenus/")) {
 
-  // Get the last list item in the unordered list
-  var lastListItem = document.querySelector('.custom-block-quizz ul li:last-child');
+  let lastListItems = document.querySelectorAll('.custom-block-quizz ul li:last-child');
 
-  // Create a new div element
-  var newDiv = document.createElement('div');
-  newDiv.classList.add('explanation_on')
+  for (let i = 0; i < lastListItems.length; i++) {
+   
+    // Create a new div element
+    let newDiv = document.createElement('div');
+    newDiv.classList.add('explanation_on')
 
-  // Set the text content of the div to match the text content of the last list item
-  newDiv.innerHTML = '<b>Explication : </b>' + lastListItem.textContent;
+    // Set the text content of the div to match the text content of the last list item
+    newDiv.innerHTML = '<b>Explication : </b>' + lastListItems[i].textContent;
 
-  // Replace the last list item with the new div element
-  lastListItem.parentNode.replaceChild(newDiv, lastListItem);
+    // Replace the last list item with the new div element
+    lastListItems[i].parentNode.replaceChild(newDiv, lastListItems[i]);
+  }  
+  
 
 }
 
