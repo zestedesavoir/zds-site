@@ -118,9 +118,6 @@
         } else if (_type === 'n' || _type === 'neutre') {
           ret.blocNeutral = true
         }
-        // else if (_type === 'q' || _type === 'quizz') {
-        //   ret.blocNeutral = true
-        // }
         
       }
     } else {
@@ -252,7 +249,11 @@
         shiftLines(cm, startPoint.line, '[[neutre|titre]]')
       }
       else if (type === 'blocquizz') {
-        shiftLines(cm, startPoint.line, '[[quizz|Question]]\n|- [ ] réponse\n| - [x] bonne réponse\n| - [ ] réponse\n| - Explication : ');
+        shiftLines(cm, startPoint.line, '| - Explication : ');
+        shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
+        shiftLines(cm, startPoint.line, '| - [x] bonne réponse');
+        shiftLines(cm, startPoint.line, '| - [ ] réponse 1');
+        shiftLines(cm, startPoint.line, '[[quizz|Question]]');
       }
       startPoint.ch = 0
       endPoint.line += 1
@@ -839,14 +840,6 @@
             }
           ]
         },
-        {
-          name: 'blocquizz',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocquizz', '')
-          },
-          className: 'fas fa-question',
-          title: 'Bloc quizz'
-        },
         '|',
         {
           name: 'blocMenu',
@@ -960,7 +953,16 @@
           action: EasyMDE.toggleFullScreen,
           className: 'fa fa-arrows-alt no-disable no-mobile disable-for-textarea-mode',
           title: 'Plein écran'
-        }
+        },
+        '|',
+        {
+          name: 'blocquizz',
+          action: (e) => {
+            _toggleBlockZmd(e, 'blocquizz', '')
+          },
+          className: 'fas fa-question',
+          title: 'Bloc quizz'
+        },
       ]
     })
 
