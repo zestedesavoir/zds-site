@@ -331,17 +331,10 @@ class SearchView(ZdSPagingListView):
             if "hits" in results[k]:
                 for entry in results[k]["hits"]:
                     entry["collection"] = collection_names[k]
+                    entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
                     all_collection_result.append(entry)
         if self.search_query != "*":
-            all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
-            count_results = len(all_collection_result)
-            if count_results > 10:
-                for i in range(int(count_results / 10)):
-                    all_collection_result[i * 10 : (i + 1) * 10] = sorted(
-                        all_collection_result[i * 10 : (i + 1) * 10],
-                        key=lambda result: result["document"]["score"],
-                        reverse=True,
-                    )
+            all_collection_result.sort(key=lambda result: result["document"]["final_score"], reverse=True)
 
         return all_collection_result
 

@@ -53,10 +53,10 @@ THUMBNAIL_ALIASES = {
 
 DEFAULT_ASSO_LINK = "https://www.helloasso.com/associations/zeste-de-savoir/adhesions/zeste-de-savoir-cotisations-2018"
 
-global_weight_publishedcontent = 3
+global_weight_publishedcontent = 2
 global_weight_topic = 2
 global_weight_chapter = 1.5
-global_weight_post = 1
+global_weight_post = 0.8
 
 ZDS_APP = {
     "site": {
@@ -251,12 +251,12 @@ ZDS_APP = {
         "boosts": {
             "publishedcontent": {
                 "global": global_weight_publishedcontent,
-                "if_article": 2.0,
-                "if_tutorial": 2.0,
-                "if_medium_or_big_tutorial": 2.5,
-                "if_opinion": 1.66,
-                "if_opinion_not_picked": 1.5,
-                "title": global_weight_publishedcontent * 3,
+                "if_article": global_weight_publishedcontent * 1.5,
+                "if_tutorial": global_weight_publishedcontent * 1.5,
+                "if_medium_or_big_tutorial": global_weight_publishedcontent * 1.7,
+                "if_opinion": global_weight_publishedcontent * 1.3,
+                "if_opinion_not_picked": global_weight_publishedcontent * 1.1,
+                "title": global_weight_publishedcontent * 4,
                 "description": global_weight_publishedcontent * 2,
                 "categories": global_weight_publishedcontent * 1,
                 "subcategories": global_weight_publishedcontent * 1,
@@ -265,9 +265,9 @@ ZDS_APP = {
             },
             "topic": {
                 "global": global_weight_topic,
-                "if_solved": 1.1,
-                "if_sticky": 1.2,
-                "if_locked": 0.1,
+                "if_solved": global_weight_topic * 1.1,
+                "if_sticky": global_weight_topic * 1.2,
+                "if_locked": global_weight_topic * 0.1,
                 "title": global_weight_topic * 3,
                 "subtitle": global_weight_topic * 2,
                 "tags": global_weight_topic * 1,
@@ -279,10 +279,10 @@ ZDS_APP = {
             },
             "post": {
                 "global": global_weight_post,
-                "if_first": 1.2,
-                "if_useful": 1.5,
-                "ld_ratio_above_1": 1.05,
-                "ld_ratio_below_1": 0.95,
+                "if_first": global_weight_post * 1.2,
+                "if_useful": global_weight_post * 1.5,
+                "ld_ratio_above_1": global_weight_post * 1.05,
+                "ld_ratio_below_1": global_weight_post * 0.95,
                 "text_html": global_weight_post,
             },
         },
