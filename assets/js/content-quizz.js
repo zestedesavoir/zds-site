@@ -1,39 +1,4 @@
-var currentURL = window.location.href;
-
-if (currentURL.includes("/tutoriels/")) {
-
-  // to handle a new type of answer, you just need to create a method called
-  // initializeXXX(answers) that will add the reset the field content and mark good answer
-  // then add the two methods in the callback lists
-
-  let index = 0
-
-  function extractAnswer(inputDomElementList, answers) {
-
-    inputDomElementList.forEach((rb) => {
-
-      const ulWrapperElement = rb.parentElement.parentElement
-      // we give the ui an id to find the element in a more effective way later when the users answer the questions
-      if (!ulWrapperElement.getAttribute('id')) {
-        ulWrapperElement.setAttribute('id', 'id-' + (index++))
-      }
-
-      rb.setAttribute('name', ulWrapperElement.getAttribute('id'))
-
-      const questionBlock = ulWrapperElement.parentElement.parentElement
-      questionBlock.setAttribute('data-name', rb.getAttribute('name'))
-      if (!answers[ulWrapperElement.getAttribute('id')]) {
-        answers[ulWrapperElement.getAttribute('id')] = [rb.checked]
-      } else {
-        answers[ulWrapperElement.getAttribute('id')].push(rb.checked)
-      }
-      rb.setAttribute('value', answers[ulWrapperElement.getAttribute('id')].length - 1)
-      rb.disabled = false
-      rb.checked = false
-    })
-  }
-
-  /**
+ /**
    * The full quizz is contained in a div or article that has class "quizz".
    * Then one question is inside a zmarkdown "custom-block" of type "custom-block-quizz". Two possibilities :
    *
@@ -70,7 +35,57 @@ if (currentURL.includes("/tutoriels/")) {
    * </code>
    *
    * Note that the correction MAY be inside the last li due to the way custom-block plugin works, this is not a bug
-   *
+   * */
+
+var currentURL = window.location.href;
+
+if (currentURL.includes("/contenus/")) {
+
+  // Get the last list item in the unordered list
+  var lastListItem = document.querySelector('.custom-block-quizz ul li:last-child');
+
+  // Create a new div element
+  var newDiv = document.createElement('div');
+  newDiv.classList.add('explanation_on')
+
+  // Set the text content of the div to match the text content of the last list item
+  newDiv.innerHTML = '<b>Explication : </b>' + lastListItem.textContent;
+
+  // Replace the last list item with the new div element
+  lastListItem.parentNode.replaceChild(newDiv, lastListItem);
+
+}
+
+if (currentURL.includes("/tutoriels/")) {
+
+  let index = 0
+
+  function extractAnswer(inputDomElementList, answers) {
+
+    inputDomElementList.forEach((rb) => {
+
+      const ulWrapperElement = rb.parentElement.parentElement
+      // we give the ui an id to find the element in a more effective way later when the users answer the questions
+      if (!ulWrapperElement.getAttribute('id')) {
+        ulWrapperElement.setAttribute('id', 'id-' + (index++))
+      }
+
+      rb.setAttribute('name', ulWrapperElement.getAttribute('id'))
+
+      const questionBlock = ulWrapperElement.parentElement.parentElement
+      questionBlock.setAttribute('data-name', rb.getAttribute('name'))
+      if (!answers[ulWrapperElement.getAttribute('id')]) {
+        answers[ulWrapperElement.getAttribute('id')] = [rb.checked]
+      } else {
+        answers[ulWrapperElement.getAttribute('id')].push(rb.checked)
+      }
+      rb.setAttribute('value', answers[ulWrapperElement.getAttribute('id')].length - 1)
+      rb.disabled = false
+      rb.checked = false
+    })
+  }
+
+  /**
    * @param answers the answer dictionary, it will be modified by the process
    */
   function initializeCheckboxes(answers) {
@@ -212,9 +227,7 @@ if (currentURL.includes("/tutoriels/")) {
     return potentialHeading
   }
 
-  /**
-  
-   */
+
   function injectForms(quizz, answers) {
 
 
@@ -432,6 +445,7 @@ if (currentURL.includes("/tutoriels/")) {
     }
     return answer
   }
+
 
   document.querySelectorAll('form.quizz').forEach(form => {
 
