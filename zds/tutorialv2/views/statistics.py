@@ -1,29 +1,24 @@
 import itertools
-import json
 import uuid
 from collections import OrderedDict, Counter
 import logging
 import urllib.parse
 from datetime import timedelta, datetime, date
 from json import loads, dumps
-from django.shortcuts import get_object_or_404, redirect
+import requests
+
 from django.views import View
 from django.db.models import Subquery
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.forms.utils import ErrorDict
-from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView, DeleteView
-from zds.member.decorator import LoggedWithReadWriteHability
+from django.views.generic import FormView
 
 from zds.tutorialv2.forms import ContentCompareStatsURLForm, QuizzStatsForm
 from zds.tutorialv2.mixins import (
-    SingleContentDetailViewMixin,
-    SingleContentViewMixin,
     SingleOnlineContentDetailViewMixin,
     SingleOnlineContentFormViewMixin,
 )
@@ -186,26 +181,14 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return refs
 
     def get_start_and_end_dates(self):
-        end_date = self.request.GET.get("end_date", None)
-        try:
-            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
-        except TypeError:
-            end_date = date.today()
-        except ValueError:
-            end_date = date.today()
-            messages.error(self.request, _("La date de fin fournie est invalide."))
 
-        start_date = self.request.GET.get("start_date", None)
-        try:
-            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-        except TypeError:
-            start_date = end_date - timedelta(days=7)
-        except ValueError:
-            start_date = end_date - timedelta(days=7)
-            messages.error(self.request, _("La date de début fournie est invalide."))
+        end_date = self.request.GET.get("end_date", None) or date.today()
 
-        if start_date > end_date:
-            end_date, start_date = start_date, end_date
+        end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+
+        start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
+
+        start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
 
         return start_date, end_date
 
@@ -384,26 +367,14 @@ class QuizzContentStatistics(ContentStatisticsView):
 
 class DeleteQuizz(View):
     def get_start_and_end_dates(self):
-        end_date = self.request.GET.get("end_date", None)
-        try:
-            end_date = datetime.strptime(end_date, "%Y-%m-%d").date()
-        except TypeError:
-            end_date = date.today()
-        except ValueError:
-            end_date = date.today()
-            messages.error(self.request, _("La date de fin fournie est invalide."))
 
-        start_date = self.request.GET.get("start_date", None)
-        try:
-            start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
-        except TypeError:
-            start_date = end_date - timedelta(days=7)
-        except ValueError:
-            start_date = end_date - timedelta(days=7)
-            messages.error(self.request, _("La date de début fournie est invalide."))
+        end_date = self.request.GET.get("end_date", None) or date.today()
 
-        if start_date > end_date:
-            end_date, start_date = start_date, end_date
+        end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+
+        start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
+
+        start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
 
         return start_date, end_date
 
@@ -411,7 +382,7 @@ class DeleteQuizz(View):
 
         start_date, end_date = self.get_start_and_end_dates()
 
-        data = json.loads(request.body)
+        data = loads(request.body)
 
         # Extract the quizzName from the data
         quizz_name = data.get("quizzName")
@@ -424,11 +395,8 @@ class DeleteQuizz(View):
         else:
             related_question_ids = QuizzQuestion.objects.filter(url=quizz_name).values_list("id", flat=True)
 
-        try:
-            QuizzUserAnswer.objects.filter(
-                related_question_id__in=Subquery(related_question_ids), date_answer__range=(start_date, end_date)
-            ).delete()
-        except Exception as e:
-            return HttpResponseBadRequest(f"An error occurred while deleting the quiz: {str(e)}")
+        QuizzUserAnswer.objects.filter(
+            related_question_id__in=Subquery(related_question_ids), date_answer__range=(start_date, end_date)
+        ).delete()
 
         return StreamingHttpResponse(dumps({"status": "ok"}))

@@ -1,104 +1,142 @@
-.stat-table {
-    .level-1 {
-        padding-left: $length-20;
-    }
-
-    .level-2 {
-        padding-left: $length-38;
-    }
+/* Style for the header of each quiz */
+.header-stats-quiz {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f2f2f2;
+  border: 1px solid #ddd;
 }
 
-.quizz-multiple.custom-block-body{
-    color: #fc3605;
+.header-stats-quiz h3 {
+  font-size: 24px;
+  margin: 0;
 }
 
- /* Style the tab */
-.tab {
-    border: $length-1 solid $grey-100;
-    border-bottom: none;
-
-    background-color: $grey-100;
-    color: $color-primary;
+/* Style for the initialize stats button */
+.delete-quizz-button,
+.delete-question-button {
+  background-color: #e44833;
+  border: none;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin-left: 10px;
+  cursor: pointer;
 }
 
-/* Style the buttons that are used to open the tab content */
-.tab span {
-    display: inline-block;
-    padding: $length-8 $length-16;
-
-    cursor: pointer;
+.delete-quizz-button:hover,
+.delete-question-button:hover {
+  background-color: #3e8e41;
 }
 
-/* Change background color of buttons on hover */
-.tab span:hover {
-    background-color: $white;
+/* Style for each question and its stats */
+.stat-graph {
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  padding: 10px;
 }
 
-/* Create an active/current tablink class */
-.tab span.active {
-    background-color: $white;
-    font-weight: bold;
+.Question {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-/* Style the tab content */
-.tabcontent {
-    /* Tab has to be displayed by default, otherwise Chart.js doesn't render the graph. */
-
-    padding: $length-6 $length-12;
-
-    border: $length-1 solid $grey-100;
-    border-top: none;
-
-    .stat-graph {
-      width: 60%;
-      margin: 0 auto;
-    }
+.question-stats {
+  font-size: 15px;
+  margin: 0;
+  margin-bottom: 5px;
 }
 
-.stat-graph ul.quizz-answers {
-    max-width: 50%;
-    li.quizz-stats {
-        display: grid;
-        grid-template-columns:  3fr 3fr 1fr;
-        grid-gap: 1px;
-        .over-progress {
-            display: block;
-            position: relative;
-            left: -50%;
-        }
-    }
+.question-stats span {
+  display: inline-block;
+}
+
+.quizz-answers {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #ddd;
+  
+}
+
+.quizz-answers li {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 10px;
+  justify-content: space-evenly;
+}
+
+.quizz-answers li span:first-child {
+  width: 70%;
+}
+
+.quizz-answers li span:last-child {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+
+.quizz-answers li.quizz-stats-good {
+  background-color: #a6f566;
+  border-color: #155724;
+  color: #155724;
+}
+
+.progress-wrapper {
+  position: relative;
+  height: 20px;
+  border-radius: 10px;
+  background-color: #f2f2f2;
+}
+
+.progress-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 10px;
+  background-color: #4CAF50;
+}
+
+.progress-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 
 .explanation_off {
-    display: none;
+  display: none;
 }
-
 
 .explanation_on {
-
-    margin-top: 1rem;
-    padding: 1rem;
-    color: #0a0706; /* dark text */
-    border-radius: 0.25rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  color: #0a0706; /* dark text */
+  border-radius: 0.25rem;
 }
 
-.notAnswered{
-    margin-top: 1rem;
-    padding: 1rem;
-    margin-right: 17rem;
-    
-    border: 1px solid #f5c6cb; /* dark red */
-    color: #f72f0c; /* dark text */
-    border-radius: 0.25rem;
-    font-size: 1.2rem;
-    line-height: 1.5;
-    &:empty {
-        display: none;
-    }   
+.notAnswered {
+  margin-top: 1rem;
+  padding: 1rem;
+  margin-right: 17rem;
+
+  border: 1px solid #f5c6cb; /* dark red */
+  color: #f72f0c; /* dark text */
+  border-radius: 0.25rem;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  &:empty {
+    display: none;
+  }
 }
-
-
-
-
-  
