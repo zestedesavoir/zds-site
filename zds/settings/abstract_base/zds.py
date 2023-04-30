@@ -279,8 +279,8 @@ ZDS_APP = {
             },
             "post": {
                 "global": global_weight_post,
-                "if_first": global_weight_post * 1.2,
-                "if_useful": global_weight_post * 1.5,
+                "if_first": global_weight_post * 1.5,
+                "if_useful": global_weight_post * 1.2,
                 "ld_ratio_above_1": global_weight_post * 1.05,
                 "ld_ratio_below_1": global_weight_post * 0.95,
                 "text_html": global_weight_post,

@@ -325,7 +325,11 @@ class SearchView(ZdSPagingListView):
         @search_requests : parameters of search
         @collection_names : name of the collection to search
         """
-        results = self.search_engine.multi_search.perform(search_requests, None)["results"]
+        common_search_params = {
+            "prefix": "false",
+        }
+
+        results = self.search_engine.multi_search.perform(search_requests, common_search_params)["results"]
         all_collection_result = []
         for k in range(len(results)):
             if "hits" in results[k]:
