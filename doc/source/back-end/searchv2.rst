@@ -46,7 +46,7 @@ Quelques mots sur Typesense
 
 Typesense se concentre sur les cas d’utilisation les plus courants de la recherche et de l’analyse de texte. 
 
-Pour intéragir avec Typesense, nous importons le client du module Typesense en python. 
+Pour intéragir avec Typesense, nous importons le client du module Typesense en Python. 
 
 Phase d'indexation
 ++++++++++++++++++
