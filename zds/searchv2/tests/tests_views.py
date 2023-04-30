@@ -116,11 +116,15 @@ class ViewsTests(TutorialTestMixin, TestCase):
             self.assertEqual(len(response), 1)  # get 1 result of each …
             for i, r in enumerate(response):
                 self.assertIn(r["collection"], group_to_model[doc_type][0])  # … and only of the right type …
-                print(ids[doc_type][i])
-                print(r)
                 id = "forum_pk" if group_to_model[doc_type][0] != "publishedcontent" else "content_pk"
-                print(r)
                 self.assertEqual(r["document"][id], int(ids[doc_type][i]))  # … with the right id !
+
+    def test_invalid_search(self):
+        """Check if the request is *, a message Recherche invalide is displayed"""
+        message = "Recherche invalide."
+        result = self.client.get(reverse("search:query") + "?q=*", follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, message)
 
     def test_get_similar_topics(self):
         """Get similar topics lists"""

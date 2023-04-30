@@ -51,7 +51,11 @@
         {% if query %}
             {% include "misc/paginator.html" with position="top" %}
 
-            {% if object_list %}
+            {% if object_list == '*' %}
+                <p>
+                    Recherche invalide.
+                </p>
+            {% elif object_list %}
                 <div class="topic-list navigable-list search-results">
                     {% for result in object_list %}
                     <article class="content-item topic-item" data-search-engine-score="{{ result.text_match }}" data-search-boost="{{ result.document.score }}" data-search-final-score="{{ result.document.final_score }}">
