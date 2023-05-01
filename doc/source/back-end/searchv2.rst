@@ -39,14 +39,14 @@ Le seul critère de recherche disponible actuellement est le type de résultat (
    .. figure:: ../images/search/search-filters.png
       :align: center
 
-Quelques mots sur Elasticsearch
+Quelques mots sur Typesense
 -------------------------------
 
-`Elasticsearch <https://www.elastic.co/>`_ (ES) est un serveur utilisant `Lucene <https://lucene.apache.org/>`_ (bibliothèque d'indexation et de recherche de texte) et permet d'indexer et de rechercher des données.
-Il est possible de l'interroger à travers une interface de type REST à laquelle on communique via des requêtes écrites en JSON.
-Ce projet propose également des API `bas <https://github.com/elastic/elasticsearch-py>`_ et `plus haut <https://github.com/elastic/elasticsearch-dsl-py>`_ niveau en python pour interagir avec le serveur, maintenues par l'équipe d'Elasticsearch.
+`Typesense <https://typesense.org/>`_ est un moteur de recherche open source. Celui-ci se concentre sur l’expérience des développeurs et des utilisateurs. Il permet d’indexer et de rechercher des données en temps réel. Typesense offre une interface de type REST pour interroger les données, avec des requêtes en JSON. Il propose également des SDKs en Python, Node.js, Ruby, Go, Java, et PHP pour faciliter l’intégration avec différents environnements de développement.
 
-Précédemment, ZdS utilisait `Haystack <https://django-haystack.readthedocs.io/>`_ pour communiquer avec `Solr <http://lucene.apache.org/solr/>`_ (équivalent à Elasticsearch) mais ces solutions ont été abandonnées par manque d'activité sur le dépôt de Haystack.
+Typesense se concentre sur les cas d’utilisation les plus courants de la recherche et de l’analyse de texte. 
+
+Pour intéragir avec Typesense, nous importons le client du module Typesense en Python. 
 
 Phase d'indexation
 ++++++++++++++++++
@@ -82,17 +82,18 @@ La phase d'indexation est réalisée à l'aide de la commande ``python manage.py
 Phase de recherche
 ++++++++++++++++++
 
-Durant la phase de recherche, les documents sont classés par **score**, valeur que ES calcule comme étant le produit ``TF * IDF``, où la partie TF (*term frequencies*) est le nombre de fois qu'un terme apparait dans un document et IDF (*inverse document frequencies*) est la fréquence à laquelle ce terme apparait dans l'ensemble des documents indexés.
+Durant la phase de recherche, les documents sont classés par **text_match**, valeur qui représente le score de correspondance avec le texte recherché. Ce score dépend des champs que l'on souhaite indexer.
+Ce score est calculé selon plusieurs métriques : 
 
-C'est en fonction de ce score que seront ensuite classés les résultats, du plus important au plus faible.
-Il est possible de manipuler ce score afin d'obtenir les résultats les plus pertinents possible :
++ *Fréquence* : Elle correspond au nombre de fois qu’un terme apparaît dans un document. 
++ *Distance d'édition* : Si un terme de la requête n'est pas trouvé dans les documents, Typesense recherchera des mots qui diffèrent de la requête d'un certain nombre de caractères (num_typos) en ajoutant, supprimant ou remplaçant des caractères.
++ *Proximité* : Si la requête est constitué de plusieurs termes et que ces termes sont proches alors le score sera plus élevé. Par exemple, si la requête est "moteur de recherche". Le titre "Typesense est un moteur de recherche" aura un meilleur score que le titre "La recherche d'un nouveau moteur thermique à pistons rotatifs".
++ *Ordre des champs* : Si l'on a indiqué que l'on recherche selon les champs titre et description (dans cet ordre), alors le score sera plus important si le terme est trouvé dans le champ titre. 
++ *Pondération des champs* : Pour deux documents, si on associe aux champs du premier document des poids supérieurs par rapport au second, alors le premier document sera considéré comme plus pertinent. De plus, si un document possède un champ titre et un champ description, alors avec des poids différents, il est possible d'indiquer que le score sera plus élevé si le terme est trouvé dans le titre.  
 
-+ *Booster* le champ (à priori) : si le terme recherché est contenu dans un champ donné (par exemple le titre, ou une note de bas de page), le score est multiplié par le facteur de *boost* du champ.
-+ *Booster* le score (à postériori): si le document obtenu possède d'autres propriétés (par exemple, *booster* le score si le *post* trouvé à "aidé l'auteur du sujet").
-+ *Booster* un type de document par rapport à un autre : cas particulier du précédent.
+Les *poids* de la *pondération* sont modifiables directement dans le code de ZdS dans le ``settings.py`` (voir ci-dessous).
 
-Ces facteurs de *boost* sont modifiables soit directement dans le code de ZdS pour ce qui concerne les facteurs de *boost* sur les champs (voir ci-dessous), soit dans le ``settings.py`` en ce qui concerne les *boosts* à postériori (voir ci-dessous).
-
+Lorsque l'on réalise une recherche dans plusieurs collections, il est possible de le faire en une seule requête. Typesense appelle ce mécanisme `Federated Multi-Search <https://typesense.org/docs/0.24.1/api/federated-multi-search.html#multi-search-parameters>`_.
 
 En pratique
 ===========
@@ -100,92 +101,115 @@ En pratique
 Configuration
 -------------
 
-La configuration de la connexion et de l'*index* se fait dans le ``settings.py``, à l'aide des trois variables suivantes :
+La configuration de la connexion se fait dans le fichier ``settings/abstract_base/zds.py``, à l'aide des deux variables suivantes :
 
 .. sourcecode:: python
 
-      ES_ENABLED = True
+    SEARCH_ENABLED = True
 
-      ES_CONNECTIONS = {
-          'default': {
-              'hosts': ['localhost:9200'],
-          }
-      }
-
-      ES_SEARCH_INDEX = {
-          'name': 'zds_search',
-          'shards': 5,
-          'replicas': 0,
-      }
-
-
-La première active Elasticsearch pour ZdS.
-La seconde permet de configurer la connexion à Elasticsearch. ``default`` est l'*alias* de la connexion, au cas où il serait nécessaire d'utiliser plusieurs *clusters*.
-La troisième est la configuration de l'*index* avec son nom, son nombre de *shards* et de *replicas*.
-
-Pour modifier les différents paramètres d'une recherche, c'est cette fois dans la variable ``ZDS_APP`` que ça se passe:
-
-.. sourcecode:: python
-
-      'search': {
-        'mark_keywords': ['javafx', 'haskell', 'groovy', 'powershell', 'latex', 'linux', 'windows'],
-        'results_per_page': 20,
-        'search_groups': {
-            'content': (
-                _(u'Contenus publiés'), ['publishedcontent', 'chapter']
-            ),
-            'topic': (
-                _(u'Sujets du forum'), ['topic']
-            ),
-            'post': (
-                _(u'Messages du forum'), ['post']
-            ),
-        },
-        'boosts': {
-            'publishedcontent': {
-                'global': 3.0,
-                'if_article': 1.0,  # s'il s'agit d'un article
-                'if_tutorial': 1.0,  # … d'un tuto
-            },
-            'topic': {
-                'global': 2.0,
-                'if_solved': 1.1,  # si le sujet est résolu
-                'if_sticky': 1.2,  # si le sujet est en post-it
-                'if_locked': 0.1,  # si le sujet est fermé
-            },
-            'chapter': {
-                'global': 1.5,
-            },
-            'post': {
-                'global': 1.0,
-                'if_first': 1.2,  # si le post est le premier du topic
-                'if_useful': 1.5,  # si le post a été marqué comme étant utile
-                'ld_ratio_above_1': 1.05,  # si le ratio pouce vert/rouge est supérieur à 1
-                'ld_ratio_below_1': 0.95,  # ... inférieur à 1.
-            }
+    SEARCH_CONNECTIONS = {
+        "default": {
+            "nodes": [
+                {
+                    "host": "localhost",
+                    "port": "8108",
+                    "protocol": "http",
+                }
+            ],
+            "api_key": "xyz",
+            "connection_timeout_seconds": 2,
         }
     }
 
-où ``'mark_keywords'`` liste les mots qui ne doivent pas être découpés par le *stemmer* (souvent des noms propres),
-``'results_per_page'`` est le nombre de résultats affichés,
+
+La première active le moteur de recherche pour ZdS.
+La seconde permet de configurer la connexion au moteur de recherche. ``default`` est l'*alias* de la connexion, au cas où il serait nécessaire d'utiliser plusieurs configurations.
+
+Pour indiquer, les poids associés à chacune des collections, il faut modifier les variables suivantes de ``settings/abstract_base/zds.py``: 
+
+.. sourcecode:: python
+
+    global_weight_publishedcontent = 3 # contenus publiés (billets, tutoriaux, articles)
+    global_weight_topic = 2 # sujet de forum
+    global_weight_chapter = 1.5 # chapitre
+    global_weight_post = 1 # messages d'un sujet de forum
+
+
+Il est possible de modifier les différents paramètres d'une recherche grâce à la variable ``ZDS_APP`` de ``settings/abstract_base/zds.py``:
+
+.. sourcecode:: python
+
+    "search": {
+        "mark_keywords": ["javafx", "haskell", "groovy", "powershell", "latex", "linux", "windows"],
+        "results_per_page": 20,
+        "search_groups": {
+            "publishedcontent": (_("Contenus publiés"), ["publishedcontent", "chapter"]),
+            "topic": (_("Sujets du forum"), ["topic"]),
+            "post": (_("Messages du forum"), ["post"]),
+        },
+        "search_content_type": {
+            "tutorial": (_("Tutoriels"), ["tutorial"]),
+            "article": (_("Articles"), ["article"]),
+            "opinion": (_("Billet"), ["opinion"]),
+        },
+        "search_validated_content": {
+            "validated": (_("Contenus validés"), ["validated"]),
+            "no_validated": (_("Contenus libres"), ["no_validated"]),
+        },
+        "boosts": {
+            "publishedcontent": {
+                "global": global_weight_publishedcontent,
+                "if_article": 2.0,  # s'il s'agit d'un article
+                "if_tutorial": 2.0, # s'il s'agit d'un tuto
+                "if_medium_or_big_tutorial": 2.5, # s'il s'agit d'un tuto d'une taille plutôt importante
+                "if_opinion": 1.66, # s'il s'agit d'un billet
+                "if_opinion_not_picked": 1.5, # s'il s'agit d'un billet mise en avant
+                "title": global_weight_publishedcontent * 3, # poids du champ de la collection published content
+                "description": global_weight_publishedcontent * 2, # poids du champ de la collection published content
+                "categories": global_weight_publishedcontent * 1, # poids du champ de la collection published content
+                "subcategories": global_weight_publishedcontent * 1, # poids du champ de la collection published content
+                "tags": global_weight_publishedcontent * 1, # poids du champ de la collection published content
+                "text": global_weight_publishedcontent * 2, # poids du champ de la collection published content
+            },
+            "topic": {
+                "global": global_weight_topic,
+                "if_solved": 1.1, # s'il s'agit d'un sujet résolu
+                "if_sticky": 1.2, # s'il s'agit d'un sujet épinglé
+                "if_locked": 0.1, # s'il s'agit d'un sujet fermé
+                "title": global_weight_topic * 3, # poids du champ de la collection topic
+                "subtitle": global_weight_topic * 2, # poids du champ de la collection topic
+                "tags": global_weight_topic * 1, # poids du champ de la collection topic
+            },
+            "chapter": {
+                "global": global_weight_chapter,
+                "title": global_weight_chapter * 3, # poids du champ de la collection topic
+                "text": global_weight_chapter * 2, # poids du champ de la collection topic
+            },
+            "post": {
+                "global": global_weight_post,
+                "if_first": 1.2, # s'il s'agit d'un message en première position
+                "if_useful": 1.5, # s'il s'agit d'un message jugé utile
+                "ld_ratio_above_1": 1.05, # si le ratio pouce vert/rouge est supérieur à 1
+                "ld_ratio_below_1": 0.95, # si le ratio pouce vert/rouge est inférieur à 1
+                "text_html": global_weight_post, # poids du champ de la collection post
+            },
+        },
+
+
+où ``'results_per_page'`` est le nombre de résultats affichés,
 ``'search_groups'`` définit les différents types de documents indexé et la manière dont il sont groupés quand recherchés (sur le formulaire de recherche),
+``'search_content_type`` définit les différents types de contenus publiés et la manière dont il sont groupés quand recherchés (sur le formulaire de recherche),
+``'search_validated_content``  définit les différentes validations des contenus publiés et la manière dont elles sont groupées quand recherchées (sur le formulaire de recherche),
 et ``'boosts'`` les différents facteurs de *boost* appliqués aux différentes situations.
 
-Puisque la phase de *stemming* advient à la fin de l'analyse, tous les mots listés dans ``'mark_keywords'``  doivent être en minuscule et sans éventuels déterminants.
 
-Dans ``'boosts'``, on peut ensuite modifier le comportement de la recherche en choisissant différents facteurs de *boost*.
-Chacune des valeurs multiplie le score (donc l'agrandit si elle est supérieure à 1 et le diminue si elle est inférieure à 1).
-Un *boost global* (dans chacune des variables ``'global'``) est tout d'abord présent et permet de mettre en avant un type de document par rapport à un autre.
-Ensuite, différentes situations peuvent modifier le score.
+Dans ``'boosts'``, on peut ensuite modifier le comportement de la recherche en choisissant différents facteurs de *boost*, aussi appelé poids. Certains poids correspondent aux poids associées aux champs d'une collection. 
+Ils sont calculés en multipliant le poids global associé à la collection par une constante qui permet de donner un poids différent à chacun des champs d'une même collection. 
 
 .. note::
 
       Ces valeurs sont données à titre indicatif et doivent être adaptées à la situation.
 
-.. attention::
-
-    Pour que les changements dans ``'mark_keywords'`` soient pris en compte, il est nécessaire de réindexer **tout** le contenu
-    (grâce à ``python manage.py search_engine_manager index_all``).
 
 Indexer les données de ZdS
 --------------------------

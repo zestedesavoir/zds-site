@@ -40,7 +40,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
         self.manager.reset_index(self.indexable)
-        # self.manager.refresh_index()
 
     def test_basic_search(self):
         """Basic search and filtering"""
@@ -78,21 +77,22 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         # nothing has been indexed yet:
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 0)
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 0)  # good!
 
         # index
         for model in self.indexable:
             if model is FakeChapter:
                 continue
             self.manager.indexing_of_model(model)
-        self.manager.refresh_index()
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
+        response = result.context["object_list"]
 
-        self.assertEqual(response.hits.total, 4)  # get 4 results
+        self.assertEqual(len(response), 4)  # get 4 results
 
         # 2. Test filtering:
         topic_1 = Topic.objects.get(pk=topic_1.pk)
@@ -102,7 +102,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         ids = {
             "topic": [topic_1.search_engine_id],
             "post": [post_1.search_engine_id],
-            "content": [published.search_engine_id, published.content_public_slug + "__" + chapter1.slug],
+            "publishedcontent": [published.search_engine_id, published.content_public_slug + "__" + chapter1.slug],
         }
 
         search_groups = [k for k, v in settings.ZDS_APP["search"]["search_groups"].items()]
@@ -112,12 +112,19 @@ class ViewsTests(TutorialTestMixin, TestCase):
             result = self.client.get(reverse("search:query") + "?q=" + text + "&models=" + doc_type, follow=False)
             self.assertEqual(result.status_code, 200)
 
-            response = result.context["object_list"].execute()
-
-            self.assertEqual(response.hits.total, len(ids[doc_type]))  # get 1 result of each …
+            response = result.context["object_list"]
+            self.assertEqual(len(response), 1)  # get 1 result of each …
             for i, r in enumerate(response):
-                self.assertIn(r.meta.doc_type, group_to_model[doc_type])  # … and only of the right type …
-                self.assertEqual(r.meta.id, ids[doc_type][i])  # … with the right id !
+                self.assertIn(r["collection"], group_to_model[doc_type][0])  # … and only of the right type …
+                id = "forum_pk" if group_to_model[doc_type][0] != "publishedcontent" else "content_pk"
+                self.assertEqual(r["document"][id], int(ids[doc_type][i]))  # … with the right id !
+
+    def test_invalid_search(self):
+        """Check if the request is *, a message Recherche invalide is displayed"""
+        message = "Recherche invalide."
+        result = self.client.get(reverse("search:query") + "?q=*", follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, message)
 
     def test_get_similar_topics(self):
         """Get similar topics lists"""
@@ -150,7 +157,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
             if model is FakeChapter:
                 continue
             self.manager.indexing_of_model(model)
-        self.manager.refresh_index()
 
         # 2. Should get exactly one result
         result = self.client.get(reverse("search:similar") + "?q=mange", follow=False)
@@ -180,9 +186,10 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
-        self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # indexing ok
 
         post_1 = Post.objects.get(pk=post_1.pk)
 
@@ -192,22 +199,22 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
+        response = result.context["object_list"]
 
-        self.assertEqual(response.hits.total, 1)
-        self.assertEqual(response[0].meta.id, post_1.search_engine_id)
+        self.assertEqual(len(response), 1)
+        self.assertEqual(response[0]["document"]["position"], post_1.position)
+        self.assertEqual(response[0]["document"]["topic_pk"], post_1.topic.pk)
 
         # 2. Hide, reindex and search again:
         post_1.hide_comment_by_user(self.staff, "Un abus de pouvoir comme un autre ;)")
-        self.manager.refresh_index()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 0)  # nothing in the results
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 0)  # nothing in the results
 
     def test_hidden_forums_give_no_results_if_user_not_allowed(self):
         """Long name, isn't ?"""
@@ -231,16 +238,17 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
-        self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # indexing ok
 
         # 2. search without connection and get not result
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 0)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 0)
 
         # 3. Connect with user (not a member of the group), search, and get no result
         self.client.force_login(self.user)
@@ -248,8 +256,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 0)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 0)
 
         # 4. Connect with staff, search, and get the topic and the post
         self.client.logout()
@@ -258,8 +266,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)  # ok !
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)  # ok !
 
     def test_boosts(self):
         """Check if boosts are doing their job"""

@@ -502,7 +502,15 @@ class Topic(AbstractSearchIndexableModel):
         weight_solved = settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]
         weight_sticky = settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]
         weight_locked = settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]
-        return weight_solved * self.is_solved + weight_sticky * self.is_sticky + weight_locked * self.is_locked
+        weight_global = settings.ZDS_APP["search"]["boosts"]["topic"]["global"]
+        # if the topic isn't in one of this states (solved, locked, sticky), it needs a weight, it's the global weight
+        is_global = 0 if self.is_solved or self.is_sticky or self.is_locked else 1
+        return (
+            weight_solved * self.is_solved
+            + weight_sticky * self.is_sticky
+            + weight_locked * self.is_locked
+            + is_global * weight_global
+        )
 
 
 @receiver(pre_delete, sender=Topic)

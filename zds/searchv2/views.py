@@ -63,9 +63,9 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
 
             # Build the result
             for hit in hits:
-                document = hit["document"]["_source"]
+                document = hit["document"]
                 result = {
-                    "id": document["id"],
+                    "id": document["forum_pk"],
                     "url": str(document["get_absolute_url"]),
                     "title": str(document["title"]),
                     "subtitle": str(document["subtitle"]),
@@ -241,7 +241,7 @@ class SearchView(ZdSPagingListView):
             # Check if the content must be validated
             self.search_validated_content = self.search_form.cleaned_data["validated_content"]
 
-            # Check if the forum is authori
+            # Check if the forum is authorized
             filter = ""
             filter = self._add_filter("forum_pk", self.authorized_forums, filter)
 
@@ -260,6 +260,7 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
                     ),
+                    "prefix": "false, false, false, false, false, true",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
                 "topic": {
                     "collection": "topic",
@@ -271,6 +272,7 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
                         settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
                     ),
+                    "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
                 "chapter": {
                     "collection": "chapter",
@@ -280,6 +282,7 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
                     ),
+                    "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
                 "post": {
                     "collection": "post",
@@ -289,8 +292,11 @@ class SearchView(ZdSPagingListView):
                     "query_by_weights": "{}".format(
                         settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
                     ),
+                    "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
             }
+
+            # Add filter if it is necessary
             if self.search_content_types:
                 searches["publishedcontent"]["filter"] = self._add_filter("content_type", self.search_content_types, "")
                 search_collections = ["publishedcontent"]
@@ -306,6 +312,8 @@ class SearchView(ZdSPagingListView):
                     else:
                         self.search_content_types = "opinion"
                         self.search_content_types_count = 1
+
+            # Check if the search is in several collections or not
             result = None
             if search_collection_count == 1:
                 result = self._choose_single_collection_method(search_collections[0])
@@ -321,23 +329,24 @@ class SearchView(ZdSPagingListView):
         @search_requests : parameters of search
         @collection_names : name of the collection to search
         """
-        results = self.search_engine.multi_search.perform(search_requests, None)["results"]
         all_collection_result = []
-        for k in range(len(results)):
-            if "hits" in results[k]:
-                for entry in results[k]["hits"]:
-                    entry["collection"] = collection_names[k]
-                    all_collection_result.append(entry)
+
+        # Use * as the search string to return all documents : https://typesense.org/docs/0.23.1/api/search.html#query-parameters
         if self.search_query != "*":
-            all_collection_result.sort(key=lambda result: result["text_match"], reverse=True)
-            count_results = len(all_collection_result)
-            if count_results > 10:
-                for i in range(int(count_results / 10)):
-                    all_collection_result[i * 10 : (i + 1) * 10] = sorted(
-                        all_collection_result[i * 10 : (i + 1) * 10],
-                        key=lambda result: result["document"]["score"],
-                        reverse=True,
-                    )
+            results = self.search_engine.multi_search.perform(search_requests, None)["results"]
+            for k in range(len(results)):
+                if "hits" in results[k]:
+                    for entry in results[k]["hits"]:
+                        if "text_match" in entry:
+                            entry["collection"] = collection_names[k]
+                            entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
+                            entry["document"]["highlights"] = entry["highlights"][0]
+                            print(entry["document"]["highlights"])
+                            all_collection_result.append(entry)
+
+                all_collection_result.sort(key=lambda result: result["document"]["final_score"], reverse=True)
+        else:
+            all_collection_result = "*"
 
         return all_collection_result
 
@@ -358,12 +367,14 @@ class SearchView(ZdSPagingListView):
             "query_by": "title,description,categories,subcategories, tags, text",
             "filter_by": filter,
             "sort_by": "score:desc",
+            "prefix": "false, false, false, false, false, true",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
 
         result = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "publishedcontent"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
@@ -387,6 +398,7 @@ class SearchView(ZdSPagingListView):
 
         for entry in result:
             entry["collection"] = "chapter"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
@@ -407,12 +419,14 @@ class SearchView(ZdSPagingListView):
             "query_by": "title,subtitle,tags",
             "filter_by": filter,
             "sort_by": "score:desc",
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
 
         result = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "topic"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
@@ -434,12 +448,14 @@ class SearchView(ZdSPagingListView):
             "query_by": "text_html",
             "filter_by": filter,
             "sort_by": "score:desc",
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
 
         result = self.search_engine.collections["post"].documents.search(search_parameters)["hits"]
 
         for entry in result:
             entry["collection"] = "post"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
