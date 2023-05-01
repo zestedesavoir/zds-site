@@ -118,27 +118,14 @@ Vous pouvez arrêter Elasticsearch grâce à CTRL+C, puis en répondant "o" lors
 Indexation et recherche
 =======================
 
-Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez-vous sur la page `http://localhost:9200/ <http://localhost:9200/>`_.
+Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez-vous sur la page `http://localhost:8108/ <http://localhost:8108/>`_.
 Vous devriez observer une réponse du même genre que celle-ci :
 
 .. sourcecode:: none
 
-    {
-      "name" : "p0bcxqN",
-      "cluster_name" : "elasticsearch",
-      "cluster_uuid" : "649S5bMUQOyRzYmQFVPA1A",
-      "version" : {
-        "number" : "X.Y.Z",
-        "build_hash" : "19c13d0",
-        "build_date" : "2017-07-18T20:44:24.823Z",
-        "build_snapshot" : false,
-        "lucene_version" : "6.6.0"
-      },
-      "tagline" : "You Know, for Search"
-    }
-
-
-Si ce n'est pas le cas, vérifiez que vous avez démarré Elasticsearch.
+    { "message": "Not Found"}
+    
+Si ce n'est pas le cas, vérifiez que vous avez démarré Typesense.
 
 Si c'est le cas, vous pouvez indexer les données à l'aide de la commande ``search_engine_manager``, comme suit :
 
@@ -152,7 +139,7 @@ En particulier, vous ne devriez pas observer de message d'erreur :
 .. figure:: ../images/search/no-connection.png
     :align: center
 
-    Si Elasticsearch n'est pas démarré, le message suivant apparait.
+    Si Typesense n'est pas démarré, le message suivant apparait.
 
 Pour réindexer les nouvelles données, utilisez la commande suivante :
 
