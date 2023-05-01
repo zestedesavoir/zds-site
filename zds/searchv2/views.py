@@ -340,6 +340,8 @@ class SearchView(ZdSPagingListView):
                         if "text_match" in entry:
                             entry["collection"] = collection_names[k]
                             entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
+                            entry["document"]["highlights"] = entry["highlights"][0]
+                            print(entry["document"]["highlights"])
                             all_collection_result.append(entry)
 
                 all_collection_result.sort(key=lambda result: result["document"]["final_score"], reverse=True)
@@ -372,6 +374,7 @@ class SearchView(ZdSPagingListView):
 
         for entry in result:
             entry["collection"] = "publishedcontent"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
@@ -395,6 +398,7 @@ class SearchView(ZdSPagingListView):
 
         for entry in result:
             entry["collection"] = "chapter"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
@@ -422,6 +426,7 @@ class SearchView(ZdSPagingListView):
 
         for entry in result:
             entry["collection"] = "topic"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
@@ -450,6 +455,7 @@ class SearchView(ZdSPagingListView):
 
         for entry in result:
             entry["collection"] = "post"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
         return result
 
