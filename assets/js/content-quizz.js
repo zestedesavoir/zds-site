@@ -1,41 +1,41 @@
- /**
-   * The full quizz is contained in a div or article that has class "quizz".
-   * Then one question is inside a zmarkdown "custom-block" of type "custom-block-quizz". Two possibilities :
-   *
-   * Without explanation for correction :
-   *
-   * <code>
-   *   <div class="custom-block custom-block-quizz">
-   *     <div class="custom-block-heading">The question</div>
-   *     <div class="custom-block-body">
-   *       <ul><li><input type="checkbox" value="the answer"/>the answer</li>
-   *       <li><input type="checkbox" value="the good answer" checked/>the good answer</li>
-   *       </ul>
-   *     </div>
-   *   </div>
-   * </code>
-   *
-   * With an explanation inside another custom block most of time a custom-block-neutral
-   *
-   * <code>
-   *   <div class="custom-block custom-block-quizz">
-   *     <div class="custom-block-heading">The question</div>
-   *     <div class="custom-block-body">
-   *       <ul><li><input type="checkbox" value="the answer"/>the answer</li>
-   *       <li><input type="checkbox" value="the good answer" checked/>the good answer
-   * 
-   *           <div class="custom-block custom-block-neutral">
-   *         <div class="custom-block-heading">Explanation</div>       
-   *         <div class="custom-block-body">a formatted text</div>
-   *       </div></li>
-   * 
-   *       </ul>
-   *     </div>
-   *   </div>
-   * </code>
-   *
-   * Note that the correction MAY be inside the last li due to the way custom-block plugin works, this is not a bug
-   * */
+/**
+  * The full quizz is contained in a div or article that has class "quizz".
+  * Then one question is inside a zmarkdown "custom-block" of type "custom-block-quizz". Two possibilities :
+  *
+  * Without explanation for correction :
+  *
+  * <code>
+  *   <div class="custom-block custom-block-quizz">
+  *     <div class="custom-block-heading">The question</div>
+  *     <div class="custom-block-body">
+  *       <ul><li><input type="checkbox" value="the answer"/>the answer</li>
+  *       <li><input type="checkbox" value="the good answer" checked/>the good answer</li>
+  *       </ul>
+  *     </div>
+  *   </div>
+  * </code>
+  *
+  * With an explanation inside another custom block most of time a custom-block-neutral
+  *
+  * <code>
+  *   <div class="custom-block custom-block-quizz">
+  *     <div class="custom-block-heading">The question</div>
+  *     <div class="custom-block-body">
+  *       <ul><li><input type="checkbox" value="the answer"/>the answer</li>
+  *       <li><input type="checkbox" value="the good answer" checked/>the good answer
+  * 
+  *           <div class="custom-block custom-block-neutral">
+  *         <div class="custom-block-heading">Explanation</div>       
+  *         <div class="custom-block-body">a formatted text</div>
+  *       </div></li>
+  * 
+  *       </ul>
+  *     </div>
+  *   </div>
+  * </code>
+  *
+  * Note that the correction MAY be inside the last li due to the way custom-block plugin works, this is not a bug
+  * */
 
 var currentURL = window.location.href;
 
@@ -44,7 +44,7 @@ if (currentURL.includes("/contenus/")) {
   let lastListItems = document.querySelectorAll('.custom-block-quizz ul li:last-child');
 
   for (let i = 0; i < lastListItems.length; i++) {
-   
+
     // Create a new div element
     let newDiv = document.createElement('div');
     newDiv.classList.add('explanation_on')
@@ -54,8 +54,8 @@ if (currentURL.includes("/contenus/")) {
 
     // Replace the last list item with the new div element
     lastListItems[i].parentNode.replaceChild(newDiv, lastListItems[i]);
-  }  
-  
+  }
+
 
 }
 
@@ -65,6 +65,7 @@ if (currentURL.includes("/tutoriels/")) {
 
   function extractAnswer(inputDomElementList, answers) {
 
+    let idli = 0
     inputDomElementList.forEach((rb) => {
 
       const ulWrapperElement = rb.parentElement.parentElement
@@ -74,6 +75,8 @@ if (currentURL.includes("/tutoriels/")) {
       }
 
       rb.setAttribute('name', ulWrapperElement.getAttribute('id'))
+      rb.setAttribute('id', ulWrapperElement.getAttribute('id') + '-' + idli)
+      idli++
 
       const questionBlock = ulWrapperElement.parentElement.parentElement
       questionBlock.setAttribute('data-name', rb.getAttribute('name'))
@@ -93,31 +96,45 @@ if (currentURL.includes("/tutoriels/")) {
    */
   function initializeCheckboxes(answers) {
 
-    // add explanation to all questions
-    document.querySelectorAll('div.quizz').forEach(quizz => {
-      const quizzDivs = quizz.querySelectorAll('div.custom-block-quizz');
-      quizzDivs.forEach(quizzDiv => {
-        const ul = quizzDiv.querySelector('ul')
-        const lastLi = ul.lastElementChild
-        const explanationText = '<b>Explication : </b>' + lastLi.innerText
-
-        const explanation = document.createElement('div')
-        explanation.classList.add('explanation_off')
-        explanation.innerHTML = explanationText
-        lastLi.parentNode.removeChild(lastLi);
-        quizzDiv.querySelector('div.custom-block-body').appendChild(explanation)
-
-      });
-    })
+    ExplanationMaker()
 
     const checkboxes = document.querySelectorAll('.quizz ul li input[type=checkbox]')
     extractAnswer(checkboxes, answers)
 
+    AnswersAsLabels()
+
   }
 
-  function initializeRadio(answers) {
-    const radio = document.querySelectorAll('.quizz ul li input[type=radio]')
-    extractAnswer(radio, answers)
+  function AnswersAsLabels() {
+
+    var checkboxli = document.querySelectorAll('.quizz ul li')
+
+    checkboxli.forEach((li) => {
+      var input = li.querySelector('input[type=checkbox]')
+      var label = document.createElement('label')
+      label.setAttribute('for', input.getAttribute('id'))
+      label.classList.add('answer-label')
+      label.innerHTML = li.querySelector('span.math') ? li.querySelector('span.math').innerHTML : li.innerText
+      li.textContent = ''
+      li.appendChild(input)
+      li.appendChild(label)
+    })
+  }
+
+  function ExplanationMaker() {
+    // add explanation to all questions
+    document.querySelectorAll('div.custom-block-quizz').forEach(quizzDiv => {
+
+      const ul = quizzDiv.querySelector('ul')
+      const lastLi = ul.lastElementChild
+      const explanationText = '<b>Explication : </b>' + lastLi.innerText
+      const explanation = document.createElement('div')
+      explanation.classList.add('explanation_off')
+      explanation.innerHTML = explanationText
+      lastLi.parentNode.removeChild(lastLi)
+      quizzDiv.querySelector('div.custom-block-body').appendChild(explanation)
+
+    })
   }
 
   const initializePipeline = [initializeCheckboxes]
@@ -438,11 +455,11 @@ if (currentURL.includes("/tutoriels/")) {
 
   function getAnswerText(liWrapper) {
 
-    const mathElement = liWrapper.querySelector('span.math');
+    let label = liWrapper.querySelector('.answer-label')
+    let MathAnnotation = label.querySelector('annotation')
     let answer;
-    if (mathElement) {
-      const annotationElement = mathElement.querySelector('annotation');
-      answer = '$' + annotationElement.textContent.trim() + '$';
+    if (MathAnnotation) {
+      answer = '$' + MathAnnotation.textContent.trim() + '$';
     } else {
       answer = liWrapper.textContent;
     }

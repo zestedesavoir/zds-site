@@ -644,36 +644,31 @@ div.align-left, figure pre code.hljs {
 
 // checkbox menu
 
-ul li p {
-    margin: 0;
-}
-
 li.task-list-item {
+    
     list-style-type: none;
     position: relative;
-
-    input[type=checkbox] {
-        position: absolute;
-        top: $length-2;
-        left: -$length-24;
-
-        background-color: $true-white !important;
+    display: flex;
+    align-items: center;
+  
+    input[type="checkbox"] {
+      margin-right: 10px;
     }
-    input[type=radio] {
-        position: absolute;
-        top: $length-2;
-        left: -$length-24;
-
-        background-color: $true-white !important;
-    }
+  
     &.answer-bad {
+      label {
         color: $color-danger;
-    }
-    &.answer-good {
-        color:green;
+      }
     }
 
-}
+  
+    &.answer-good {
+        label {
+            color: green;
+        }
+
+    }
+  }
 
 
 .warn-typo {
