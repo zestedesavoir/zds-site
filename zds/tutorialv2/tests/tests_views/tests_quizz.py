@@ -8,7 +8,7 @@ class QuizzQuestionTestCase(TestCase):
         self.question_1 = QuizzQuestionFactory()
         self.question_2 = QuizzQuestionFactory()
 
-        self.answer_1 = QuizzAvailableAnswerFactory(related_question=self.question_1, is_good=True)
+        self.answer_1 = QuizzAvailableAnswerFactory(related_question=self.question_1, is_good=False)
         self.answer_2 = QuizzAvailableAnswerFactory(related_question=self.question_1, is_good=False)
         self.answer_3 = QuizzAvailableAnswerFactory(related_question=self.question_2, is_good=True)
         self.answer_4 = QuizzAvailableAnswerFactory(related_question=self.question_2, is_good=False)
@@ -41,9 +41,38 @@ class QuizzQuestionTestCase(TestCase):
 
     def test_answer_is_good(self):
         # Vérifiez qu'au moins une réponse disponible pour chaque question est marquée comme bonne
-        self.assertTrue(self.question_1.quizzavailableanswer_set.filter(is_good=True).exists())
+        self.assertFalse(self.question_1.quizzavailableanswer_set.filter(is_good=True).exists())
         self.assertTrue(self.question_2.quizzavailableanswer_set.filter(is_good=True).exists())
+
+    # def test_at_least_one_good_answer(self):
+    #     # Vérifiez qu'au moins une réponse disponible pour chaque question est marquée comme bonne
+    #     question_1_answers = QuizzAvailableAnswer.objects.filter(related_question=self.question_1)
+    #     question_2_answers = QuizzAvailableAnswer.objects.filter(related_question=self.question_2)
+
+    #     self.assertFalse(any(answer.is_good for answer in question_1_answers))
+    #     self.assertTrue(any(answer.is_good for answer in question_2_answers))
 
     def test_user_answer_unique_id(self):
         # Vérifiez que chaque réponse d'utilisateur a un ID unique
         self.assertNotEqual(self.user_answer_1.full_answer_id, self.user_answer_2.full_answer_id)
+
+
+class QuizzSeveralGoodAnswers(TestCase):
+    def setUp(self):
+        self.question_1 = QuizzQuestionFactory()
+
+        self.answer_1 = QuizzAvailableAnswerFactory(related_question=self.question_1, is_good=False)
+        self.answer_2 = QuizzAvailableAnswerFactory(related_question=self.question_1, is_good=False)
+        self.answer_3 = QuizzAvailableAnswerFactory(related_question=self.question_1, is_good=True)
+        self.answer_4 = QuizzAvailableAnswerFactory(related_question=self.question_1, is_good=True)
+
+        self.user_answer_1 = QuizzUserAnswerFactory(related_question=self.question_1)
+
+    def test_answer_count(self):
+        # Vérifiez qu'il y a bien quatre réponses créées dans la base de données
+        self.assertEqual(QuizzAvailableAnswer.objects.count(), 4)
+
+    def test_nb_good_answers(self):
+        # Vérifier qu'il y a bien 2 bonnes et 2 mauvaises réponses
+        self.assertEqual(self.question_1.quizzavailableanswer_set.filter(is_good=True).count(), 2)
+        self.assertEqual(self.question_1.quizzavailableanswer_set.filter(is_good=False).count(), 2)
