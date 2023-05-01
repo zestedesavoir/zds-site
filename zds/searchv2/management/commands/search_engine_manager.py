@@ -32,9 +32,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         if options["action"] == "setup":
-            self.setup_es()
+            self.setup_search_engine()
         elif options["action"] == "clear":
-            self.clear_es()
+            self.clear_search_engine()
         elif options["action"] == "index_all":
             self.index_documents(force_reindexing=True)
         elif options["action"] == "index_flagged":
@@ -42,11 +42,11 @@ class Command(BaseCommand):
         else:
             raise CommandError("unknown action {}".format(options["action"]))
 
-    def setup_es(self):
+    def setup_search_engine(self):
 
         self.search_engine_manager.reset_index(self.models)
 
-    def clear_es(self):
+    def clear_search_engine(self):
         self.search_engine_manager.clear_index()
 
         for model in self.models:
@@ -55,7 +55,7 @@ class Command(BaseCommand):
     def index_documents(self, force_reindexing=False):
 
         if force_reindexing:
-            self.setup_es()  # remove all previous data
+            self.setup_search_engine()  # remove all previous data
 
         for model in self.models:
             if model is FakeChapter:

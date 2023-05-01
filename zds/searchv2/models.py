@@ -18,7 +18,7 @@ def document_indexer(obj):
 class AbstractSearchIndexable:
     """Mixin for indexable objects.
 
-    Define a number of different functions that can be overridden to tune the behavior of indexing into elasticsearch.
+    Define a number of different functions that can be overridden to tune the behavior of indexing into the search_engine (typesense).
 
     You (may) need to override :
 
@@ -58,10 +58,10 @@ class AbstractSearchIndexable:
         :return: schema object.  A dictionary containing the name, fields of the collection.
         :rtype: dict
         """
-        es_schema = dict()
-        es_schema["name"] = self.get_document_type()
-        es_schema["fields"] = [{"name": ".*", "type": "auto"}]
-        return es_schema
+        search_engine_schema = dict()
+        search_engine_schema["name"] = self.get_document_type()
+        search_engine_schema["fields"] = [{"name": ".*", "type": "auto"}]
+        return search_engine_schema
 
     @classmethod
     def get_indexable(cls, force_reindexing=False):
