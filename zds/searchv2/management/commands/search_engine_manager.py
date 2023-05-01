@@ -6,7 +6,7 @@ from zds.tutorialv2.models.database import FakeChapter
 
 
 class Command(BaseCommand):
-    help = "Index data in ES and manage them"
+    help = "Index data in Typesense and manage them"
 
     search_engine_manager = None
     models = get_all_indexable_objects()

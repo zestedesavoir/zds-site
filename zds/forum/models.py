@@ -515,7 +515,7 @@ class Topic(AbstractSearchIndexableModel):
 
 @receiver(pre_delete, sender=Topic)
 def delete_topic_in_search(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in ES"""
+    """catch the pre_delete signal to ensure the deletion in Typesense"""
     return delete_document_in_search_engine(instance)
 
 
@@ -613,7 +613,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         return data
 
     def hide_comment_by_user(self, user, text_hidden):
-        """Overridden to directly hide the post in ES as well"""
+        """Overridden to directly hide the post in Typesense as well"""
 
         super().hide_comment_by_user(user, text_hidden)
 
@@ -642,7 +642,7 @@ class Post(Comment, AbstractSearchIndexableModel):
 
 @receiver(pre_delete, sender=Post)
 def delete_post_in_search(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in ES"""
+    """catch the pre_delete signal to ensure the deletion in Typesense"""
     return delete_document_in_search_engine(instance)
 
 

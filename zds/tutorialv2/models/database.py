@@ -1107,7 +1107,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
 @receiver(pre_delete, sender=PublishedContent)
 def delete_published_content_in_search_engine(sender, instance, **kwargs):
-    """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
+    """Catch the pre_delete signal to ensure the deletion in Typesense. Also, handle the deletion of the corresponding
     chapters.
     """
 
@@ -1123,7 +1123,7 @@ def delete_published_content_in_search_engine(sender, instance, **kwargs):
 @receiver(pre_save, sender=PublishedContent)
 def delete_published_content_in_search_engine_if_set_to_redirect(sender, instance, **kwargs):
     """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
-    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from ES.
+    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from Typesense.
     """
 
     try:
@@ -1136,7 +1136,7 @@ def delete_published_content_in_search_engine_if_set_to_redirect(sender, instanc
 
 
 class FakeChapter(AbstractSearchIndexable):
-    """A simple class that is used by ES to index chapters, constructed from the containers.
+    """A simple class that is used by Typesense to index chapters, constructed from the containers.
 
     In schema, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
 

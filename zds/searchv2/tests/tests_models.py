@@ -187,7 +187,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
                 self.assertTrue(doc_type != Topic.get_document_type() or doc_id != new_topic.search_engine_id)
                 self.assertTrue(doc_type != Topic.get_document_type() or doc_id != topic.search_engine_id)
 
-        # 5. Test that the deletion of an object also triggers its deletion in ES
+        # 5. Test that the deletion of an object also triggers its deletion in Typesense
         post = Post.objects.get(pk=post.pk)
         post.delete()
 
