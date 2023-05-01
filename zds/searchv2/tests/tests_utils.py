@@ -12,7 +12,7 @@ from zds.searchv2.models import SearchIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_for_contents(SEARCH_ENABLED=True, SEARCH_INDEX={"name": "zds_search_test", "shards": 5, "replicas": 0})
+@override_for_contents(SEARCH_ENABLED=True)
 class UtilsTests(TutorialTestMixin, TestCase):
     def setUp(self):
 
@@ -25,7 +25,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.search_engine_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        self.search_engine_manager = SearchIndexManager()
 
     def test_manager(self):
         """Test the behavior of the ``search_engine_manager`` command"""

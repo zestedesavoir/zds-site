@@ -23,7 +23,7 @@ from zds.tutorialv2.models.database import PublishedContent, FakeChapter, Publis
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_for_contents(SEARCH_ENABLED=True, SEARCH_INDEX={"name": "zds_search_test", "shards": 1, "replicas": 0})
+@override_for_contents(SEARCH_ENABLED=True)
 class ViewsTests(TutorialTestMixin, TestCase):
     def setUp(self):
 
@@ -36,7 +36,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        self.manager = SearchIndexManager()
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
         self.manager.reset_index(self.indexable)

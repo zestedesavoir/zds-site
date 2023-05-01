@@ -1111,7 +1111,7 @@ def delete_published_content_in_search_engine(sender, instance, **kwargs):
     chapters.
     """
 
-    search_engine_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+    search_engine_manager = SearchIndexManager()
 
     search_engine_manager.delete_by_query(
         FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.search_engine_id}

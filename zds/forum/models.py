@@ -609,7 +609,7 @@ class Post(Comment, AbstractSearchIndexableModel):
 
         super().hide_comment_by_user(user, text_hidden)
 
-        search_engine_manager = SearchIndexManager(**settings.SEARCH_INDEX)
+        search_engine_manager = SearchIndexManager()
         search_engine_manager.update_single_document(self, {"is_visible": False})
 
     def _compute_score(self, ratio: float):
