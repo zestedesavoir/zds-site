@@ -237,9 +237,11 @@ class SearchIndexManager:
         if not self.connected_to_search_engine:
             return
 
-        for collection in self.search_engine.collections.retrieve():
+        collections = self.search_engine.collections.retrieve()
+        for collection in collections:
             self.search_engine.collections[collection["name"]].delete()
-        self.logger.info("index cleared")
+
+        self.logger.info(f"index cleared, {len(collections)} collections deleted")
 
     def reset_index(self, models):
         """Delete old collections and create new ones.
