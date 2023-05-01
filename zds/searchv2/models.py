@@ -237,9 +237,9 @@ class SearchIndexManager:
         if not self.connected_to_search_engine:
             return
 
-        collections = self.search_engine.collections.retrieve()
+        collections = {collection["name"] for collection in self.search_engine.collections.retrieve()}
         for collection in collections:
-            self.search_engine.collections[collection["name"]].delete()
+            self.search_engine.collections[collection].delete()
 
         self.logger.info(f"index cleared, {len(collections)} collections deleted")
 
@@ -255,7 +255,7 @@ class SearchIndexManager:
             return
 
         self.clear_index()
-
+        models = set(models)  # avoid duplicates
         for model in models:
             schema = model.get_document_schema()
             self.search_engine.collections.create(schema)
