@@ -231,6 +231,15 @@ class SearchIndexManager:
             self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS[connection_alias])
             self.connected_to_search_engine = True
 
+            # test connection:
+            try:
+                self.search_engine.api_call.get("/health")
+            except:
+                self.connected_to_search_engine = False
+                self.logger.warn("failed to connect to Typesense")
+            else:
+                self.logger.info("connected to Typesense")
+
     def clear_index(self):
         """Clear index"""
 
