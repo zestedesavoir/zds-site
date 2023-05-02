@@ -260,7 +260,6 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
                     ),
-                    "prefix": "false, false, false, false, false, true",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
                 "topic": {
                     "collection": "topic",
@@ -272,7 +271,6 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
                         settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
                     ),
-                    "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
                 "chapter": {
                     "collection": "chapter",
@@ -282,7 +280,6 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
                     ),
-                    "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
                 "post": {
                     "collection": "post",
@@ -292,7 +289,6 @@ class SearchView(ZdSPagingListView):
                     "query_by_weights": "{}".format(
                         settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
                     ),
-                    "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
                 },
             }
 
@@ -331,9 +327,13 @@ class SearchView(ZdSPagingListView):
         """
         all_collection_result = []
 
+        common_search_params = {
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
+        }
+
         # Use * as the search string to return all documents : https://typesense.org/docs/0.23.1/api/search.html#query-parameters
         if self.search_query != "*":
-            results = self.search_engine.multi_search.perform(search_requests, None)["results"]
+            results = self.search_engine.multi_search.perform(search_requests, common_search_params)["results"]
             for k in range(len(results)):
                 if "hits" in results[k]:
                     for entry in results[k]["hits"]:
@@ -367,7 +367,7 @@ class SearchView(ZdSPagingListView):
             "query_by": "title,description,categories,subcategories, tags, text",
             "filter_by": filter,
             "sort_by": "score:desc",
-            "prefix": "false, false, false, false, false, true",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
 
         result = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
@@ -392,6 +392,7 @@ class SearchView(ZdSPagingListView):
             "query_by": "title,text",
             "filter": filter,
             "sort_by": "score:desc",
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
 
         result = self.search_engine.collections["chapter"].documents.search(search_parameters)["hits"]
