@@ -30,6 +30,7 @@ from zds.searchv2.models import (
     delete_document_in_search_engine,
     SearchIndexManager,
     convert_to_unix_timestamp,
+    clean_html,
 )
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
@@ -1065,7 +1066,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         data["subcategories"] = subcategories
 
         if versioned.has_extracts():
-            data["text"] = versioned.get_content_online()
+            data["text"] = clean_html(versioned.get_content_online())
             data["has_chapters"] = False
         else:
             data["has_chapters"] = True
@@ -1211,13 +1212,14 @@ class FakeChapter(AbstractSearchIndexable):
         """Overridden to handle the fact that most information are versioned"""
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(["parent_publication_date"])
+        excluded_fields.extend(["parent_publication_date", "text"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
 
         data["parent_publication_date"] = convert_to_unix_timestamp(self.parent_publication_date)
 
         data["score"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
+        data["text"] = clean_html(self.text)
 
         return data
 

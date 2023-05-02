@@ -9,6 +9,7 @@ from django.conf import settings
 
 from django.db import transaction
 from typesense import Client as SearchEngineClient
+from bs4 import BeautifulSoup
 
 
 def document_indexer(obj):
@@ -191,6 +192,11 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
 
 def convert_to_unix_timestamp(date):
     return int(datetime.timestamp(date))
+
+
+def clean_html(text):
+    soup = BeautifulSoup(text, "html.parser")
+    return soup.get_text()
 
 
 def delete_document_in_search_engine(instance):
