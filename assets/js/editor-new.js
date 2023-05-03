@@ -249,9 +249,18 @@
         shiftLines(cm, startPoint.line, '[[neutre|titre]]')
       }
       else if (type === 'blocquizz') {
-        shiftLines(cm, startPoint.line, '| - Explication : ');
-        shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
-        shiftLines(cm, startPoint.line, '| - [x] bonne réponse');
+
+        if(window.location.href.includes('/contenus/')){
+          shiftLines(cm, startPoint.line, '| - Explication : ');
+          shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
+          shiftLines(cm, startPoint.line, '| - [x] bonne réponse');
+        }
+        else {
+          shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
+          shiftLines(cm, startPoint.line, '| - [ ] réponse 2');
+        }
+
+        
         shiftLines(cm, startPoint.line, '| - [ ] réponse 1');
         shiftLines(cm, startPoint.line, '[[quizz|Question]]');
       }
@@ -391,6 +400,549 @@
       return null
     }
 
+    const BaseToolbar = [
+      {
+        name: 'bold',
+        action: EasyMDE.toggleBold,
+        className: 'fa fa-bold',
+        title: 'Gras'
+      },
+      {
+        name: 'italic',
+        action: EasyMDE.toggleItalic,
+        className: 'fa fa-italic',
+        title: 'Italique'
+      },
+      {
+        name: 'strikethrough',
+        action: EasyMDE.toggleStrikethrough,
+        className: 'fa fa-strikethrough',
+        title: 'Barré'
+      },
+      {
+        name: 'abbr',
+        action: (e) => {
+          const options = e.options
+          const cm = e.codemirror
+          let abbr = cm.getSelection()
+          let description = ''
+          const lastLine = cm.lastLine()
+          const lastCh = cm.getLine(lastLine).length
+
+          const startPoint = cm.getCursor('start')
+          const endPoint = cm.getCursor('end')
+
+          if (options.promptAbbrv) {
+            if (abbr.length === 0) {
+              abbr = prompt('Mot abrégé', '')
+              if (abbr.length === 0) {
+                return false
+              }
+            }
+            description = prompt('Description de l\'abbréviation', '')
+          }
+
+          cm.replaceRange(cm.lineSeparator() + cm.lineSeparator() + '*[' + abbr + ']: ' + description, { line: lastLine, ch: lastCh }, { line: lastLine, ch: maxRange })
+          cm.setSelection(startPoint, endPoint)
+          cm.focus()
+        },
+        className: 'fa fa-text-width',
+        title: 'Abbréviation'
+      },
+      {
+        name: 'keyboard',
+        action: (e) => {
+          _toggleBlockZmd(e, 'keyboard', '||')
+        },
+        className: 'far fa-keyboard',
+        title: 'Touche clavier'
+      },
+      {
+        name: 'codeInline',
+        action: (e) => {
+          _toggleBlockZmd(e, 'codeInline', '`')
+        },
+        className: 'fa fa-terminal',
+        title: 'Code inline'
+      },
+      '|',
+      {
+        name: 'superscript',
+        action: (e) => {
+          _toggleBlockZmd(e, 'superscript', '^')
+        },
+        className: 'fa fa-superscript',
+        title: 'Exposant'
+      },
+      {
+        name: 'subscript',
+        action: (e) => {
+          _toggleBlockZmd(e, 'subscript', '~')
+        },
+        className: 'fa fa-subscript',
+        title: 'Indice'
+      },
+      '|',
+      {
+        name: 'alignCenter',
+        action: (e) => {
+          _toggleBlockZmd(e, 'alignCenter', '-> ', ' <-')
+        },
+        className: 'fa fa-align-center',
+        title: 'Aligner au centre'
+      },
+      {
+        name: 'alignRight',
+        action: (e) => {
+          _toggleBlockZmd(e, 'alignRight', '-> ', ' ->')
+        },
+        className: 'fa fa-align-right',
+        title: 'Aligner a droite'
+      },
+      '|',
+      {
+        name: 'list-ul',
+        action: EasyMDE.toggleUnorderedList,
+        className: 'fa fa-list-ul',
+        title: 'Liste à puces'
+      },
+      {
+        name: 'ordered-list',
+        action: EasyMDE.toggleOrderedList,
+        className: 'fa fa-list-ol',
+        title: 'Liste ordonnée'
+      },
+      {
+        name: 'checklist',
+        action: (e) => {
+          _toggleBlockZmd(e, 'checklist', '- [ ] ')
+        },
+        className: 'far fa-check-square',
+        title: 'Liste de taches'
+      },
+      '|',
+      {
+        name: 'heading',
+        action: EasyMDE.toggleHeadingSmaller,
+        className: 'fas fa-heading',
+        title: 'Titres'
+      },
+      '|',
+      {
+        name: 'image',
+        action: EasyMDE.drawImage,
+        className: 'far fa-image',
+        title: 'Image'
+      },
+      {
+        name: 'link_btn',
+        action: EasyMDE.drawLink,
+        className: 'fa fa-link',
+        title: 'Lien'
+      },
+      '|',
+      {
+        name: 'quote',
+        action: EasyMDE.toggleBlockquote,
+        className: 'fa fa-quote-left',
+        title: 'Citation'
+      },
+      {
+        name: 'code',
+        action: EasyMDE.toggleCodeBlock,
+        className: 'fa fa-code',
+        title: 'Bloc de code coloré'
+      },
+      {
+        name: 'math',
+        action: (e) => {
+          _toggleBlockZmd(e, 'math', '$$')
+        },
+        className: 'fa fa-percent',
+        title: 'Formule mathématique'
+      },
+      {
+        name: 'table',
+        action: EasyMDE.drawTable,
+        className: 'fa fa-table',
+        title: 'Table'
+      },
+      '|',
+      {
+        name: 'blocMenu',
+        action: (e) => {
+
+        },
+        className: 'fa fa-smile',
+        title: 'Emojis heureux',
+        children: [
+          {
+            name: 'char1',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':)')
+            },
+            className: 'emoji smile',
+            title: ':)'
+          },
+          {
+            name: 'char2',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':D')
+            },
+            className: 'emoji heureux',
+            title: ':D'
+          },
+          {
+            name: 'char3',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ';)')
+            },
+            className: 'emoji clin',
+            title: ';)'
+          },
+          {
+            name: 'char8',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':soleil:')
+            },
+            className: 'emoji soleil',
+            title: ':soleil:'
+          },
+          {
+            name: 'char4',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':p')
+            },
+            className: 'emoji langue',
+            title: ':P'
+          },
+          {
+            name: 'char5',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':lol:')
+            },
+            className: 'emoji rire',
+            title: ':lol:'
+          },
+          {
+            name: 'char6',
+            action: (e) => {
+              toggleEmoji(e.codemirror, '^^')
+            },
+            className: 'emoji hihi',
+            title: '^^'
+          },
+          {
+            name: 'char7',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':ange:')
+            },
+            className: 'emoji ange',
+            title: ':ange:'
+          },
+          {
+            name: 'char9',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':popcorn:')
+            },
+            className: 'emoji popcorn',
+            title: ':popcorn:'
+          },
+          {
+            name: 'char10',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':bounce:')
+            },
+            className: 'emoji bounce',
+            title: ':bounce:'
+          }
+        ]
+      },
+      {
+        name: 'blocMenu',
+        action: (e) => {
+
+        },
+        className: 'fa fa-frown',
+        title: 'Emojis mécontents',
+        children: [
+          {
+            name: 'char1',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':(')
+            },
+            className: 'emoji triste',
+            title: ':('
+          },
+          {
+            name: 'char2',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':colere:')
+            },
+            className: 'emoji angry',
+            title: ':colere:'
+          },
+          {
+            name: 'char3',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':colere2:')
+            },
+            className: 'emoji mechant',
+            title: ':colere2:'
+          },
+          {
+            name: 'char4',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':diable:')
+            },
+            className: 'emoji diable',
+            title: ':diable:'
+          },
+          {
+            name: 'char5',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':\'(')
+            },
+            className: 'emoji pleure',
+            title: ':\'('
+          },
+          {
+            name: 'char6',
+            action: (e) => {
+              toggleEmoji(e.codemirror, '>_<')
+            },
+            className: 'emoji pinch',
+            title: '>_<'
+          }
+        ]
+      },
+      {
+        name: 'blocMenu',
+        action: (e) => {
+
+        },
+        className: 'fa fa-meh',
+        title: 'Emojis autres',
+        children: [
+          {
+            name: 'char1',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':euh:')
+            },
+            className: 'emoji unsure',
+            title: ':euh:'
+          },
+          {
+            name: 'char2',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':o')
+            },
+            className: 'emoji huh',
+            title: ':o'
+          },
+          {
+            name: 'char3',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':B')
+            },
+            className: 'emoji b',
+            title: ':B'
+          },
+          {
+            name: 'char4',
+            action: (e) => {
+              toggleEmoji(e.codemirror, 'o_O')
+            },
+            className: 'emoji blink',
+            title: 'o_O'
+          },
+          {
+            name: 'char5',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':-°')
+            },
+            className: 'emoji siffle',
+            title: ':-°'
+          },
+          {
+            name: 'char6',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':magicien:')
+            },
+            className: 'emoji magicien',
+            title: ':magicien:'
+          },
+          {
+            name: 'char8',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':pirate:')
+            },
+            className: 'emoji pirate',
+            title: ':pirate:'
+          },
+          {
+            name: 'char9',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':honte:')
+            },
+            className: 'emoji rouge',
+            title: ':honte:'
+          },
+          {
+            name: 'char10',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':waw:')
+            },
+            className: 'emoji waw',
+            title: ':waw:'
+          },
+          {
+            name: 'char11',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':zorro:')
+            },
+            className: 'emoji zorro',
+            title: ':zorro:'
+          },
+          {
+            name: 'char7',
+            action: (e) => {
+              toggleEmoji(e.codemirror, ':ninja:')
+            },
+            className: 'emoji ninja',
+            title: ':ninja:'
+          }
+        ]
+      },
+      '|',
+      {
+        name: 'blocMenu',
+        action: (e) => {
+          _toggleBlockZmd(e, 'blocInformation', '| ')
+        },
+        className: 'fa fa-info',
+        title: 'Bloc spéciaux',
+        children: [
+          {
+            name: 'blocInformation',
+            action: (e) => {
+              _toggleBlockZmd(e, 'blocInformation', '| ')
+            },
+            className: 'fa fa-info bloc_information',
+            title: 'Bloc information'
+          },
+          {
+            name: 'blocQuestion',
+            action: (e) => {
+              _toggleBlockZmd(e, 'blocQuestion', '| ')
+            },
+            className: 'fa fa-question bloc_question',
+            title: 'Bloc question'
+          },
+          {
+            name: 'blocWarning',
+            action: (e) => {
+              _toggleBlockZmd(e, 'blocWarning', '| ')
+            },
+            className: 'fas fa-exclamation-triangle bloc_warning',
+            title: 'Bloc attention'
+          },
+          {
+            name: 'blocError',
+            action: (e) => {
+              _toggleBlockZmd(e, 'blocError', '| ')
+            },
+            className: 'fas fa-times-circle bloc_error',
+            title: 'Bloc erreur'
+          },
+          {
+            name: 'blocSecret',
+            action: (e) => {
+              _toggleBlockZmd(e, 'blocSecret', '| ')
+            },
+            className: 'fa fa-eye-slash',
+            title: 'Bloc secret'
+          },
+          {
+            name: 'blocNeutral',
+            action: (e) => {
+              _toggleBlockZmd(e, 'blocNeutral', '| ')
+            },
+            className: 'fa fa-sticky-note',
+            title: 'Bloc neutre'
+          }
+        ]
+      },
+      '|',
+      {
+        name: 'abc-spellchecker',
+        action: (evt) => {},
+        className: 'fas fa-spell-check',
+        title: 'Correcteur orthographique externe'
+      },
+      {
+        name: 'abc-grammalecte',
+        action: (evt) => {
+          oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue(), easyMDE.codemirror.display.lineDiv)
+        },
+        className: 'fa zdsicon zi-grammalecte',
+        title: 'Correcteur orthographique externe'
+      },
+      {
+        name: 'switch-contentAreaStyle',
+        action: (evt) => {
+          if (easyMDE.isFullscreenActive()) {
+            easyMDE.toggleFullScreen()
+          }
+          const wrapper = easyMDE.codemirror.getWrapperElement()
+          $(wrapper.parentElement).children('.textarea-multivers').toggle()
+          $(wrapper).toggle()
+          // deactivating buttons incompatible with the textarea mode
+          const $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
+          if ($toolbar.hasClass('disabled-for-textarea-mode')) {
+            $toolbar.removeClass('disabled-for-textarea-mode')
+          } else {
+            $toolbar.addClass('disabled-for-textarea-mode')
+          }
+          easyMDE.codemirror.refresh()
+        },
+        className: 'fas fa-remove-format',
+        title: 'Zone de texte sans mise en forme'
+      },
+      '|',
+      {
+        name: 'preview',
+        action: EasyMDE.togglePreview,
+        className: 'fa fa-eye no-disable disable-for-textarea-mode',
+        title: 'Aperçu'
+      },
+      {
+        name: 'side-by-side',
+        action: EasyMDE.toggleSideBySide,
+        className: 'fa fa-columns no-disable no-mobile disable-for-textarea-mode',
+        title: 'Aperçu sur le coté'
+      },
+      {
+        name: 'fullscreen',
+        action: EasyMDE.toggleFullScreen,
+        className: 'fa fa-arrows-alt no-disable no-mobile disable-for-textarea-mode',
+        title: 'Plein écran'
+      },
+      '|'
+    ]
+
+    const QuizzButton = {
+      name: 'blocquizz',
+      action: (e) => {
+        _toggleBlockZmd(e, 'blocquizz', '')
+      },
+      className: 'fas fa-question',
+      title: 'Bloc quizz'
+    };
+
+    const currentURL = window.location.href
+    const Toolbar =  ( currentURL.includes('/contenus/') || currentURL.includes('/forums/') ) ? [...BaseToolbar, QuizzButton] : BaseToolbar;
+
     /* global EasyMDE */
     const easyMDE = new EasyMDE({
       autoDownloadFontAwesome: false,
@@ -426,544 +978,7 @@
       theme: 'zest',
       previewRender: customMarkdownParser,
       syncSideBySidePreviewScroll: false,
-      toolbar: [
-        {
-          name: 'bold',
-          action: EasyMDE.toggleBold,
-          className: 'fa fa-bold',
-          title: 'Gras'
-        },
-        {
-          name: 'italic',
-          action: EasyMDE.toggleItalic,
-          className: 'fa fa-italic',
-          title: 'Italique'
-        },
-        {
-          name: 'strikethrough',
-          action: EasyMDE.toggleStrikethrough,
-          className: 'fa fa-strikethrough',
-          title: 'Barré'
-        },
-        {
-          name: 'abbr',
-          action: (e) => {
-            const options = e.options
-            const cm = e.codemirror
-            let abbr = cm.getSelection()
-            let description = ''
-            const lastLine = cm.lastLine()
-            const lastCh = cm.getLine(lastLine).length
-
-            const startPoint = cm.getCursor('start')
-            const endPoint = cm.getCursor('end')
-
-            if (options.promptAbbrv) {
-              if (abbr.length === 0) {
-                abbr = prompt('Mot abrégé', '')
-                if (abbr.length === 0) {
-                  return false
-                }
-              }
-              description = prompt('Description de l\'abbréviation', '')
-            }
-
-            cm.replaceRange(cm.lineSeparator() + cm.lineSeparator() + '*[' + abbr + ']: ' + description, { line: lastLine, ch: lastCh }, { line: lastLine, ch: maxRange })
-            cm.setSelection(startPoint, endPoint)
-            cm.focus()
-          },
-          className: 'fa fa-text-width',
-          title: 'Abbréviation'
-        },
-        {
-          name: 'keyboard',
-          action: (e) => {
-            _toggleBlockZmd(e, 'keyboard', '||')
-          },
-          className: 'far fa-keyboard',
-          title: 'Touche clavier'
-        },
-        {
-          name: 'codeInline',
-          action: (e) => {
-            _toggleBlockZmd(e, 'codeInline', '`')
-          },
-          className: 'fa fa-terminal',
-          title: 'Code inline'
-        },
-        '|',
-        {
-          name: 'superscript',
-          action: (e) => {
-            _toggleBlockZmd(e, 'superscript', '^')
-          },
-          className: 'fa fa-superscript',
-          title: 'Exposant'
-        },
-        {
-          name: 'subscript',
-          action: (e) => {
-            _toggleBlockZmd(e, 'subscript', '~')
-          },
-          className: 'fa fa-subscript',
-          title: 'Indice'
-        },
-        '|',
-        {
-          name: 'alignCenter',
-          action: (e) => {
-            _toggleBlockZmd(e, 'alignCenter', '-> ', ' <-')
-          },
-          className: 'fa fa-align-center',
-          title: 'Aligner au centre'
-        },
-        {
-          name: 'alignRight',
-          action: (e) => {
-            _toggleBlockZmd(e, 'alignRight', '-> ', ' ->')
-          },
-          className: 'fa fa-align-right',
-          title: 'Aligner a droite'
-        },
-        '|',
-        {
-          name: 'list-ul',
-          action: EasyMDE.toggleUnorderedList,
-          className: 'fa fa-list-ul',
-          title: 'Liste à puces'
-        },
-        {
-          name: 'ordered-list',
-          action: EasyMDE.toggleOrderedList,
-          className: 'fa fa-list-ol',
-          title: 'Liste ordonnée'
-        },
-        {
-          name: 'checklist',
-          action: (e) => {
-            _toggleBlockZmd(e, 'checklist', '- [ ] ')
-          },
-          className: 'far fa-check-square',
-          title: 'Liste de taches'
-        },
-        '|',
-        {
-          name: 'heading',
-          action: EasyMDE.toggleHeadingSmaller,
-          className: 'fas fa-heading',
-          title: 'Titres'
-        },
-        '|',
-        {
-          name: 'image',
-          action: EasyMDE.drawImage,
-          className: 'far fa-image',
-          title: 'Image'
-        },
-        {
-          name: 'link_btn',
-          action: EasyMDE.drawLink,
-          className: 'fa fa-link',
-          title: 'Lien'
-        },
-        '|',
-        {
-          name: 'quote',
-          action: EasyMDE.toggleBlockquote,
-          className: 'fa fa-quote-left',
-          title: 'Citation'
-        },
-        {
-          name: 'code',
-          action: EasyMDE.toggleCodeBlock,
-          className: 'fa fa-code',
-          title: 'Bloc de code coloré'
-        },
-        {
-          name: 'math',
-          action: (e) => {
-            _toggleBlockZmd(e, 'math', '$$')
-          },
-          className: 'fa fa-percent',
-          title: 'Formule mathématique'
-        },
-        {
-          name: 'table',
-          action: EasyMDE.drawTable,
-          className: 'fa fa-table',
-          title: 'Table'
-        },
-        '|',
-        {
-          name: 'blocMenu',
-          action: (e) => {
-
-          },
-          className: 'fa fa-smile',
-          title: 'Emojis heureux',
-          children: [
-            {
-              name: 'char1',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':)')
-              },
-              className: 'emoji smile',
-              title: ':)'
-            },
-            {
-              name: 'char2',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':D')
-              },
-              className: 'emoji heureux',
-              title: ':D'
-            },
-            {
-              name: 'char3',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ';)')
-              },
-              className: 'emoji clin',
-              title: ';)'
-            },
-            {
-              name: 'char8',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':soleil:')
-              },
-              className: 'emoji soleil',
-              title: ':soleil:'
-            },
-            {
-              name: 'char4',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':p')
-              },
-              className: 'emoji langue',
-              title: ':P'
-            },
-            {
-              name: 'char5',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':lol:')
-              },
-              className: 'emoji rire',
-              title: ':lol:'
-            },
-            {
-              name: 'char6',
-              action: (e) => {
-                toggleEmoji(e.codemirror, '^^')
-              },
-              className: 'emoji hihi',
-              title: '^^'
-            },
-            {
-              name: 'char7',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':ange:')
-              },
-              className: 'emoji ange',
-              title: ':ange:'
-            },
-            {
-              name: 'char9',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':popcorn:')
-              },
-              className: 'emoji popcorn',
-              title: ':popcorn:'
-            },
-            {
-              name: 'char10',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':bounce:')
-              },
-              className: 'emoji bounce',
-              title: ':bounce:'
-            }
-          ]
-        },
-        {
-          name: 'blocMenu',
-          action: (e) => {
-
-          },
-          className: 'fa fa-frown',
-          title: 'Emojis mécontents',
-          children: [
-            {
-              name: 'char1',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':(')
-              },
-              className: 'emoji triste',
-              title: ':('
-            },
-            {
-              name: 'char2',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':colere:')
-              },
-              className: 'emoji angry',
-              title: ':colere:'
-            },
-            {
-              name: 'char3',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':colere2:')
-              },
-              className: 'emoji mechant',
-              title: ':colere2:'
-            },
-            {
-              name: 'char4',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':diable:')
-              },
-              className: 'emoji diable',
-              title: ':diable:'
-            },
-            {
-              name: 'char5',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':\'(')
-              },
-              className: 'emoji pleure',
-              title: ':\'('
-            },
-            {
-              name: 'char6',
-              action: (e) => {
-                toggleEmoji(e.codemirror, '>_<')
-              },
-              className: 'emoji pinch',
-              title: '>_<'
-            }
-          ]
-        },
-        {
-          name: 'blocMenu',
-          action: (e) => {
-
-          },
-          className: 'fa fa-meh',
-          title: 'Emojis autres',
-          children: [
-            {
-              name: 'char1',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':euh:')
-              },
-              className: 'emoji unsure',
-              title: ':euh:'
-            },
-            {
-              name: 'char2',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':o')
-              },
-              className: 'emoji huh',
-              title: ':o'
-            },
-            {
-              name: 'char3',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':B')
-              },
-              className: 'emoji b',
-              title: ':B'
-            },
-            {
-              name: 'char4',
-              action: (e) => {
-                toggleEmoji(e.codemirror, 'o_O')
-              },
-              className: 'emoji blink',
-              title: 'o_O'
-            },
-            {
-              name: 'char5',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':-°')
-              },
-              className: 'emoji siffle',
-              title: ':-°'
-            },
-            {
-              name: 'char6',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':magicien:')
-              },
-              className: 'emoji magicien',
-              title: ':magicien:'
-            },
-            {
-              name: 'char8',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':pirate:')
-              },
-              className: 'emoji pirate',
-              title: ':pirate:'
-            },
-            {
-              name: 'char9',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':honte:')
-              },
-              className: 'emoji rouge',
-              title: ':honte:'
-            },
-            {
-              name: 'char10',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':waw:')
-              },
-              className: 'emoji waw',
-              title: ':waw:'
-            },
-            {
-              name: 'char11',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':zorro:')
-              },
-              className: 'emoji zorro',
-              title: ':zorro:'
-            },
-            {
-              name: 'char7',
-              action: (e) => {
-                toggleEmoji(e.codemirror, ':ninja:')
-              },
-              className: 'emoji ninja',
-              title: ':ninja:'
-            }
-          ]
-        },
-        '|',
-        {
-          name: 'blocMenu',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocInformation', '| ')
-          },
-          className: 'fa fa-info',
-          title: 'Bloc spéciaux',
-          children: [
-            {
-              name: 'blocInformation',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocInformation', '| ')
-              },
-              className: 'fa fa-info bloc_information',
-              title: 'Bloc information'
-            },
-            {
-              name: 'blocQuestion',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocQuestion', '| ')
-              },
-              className: 'fa fa-question bloc_question',
-              title: 'Bloc question'
-            },
-            {
-              name: 'blocWarning',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocWarning', '| ')
-              },
-              className: 'fas fa-exclamation-triangle bloc_warning',
-              title: 'Bloc attention'
-            },
-            {
-              name: 'blocError',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocError', '| ')
-              },
-              className: 'fas fa-times-circle bloc_error',
-              title: 'Bloc erreur'
-            },
-            {
-              name: 'blocSecret',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocSecret', '| ')
-              },
-              className: 'fa fa-eye-slash',
-              title: 'Bloc secret'
-            },
-            {
-              name: 'blocNeutral',
-              action: (e) => {
-                _toggleBlockZmd(e, 'blocNeutral', '| ')
-              },
-              className: 'fa fa-sticky-note',
-              title: 'Bloc neutre'
-            }
-          ]
-        },
-        '|',
-        {
-          name: 'abc-spellchecker',
-          action: (evt) => {},
-          className: 'fas fa-spell-check',
-          title: 'Correcteur orthographique externe'
-        },
-        {
-          name: 'abc-grammalecte',
-          action: (evt) => {
-            oGrammalecteAPI.openPanelForText(easyMDE.codemirror.getValue(), easyMDE.codemirror.display.lineDiv)
-          },
-          className: 'fa zdsicon zi-grammalecte',
-          title: 'Correcteur orthographique externe'
-        },
-        {
-          name: 'switch-contentAreaStyle',
-          action: (evt) => {
-            if (easyMDE.isFullscreenActive()) {
-              easyMDE.toggleFullScreen()
-            }
-            const wrapper = easyMDE.codemirror.getWrapperElement()
-            $(wrapper.parentElement).children('.textarea-multivers').toggle()
-            $(wrapper).toggle()
-            // deactivating buttons incompatible with the textarea mode
-            const $toolbar = $(easyMDE.element.parentElement).children('.editor-toolbar')
-            if ($toolbar.hasClass('disabled-for-textarea-mode')) {
-              $toolbar.removeClass('disabled-for-textarea-mode')
-            } else {
-              $toolbar.addClass('disabled-for-textarea-mode')
-            }
-            easyMDE.codemirror.refresh()
-          },
-          className: 'fas fa-remove-format',
-          title: 'Zone de texte sans mise en forme'
-        },
-        '|',
-        {
-          name: 'preview',
-          action: EasyMDE.togglePreview,
-          className: 'fa fa-eye no-disable disable-for-textarea-mode',
-          title: 'Aperçu'
-        },
-        {
-          name: 'side-by-side',
-          action: EasyMDE.toggleSideBySide,
-          className: 'fa fa-columns no-disable no-mobile disable-for-textarea-mode',
-          title: 'Aperçu sur le coté'
-        },
-        {
-          name: 'fullscreen',
-          action: EasyMDE.toggleFullScreen,
-          className: 'fa fa-arrows-alt no-disable no-mobile disable-for-textarea-mode',
-          title: 'Plein écran'
-        },
-        '|',
-        {
-          name: 'blocquizz',
-          action: (e) => {
-            _toggleBlockZmd(e, 'blocquizz', '')
-          },
-          className: 'fas fa-question',
-          title: 'Bloc quizz'
-        },
-      ]
+      toolbar: Toolbar
     })
 
     if (smdeUniqueContent != null && localStorage['smde_' + mdeUniqueKey] !== textarea.value) {
