@@ -287,6 +287,7 @@ if (currentURL.includes("/tutoriels/")) {
         headings[heading.getAttribute('id')] = true
         const form = document.createElement('form')
         form.classList.add('quizz')
+        form.style.marginBottom = '50px'
 
 
         const submit = document.createElement('button')
