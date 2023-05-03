@@ -195,8 +195,11 @@ def convert_to_unix_timestamp(date):
 
 
 def clean_html(text):
-    soup = BeautifulSoup(text, "html.parser")
-    return soup.get_text()
+    result = ""
+    if text != None:
+        soup = BeautifulSoup(text, "html.parser")
+        result = soup.get_text()
+    return result
 
 
 def delete_document_in_search_engine(instance):
