@@ -18,12 +18,12 @@
         <ul class="quizz-answers">
             {% for answer_name, answer_stats in stats.responses.items %}
             <li class="{% if answer_stats.good %} quizz-stats-good{% endif %} quizz-stats">
-                <span>{{ answer_name|emarkdown }}</span>
+                <span class="progress-stat">{{ answer_name|emarkdown }}</span>
                 <span>
-                    <progress aria-label="{% trans 'Résultat pour' %} {{ answer_name }}" max="{{ stats.total }}"
+                    <progress class="progress-stat" aria-label="{% trans 'Résultat pour' %} {{ answer_name }}" max="{{ stats.total }}"
                         value="{{ answer_stats.nb }}" />
                 </span>
-                <span class="over-progress">{{answer_stats.nb}} / {{ stats.total }}</span>
+                <span class="over-progress progress-stat">{{answer_stats.nb}} / {{ stats.total }}</span>
             </li>
             {% endfor %}
         </ul>

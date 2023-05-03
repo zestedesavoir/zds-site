@@ -429,12 +429,12 @@ if (currentURL.includes("/tutoriels/")) {
 
   function iconMaker(isGood) {
     // Create a new icon element
-    const icon = document.createElement('i');
+    const icon = document.createElement('div');
     icon.classList.add('fas');
     isGood ? icon.classList.add('fa-check') : icon.classList.add('fa-exclamation-triangle')
-    icon.style.fontSize = '24px';
+    icon.style.fontSize = '10px';
     icon.style.transform = 'scale(2)';
-    icon.style.marginLeft = '700px'
+    icon.style.margin = '10px'
     return icon
   }
 
