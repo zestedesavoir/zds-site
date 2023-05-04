@@ -118,7 +118,7 @@ Vous pouvez arrêter Elasticsearch grâce à CTRL+C, puis en répondant "o" lors
 Indexation et recherche
 =======================
 
-Pour tester que tout fonctionne, quand Elasticsearch est démarré, rendez-vous sur la page `http://localhost:8108/ <http://localhost:8108/>`_.
+Pour tester que tout fonctionne, quand Typesense est démarré, rendez-vous sur la page `http://localhost:8108/ <http://localhost:8108/>`_.
 Vous devriez observer une réponse du même genre que celle-ci :
 
 .. sourcecode:: none
