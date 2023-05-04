@@ -16,9 +16,6 @@
 {% endblock %}
 
 {% block content_out %}
-    <div class="tab">
-        <span class="tablinks" tabindex="0" id="tab-quizz">{% trans "Quizz" %}</span>
-    </div>
     {% include "misc/quizz.graph.part.html" with tab_name="tab-quizz-content" graph_title="Réponses à la question :" canvas_id="quizz-graph" metric="quizz" %}
 {% endblock %}
 
