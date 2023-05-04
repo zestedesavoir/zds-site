@@ -10,6 +10,7 @@ from django.conf import settings
 from django.db import transaction
 from typesense import Client as SearchEngineClient
 from bs4 import BeautifulSoup
+import re
 
 
 def document_indexer(obj):
@@ -198,7 +199,8 @@ def clean_html(text):
     result = ""
     if text != None:
         soup = BeautifulSoup(text, "html.parser")
-        result = soup.get_text()
+        formatted_html = soup.prettify()
+        result = re.sub(r"<[^>]*>", "", formatted_html).strip()
     return result
 
 
