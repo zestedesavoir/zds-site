@@ -191,10 +191,27 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
 
 
 def convert_to_unix_timestamp(date):
+    """Converts a given datetime object to Unix timestamp.
+    The purpose of this function is for indexing datetime objects in Typesense.
+
+    :param date: the datetime object to be converted
+    :type date: datetime.datetime
+
+    :return: the Unix timestamp corresponding to the given datetime object
+    :rtype: int
+    """
     return int(datetime.timestamp(date))
 
 
 def clean_html(text):
+    """Removes all HTML tags from the given text using BeautifulSoup.
+
+    :param text: the text to be cleaned
+    :type text: str
+
+    :return: the cleaned text with all HTML tags removed
+    :rtype: str
+    """
     result = ""
     if text != None:
         soup = BeautifulSoup(text, "html.parser")
