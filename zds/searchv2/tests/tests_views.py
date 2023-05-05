@@ -345,14 +345,22 @@ class ViewsTests(TutorialTestMixin, TestCase):
             if model is FakeChapter:
                 continue
             self.manager.indexing_of_model(model)
-        self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 10)
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 10)  # indexing ok
 
         # 2. Reset all boosts to 1
         for doc_type in settings.ZDS_APP["search"]["boosts"]:
             for key in settings.ZDS_APP["search"]["boosts"][doc_type]:
                 settings.ZDS_APP["search"]["boosts"][doc_type][key] = 1.0
+
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
 
         # 3. Test posts
         result = self.client.get(
@@ -360,68 +368,113 @@ class ViewsTests(TutorialTestMixin, TestCase):
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 3)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 3)
 
         # score are equals without boost:
-        self.assertTrue(response[0].meta.score == response[1].meta.score == response[2].meta.score)
+        self.assertTrue(
+            response[0]["document"]["score"] == response[1]["document"]["score"] == response[2]["document"]["score"]
+        )
 
         settings.ZDS_APP["search"]["boosts"]["post"]["if_first"] = 2.0
+
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 3)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 3)
 
-        self.assertTrue(response[0].meta.score == response[1].meta.score > response[2].meta.score)
-        self.assertEqual(response[2].meta.id, str(post_2_useful.pk))  # post 2 is the only one not first
+        self.assertTrue(
+            response[0]["document"]["score"] == response[1]["document"]["score"] > response[2]["document"]["score"]
+        )
+        self.assertEqual(response[2]["document"]["id"], str(post_2_useful.pk))  # post 2 is the only one not first
 
         settings.ZDS_APP["search"]["boosts"]["post"]["if_first"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"] = 2.0
 
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 3)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 3)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
-        self.assertEqual(response[0].meta.id, str(post_2_useful.pk))  # post 2 is useful
+        self.assertTrue(
+            response[0]["document"]["score"] > response[1]["document"]["score"] == response[2]["document"]["score"]
+        )
+        self.assertEqual(response[0]["document"]["id"], str(post_2_useful.pk))  # post 2 is useful
 
         settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"] = 2.0
 
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 3)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 3)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
-        self.assertEqual(response[0].meta.id, str(post_2_useful.pk))  # post 2 have a l/d ratio of 5/2
+        self.assertTrue(
+            response[0]["document"]["score"] == response[1]["document"]["score"] > response[2]["document"]["score"]
+        )
+        self.assertEqual(response[0]["document"]["id"], str(post_2_useful.pk))  # post 2 have a l/d ratio of 5/2
 
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"] = 2.0  # no one would do that in real life
 
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 3)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 3)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score == response[2].meta.score)
-        self.assertEqual(response[0].meta.id, str(post_3_ld_below_1.pk))  # post 3 have a l/d ratio of 2/5
+        self.assertTrue(
+            response[0]["document"]["score"] > response[1]["document"]["score"] == response[2]["document"]["score"]
+        )
+        self.assertEqual(response[0]["document"]["id"], str(post_3_ld_below_1.pk))  # post 3 have a l/d ratio of 2/5
 
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"] = 1.0
+
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
 
         # 4. Test topics
         result = self.client.get(
@@ -429,123 +482,189 @@ class ViewsTests(TutorialTestMixin, TestCase):
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)
 
         # score are equals without boost:
-        self.assertTrue(response[0].meta.score == response[1].meta.score)
+        self.assertTrue(response[0]["document"]["score"] == response[1]["document"]["score"])
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"] = 2.0
+
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEqual(response[0].meta.id, str(topic_1_solved_sticky.pk))  # topic 1 is sticky
+        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertEqual(response[0]["document"]["id"], str(topic_1_solved_sticky.pk))  # topic 1 is sticky
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"] = 2.0
 
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEqual(response[0].meta.id, str(topic_1_solved_sticky.pk))  # topic 1 is solved
+        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertEqual(response[0]["document"]["id"], str(topic_1_solved_sticky.pk))  # topic 1 is solved
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"] = 2.0  # no one would do that in real life
 
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEqual(response[0].meta.id, str(topic_2_locked.pk))  # topic 2 is locked
+        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertEqual(response[0]["document"]["id"], str(topic_2_locked.pk))  # topic 2 is locked
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"] = 1.0  # no one would do that in real life
 
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
         # 5. Test published contents
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=content", follow=False)
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 5)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 4)
 
         # score are equals without boost:
         self.assertTrue(
-            response[0].meta.score
-            == response[1].meta.score
-            == response[2].meta.score
-            == response[3].meta.score
-            == response[4].meta.score
+            response[0]["document"]["score"]
+            == response[1]["document"]["score"]
+            == response[2]["document"]["score"]
+            == response[3]["document"]["score"]
         )
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"] = 2.0
 
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=content", follow=False)
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 5)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 4)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEqual(response[0].meta.id, str(published_article.pk))  # obvious
+        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertEqual(response[0]["document"]["id"], str(published_article.pk))  # obvious
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"] = 1.0
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"] = 2.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
 
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=content", follow=False)
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 5)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 4)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEqual(response[0].meta.id, str(published_tuto.pk))  # obvious
+        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
 
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"] = 1.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"] = 2.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"] = 4.0
         # Note: in "real life", unpicked opinion would get a boost < 1.
 
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=content", follow=False)
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 5)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 4)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score > response[2].meta.score)
-        self.assertEqual(response[0].meta.id, str(published_opinion_not_picked.pk))  # unpicked opinion got first
-        self.assertEqual(response[1].meta.id, str(published_opinion_picked.pk))
+        self.assertTrue(
+            response[0]["document"]["score"] > response[1]["document"]["score"] > response[2]["document"]["score"]
+        )
+        self.assertEqual(
+            response[0]["document"]["id"], str(published_opinion_not_picked.pk)
+        )  # unpicked opinion got first
+        self.assertEqual(response[1]["document"]["id"], str(published_opinion_picked.pk))
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
 
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=content", follow=False)
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 5)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 4)
 
-        self.assertTrue(response[0].meta.score > response[1].meta.score)
-        self.assertEqual(response[0].meta.id, str(published_tuto.pk))  # obvious
+        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 1.0
+
+        # Reindex to update the score
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
 
         # 6. Test global boosts
         # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
@@ -553,17 +672,34 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
 
             # set a huge number to overcome the small differences:
-            settings.ZDS_APP["search"]["boosts"][model.get_document_type()]["global"] = 10.0
+            collection = model.get_document_type()
+            for key in settings.ZDS_APP["search"]["boosts"][collection]:
+                settings.ZDS_APP["search"]["boosts"][collection][key] = 10.0
+
+            # Reindex to update the score
+            self.manager.reset_index(self.indexable)
+            for model in self.indexable:
+                if model is FakeChapter:
+                    continue
+                self.manager.indexing_of_model(model, force_reindexing=True)
 
             result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
             self.assertEqual(result.status_code, 200)
-            response = result.context["object_list"].execute()
-            self.assertEqual(response.hits.total, 10)
+            response = result.context["object_list"]
+            self.assertEqual(len(response), 10)
 
-            self.assertEqual(response[0].meta.doc_type, model.get_document_type())  # obvious
+            self.assertEqual(response[0]["collection"], collection)  # obvious
 
-            settings.ZDS_APP["search"]["boosts"][model.get_document_type()]["global"] = 1.0
+            for key in settings.ZDS_APP["search"]["boosts"][collection]:
+                settings.ZDS_APP["search"]["boosts"][collection][key] = 1
+
+            # Reindex to update the score
+            self.manager.reset_index(self.indexable)
+            for model in self.indexable:
+                if model is FakeChapter:
+                    continue
+                self.manager.indexing_of_model(model, force_reindexing=True)
 
     def test_change_topic_impacts_posts(self):
 
@@ -587,39 +723,40 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
-        self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # indexing ok
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 1)  # ok
-        self.assertEqual(response[0].meta.doc_type, Post.get_document_type())
-        self.assertEqual(response[0].forum_pk, self.forum.pk)
-        self.assertEqual(response[0].topic_pk, topic_1.pk)
-        self.assertEqual(response[0].topic_title, topic_1.title)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 1)  # ok
+        self.assertEqual(response[0]["collection"], Post.get_document_type())
+        self.assertEqual(response[0]["document"]["forum_pk"], self.forum.pk)
+        self.assertEqual(response[0]["document"]["topic_pk"], topic_1.pk)
+        self.assertEqual(response[0]["document"]["topic_title"], topic_1.title)
 
         # 3. Change topic title and reindex
         topic_1.title = "new title"
         topic_1.save()
 
-        self.manager.indexing_of_model(Topic)
-        self.manager.indexing_of_model(Post)
-        self.manager.refresh_index()
+        self.manager.reset_index([Topic, Post])
+        self.manager.indexing_of_model(Topic, force_reindexing=True)
+        self.manager.indexing_of_model(Post, force_reindexing=True)
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 1)  # ok
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 1)  # ok
 
-        self.assertEqual(response[0].topic_title, topic_1.title)  # title was changed
+        self.assertEqual(response[0]["document"]["topic_title"], topic_1.title)  # title was changed
 
         # 4. connect with staff and move topic
         self.client.force_login(self.staff)
@@ -629,19 +766,19 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(302, response.status_code)
 
+        self.manager.reset_index([Topic, Post])
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
-        self.manager.refresh_index()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 1)  # Note: without staff, would not get any results (see below)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 1)  # Note: without staff, would not get any results (see below)
 
-        self.assertEqual(response[0].forum_pk, hidden_forum.pk)  # post was updated with new forum
+        self.assertEqual(response[0]["document"]["forum_pk"], hidden_forum.pk)  # post was updated with new forum
 
         # 5. Topic is now hidden
         self.client.logout()
@@ -651,8 +788,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         )
 
         self.assertEqual(result.status_code, 200)
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 0)  # ok
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 0)  # ok
 
     def test_change_publishedcontents_impacts_chapter(self):
 
@@ -684,20 +821,25 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         self.manager.indexing_of_model(PublishedContent)
-        self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # indexing ok
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # indexing ok
 
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=content", follow=False)
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
+        response = result.context["object_list"]
 
-        self.assertEqual(response.hits.total, 2)
+        self.assertEqual(len(response), 1)
 
-        chapters = [r for r in response if r.meta.doc_type == "chapter"]
-        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_document_type())
-        self.assertEqual(chapters[0].meta.id, published.content_public_slug + "__" + chapter1.slug)
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=", follow=False)
+        self.assertEqual(result.status_code, 200)
+        response = result.context["object_list"]
+
+        chapters = [r for r in response if r["collection"] == "chapter"]
+        self.assertEqual(chapters[0]["collection"], FakeChapter.get_document_type())
+        self.assertEqual(chapters[0]["document"]["id"], published.content_public_slug + "__" + chapter1.slug)
 
         # 2. Change tuto: delete chapter and insert new one !
         tuto = PublishableContent.objects.get(pk=tuto.pk)
@@ -720,28 +862,34 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
+        self.manager.reset_index(PublishableContent)
         self.manager.indexing_of_model(PublishedContent)
-        self.manager.refresh_index()
 
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 2)  # 2 objects, not 3 !
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # indexing ok
 
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=content", follow=False)
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
+        response = result.context["object_list"]
 
-        contents = [r for r in response if r.meta.doc_type != "chapter"]
-        self.assertEqual(response.hits.total, len(contents))  # no chapter found anymore
+        contents = [r for r in response if r["collection"] != "chapter"]
+        self.assertEqual(len(response), len(contents))  # no chapter found anymore
 
-        result = self.client.get(reverse("search:query") + "?q=" + another_text + "&models=content", follow=False)
+        result = self.client.get(
+            reverse("search:query") + "?q=" + another_text + "&models=publishedcontent", follow=False
+        )
 
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
-        chapters = [r for r in response if r.meta.doc_type == "chapter"]
-        self.assertEqual(response.hits.total, 1)
-        self.assertEqual(chapters[0].meta.doc_type, FakeChapter.get_document_type())
-        self.assertEqual(chapters[0].meta.id, published.content_public_slug + "__" + chapter2.slug)  # got new chapter
+        response = result.context["object_list"]
+        chapters = [r for r in response if r["collection"] == "chapter"]
+        self.assertEqual(len(response), 1)
+        self.assertEqual(chapters[0]["collection"], FakeChapter.get_document_type())
+        self.assertEqual(
+            chapters[0]["document"]["id"], published.content_public_slug + "__" + chapter2.slug
+        )  # got new chapter
 
     def test_opensearch(self):
 
@@ -833,7 +981,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto_uc.save()
 
         # 3. Index and search:
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 0)
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll()))), 0)
 
         # index
         for model in self.indexable:
@@ -845,17 +993,17 @@ class ViewsTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("search:query") + "?q=" + text_lc, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        response_lc = result.context["object_list"].execute()
-        self.assertEqual(response_lc.hits.total, 8)
+        response_lc = result.context["object_list"]
+        self.assertEqual(len(response_lc), 8)
 
         result = self.client.get(reverse("search:query") + "?q=" + text_uc, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        response_uc = result.context["object_list"].execute()
-        self.assertEqual(response_uc.hits.total, 8)
+        response_uc = result.context["object_list"]
+        self.assertEqual(len(response_uc), 8)
 
         for responses in zip(response_lc, response_uc):  # we should get results in the same order!
-            self.assertEqual(responses[0].meta.id, responses[1].meta.id)
+            self.assertEqual(responses[0]["document"]["id"], responses[1]["document"]["id"])
 
     def test_category_and_subcategory_impact_search(self):
         """If two contents do not belong to the same (sub)category"""
@@ -916,7 +1064,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto_2.save()
 
         # 2. Index:
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll())).execute()), 0)
+        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll()))), 0)
 
         # index
         for model in self.indexable:
@@ -928,8 +1076,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 4)  # Ok
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 4)  # Ok
 
         # 3. Test
         result = self.client.get(
@@ -938,12 +1086,15 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)
 
-        self.assertEqual([int(r.meta.id) for r in response if r.meta.doc_type == "publishedcontent"][0], published_1.pk)
         self.assertEqual(
-            [r.meta.id for r in response if r.meta.doc_type == "chapter"][0], tuto_1.slug + "__" + chapter_1.slug
+            [int(r["document"]["id"]) for r in response if r.meta.doc_type == "publishedcontent"][0], published_1.pk
+        )
+        self.assertEqual(
+            [r["document"]["id"] for r in response if r.meta.doc_type == "chapter"][0],
+            tuto_1.slug + "__" + chapter_1.slug,
         )
 
         result = self.client.get(
@@ -952,12 +1103,15 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
 
-        response = result.context["object_list"].execute()
-        self.assertEqual(response.hits.total, 2)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)
 
-        self.assertEqual([int(r.meta.id) for r in response if r.meta.doc_type == "publishedcontent"][0], published_2.pk)
         self.assertEqual(
-            [r.meta.id for r in response if r.meta.doc_type == "chapter"][0], tuto_2.slug + "__" + chapter_2.slug
+            [int(r["document"]["id"]) for r in response if r.meta.doc_type == "publishedcontent"][0], published_2.pk
+        )
+        self.assertEqual(
+            [r["document"]["id"] for r in response if r.meta.doc_type == "chapter"][0],
+            tuto_2.slug + "__" + chapter_2.slug,
         )
 
     def tearDown(self):

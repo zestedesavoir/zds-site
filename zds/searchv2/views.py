@@ -341,7 +341,6 @@ class SearchView(ZdSPagingListView):
                             entry["collection"] = collection_names[k]
                             entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
                             entry["document"]["highlights"] = entry["highlights"][0]
-                            print(entry["document"]["highlights"])
                             all_collection_result.append(entry)
 
                 all_collection_result.sort(key=lambda result: result["document"]["final_score"], reverse=True)

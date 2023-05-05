@@ -506,11 +506,11 @@ class Topic(AbstractSearchIndexableModel):
         weight_global = settings.ZDS_APP["search"]["boosts"]["topic"]["global"]
         # if the topic isn't in one of this states (solved, locked, sticky), it needs a weight, it's the global weight
         is_global = 0 if self.is_solved or self.is_sticky or self.is_locked else 1
-        return (
-            weight_solved * self.is_solved
-            + weight_sticky * self.is_sticky
-            + weight_locked * self.is_locked
-            + is_global * weight_global
+        return max(
+            weight_solved * self.is_solved,
+            weight_sticky * self.is_sticky,
+            weight_locked * self.is_locked,
+            is_global * weight_global,
         )
 
 
@@ -632,14 +632,16 @@ class Post(Comment, AbstractSearchIndexableModel):
         weight_useful = settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"]
         weight_ld_ratio_above_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"]
         weight_ld_ratio_below_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"]
+        weight_global = settings.ZDS_APP["search"]["boosts"]["post"]["global"]
         is_ratio_above_1 = 1 if ratio >= 1 else 0
         is_ratio_below_1 = 1 - is_ratio_above_1
         is_first = 1 if self.position == 1 else 0
-        return (
-            weight_first * is_first
-            + weight_useful * self.is_useful
-            + weight_ld_ratio_above_1 * is_ratio_above_1
-            + weight_ld_ratio_below_1 * is_ratio_below_1
+        return max(
+            weight_first * is_first,
+            weight_useful * self.is_useful,
+            weight_ld_ratio_above_1 * is_ratio_above_1,
+            weight_ld_ratio_below_1 * is_ratio_below_1,
+            weight_global,
         )
 
 
