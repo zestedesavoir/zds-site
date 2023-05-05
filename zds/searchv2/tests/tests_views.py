@@ -981,14 +981,15 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto_uc.save()
 
         # 3. Index and search:
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll()))), 0)
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 0)  # indexing ok
 
         # index
         for model in self.indexable:
             if model is FakeChapter:
                 continue
             self.manager.indexing_of_model(model)
-        self.manager.refresh_index()
 
         result = self.client.get(reverse("search:query") + "?q=" + text_lc, follow=False)
         self.assertEqual(result.status_code, 200)
@@ -1064,14 +1065,15 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto_2.save()
 
         # 2. Index:
-        self.assertEqual(len(self.manager.setup_search(Search().query(MatchAll()))), 0)
+        results = self.manager.setup_search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 0)  # indexing ok
 
         # index
         for model in self.indexable:
             if model is FakeChapter:
                 continue
             self.manager.indexing_of_model(model)
-        self.manager.refresh_index()
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
@@ -1081,7 +1083,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # 3. Test
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&model=content&subcategory=" + subcategory_1.slug, follow=False
+            reverse("search:query") + "?q=" + text + "&model=publishedcontent&subcategory=" + subcategory_1.slug,
+            follow=False,
         )
 
         self.assertEqual(result.status_code, 200)
@@ -1090,15 +1093,16 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 2)
 
         self.assertEqual(
-            [int(r["document"]["id"]) for r in response if r.meta.doc_type == "publishedcontent"][0], published_1.pk
+            [int(r["document"]["id"]) for r in response if r["collection"] == "publishedcontent"][0], published_1.pk
         )
         self.assertEqual(
-            [r["document"]["id"] for r in response if r.meta.doc_type == "chapter"][0],
+            [r["document"]["id"] for r in response if r["collection"] == "chapter"][0],
             tuto_1.slug + "__" + chapter_1.slug,
         )
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&model=content&subcategory=" + subcategory_2.slug, follow=False
+            reverse("search:query") + "?q=" + text + "&model=publishedcontent&subcategory=" + subcategory_2.slug,
+            follow=False,
         )
 
         self.assertEqual(result.status_code, 200)
@@ -1107,10 +1111,10 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 2)
 
         self.assertEqual(
-            [int(r["document"]["id"]) for r in response if r.meta.doc_type == "publishedcontent"][0], published_2.pk
+            [int(r["document"]["id"]) for r in response if r["collection"] == "publishedcontent"][0], published_2.pk
         )
         self.assertEqual(
-            [r["document"]["id"] for r in response if r.meta.doc_type == "chapter"][0],
+            [r["document"]["id"] for r in response if r["collection"] == "chapter"][0],
             tuto_2.slug + "__" + chapter_2.slug,
         )
 
