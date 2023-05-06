@@ -833,7 +833,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(len(response), 1)
 
-        result = self.client.get(reverse("search:query") + "?q=" + text + "&models=", follow=False)
+        result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"]
 
@@ -862,8 +862,9 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
-        self.manager.reset_index(PublishableContent)
-        self.manager.indexing_of_model(PublishedContent)
+        self.manager.reset_index([PublishedContent, FakeChapter])
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)
+        self.manager.indexing_of_model(FakeChapter)
 
         results = self.manager.setup_search("*")
         number_of_results = sum(result["found"] for result in results)
@@ -877,9 +878,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         contents = [r for r in response if r["collection"] != "chapter"]
         self.assertEqual(len(response), len(contents))  # no chapter found anymore
 
-        result = self.client.get(
-            reverse("search:query") + "?q=" + another_text + "&models=publishedcontent", follow=False
-        )
+        result = self.client.get(reverse("search:query") + "?q=" + another_text, follow=False)
 
         self.assertEqual(result.status_code, 200)
 
