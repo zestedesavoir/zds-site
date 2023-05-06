@@ -40,6 +40,10 @@ suggestions_management = Signal()
 # For the signal below, the arguments "performer" and "content" shall be provided.
 goals_management = Signal()
 
+# Labels management
+# For the signal below, the arguments "performer" and "content" shall be provided.
+labels_management = Signal()
+
 # Help management
 # For the signal below, the arguments "performer" and "content"  shall be provided.
 help_management = Signal()
