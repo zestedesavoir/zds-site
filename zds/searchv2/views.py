@@ -245,6 +245,19 @@ class SearchView(ZdSPagingListView):
             filter = ""
             filter = self._add_filter("forum_pk", self.authorized_forums, filter)
 
+            filter_publishedcontent = ""
+            filter_chapter = ""
+
+            if self.content_category:
+                filter_publishedcontent = self._add_filter("categories", self.content_category, filter_publishedcontent)
+                filter_chapter = self._add_filter("categories", self.content_category, filter_chapter)
+
+            if self.content_subcategory:
+                filter_publishedcontent = self._add_filter(
+                    "subcategories", self.content_subcategory, filter_publishedcontent
+                )
+                filter_chapter = self._add_filter("subcategories", self.content_subcategory, filter_chapter)
+
             search_requests = {"searches": []}
 
             searches = {
@@ -260,6 +273,7 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
                     ),
+                    "filter_by": filter_publishedcontent,
                 },
                 "topic": {
                     "collection": "topic",
@@ -276,6 +290,7 @@ class SearchView(ZdSPagingListView):
                     "collection": "chapter",
                     "q": self.search_query,
                     "query_by": "title,text",
+                    "filter_by": filter_chapter,
                     "query_by_weights": "{},{}".format(
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],

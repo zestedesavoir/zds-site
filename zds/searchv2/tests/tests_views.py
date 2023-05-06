@@ -1070,8 +1070,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # index
         for model in self.indexable:
-            if model is FakeChapter:
-                continue
             self.manager.indexing_of_model(model)
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
@@ -1082,7 +1080,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # 3. Test
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&model=publishedcontent&subcategory=" + subcategory_1.slug,
+            reverse("search:query") + "?q=" + text + "&subcategory=" + subcategory_1.slug,
             follow=False,
         )
 
@@ -1100,7 +1098,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         )
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&model=publishedcontent&subcategory=" + subcategory_2.slug,
+            reverse("search:query") + "?q=" + text + "&subcategory=" + subcategory_2.slug,
             follow=False,
         )
 
