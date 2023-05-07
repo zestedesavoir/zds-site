@@ -1,9 +1,12 @@
 import datetime
 from copy import deepcopy
+import json
 from random import randint
 from unittest import mock
 
+
 from django.conf import settings
+from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -11,10 +14,12 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.quizz import QuizzQuestion, QuizzUserAnswer
 from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
 from zds.tutorialv2.models.database import Validation, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.views.statistics import DeleteQuizz
 from zds.utils.tests.factories import LicenceFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -375,3 +380,77 @@ class StatTests(TestCase, TutorialTestMixin):
         opinion.save()
         opinion_draft = opinion.load_version()
         return publish_content(opinion, opinion_draft)
+
+
+class DeleteQuizzTestCase(TestCase):
+    def setUp(self):
+        self.view = DeleteQuizz()
+        self.url = "/contenus/delete_quizz/"
+
+    def test_invalid_start_date_format(self):
+        # Edge case test for invalid start date format
+        view = self.view
+        view.request = type("Request", (), {"GET": {"start_date": "invalid_date_format", "end_date": "2022-01-07"}})()
+
+        with self.assertRaises(Http404):
+            start_date, end_date = view.get_start_and_end_dates()
+
+    def test_invalid_end_date_format(self):
+        # Edge case test for invalid end date format
+        view = self.view
+        view.request = type("Request", (), {"GET": {"start_date": "2022-01-07", "end_date": "invalid_date_format"}})()
+
+        with self.assertRaises(Http404):
+            start_date, end_date = view.get_start_and_end_dates()
+
+    def test_get_start_and_end_dates_no_dates(self):
+        view = self.view
+        view.request = type("Request", (), {"GET": {}})()
+        start_date, end_date = view.get_start_and_end_dates()
+        assert end_date == datetime.date.today()
+        assert start_date == (end_date - datetime.timedelta(days=7))
+
+    def test_get_start_and_end_dates_valid_dates(self):
+        view = self.view
+        view.request = type("Request", (), {"GET": {"start_date": "2022-01-01", "end_date": "2022-01-07"}})()
+        start_date, end_date = view.get_start_and_end_dates()
+        assert start_date == datetime.date(2022, 1, 1)
+        assert end_date == datetime.date(2022, 1, 7)
+
+    def test_delete_quizz_with_question(self):
+
+        quizz_name = "example"
+        question_text = "What is your name?"
+        question = QuizzQuestion.objects.create(url=quizz_name, question=question_text)
+        QuizzUserAnswer.objects.create(related_question=question, date_answer=datetime.date.today())
+        QuizzUserAnswer.objects.create(
+            related_question=question, date_answer=datetime.date.today() - datetime.timedelta(days=1)
+        )
+        data = {"quizzName": quizz_name, "question": question_text}
+        # Send a request to delete the user answers for the question
+        response = self.client.post(self.url, data=json.dumps(data), content_type="application/json")
+
+        # Assert that the response status code is 200 OK
+        self.assertEqual(response.status_code, 200)
+        # Assert that the user answers have been deleted
+        self.assertEqual(QuizzUserAnswer.objects.filter(related_question=question).count(), 0)
+
+    def test_delete_quizz_without_question(self):
+
+        quizz_name = "example"
+        question1 = QuizzQuestion.objects.create(url=quizz_name, question="What is your name?")
+        QuizzUserAnswer.objects.create(related_question=question1, date_answer=datetime.date.today())
+        question2 = QuizzQuestion.objects.create(url=quizz_name, question="What is your age?")
+        QuizzUserAnswer.objects.create(
+            related_question=question2, date_answer=datetime.date.today() - datetime.timedelta(days=1)
+        )
+
+        data = {"quizzName": quizz_name}
+        # Send a request to delete all user answers for the quizz
+        response = self.client.post(self.url, data=json.dumps(data), content_type="application/json")
+
+        # Assert that the response status code is 200 OK
+        self.assertEqual(response.status_code, 200)
+
+        # Assert that all user answers have been deleted
+        self.assertEqual(QuizzUserAnswer.objects.filter(related_question__url=quizz_name).count(), 0)
