@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count
-from django.http import StreamingHttpResponse
+from django.http import Http404, StreamingHttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
@@ -182,13 +182,18 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_start_and_end_dates(self):
 
-        end_date = self.request.GET.get("end_date", None) or date.today()
+        try:
+            end_date = self.request.GET.get("end_date", None) or date.today()
+            end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
+            raise Http404("Invalid end date format") from e
 
-        end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+        try:
+            start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
+            start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
 
-        start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
-
-        start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
+            raise Http404("Invalid start date format") from e
 
         return start_date, end_date
 
@@ -368,13 +373,18 @@ class QuizzContentStatistics(ContentStatisticsView):
 class DeleteQuizz(View):
     def get_start_and_end_dates(self):
 
-        end_date = self.request.GET.get("end_date", None) or date.today()
+        try:
+            end_date = self.request.GET.get("end_date", None) or date.today()
+            end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
+            raise Http404("Invalid end date format") from e
 
-        end_date = datetime.strptime(str(end_date), "%Y-%m-%d").date()
+        try:
+            start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
+            start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
 
-        start_date = self.request.GET.get("start_date", None) or (end_date - timedelta(days=7))
-
-        start_date = datetime.strptime(str(start_date), "%Y-%m-%d").date()
+        except (TypeError, ValueError) as e:
+            raise Http404("Invalid start date format") from e
 
         return start_date, end_date
 
