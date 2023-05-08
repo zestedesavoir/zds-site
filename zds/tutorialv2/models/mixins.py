@@ -34,15 +34,12 @@ class TemplatableContentModelMixin:
         If no version is given, return the URL to the draft page of the content.
         Otherwise, return the URL to the page of the specified version.
         """
-
         route_parameters = {"pk": self.pk, "slug": self.slug}
-        url = reverse("content:view", kwargs=route_parameters)
-
         if version and version != self.sha_draft:
             route_parameters["version"] = version
-            url = reverse("content:view-version", kwargs=route_parameters)
-
-        return url
+            return reverse("content:view-version", kwargs=route_parameters)
+        else:
+            return reverse("content:view", kwargs=route_parameters)
 
     @property
     def validation_message_title(self):
