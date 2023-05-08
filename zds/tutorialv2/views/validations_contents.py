@@ -279,8 +279,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
             action="cancel",
         )
 
-        route_parameters = {"pk": validation.content.pk, "slug": validation.content.slug, "version": validation.version}
-        self.success_url = reverse("content:view-version", kwargs=route_parameters)
+        self.success_url = get_content_version_url(validation.content, validation.version)
 
         return super().form_valid(form)
 
