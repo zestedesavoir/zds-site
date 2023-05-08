@@ -32,7 +32,7 @@
              <h4 data-num="{{ child.position_in_parent|roman }}"
                  {% if not child.is_validable %} class="not-ready" {% endif %}
              >
-                <a class="mobile-menu-link" href="{{ base_url }}{{ child.slug }}/">
+                <a class="mobile-menu-link" href="{{ base_url }}{{ child.get_url_path }}">
                     {{ child.title }}
                 </a>
             </h4>
@@ -53,7 +53,7 @@
                             {% if not subchild.is_validable %} not-ready{% endif %}"
                         >
                             <a data-num="{{ subchild.position_in_parent }}"
-                                href="{{ base_url }}{{ child.slug }}/{{ subchild.slug }}/"
+                                href="{{ base_url }}{{ subchild.get_url_path }}"
                                 class="mobile-menu-link mobile-menu-sublink {% if current_container.long_slug == subchild.long_slug %}unread{% endif %}"
                             >
                                 {{ subchild.title }}
