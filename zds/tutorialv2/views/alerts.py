@@ -62,6 +62,9 @@ class SolveContentAlert(LoginRequiredMixin, FormView):
         except (KeyError, ValueError):
             raise Http404("L'alerte n'existe pas.")
 
+        if alert.solved:
+            raise Http404("L'alerte a déjà été résolue.")
+
         resolve_reason = ""
         msg_title = ""
         msg_content = ""

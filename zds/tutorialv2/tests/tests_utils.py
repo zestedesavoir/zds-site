@@ -556,7 +556,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         reaction = ContentReactionFactory(
             related_content=published, author=ProfileFactory().user, position=1, pubdate=datetime.datetime.now()
         )
-        Alert.objects.create(
+        alert = Alert.objects.create(
             scope="CONTENT",
             comment=reaction,
             text="a text",
@@ -568,6 +568,15 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(1, get_header_notifications(staff)["alerts"]["total"])
         unpublish_content(published, staff)
         self.assertEqual(0, get_header_notifications(staff)["alerts"]["total"])
+
+        # Try to solve the alert anyway (related to #6478):
+        self.client.force_login(self.staff)
+        result = self.client.post(
+            reverse("content:resolve-content", kwargs={"pk": published.pk}),
+            {"alert_pk": alert.pk, "text": "Anéfé!"},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 404)
 
     def tearDown(self):
         super().tearDown()
