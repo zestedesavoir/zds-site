@@ -348,13 +348,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 version=validation.version,
                 action="reserve",
             )
-
-            route_parameters = {
-                "pk": validation.content.pk,
-                "slug": validation.content.slug,
-                "version": validation.version,
-            }
-            redirect_url = reverse("content:view-version", kwargs=route_parameters)
+            redirect_url = get_content_version_url(validation.content, validation.version)
             return redirect(redirect_url)
 
 
