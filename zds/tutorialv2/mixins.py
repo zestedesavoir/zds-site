@@ -91,20 +91,7 @@ class SingleContentViewMixin:
     def get_versioned_object(self):
         """Gets the asked version of current content."""
 
-        # fetch version:
-        sha = self.object.sha_draft
-
-        if self.sha:
-            sha = self.sha
-        else:
-            if "version" in self.request.GET:
-                sha = self.request.GET["version"]
-            elif "version" in self.request.POST:
-                sha = self.request.POST["version"]
-            elif "version" in self.kwargs:
-                sha = self.kwargs["version"]
-
-        self.sha = sha
+        self.sha = self._get_sha()
 
         # if beta or public version, user can also access to it
         is_beta = self.object.is_beta(self.sha)
@@ -126,6 +113,18 @@ class SingleContentViewMixin:
                     raise Http404("Ce slug n'existe pas pour ce contenu.")
 
         return versioned
+
+    def _get_sha(self):
+        if self.sha:
+            return self.sha
+        elif "version" in self.request.GET:
+            return self.request.GET["version"]
+        elif "version" in self.request.POST:
+            return self.request.POST["version"]
+        elif "version" in self.kwargs:
+            return self.kwargs["version"]
+        else:
+            return self.object.sha_draft
 
     def get_public_object(self):
         """Get the published version, if any"""
@@ -245,12 +244,8 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context["db_content"] = self.object
         context["can_edit"] = self.is_author
         context["is_staff"] = self.is_staff
-
-        if self.sha != self.object.sha_draft:
-            context["version"] = self.sha
-
+        context["version"] = self.sha
         context["beta_topic"] = self.object.beta_topic
-
         return context
 
 
