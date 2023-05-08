@@ -251,9 +251,9 @@
       else if (type === 'blocquizz') {
 
         if(window.location.href.includes('/contenus/')){
-          shiftLines(cm, startPoint.line, '| - Explication : ');
+          shiftLines(cm, startPoint.line, '| - Votre explication');
           shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
-          shiftLines(cm, startPoint.line, '| - [x] bonne réponse');
+          shiftLines(cm, startPoint.line, '| - [x] réponse 2 ( bonne )');
         }
         else {
           shiftLines(cm, startPoint.line, '| - [ ] réponse 3');
@@ -930,7 +930,6 @@
       },
       '|'
     ]
-
     const QuizzButton = {
       name: 'blocquizz',
       action: (e) => {
