@@ -289,7 +289,13 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         return self.in_validation() and sha == self.sha_validation
 
     def get_validation(self):
-        return Validation.objects.filter(content=self).order_by("-date_proposition").first()
+        # TODO: this function could be improved by declaring explicitly the model Validation
+        #  as the support of a ManyToMany relationship in PublishableContent.
+        validation = (
+            Validation.objects.select_related("validator").filter(content=self).order_by("-date_proposition").first()
+        )
+        validation.content = self
+        return validation
 
     def is_public(self, sha: str) -> bool:
         """Return True if the given sha corresponds to the public version, and False otherwise."""
