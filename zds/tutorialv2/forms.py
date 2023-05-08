@@ -772,10 +772,7 @@ class AcceptValidationForm(forms.Form):
         :param kwargs:
         :return:
         """
-
-        # modal form, send back to previous page:
-        route_parameters = {"pk": validation.content.pk, "slug": validation.content.slug, "version": validation.version}
-        self.previous_page_url = reverse("content:view-version", kwargs=route_parameters)
+        self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
         super().__init__(*args, **kwargs)
 
