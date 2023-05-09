@@ -57,7 +57,10 @@ class ContentQuizzStatistics(SingleOnlineContentFormViewMixin):
             known_labels = QuizzAvailableAnswer.objects.filter(
                 related_question=db_question, label__in=answers_labels
             ).values_list("label", flat=True)
+
             not_existing_answers = [label for label in answers_labels if label not in known_labels]
+
+            QuizzUserAnswer.objects.exclude(answer__in=answers_labels).filter(related_question=db_question).delete()
             QuizzAvailableAnswer.objects.exclude(label__in=answers_labels).filter(related_question=db_question).delete()
 
             for label in not_existing_answers:
