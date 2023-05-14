@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load date %}
 {% load elasticsearch %}
+{% load highlight %}
 
 <div class="content-info">
     <header>
@@ -13,7 +14,11 @@
 
         <p class="content-description">
             <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.topic_title }}">
-                {{ search_result.text_html|striptags }}
+                {% if search_result.highlights.snippet %}
+                    {{ search_result.highlights.snippet | highlight  }}
+                {% else %}
+                    {{ search_result.text_html|striptags }}
+                {% endif %}
             </a>
         </p>
     </header>
