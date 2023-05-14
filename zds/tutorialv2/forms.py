@@ -738,17 +738,7 @@ class AskValidationForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
 
-        text = cleaned_data.get("text")
-
         base_error_msg = "La validation n'a pas été demandée. "
-
-        if text is None or not text.strip():
-            error = [_(base_error_msg + "Vous devez fournir un commentaire aux validateurs.")]
-            self.add_error(field="text", error=error)
-
-        elif len(text) < 3:
-            error = _(base_error_msg + "Votre commentaire doit faire au moins 3 caractères.")
-            self.add_error(field="text", error=error)
 
         if self.no_subcategories:
             error = [_(base_error_msg + "Vous devez choisir au moins une catégorie pour votre publication.")]

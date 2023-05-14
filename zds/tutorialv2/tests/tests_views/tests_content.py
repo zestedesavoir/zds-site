@@ -1837,15 +1837,6 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
-            {"text": "", "version": self.tuto_draft.current_version},
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(Validation.objects.count(), 0)  # not working if you don't provide a text
-        self.assertEqual(validation_management.send.call_count, 0)
-
-        result = self.client.post(
-            reverse("validation:ask", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
             {"text": text_validation, "version": self.tuto_draft.current_version},
             follow=False,
         )

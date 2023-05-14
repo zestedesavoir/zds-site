@@ -256,6 +256,9 @@
             display: block;
             font-weight: normal;
             margin-top: $length-2;
+            &.staff-only {
+                color: $color-staff-link;
+            }
         }
     }
     .topic-infos + .topic-description {
