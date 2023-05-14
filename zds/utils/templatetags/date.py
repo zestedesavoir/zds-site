@@ -30,7 +30,11 @@ def date_formatter(value, tooltip, small, prefix="", ignore_future=False):
     :return:
     """
     if not isinstance(value, datetime):
-        value = datetime.fromtimestamp(value)
+        try:
+            int(value) == value
+            value = datetime.fromtimestamp(value)
+        except TypeError:
+            return value
 
     if getattr(value, "tzinfo", None):
         now = datetime.now(get_default_timezone())
