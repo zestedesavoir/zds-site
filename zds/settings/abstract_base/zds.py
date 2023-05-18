@@ -186,6 +186,7 @@ ZDS_APP = {
         "suggestions_per_page": 2,
         "mass_edit_goals_content_per_page": 25,
         "view_contents_by_goal_content_per_page": 42,
+        "view_contents_by_label_content_per_page": 42,
         "feed_length": 5,
         "user_page_number": 5,
         "default_image": BASE_DIR / "fixtures" / "noir_black.png",

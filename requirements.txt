@@ -1,6 +1,5 @@
 # Implicit dependencies (optional dependencies of dependencies)
 social-auth-app-django==5.0.0
-social-auth-core==4.3.0
 
 # Explicit dependencies (references in code)
 beautifulsoup4==4.11.1

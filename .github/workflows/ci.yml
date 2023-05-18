@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
-    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
-    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
@@ -84,12 +84,10 @@ jobs:
       - name: Build documentation
         run: make generate-doc
 
-      - name: Upload documentation as an artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload documentation as a page artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          name: doc
           path: doc/build/html
-          retention-days: 1
 
   # Build the website front-end and upload built assets as an artifact.
   build-front:
@@ -97,7 +95,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
-    if: ${{ github.event.name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
+    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
 
     steps:
       - name: Checkout
@@ -292,15 +290,16 @@ jobs:
     runs-on: ubuntu-22.04
     if: "github.ref == 'refs/heads/dev'"
 
-    steps:
-      - name: Download previously built documentation
-        uses: actions/download-artifact@v3
-        with:
-          name: doc
-          path: doc/build/html
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: doc/build/html
-          clean: true
+        id: deployment
+        uses: actions/deploy-pages@v2

@@ -1,0 +1,12 @@
+{% load i18n %}
+
+{% if labels %}
+    <p>
+        {% trans "Label" %}{{ labels|pluralize }}{%trans " :" %}
+        {% comment %}
+            Warning: whitespace in the loop below is crucial to ensure correct rendering.
+            That's why it is written as a one-liner. Take care when modifying it.
+        {% endcomment %}
+        {% for label in labels %}{% if not forloop.first %}, {% endif %}<a href="{% url 'content:view-labels' label.slug %}">{{ label }}</a>{% endfor %}
+    </p>
+{% endif %}

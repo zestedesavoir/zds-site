@@ -64,6 +64,8 @@
 {% elif event.type == "goals_management" %}
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les objectifs du contenu.
 
+{% elif event.type == "labels_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les labels du contenu.
 
 {% elif event.type == "suggestions_management" %}
     {% if event.action == "add" %}

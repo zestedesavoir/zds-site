@@ -9,6 +9,7 @@ from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
 from zds.tutorialv2.views.editorialization import EditContentTags, AddSuggestion, RemoveSuggestion
 from zds.tutorialv2.views.goals import EditGoals
+from zds.tutorialv2.views.labels import EditLabels
 from zds.tutorialv2.views.help import ChangeHelp
 from zds.tutorialv2.views.validations_contents import (
     ReserveValidation,
@@ -47,6 +48,7 @@ types = {
     signals.validation_management: "validation_management",
     signals.tags_management: "tags_management",
     signals.goals_management: "goals_management",
+    signals.labels_management: "labels_management",
     signals.suggestions_management: "suggestions_management",
     signals.help_management: "help_management",
     signals.jsfiddle_management: "jsfiddle_management",
@@ -152,6 +154,15 @@ def record_event_suggestion_management(sender, performer, signal, content, actio
 
 @receiver(signals.goals_management, sender=EditGoals)
 def record_event_goals_management(sender, performer, signal, content, **_):
+    Event(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    ).save()
+
+
+@receiver(signals.labels_management, sender=EditLabels)
+def record_event_labels_management(sender, performer, signal, content, **_):
     Event(
         performer=performer,
         type=types[signal],
