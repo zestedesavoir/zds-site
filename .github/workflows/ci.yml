@@ -13,13 +13,13 @@ env:
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
   BLACK_VERSION: "22.8.0" # needs to be also updated in requirements-dev.txt and .pre-commit-config.yaml
   GECKODRIVER_VERSION: "0.31.0"
+  TYPESENSE_VERSION: "0.24.0"
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
   # reference. If you update these versions, you HAVE TO
   # update the versions in the services definitions of the
   # test job.
-  TYPESENSE_VERSION: "0.24.0"
   MEMCACHED_VERSION: "1.6"
 
 jobs:
@@ -154,11 +154,6 @@ jobs:
           ]
 
     services:
-      typesense:
-        image: typesense/typesense:0.24.0
-        ports:
-          - "8108:8108"
-
       memcached:
         image: "memcached:1.6"
         ports:
@@ -180,12 +175,11 @@ jobs:
       - name: Install Firefox
         run: sudo apt-get update && sudo apt-get install firefox
 
-      - name: Install and configure Typesense
-        run: |
-          curl -O https://dl.typesense.org/releases/${{ env.TYPESENSE_VERSION }}/typesense-server-${{ env.TYPESENSE_VERSION }}-linux-amd64.tar.gz
-          tar -xzf typesense-server-${{ env.TYPESENSE_VERSION }}-linux-amd64.tar.gz
-          mkdir $(pwd)/typesense-data 
-          ./typesense-server --data-dir=$(pwd)/typesense-data --api-key=xyz --enable-cors &
+      - name: Start Typesense
+        uses: jirevwe/typesense-github-action@v1.0.1
+        with:
+          typesense-version: ${{ env.TYPESENSE_VERSION }}
+          typesense-api-key: xyz
 
       - name: Install Geckodriver
         run: |
