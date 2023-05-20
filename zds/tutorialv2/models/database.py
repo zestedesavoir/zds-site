@@ -1491,6 +1491,31 @@ class ContentSuggestion(models.Model):
         return public_suggestions[:count]
 
 
+class Clap(models.Model):
+    class Meta:
+        verbose_name = "Clap"
+        verbose_name_plural = "Claps"
+        unique_together = ["publication", "user"]
+
+    publication = models.ForeignKey(
+        PublishableContent,
+        on_delete=models.CASCADE,
+        verbose_name="Contenu",
+        related_name="claps",
+        related_query_name="clap",
+        db_index=True,
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Utilisateur",
+        related_name="claps",
+        related_query_name="clap",
+        db_index=True,
+    )
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+
 @receiver(models.signals.pre_delete, sender=User)
 def transfer_paternity_receiver(sender, instance, **kwargs):
     """

@@ -3,11 +3,10 @@ from pathlib import Path
 
 from django.db.models.query import prefetch_related_objects
 from django.http import Http404
-from django.utils import translation
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.fields import empty
-from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404, CreateAPIView, RetrieveDestroyAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
@@ -21,11 +20,12 @@ from zds.member.api.permissions import (
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
-from zds.tutorialv2.api.serializers import PublicationEventSerializer
+from zds.tutorialv2.api.serializers import PublicationEventSerializer, ClapSerializer
 from zds.tutorialv2.models.database import (
     ContentReaction,
     PublishableContent,
     PublicationEvent,
+    Clap,
 )
 
 
@@ -154,3 +154,39 @@ class ExportsView(ListAPIView):
         prefetch_related_objects(exports, "published_object")
 
         return exports
+
+
+class ClapView(CreateAPIView, RetrieveDestroyAPIView):
+    serializer_class = ClapSerializer
+
+    def create(self, request, *args, **kwargs):
+        data = self.add_extra_data(request)
+        serializer = self.serializer_class(data=data)
+
+        if serializer.is_valid():
+            serializer.save()
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, *args, **kwargs):
+        clap = Clap.objects.filter(publication_id=self.kwargs["publication_id"], user_id=self.request.user.id).first()
+        if clap is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        clap.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get(self, request, *args, **kwargs):
+        clap = Clap.objects.filter(publication_id=self.kwargs["publication_id"]).filter(user=self.request.user).first()
+        if clap is None:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        serializer = ClapSerializer(clap)
+        return Response(serializer.data, status=status.HTTP_302_FOUND)
+
+    def add_extra_data(self, request):
+        data = request.data.copy()
+        data["user"] = self.request.user.id
+        data["publication"] = self.kwargs["publication_id"]
+        return data

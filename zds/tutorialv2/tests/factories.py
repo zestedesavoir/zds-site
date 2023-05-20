@@ -12,7 +12,13 @@ from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils import old_slugify
 from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 from zds.utils.models import Licence
-from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, ContentContributionRole
+from zds.tutorialv2.models.database import (
+    PublishableContent,
+    Validation,
+    ContentReaction,
+    ContentContributionRole,
+    Clap,
+)
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.utils import init_new_repo
@@ -331,3 +337,8 @@ class LabelFactory(factory.django.DjangoModelFactory):
     name = factory.Sequence("Mon label n°{}".format)
     description = factory.Sequence("Très belle description n°{}".format)
     slug = factory.Sequence("mon-label-{}".format)
+
+
+class ClapFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Clap
