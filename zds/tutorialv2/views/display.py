@@ -25,6 +25,7 @@ from zds.tutorialv2.models.database import (
     ContentReaction,
     ContentSuggestion,
     ContentContribution,
+    Clap,
 )
 from zds.tutorialv2.utils import search_container_or_404, last_participation_is_old, mark_read
 from zds.tutorialv2.views.containers_extracts import DisplayContainer
@@ -184,6 +185,7 @@ class DisplayOnlineContent(FeatureableMixin, SingleOnlineContentDetailViewMixin)
             self.object, count=settings.ZDS_APP["content"]["suggestions_per_page"]
         )
 
+        context["nb_claps"] = len(Clap.objects.filter(publication_id=self.object.id))
         return context
 
 
