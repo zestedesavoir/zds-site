@@ -416,6 +416,15 @@
         }
     }
 
+    &.clap {
+        &:after {
+            @include sprite-position($thumb-up);
+        }
+        &.clapped:after {
+            @include sprite-position($thumb-up-voted);
+        }
+    }
+
     &.online,
     &.view {
         &:after {

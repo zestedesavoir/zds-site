@@ -5,18 +5,20 @@
 class Clap {
 
   constructor(clapsElement) {
-    this.clapButtonElement = clapsElement.querySelector(".add_clap")
+    this.clapButtonElement = clapsElement.querySelector(".clap")
     this.nbClapsElement = clapsElement.querySelector(".nb_claps")
     this.nbClaps = parseInt(this.nbClapsElement.innerText)
-    this.hasClapped = this.already_clapped()
+    this.already_clapped()
+        .then(v => this.hasClapped = v)
+        .then(v => this.refreshDisplay())
     this.clapButtonElement.addEventListener("click", e => {
       this.addOrDeleteClap()
     })
   }
 
   async addOrDeleteClap() {
-    const has_clapped = await this.already_clapped()
-    if (has_clapped) {
+    this.hasClapped = await this.already_clapped()
+    if (this.hasClapped) {
       await this.remove_clap()
     } else {
       await this.give_clap()
@@ -26,6 +28,11 @@ class Clap {
 
   refreshDisplay() {
     this.nbClapsElement.innerText = this.nbClaps
+    if (this.hasClapped) {
+      this.clapButtonElement.classList.add("clapped")
+    } else {
+      this.clapButtonElement.classList.remove("clapped")
+    }
   }
 
   async already_clapped() {
@@ -58,6 +65,7 @@ class Clap {
     })
     if (response.ok) {
       this.nbClaps -= 1
+      this.hasClapped = false
     }
   }
 
@@ -74,6 +82,7 @@ class Clap {
     })
     if (response.ok) {
       this.nbClaps = this.nbClaps + 1
+      this.hasClapped = true
     }
   }
 }

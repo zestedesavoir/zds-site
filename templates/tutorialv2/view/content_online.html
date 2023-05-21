@@ -93,8 +93,7 @@
     {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
 
     <div class="claps">
-        <p>{% trans "Nombre de claps" %}: <span class="nb_claps">{{ nb_claps }}</span></p>
-        <button class="add_clap" data-clap-uri="{% url 'api:content:claps' object.pk %}">Donner un clap</button>
+        <div class="btn clap ico-after" data-clap-uri="{% url 'api:content:claps' object.pk %}"><span class="nb_claps">{{ nb_claps }}</span></div>
     </div>
 
     {% if is_obsolete %}
