@@ -92,6 +92,11 @@
 
     {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=True %}
 
+    <div class="claps">
+        <p>{% trans "Nombre de claps" %}: <span class="nb_claps">{{ nb_claps }}</span></p>
+        <button class="add_clap" data-clap-uri="{% url 'api:content:claps' object.pk %}">Donner un clap</button>
+    </div>
+
     {% if is_obsolete %}
         <div class="content-wrapper">
             <div class="alert-box warning">
