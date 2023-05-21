@@ -12,7 +12,7 @@ from zds.tutorialv2.tests.factories import PublishableContentFactory, ClapFactor
 class ClapsTest(TutorialTestMixin, TestCase):
     def setUp(self):
         self.user_author = ProfileFactory().user
-        self.tuto = PublishableContentFactory(title="Mon super tuto", type="TUTORIAL", author_list=[self.user_author])
+        self.tuto = self.create_published_content("Mon super tuto", "TUTORIAL", self.user_author)
 
     def test_can_add_claps(self):
         user1 = ProfileFactory().user
@@ -95,10 +95,21 @@ class ClapsTest(TutorialTestMixin, TestCase):
             self.fail("Exception")
         self.assertEqual(result.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_cannot_clap_for_unpublished_content(self):
+        tuto = PublishableContentFactory(title="Mon super tuto", type="TUTORIAL", author_list=[self.user_author])
+        user1 = ProfileFactory().user
+        self.client.force_login(user1)
+        try:
+            result = self.client.post(reverse("api:content:claps", args=[tuto.id]), follow=False)
+        except Exception:
+            self.fail("Exception")
+
+        self.assertEqual(result.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_can_get_claps_for_publication(self):
         user1 = ProfileFactory().user
         user2 = ProfileFactory().user
-        tuto = self.create_published_tuto(user1)
+        tuto = self.create_published_content("Mon autre super tuto", "TUTORIAL", user1)
         ClapFactory(publication=tuto, user=user1)
         ClapFactory(publication=tuto, user=user2)
         self.client.force_login(user1)
@@ -110,8 +121,9 @@ class ClapsTest(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, status.HTTP_200_OK)
         self.assertEqual(result.context_data.get("nb_claps"), 2)
 
-    def create_published_tuto(self, user1):
-        tuto = PublishableContentFactory(title="Mon autre super tuto", type="TUTORIAL", author_list=[user1])
+    @staticmethod
+    def create_published_content(title, type, author):
+        tuto = PublishableContentFactory(title=title, type=type, author_list=[author])
 
         tuto_draft = tuto.load_version()
 
