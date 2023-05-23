@@ -55,7 +55,6 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zds.settings.dev")
 
     if len(sys.argv) > 1 and sys.argv[1] in ["migrate", "test"]:
-
         from django.db.backends.mysql.creation import BaseDatabaseCreation
 
         BaseDatabaseCreation.sql_table_creation_suffix = patch_create_suffix(

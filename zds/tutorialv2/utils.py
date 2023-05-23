@@ -461,7 +461,6 @@ def fill_containers_from_json(json_sub, parent):
     from zds.tutorialv2.models.versioned import Container, Extract
 
     if "children" in json_sub:
-
         for child in json_sub["children"]:
             if not all_is_string_appart_from_given_keys(child, ("children", "ready_to_publish")):
                 raise BadManifestError(

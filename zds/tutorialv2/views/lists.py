@@ -299,7 +299,6 @@ class ViewPublications(TemplateView):
 
 
 class TagsListView(ListView):
-
     model = Tag
     template_name = "tutorialv2/view/tags.html"
     context_object_name = "tags"
@@ -427,7 +426,6 @@ class ContentOfAuthor(ZdSPagingListView):
 
 
 class ListContentReactions(ZdSPagingListView):
-
     context_object_name = "content_reactions"
     template_name = "tutorialv2/comment/list.html"
     paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]

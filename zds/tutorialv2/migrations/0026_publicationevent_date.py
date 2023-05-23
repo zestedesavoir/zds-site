@@ -5,7 +5,6 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("tutorialv2", "0025_auto_20190415_1302"),
     ]

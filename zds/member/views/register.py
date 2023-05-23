@@ -101,7 +101,6 @@ class SendValidationEmailView(FormView, TokenGenerator):
     usr = None
 
     def get_user(self, username, email):
-
         if username:
             self.usr = get_object_or_404(User, username=username)
 

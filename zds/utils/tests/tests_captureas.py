@@ -7,7 +7,6 @@ class CaptureasNodeTest(TestCase):
         self.context = Context()
 
     def test_valid_templatetag(self):
-
         # Test empty element
         self.assertFalse("var1" in self.context)
         tr = Template("{% load captureas %}" "{% captureas var1%}" "{% endcaptureas %}").render(self.context)

@@ -204,7 +204,6 @@ def publish_container(
         container.children = []
         container.children_dict = {}
         for child in filter(lambda c: c.ready_to_publish, children):
-
             altered_version = copy.copy(child)
             container.children.append(altered_version)
             container.children_dict[altered_version.slug] = altered_version

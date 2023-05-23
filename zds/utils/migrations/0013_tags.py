@@ -29,7 +29,6 @@ def force_unicity(*args, **kwargs):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0012_commentedit"),
     ]

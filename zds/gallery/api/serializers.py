@@ -117,7 +117,6 @@ class CustomPermissionField(serializers.Field):
 
 
 class ParticipantSerializer(ZdSModelSerializer, GalleryUpdateOrDeleteMixin):
-
     permissions = CustomPermissionField(source="can_write", read_only=True)
     id = serializers.IntegerField(source="user.pk", required=False)
     can_write = serializers.BooleanField(write_only=True)
@@ -130,7 +129,6 @@ class ParticipantSerializer(ZdSModelSerializer, GalleryUpdateOrDeleteMixin):
         return {"read": True, "write": obj.can_write()}
 
     def create(self, validated_data):
-
         if "user" not in validated_data:
             raise exceptions.ValidationError(_("Le champ `id` est obligatoire pour l'ajout d'un participant"))
 

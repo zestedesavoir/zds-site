@@ -196,7 +196,6 @@ class GalleryUpdateOrDeleteMixin(GalleryMixin):
 
 
 class ImageMixin(GalleryMixin):
-
     image = None
 
     def get_image(self, pk):

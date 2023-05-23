@@ -21,7 +21,6 @@ from zds.utils.management.commands.load_fixtures import Command as FixtureComman
 @override_for_contents()
 class CommandsTestCase(TutorialTestMixin, TestCase):
     def test_load_fixtures(self):
-
         args = []
         opts = {"modules": FixtureCommand.zds_resource_config}
         call_command("load_fixtures", *args, **opts)

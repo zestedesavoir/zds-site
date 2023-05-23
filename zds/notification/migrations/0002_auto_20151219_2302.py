@@ -2,7 +2,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contenttypes", "0001_initial"),
         ("member", "0004_profile_allow_temp_visual_changes"),

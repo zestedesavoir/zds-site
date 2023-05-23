@@ -40,7 +40,6 @@ def remove_group_subscription_on_quitting_groups(*, sender, instance, action, pk
     if action not in ("pre_clear", "pre_remove"):  # only on updating
         return
     if action == "pre_clear":
-
         remove_group_subscription_on_quitting_groups(
             sender=sender,
             instance=instance,

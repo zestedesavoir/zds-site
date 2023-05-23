@@ -17,7 +17,6 @@ def force_unicity(*args, **kwargs):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("forum", "0008_remove_forum_image"),
     ]

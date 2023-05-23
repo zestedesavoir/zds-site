@@ -1016,7 +1016,6 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
                 # chapters are only indexed for middle and big tuto
                 if versioned.has_sub_containers():
-
                     # delete possible previous chapters
                     if content.es_already_indexed:
                         index_manager.delete_by_query(

@@ -162,7 +162,6 @@ class FieldValidatorMixin:
 
 
 class PasswordRequiredForm(forms.Form):
-
     password = forms.CharField(
         label=_("Mot de passe actuel"),
         widget=forms.PasswordInput,

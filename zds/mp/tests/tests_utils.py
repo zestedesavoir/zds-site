@@ -75,7 +75,6 @@ class MpUtilTest(TestCase):
         PrivateTopic.objects.all().delete()
 
     def test_answer_mp_email(self):
-
         # Create a MP
         self.client.post(
             reverse("mp:create"),

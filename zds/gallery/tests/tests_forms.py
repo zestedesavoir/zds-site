@@ -99,7 +99,6 @@ class ImageFormTest(TestCase):
         upload_file.close()
 
     def test_empty_pic_image_form(self):
-
         data = {
             "title": "Test Title",
             "legend": "Test Legend",

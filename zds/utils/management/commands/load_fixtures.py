@@ -617,7 +617,6 @@ ZDSResource = collections.namedtuple("zdsresource", ["name", "description", "cal
 
 @transaction.atomic
 class Command(BaseCommand):
-
     zds_resource_config = [
         ZDSResource("member", "basic users", load_member, tuple()),
         ZDSResource("staff", "privileged users", load_staff, tuple()),

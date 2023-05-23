@@ -30,7 +30,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         if options["action"] == "setup":
             self.setup_es()
         elif options["action"] == "clear":
@@ -43,7 +42,6 @@ class Command(BaseCommand):
             raise CommandError("unknown action {}".format(options["action"]))
 
     def setup_es(self):
-
         self.index_manager.reset_es_index(self.models)
         self.index_manager.setup_custom_analyzer()
 
@@ -56,7 +54,6 @@ class Command(BaseCommand):
             self.index_manager.clear_indexing_of_model(model)
 
     def index_documents(self, force_reindexing=False):
-
         if force_reindexing:
             self.setup_es()  # remove all previous data
 
