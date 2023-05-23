@@ -40,7 +40,6 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
         return redirect(url, self.request.user)
 
     def form_valid(self, form):
-
         _type = _("à l'article")
 
         if self.object.is_tutorial:
@@ -107,7 +106,6 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
 
 
 class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-
     form_class = RemoveContributionForm
     only_draft_version = True
     must_be_author = True

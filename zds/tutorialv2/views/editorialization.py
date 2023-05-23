@@ -15,7 +15,6 @@ from zds.utils import get_current_user
 
 
 class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
-
     form_class = RemoveSuggestionForm
     modal_form = True
     only_draft_version = True

@@ -301,7 +301,6 @@ class TestsModeration(TestCase):
         self.assertEqual(result.status_code, 302)
 
     def test_failed_bot_sanctions(self):
-
         staff = StaffProfileFactory()
         self.client.force_login(staff.user)
 

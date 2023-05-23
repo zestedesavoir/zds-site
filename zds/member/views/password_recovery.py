@@ -20,7 +20,6 @@ def forgot_password(request):
     if request.method == "POST":
         form = UsernameAndEmailForm(request.POST)
         if form.is_valid():
-
             # Get data from form
             data = form.data
             username = data["username"]

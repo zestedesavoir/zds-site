@@ -55,7 +55,6 @@ class InvalidSlugError(ValueError):
     """
 
     def __init__(self, *args, **kwargs):
-
         self.source = ""
         self.had_source = False
 

@@ -55,7 +55,6 @@ from zds import json_handler
 @override_for_contents()
 class ContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
@@ -2241,7 +2240,6 @@ class ContentTests(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.jsfiddle_management")
     def test_js_fiddle_activation(self, jsfiddle_management):
-
         self.client.force_login(self.staff)
         result = self.client.post(
             reverse("content:activate-jsfiddle"), {"pk": self.tuto.pk, "js_support": "on"}, follow=True
@@ -2267,7 +2265,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(jsfiddle_management.send.call_count, 2)
 
     def test_validate_unexisting(self):
-
         self.client.force_login(self.user_author)
         result = self.client.post(
             reverse("validation:ask", kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug}),
@@ -3016,7 +3013,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
 
         for extra in avail_extra:
-
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
         # test for visitor:

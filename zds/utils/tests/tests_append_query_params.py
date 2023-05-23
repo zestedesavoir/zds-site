@@ -15,7 +15,6 @@ class EasyTagTest(TestCase):
         self.wrapped_function = easy_tag(self.simple_function)
 
     def test_valid_call(self):
-
         # Call tag without parser and three elements
         ret = self.wrapped_function(None, Token(TokenType.TEXT, "elem1 elem2 elem3"))
 
@@ -30,7 +29,6 @@ class EasyTagTest(TestCase):
         self.assertEqual(self.simple_function.__doc__, self.wrapped_function.__doc__)
 
     def test_invalid_call(self):
-
         wf = self.wrapped_function
         # Check raising TemplateSyntaxError if call with too few arguments
         self.assertRaises(TemplateSyntaxError, wf, None, Token(TokenType.TEXT, "elem1 elem2"))
@@ -47,7 +45,6 @@ class AppendGetNodeTest(TestCase):
         self.context = Context({"request": factory.get("/data/test"), "var1": 1, "var2": 2})
 
     def test_valid_call(self):
-
         # Test normal call
         agn = AppendGetNode("key1=var1,key2=var2")
         tr = agn.render(self.context)
@@ -64,7 +61,6 @@ class AppendGetNodeTest(TestCase):
         self.assertEqual(tr, "/data/test")
 
     def test_invalid_call(self):
-
         # Test invalid format
 
         # Space separators args :
@@ -77,7 +73,6 @@ class AppendGetNodeTest(TestCase):
         self.assertRaises(VariableDoesNotExist, agn.render, self.context)
 
     def test_valid_templatetag(self):
-
         # Test normal call
         tr = Template("{% load append_query_params %}" "{% append_query_params key1=var1,key2=var2 %}").render(
             self.context
