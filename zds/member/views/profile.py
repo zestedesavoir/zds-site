@@ -51,7 +51,7 @@ class MemberDetail(DetailView):
         # sent through emarkdown parser).
         return get_object_or_404(User, username=unquote(self.kwargs["user_name"]))
 
-    def get_summaries(self, profile):
+    def get_summaries(self, profile, hide_forum_activity):
         """
         Returns a summary of this profile's activity, as a list of list of tuples.
         Each first-level list item is an activity category (e.g. contents, forums, etc.)
@@ -59,6 +59,7 @@ class MemberDetail(DetailView):
         Each tuple is (link url, count, displayed name of the item), where the link url can be None if it's not a link.
 
         :param profile: The profile.
+        :param hide_forum_activity: if true, don't populate the values related to forum activity
         :return: The summary data.
         """
         summaries = []
@@ -105,17 +106,18 @@ class MemberDetail(DetailView):
         summaries.append(summary)
 
         summary = []
-        if count_post > 0:
-            summary.append(
-                (
-                    reverse_lazy("forum:post-find", args=(profile.user.pk,)),
-                    count_post,
-                    __("message{}").format(pluralize_fr(count_post)),
+        if not hide_forum_activity:
+            if count_post > 0:
+                summary.append(
+                    (
+                        reverse_lazy("forum:post-find", args=(profile.user.pk,)),
+                        count_post,
+                        __("message{}").format(pluralize_fr(count_post)),
+                    )
                 )
-            )
-        else:
-            summary.append((None, 0, __("Aucun message")))
-        if count_topic > 0:
+            else:
+                summary.append((None, 0, __("Aucun message")))
+        if not hide_forum_activity and count_topic > 0:
             summary.append(
                 (
                     reverse_lazy("forum:topic-find", args=(profile.user.pk,)),
@@ -135,8 +137,8 @@ class MemberDetail(DetailView):
                     ),
                 )
             )
-
-        summaries.append(summary)
+        if summary:
+            summaries.append(summary)
 
         return summaries
 
@@ -173,11 +175,12 @@ class MemberDetail(DetailView):
             .count()
         )
         context["content_reactions_count"] = ContentReaction.objects.filter(author=usr).count()
-        context["hide_forum_activity"] = (
+        hide_forum_activity = (
             profile.hide_forum_activity
             and not self.request.user.has_perm("member.change_profile")
             and not profile.user == self.request.user
         )
+        context["hide_forum_activity"] = hide_forum_activity
 
         if self.request.user.has_perm("member.change_profile"):
             sanctions = list(Ban.objects.filter(user=usr).select_related("moderator"))
@@ -190,7 +193,7 @@ class MemberDetail(DetailView):
             context["alerts"] = profile.alerts_on_this_profile.all().order_by("-pubdate")
             context["has_unsolved_alerts"] = profile.alerts_on_this_profile.filter(solved=False).exists()
 
-        context["summaries"] = self.get_summaries(profile)
+        context["summaries"] = self.get_summaries(profile, hide_forum_activity)
         return context
 
 
