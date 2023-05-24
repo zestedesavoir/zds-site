@@ -4,7 +4,6 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("forum", "0002_auto_20150410_1505"),
         ("gallery", "0001_initial"),

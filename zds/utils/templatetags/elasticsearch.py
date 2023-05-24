@@ -64,7 +64,6 @@ class HighlightNode(template.Node):
 
 @register.tag
 def highlight(parser, token):
-
     part = token.split_contents()
 
     if len(part) != 3:

@@ -14,7 +14,6 @@ from zds.mp.utils import send_mp
 
 @transaction.atomic
 class Command(BaseCommand):
-
     help = (
         "Change all content categories to tags (ZEP-25).\n\n\nOptions:\n\n  No options run all commands (except he"
         "lp) in this order : tags, categories, alert, prod\n\n  alert         Send a private message to all author"

@@ -183,7 +183,6 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
 
         for child in copy_from.children:
             if isinstance(child, Container):
-
                 introduction = ""
                 conclusion = ""
 
@@ -237,7 +236,6 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
             os.makedirs(temp)
 
         for image_path in zip_file.namelist():
-
             image_basename = os.path.basename(image_path)
 
             if not image_basename.strip():  # don't deal with directory
@@ -347,7 +345,6 @@ class UpdateContentWithArchive(LoggedWithReadWriteHability, SingleContentFormVie
                 messages.error(self.request, e.message)
                 return super().form_invalid(form)
             else:
-
                 # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read("manifest.json"), "utf-8"))
                 if new_version.licence and "licence" in manifest and manifest["licence"] != new_version.licence.code:
@@ -443,7 +440,6 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
     object = None
 
     def form_valid(self, form):
-
         if self.request.FILES["archive"]:
             try:
                 zfile = zipfile.ZipFile(self.request.FILES["archive"], "r")
@@ -460,7 +456,6 @@ class CreateContentFromArchive(LoggedWithReadWriteHability, FormView):
                 messages.error(self.request, _(e.message + " n'est pas correctement renseigné."))
                 return super().form_invalid(form)
             else:
-
                 # Warn the user if the license has been changed
                 manifest = json_handler.loads(str(zfile.read("manifest.json"), "utf-8"))
                 if new_content.licence and "licence" in manifest and manifest["licence"] != new_content.licence.code:

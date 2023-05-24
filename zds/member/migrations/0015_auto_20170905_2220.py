@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0014_auto_20170905_2220"),
         ("member", "0014_profile_use_old_smileys"),

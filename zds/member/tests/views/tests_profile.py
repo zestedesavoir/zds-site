@@ -105,7 +105,6 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_profile_page_of_weird_member_username(self):
-
         # create some user with weird username
         user_1 = ProfileFactory()
         user_2 = ProfileFactory()
@@ -147,7 +146,6 @@ class MemberTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_success_preview_biography(self):
-
         member = ProfileFactory()
         self.client.force_login(member.user)
 

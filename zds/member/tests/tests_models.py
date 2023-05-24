@@ -257,7 +257,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertEqual(self.user1.get_active_alerts_count(), 1)
 
     def test_can_read_now(self):
-
         profile = ProfileFactory()
         profile.is_active = True
         profile.can_read = True
@@ -284,7 +283,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertFalse(self.user1.can_read_now())
 
     def test_can_write_now(self):
-
         self.user1.user.is_active = True
         self.user1.user.can_write = True
         self.assertTrue(self.user1.can_write_now())

@@ -11,7 +11,6 @@ from zds.utils.models import Alert
 
 @transaction.atomic
 class Command(BaseCommand):
-
     help = "Clean up useless notifications & alerts."
 
     def add_arguments(self, parser):

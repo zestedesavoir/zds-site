@@ -90,7 +90,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         return context
 
     def form_valid(self, form):
-
         # create the object:
         self.content = PublishableContent()
         self.content.title = form.cleaned_data["title"]

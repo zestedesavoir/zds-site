@@ -173,7 +173,6 @@ class SearchView(ZdSPagingListView):
             return []
 
         if self.search_query:
-
             # Searches forums the user is allowed to visit
             self.authorized_forums = get_authorized_forums(self.request.user)
 

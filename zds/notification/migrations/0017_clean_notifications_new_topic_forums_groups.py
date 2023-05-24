@@ -16,7 +16,6 @@ def cleanup(apps, *_):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notification", "0016_auto_20190114_1301"),
     ]

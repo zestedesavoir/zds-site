@@ -24,7 +24,6 @@ from zds.utils.models import CommentEdit, get_hat_from_request, Alert
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):
-
     denied_if_lock = True
     form_class = NoteForm
     check_as = True
@@ -82,7 +81,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
         return context
 
     def get(self, request, *args, **kwargs):
-
         # handle quoting case
         if "cite" in self.request.GET:
             try:
@@ -112,7 +110,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             )
 
     def post(self, request, *args, **kwargs):
-
         if "preview" in request.POST and request.is_ajax():
             content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
             return StreamingHttpResponse(content)
@@ -120,7 +117,6 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             return super().post(request, *args, **kwargs)
 
     def form_valid(self, form):
-
         if self.check_as and self.object.antispam(self.request.user):
             raise PermissionDenied
 

@@ -3,7 +3,6 @@ import zds.notification.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("notification", "0004_auto_20160110_1221"),
     ]
