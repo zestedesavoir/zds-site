@@ -144,6 +144,14 @@
 
                             {% if not is_mp %}
                                 <li>
+                                    <a data-ajax-input="copy-hyperlink" data-message-url="{{ request.build_absolute_uri }}#p{{ message.pk }}" class="ico-after import">
+                                        <span>{% trans "Copier le permalien" %}</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+
+                            {% if not is_mp %}
+                                <li>
                                     <a href="#signal-message-{{ message.id }}" class="ico-after alert open-modal">
                                         <span>{% trans "Signaler" %}</span>
                                     </a>
