@@ -34,7 +34,6 @@ from zds.utils.paginator import ZdSPagingListView
 
 
 class CategoriesForumsListView(ListView):
-
     context_object_name = "categories"
     template_name = "forum/index.html"
     queryset = ForumCategory.objects.all()
@@ -47,7 +46,6 @@ class CategoriesForumsListView(ListView):
 
 
 class ForumCategoryForumsDetailView(DetailView):
-
     context_object_name = "category"
     template_name = "forum/category/index.html"
     queryset = ForumCategory.objects.all()
@@ -59,7 +57,6 @@ class ForumCategoryForumsDetailView(DetailView):
 
 
 class LastTopicsListView(ListView):
-
     context_object_name = "topics"
     template_name = "forum/last_topics.html"
 
@@ -84,7 +81,6 @@ class LastTopicsListView(ListView):
 
 
 class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, UpdateView, SingleObjectMixin):
-
     context_object_name = "topics"
     paginate_by = settings.ZDS_APP["forum"]["topics_per_page"]
     template_name = "forum/category/forum.html"
@@ -169,7 +165,6 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
 
 
 class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin):
-
     context_object_name = "posts"
     paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]
     template_name = "forum/topic/index.html"
@@ -240,7 +235,6 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
 
 
 class TopicNew(CreateView, SingleObjectMixin):
-
     template_name = "forum/topic/new.html"
     form_class = TopicForm
     object = None
@@ -299,7 +293,6 @@ class TopicNew(CreateView, SingleObjectMixin):
 
 
 class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin):
-
     template_name = "forum/topic/edit.html"
     form_class = TopicForm
     object = None
@@ -427,7 +420,6 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
 
 
 class FindTopic(ZdSPagingListView, SingleObjectMixin):
-
     context_object_name = "topics"
     template_name = "forum/find/topic.html"
     paginate_by = settings.ZDS_APP["forum"]["topics_per_page"]
@@ -490,7 +482,6 @@ class FindFollowedTopic(ZdSPagingListView, SingleObjectMixin):
 
 
 class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjectMixin):
-
     context_object_name = "topics"
     paginate_by = settings.ZDS_APP["forum"]["topics_per_page"]
     template_name = "forum/find/topic_by_tag.html"
@@ -553,7 +544,6 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
 
 
 class PostNew(CreatePostView):
-
     model_quote = Post
     template_name = "forum/post/new.html"
     form_class = PostForm
@@ -600,7 +590,6 @@ class PostNew(CreatePostView):
 
 
 class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
-
     template_name = "forum/post/edit.html"
     form_class = PostForm
 
@@ -687,7 +676,6 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
 
 class PostSignal(UpdateView, SinglePostObjectMixin, PostEditMixin):
-
     http_method_names = ["post"]
 
     @method_decorator(login_required)
@@ -751,7 +739,6 @@ class PostUnread(UpdateView, SinglePostObjectMixin, PostEditMixin):
 
 
 class FindPost(ZdSPagingListView, SingleObjectMixin):
-
     context_object_name = "posts"
     template_name = "forum/find/post.html"
     paginate_by = settings.ZDS_APP["forum"]["posts_per_page"]

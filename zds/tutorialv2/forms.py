@@ -48,7 +48,6 @@ class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
 
 
 class ContributionForm(forms.Form):
-
     contribution_role = ReviewerTypeModelChoiceField(
         label=_("Role"),
         required=True,
@@ -102,7 +101,6 @@ class ContributionForm(forms.Form):
 
 
 class RemoveContributionForm(forms.Form):
-
     pk_contribution = forms.CharField(
         label=_("Contributeur"),
         required=True,
@@ -110,7 +108,6 @@ class RemoveContributionForm(forms.Form):
 
 
 class AuthorForm(forms.Form):
-
     username = forms.CharField(label=_("Auteurs à ajouter séparés d'une virgule."), required=True)
 
     def __init__(self, *args, **kwargs):
@@ -168,7 +165,6 @@ class RemoveAuthorForm(AuthorForm):
 
 
 class ContainerForm(FormWithTitle):
-
     introduction = forms.CharField(
         label=_("Introduction"),
         required=False,
@@ -230,7 +226,6 @@ class ContainerForm(FormWithTitle):
 
 
 class ContentForm(ContainerForm):
-
     description = forms.CharField(
         label=_("Description"),
         max_length=PublishableContent._meta.get_field("description").max_length,
@@ -416,7 +411,6 @@ class EditContentLicenseForm(forms.Form):
 
 
 class ExtractForm(FormWithTitle):
-
     text = forms.CharField(
         label=_("Texte"),
         required=False,
@@ -448,7 +442,6 @@ class ExtractForm(FormWithTitle):
 
 
 class ImportForm(forms.Form):
-
     file = forms.FileField(label=_("Sélectionnez le contenu à importer."), required=True)
     images = forms.FileField(label=_("Fichier zip contenant les images du contenu."), required=False)
 
@@ -487,7 +480,6 @@ class ImportForm(forms.Form):
 
 
 class ImportContentForm(forms.Form):
-
     archive = forms.FileField(label=_("Sélectionnez l'archive de votre contenu."), required=True)
     image_archive = forms.FileField(label=_("Sélectionnez l'archive des images."), required=False)
 
@@ -539,7 +531,6 @@ class ImportContentForm(forms.Form):
 
 
 class ImportNewContentForm(ImportContentForm):
-
     subcategory = forms.ModelMultipleChoiceField(
         label=_(
             "Sous catégories de votre contenu. Si aucune catégorie ne convient "
@@ -674,7 +665,6 @@ class NoteEditForm(NoteForm):
 
 
 class AskValidationForm(forms.Form):
-
     text = forms.CharField(
         label="",
         required=False,
@@ -752,7 +742,6 @@ class AskValidationForm(forms.Form):
 
 
 class AcceptValidationForm(forms.Form):
-
     validation = None
 
     text = forms.CharField(
@@ -799,7 +788,6 @@ class AcceptValidationForm(forms.Form):
 
 
 class CancelValidationForm(forms.Form):
-
     text = forms.CharField(
         label="",
         required=True,
@@ -849,7 +837,6 @@ class CancelValidationForm(forms.Form):
 
 
 class RejectValidationForm(forms.Form):
-
     text = forms.CharField(
         label="",
         required=True,
@@ -903,7 +890,6 @@ class RejectValidationForm(forms.Form):
 
 
 class RevokeValidationForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     text = forms.CharField(
@@ -949,7 +935,6 @@ class RevokeValidationForm(forms.Form):
 
 
 class JsFiddleActivationForm(forms.Form):
-
     js_support = forms.BooleanField(label="À cocher pour activer JSFiddle.", required=False, initial=True)
 
     def __init__(self, *args, **kwargs):
@@ -980,7 +965,6 @@ class JsFiddleActivationForm(forms.Form):
 
 
 class MoveElementForm(forms.Form):
-
     child_slug = forms.HiddenInput()
     container_slug = forms.HiddenInput()
     first_level_slug = forms.HiddenInput()
@@ -1006,7 +990,6 @@ class MoveElementForm(forms.Form):
 
 
 class WarnTypoForm(forms.Form):
-
     text = forms.CharField(
         label="",
         required=True,
@@ -1149,7 +1132,6 @@ class PublicationForm(forms.Form):
 
 
 class UnpublicationForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     text = forms.CharField(
@@ -1181,7 +1163,6 @@ class UnpublicationForm(forms.Form):
 
 
 class PickOpinionForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
@@ -1245,7 +1226,6 @@ class DoNotPickOpinionForm(forms.Form):
 
 
 class UnpickOpinionForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     text = forms.CharField(
@@ -1274,7 +1254,6 @@ class UnpickOpinionForm(forms.Form):
 
 
 class PromoteOpinionToArticleForm(forms.Form):
-
     version = forms.CharField(widget=forms.HiddenInput())
 
     def __init__(self, content, *args, **kwargs):
@@ -1351,7 +1330,6 @@ class SearchSuggestionForm(forms.Form):
 
 
 class RemoveSuggestionForm(forms.Form):
-
     pk_suggestion = forms.IntegerField(
         label=_("Suggestion"),
         required=True,

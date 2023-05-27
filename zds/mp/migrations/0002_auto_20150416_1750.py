@@ -2,7 +2,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("mp", "0001_initial"),
     ]

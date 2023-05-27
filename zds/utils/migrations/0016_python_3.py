@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0015_hat_group"),
     ]

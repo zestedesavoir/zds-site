@@ -34,7 +34,6 @@ class AddAuthorTest(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.authors_management")
     def test_nominal(self, authors_management):
-
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": self.user_guest.username}, follow=False
         )
@@ -49,7 +48,6 @@ class AddAuthorTest(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.authors_management")
     def test_not_existing_user(self, authors_management):
-
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": "unknown"}, follow=False
         )
@@ -60,7 +58,6 @@ class AddAuthorTest(TutorialTestMixin, TestCase):
 
     @patch("zds.tutorialv2.signals.authors_management")
     def test_bot(self, authors_management):
-
         result = self.client.post(
             reverse("content:add-author", args=[self.tuto.pk]), {"username": self.external.username}, follow=False
         )

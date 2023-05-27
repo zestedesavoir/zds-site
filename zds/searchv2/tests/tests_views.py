@@ -29,7 +29,6 @@ from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 @override_for_contents(ES_ENABLED=True, ES_SEARCH_INDEX={"name": "zds_search_test", "shards": 1, "replicas": 0})
 class ViewsTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         settings.ZDS_APP["member"]["bot_account"] = self.mas.username
@@ -547,7 +546,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
 
         for model in self.indexable:
-
             # set a huge number to overcome the small differences:
             settings.ZDS_APP["search"]["boosts"][model.get_es_document_type()]["global"] = 10.0
 
@@ -562,7 +560,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
             settings.ZDS_APP["search"]["boosts"][model.get_es_document_type()]["global"] = 1.0
 
     def test_change_topic_impacts_posts(self):
-
         if not self.manager.connected_to_es:
             return
 
@@ -651,7 +648,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(response.hits.total, 0)  # ok
 
     def test_change_publishedcontents_impacts_chapter(self):
-
         if not self.manager.connected_to_es:
             return
 
@@ -740,7 +736,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(chapters[0].meta.id, published.content_public_slug + "__" + chapter2.slug)  # got new chapter
 
     def test_opensearch(self):
-
         result = self.client.get(reverse("search:opensearch"), follow=False)
 
         self.assertEqual(result.status_code, 200)

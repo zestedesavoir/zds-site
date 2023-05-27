@@ -25,7 +25,6 @@ class PagingGalleryListKeyConstructor(PagingListKeyConstructor):
 
 
 class GalleryListView(ListCreateAPIView):
-
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("title",)
     ordering_fields = ("title", "update", "pubdate")
@@ -105,7 +104,6 @@ class GalleryDetailKeyConstructor(DetailKeyConstructor):
 
 
 class GalleryDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
-
     queryset = Gallery.objects.annotated_gallery()
     list_key_func = GalleryDetailKeyConstructor()
 
@@ -208,7 +206,6 @@ class PagingImageListKeyConstructor(PagingListKeyConstructor):
 
 
 class ImageListView(ListCreateAPIView):
-
     filter_backends = (filters.SearchFilter, filters.OrderingFilter)
     search_fields = ("title",)
     ordering_fields = ("title", "update", "pubdate")
@@ -307,7 +304,6 @@ class ImageDetailKeyConstructor(DetailKeyConstructor):
 
 
 class ImageDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, ImageUpdateOrDeleteMixin):
-
     queryset = Image.objects
     list_key_func = ImageDetailKeyConstructor()
 
@@ -413,7 +409,6 @@ class PagingParticipantListKeyConstructor(PagingListKeyConstructor):
 
 
 class ParticipantListView(ListCreateAPIView):
-
     filter_backends = (filters.OrderingFilter,)
     ordering_fields = ("id",)
     list_key_func = PagingParticipantListKeyConstructor()
@@ -496,7 +491,6 @@ class ParticipantDetailKeyConstructor(DetailKeyConstructor):
 
 
 class ParticipantDetailView(RetrieveUpdateDestroyAPIView, NoPatchView, GalleryUpdateOrDeleteMixin):
-
     list_key_func = ParticipantDetailKeyConstructor()
     lookup_field = "user__pk"
 

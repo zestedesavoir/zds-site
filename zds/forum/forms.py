@@ -144,7 +144,6 @@ class PostForm(forms.Form, FieldValidatorMixin):
 
 
 class MoveTopicForm(forms.Form):
-
     forum = forms.ModelChoiceField(
         label=_("Forum"),
         queryset=Forum.objects.all(),

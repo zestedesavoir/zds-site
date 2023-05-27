@@ -2,7 +2,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("forum", "0009_remove_topic_key"),
     ]
