@@ -2,7 +2,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("tutorialv2", "0004_publishablecontent_public_version"),
     ]

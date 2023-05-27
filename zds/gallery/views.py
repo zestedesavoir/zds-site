@@ -144,7 +144,6 @@ class EditGallery(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, FormV
         return context
 
     def form_valid(self, form):
-
         self.perform_update(
             {
                 "title": form.cleaned_data["title"],
@@ -157,7 +156,6 @@ class EditGallery(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, FormV
 
 
 class DeleteGalleries(LoggedWithReadWriteHability, GalleryUpdateOrDeleteMixin, View):
-
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
@@ -408,7 +406,6 @@ class DeleteImages(ImageFromGalleryViewMixin, ImageUpdateOrDeleteMixin, LoggedWi
     must_write = True
 
     def delete(self, request, *args, **kwargs):
-
         if "delete_multi" in request.POST:
             list_items = request.POST.getlist("g_items")
             Image.objects.filter(pk__in=list_items, gallery=self.gallery).delete()

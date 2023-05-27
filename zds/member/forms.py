@@ -467,7 +467,6 @@ class UnregisterForm(PasswordRequiredForm):
 
 # TODO: Updates the password --> requires a better name
 class ChangePasswordForm(PasswordRequiredForm):
-
     password_new = forms.CharField(
         label=_("Nouveau mot de passe"),
         min_length=MIN_PASSWORD_LENGTH,

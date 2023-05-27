@@ -32,7 +32,6 @@ class IndexViewTest(TestCase):
         self.assertEqual(0, PrivateTopic.objects.filter(pk=topic.pk).count())
 
     def test_success_delete_topic_as_author(self):
-
         self.client.force_login(self.profile1.user)
 
         response = self.client.post(reverse("mp:list-delete"), {"items": [self.topic1.pk]})
@@ -44,7 +43,6 @@ class IndexViewTest(TestCase):
         self.assertNotIn(self.profile2.user, topic.participants.all())
 
     def test_success_delete_topic_as_participant(self):
-
         self.client.force_login(self.profile2.user)
 
         response = self.client.post(reverse("mp:list-delete"), {"items": [self.topic1.pk]})
@@ -121,7 +119,6 @@ class TopicViewTest(TestCase):
         self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
     def test_fail_topic_no_exist(self):
-
         self.client.force_login(self.profile1.user)
 
         response = self.client.get(reverse("mp:view", args=[12, "private-topic"]))
@@ -230,14 +227,12 @@ class NewTopicViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
-
         self.client.logout()
         response = self.client.get(reverse("mp:create"), follow=True)
 
         self.assertRedirects(response, reverse("member-login") + "?next=" + reverse("mp:create"))
 
     def test_success_get_with_and_without_username(self):
-
         response = self.client.get(reverse("mp:create"))
 
         self.assertEqual(200, response.status_code)
@@ -249,7 +244,6 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(self.profile2.user.username, response2.context["form"].initial["participants"])
 
     def test_success_get_with_multi_username(self):
-
         profile3 = ProfileFactory()
 
         response = self.client.get(
@@ -263,7 +257,6 @@ class NewTopicViewTest(TestCase):
         self.assertTrue(profile3.user.username in response.context["form"].initial["participants"])
 
     def test_success_get_with_and_without_title(self):
-
         response = self.client.get(reverse("mp:create"))
 
         self.assertEqual(200, response.status_code)
@@ -275,14 +268,12 @@ class NewTopicViewTest(TestCase):
         self.assertEqual("Test titre", response2.context["form"].initial["title"])
 
     def test_fail_get_with_username_not_exist(self):
-
         response2 = self.client.get(reverse("mp:create") + "?username=wrongusername")
 
         self.assertEqual(200, response2.status_code)
         self.assertEqual(response2.context["form"].initial["participants"], "")
 
     def test_success_preview(self):
-
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
             reverse("mp:create"),
@@ -299,7 +290,6 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(0, PrivateTopic.objects.all().count())
 
     def test_fail_new_topic_user_no_exist(self):
-
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
             reverse("mp:create"),
@@ -310,7 +300,6 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(0, PrivateTopic.objects.all().count())
 
     def test_fail_new_topic_user_no_active(self):
-
         profile_inactive = ProfileFactory()
         profile_inactive.user.is_active = False
         profile_inactive.user.save()
@@ -330,7 +319,6 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(0, PrivateTopic.objects.all().count())
 
     def test_success_new_topic(self):
-
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
             reverse("mp:create"),
@@ -358,7 +346,6 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(PrivatePost.objects.latest("pubdate").hat, self.hat)
 
     def test_fail_new_topic_user_add_only_himself(self):
-
         self.assertEqual(0, PrivateTopic.objects.all().count())
         response = self.client.post(
             reverse("mp:create"),
@@ -370,7 +357,6 @@ class NewTopicViewTest(TestCase):
         self.assertEqual(0, PrivateTopic.objects.all().count())
 
     def test_fail_new_topic_user_add_himself_and_others(self):
-
         self.assertEqual(0, PrivateTopic.objects.all().count())
 
         participants = self.profile2.user.username
@@ -404,7 +390,6 @@ class AnswerViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
-
         self.client.logout()
         response = self.client.get(reverse("mp:answer", args=[1, "private-topic"]), follow=True)
 
@@ -413,19 +398,16 @@ class AnswerViewTest(TestCase):
         )
 
     def test_fail_answer_not_send_topic_pk(self):
-
         response = self.client.post(reverse("mp:answer", args=[999, "private-topic"]))
 
         self.assertEqual(404, response.status_code)
 
     def test_fail_answer_topic_no_exist(self):
-
         response = self.client.post(reverse("mp:answer", args=[156, "private-topic"]))
 
         self.assertEqual(404, response.status_code)
 
     def test_fail_cite_post_no_exist(self):
-
         response = self.client.get(reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]) + "&cite=4864")
 
         self.assertEqual(404, response.status_code)
@@ -446,7 +428,6 @@ class AnswerViewTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_success_cite_post(self):
-
         response = self.client.get(
             reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]) + f"?cite={self.post2.pk}"
         )
@@ -454,7 +435,6 @@ class AnswerViewTest(TestCase):
         self.assertEqual(200, response.status_code)
 
     def test_success_preview_answer(self):
-
         response = self.client.post(
             reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]),
             {"text": "answer", "preview": "", "last_post": self.topic1.last_message.pk},
@@ -464,7 +444,6 @@ class AnswerViewTest(TestCase):
         self.assertEqual(200, response.status_code)
 
     def test_success_answer(self):
-
         response = self.client.post(
             reverse("mp:answer", args=[self.topic1.pk, self.topic1.slug()]),
             {"text": "Bonjour Luc", "last_post": self.topic1.last_message.pk},
@@ -490,7 +469,6 @@ class AnswerViewTest(TestCase):
         self.assertEqual(PrivatePost.objects.latest("pubdate").hat, self.hat)
 
     def test_fail_answer_with_no_right(self):
-
         self.client.logout()
         self.client.force_login(self.profile3.user)
 
@@ -546,7 +524,6 @@ class EditPostViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
-
         self.client.logout()
         response = self.client.get(reverse("mp:post-edit", args=[1]), follow=True)
 
@@ -564,7 +541,6 @@ class EditPostViewTest(TestCase):
         self.assertEqual(200, response.status_code)
 
     def test_fail_edit_post_no_exist(self):
-
         response = self.client.get(reverse("mp:post-edit", args=[154]))
 
         self.assertEqual(404, response.status_code)
@@ -580,7 +556,6 @@ class EditPostViewTest(TestCase):
         self.assertEqual(403, response.status_code)
 
     def test_success_edit_post(self):
-
         self.client.logout()
         self.client.force_login(self.profile2.user)
 
@@ -643,7 +618,6 @@ class LeaveViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
-
         self.client.logout()
         response = self.client.get(reverse("mp:leave", args=[1, "private-topic"]), follow=True)
 
@@ -660,13 +634,11 @@ class LeaveViewTest(TestCase):
         self.assertEqual(1, PrivateTopic.objects.filter(pk=self.topic1.pk).count())
 
     def test_fail_leave_topic_no_exist(self):
-
         response = self.client.post(reverse("mp:leave", args=[999, "private-topic"]))
 
         self.assertEqual(404, response.status_code)
 
     def test_success_leave_topic_as_author_no_participants(self):
-
         self.topic1.participants.clear()
         self.topic1.save()
 
@@ -676,7 +648,6 @@ class LeaveViewTest(TestCase):
         self.assertEqual(0, PrivateTopic.objects.filter(pk=self.topic1.pk).all().count())
 
     def test_success_leave_topic_as_author(self):
-
         response = self.client.post(reverse("mp:leave", args=[self.topic1.pk, self.topic1.slug()]), follow=True)
 
         self.assertEqual(200, response.status_code)
@@ -685,7 +656,6 @@ class LeaveViewTest(TestCase):
         self.assertEqual(self.profile2.user, PrivateTopic.objects.get(pk=self.topic1.pk).author)
 
     def test_success_leave_topic_as_participant(self):
-
         self.client.logout()
         self.client.force_login(self.profile2.user)
 
@@ -717,7 +687,6 @@ class AddParticipantViewTest(TestCase):
         self.client.force_login(self.profile1.user)
 
     def test_denies_anonymous(self):
-
         self.client.logout()
         response = self.client.get(reverse("mp:edit-participant", args=[1, "private-topic"]), follow=True)
 
@@ -726,7 +695,6 @@ class AddParticipantViewTest(TestCase):
         )
 
     def test_fail_add_participant_topic_no_exist(self):
-
         response = self.client.post(reverse("mp:edit-participant", args=[451, "private-topic"]), follow=True)
 
         self.assertEqual(404, response.status_code)
@@ -745,7 +713,6 @@ class AddParticipantViewTest(TestCase):
         self.assertFalse(self.anonymous_account in self.topic1.participants.all())
 
     def test_fail_add_participant_who_no_exist(self):
-
         response = self.client.post(
             reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
             {"username": "178548"},
@@ -770,7 +737,6 @@ class AddParticipantViewTest(TestCase):
         self.assertNotIn(profile3.user, PrivateTopic.objects.get(pk=self.topic1.pk).participants.all())
 
     def test_fail_add_participant_already_in(self):
-
         response = self.client.post(
             reverse("mp:edit-participant", args=[self.topic1.pk, self.topic1.slug()]),
             {"username": self.profile2.user.username},
@@ -781,7 +747,6 @@ class AddParticipantViewTest(TestCase):
         self.assertEqual(1, len(response.context["messages"]))
 
     def test_success_add_participant(self):
-
         profile3 = ProfileFactory()
 
         response = self.client.post(
@@ -806,7 +771,6 @@ class PrivateTopicEditTest(TestCase):
         self.post2 = PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=2)
 
     def test_denies_anonymous(self):
-
         self.client.logout()
         self.topic1.title = "super title"
         self.topic1.subtitle = "super subtitle"
@@ -852,7 +816,6 @@ class PrivateTopicEditTest(TestCase):
         self.assertEqual("subtest", topic.subtitle)
 
     def test_fail_user_is_not_author(self):
-
         self.topic1.title = "super title"
         self.topic1.subtitle = "super subtitle"
         self.topic1.save()
@@ -888,7 +851,6 @@ class PrivateTopicEditTest(TestCase):
         self.assertEqual(404, response.status_code)
 
     def test_fail_blank_title(self):
-
         self.topic1.title = "super title"
         self.topic1.subtitle = "super subtitle"
         self.topic1.save()

@@ -174,6 +174,11 @@ class MemberDetail(DetailView):
             .distinct()
             .count()
         )
+        context["hide_because_banned"] = (
+            not profile.end_ban_read
+            and not profile.can_read
+            and not self.request.user.has_perm("member.change_profile")
+        )
         context["content_reactions_count"] = ContentReaction.objects.filter(author=usr).count()
         hide_forum_activity = (
             profile.hide_forum_activity

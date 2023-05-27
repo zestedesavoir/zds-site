@@ -10,7 +10,6 @@ register = template.Library()
 
 @register.simple_tag
 def htmldiff(string1, string2):
-
     try:
         txt1 = string1.decode("utf-8").splitlines()
     # string1 is an empty SafeText from template

@@ -22,7 +22,6 @@ from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
 @override_for_contents()
 class ContentMoveTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         self.staff = StaffProfileFactory().user
 
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"

@@ -169,7 +169,6 @@ class FeaturedResourceUpdate(FeaturedViewMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
-
         self.object.title = form.cleaned_data.get("title")
         self.object.type = form.cleaned_data.get("type")
         self.object.authors = form.cleaned_data.get("authors")

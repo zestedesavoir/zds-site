@@ -35,7 +35,6 @@ class GalleryListAPITest(APITestCase):
         self.assertIsNone(response.data.get("previous"))
 
     def test_get_list_of_gallery(self):
-
         gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=gallery)
         response = self.client.get(reverse("api:gallery:list"))
@@ -210,7 +209,6 @@ class GalleryDetailAPITest(TutorialTestMixin, APITestCase):
         self.assertEqual(UserGallery.objects.filter(gallery=self.gallery).count(), 1)
 
     def test_delete_fail_linked_content(self):
-
         response = self.client.delete(reverse("api:gallery:detail", kwargs={"pk": self.gallery_tuto.pk}))
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

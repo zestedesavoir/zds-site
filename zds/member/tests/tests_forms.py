@@ -213,7 +213,6 @@ class MiniProfileFormTest(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_too_long_site_url_miniprofile_form(self):
-
         # url is one char too long
         data = {"biography": "", "site": stringof2001chars, "avatar_url": "", "sign": ""}
         form = MiniProfileForm(data=data)
