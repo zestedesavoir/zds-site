@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.notification.models import Notification
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ExtractFactory,
@@ -79,6 +80,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         opinion = PublishableContent.objects.get(pk=opinion.pk)
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
+
+        # By visiting the published content, the author marks the publication notification as read:
+        self.assertEqual(Notification.objects.get_unread_notifications_of(self.user_author).count(), 1)
+        self.client.get(result.url)
+        self.assertEqual(Notification.objects.get_unread_notifications_of(self.user_author).count(), 0)
 
     @patch("zds.tutorialv2.signals.opinions_management")
     def test_publish_content_change_title_before_watchdog(self, opinions_management):

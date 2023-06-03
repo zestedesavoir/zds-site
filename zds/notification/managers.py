@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -155,6 +156,22 @@ class SubscriptionManager(models.Manager):
             notification.is_dead = True
             notification.save(update_fields=["is_read", "is_dead"])
             subscription.save(update_fields=["is_active"])
+
+
+class NewPublicationSubscriptionManager(SubscriptionManager):
+    def get_objects_followed_by(self, user):
+        """
+        Gets objects followed by the given user.
+
+        :param user: concerned user.
+        :type user: django.contrib.auth.models.User
+        :return: All objects followed by given user.
+        """
+        user_list = self.filter(
+            user=user, is_active=True, content_type=ContentType.objects.get_for_model(User)
+        ).values_list("object_id", flat=True)
+
+        return User.objects.filter(id__in=user_list)
 
 
 class NewTopicSubscriptionManager(SubscriptionManager):
