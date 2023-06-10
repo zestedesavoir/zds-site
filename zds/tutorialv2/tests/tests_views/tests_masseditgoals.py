@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.tests.factories import PublishableContentFactory, GoalFactory, PublishedContentFactory
 from zds.tutorialv2.views.goals import MassEditGoalsForm
 
@@ -154,7 +155,7 @@ class TestMassEditGoalsFilterTests(TestCase):
 
     def test_filter_goal(self):
         """The filter for a given goal shall display only contents with this goal."""
-        response = self.client.get(self.url + f"?objectif_{self.goals[0].id}")
+        response = self.client.get(self.url + f"?{self.goals[0].slug}")
         self.assertNotContains(response, self.contents[0].title)
         self.assertContains(response, self.contents[1].title)
         self.assertNotContains(response, self.contents[2].title)
@@ -162,7 +163,7 @@ class TestMassEditGoalsFilterTests(TestCase):
 
     def test_filter_no_goals(self):
         """The filter for no goals shall display only contents with no goals."""
-        response = self.client.get(self.url + "?non-classes")
+        response = self.client.get(self.url + "?" + Goal.SLUG_UNCLASSIFIED)
         self.assertContains(response, self.contents[0].title)
         self.assertNotContains(response, self.contents[1].title)
         self.assertNotContains(response, self.contents[2].title)
