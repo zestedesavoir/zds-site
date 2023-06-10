@@ -120,14 +120,15 @@ class ContentsByGoalMixin:
         queryset_not_classified = self.base_queryset.filter(goals=None)
         self.num_not_classified = queryset_not_classified.count()
 
-        self.only_not_classified = "non-classes" in self.request.GET
+        self.only_not_classified = Goal.SLUG_UNCLASSIFIED in self.request.GET
         if self.only_not_classified:
             return queryset_not_classified
-        else:
-            for goal in Goal.objects.all():
-                if f"objectif_{goal.pk}" in self.request.GET:
-                    self.current_filter_pk = goal.pk
-                    return self.base_queryset.filter(goals__in=[goal])
+        elif len(self.request.GET) > 0:
+            slug = list(self.request.GET.keys())[0]
+            goal = Goal.objects.filter(slug=slug).first()
+            if goal is not None:
+                self.current_filter_pk = goal.pk
+                return self.base_queryset.filter(goals__in=[goal])
         return self.base_queryset
 
     def get_context_data(self, **kwargs):
@@ -154,12 +155,7 @@ class MassEditGoals(LoginRequiredMixin, PermissionRequiredMixin, BaseFormView, C
 
     def get_context_data(self, **kwargs):
         context = {
-            "goals": Goal.objects.all().annotate(num_contents=Count("contents")),
-            "current_filter_pk": self.current_filter_pk,
-            "only_not_classified": self.only_not_classified,
-            "all": self.current_filter_pk is None and not self.only_not_classified,
-            "num_all": self.num_all,
-            "num_not_classified": self.num_not_classified,
+            "url_not_classified": reverse("content:mass-edit-goals") + "?" + Goal.SLUG_UNCLASSIFIED,
         }
         context.update(kwargs)
         return super().get_context_data(**context)
@@ -192,6 +188,9 @@ class ViewContentsByGoal(ContentsByGoalMixin, ZdSPagingListView):
             )
         else:
             headline = _("Toutes les publications")
-        context = {"headline": headline}
+        context = {
+            "headline": headline,
+            "url_not_classified": reverse("content:view-goals") + "?" + Goal.SLUG_UNCLASSIFIED,
+        }
         context.update(kwargs)
         return super().get_context_data(**context)
