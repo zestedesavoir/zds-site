@@ -17,3 +17,13 @@ class ViewContentsByGoalTests(TestCase):
             self.assertContains(response, goal.name)
         for content in self.contents:
             self.assertContains(response, content.title)
+
+    def test_forbid_slug_unclassified(self):
+        goal = Goal(name="Invalid", slug=Goal.SLUG_UNCLASSIFIED)
+        self.assertRaises(ValidationError, goal.full_clean)
+
+        goal = Goal(name="Almost invalid", slug=Goal.SLUG_UNCLASSIFIED + "z")
+        goal.full_clean()
+
+        goal = Goal(name="Valid", slug="valid-slug")
+        goal.full_clean()
