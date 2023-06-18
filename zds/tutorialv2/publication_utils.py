@@ -95,7 +95,8 @@ def publish_content(db_object, versioned, is_major_update=True):
     is_update = False
 
     if db_object.public_version:
-        is_update, public_version = update_existing_publication(db_object, versioned)
+        public_version = update_existing_publication(db_object, versioned)
+        is_update = True
     else:
         public_version = PublishedContent()
 
@@ -136,10 +137,9 @@ def publish_content(db_object, versioned, is_major_update=True):
 
 def update_existing_publication(db_object, versioned):
     public_version = db_object.public_version
-    # the content has been published in the past, so clean up old files!
+    # the content has been published in the past, so we will clean up old files!
     old_path = public_version.get_prod_path()
-    logging.getLogger(__name__).debug("erase " + old_path)
-    shutil.rmtree(old_path)
+
     # if the slug has changed, create a new object instead of reusing the old one
     # this allows us to handle permanent redirection so that SEO is not impacted.
     if versioned.slug != public_version.content_public_slug:
@@ -151,7 +151,13 @@ def update_existing_publication(db_object, versioned):
 
         # keep the same publication date if the content is already published
         public_version.publication_date = publication_date
-    return True, public_version
+
+    # remove old files only if everything succeed so far: if something bad
+    # happened, we don't want to have a published content without content!
+    logging.getLogger(__name__).debug("erase " + old_path)
+    shutil.rmtree(old_path)
+
+    return public_version
 
 
 def write_md_file(md_file_path, parsed_with_local_images, versioned):
