@@ -124,6 +124,7 @@ class GoalAdmin(admin.ModelAdmin):
 class LabelAdmin(admin.ModelAdmin):
     list_display = ["name", "description"]
     ordering = ["name"]
+    prepopulated_fields = {"slug": ("name",)}
 
 
 admin.site.register(PublishableContent, PublishableContentAdmin)
