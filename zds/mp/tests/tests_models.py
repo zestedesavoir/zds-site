@@ -8,7 +8,14 @@ from django.conf import settings
 
 from zds.member.tests.factories import ProfileFactory
 from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import mark_read, is_privatetopic_unread, is_reachable, NotParticipatingError, NotReachableError
+from zds.mp.models import (
+    is_privatetopic_unread,
+    is_reachable,
+    mark_read,
+    NotParticipatingError,
+    NotReachableError,
+    PrivateTopic,
+)
 
 # by moment, i wrote the scenario to be simpler
 
@@ -105,6 +112,8 @@ class PrivateTopicTest(TestCase):
         # post1 - user1 - read
         # post2 - user2 - read
         mark_read(self.topic1, self.user1)
+        self.assertTrue(self.topic1.is_unread(self.user1))  # cache is working
+        self.topic1 = PrivateTopic.objects.get(pk=self.topic1.pk)  # get a new object to have an empty cache
         self.assertFalse(self.topic1.is_unread(self.user1))
 
         # scenario - topic1 :
@@ -112,7 +121,8 @@ class PrivateTopicTest(TestCase):
         # post2 - user2 - read
         # post3 - user2 - unread
         PrivatePostFactory(privatetopic=self.topic1, author=self.user2, position_in_topic=3)
-
+        self.assertFalse(self.topic1.is_unread(self.user1))  # cache is working
+        self.topic1 = PrivateTopic.objects.get(pk=self.topic1.pk)  # get a new object to have an empty cache
         self.assertTrue(self.topic1.is_unread(self.user1))
 
     def test_topic_never_read_get_last_read(self):
@@ -270,12 +280,16 @@ class FunctionTest(TestCase):
         # post1 - user1 - read
         # post2 - user2 - read
         mark_read(self.topic1, self.profile1.user)
-        self.assertFalse(self.topic1.is_unread(self.profile1.user))
         self.assertEqual(topic_read.send.call_count, 1)
+        self.assertTrue(self.topic1.is_unread(self.profile1.user))  # cache is working
+        self.topic1 = PrivateTopic.objects.get(pk=self.topic1.pk)  # get a new object to have an empty cache
+        self.assertFalse(self.topic1.is_unread(self.profile1.user))
 
         # scenario - topic1 :
         # post1 - user1 - read
         # post2 - user2 - read
         # post3 - user2 - unread
         PrivatePostFactory(privatetopic=self.topic1, author=self.profile2.user, position_in_topic=3)
+        self.assertFalse(self.topic1.is_unread(self.profile1.user))  # cache is working
+        self.topic1 = PrivateTopic.objects.get(pk=self.topic1.pk)  # get a new object to have an empty cache
         self.assertTrue(self.topic1.is_unread(self.profile1.user))
