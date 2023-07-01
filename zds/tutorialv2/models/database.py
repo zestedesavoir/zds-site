@@ -1015,7 +1015,6 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
                 # chapters are only indexed for middle and big tuto
                 if versioned.has_sub_containers():
-
                     # delete possible previous chapters
                     if content.search_engine_already_indexed:
                         search_engine_manager.delete_by_query(

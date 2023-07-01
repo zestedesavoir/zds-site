@@ -8,7 +8,6 @@ class DateFormatterTest(TestCase):
     # todo: Add test with localization parameters
 
     def setUp(self):
-
         now = datetime.now()
         date_previous_in_day = now - timedelta(hours=1)
         date_previous_abs = datetime(2013, 9, 12, hour=11, minute=10, second=42, microsecond=10)
@@ -78,7 +77,6 @@ class DateFormatterTest(TestCase):
         self.assertEqual("None", tr)
 
     def test_humane_time(self):
-
         # Default behaviour
         tr = Template("{% load date %}" "{{ date_epoch | humane_time }}").render(self.context)
 

@@ -488,7 +488,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 404)
 
     def test_add_note(self):
-
         message_to_post = "la ZEP-12"
 
         self.client.force_login(self.user_guest)
@@ -650,7 +649,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(reaction.is_visible)
 
     def test_alert_reaction(self):
-
         self.client.force_login(self.user_guest)
 
         self.client.post(
@@ -715,7 +713,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
 
     def test_warn_typo_without_accessible_author(self):
-
         self.client.force_login(self.user_guest)
         result = self.client.post(
             reverse("content:warn-typo") + f"?pk={self.tuto.pk}",

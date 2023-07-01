@@ -288,7 +288,6 @@ class StatTests(TestCase, TutorialTestMixin):
 
     @mock.patch("requests.post")
     def test_query_string_parameter_duration(self, mock_post):
-
         # By default we only have the last 7 days
         default_duration = 7
         self.client.force_login(self.user_author)

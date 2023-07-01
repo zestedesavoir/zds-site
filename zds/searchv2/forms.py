@@ -55,7 +55,6 @@ class SearchForm(forms.Form):
     from_library = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
-
         super().__init__(*args, **kwargs)
 
         self.helper = FormHelper()

@@ -6,7 +6,6 @@ import zds
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("tutorialv2", "0032_event"),
         ("utils", "0025_move_helpwriting"),

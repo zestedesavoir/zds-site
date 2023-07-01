@@ -4,7 +4,6 @@ import zds.forum.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0001_initial"),
         ("auth", "0001_initial"),

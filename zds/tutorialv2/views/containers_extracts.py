@@ -314,7 +314,6 @@ class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMix
 
 
 class MoveChild(LoginRequiredMixin, SingleContentPostMixin, FormView):
-
     model = PublishableContent
     form_class = MoveElementForm
     versioned = False

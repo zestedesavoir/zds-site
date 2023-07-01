@@ -2,7 +2,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("utils", "0001_initial"),
         ("tutorialv2", "0011_auto_20160106_2231"),

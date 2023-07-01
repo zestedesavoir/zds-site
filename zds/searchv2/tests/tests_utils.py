@@ -15,7 +15,6 @@ from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 @override_for_contents(SEARCH_ENABLED=True)
 class UtilsTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         settings.ZDS_APP["member"]["bot_account"] = self.mas.username

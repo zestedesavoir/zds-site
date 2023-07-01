@@ -426,7 +426,6 @@ class ForumNotification(TestCase):
 @override_for_contents()
 class ContentNotification(TestCase, TutorialTestMixin):
     def setUp(self):
-
         # don't build PDF to speed up the tests
         self.user1 = ProfileFactory().user
         self.user2 = ProfileFactory().user

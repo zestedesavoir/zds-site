@@ -28,7 +28,6 @@ class override_for_contents(override_settings):
 
 
 class TutorialTestMixin:
-
     overridden_zds_app = overridden_zds_app
 
     def clean_media_dir(self):

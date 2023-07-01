@@ -507,7 +507,6 @@ class EditImageViewTest(TestCase):
         self.client.force_login(self.profile3.user)
 
         with (settings.BASE_DIR / "fixtures" / "logo.png").open("rb") as fp:
-
             self.client.post(
                 reverse("gallery:image-edit", args=[self.gallery.pk, self.image.pk]),
                 {"title": "modify with no perms", "legend": "test legend", "physical": fp},

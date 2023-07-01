@@ -59,7 +59,6 @@ class InterventionsTest(TestCase):
         self.context = Context(cont)
 
     def test_interventions_privatetopics(self):
-
         self.client.force_login(self.author.user)
         response = self.client.post(reverse("homepage"))
         self.assertEqual(200, response.status_code)
@@ -73,7 +72,6 @@ class InterventionsTest(TestCase):
         self.assertContains(response, '<span class="notif-count">1</span>', html=True)
 
     def test_interventions_privatetopics_author_leave(self):
-
         # profile1 (author) leave topic
         move = self.topic.participants.first()
         self.topic.author = move

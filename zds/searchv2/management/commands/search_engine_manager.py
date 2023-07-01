@@ -30,7 +30,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         if options["action"] == "setup":
             self.setup_search_engine()
         elif options["action"] == "clear":
@@ -43,7 +42,6 @@ class Command(BaseCommand):
             raise CommandError("unknown action {}".format(options["action"]))
 
     def setup_search_engine(self):
-
         self.search_engine_manager.reset_index(self.models)
 
     def clear_search_engine(self):
@@ -53,7 +51,6 @@ class Command(BaseCommand):
             self.search_engine_manager.clear_indexing_of_model(model)
 
     def index_documents(self, force_reindexing=False):
-
         if force_reindexing:
             self.setup_search_engine()  # remove all previous data
 

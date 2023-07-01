@@ -403,14 +403,12 @@ class SingleOnlineContentViewMixin(ContentTypeMixin):
         return obj
 
     def get_object(self):
-
         obj = self.public_content_object.content
         if obj is None:
             raise Http404("Le contenu de la publication n'est pas trouvé.")
         return obj
 
     def get_versioned_object(self):
-
         return self.public_content_object.load_public_version_or_404()
 
 
@@ -433,7 +431,6 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
     """
 
     def get(self, request, *args, **kwargs):
-
         try:
             self.public_content_object = self.get_public_object()
         except MustRedirect as redirection_url:
@@ -450,7 +447,6 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
-
         context = super().get_context_data(**kwargs)
 
         context["content"] = self.versioned_object

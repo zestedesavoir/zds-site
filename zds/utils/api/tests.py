@@ -153,7 +153,6 @@ class TagListAPITest(APITestCase):
         publish_content(content, content_draft)
 
     def tearDown(self):
-
         if os.path.isdir(settings.ZDS_APP["content"]["repo_private_path"]):
             shutil.rmtree(settings.ZDS_APP["content"]["repo_private_path"])
         if os.path.isdir(settings.ZDS_APP["content"]["repo_public_path"]):

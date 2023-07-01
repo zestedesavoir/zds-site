@@ -56,7 +56,6 @@ class ValidationListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     subcategory = None
 
     def get_queryset(self):
-
         # TODO: many filter at the same time ?
         # TODO: paginate ?
 
@@ -131,7 +130,6 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
         return kwargs
 
     def form_valid(self, form):
-
         old_validation = Validation.objects.filter(
             content__pk=self.object.pk, status__in=["PENDING", "PENDING_V"]
         ).first()
@@ -215,7 +213,6 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
         return kwargs
 
     def form_valid(self, form):
-
         user = self.request.user
 
         validation = (
@@ -365,7 +362,6 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 
 class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, RequiresValidationViewMixin):
-
     model = PublishableContent
     permission_required = "tutorialv2.change_validation"
     template_name = "tutorialv2/validation/history.html"
@@ -397,7 +393,6 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         return kwargs
 
     def form_valid(self, form):
-
         user = self.request.user
 
         validation = Validation.objects.filter(pk=self.kwargs["pk"]).last()
@@ -478,7 +473,6 @@ class AcceptValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
         return kwargs
 
     def form_valid(self, form):
-
         user = self.request.user
         validation = Validation.objects.filter(pk=self.kwargs["pk"]).last()
 
@@ -543,7 +537,6 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return kwargs
 
     def form_valid(self, form):
-
         versioned = self.versioned_object
 
         if form.cleaned_data["version"] != self.object.sha_public:
@@ -613,7 +606,6 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
 
 
 class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
-
     permission_required = "tutorialv2.change_validation"
 
     def get(self, request, *args, **kwargs):

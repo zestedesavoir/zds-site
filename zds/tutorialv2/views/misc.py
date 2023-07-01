@@ -74,7 +74,6 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
 
 
 class WarnTypo(SingleContentFormViewMixin):
-
     modal_form = True
     form_class = WarnTypoForm
     must_be_author = False
@@ -84,7 +83,6 @@ class WarnTypo(SingleContentFormViewMixin):
     object = None
 
     def get_form_kwargs(self):
-
         kwargs = super().get_form_kwargs()
 
         versioned = self.get_versioned_object()

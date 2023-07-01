@@ -30,7 +30,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         return redirect(url, self.request.user)
 
     def form_valid(self, form):
-
         _type = _("de l'article")
 
         if self.object.is_tutorial:
@@ -83,7 +82,6 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
 
 
 class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-
     form_class = RemoveAuthorForm
     only_draft_version = True
     must_be_author = True
@@ -112,7 +110,6 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
         return False
 
     def form_valid(self, form):
-
         current_user = False
         users = form.cleaned_data["users"]
 

@@ -26,7 +26,6 @@ from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 @override_for_contents(SEARCH_ENABLED=True)
 class ViewsTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
         settings.ZDS_APP["member"]["bot_account"] = self.mas.username
@@ -670,7 +669,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
 
         for model in self.indexable:
-
             # set a huge number to overcome the small differences:
             collection = model.get_document_type()
             for key in settings.ZDS_APP["search"]["boosts"][collection]:
@@ -702,7 +700,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 self.manager.indexing_of_model(model, force_reindexing=True)
 
     def test_change_topic_impacts_posts(self):
-
         if not self.manager.connected_to_search_engine:
             return
 
@@ -792,7 +789,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 0)  # ok
 
     def test_change_publishedcontents_impacts_chapter(self):
-
         if not self.manager.connected_to_search_engine:
             return
 
@@ -891,7 +887,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         )  # got new chapter
 
     def test_opensearch(self):
-
         result = self.client.get(reverse("search:opensearch"), follow=False)
 
         self.assertEqual(result.status_code, 200)

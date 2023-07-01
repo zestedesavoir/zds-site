@@ -30,7 +30,6 @@ from zds.utils.models import Alert
 @override_for_contents()
 class PublishedContentTests(TutorialTestMixin, TestCase):
     def setUp(self):
-
         self.overridden_zds_app["member"]["bot_account"] = ProfileFactory().user.username
         self.bot_group = Group()
         self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
