@@ -232,12 +232,12 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name="publishedcontent",
-            name="search_engine_already_indexed",
+            name="es_already_indexed",
             field=models.BooleanField(db_index=True, default=False, verbose_name="Déjà indexé par ES"),
         ),
         migrations.AlterField(
             model_name="publishedcontent",
-            name="search_engine_flagged",
+            name="es_flagged",
             field=models.BooleanField(db_index=True, default=True, verbose_name="Doit être (ré)indexé par ES"),
         ),
         migrations.AlterField(

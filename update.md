@@ -940,7 +940,7 @@ Une fois Elasticsearch configuré et lancé,
 + Indexer les données (**ça peut être long**):
 
     ```
-    python manage.py search_engine_manager index_all
+    python manage.py es_manager index_all
     ```
 
 Une fois que tout est indexé,
@@ -959,7 +959,7 @@ Une fois que tout est indexé,
         Type=oneshot
         User=zds
         Group=zds
-        ExecStart=/opt/zds/zdsenv/bin/python /opt/zds/zds-site/manage.py search_engine_manager index_flagged
+        ExecStart=/opt/zds/zdsenv/bin/python /opt/zds/zds-site/manage.py es_manager index_flagged
         ```
 
     * `zds-es-index.timer`:
@@ -1025,7 +1025,7 @@ Tribunes
 + Réindexer les données (un champ a été rajouté):
 
     ```
-    python manage.py search_engine_manager index_all
+    python manage.py es_manager index_all
     ```
 
 A propos de social auth:
