@@ -16,25 +16,32 @@ La recherche se découpe en deux parties distinctes :
 L'indexation des données
 ++++++++++++++++++++++++
 
-**L'indexation** des données consiste à **rassembler toutes les données** dans lesquelles l'utilisateur va **pouvoir rechercher**. Elle est faite au préalable.
-Celle-ci est faite de telle façon qu'on puisse rechercher dans les éléments suivants :
+**L'indexation** des données consiste à **rassembler toutes les données** dans
+lesquelles l'utilisateur va **pouvoir rechercher**. Elle est faite au
+préalable.  Celle-ci est faite de telle façon qu'on puisse rechercher dans les
+éléments suivants :
 
- - Les contenus (article et tutoriels) ainsi que leurs chapitres (s'il s'agit d'un moyen ou *big*-tuto);
+ - Les contenus (article, tutoriels et billets) ainsi que leurs chapitres (s'il
+   s'agit d'un moyen ou *big*-tuto) ;
  - Les sujets ;
  - Les réponses aux sujets.
 
-Cette indexation est réalisée à intervalle régulier (et de manière à n'indexer que les données qui ont changées).
+Cette indexation est réalisée à intervalle régulier (et de manière à n'indexer
+que les données qui ont changé).
 
 La recherche
 ++++++++++++
 
-L'utilisateur peut utiliser la recherche, en utilisant la recherche de `l'en-tête  <../front-end/structure-du-site.html#l-en-tete>`_, ou par la page d'accueil, si elle est disponible.
+L'utilisateur peut utiliser la recherche, en utilisant la recherche de
+`l'en-tête  <../front-end/structure-du-site.html#l-en-tete>`_, ou par la page
+d'accueil, si elle est disponible.
 
    .. figure:: ../images/design/en-tete.png
       :align: center
 
-Des critères de recherche peuvent être ajoutés sur la page de recherche.
-Le seul critère de recherche disponible actuellement est le type de résultat (contenu, sujet du forum ou message du forum).
+Des critères de recherche peuvent être ajoutés sur la page de recherche.  Le
+seul critère de recherche disponible actuellement est le type de résultat
+(contenu, sujet du forum ou message du forum).
 
    .. figure:: ../images/search/search-filters.png
       :align: center
@@ -42,34 +49,53 @@ Le seul critère de recherche disponible actuellement est le type de résultat (
 Quelques mots sur Typesense
 -------------------------------
 
-`Typesense <https://typesense.org/>`_ est un moteur de recherche open source. Celui-ci se concentre sur l’expérience des développeurs et des utilisateurs. Il permet d’indexer et de rechercher des données en temps réel. Typesense offre une interface de type REST pour interroger les données, avec des requêtes en JSON. Il propose également des SDKs en Python, Node.js, Ruby, Go, Java, et PHP pour faciliter l’intégration avec différents environnements de développement.
-
-Typesense se concentre sur les cas d’utilisation les plus courants de la recherche et de l’analyse de texte. 
-
-Pour intéragir avec Typesense, nous importons le client du module Typesense en Python. 
+`Typesense <https://typesense.org/>`_ est un moteur de recherche qui permet
+d’indexer et de rechercher des données. Typesense offre une interface de type
+REST pour interroger son index, mais nous utilisons plutôt le module Python
+dédié.
 
 Phase d'indexation
 ++++++++++++++++++
 
-Typesense organise les données sous forme de documents, regroupés dans des collections. On peut avoir différent types de collections (*topics*, *posts*, contenus, chapitres dans ce cas-ci).
+Typesense organise les données sous forme de documents, regroupés dans des
+collections. On peut avoir différent types de collections (par exemple pour
+Zeste de Savoir : *topics*, *posts*, contenus, chapitres, etc).
 
-La phase d'indexation est réalisée à l'aide de la commande ``python manage.py search_engine_manager`` (voir ci-dessous).
+La phase d'indexation est réalisée à l'aide de la commande ``python manage.py
+search_engine_manager`` (voir ci-dessous).
 
 Phase de recherche
 ++++++++++++++++++
 
-Durant la phase de recherche, les documents sont classés par **text_match**, valeur qui représente le score de correspondance avec le texte recherché. Ce score dépend des champs que l'on souhaite indexer.
-Ce score est calculé selon plusieurs métriques : 
+Durant la phase de recherche, les documents sont classés par ``text_match``,
+valeur qui représente le score de correspondance avec le texte recherché. Ce
+score dépend des champs que l'on souhaite indexer, il est calculé selon
+plusieurs métriques :
 
-+ *Fréquence* : Elle correspond au nombre de fois qu’un terme apparaît dans un document. 
-+ *Distance d'édition* : Si un terme de la requête n'est pas trouvé dans les documents, Typesense recherchera des mots qui diffèrent de la requête d'un certain nombre de caractères (num_typos) en ajoutant, supprimant ou remplaçant des caractères.
-+ *Proximité* : Si la requête est constitué de plusieurs termes et que ces termes sont proches alors le score sera plus élevé. Par exemple, si la requête est "moteur de recherche". Le titre "Typesense est un moteur de recherche" aura un meilleur score que le titre "La recherche d'un nouveau moteur thermique à pistons rotatifs".
-+ *Ordre des champs* : Si l'on a indiqué que l'on recherche selon les champs titre et description (dans cet ordre), alors le score sera plus important si le terme est trouvé dans le champ titre. 
-+ *Pondération des champs* : Pour deux documents, si on associe aux champs du premier document des poids supérieurs par rapport au second, alors le premier document sera considéré comme plus pertinent. De plus, si un document possède un champ titre et un champ description, alors avec des poids différents, il est possible d'indiquer que le score sera plus élevé si le terme est trouvé dans le titre.  
++ *Fréquence* : elle correspond au nombre de fois qu’un terme apparaît dans un
+  document ;
++ *Distance d'édition* : si un terme de la requête n'est pas trouvé dans les
+  documents, Typesense recherchera des mots qui diffèrent de la requête d'un
+  certain nombre de caractères (``num_typos``) en ajoutant, supprimant ou
+  remplaçant des caractères ;
++ *Proximité* : si la requête est constituée de plusieurs termes et que ces
+  termes sont proches alors le score sera plus élevé. Par exemple, si la
+  requête est "moteur de recherche". Le titre *Typesense est un moteur de
+  recherche* aura un meilleur score que le titre *La recherche d'un nouveau
+  moteur thermique à pistons rotatifs* ;
++ *Ordre des champs* : si on a indiqué qu'on recherche selon les champs *titre*
+  et *description* (dans cet ordre), alors le score sera plus important si le
+  terme est trouvé dans le champ *titre* ;
++ *Pondération des champs* : si un document possède un champ *titre* et un
+  champ *description*, alors avec des poids supérieur pour le champ *titre*, le
+  score sera plus élevé si le terme est trouvé dans le titre.
 
-Les *poids* de la *pondération* sont modifiables directement dans le code de ZdS dans le ``settings.py`` (voir ci-dessous).
+Les différents poids sont modifiables directement dans les paramètres de Zeste
+de Savoir (voir ci-dessous).
 
-Lorsque l'on réalise une recherche dans plusieurs collections, il est possible de le faire en une seule requête. Typesense appelle ce mécanisme `Federated Multi-Search <https://typesense.org/docs/0.24.1/api/federated-multi-search.html#multi-search-parameters>`_.
+Il est possible de rechercher dans plusieurs collections en une seule requête,
+avec un mécanisme que Typesense appele le `Federated Multi-Search
+<https://typesense.org/docs/0.24.1/api/federated-multi-search.html#multi-search-parameters>`_.
 
 En pratique
 ===========
@@ -77,7 +103,8 @@ En pratique
 Configuration
 -------------
 
-La configuration de la connexion se fait dans le fichier ``settings/abstract_base/zds.py``, à l'aide des deux variables suivantes :
+La configuration de la connexion se fait dans le fichier
+``settings/abstract_base/zds.py``, à l'aide des deux variables suivantes :
 
 .. sourcecode:: python
 
@@ -98,20 +125,23 @@ La configuration de la connexion se fait dans le fichier ``settings/abstract_bas
     }
 
 
-La première active le moteur de recherche pour ZdS.
-La seconde permet de configurer la connexion au moteur de recherche. ``default`` est l'*alias* de la connexion, au cas où il serait nécessaire d'utiliser plusieurs configurations.
+La première active le moteur de recherche, la seconde permet de configurer la
+connexion au moteur de recherche. ``default`` est l'*alias* de la connexion, au
+cas où il serait nécessaire d'utiliser plusieurs configurations.
 
-Pour indiquer, les poids associés à chacune des collections, il faut modifier les variables suivantes de ``settings/abstract_base/zds.py``: 
+Pour indiquer, les poids associés à chacune des collections, il faut modifier
+les variables suivantes dans ``settings/abstract_base/zds.py`` :
 
 .. sourcecode:: python
 
     global_weight_publishedcontent = 3 # contenus publiés (billets, tutoriaux, articles)
-    global_weight_topic = 2 # sujet de forum
-    global_weight_chapter = 1.5 # chapitre
+    global_weight_topic = 2 # sujets de forum
+    global_weight_chapter = 1.5 # chapitres
     global_weight_post = 1 # messages d'un sujet de forum
 
 
-Il est possible de modifier les différents paramètres d'une recherche grâce à la variable ``ZDS_APP`` de ``settings/abstract_base/zds.py``:
+Il est possible de modifier les différents paramètres de la recherche dans
+``settings/abstract_base/zds.py`` :
 
 .. sourcecode:: python
 
@@ -139,27 +169,33 @@ Il est possible de modifier les différents paramètres d'une recherche grâce �
                 "if_tutorial": 2.0, # s'il s'agit d'un tuto
                 "if_medium_or_big_tutorial": 2.5, # s'il s'agit d'un tuto d'une taille plutôt importante
                 "if_opinion": 1.66, # s'il s'agit d'un billet
-                "if_opinion_not_picked": 1.5, # s'il s'agit d'un billet mise en avant
-                "title": global_weight_publishedcontent * 3, # poids du champ de la collection published content
-                "description": global_weight_publishedcontent * 2, # poids du champ de la collection published content
-                "categories": global_weight_publishedcontent * 1, # poids du champ de la collection published content
-                "subcategories": global_weight_publishedcontent * 1, # poids du champ de la collection published content
-                "tags": global_weight_publishedcontent * 1, # poids du champ de la collection published content
-                "text": global_weight_publishedcontent * 2, # poids du champ de la collection published content
+                "if_opinion_not_picked": 1.5, # s'il s'agit d'un billet pas mis en avant
+
+                # poids des différents champs :
+                "title": global_weight_publishedcontent * 3,
+                "description": global_weight_publishedcontent * 2,
+                "categories": global_weight_publishedcontent * 1,
+                "subcategories": global_weight_publishedcontent * 1,
+                "tags": global_weight_publishedcontent * 1,
+                "text": global_weight_publishedcontent * 2,
             },
             "topic": {
                 "global": global_weight_topic,
                 "if_solved": 1.1, # s'il s'agit d'un sujet résolu
                 "if_sticky": 1.2, # s'il s'agit d'un sujet épinglé
                 "if_locked": 0.1, # s'il s'agit d'un sujet fermé
-                "title": global_weight_topic * 3, # poids du champ de la collection topic
-                "subtitle": global_weight_topic * 2, # poids du champ de la collection topic
-                "tags": global_weight_topic * 1, # poids du champ de la collection topic
+
+                # poids des différents champs :
+                "title": global_weight_topic * 3,
+                "subtitle": global_weight_topic * 2,
+                "tags": global_weight_topic * 1,
             },
             "chapter": {
                 "global": global_weight_chapter,
-                "title": global_weight_chapter * 3, # poids du champ de la collection topic
-                "text": global_weight_chapter * 2, # poids du champ de la collection topic
+
+                # poids des différents champs :
+                "title": global_weight_chapter * 3,
+                "text": global_weight_chapter * 2,
             },
             "post": {
                 "global": global_weight_post,
@@ -167,48 +203,51 @@ Il est possible de modifier les différents paramètres d'une recherche grâce �
                 "if_useful": 1.5, # s'il s'agit d'un message jugé utile
                 "ld_ratio_above_1": 1.05, # si le ratio pouce vert/rouge est supérieur à 1
                 "ld_ratio_below_1": 0.95, # si le ratio pouce vert/rouge est inférieur à 1
-                "text_html": global_weight_post, # poids du champ de la collection post
+                "text_html": global_weight_post, # poids du champ
             },
         },
 
 
-où ``'results_per_page'`` est le nombre de résultats affichés,
-``'search_groups'`` définit les différents types de documents indexé et la manière dont il sont groupés quand recherchés (sur le formulaire de recherche),
-``'search_content_type`` définit les différents types de contenus publiés et la manière dont il sont groupés quand recherchés (sur le formulaire de recherche),
-``'search_validated_content``  définit les différentes validations des contenus publiés et la manière dont elles sont groupées quand recherchées (sur le formulaire de recherche),
-et ``'boosts'`` les différents facteurs de *boost* appliqués aux différentes situations.
++ ``results_per_page`` est le nombre de résultats affichés,
++ ``search_groups`` définit les différents types de documents indexés et la
+  manière dont ils sont groupés sur le formulaire de recherche,
++ ``search_content_type`` définit les différents types de contenus publiés et
+  la manière dont ils sont groupés sur le formulaire de recherche,
++ ``search_validated_content``  définit les différentes validations des contenus
+  publiés et la manière dont elles sont groupées sur le formulaire de recherche,
++ ``boosts`` contient les différents facteurs de *boost* appliqués aux
+  différentes situations. Modifier ces valeurs permet de changer l'ordre des
+  résultats retourés lors d'une recherche.
 
 
-Dans ``'boosts'``, on peut ensuite modifier le comportement de la recherche en choisissant différents facteurs de *boost*, aussi appelé poids. Certains poids correspondent aux poids associées aux champs d'une collection. 
-Ils sont calculés en multipliant le poids global associé à la collection par une constante qui permet de donner un poids différent à chacun des champs d'une même collection. 
+Indexer les données
+-------------------
 
-.. note::
-
-      Ces valeurs sont données à titre indicatif et doivent être adaptées à la situation.
-
-
-Indexer les données de ZdS
---------------------------
-
-Une fois Typesense `installé <../install/extra-install-es.html>`_ puis configuré et lancé, la commande suivante est utilisée :
+Une fois Typesense `installé <../install/extra-install-es.html>`_, configuré et lancé, la commande suivante est utilisée :
 
 .. sourcecode:: bash
 
       python manage.py search_engine_manager <action>
 
-où ``<action>`` peut être
+où ``<action>`` peut être :
 
-+ ``setup`` : crée et configure le *client* Typense (y compris la création des *collections* avec *schémas*);
-+ ``clear`` : supprime toutes les *collections* du *client* Typesense et marque toutes les données comme "à indexer" ;
++ ``setup`` : crée et configure le *client* Typesense (y compris la création des
+  *collections* avec *schémas*) ;
++ ``clear`` : supprime toutes les *collections* du *client* Typesense et marque
+  toutes les données comme "à indexer"  ;
 + ``index_flagged`` : indexe les données marquées comme "à indexer" ;
-+ ``index_all`` : invoque ``setup`` puis indexe toute les données (qu'elles soient marquées comme "à indexer" ou non).
++ ``index_all`` : invoque ``setup`` puis indexe toute les données (qu'elles
+  soient marquées comme "à indexer" ou non).
 
 
-La commande ``index_flagged`` peut donc être lancée de manière régulière (via un *cron* ou un timer *systemd*) afin d'indexer les nouvelles données ou les données modifiées de manière régulière.
+La commande ``index_flagged`` peut donc être lancée de manière régulière afin
+d'indexer les nouvelles données ou les données modifiées.
 
 .. note::
 
-      Le caractère "à indexer" est fonction des actions effectuées sur l'objet Django (par défaut, à chaque fois que la méthode ``save()`` du modèle est appelée, l'objet est marqué comme "à indexer").
+      Le caractère "à indexer" est fonction des actions effectuées sur l'objet
+      Django (par défaut, à chaque fois que la méthode ``save()`` du modèle est
+      appelée, l'objet est marqué comme "à indexer").
       Cette information est stockée dans la base de donnée MySQL.
 
 Aspects techniques
@@ -218,7 +257,9 @@ Indexation d'un modèle
 ----------------------
 
 
-Afin d'être indexable, un modèle Django doit dériver de ``AbstractSearchIndexableModel`` (qui dérive de ``models.Model`` et de ``AbstractSearchIndexable``). Par exemple,
+Afin d'être indexable, un modèle Django doit dériver de
+``AbstractSearchIndexableModel`` (qui dérive de ``models.Model`` et de
+``AbstractSearchIndexable``). Par exemple :
 
 .. sourcecode:: python
 
@@ -228,12 +269,18 @@ Afin d'être indexable, un modèle Django doit dériver de ``AbstractSearchIndex
 
 .. note::
 
-    Le code est écrit de telle manière à ce que l'id utilisé par Typense (champ ``id``) corresponde à la *pk* du modèle (via la variable ``search_engine_id``).
-    Il est donc facile de récupérer un objet dans Typesense si on en connait la *pk*, à l'aide de ``GET /<nom de l'index>/<type de document>/<pk>``.
+    Le code est écrit de manière à ce que l'id utilisé par Typesense (champ
+    ``id``) corresponde à la *pk* du modèle (via la variable
+    ``search_engine_id``). TODO : pas clair
+    Il est donc facile de récupérer un objet dans Typesense si on en connait la
+    *pk*, à l'aide de ``GET /<nom de l'index>/<type de document>/<pk>``. TODO :
+    toujours valide avec Typesense ?
 
-Différentes méthodes d'``AbstractSearchIndexableModel`` peuvent ou doivent ensuite être surchargées. Parmi ces dernières,
+Différentes méthodes d'``AbstractSearchIndexableModel`` peuvent ou doivent
+ensuite être surchargées :
 
-+ ``get_document_schema()`` permet de définir le *schéma* d'un document, c'est à dire quels champs seront indexés avec quels types. Par exemple,
++ ``get_document_schema()`` permet de définir le *schéma* d'un document, c'est
+  à dire quels champs seront indexés avec quels types. Par exemple :
 
       .. sourcecode:: python
 
@@ -247,9 +294,16 @@ Différentes méthodes d'``AbstractSearchIndexableModel`` peuvent ou doivent ens
                         {"name": "topic_title", "type": "string", "facet": True},
                     # ...
 
-      Les ``schémas`` Typesense sont des dictionnaires (voir à ce sujet `la documentation <https://typesense.org/docs/0.23.0/api/collections.html#with-pre-defined-schema>`_). On indique également dans les schémas un score de recherche qui est calculé selon différent critères, ce champ correspond au boost que reçoit le contenu lors de la phase de recherche. 
+      Les schémas Typesense sont des `dictionnaires
+      <https://typesense.org/docs/0.23.0/api/collections.html#with-pre-defined-schema>`_.
+      On indique également dans les schémas un score de recherche qui est
+      calculé selon différent critères, ce champ correspond au boost que reçoit
+      le contenu lors de la phase de recherche.
 
-+ ``get_indexable_objects`` permet de définir quels objets doivent être récupérés et indexés. Cette fonction permet également d'utiliser ``prefetch_related()`` ou ``select_related()`` pour éviter les requêtes inutiles. Par exemple,
++ ``get_indexable_objects`` permet de définir quels objets doivent être
+  récupérés et indexés. Cette fonction permet également d'utiliser
+  ``prefetch_related()`` ou ``select_related()`` pour minimiser le nombre de
+  requêtes SQL. Par exemple :
 
       .. sourcecode:: python
 
@@ -261,10 +315,12 @@ Différentes méthodes d'``AbstractSearchIndexableModel`` peuvent ou doivent ens
 
       où ``q`` est un *queryset* Django.
 
-+ ``get_document_source()`` permet de gérer des cas où le champ n'est pas directement une propriété de la classe, ou si cette propriété ne peut pas être indexée directement :
++ ``get_document_source()`` permet de gérer des cas où le champ n'est pas
+  directement une propriété de la classe, ou si cette propriété ne peut pas
+  être indexée directement :
 
       .. sourcecode:: python
-                    
+
           def get_document_source(self, excluded_fields=None):
               excluded_fields = excluded_fields or []
               excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "score"])
@@ -279,41 +335,62 @@ Différentes méthodes d'``AbstractSearchIndexableModel`` peuvent ou doivent ens
 
               return data
 
-      Dans cet exemple (issu de la classe ``Post``), on voit que certains champs ne peuvent être directement indexés car ils appartiennent au *topic* et au *forum* parent. Il sont donc exclus du mécanisme par défaut (via la variable ``excluded_fields``), leur valeur est récupérée et définie par après.
+      Dans cet exemple (issu de la classe ``Post``), on voit que certains
+      champs ne peuvent être directement indexés car ils appartiennent au
+      *topic* et au *forum* parent. Il sont donc exclus du mécanisme par défaut
+      (via la variable ``excluded_fields``), leur valeur est récupérée et
+      définie par après.
 
 
-Finalement, il est important **pour chaque type de document** d'attraper le signal de pré-suppression avec la fonction ``delete_document_in_search_engine()``, afin qu'un document supprimé par Django soit également supprimé du moteur de recherche.
-Cela s'effectue comme suit (par exemple pour la classe ``Post``):
+Finalement, il est important **pour chaque type de document** d'attraper le
+signal de pré-suppression avec la fonction
+``delete_document_in_search_engine()``, afin qu'un document supprimé par Django
+soit également supprimé du moteur de recherche. Par exemple, pour la classe
+``Post`` :
 
 .. sourcecode:: python
-      
+
       @receiver(pre_delete, sender=Post)
       def delete_post_in_search(sender, instance, **kwargs):
           return delete_document_in_search_engine(instance)
 
-Plus d'informations sur les méthodes qui peuvent être surchargées sont disponibles `dans la documentation technique <../back-end-code/searchv2.html>`_.
+Plus d'informations sur les méthodes qui peuvent être surchargées sont
+disponibles `dans la documentation technique
+<../back-end-code/searchv2.html>`_.
 
 .. attention::
 
-      À chaque fois que vous modifiez la définition d'un *schéma* d'une collection dans ``get_document_schema()``, tout les données doivent être réindexées.
-      N'oubliez donc pas de mentionner cette action à lancer manuellement dans le *update.md*.
+      À chaque fois que vous modifiez la définition d'un schéma d'une
+      collection dans ``get_document_schema()``, toutes les données doivent
+      être réindexées.
 
 Le cas particulier des contenus
 -------------------------------
 
-La plupart des informations des contenus, en particulier les textes, `ne sont pas indexés dans la base de donnée <contents.html#aspects-techniques-et-fonctionnels>`_.
+La plupart des informations des contenus, en particulier les textes, `ne sont
+pas stockés dans la base de données
+<contents.html#aspects-techniques-et-fonctionnels>`_.
 
-Il a été choisi de n'inclure dans le moteur de recherche que les chapitres de ces contenus (anciennement, les introductions et conclusions des parties étaient également incluses).
-Ce sont les contenus HTML qui sont indexés et non leur version écrite en *markdown*, afin de rester cohérent avec ce qui se fait pour les *posts*.
-Les avantages de cette décision sont multiples :
+Il a été choisi de n'inclure dans le moteur de recherche que les chapitres de
+ces contenus (anciennement, les introductions et conclusions des parties
+étaient également incluses). Ce sont les contenus HTML qui sont indexés et non
+leur version écrite en Markdown, afin de rester cohérent avec ce qui se fait
+pour les *posts*. Les avantages de cette décision sont multiples :
 
 + Le *parsing* est déjà effectué et n'a pas à être refait durant l'indexation ;
-+ Moins de fichiers à lire (pour rappel, les différentes parties d'un contenu `sont rassemblées en un seul fichier <contents.html#processus-de-publication>`_ à la publication) ;
++ Moins de fichiers à lire (pour rappel, les différentes parties d'un contenu
+  `sont rassemblées en un seul fichier
+  <contents.html#processus-de-publication>`_ à la publication) ;
 + Pas besoin d'utiliser Git durant le processus d'indexation ;
 
 
-L'indexation des chapitres (représentés par la classe ``FakeChapter``, `voir ici <../back-end-code/tutorialv2.html#zds.tutorialv2.models.database.FakeChapter>`_) est effectuée en même temps que l'indexation des contenus publiés (``PublishedContent``).
-En particulier, c'est la méthode ``get_indexable()`` qui est surchargée, profitant du fait que cette méthode peut renvoyer n'importe quel type de document à indexer.
+L'indexation des chapitres (représentés par la classe ``FakeChapter``, `voir
+ici
+<../back-end-code/tutorialv2.html#zds.tutorialv2.models.database.FakeChapter>`_)
+est effectuée en même temps que l'indexation des contenus publiés
+(``PublishedContent``). En particulier, c'est la méthode ``get_indexable()``
+qui est surchargée, profitant du fait que cette méthode peut renvoyer n'importe
+quel type de document à indexer.
 
 .. sourcecode:: python
 
@@ -354,7 +431,9 @@ En particulier, c'est la méthode ``get_indexable()`` qui est surchargée, profi
             # fetch next batch
             last_pk = objects[-1].pk
             objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
-  
-Le code tient aussi compte du fait que la classe ``PublishedContent`` `gère le changement de slug <contents.html#le-stockage-en-base-de-donnees>`_ afin de maintenir le SEO.
-Ainsi, la méthode ``save()`` est modifiée de manière à supprimer toute référence à elle même et aux chapitres correspondants si un objet correspondant au même contenu mais avec un nouveau slug est créé.
 
+Le code tient aussi compte du fait que la classe ``PublishedContent`` `gère le
+changement de slug <contents.html#le-stockage-en-base-de-donnees>`_ afin de
+maintenir le SEO.  Ainsi, la méthode ``save()`` est modifiée de manière à
+supprimer toute référence à elle même et aux chapitres correspondants si un
+objet correspondant au même contenu mais avec un nouveau slug est créé.
