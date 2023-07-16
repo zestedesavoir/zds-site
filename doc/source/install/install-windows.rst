@@ -142,7 +142,7 @@ Aller plus loin
 
 Pour faire fonctionner ZdS dans son ensemble vous devez installer les outils LateX et Elasticsearch:
 
-- `Installez Elasticsearch <extra-install-es.html>`_ ;
+- `Installez Elasticsearch <extra-install-search-engine.html>`_ ;
 - `Installez LaTeX <extra-install-latex.html>`_.
 
 Vous pouvez également `indiquer à Git de ne pas effectuer de commit s'il y a des erreurs de formatage dans le code <../utils/git-pre-hook.html>`__.

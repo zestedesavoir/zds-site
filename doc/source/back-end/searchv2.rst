@@ -223,7 +223,7 @@ Il est possible de modifier les différents paramètres de la recherche dans
 Indexer les données
 -------------------
 
-Une fois Typesense `installé <../install/extra-install-es.html>`_, configuré et lancé, la commande suivante est utilisée :
+Une fois Typesense `installé <../install/extra-install-search-engine.html>`_, configuré et lancé, la commande suivante est utilisée :
 
 .. sourcecode:: bash
 
