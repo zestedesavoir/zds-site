@@ -17,7 +17,7 @@ lxml==4.9.2
 Pillow==9.5.0
 pymemcache==4.0.0
 requests==2.31.0
-typesense==0.15.0
+typesense==0.15.1
 
 # Api dependencies
 django-cors-headers==4.0.0
