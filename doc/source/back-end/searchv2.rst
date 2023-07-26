@@ -8,7 +8,7 @@ Principe
 Comment faire une recherche ?
 -----------------------------
 
-La recherche se découpe en deux parties distinctes :
+La recherche se découpe en deux parties distinctes :
 
  - L'indexation des données
  - La recherche par l'utilisateur
@@ -19,11 +19,11 @@ L'indexation des données
 **L'indexation** des données consiste à **rassembler toutes les données** dans
 lesquelles l'utilisateur va **pouvoir rechercher**. Elle est faite au
 préalable.  Celle-ci est faite de telle façon qu'on puisse rechercher dans les
-éléments suivants :
+éléments suivants :
 
  - Les contenus (article, tutoriels et billets) ainsi que leurs chapitres (s'il
-   s'agit d'un moyen ou *big*-tuto) ;
- - Les sujets ;
+   s'agit d'un moyen ou *big*-tuto) ;
+ - Les sujets ;
  - Les réponses aux sujets.
 
 Cette indexation est réalisée à intervalle régulier (et de manière à n'indexer
@@ -59,7 +59,7 @@ Phase d'indexation
 
 Typesense organise les données sous forme de documents, regroupés dans des
 collections. On peut avoir différent types de collections (par exemple pour
-Zeste de Savoir : *topics*, *posts*, contenus, chapitres, etc).
+Zeste de Savoir : *topics*, *posts*, contenus, chapitres, etc).
 
 La phase d'indexation est réalisée à l'aide de la commande ``python manage.py
 search_engine_manager`` (voir ci-dessous).
@@ -70,23 +70,23 @@ Phase de recherche
 Durant la phase de recherche, les documents sont classés par ``text_match``,
 valeur qui représente le score de correspondance avec le texte recherché. Ce
 score dépend des champs que l'on souhaite indexer, il est calculé selon
-plusieurs métriques :
+plusieurs métriques :
 
-+ *Fréquence* : elle correspond au nombre de fois qu’un terme apparaît dans un
-  document ;
-+ *Distance d'édition* : si un terme de la requête n'est pas trouvé dans les
++ *Fréquence* : elle correspond au nombre de fois qu’un terme apparaît dans un
+  document ;
++ *Distance d'édition* : si un terme de la requête n'est pas trouvé dans les
   documents, Typesense recherchera des mots qui diffèrent de la requête d'un
   certain nombre de caractères (``num_typos``) en ajoutant, supprimant ou
-  remplaçant des caractères ;
-+ *Proximité* : si la requête est constituée de plusieurs termes et que ces
+  remplaçant des caractères ;
++ *Proximité* : si la requête est constituée de plusieurs termes et que ces
   termes sont proches alors le score sera plus élevé. Par exemple, si la
   requête est "moteur de recherche". Le titre *Typesense est un moteur de
   recherche* aura un meilleur score que le titre *La recherche d'un nouveau
-  moteur thermique à pistons rotatifs* ;
-+ *Ordre des champs* : si on a indiqué qu'on recherche selon les champs *titre*
+  moteur thermique à pistons rotatifs* ;
++ *Ordre des champs* : si on a indiqué qu'on recherche selon les champs *titre*
   et *description* (dans cet ordre), alors le score sera plus important si le
-  terme est trouvé dans le champ *titre* ;
-+ *Pondération des champs* : si un document possède un champ *titre* et un
+  terme est trouvé dans le champ *titre* ;
++ *Pondération des champs* : si un document possède un champ *titre* et un
   champ *description*, alors avec des poids supérieur pour le champ *titre*, le
   score sera plus élevé si le terme est trouvé dans le titre.
 
@@ -104,7 +104,7 @@ Configuration
 -------------
 
 La configuration de la connexion se fait dans le fichier
-``settings/abstract_base/zds.py``, à l'aide des deux variables suivantes :
+``settings/abstract_base/zds.py``, à l'aide des deux variables suivantes :
 
 .. sourcecode:: python
 
@@ -130,7 +130,7 @@ connexion au moteur de recherche. ``default`` est l'*alias* de la connexion, au
 cas où il serait nécessaire d'utiliser plusieurs configurations.
 
 Pour indiquer, les poids associés à chacune des collections, il faut modifier
-les variables suivantes dans ``settings/abstract_base/zds.py`` :
+les variables suivantes dans ``settings/abstract_base/zds.py`` :
 
 .. sourcecode:: python
 
@@ -141,7 +141,7 @@ les variables suivantes dans ``settings/abstract_base/zds.py`` :
 
 
 Il est possible de modifier les différents paramètres de la recherche dans
-``settings/abstract_base/zds.py`` :
+``settings/abstract_base/zds.py`` :
 
 .. sourcecode:: python
 
@@ -223,20 +223,20 @@ Il est possible de modifier les différents paramètres de la recherche dans
 Indexer les données
 -------------------
 
-Une fois Typesense `installé <../install/extra-install-search-engine.html>`_, configuré et lancé, la commande suivante est utilisée :
+Une fois Typesense `installé <../install/extra-install-search-engine.html>`_, configuré et lancé, la commande suivante est utilisée :
 
 .. sourcecode:: bash
 
       python manage.py search_engine_manager <action>
 
-où ``<action>`` peut être :
+où ``<action>`` peut être :
 
-+ ``setup`` : crée et configure le *client* Typesense (y compris la création des
-  *collections* avec *schémas*) ;
-+ ``clear`` : supprime toutes les *collections* du *client* Typesense et marque
-  toutes les données comme "à indexer"  ;
-+ ``index_flagged`` : indexe les données marquées comme "à indexer" ;
-+ ``index_all`` : invoque ``setup`` puis indexe toute les données (qu'elles
++ ``setup`` : crée et configure le *client* Typesense (y compris la création des
+  *collections* avec *schémas*) ;
++ ``clear`` : supprime toutes les *collections* du *client* Typesense et marque
+  toutes les données comme "à indexer" ;
++ ``index_flagged`` : indexe les données marquées comme "à indexer" ;
++ ``index_all`` : invoque ``setup`` puis indexe toute les données (qu'elles
   soient marquées comme "à indexer" ou non).
 
 
@@ -259,7 +259,7 @@ Indexation d'un modèle
 
 Afin d'être indexable, un modèle Django doit dériver de
 ``AbstractSearchIndexableModel`` (qui dérive de ``models.Model`` et de
-``AbstractSearchIndexable``). Par exemple :
+``AbstractSearchIndexable``). Par exemple :
 
 .. sourcecode:: python
 
@@ -271,16 +271,16 @@ Afin d'être indexable, un modèle Django doit dériver de
 
     Le code est écrit de manière à ce que l'id utilisé par Typesense (champ
     ``id``) corresponde à la *pk* du modèle (via la variable
-    ``search_engine_id``). TODO : pas clair
+    ``search_engine_id``). TODO : pas clair
     Il est donc facile de récupérer un objet dans Typesense si on en connait la
-    *pk*, à l'aide de ``GET /<nom de l'index>/<type de document>/<pk>``. TODO :
+    *pk*, à l'aide de ``GET /<nom de l'index>/<type de document>/<pk>``. TODO :
     toujours valide avec Typesense ?
 
-Différentes méthodes d'``AbstractSearchIndexableModel`` peuvent ou doivent
-ensuite être surchargées :
+Différentes méthodes de la classe ``AbstractSearchIndexableModel`` peuvent ou
+doivent ensuite être surchargées :
 
 + ``get_document_schema()`` permet de définir le *schéma* d'un document, c'est
-  à dire quels champs seront indexés avec quels types. Par exemple :
+  à dire quels champs seront indexés avec quels types. Par exemple :
 
       .. sourcecode:: python
 
@@ -303,7 +303,7 @@ ensuite être surchargées :
 + ``get_indexable_objects`` permet de définir quels objets doivent être
   récupérés et indexés. Cette fonction permet également d'utiliser
   ``prefetch_related()`` ou ``select_related()`` pour minimiser le nombre de
-  requêtes SQL. Par exemple :
+  requêtes SQL. Par exemple :
 
       .. sourcecode:: python
 
@@ -317,7 +317,7 @@ ensuite être surchargées :
 
 + ``get_document_source()`` permet de gérer des cas où le champ n'est pas
   directement une propriété de la classe, ou si cette propriété ne peut pas
-  être indexée directement :
+  être indexée directement :
 
       .. sourcecode:: python
 
@@ -346,7 +346,7 @@ Finalement, il est important **pour chaque type de document** d'attraper le
 signal de pré-suppression avec la fonction
 ``delete_document_in_search_engine()``, afin qu'un document supprimé par Django
 soit également supprimé du moteur de recherche. Par exemple, pour la classe
-``Post`` :
+``Post`` :
 
 .. sourcecode:: python
 
@@ -375,13 +375,13 @@ Il a été choisi de n'inclure dans le moteur de recherche que les chapitres de
 ces contenus (anciennement, les introductions et conclusions des parties
 étaient également incluses). Ce sont les contenus HTML qui sont indexés et non
 leur version écrite en Markdown, afin de rester cohérent avec ce qui se fait
-pour les *posts*. Les avantages de cette décision sont multiples :
+pour les *posts*. Les avantages de cette décision sont multiples :
 
-+ Le *parsing* est déjà effectué et n'a pas à être refait durant l'indexation ;
++ Le *parsing* est déjà effectué et n'a pas à être refait durant l'indexation ;
 + Moins de fichiers à lire (pour rappel, les différentes parties d'un contenu
   `sont rassemblées en un seul fichier
-  <contents.html#processus-de-publication>`_ à la publication) ;
-+ Pas besoin d'utiliser Git durant le processus d'indexation ;
+  <contents.html#processus-de-publication>`_ à la publication) ;
++ Pas besoin d'utiliser Git durant le processus d'indexation ;
 
 
 L'indexation des chapitres (représentés par la classe ``FakeChapter``, `voir
@@ -401,7 +401,7 @@ quel type de document à indexer.
         search_engine_manager = SearchIndexManager()
         last_pk = 0
         objects_source = super().get_indexable(force_reindexing)
-        objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
+        objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
         while objects:
             chapters = []
 
@@ -423,14 +423,14 @@ quel type de document à indexer.
                 # since we want to return at most PublishedContent.objects_per_batch items
                 # we have to split further
                 while chapters:
-                    yield chapters[: PublishedContent.objects_per_batch]
-                    chapters = chapters[PublishedContent.objects_per_batch :]
+                    yield chapters[:PublishedContent.objects_per_batch]
+                    chapters = chapters[PublishedContent.objects_per_batch:]
             if objects:
                 yield objects
 
             # fetch next batch
             last_pk = objects[-1].pk
-            objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
+            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
 
 Le code tient aussi compte du fait que la classe ``PublishedContent`` `gère le
 changement de slug <contents.html#le-stockage-en-base-de-donnees>`_ afin de
