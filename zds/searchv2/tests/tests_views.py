@@ -561,7 +561,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"]
-        self.assertEqual(len(response), 4)
+        self.assertEqual(len(response), 5)
 
         # score are equals without boost:
         self.assertTrue(
@@ -584,7 +584,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"]
-        self.assertEqual(len(response), 4)
+        self.assertEqual(len(response), 5)
 
         self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
         self.assertEqual(response[0]["document"]["id"], str(published_article.pk))  # obvious
@@ -603,7 +603,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"]
-        self.assertEqual(len(response), 4)
+        self.assertEqual(len(response), 5)
 
         self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
         self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
@@ -624,7 +624,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"]
-        self.assertEqual(len(response), 4)
+        self.assertEqual(len(response), 5)
 
         self.assertTrue(
             response[0]["document"]["score"] > response[1]["document"]["score"] > response[2]["document"]["score"]
@@ -649,7 +649,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"]
-        self.assertEqual(len(response), 4)
+        self.assertEqual(len(response), 5)
 
         self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
         self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
@@ -825,7 +825,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         response = result.context["object_list"]
 
-        self.assertEqual(len(response), 1)
+        self.assertEqual(len(response), 2)
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
