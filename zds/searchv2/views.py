@@ -212,11 +212,11 @@ class SearchView(ZdSPagingListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
+        result = []
+
         if not self.search_engine_manager.connected_to_search_engine:
             messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
-            return []
-
-        if self.search_query:
+        elif self.search_query:
             # Restrict (sub)category if any
             if self.search_form.cleaned_data["category"]:
                 self.content_category = self.search_form.cleaned_data["category"]
@@ -230,33 +230,53 @@ class SearchView(ZdSPagingListView):
 
             # Check in which collections search is performed
             search_collections = self.search_form.cleaned_data["models"]
-            search_collection_count = len(search_collections)
-            if search_collection_count == 0:
-                search_collections = ["publishedcontent", "topic", "chapter", "post"]
+            if len(search_collections) == 0:
+                # Search in all collections
+                search_collections = [c for _, v in settings.ZDS_APP["search"]["search_groups"].items() for c in v[1]]
+            else:
+                # Search in collections of selected models
+                search_collections = [
+                    c
+                    for k, v in settings.ZDS_APP["search"]["search_groups"].items()
+                    for c in v[1]
+                    if k in search_collections
+                ]
 
             # Check which content types are searched
             self.search_content_types = self.search_form.cleaned_data["content_types"]
-            self.search_content_types_count = len(self.search_content_types)
 
             # Check if the content must be validated
             self.search_validated_content = self.search_form.cleaned_data["validated_content"]
+            if self.search_validated_content:
+                if "validated" in self.search_validated_content:
+                    for t in ["tutorial", "article"]:
+                        if t not in self.search_content_types:
+                            self.search_content_types.append(t)
+                if "no_validated" in self.search_validated_content and "opinion" not in self.search_content_types:
+                    self.search_content_types.append("opinion")
 
-            # Check if the forum is authorized
-            filter = ""
-            filter = self._add_filter("forum_pk", self.authorized_forums, filter)
+            if self.search_content_types:
+                if "publishedcontent" not in search_collections:
+                    search_collections.append("publishedcontent")
+                if "tutorial" in self.search_content_types and "chapter" not in search_collections:
+                    search_collections.append("chapter")
 
+            # Setup filters:
+            filter_authorized_forums = self._add_filter("forum_pk", self.authorized_forums)
             filter_publishedcontent = ""
             filter_chapter = ""
-
             if self.content_category:
                 filter_publishedcontent = self._add_filter("categories", self.content_category, filter_publishedcontent)
                 filter_chapter = self._add_filter("categories", self.content_category, filter_chapter)
-
             if self.content_subcategory:
                 filter_publishedcontent = self._add_filter(
                     "subcategories", self.content_subcategory, filter_publishedcontent
                 )
                 filter_chapter = self._add_filter("subcategories", self.content_subcategory, filter_chapter)
+            if self.search_content_types:
+                filter_publishedcontent = self._add_filter(
+                    "content_type", self.search_content_types, filter_publishedcontent
+                )
 
             search_requests = {"searches": []}
 
@@ -264,7 +284,7 @@ class SearchView(ZdSPagingListView):
                 "publishedcontent": {
                     "collection": "publishedcontent",
                     "q": self.search_query,
-                    "query_by": "title,description,categories,subcategories, tags, text",
+                    "query_by": "title,description,categories,subcategories,tags,text",
                     "query_by_weights": "{},{},{},{},{},{}".format(
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
@@ -275,65 +295,47 @@ class SearchView(ZdSPagingListView):
                     ),
                     "filter_by": filter_publishedcontent,
                 },
+                "chapter": {
+                    "collection": "chapter",
+                    "q": self.search_query,
+                    "query_by": "title,text",
+                    "query_by_weights": "{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
+                    ),
+                    "filter_by": filter_chapter,
+                },
                 "topic": {
                     "collection": "topic",
                     "q": self.search_query,
                     "query_by": "title,subtitle,tags",
-                    "filter_by": filter,
                     "query_by_weights": "{},{},{}".format(
                         settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
                         settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
                         settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
                     ),
-                },
-                "chapter": {
-                    "collection": "chapter",
-                    "q": self.search_query,
-                    "query_by": "title,text",
-                    "filter_by": filter_chapter,
-                    "query_by_weights": "{},{}".format(
-                        settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
-                        settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
-                    ),
+                    "filter_by": filter_authorized_forums,
                 },
                 "post": {
                     "collection": "post",
                     "q": self.search_query,
                     "query_by": "text_html",
-                    "filter_by": filter,
                     "query_by_weights": "{}".format(
                         settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
                     ),
+                    "filter_by": filter_authorized_forums,
                 },
             }
 
-            # Add filter if it is necessary
-            if self.search_content_types:
-                searches["publishedcontent"]["filter"] = self._add_filter("content_type", self.search_content_types, "")
-                search_collections = ["publishedcontent"]
-                search_collection_count = 1
-
-            if self.search_validated_content:
-                search_collections = ["publishedcontent"]
-                search_collection_count = 1
-                if len(self.search_validated_content) == 1:
-                    if self.search_validated_content[0] == "validated":
-                        self.search_content_types = ["tutorial", "article"]
-                        self.search_content_types_count = 2
-                    else:
-                        self.search_content_types = "opinion"
-                        self.search_content_types_count = 1
-
             # Check if the search is in several collections or not
-            result = None
-            if search_collection_count == 1:
+            if len(search_collections) == 1:
                 result = self._choose_single_collection_method(search_collections[0])
             else:
-                for name in search_collections:
-                    search_requests["searches"].append(searches[name])
+                for collection in search_collections:
+                    search_requests["searches"].append(searches[collection])
                 result = self.get_queryset_multisearch(search_requests, search_collections)
-            return result
-        return []
+
+        return result
 
     def get_queryset_multisearch(self, search_requests, collection_names):
         """Return search in several collections
@@ -480,7 +482,7 @@ class SearchView(ZdSPagingListView):
         context["query"] = self.search_query is not None
         return context
 
-    def _add_filter(self, field, value, current_filter):
+    def _add_filter(self, field, value, current_filter=""):
         """
         Add a filter to the current filter. This filter cannot be used for negation.
 

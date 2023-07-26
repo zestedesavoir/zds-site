@@ -104,19 +104,17 @@ class ViewsTests(TutorialTestMixin, TestCase):
             "publishedcontent": [published.search_engine_id, published.content_public_slug + "__" + chapter1.slug],
         }
 
-        search_groups = [k for k, v in settings.ZDS_APP["search"]["search_groups"].items()]
-        group_to_model = {k: v[1] for k, v in settings.ZDS_APP["search"]["search_groups"].items()}
-
-        for doc_type in search_groups:
+        for doc_type in settings.ZDS_APP["search"]["search_groups"]:
             result = self.client.get(reverse("search:query") + "?q=" + text + "&models=" + doc_type, follow=False)
             self.assertEqual(result.status_code, 200)
 
             response = result.context["object_list"]
-            self.assertEqual(len(response), 1)  # get 1 result of each …
+            self.assertEqual(len(response), len(ids[doc_type]))  # get 1 result of each …
             for i, r in enumerate(response):
-                self.assertIn(r["collection"], group_to_model[doc_type][0])  # … and only of the right type …
-                id = "forum_pk" if group_to_model[doc_type][0] != "publishedcontent" else "content_pk"
-                self.assertEqual(r["document"][id], int(ids[doc_type][i]))  # … with the right id !
+                self.assertIn(
+                    r["collection"], settings.ZDS_APP["search"]["search_groups"][doc_type][1]
+                )  # … and only of the right type …
+                self.assertEqual(r["document"]["id"], ids[doc_type][i])  # … with the right id !
 
     def test_invalid_search(self):
         """Check if the request is *, a message Recherche invalide is displayed"""
