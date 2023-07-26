@@ -1,7 +1,6 @@
 {% load emarkdown %}
 {% load i18n %}
 {% load date %}
-{% load elasticsearch %}
 {% load highlight %}
 
 <div class="content-info">
@@ -29,9 +28,9 @@
                 {% trans "Message du forum" %}
                 <a href="{{ search_result.forum_get_absolute_url }}">{{ search_result.forum_title }}</a> &bullet;
 
-                <time class="content-pubdate" pubdate="{{ search_result.pubdate }}">
-                    <span class="long">{{ search_result.pubdate|format_date|capfirst }}</span>
-                    <span class="short">{{ search_result.pubdate|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ search_result.pubdate|date_from_timestamp }}">
+                    <span class="long">{{ search_result.pubdate|date_from_timestamp|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.pubdate|date_from_timestamp|format_date:True|capfirst }}</span>
                 </time>
             </p>
         </div>

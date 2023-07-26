@@ -34,9 +34,9 @@
                 {% trans "Chapitre du tutoriel" %}
                 <a href="{{ search_result.parent_get_absolute_url_online }}">{{ search_result.parent_title }}</a> &bullet;
 
-                <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date }}">
-                    <span class="long">{{ search_result.parent_publication_date|format_date|capfirst }}</span>
-                    <span class="short">{{ search_result.parent_publication_date|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date|date_from_timestamp }}">
+                    <span class="long">{{ search_result.parent_publication_date|date_from_timestamp|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.parent_publication_date|date_from_timestamp|format_date:True|capfirst }}</span>
                 </time>
             </p>
         </div>
