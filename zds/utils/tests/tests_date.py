@@ -76,8 +76,8 @@ class DateFormatterTest(TestCase):
         tr = Template("{% load date %}" "{{ NoneVal | tooltip_date }}").render(self.context)
         self.assertEqual("None", tr)
 
-    def test_humane_time(self):
+    def test_date_from_timestamp(self):
         # Default behaviour
-        tr = Template("{% load date %}" "{{ date_epoch | humane_time }}").render(self.context)
+        tr = Template("{% load date %}" "{{ date_epoch | date_from_timestamp | format_date }}").render(self.context)
 
         self.assertEqual(tr, "jeudi 01 janvier 1970 à 01h00")
