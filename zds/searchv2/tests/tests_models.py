@@ -172,7 +172,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         new_topic = Topic.objects.get(pk=new_topic.pk)
 
         self.manager.delete_by_query(
-            Topic.get_document_type(), {"filter_by": "id:= [1, 2]"}
+            Topic.get_document_type(), {"filter_by": f"id:= [{topic.search_engine_id}, {new_topic.search_engine_id}]"}
         )  # the two topic are deleted
 
         results = self.manager.setup_search("*")
