@@ -15,7 +15,7 @@ from zds.searchv2.models import (
     AbstractSearchIndexableModel,
     delete_document_in_search_engine,
     SearchIndexManager,
-    convert_to_unix_timestamp,
+    date_to_timestamp_int,
     clean_html,
 )
 from zds.utils import get_current_user, old_slugify
@@ -475,7 +475,7 @@ class Topic(AbstractSearchIndexableModel):
         data["forum_pk"] = self.forum.pk
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
-        data["pubdate"] = convert_to_unix_timestamp(self.pubdate)
+        data["pubdate"] = date_to_timestamp_int(self.pubdate)
         data["score"] = self._compute_score()
 
         return data
@@ -608,7 +608,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         data["forum_pk"] = self.topic.forum.pk
         data["forum_title"] = self.topic.forum.title
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
-        data["pubdate"] = convert_to_unix_timestamp(self.pubdate)
+        data["pubdate"] = date_to_timestamp_int(self.pubdate)
         data["text_html"] = clean_html(self.text_html)
 
         data["score"] = self._compute_score(data["like_dislike_ratio"])

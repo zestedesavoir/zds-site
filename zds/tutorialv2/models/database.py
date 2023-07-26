@@ -29,7 +29,7 @@ from zds.searchv2.models import (
     AbstractSearchIndexable,
     delete_document_in_search_engine,
     SearchIndexManager,
-    convert_to_unix_timestamp,
+    date_to_timestamp_int,
     clean_html,
 )
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
@@ -1080,7 +1080,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         if self.content_type == "OPINION" and self.content.sha_picked is not None:
             data["picked"] = True
 
-        data["publication_date"] = convert_to_unix_timestamp(self.publication_date)
+        data["publication_date"] = date_to_timestamp_int(self.publication_date)
 
         is_medium_big_tutorial = versioned.has_sub_containers()
         data["score"] = self._compute_score(self.content_type, is_medium_big_tutorial, data["picked"])
@@ -1220,7 +1220,7 @@ class FakeChapter(AbstractSearchIndexable):
 
         data = super().get_document_source(excluded_fields=excluded_fields)
 
-        data["parent_publication_date"] = convert_to_unix_timestamp(self.parent_publication_date)
+        data["parent_publication_date"] = date_to_timestamp_int(self.parent_publication_date)
 
         data["score"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
         data["text"] = clean_html(self.text)

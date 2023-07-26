@@ -191,7 +191,7 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
         return super().save(*args, **kwargs)
 
 
-def convert_to_unix_timestamp(date):
+def date_to_timestamp_int(date):
     """Converts a given datetime object to Unix timestamp.
     The purpose of this function is for indexing datetime objects in Typesense.
 

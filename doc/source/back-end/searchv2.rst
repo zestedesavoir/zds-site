@@ -330,7 +330,7 @@ doivent ensuite être surchargées :
               data["forum_pk"] = self.forum.pk
               data["forum_title"] = self.forum.title
               data["forum_get_absolute_url"] = self.forum.get_absolute_url()
-              data["pubdate"] = convert_to_unix_timestamp(self.pubdate)
+              data["pubdate"] = date_to_timestamp_int(self.pubdate)
               data["score"] = self._compute_score()
 
               return data
