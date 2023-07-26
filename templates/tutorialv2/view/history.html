@@ -111,7 +111,7 @@
                         {% endif %}
                     </td>
                     <td>
-                        {{ commit.authored_date|humane_time }}
+                        {{ commit.authored_date|date_from_timestamp|format_date }}
                     </td>
                     <td>
                         <a href="{% url "content:view" content.pk content.slug %}?version={{ commit.hexsha }}" >
@@ -161,7 +161,7 @@
                                                 {% trans "mettre à jour" %}
                                             {% endif %}
                                         {% endcaptureas %}
-                                        {% blocktrans with action=action date_version=commit.authored_date|humane_time content_title=content.title %}
+                                        {% blocktrans with action=action date_version=commit.authored_date|date_from_timestamp|format_date content_title=content.title %}
                                             Êtes-vous certain de vouloir <strong>{{ action }}</strong> la bêta pour le contenu
                                             "<em>{{ content_title }}</em>" dans sa version de {{ date_version }} ?
                                         {% endblocktrans %}
