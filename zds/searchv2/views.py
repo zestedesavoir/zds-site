@@ -216,6 +216,10 @@ class SearchView(ZdSPagingListView):
 
         if not self.search_engine_manager.connected_to_search_engine:
             messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
+        elif self.search_query == "*":
+            # '*' is used as the search string to return all documents:
+            # https://typesense.org/docs/0.23.1/api/search.html#query-parameters
+            messages.warning(self.request, _("Recherche invalide"))
         elif self.search_query:
             # Restrict (sub)category if any
             if self.search_form.cleaned_data["category"]:
@@ -348,21 +352,17 @@ class SearchView(ZdSPagingListView):
             "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
 
-        # Use * as the search string to return all documents : https://typesense.org/docs/0.23.1/api/search.html#query-parameters
-        if self.search_query != "*":
-            results = self.search_engine.multi_search.perform(search_requests, common_search_params)["results"]
-            for k in range(len(results)):
-                if "hits" in results[k]:
-                    for entry in results[k]["hits"]:
-                        if "text_match" in entry:
-                            entry["collection"] = collection_names[k]
-                            entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
-                            entry["document"]["highlights"] = entry["highlights"][0]
-                            all_collection_result.append(entry)
+        results = self.search_engine.multi_search.perform(search_requests, common_search_params)["results"]
+        for k in range(len(results)):
+            if "hits" in results[k]:
+                for entry in results[k]["hits"]:
+                    if "text_match" in entry:
+                        entry["collection"] = collection_names[k]
+                        entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
+                        entry["document"]["highlights"] = entry["highlights"][0]
+                        all_collection_result.append(entry)
 
-                all_collection_result.sort(key=lambda result: result["document"]["final_score"], reverse=True)
-        else:
-            all_collection_result = "*"
+            all_collection_result.sort(key=lambda result: result["document"]["final_score"], reverse=True)
 
         return all_collection_result
 

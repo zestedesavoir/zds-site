@@ -117,11 +117,10 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 self.assertEqual(r["document"]["id"], ids[doc_type][i])  # … with the right id !
 
     def test_invalid_search(self):
-        """Check if the request is *, a message Recherche invalide is displayed"""
-        message = "Recherche invalide."
+        """Check if the request is *, all documents are not displayed"""
         result = self.client.get(reverse("search:query") + "?q=*", follow=False)
         self.assertEqual(result.status_code, 200)
-        self.assertContains(result, message)
+        self.assertEqual(len(result.context["object_list"]), 0)
 
     def test_get_similar_topics(self):
         """Get similar topics lists"""
