@@ -1083,11 +1083,11 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         data["publication_date"] = date_to_timestamp_int(self.publication_date)
 
         is_medium_big_tutorial = versioned.has_sub_containers()
-        data["score"] = self._compute_score(self.content_type, is_medium_big_tutorial, data["picked"])
+        data["score"] = self._compute_search_score(self.content_type, is_medium_big_tutorial, data["picked"])
 
         return data
 
-    def _compute_score(self, type_content: str, is_medium_big_tutorial: bool, is_picked: bool):
+    def _compute_search_score(self, type_content: str, is_medium_big_tutorial: bool, is_picked: bool):
         """
         This function calculates a score for publishedcontent in order to sort them according to different boosts.
         There is a boost according to the type of content (article, opinion, tutorial),

@@ -476,7 +476,7 @@ class Topic(AbstractSearchIndexableModel):
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
-        data["score"] = self._compute_score()
+        data["score"] = self._compute_search_score()
 
         return data
 
@@ -492,7 +492,7 @@ class Topic(AbstractSearchIndexableModel):
                 Post.objects.filter(topic__pk=self.pk).update(search_engine_flagged=True)
         return super().save(*args, **kwargs)
 
-    def _compute_score(self):
+    def _compute_search_score(self):
         """
         This function calculates a score for topics in order to sort them according to different boosts.
         There is a boost according to the state of the topic :
@@ -610,8 +610,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
         data["text_html"] = clean_html(self.text_html)
-
-        data["score"] = self._compute_score(data["like_dislike_ratio"])
+        data["score"] = self._compute_search_score(data["like_dislike_ratio"])
 
         return data
 
@@ -623,7 +622,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         search_engine_manager = SearchIndexManager()
         search_engine_manager.update_single_document(self, {"is_visible": False})
 
-    def _compute_score(self, ratio: float):
+    def _compute_search_score(self, like_dislike_ratio: float):
         """
         This function calculates a score for post in order to sort them according to different boosts.
         There is a boost according to the position, the usefulness and the ration of likes.
@@ -633,7 +632,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         weight_ld_ratio_above_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"]
         weight_ld_ratio_below_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"]
         weight_global = settings.ZDS_APP["search"]["boosts"]["post"]["global"]
-        is_ratio_above_1 = 1 if ratio >= 1 else 0
+        is_ratio_above_1 = 1 if like_dislike_ratio >= 1 else 0
         is_ratio_below_1 = 1 - is_ratio_above_1
         is_first = 1 if self.position == 1 else 0
         return max(

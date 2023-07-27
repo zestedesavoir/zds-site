@@ -331,7 +331,7 @@ doivent ensuite être surchargées :
               data["forum_title"] = self.forum.title
               data["forum_get_absolute_url"] = self.forum.get_absolute_url()
               data["pubdate"] = date_to_timestamp_int(self.pubdate)
-              data["score"] = self._compute_score()
+              data["score"] = self._compute_search_score()
 
               return data
 
