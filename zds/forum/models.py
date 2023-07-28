@@ -465,8 +465,6 @@ class Topic(AbstractSearchIndexableModel):
         return query.prefetch_related("tags").select_related("forum")
 
     def get_document_source(self, excluded_fields=None):
-        """Overridden to handle the case of tags (M2M field)"""
-
         excluded_fields = excluded_fields or []
         excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "score"])
 
@@ -495,9 +493,9 @@ class Topic(AbstractSearchIndexableModel):
     def _compute_search_score(self):
         """
         This function calculates a score for topics in order to sort them according to different boosts.
-        There is a boost according to the state of the topic :
+        There is a boost according to the state of the topic:
         - Solved: it was a question, and this question has been answered. The "solved" state is set at author's discretion.
-        - Locked: none can write on a locked topic.
+        - Locked: nobody can write on a locked topic.
         - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
         """
         weight_solved = settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]
@@ -516,7 +514,7 @@ class Topic(AbstractSearchIndexableModel):
 
 @receiver(pre_delete, sender=Topic)
 def delete_topic_in_search(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in Typesense"""
+    """catch the pre_delete signal to ensure the deletion in the search engine"""
     return delete_document_in_search_engine(instance)
 
 
@@ -597,14 +595,11 @@ class Post(Comment, AbstractSearchIndexableModel):
         )
 
         data = super().get_document_source(excluded_fields=excluded_fields)
-
         data["like_dislike_ratio"] = (
             (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
         )
-
         data["topic_pk"] = self.topic.pk
         data["topic_title"] = self.topic.title
-
         data["forum_pk"] = self.topic.forum.pk
         data["forum_title"] = self.topic.forum.title
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
@@ -615,7 +610,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         return data
 
     def hide_comment_by_user(self, user, text_hidden):
-        """Overridden to directly hide the post in Typesense as well"""
+        """Overridden to directly hide the post in the search engine as well"""
 
         super().hide_comment_by_user(user, text_hidden)
 
@@ -646,7 +641,7 @@ class Post(Comment, AbstractSearchIndexableModel):
 
 @receiver(pre_delete, sender=Post)
 def delete_post_in_search(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in Typesense"""
+    """catch the pre_delete signal to ensure the deletion in the search engine"""
     return delete_document_in_search_engine(instance)
 
 
