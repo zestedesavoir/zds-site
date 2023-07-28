@@ -18,36 +18,34 @@ class SearchForm(forms.Form):
         widget=forms.TextInput(attrs={"type": "search", "required": "required", "id": "search-home"}),
     )
 
-    choices = sorted(
+    model_choices = sorted(
         ((k, v[0]) for k, v in settings.ZDS_APP["search"]["search_groups"].items()), key=lambda pair: pair[1]
     )
-
     models = forms.MultipleChoiceField(
         label="",
         widget=forms.CheckboxSelectMultiple(attrs={"class": "search-filters", "form": "search-form"}),
         required=False,
-        choices=choices,
+        choices=model_choices,
     )
 
-    content_type_values = sorted(
+    content_type_choices = sorted(
         ((k, v[0]) for k, v in settings.ZDS_APP["search"]["search_content_type"].items()), key=lambda pair: pair[1]
     )
     content_types = forms.MultipleChoiceField(
         label="",
         widget=forms.CheckboxSelectMultiple(attrs={"class": "search-filters", "form": "search-form"}),
         required=False,
-        choices=content_type_values,
+        choices=content_type_choices,
     )
 
-    validated_content_values = sorted(
+    validated_content_choices = sorted(
         ((k, v[0]) for k, v in settings.ZDS_APP["search"]["search_validated_content"].items()), key=lambda pair: pair[1]
     )
-
     validated_content = forms.MultipleChoiceField(
         label="",
         widget=forms.CheckboxSelectMultiple(attrs={"class": "search-filters", "form": "search-form"}),
         required=False,
-        choices=validated_content_values,
+        choices=validated_content_choices,
     )
 
     category = forms.CharField(widget=forms.HiddenInput, required=False)
