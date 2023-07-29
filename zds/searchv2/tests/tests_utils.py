@@ -88,7 +88,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(published.search_engine_already_indexed)
         self.assertFalse(published.search_engine_flagged)
 
-        results = self.search_engine_manager.setup_search("*")
+        results = self.search_engine_manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 4)  # get 4 results, one of each type
 
@@ -136,7 +136,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
             len(self.search_engine_manager.search_engine.collections.retrieve()) != 0
         )  # collections back in
 
-        results = self.search_engine_manager.setup_search("*")
+        results = self.search_engine_manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 0)  # ... but with nothing in it
 
@@ -155,7 +155,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(published.search_engine_already_indexed)
         self.assertFalse(published.search_engine_flagged)
 
-        results = self.search_engine_manager.setup_search("*")
+        results = self.search_engine_manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 4)  # get the 4 results back
 

@@ -76,7 +76,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         # nothing has been indexed yet:
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 0)  # good!
 
@@ -183,7 +183,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)  # indexing ok
 
@@ -235,7 +235,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)  # indexing ok
 
@@ -342,7 +342,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 continue
             self.manager.indexing_of_model(model)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 10)  # indexing ok
 
@@ -718,7 +718,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)  # indexing ok
 
@@ -815,7 +815,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.manager.indexing_of_model(PublishedContent)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)  # indexing ok
 
@@ -859,7 +859,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.indexing_of_model(PublishedContent, force_reindexing=True)
         self.manager.indexing_of_model(FakeChapter)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)  # indexing ok
 
@@ -972,7 +972,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto_uc.save()
 
         # 3. Index and search:
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 0)  # indexing ok
 
@@ -1056,7 +1056,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto_2.save()
 
         # 2. Index:
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 0)  # indexing ok
 

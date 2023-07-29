@@ -1,34 +1,34 @@
+from datetime import datetime
 from functools import partial
 import logging
+import re
 import time
-from datetime import datetime
 
 from django.apps import apps
-from django.db import models
 from django.conf import settings
+from django.db import models, transaction
+from django.utils.translation import gettext_lazy as _
 
-from django.db import transaction
-from typesense import Client as SearchEngineClient
 from bs4 import BeautifulSoup
-import re
-
-
-def document_indexer(obj):
-    return obj.get_document_for_indexing()
+from typesense import Client as SearchEngineClient
 
 
 class AbstractSearchIndexable:
     """Mixin for indexable objects.
 
-    Define a number of different functions that can be overridden to tune the behavior of indexing into the search_engine (typesense).
+    Define a number of different functions that can be overridden to tune the
+    behavior of indexing into the search_engine.
 
-    You (may) need to override :
+    You (may) need to override:
 
-    - ``get_indexable()`` ;
-    - ``get_schema()`` (not mandatory, but otherwise, the search engine will choose the schema by itself) ;
-    - ``get_document()`` (not mandatory, but may be useful if data differ from schema or extra stuffs need to be done).
+    - ``get_indexable()``;
+    - ``get_schema()`` (not mandatory, but otherwise, the search engine will
+      choose the schema by itself);
+    - ``get_document()`` (not mandatory, but may be useful if data differ from
+      schema or extra stuffs need to be done).
 
-    You also need to maintain ``search_engine_id`` and ``search_engine_already_indexed`` for indexing (if any).
+    You also need to maintain ``search_engine_id`` and
+    ``search_engine_already_indexed`` for indexing (if any).
     """
 
     search_engine_already_indexed = False
@@ -38,26 +38,20 @@ class AbstractSearchIndexable:
 
     @classmethod
     def get_document_type(cls):
-        """value of the ``_type`` field in the index"""
-        content_type = cls.__name__.lower()
-
-        # fetch parents
-        for base in cls.__bases__:
-            if issubclass(base, AbstractSearchIndexable) and base != AbstractSearchIndexableModel:
-                content_type = base.__name__.lower() + "_" + content_type
-
-        return content_type
+        """Name of the collection in the search engine for the class."""
+        return cls.__name__.lower()
 
     @classmethod
     def get_document_schema(self):
-        """Setup schema for the model(data scheme).
+        """Setup schema for the model (data scheme).
 
-        See https://typesense.org/docs/0.23.0/api/collections.html#with-pre-defined-schema
+        See https://typesense.org/docs/0.23.1/api/collections.html#with-pre-defined-schema
 
         .. attention::
-            You *may* want to override this method (otherwise the search engine choose the schema by itself).
+            You *may* want to override this method (otherwise the search engine
+            choose the schema by itself).
 
-        :return: schema object.  A dictionary containing the name, fields of the collection.
+        :return: schema object. A dictionary containing the name and fields of the collection.
         :rtype: dict
         """
         search_engine_schema = dict()
@@ -70,7 +64,8 @@ class AbstractSearchIndexable:
         """Return objects to index.
 
         .. attention::
-            You need to override this method (otherwise nothing will be indexed).
+            You need to override this method (otherwise nothing will be
+            indexed).
 
         :param force_reindexing: force to return all objects, even if they may already be indexed.
         :type force_reindexing: bool
@@ -80,10 +75,11 @@ class AbstractSearchIndexable:
         return []
 
     def get_document_source(self, excluded_fields=None):
-        """Create a document from the variable of the class, based on the schema.
+        """Create a document from the instance of the class, based on the schema.
 
         .. attention::
-            You may need to override this method if the data differ from the schema for some reason.
+            You may need to override this method if the data differ from the
+            schema for some reason.
 
         :param excluded_fields: exclude some field from the default method
         :type excluded_fields: list
@@ -110,10 +106,10 @@ class AbstractSearchIndexable:
 
         return data
 
-    def get_document_for_indexing(self, action="index"):
+    def get_document_for_indexing(self):
         """Create a document formatted for indexing.
 
-        See https://typesense.org/docs/0.19.0/api/documents.html#index-a-document
+        See https://typesense.org/docs/0.24.1/api/documents.html#index-a-document
 
         :return: the document
         :rtype: dict
@@ -126,36 +122,40 @@ class AbstractSearchIndexable:
 
 
 class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
-    """Version of AbstractSearchIndexable for a Django object, with some improvements :
+    """Version of AbstractSearchIndexable for a Django object, with some improvements:
 
-    - Already include ``pk`` in schema ;
-    - Match the search engine ``_id`` field and ``pk`` ;
-    - Override ``search_engine_already_indexed`` to a database field.
-    - Define a ``search_engine_flagged`` field to restrict the number of object to be indexed ;
-    - Override ``save()`` to manage the field ;
-    - Define a ``get_indexable_objects()`` method that can be overridden to change the queryset to fetch object.
+    - Already include ``pk`` in schema;
+    - Makes the search engine ID field to be equal to the database primary key;
+    - Override ``search_engine_already_indexed`` class attribute to be a database field;
+    - Define a ``search_engine_flagged`` database field to be able to index only new and modified data;
+    - Override ``save()`` to mark the object as requiring to be indexed;
+    - Define a ``get_indexable_objects()`` method that can be overridden to
+      change the queryset to fetch objects to index.
     """
 
     class Meta:
         abstract = True
 
     search_engine_flagged = models.BooleanField(
-        "Doit être (ré)indexé par le moteur de recherche", default=True, db_index=True
+        _("Doit être (ré)indexé par le moteur de recherche"), default=True, db_index=True
     )
     search_engine_already_indexed = models.BooleanField(
-        "Déjà indexé par le moteur de recherche", default=False, db_index=True
+        _("Déjà indexé par le moteur de recherche"), default=False, db_index=True
     )
 
     def __init__(self, *args, **kwargs):
-        """Override to match the search engine ``_id`` field and ``pk``"""
+        """Override to make the search engine document ID equal to the database primary key."""
         super().__init__(*args, **kwargs)
         self.search_engine_id = str(self.pk)
 
     @classmethod
     def get_indexable_objects(cls, force_reindexing=False):
-        """Method that can be overridden to filter django objects from database based on any criterion.
+        """Returns objects that will be indexed in the search engine.
 
-        :param force_reindexing: force to return all objects, even if they may be already indexed.
+        This method can be overridden to filter Django objects from database
+        and prevent to index filtered out objects.
+
+        :param force_reindexing: force to return all indexable objects, even those already indexed.
         :type force_reindexing: bool
         :return: query
         :rtype: django.db.models.query.QuerySet
@@ -179,8 +179,8 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
         return cls.get_indexable_objects(force_reindexing).order_by("pk").all()
 
     def save(self, *args, **kwargs):
-        """Override the ``save()`` method to flag the object if saved
-        (which assumes a modification of the object, so the need to reindex).
+        """Override the ``save()`` method to flag the object as requiring to be reindexed
+        (since a save assumes a modification of the object).
 
         .. note::
             Flagging can be prevented using ``save(search_engine_flagged=False)``.
@@ -222,15 +222,16 @@ def clean_html(text):
 
 
 def delete_document_in_search_engine(instance):
-    """Delete a AbstractSearchIndexable from the search engine database.
-    Must be implemented by all classes that derive from AbstractSearchIndexableModel.
+    """Delete an AbstractSearchIndexable from the search engine database.
+
+    All classes that derive from AbstractSearchIndexableModel have to implement
+    a ``delete_document()`` method.
 
     :param instance: the document to delete
     :type instance: AbstractSearchIndexable
     """
 
     search_engine_manager = SearchIndexManager()
-
     search_engine_manager.delete_document(instance)
 
 
@@ -257,9 +258,9 @@ class SearchIndexManager:
                 self.search_engine.api_call.get("/health")
             except:
                 self.connected_to_search_engine = False
-                self.logger.warn("failed to connect to Typesense")
+                self.logger.warn("failed to connect to the search engine")
             else:
-                self.logger.info("connected to Typesense")
+                self.logger.info("connected to the search engine")
 
     def clear_index(self):
         """Clear index"""
@@ -267,9 +268,9 @@ class SearchIndexManager:
         if not self.connected_to_search_engine:
             return
 
-        collections = {collection["name"] for collection in self.search_engine.collections.retrieve()}
+        collections = self.search_engine.collections.retrieve()
         for collection in collections:
-            self.search_engine.collections[collection].delete()
+            self.search_engine.collections[collection["name"]].delete()
 
         self.logger.info(f"index cleared, {len(collections)} collections deleted")
 
@@ -293,9 +294,8 @@ class SearchIndexManager:
         self.logger.info("index created")
 
     def clear_indexing_of_model(self, model):
-        """Nullify the indexing of a given model by setting ``search_engine_already_index=False`` to all objects.
-
-        Use full updating for ``AbstractSearchIndexableModel``, instead of saving all of them.
+        """Nullify the indexing of a given model by setting
+        ``search_engine_already_index=False`` to all objects.
 
         :param model: the model
         :type model: class
@@ -304,38 +304,35 @@ class SearchIndexManager:
         if issubclass(model, AbstractSearchIndexableModel):  # use a global update with Django
             objs = model.get_indexable_objects(force_reindexing=True)
             objs.update(search_engine_flagged=True, search_engine_already_indexed=False)
-        else:
-            for objects in model.get_indexable(force_reindexing=True):
-                for obj in objects:
-                    obj.search_engine_already_indexed = False
 
-        self.logger.info(f"unindex {model.get_document_type()}")
+            self.logger.info(f"unindex {model.get_document_type()}")
+        elif len(model.get_indexable(force_reindexing=True)) > 0:
+            # This sould never happen: if the origin object is not in the
+            # database, there is no field to update and save.
+            self.logger.warn(f"Did not reset indexing of {model.get_document_type()} objects")
 
     def indexing_of_model(self, model, force_reindexing=False):
         """Index documents of a given model. Use the ``objects_per_batch`` property to index.
 
-        See https://typesense.org/docs/0.23.0/api/documents.html#index-multiple-documents
+        See https://typesense.org/docs/0.23.1/api/documents.html#index-multiple-documents
 
         .. attention::
             + Currently only working with ``AbstractSearchIndexableModel``.
 
-        :param model: and model
-        :type model: class
-        :param force_reindexing: force all document to be returned
+        :param model: a model
+        :type model: AbstractSearchIndexableModel
+        :param force_reindexing: force all document to be indexed
         :type force_reindexing: bool
-        :return: the number of documents indexed
+        :return: the number of indexed documents
         :rtype: int
         """
 
         if not self.connected_to_search_engine:
             return
 
-        # better safe than sorry
-        if model.__name__ == "FakeChapter":
-            self.logger.warn("Cannot index FakeChapter model. Please index its parent model.")
-            return 0
+        if not issubclass(model, AbstractSearchIndexableModel):
+            return
 
-        documents_formatter = partial(document_indexer)
         objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
         if model.__name__ == "PublishedContent":
@@ -343,12 +340,14 @@ class SearchIndexManager:
             while True:
                 with transaction.atomic():
                     try:
-                        # fetch a batch
+                        # fetch a batch (batch management is done in PublishedContent.get_indexable()):
                         objects = next(generate)
                     except StopIteration:
                         break
+
                     if not objects:
                         break
+
                     if hasattr(objects[0], "parent_id"):
                         model_to_update = objects[0].parent_model
                         pks = [o.parent_id for o in objects]
@@ -358,26 +357,30 @@ class SearchIndexManager:
                         pks = [o.pk for o in objects]
                         doc_type = model.get_document_type()
 
-                    formatted_documents = list(map(documents_formatter, objects))
-
-                    self.search_engine.collections[doc_type].documents.import_(
-                        formatted_documents, {"action": "create"}
+                    answer = self.search_engine.collections[doc_type].documents.import_(
+                        [obj.get_document_for_indexing() for obj in objects], {"action": "create"}
                     )
-                    for document in formatted_documents:
-                        if self.logger.getEffectiveLevel() <= logging.INFO:
-                            self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 
-                    # mark all these objects as indexed at once
-                    model_to_update.objects.filter(pk__in=pks).update(
-                        search_engine_already_indexed=True, search_engine_flagged=False
-                    )
-                    indexed_counter += len(objects)
-            return indexed_counter
+                    error = None
+                    for a in answer:
+                        if "success" not in a or a["success"] is not True:
+                            error = a
+                            break
+
+                    if error is not None:
+                        self.logger.warn(f"Error when indexing {doc_type} objects: {error}.")
+                    else:
+                        # mark all these objects as indexed at once
+                        model_to_update.objects.filter(pk__in=pks).update(
+                            search_engine_already_indexed=True, search_engine_flagged=False
+                        )
+                        indexed_counter += len(objects)
         else:
             then = time.time()
             prev_obj_per_sec = False
             last_pk = 0
             object_source = model.get_indexable(force_reindexing)
+            doc_type = model.get_document_type()
 
             while True:
                 with transaction.atomic():
@@ -387,21 +390,24 @@ class SearchIndexManager:
                     if not objects:
                         break
 
-                    formatted_documents = list(map(documents_formatter, objects))
-                    doc_type = model.get_document_type()
-
-                    self.search_engine.collections[doc_type].documents.import_(
-                        formatted_documents, {"action": "create"}
+                    answer = self.search_engine.collections[doc_type].documents.import_(
+                        [obj.get_document_for_indexing() for obj in objects], {"action": "create"}
                     )
-                    for document in formatted_documents:
-                        if self.logger.getEffectiveLevel() <= logging.INFO:
-                            self.logger.info("{} {} with id {}".format("index", doc_type, document["id"]))
 
-                    # mark all these objects as indexed at once
-                    model.objects.filter(pk__in=[o.pk for o in objects]).update(
-                        search_engine_already_indexed=True, search_engine_flagged=False
-                    )
-                    indexed_counter += len(objects)
+                    error = None
+                    for a in answer:
+                        if "success" not in a or a["success"] is not True:
+                            error = a
+                            break
+
+                    if error is not None:
+                        self.logger.warn(f"Error when indexing {doc_type} objects: {error}.")
+                    else:
+                        # mark all these objects as indexed at once
+                        model.objects.filter(pk__in=[o.pk for o in objects]).update(
+                            search_engine_already_indexed=True, search_engine_flagged=False
+                        )
+                        indexed_counter += len(objects)
 
                     # basic estimation of indexed objects per second
                     now = time.time()
@@ -409,11 +415,7 @@ class SearchIndexManager:
                     then = now
                     obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
                     if force_reindexing:
-                        print(
-                            "    {} so far ({} obj/s, batch size: {})".format(
-                                indexed_counter, obj_per_sec, objects_per_batch
-                            )
-                        )
+                        print(f"    {indexed_counter} so far ({obj_per_sec} obj/s, batch size: {objects_per_batch})")
 
                     if prev_obj_per_sec is False:
                         prev_obj_per_sec = obj_per_sec
@@ -427,20 +429,19 @@ class SearchIndexManager:
                                 print(f"     {round(ratio, 2)}x, new batch size: {objects_per_batch}")
                         prev_obj_per_sec = obj_per_sec
 
-                    # fetch next batch
                     last_pk = objects[-1].pk
 
-            return indexed_counter
+        return indexed_counter
 
-    def update_single_document(self, document, doc):
+    def update_single_document(self, document, fields_values):
         """Update given fields of a single document.
 
-        See https://typesense.org/docs/0.23.0/api/documents.html#update-a-document
+        See https://typesense.org/docs/0.23.1/api/documents.html#update-a-document
 
-        :param document: the document
+        :param document: the document to update
         :type document: AbstractSearchIndexable
-        :param doc: fields to update
-        :type doc: dict
+        :param fields_values: fields to update
+        :type fields_values: dict
         """
 
         if not self.connected_to_search_engine:
@@ -448,16 +449,14 @@ class SearchIndexManager:
 
         doc_type = document.get_document_type()
         doc_id = document.search_engine_id
-        try:
-            self.search_engine.collections[doc_type].documents[doc_id].update(doc)
-            self.logger.info(f"partial_update {document.get_document_type()} with id {document.search_engine_id}")
-        except:
-            pass
+        answer = self.search_engine.collections[doc_type].documents[doc_id].update(fields_values)
+        if not fields_values.items() <= answer.items():  # the expected answer returns the whole updated document
+            self.logger.warn(f"Error when updating: {answer}.")
 
     def delete_document(self, document):
-        """Delete a given document, based on its ``search_engine_id``
+        """Delete a given document
 
-        :param document: the document
+        :param document: the document to delete
         :type document: AbstractSearchIndexable
         """
 
@@ -466,16 +465,14 @@ class SearchIndexManager:
 
         doc_type = document.get_document_type()
         doc_id = document.search_engine_id
-        try:
-            self.search_engine.collections[doc_type].documents[doc_id].delete()
-            self.logger.info(f"delete {document.get_document_type()} with id {document.search_engine_id}")
-        except:
-            pass
+        answer = self.search_engine.collections[doc_type].documents[doc_id].delete()
+        if "id" not in answer or answer["id"] != doc_id:
+            self.logger.warn(f"Error when deleting: {answer}.")
 
     def delete_by_query(self, doc_type="", query={"filter_by": ""}):
         """Delete a bunch of documents that match a specific filter_by condition.
 
-        See https://typesense.org/docs/0.23.0/api/documents.html#delete-by-query
+        See https://typesense.org/docs/0.23.1/api/documents.html#delete-by-query
 
         .. attention ::
             Call to this function must be done with great care!
@@ -489,21 +486,19 @@ class SearchIndexManager:
         if not self.connected_to_search_engine:
             return
 
-        response = self.search_engine.collections[doc_type].documents.delete(query)
+        self.search_engine.collections[doc_type].documents.delete(query)
 
-        self.logger.info(f"delete_by_query {doc_type}s ({response})")
-
-    def setup_search(self, request):
-        """Setup search
+    def search(self, request):
+        """Do a search
         :param request: a string, the search request
-        :type request: dictionary
+        :type request: string
         :return: formated search
         """
         if not self.connected_to_search_engine:
             return
 
         search_requests = {"searches": []}
-
         for collection in self.search_engine.collections.retrieve():
             search_requests["searches"].append({"collection": collection["name"], "q": request})
+
         return self.search_engine.multi_search.perform(search_requests, None)["results"]

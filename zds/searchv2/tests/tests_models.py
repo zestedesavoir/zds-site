@@ -105,7 +105,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.assertFalse(published.search_engine_flagged)
 
         search_request = "*"  # request that match all the document
-        results = self.manager.setup_search(search_request)
+        results = self.manager.search(search_request)
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 4)  # get 4 results, one of each type
 
@@ -148,7 +148,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
                 continue
             self.manager.indexing_of_model(model, force_reindexing=False)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 6)  # good!
 
@@ -157,7 +157,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
         self.manager.delete_document(new_post)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 5)  # one is missing
 
@@ -175,7 +175,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
             Topic.get_document_type(), {"filter_by": f"id:= [{topic.search_engine_id}, {new_topic.search_engine_id}]"}
         )  # the two topic are deleted
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 3)
 
@@ -190,7 +190,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         post = Post.objects.get(pk=post.pk)
         post.delete()
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)
 
@@ -246,7 +246,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.assertTrue(first_publication.search_engine_already_indexed)
         self.assertFalse(first_publication.search_engine_flagged)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)  # get 2 results, one for the content and one for the chapter
 
@@ -271,7 +271,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         first_publication = PublishedContent.objects.get(pk=first_publication.pk)
         self.assertTrue(first_publication.must_redirect)  # .. including the first one, for redirection
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 0)  # the old one is gone (and we need to reindex to get the new one)
 
@@ -281,7 +281,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         first_publication = PublishedContent.objects.get(pk=first_publication.pk)
         second_publication = PublishedContent.objects.get(pk=second_publication.pk)
 
-        results = self.manager.setup_search("*")
+        results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 2)  # Still 2, not 4 !
 
