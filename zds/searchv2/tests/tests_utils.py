@@ -33,7 +33,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
             return
 
         # in the beginning: the void
-        self.assertTrue(len(self.search_engine_manager.search_engine.collections.retrieve()) == 0)
+        self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
         text = "Ceci est un texte de test"
 
@@ -74,7 +74,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         # 1. test "index-all"
         call_command("search_engine_manager", "index_all")
-        self.assertTrue(len(self.search_engine_manager.search_engine.collections.retrieve()) != 0)
+        self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
@@ -110,10 +110,10 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(all(must_contain))
 
         # 2. test "clear"
-        self.assertTrue(len(self.search_engine_manager.search_engine.collections.retrieve()) != 0)
+        self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
         call_command("search_engine_manager", "clear")
-        self.assertTrue(len(self.search_engine_manager.search_engine.collections.retrieve()) == 0)  # back to void
+        self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)  # back to void
 
         # must reset every object
         topic = Topic.objects.get(pk=topic.pk)
@@ -129,11 +129,10 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(published.search_engine_flagged)
 
         # 3. test "setup"
-        print(self.search_engine_manager.search_engine.collections.retrieve())
         call_command("search_engine_manager", "setup")
 
-        self.assertTrue(
-            len(self.search_engine_manager.search_engine.collections.retrieve()) != 0
+        self.assertNotEqual(
+            len(self.search_engine_manager.search_engine.collections.retrieve()), 0
         )  # collections back in
 
         results = self.search_engine_manager.search("*")

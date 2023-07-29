@@ -33,20 +33,17 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         if not self.manager.connected_to_search_engine:
             return
 
-        manager = SearchIndexManager()
-
         # 1. Creation:
         models = [Topic, Post]
-        manager.reset_index([Topic, Post])
+        self.manager.reset_index(models)
 
         # test collection
         collections_name = [collection["name"] for collection in self.manager.search_engine.collections.retrieve()]
-
         for model in models:
             self.assertTrue(model.get_document_type() in collections_name)
 
         # 2. Clearing
-        manager.clear_index()
+        self.manager.clear_index()
         self.assertTrue(len(self.manager.search_engine.collections.retrieve()) == 0)  # back to the void
 
     def test_indexation(self):
@@ -104,8 +101,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.assertTrue(published.search_engine_already_indexed)
         self.assertFalse(published.search_engine_flagged)
 
-        search_request = "*"  # request that match all the document
-        results = self.manager.search(search_request)
+        results = self.manager.search("*")  # get all documents
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 4)  # get 4 results, one of each type
 

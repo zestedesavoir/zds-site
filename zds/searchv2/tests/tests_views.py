@@ -40,6 +40,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.manager.reset_index(self.indexable)
 
+    def _index_everything(self):
+        self.manager.reset_index(self.indexable)
+        for model in self.indexable:
+            if model is FakeChapter:
+                continue
+            self.manager.indexing_of_model(model, force_reindexing=True)
+
     def test_basic_search(self):
         """Basic search and filtering"""
 
@@ -81,10 +88,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(number_of_results, 0)  # good!
 
         # index
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model)
+        self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
@@ -117,7 +121,11 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 self.assertEqual(r["document"]["id"], ids[doc_type][i])  # … with the right id !
 
     def test_invalid_search(self):
-        """Check if the request is *, all documents are not displayed"""
+        """Check if the request is *, no result is displayed"""
+
+        if not self.manager.connected_to_search_engine:
+            return
+
         result = self.client.get(reverse("search:query") + "?q=*", follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context["object_list"]), 0)
@@ -149,10 +157,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(content["results"]), 0)
 
         # index
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model)
+        self._index_everything()
 
         # 2. Should get exactly one result
         result = self.client.get(reverse("search:similar") + "?q=mange", follow=False)
@@ -337,10 +342,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         published_opinion_picked = PublishedContent.objects.get(content_pk=opinion_picked.pk)
 
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model)
+        self._index_everything()
 
         results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)
@@ -352,11 +354,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 settings.ZDS_APP["search"]["boosts"][doc_type][key] = 1.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         # 3. Test posts
         result = self.client.get(
@@ -375,11 +373,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["if_first"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
@@ -398,11 +392,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
@@ -421,11 +411,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
@@ -444,11 +430,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"] = 2.0  # no one would do that in real life
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
@@ -466,11 +448,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"] = 1.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         # 4. Test topics
         result = self.client.get(
@@ -487,11 +465,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
@@ -508,11 +482,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
@@ -529,11 +499,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"] = 2.0  # no one would do that in real life
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
@@ -549,11 +515,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"] = 1.0  # no one would do that in real life
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         # 5. Test published contents
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
@@ -573,11 +535,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
@@ -592,11 +550,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
@@ -613,11 +567,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         # Note: in "real life", unpicked opinion would get a boost < 1.
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
@@ -638,11 +588,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
 
@@ -656,11 +602,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 1.0
 
         # Reindex to update the score
-        self.manager.reset_index(self.indexable)
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+        self._index_everything()
 
         # 6. Test global boosts
         # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
@@ -672,11 +614,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 settings.ZDS_APP["search"]["boosts"][collection][key] = 10.0
 
             # Reindex to update the score
-            self.manager.reset_index(self.indexable)
-            for model in self.indexable:
-                if model is FakeChapter:
-                    continue
-                self.manager.indexing_of_model(model, force_reindexing=True)
+            self._index_everything()
 
             result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
 
@@ -688,13 +626,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
             for key in settings.ZDS_APP["search"]["boosts"][collection]:
                 settings.ZDS_APP["search"]["boosts"][collection][key] = 1
-
-            # Reindex to update the score
-            self.manager.reset_index(self.indexable)
-            for model in self.indexable:
-                if model is FakeChapter:
-                    continue
-                self.manager.indexing_of_model(model, force_reindexing=True)
 
     def test_change_topic_impacts_posts(self):
         if not self.manager.connected_to_search_engine:
@@ -977,10 +908,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(number_of_results, 0)  # indexing ok
 
         # index
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.indexing_of_model(model)
+        self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text_lc, follow=False)
         self.assertEqual(result.status_code, 200)
@@ -1061,8 +989,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(number_of_results, 0)  # indexing ok
 
         # index
-        for model in self.indexable:
-            self.manager.indexing_of_model(model)
+        self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
         self.assertEqual(result.status_code, 200)
