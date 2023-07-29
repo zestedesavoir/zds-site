@@ -14,18 +14,16 @@ GEOIP_CITY = "GeoLite2-City.mmdb"
 
 SEARCH_ENABLED = True
 
-SEARCH_CONNECTIONS = {
-    "default": {
-        "nodes": [
-            {
-                "host": "localhost",
-                "port": "8108",
-                "protocol": "http",
-            }
-        ],
-        "api_key": "xyz",
-        "connection_timeout_seconds": 2,
-    }
+SEARCH_CONNECTION = {
+    "nodes": [
+        {
+            "host": "localhost",
+            "port": "8108",
+            "protocol": "http",
+        }
+    ],
+    "api_key": "xyz",
+    "connection_timeout_seconds": 2,
 }
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown

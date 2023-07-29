@@ -110,24 +110,21 @@ La configuration de la connexion se fait dans le fichier
 
     SEARCH_ENABLED = True
 
-    SEARCH_CONNECTIONS = {
-        "default": {
-            "nodes": [
-                {
-                    "host": "localhost",
-                    "port": "8108",
-                    "protocol": "http",
-                }
-            ],
-            "api_key": "xyz",
-            "connection_timeout_seconds": 2,
-        }
+    SEARCH_CONNECTION = {
+        "nodes": [
+            {
+                "host": "localhost",
+                "port": "8108",
+                "protocol": "http",
+            }
+        ],
+        "api_key": "xyz",
+        "connection_timeout_seconds": 2,
     }
 
 
 La première active le moteur de recherche, la seconde permet de configurer la
-connexion au moteur de recherche. ``default`` est l'*alias* de la connexion, au
-cas où il serait nécessaire d'utiliser plusieurs configurations.
+connexion au moteur de recherche.
 
 Pour indiquer, les poids associés à chacune des collections, il faut modifier
 les variables suivantes dans ``settings/abstract_base/zds.py`` :

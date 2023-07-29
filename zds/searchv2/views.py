@@ -38,7 +38,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
         self.search_engine = None
 
         if settings.SEARCH_ENABLED:
-            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
@@ -115,7 +115,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         self.search_engine = None
 
         if settings.SEARCH_ENABLED:
-            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
@@ -194,7 +194,7 @@ class SearchView(ZdSPagingListView):
         self.search_engine = None
 
         if settings.SEARCH_ENABLED:
-            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS["default"])
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""

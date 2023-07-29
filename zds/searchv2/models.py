@@ -240,23 +240,16 @@ def get_all_indexable_objects():
 
 
 class SearchIndexManager:
-    """Manage a given index with different taylor-made functions"""
+    """Manage interactions with the search engine"""
 
-    def __init__(self, connection_alias="default"):
-        """Create a manager for a given index
-
-
-        :param connection_alias: the alias for connection
-        :type connection_alias: str
-        """
-
+    def __init__(self):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.search_engine = None
         self.connected_to_search_engine = False
 
         if settings.SEARCH_ENABLED:
-            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTIONS[connection_alias])
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
             self.connected_to_search_engine = True
 
             # test connection:
