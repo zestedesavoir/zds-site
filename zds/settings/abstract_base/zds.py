@@ -215,6 +215,7 @@ ZDS_APP = {
         "top_tag_exclu": ["bug", "suggestion", "tutoriel", "beta", "article"],
         "greetings": ["salut", "bonjour", "yo ", "hello", "bon matin", "tout le monde se secoue"],
         "description_size": 120,
+        "max_similar_topics": 10,
     },
     "topic": {
         "home_number": 5,

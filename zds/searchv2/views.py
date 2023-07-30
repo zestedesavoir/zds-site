@@ -10,6 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView
+from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
 from zds.searchv2.forms import SearchForm
@@ -20,60 +21,53 @@ from zds.utils.templatetags.authorized_forums import get_authorized_forums
 from typesense import Client as SearchEngineClient
 
 
-class SimilarTopicsView(CreateView, SingleObjectMixin):
+class SimilarTopicsView(View):
     """
-    This view allows you to suggest similar topics when creating a new topic on a forum.
-    The idea is to avoid the creation of a topic on a subject already treated on the forum.
+    This view allows you to suggest similar topics when creating a new topic on
+    a forum. The idea is to avoid the creation of a topic on a subject already
+    treated on the forum.
     """
-
-    search_query = None
-    authorized_forums = ""
-    search_engine_manager = None
-
-    def __init__(self, **kwargs):
-        """Overridden because the index manager must NOT be initialized elsewhere."""
-        super().__init__(**kwargs)
-        self.search_engine_manager = SearchIndexManager()
-
-        self.search_engine = None
-
-        if settings.SEARCH_ENABLED:
-            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
-        if "q" in request.GET:
-            self.search_query = "".join(request.GET["q"])
-
         results = []
-        if self.search_engine_manager.connected_to_search_engine and self.search_query:
-            self.authorized_forums = get_authorized_forums(self.request.user)
-            filter = self._add_numerical_filter("forum_pk", self.authorized_forums)
-            search_parameters = {
-                "q": self.search_query,
-                "query_by": "title,subtitle,tags",
-                "filter_by": filter,
-            }
 
-            result = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"]
+        if settings.SEARCH_ENABLED:
+            search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
+            search_engine_manager = SearchIndexManager()
 
-            for entry in result:
-                entry["collection"] = "topic"
+            search_query = request.GET.get("q", "")
 
-            hits = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"][:10]
-
-            # Build the result
-            for hit in hits:
-                document = hit["document"]
-                result = {
-                    "id": document["forum_pk"],
-                    "url": str(document["get_absolute_url"]),
-                    "title": str(document["title"]),
-                    "subtitle": str(document["subtitle"]),
-                    "forumTitle": str(document["forum_title"]),
-                    "forumUrl": str(document["forum_get_absolute_url"]),
-                    "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
+            if search_engine_manager.connected_to_search_engine and search_query:
+                max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
+                authorized_forums = get_authorized_forums(self.request.user)
+                search_parameters = {
+                    "q": search_query,
+                    "query_by": "title,subtitle,tags",
+                    "query_by_weights": "{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
+                    ),
+                    "filter_by": self._add_numerical_filter("forum_pk", authorized_forums),
+                    "page": 1,
+                    "per_page": max_similar_topics,
                 }
-                results.append(result)
+
+                hits = search_engine.collections["topic"].documents.search(search_parameters)["hits"]
+                assert len(hits) <= max_similar_topics
+
+                for hit in hits:
+                    document = hit["document"]
+                    result = {
+                        "id": document["forum_pk"],
+                        "url": str(document["get_absolute_url"]),
+                        "title": str(document["title"]),
+                        "subtitle": str(document["subtitle"]),
+                        "forumTitle": str(document["forum_title"]),
+                        "forumUrl": str(document["forum_get_absolute_url"]),
+                        "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
+                    }
+                    results.append(result)
 
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
