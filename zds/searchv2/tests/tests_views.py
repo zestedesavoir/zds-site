@@ -150,6 +150,15 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_2.text = post_1.text_html = text
         post_2.save()
 
+        # Create a hidden forum with a matching topic that should not show up
+        group = Group.objects.create(name="Les illuminatis anonymes de ZdS")
+        _, hidden_forum = create_category_and_forum(group)
+
+        topic_hidden = TopicFactory(forum=hidden_forum, author=self.staff, title=text)
+        post_hidden = PostFactory(topic=topic_hidden, author=self.user, position=1)
+        post_hidden.text = post_hidden.text_html = text
+        post_hidden.save()
+
         # 1. Should not get any result
         result = self.client.get(reverse("search:similar") + "?q=est", follow=False)
         self.assertEqual(result.status_code, 200)
