@@ -9,6 +9,7 @@ from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
 from zds.searchv2.models import SearchIndexManager
+from zds.searchv2.utils import SearchFilter
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
@@ -163,3 +164,22 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         # delete index:
         self.search_engine_manager.clear_index()
+
+
+class SearchFilterTests(TestCase):
+    def test_search_filter(self):
+        f = SearchFilter()
+
+        f.add_exact_filter("foo", [1])
+        self.assertEqual(str(f), "(foo:=1)")
+
+        f.add_exact_filter("bar", [3, 4, "bla"])
+        self.assertEqual(str(f), "(foo:=1) && (bar:=3||bar:=4||bar:=bla)")
+
+        f.add_bool_filter("z", True)
+        self.assertEqual(str(f), "(foo:=1) && (bar:=3||bar:=4||bar:=bla) && (z:true)")
+
+        f = SearchFilter()
+
+        f.add_not_numerical_filter("forum_pk", [6, 7])
+        self.assertEqual(str(f), "((forum_pk:<6||forum_pk:>6)&&(forum_pk:<7||forum_pk:>7))")

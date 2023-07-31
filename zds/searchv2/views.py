@@ -15,6 +15,7 @@ from django.views.generic.detail import SingleObjectMixin
 
 from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import SearchIndexManager
+from zds.searchv2.utils import SearchFilter
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
 
@@ -39,7 +40,10 @@ class SimilarTopicsView(View):
 
             if search_engine_manager.connected_to_search_engine and search_query:
                 max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
-                authorized_forums = get_authorized_forums(self.request.user)
+
+                filter_by = SearchFilter()
+                filter_by.add_exact_filter("forum_pk", get_authorized_forums(self.request.user))
+
                 search_parameters = {
                     "q": search_query,
                     "query_by": "title,subtitle,tags",
@@ -48,7 +52,7 @@ class SimilarTopicsView(View):
                         settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
                         settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
                     ),
-                    "filter_by": self._add_numerical_filter("forum_pk", authorized_forums),
+                    "filter_by": str(filter_by),
                     "page": 1,
                     "per_page": max_similar_topics,
                 }
@@ -72,22 +76,6 @@ class SimilarTopicsView(View):
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
 
-    def _add_numerical_filter(self, field, values):
-        """
-        Return a filter string that is used to filter numerical values for the specified field.
-
-        :param field: Name of the field to filter.
-        :type field: str
-        :param values: A list of integers containing the values to filter for the field.
-        :type values: list[int]
-        :return: Represents the numerical filter.
-        :rtype: str
-        """
-        filter = f"{field}:={values[0]}"
-        for value in values[1:]:
-            filter += f"||{field}:={value}"
-        return filter
-
 
 class SuggestionContentView(CreateView, SingleObjectMixin):
     """
@@ -97,7 +85,6 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
     """
 
     search_query = None
-    authorized_forums = ""
     search_engine_manager = None
 
     def __init__(self, **kwargs):
@@ -117,15 +104,15 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         excluded_content_ids = request.GET.get("excluded", "").split(",")
         results = []
         if self.search_engine_manager.connected_to_search_engine and self.search_query:
-            self.authorized_forums = get_authorized_forums(self.request.user)
-
             search_parameters = {
                 "q": self.search_query,
                 "query_by": "title,description",
             }
 
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
-                search_parameters["filter_by"] = self._add_negative_numerical_filter("content_pk", excluded_content_ids)
+                filter_by = SearchFilter()
+                filter_by.add_not_numerical_filter("content_pk", excluded_content_ids)
+                search_parameters["filter_by"] = str(filter_by)
 
             hits = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
 
@@ -142,22 +129,6 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         data = {"results": results}
 
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
-
-    def _add_negative_numerical_filter(self, field, values):
-        """
-        Add a filter to the current filter to exclude specified numerical values.
-
-        :param field: Name of the field to filter.
-        :type field: str
-        :param values: A list of strings containing the values to exclude for the field.
-        :type values: list[str]
-        :return: Represents the negative numerical filter.
-        :rtype: str
-        """
-        filter = f"({field}:<{values[0]}||{field}:>{values[0]})"
-        for value in values[1:]:
-            filter += f"&&({field}:<{value}||{field}:>{value})"
-        return filter
 
 
 class SearchView(ZdSPagingListView):
@@ -260,21 +231,18 @@ class SearchView(ZdSPagingListView):
                     search_collections.append("chapter")
 
             # Setup filters:
-            filter_authorized_forums = self._add_filter("forum_pk", self.authorized_forums)
-            filter_publishedcontent = ""
-            filter_chapter = ""
+            filter_authorized_forums = SearchFilter()
+            filter_authorized_forums.add_exact_filter("forum_pk", get_authorized_forums(self.request.user))
+            filter_publishedcontent = SearchFilter()
+            filter_chapter = SearchFilter()
             if self.content_category:
-                filter_publishedcontent = self._add_filter("categories", self.content_category, filter_publishedcontent)
-                filter_chapter = self._add_filter("categories", self.content_category, filter_chapter)
+                filter_publishedcontent.add_exact_filter("categories", [self.content_category])
+                filter_chapter.add_exact_filter("categories", [self.content_category])
             if self.content_subcategory:
-                filter_publishedcontent = self._add_filter(
-                    "subcategories", self.content_subcategory, filter_publishedcontent
-                )
-                filter_chapter = self._add_filter("subcategories", self.content_subcategory, filter_chapter)
+                filter_publishedcontent.add_exact_filter("subcategories", [self.content_subcategory])
+                filter_chapter.add_exact_filter("subcategories", [self.content_subcategory])
             if self.search_content_types:
-                filter_publishedcontent = self._add_filter(
-                    "content_type", self.search_content_types, filter_publishedcontent
-                )
+                filter_publishedcontent.add_exact_filter("content_type", [self.search_content_types])
 
             search_requests = {"searches": []}
 
@@ -291,7 +259,7 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
                         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
                     ),
-                    "filter_by": filter_publishedcontent,
+                    "filter_by": str(filter_publishedcontent),
                 },
                 "chapter": {
                     "collection": "chapter",
@@ -301,7 +269,7 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
                         settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
                     ),
-                    "filter_by": filter_chapter,
+                    "filter_by": str(filter_chapter),
                 },
                 "topic": {
                     "collection": "topic",
@@ -312,7 +280,7 @@ class SearchView(ZdSPagingListView):
                         settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
                         settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
                     ),
-                    "filter_by": filter_authorized_forums,
+                    "filter_by": str(filter_authorized_forums),
                 },
                 "post": {
                     "collection": "post",
@@ -321,7 +289,7 @@ class SearchView(ZdSPagingListView):
                     "query_by_weights": "{}".format(
                         settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
                     ),
-                    "filter_by": filter_authorized_forums,
+                    "filter_by": str(filter_authorized_forums),
                 },
             }
 
@@ -362,20 +330,20 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset_publishedcontents(self):
         """Search in PublishedContent collection."""
-        filter = ""
+        filter_by = SearchFilter()
         if self.search_content_types:
-            filter = self._add_filter("content_type", self.search_content_types, filter)
+            filter_by.add_exact_filter("content_type", self.search_content_types)
 
         if self.content_category:
-            filter = self._add_filter("categories", self.content_category, filter)
+            filter_by.add_exact_filter("categories", self.content_category)
 
         if self.content_subcategory:
-            filter = self._add_filter("subcategories", self.content_subcategory, filter)
+            filter_by.add_exact_filter("subcategories", self.content_subcategory)
 
         search_parameters = {
             "q": self.search_query,
             "query_by": "title,description,categories,subcategories, tags, text",
-            "filter_by": filter,
+            "filter_by": str(filter_by),
             "sort_by": "score:desc",
             "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
@@ -390,17 +358,17 @@ class SearchView(ZdSPagingListView):
 
     def get_queryset_chapters(self):
         """Search in chapters collection."""
-        filter = ""
+        filter_by = SearchFilter()
         if self.content_category:
-            filter = self._add_filter("categories", self.content_category, filter)
+            filter_by.add_exact_filter("categories", self.content_category)
 
         if self.content_subcategory:
-            filter = self._add_filter("subcategories", self.content_subcategory, filter)
+            filter_by.add_exact_filter("subcategories", self.content_subcategory)
 
         search_parameters = {
             "q": self.search_query,
             "query_by": "title,text",
-            "filter": filter,
+            "filter_by": str(filter_by),
             "sort_by": "score:desc",
             "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
@@ -422,13 +390,13 @@ class SearchView(ZdSPagingListView):
         + topic is sticky;
         + topic is locked.
         """
-        filter = ""
-        filter = self._add_filter("forum_pk", self.authorized_forums, filter)
+        filter_by = SearchFilter()
+        filter_by.add_exact_filter("forum_pk", self.authorized_forums)
 
         search_parameters = {
             "q": self.search_query,
             "query_by": "title,subtitle,tags",
-            "filter_by": filter,
+            "filter_by": str(filter_by),
             "sort_by": "score:desc",
             "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
@@ -451,13 +419,13 @@ class SearchView(ZdSPagingListView):
         + post has a like/dislike ratio above (has more likes than dislikes) or below (the other way around) 1.0.
         """
 
-        filter = ""
-        filter = self._add_filter("forum_pk", self.authorized_forums, filter)
-        filter = self._add_filter("is_visible", "true", filter)
+        filter_by = SearchFilter()
+        filter_by.add_exact_filter("forum_pk", self.authorized_forums)
+        filter_by.add_bool_filter("is_visible", True)
         search_parameters = {
             "q": self.search_query,
             "query_by": "text_html",
-            "filter_by": filter,
+            "filter_by": str(filter_by),
             "sort_by": "score:desc",
             "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
         }
@@ -475,25 +443,6 @@ class SearchView(ZdSPagingListView):
         context["form"] = self.search_form
         context["query"] = self.search_query is not None
         return context
-
-    def _add_filter(self, field, value, current_filter=""):
-        """
-        Add a filter to the current filter. This filter cannot be used for negation.
-
-        :param field: Name of the field to filter.
-        :type field: str
-        :param value: Value of the field.
-        :type value: str
-        :param current_filter: Represents the current value to filter.
-        :type current_filter: str
-        :return: Represents the updated filter.
-        :rtype: str
-        """
-        if len(current_filter) > 0:
-            current_filter += f"&& {field}:{str(value)}"
-        else:
-            current_filter = f"{field}:{str(value)}"
-        return current_filter
 
     def _choose_single_collection_method(self, name):
         """
