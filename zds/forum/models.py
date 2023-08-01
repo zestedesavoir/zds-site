@@ -9,11 +9,15 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 
-from elasticsearch_dsl.field import Text, Keyword, Integer, Boolean, Float, Date
-
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.forum import signals
-from zds.searchv2.models import AbstractESDjangoIndexable, delete_document_in_elasticsearch, ESIndexManager
+from zds.searchv2.models import (
+    AbstractSearchIndexableModel,
+    delete_document_in_search_engine,
+    SearchIndexManager,
+    date_to_timestamp_int,
+    clean_html,
+)
 from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 
@@ -169,7 +173,7 @@ class Forum(models.Model):
         return self._nb_group > 0
 
 
-class Topic(AbstractESDjangoIndexable):
+class Topic(AbstractSearchIndexableModel):
     """
     A Topic is a thread of posts.
     A topic has several states, witch are all independent:
@@ -433,43 +437,44 @@ class Topic(AbstractESDjangoIndexable):
         return TopicRead.objects.is_topic_last_message_read(self, user, check_auth)
 
     @classmethod
-    def get_es_mapping(cls):
-        es_mapping = super().get_es_mapping()
+    def get_document_schema(cls):
+        search_engine_schema = super().get_document_schema()
 
-        es_mapping.field("title", Text(boost=1.5))
-        es_mapping.field("tags", Text(boost=2.0))
-        es_mapping.field("subtitle", Text())
-        es_mapping.field("is_solved", Boolean())
-        es_mapping.field("is_locked", Boolean())
-        es_mapping.field("is_sticky", Boolean())
-        es_mapping.field("pubdate", Date())
-        es_mapping.field("forum_pk", Integer())
+        search_engine_schema["fields"] = [
+            {"name": "forum_pk", "type": "int32", "facet": False},
+            {"name": "title", "type": "string"},
+            {"name": "subtitle", "type": "string", "optional": True},
+            {"name": "forum_title", "type": "string", "facet": True},
+            {"name": "tags", "type": "string[]", "facet": True},
+            {"name": "is_locked", "type": "bool"},
+            {"name": "is_solved", "type": "bool"},
+            {"name": "is_sticky", "type": "bool"},
+            {"name": "pubdate", "type": "int64", "facet": True},
+            {"name": "get_absolute_url", "type": "string"},
+            {"name": "forum_get_absolute_url", "type": "string"},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
-        # not indexed:
-        es_mapping.field("get_absolute_url", Keyword(index=False))
-        es_mapping.field("forum_title", Text(index=False))
-        es_mapping.field("forum_get_absolute_url", Keyword(index=False))
-
-        return es_mapping
+        return search_engine_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to prefetch tags and forum"""
 
-        query = super().get_es_django_indexable(force_reindexing)
+        query = super().get_indexable_objects(force_reindexing)
         return query.prefetch_related("tags").select_related("forum")
 
-    def get_es_document_source(self, excluded_fields=None):
-        """Overridden to handle the case of tags (M2M field)"""
-
+    def get_document_source(self, excluded_fields=None):
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url"])
+        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "score"])
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_document_source(excluded_fields=excluded_fields)
         data["tags"] = [tag.title for tag in self.tags.all()]
         data["forum_pk"] = self.forum.pk
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
+        data["pubdate"] = date_to_timestamp_int(self.pubdate)
+        data["score"] = self._compute_search_score()
 
         return data
 
@@ -482,17 +487,38 @@ class Topic(AbstractESDjangoIndexable):
             pass
         else:
             if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
-                Post.objects.filter(topic__pk=self.pk).update(es_flagged=True)
+                Post.objects.filter(topic__pk=self.pk).update(search_engine_flagged=True)
         return super().save(*args, **kwargs)
+
+    def _compute_search_score(self):
+        """
+        This function calculates a score for topics in order to sort them according to different boosts.
+        There is a boost according to the state of the topic:
+        - Solved: it was a question, and this question has been answered. The "solved" state is set at author's discretion.
+        - Locked: nobody can write on a locked topic.
+        - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
+        """
+        weight_solved = settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]
+        weight_sticky = settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]
+        weight_locked = settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]
+        weight_global = settings.ZDS_APP["search"]["boosts"]["topic"]["global"]
+        # if the topic isn't in one of this states (solved, locked, sticky), it needs a weight, it's the global weight
+        is_global = 0 if self.is_solved or self.is_sticky or self.is_locked else 1
+        return max(
+            weight_solved * self.is_solved,
+            weight_sticky * self.is_sticky,
+            weight_locked * self.is_locked,
+            is_global * weight_global,
+        )
 
 
 @receiver(pre_delete, sender=Topic)
-def delete_topic_in_elasticsearch(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_elasticsearch(instance)
+def delete_topic_in_search(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in the search engine"""
+    return delete_document_in_search_engine(instance)
 
 
-class Post(Comment, AbstractESDjangoIndexable):
+class Post(Comment, AbstractSearchIndexableModel):
     """
     A forum post written by a user.
     A post can be marked as useful: topic's author (or admin) can declare any topic as "useful", and this post is
@@ -521,70 +547,102 @@ class Post(Comment, AbstractESDjangoIndexable):
         return self.topic.title
 
     @classmethod
-    def get_es_mapping(cls):
-        es_mapping = super().get_es_mapping()
+    def get_document_schema(cls):
+        search_engine_schema = super().get_document_schema()
 
-        es_mapping.field("text_html", Text())
-        es_mapping.field("is_useful", Boolean())
-        es_mapping.field("is_visible", Boolean())
-        es_mapping.field("position", Integer())
-        es_mapping.field("like_dislike_ratio", Float())
-        es_mapping.field("pubdate", Date())
-        es_mapping.field("forum_pk", Integer())
-        es_mapping.field("topic_pk", Integer())
+        search_engine_schema["fields"] = [
+            {"name": "topic_pk", "type": "int64"},
+            {"name": "forum_pk", "type": "int64"},
+            {"name": "topic_title", "type": "string", "facet": True},
+            {"name": "forum_title", "type": "string", "facet": True},
+            {"name": "position", "type": "int64"},
+            {"name": "text_html", "type": "string"},
+            {"name": "is_visible", "type": "bool"},
+            {"name": "is_useful", "type": "bool"},
+            {"name": "pubdate", "type": "int64"},
+            {"name": "get_absolute_url", "type": "string"},
+            {"name": "forum_get_absolute_url", "type": "string"},
+            {"name": "like_dislike_ratio", "type": "float"},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
-        # not indexed:
-        es_mapping.field("get_absolute_url", Keyword(index=False))
-        es_mapping.field("topic_title", Text(index=False))
-        es_mapping.field("forum_title", Text(index=False))
-        es_mapping.field("forum_get_absolute_url", Keyword(index=False))
-
-        return es_mapping
+        return search_engine_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to prefetch stuffs"""
 
-        q = super().get_es_django_indexable(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
+        q = super().get_indexable_objects(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
 
         return q
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=None):
         """Overridden to handle the information of the topic"""
 
         excluded_fields = excluded_fields or []
         excluded_fields.extend(
-            ["like_dislike_ratio", "topic_title", "topic_pk", "forum_title", "forum_pk", "forum_get_absolute_url"]
+            [
+                "like_dislike_ratio",
+                "topic_title",
+                "topic_pk",
+                "forum_title",
+                "forum_pk",
+                "forum_get_absolute_url",
+                "pubdate",
+                "score",
+                "text_html",
+            ]
         )
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
-
+        data = super().get_document_source(excluded_fields=excluded_fields)
         data["like_dislike_ratio"] = (
             (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
         )
-
         data["topic_pk"] = self.topic.pk
         data["topic_title"] = self.topic.title
-
         data["forum_pk"] = self.topic.forum.pk
         data["forum_title"] = self.topic.forum.title
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
+        data["pubdate"] = date_to_timestamp_int(self.pubdate)
+        data["text_html"] = clean_html(self.text_html)
+        data["score"] = self._compute_search_score(data["like_dislike_ratio"])
 
         return data
 
     def hide_comment_by_user(self, user, text_hidden):
-        """Overridden to directly hide the post in ES as well"""
+        """Overridden to directly hide the post in the search engine as well"""
 
         super().hide_comment_by_user(user, text_hidden)
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
-        index_manager.update_single_document(self, {"is_visible": False})
+        search_engine_manager = SearchIndexManager()
+        search_engine_manager.update_single_document(self, {"is_visible": False})
+
+    def _compute_search_score(self, like_dislike_ratio: float):
+        """
+        This function calculates a score for post in order to sort them according to different boosts.
+        There is a boost according to the position, the usefulness and the ration of likes.
+        """
+        weight_first = settings.ZDS_APP["search"]["boosts"]["post"]["if_first"]
+        weight_useful = settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"]
+        weight_ld_ratio_above_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"]
+        weight_ld_ratio_below_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"]
+        weight_global = settings.ZDS_APP["search"]["boosts"]["post"]["global"]
+        is_ratio_above_1 = 1 if like_dislike_ratio >= 1 else 0
+        is_ratio_below_1 = 1 - is_ratio_above_1
+        is_first = 1 if self.position == 1 else 0
+        return max(
+            weight_first * is_first,
+            weight_useful * self.is_useful,
+            weight_ld_ratio_above_1 * is_ratio_above_1,
+            weight_ld_ratio_below_1 * is_ratio_below_1,
+            weight_global,
+        )
 
 
 @receiver(pre_delete, sender=Post)
-def delete_post_in_elasticsearch(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in ES"""
-    return delete_document_in_elasticsearch(instance)
+def delete_post_in_search(sender, instance, **kwargs):
+    """catch the pre_delete signal to ensure the deletion in the search engine"""
+    return delete_document_in_search_engine(instance)
 
 
 class TopicRead(models.Model):

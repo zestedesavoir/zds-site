@@ -1,6 +1,4 @@
 # Implicit dependencies (optional dependencies of dependencies)
-elasticsearch-dsl==5.4.0
-elasticsearch==5.5.3
 social-auth-app-django==5.2.0
 
 # Explicit dependencies (references in code)
@@ -19,6 +17,7 @@ lxml==4.9.2
 Pillow==9.5.0
 pymemcache==4.0.0
 requests==2.31.0
+typesense==0.15.1
 
 # Api dependencies
 django-cors-headers==4.0.0

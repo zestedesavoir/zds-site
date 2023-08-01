@@ -1,7 +1,7 @@
 {% load emarkdown %}
 {% load i18n %}
 {% load date %}
-{% load elasticsearch %}
+{% load highlight %}
 
 <a href="{{ search_result.get_absolute_url_online }}" tabindex="-1" class="content-illu">
     {% if search_result.thumbnail %}
@@ -19,8 +19,8 @@
 
         <p class="content-description" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
             <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
-                {% if search_result.text %}
-                    {% highlight search_result "text" %}
+                {% if search_result.highlights.snippet %}
+                    {{ search_result.highlights.snippet | highlight }}
                 {% else %}
                     {{ search_result.description }}
                 {% endif %}
@@ -46,9 +46,9 @@
 
                 &bullet;
 
-                <time class="content-pubdate" pubdate="{{ search_result.publication_date|from_elasticsearch_date }}">
-                    <span class="long">{{ search_result.publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
-                    <span class="short">{{ search_result.publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ search_result.publication_date|date_from_timestamp }}">
+                    <span class="long">{{ search_result.publication_date|date_from_timestamp|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.publication_date|date_from_timestamp|format_date:True|capfirst }}</span>
                 </time>
             </p>
         </div>
@@ -60,9 +60,9 @@
         {% for tag in search_result.tags|slice:":3" %}
             <li>
                 {% if search_result.content_type == 'OPINION' %}
-                    <a href="{% url 'opinion:list' %}?tag={{ tag.slug }}">{{ tag }}</a>
+                    <a href="{% url 'opinion:list' %}?tag={{ tag }}">{{ tag }}</a>
                 {% else %}
-                    <a href="{% url 'publication:list' %}?tag={{ tag.slug }}">{{ tag }}</a>
+                    <a href="{% url 'publication:list' %}?tag={{ tag }}">{{ tag }}</a>
                 {% endif %}
             </li>
         {% endfor %}

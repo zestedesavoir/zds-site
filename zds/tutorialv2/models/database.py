@@ -16,8 +16,6 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from elasticsearch_dsl import Mapping, Q as ES_Q
-from elasticsearch_dsl.field import Text, Keyword, Date, Boolean
 from git import Repo, BadObject
 from gitdb.exc import BadName
 
@@ -27,10 +25,12 @@ from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
-    AbstractESDjangoIndexable,
-    AbstractESIndexable,
-    delete_document_in_elasticsearch,
-    ESIndexManager,
+    AbstractSearchIndexableModel,
+    AbstractSearchIndexable,
+    delete_document_in_search_engine,
+    SearchIndexManager,
+    date_to_timestamp_int,
+    clean_html,
 )
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
@@ -624,7 +624,7 @@ def delete_gallery(sender, instance, **kwargs):
         instance.gallery.delete()
 
 
-class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, OnlineLinkableContentMixin):
+class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixin, OnlineLinkableContentMixin):
     """A class that contains information on the published version of a content.
 
     Used for quick url resolution, quick listing, and to know where the public version of the files are.
@@ -961,34 +961,33 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
-    def get_es_mapping(cls):
-        mapping = Mapping(cls.get_es_document_type())
+    def get_document_schema(cls):
+        search_engine_schema = super().get_document_schema()
 
-        mapping.field("content_pk", "integer")
-        mapping.field("publication_date", Date())
-        mapping.field("content_type", Keyword())
+        search_engine_schema["fields"] = [
+            {"name": "title", "type": "string", "facet": False},
+            {"name": "content_pk", "type": "int32", "facet": False},
+            {"name": "content_type", "type": "string", "facet": True},
+            {"name": "publication_date", "type": "int64", "facet": False},
+            {"name": "tags", "type": "string[]", "facet": True, "optional": True},
+            {"name": "has_chapters", "type": "bool", "facet": False},
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},
+            {"name": "text", "type": "string", "facet": False, "optional": True},
+            {"name": "description", "type": "string", "facet": False, "optional": True},
+            {"name": "picked", "type": "bool", "facet": False},
+            {"name": "get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
-        # not from PublishedContent directly:
-        mapping.field("title", Text(boost=1.5))
-        mapping.field("description", Text(boost=1.5))
-        mapping.field("tags", Text(boost=2.0))
-        mapping.field("categories", Keyword(boost=1.5))
-        mapping.field("subcategories", Keyword(boost=1.5))
-        mapping.field("text", Text())  # for article and mini-tuto, text is directly included into the main object
-        mapping.field("has_chapters", Boolean())  # ... otherwise, it is written
-        mapping.field("picked", Boolean())
-
-        # not indexed:
-        mapping.field("get_absolute_url_online", Keyword(index=False))
-        mapping.field("thumbnail", Keyword(index=False))
-
-        return mapping
+        return search_engine_schema
 
     @classmethod
-    def get_es_django_indexable(cls, force_reindexing=False):
+    def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to remove must_redirect=True (and prefetch stuffs)."""
 
-        q = super().get_es_django_indexable(force_reindexing)
+        q = super().get_indexable_objects(force_reindexing)
         return (
             q.prefetch_related("content")
             .prefetch_related("content__tags")
@@ -998,14 +997,14 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         )
 
     @classmethod
-    def get_es_indexable(cls, force_reindexing=False):
+    def get_indexable(cls, force_reindexing=False):
         """Overridden to also include chapters"""
 
-        index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        search_engine_manager = SearchIndexManager()
 
         # fetch initial batch
         last_pk = 0
-        objects_source = super().get_es_indexable(force_reindexing)
+        objects_source = super().get_indexable(force_reindexing)
         objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
         while objects:
@@ -1017,14 +1016,13 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
                 # chapters are only indexed for middle and big tuto
                 if versioned.has_sub_containers():
                     # delete possible previous chapters
-                    if content.es_already_indexed:
-                        index_manager.delete_by_query(
-                            FakeChapter.get_es_document_type(), ES_Q("match", _routing=content.es_id)
+                    if content.search_engine_already_indexed:
+                        search_engine_manager.delete_by_query(
+                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
                         )
-
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
-                        chapters.append(FakeChapter(chapter, versioned, content.es_id))
+                        chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
 
             if chapters:
                 # since we want to return at most PublishedContent.objects_per_batch items
@@ -1039,13 +1037,15 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
             last_pk = objects[-1].pk
             objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
-    def get_es_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=None):
         """Overridden to handle the fact that most information are versioned"""
 
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(["title", "description", "tags", "categories", "text", "thumbnail", "picked"])
+        excluded_fields.extend(
+            ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date", "score"]
+        )
 
-        data = super().get_es_document_source(excluded_fields=excluded_fields)
+        data = super().get_document_source(excluded_fields=excluded_fields)
 
         # fetch versioned information
         versioned = self.load_public_version()
@@ -1070,7 +1070,7 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         data["subcategories"] = subcategories
 
         if versioned.has_extracts():
-            data["text"] = versioned.get_content_online()
+            data["text"] = clean_html(versioned.get_content_online())
             data["has_chapters"] = False
         else:
             data["has_chapters"] = True
@@ -1080,27 +1080,55 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
         if self.content_type == "OPINION" and self.content.sha_picked is not None:
             data["picked"] = True
 
+        data["publication_date"] = date_to_timestamp_int(self.publication_date)
+
+        is_medium_big_tutorial = versioned.has_sub_containers()
+        data["score"] = self._compute_search_score(self.content_type, is_medium_big_tutorial, data["picked"])
+
         return data
+
+    def _compute_search_score(self, type_content: str, is_medium_big_tutorial: bool, is_picked: bool):
+        """
+        This function calculates a score for publishedcontent in order to sort them according to different boosts.
+        There is a boost according to the type of content (article, opinion, tutorial),
+        if it is a big tutorial or if it is picked.
+        """
+        is_article = 1 if type_content == "ARTICLE" else 0
+        is_tutorial = 1 if type_content == "TUTORIAL" else 0
+        is_opinion = 1 if type_content == "OPINION" else 0
+        weight_article = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"]
+        weight_tutorial = (
+            settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"]
+            if not is_medium_big_tutorial
+            else settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"]
+        )
+        weight_opinion = (
+            settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"]
+            if is_picked
+            else settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"]
+        )
+        return weight_article * is_article + weight_opinion * is_opinion + weight_tutorial * is_tutorial
 
 
 @receiver(pre_delete, sender=PublishedContent)
-def delete_published_content_in_elasticsearch(sender, instance, **kwargs):
-    """Catch the pre_delete signal to ensure the deletion in ES. Also, handle the deletion of the corresponding
+def delete_published_content_in_search_engine(sender, instance, **kwargs):
+    """Catch the pre_delete signal to ensure the deletion in Typesense. Also, handle the deletion of the corresponding
     chapters.
     """
 
-    index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+    search_engine_manager = SearchIndexManager()
 
-    if index_manager.index_exists:
-        index_manager.delete_by_query(FakeChapter.get_es_document_type(), ES_Q("match", _routing=instance.es_id))
+    search_engine_manager.delete_by_query(
+        FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.search_engine_id}
+    )
 
-    return delete_document_in_elasticsearch(instance)
+    return delete_document_in_search_engine(instance)
 
 
 @receiver(pre_save, sender=PublishedContent)
-def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instance, **kwargs):
+def delete_published_content_in_search_engine_if_set_to_redirect(sender, instance, **kwargs):
     """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
-    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from ES.
+    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from Typesense.
     """
 
     try:
@@ -1109,15 +1137,15 @@ def delete_published_content_in_elasticsearch_if_set_to_redirect(sender, instanc
         pass  # nothing to worry about
     else:
         if not obj.must_redirect and instance.must_redirect:
-            delete_published_content_in_elasticsearch(sender, instance, **kwargs)
+            delete_published_content_in_search_engine(sender, instance, **kwargs)
 
 
-class FakeChapter(AbstractESIndexable):
-    """A simple class that is used by ES to index chapters, constructed from the containers.
+class FakeChapter(AbstractSearchIndexable):
+    """A simple class that is used by Typesense to index chapters, constructed from the containers.
 
-    In mapping, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
+    In schema, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
 
-    Note that this class is only indexable, not updatable, since it does not maintain value of ``es_already_indexed``
+    Note that this class is only indexable, not updatable, since it does not maintain value of ``search_engine_already_indexed``
     """
 
     parent_model = PublishedContent
@@ -1138,7 +1166,9 @@ class FakeChapter(AbstractESIndexable):
         self.parent_id = parent_id
         self.get_absolute_url_online = chapter.get_absolute_url_online()
 
-        self.es_id = main_container.slug + "__" + chapter.slug  # both slugs are unique by design, so id remains unique
+        self.search_engine_id = (
+            main_container.slug + "__" + chapter.slug
+        )  # both slugs are unique by design, so id remains unique
 
         self.parent_title = main_container.title
         self.parent_get_absolute_url_online = main_container.get_absolute_url_online()
@@ -1157,36 +1187,45 @@ class FakeChapter(AbstractESIndexable):
                 self.categories.append(parent_category.slug)
 
     @classmethod
-    def get_es_document_type(cls):
+    def get_document_type(cls):
         return "chapter"
 
     @classmethod
-    def get_es_mapping(self):
-        """Define mapping and parenting"""
+    def get_document_schema(self):
+        """Define schema and parenting"""
+        search_engine_schema = super().get_document_schema()
+        search_engine_schema["name"] = self.get_document_type()
 
-        mapping = Mapping(self.get_es_document_type())
-        mapping.meta("parent", type="publishedcontent")
+        search_engine_schema["fields"] = [
+            {"name": "parent_id", "type": "string", "facet": False},
+            {"name": "title", "type": "string", "facet": False},
+            {"name": "parent_title", "type": "string"},
+            {"name": "subcategories", "type": "string[]", "facet": True},
+            {"name": "categories", "type": "string[]", "facet": True},
+            {"name": "parent_publication_date", "type": "int64", "facet": False},
+            {"name": "text", "type": "string", "facet": False},
+            {"name": "get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
+            {"name": "thumbnail", "type": "string", "facet": False},
+            {"name": "score", "type": "float", "facet": False},
+        ]
 
-        mapping.field("title", Text(boost=1.5))
-        mapping.field("text", Text())
-        mapping.field("categories", Keyword(boost=1.5))
-        mapping.field("subcategories", Keyword(boost=1.5))
+        return search_engine_schema
 
-        # not indexed:
-        mapping.field("get_absolute_url_online", Keyword(index=False))
-        mapping.field("parent_title", Text(index=False))
-        mapping.field("parent_get_absolute_url_online", Keyword(index=False))
-        mapping.field("parent_publication_date", Date(index=False))
-        mapping.field("thumbnail", Keyword(index=False))
+    def get_document_source(self, excluded_fields=None):
+        """Overridden to handle the fact that most information are versioned"""
 
-        return mapping
+        excluded_fields = excluded_fields or []
+        excluded_fields.extend(["parent_publication_date", "text"])
 
-    def get_es_document_as_bulk_action(self, index, action="index"):
-        """Overridden to handle parenting between chapter and PublishedContent"""
+        data = super().get_document_source(excluded_fields=excluded_fields)
 
-        document = super().get_es_document_as_bulk_action(index, action)
-        document["_parent"] = self.parent_id
-        return document
+        data["parent_publication_date"] = date_to_timestamp_int(self.parent_publication_date)
+
+        data["score"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
+        data["text"] = clean_html(self.text)
+
+        return data
 
 
 class ContentReaction(Comment):

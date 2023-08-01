@@ -171,7 +171,7 @@ Installe une version **locale** d'Elasticsearch dans un dossier ``.local`` situ�
 La commande ``elasticsearch`` est ensuite ajoutée dans le *virtualenv*, de telle sorte à ce que ce soit cette version locale qui soit utilisée.
 La version d'Elasticsearch installée est controlée par la variable d'environnement ``ZDS_ELASTIC_VERSION`` (voir ``scripts/define_variable.sh`` pour la valeur par défaut).
 
-Notez que vous pouvez choisir d'installer Elasticsearch manuellement, `comme décrit ici <./extra-install-es.html#sous-linux>`_.
+Notez que vous pouvez choisir d'installer Elasticsearch manuellement, `comme décrit ici <./extra-install-search-engine.html#sous-linux>`_.
 
 Composant ``tex-local`` et ``latex-template``
 =============================================

@@ -1,6 +1,3 @@
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import MatchAll
-
 from django.conf import settings
 from django.test import TestCase
 from django.core.management import call_command
@@ -11,11 +8,12 @@ from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
-from zds.searchv2.models import ESIndexManager
+from zds.searchv2.models import SearchIndexManager
+from zds.searchv2.utils import SearchFilter
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_for_contents(ES_ENABLED=True, ES_SEARCH_INDEX={"name": "zds_search_test", "shards": 5, "replicas": 0})
+@override_for_contents(SEARCH_ENABLED=True)
 class UtilsTests(TutorialTestMixin, TestCase):
     def setUp(self):
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
@@ -27,16 +25,16 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.search_engine_manager = SearchIndexManager()
 
-    def test_es_manager(self):
-        """Test the behavior of the ``es_manager`` command"""
+    def test_manager(self):
+        """Test the behavior of the ``search_engine_manager`` command"""
 
-        if not self.index_manager.connected_to_es:
+        if not self.search_engine_manager.connected_to_search_engine:
             return
 
         # in the beginning: the void
-        self.assertTrue(self.index_manager.index not in self.index_manager.es.cat.indices())
+        self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
         text = "Ceci est un texte de test"
 
@@ -49,10 +47,10 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.es_already_indexed)
-        self.assertTrue(topic.es_flagged)
-        self.assertFalse(post.es_already_indexed)
-        self.assertTrue(post.es_flagged)
+        self.assertFalse(topic.search_engine_already_indexed)
+        self.assertTrue(topic.search_engine_flagged)
+        self.assertFalse(post.search_engine_already_indexed)
+        self.assertTrue(post.search_engine_flagged)
 
         # create a middle-tutorial and publish it
         tuto = PublishableContentFactory(type="TUTORIAL")
@@ -72,30 +70,28 @@ class UtilsTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.es_already_indexed)
-        self.assertTrue(published.es_flagged)
+        self.assertFalse(published.search_engine_already_indexed)
+        self.assertTrue(published.search_engine_flagged)
 
         # 1. test "index-all"
-        call_command("es_manager", "index_all")
-        self.assertTrue(self.index_manager.es.indices.exists(self.index_manager.index))
-        self.index_manager.index_exists = True
+        call_command("search_engine_manager", "index_all")
+        self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.es_already_indexed)
-        self.assertFalse(topic.es_flagged)
-        self.assertTrue(post.es_already_indexed)
-        self.assertFalse(post.es_flagged)
+        self.assertTrue(topic.search_engine_already_indexed)
+        self.assertFalse(topic.search_engine_flagged)
+        self.assertTrue(post.search_engine_already_indexed)
+        self.assertFalse(post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.es_already_indexed)
-        self.assertFalse(published.es_flagged)
+        self.assertTrue(published.search_engine_already_indexed)
+        self.assertFalse(published.search_engine_flagged)
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.index_manager.setup_search(s).execute()
-        self.assertEqual(len(results), 4)  # get 4 results, one of each type
+        results = self.search_engine_manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 4)  # get 4 results, one of each type
 
         must_contain = {"post": False, "topic": False, "publishedcontent": False, "chapter": False}
         id_must_be = {
@@ -105,73 +101,85 @@ class UtilsTests(TutorialTestMixin, TestCase):
             "chapter": tuto.slug + "__" + chapter1.slug,
         }
 
-        for hit in results:
-            doc_type = hit.meta.doc_type
+        for result in results:
+            doc_type = result["request_params"]["collection_name"]
             must_contain[doc_type] = True
-            self.assertEqual(hit.meta.id, id_must_be[doc_type])
+            for hit in result["hits"]:
+                doc_id = hit["document"]["id"]
+                self.assertEqual(doc_id, id_must_be[doc_type])
 
         self.assertTrue(all(must_contain))
 
         # 2. test "clear"
-        self.assertTrue(self.index_manager.index in self.index_manager.es.cat.indices())  # index in
+        self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
-        call_command("es_manager", "clear")
-        self.assertFalse(self.index_manager.es.indices.exists(self.index_manager.index))
-        self.index_manager.index_exists = False
+        call_command("search_engine_manager", "clear")
+        self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)  # back to void
 
         # must reset every object
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.es_already_indexed)
-        self.assertTrue(topic.es_flagged)
-        self.assertFalse(post.es_already_indexed)
-        self.assertTrue(post.es_flagged)
+        self.assertFalse(topic.search_engine_already_indexed)
+        self.assertTrue(topic.search_engine_flagged)
+        self.assertFalse(post.search_engine_already_indexed)
+        self.assertTrue(post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.es_already_indexed)
-        self.assertTrue(published.es_flagged)
-
-        self.assertTrue(self.index_manager.index not in self.index_manager.es.cat.indices())  # index wiped out !
+        self.assertFalse(published.search_engine_already_indexed)
+        self.assertTrue(published.search_engine_flagged)
 
         # 3. test "setup"
-        call_command("es_manager", "setup")
-        self.assertTrue(self.index_manager.es.indices.exists(self.index_manager.index))
-        self.index_manager.index_exists = True
+        call_command("search_engine_manager", "setup")
 
-        self.assertTrue(self.index_manager.index in self.index_manager.es.cat.indices())  # index back in ...
+        self.assertNotEqual(
+            len(self.search_engine_manager.search_engine.collections.retrieve()), 0
+        )  # collections back in
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.index_manager.setup_search(s).execute()
-        self.assertEqual(len(results), 0)  # ... but with nothing in it
-
-        result = self.index_manager.es.indices.get_settings(index=self.index_manager.index)
-        settings_index = result[self.index_manager.index]["settings"]["index"]
-        self.assertTrue("analysis" in settings_index)  # custom analyzer was setup
+        results = self.search_engine_manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 0)  # ... but with nothing in it
 
         # 4. test "index-flagged" once ...
-        call_command("es_manager", "index_flagged")
+        call_command("search_engine_manager", "index_flagged")
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.es_already_indexed)
-        self.assertFalse(topic.es_flagged)
-        self.assertTrue(post.es_already_indexed)
-        self.assertFalse(post.es_flagged)
+        self.assertTrue(topic.search_engine_already_indexed)
+        self.assertFalse(topic.search_engine_flagged)
+        self.assertTrue(post.search_engine_already_indexed)
+        self.assertFalse(post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.es_already_indexed)
-        self.assertFalse(published.es_flagged)
+        self.assertTrue(published.search_engine_already_indexed)
+        self.assertFalse(published.search_engine_flagged)
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.index_manager.setup_search(s).execute()
-        self.assertEqual(len(results), 4)  # get the 4 results back
+        results = self.search_engine_manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 4)  # get the 4 results back
 
     def tearDown(self):
         super().tearDown()
 
         # delete index:
-        self.index_manager.clear_es_index()
+        self.search_engine_manager.clear_index()
+
+
+class SearchFilterTests(TestCase):
+    def test_search_filter(self):
+        f = SearchFilter()
+
+        f.add_exact_filter("foo", [1])
+        self.assertEqual(str(f), "(foo:=1)")
+
+        f.add_exact_filter("bar", [3, 4, "bla"])
+        self.assertEqual(str(f), "(foo:=1) && (bar:=3||bar:=4||bar:=bla)")
+
+        f.add_bool_filter("z", True)
+        self.assertEqual(str(f), "(foo:=1) && (bar:=3||bar:=4||bar:=bla) && (z:true)")
+
+        f = SearchFilter()
+
+        f.add_not_numerical_filter("forum_pk", [6, 7])
+        self.assertEqual(str(f), "((forum_pk:<6||forum_pk:>6)&&(forum_pk:<7||forum_pk:>7))")

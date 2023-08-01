@@ -1,20 +1,17 @@
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import MatchAll
-
 from django.conf import settings
 from django.test import TestCase
 
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.searchv2.models import ESIndexManager
+from zds.searchv2.models import SearchIndexManager
 from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
 from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
-@override_for_contents(ES_ENABLED=True, ES_SEARCH_INDEX={"name": "zds_search_test", "shards": 5, "replicas": 0})
-class ESIndexManagerTests(TutorialTestMixin, TestCase):
+@override_for_contents(SEARCH_ENABLED=True)
+class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def setUp(self):
         settings.EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
         self.mas = ProfileFactory().user
@@ -25,91 +22,34 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.manager = SearchIndexManager()
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
-        self.manager.reset_es_index(self.indexable)
-        self.manager.setup_custom_analyzer()
-        self.manager.refresh_index()
+        self.manager.reset_index(self.indexable)
 
     def test_setup_functions(self):
-        """Test the behavior of the reset_es_index(), setup_custom_analyzer() and clear_es_index() functions"""
+        """Test the behavior of the reset_index() and clear_index() functions"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search_engine:
             return
-
-        custom_index = {"name": "some_random_name", "shards": 3, "replicas": 1}
-        manager = ESIndexManager(**custom_index)
-
-        # in the beginning: the void:
-        self.assertTrue(manager.index not in self.manager.es.cat.indices())
-
-        self.assertEqual(manager.index, custom_index["name"])
-        self.assertEqual(manager.number_of_shards, custom_index["shards"])
-        self.assertEqual(manager.number_of_replicas, custom_index["replicas"])
 
         # 1. Creation:
         models = [Topic, Post]
-        manager.reset_es_index([Topic, Post])
-        self.assertTrue(manager.index in manager.es.cat.indices())  # index in !
+        self.manager.reset_index(models)
 
-        index_settings = manager.es.indices.get_settings(index=manager.index)
-        self.assertTrue(manager.index in index_settings)
-        index_settings = index_settings[manager.index]["settings"]["index"]
-
-        self.assertEqual(index_settings["provided_name"], manager.index)
-        self.assertEqual(index_settings["number_of_shards"], str(manager.number_of_shards))
-        self.assertEqual(index_settings["number_of_replicas"], str(manager.number_of_replicas))
-
-        # test mappings
-        mappings = manager.es.indices.get_mapping(index=manager.index)
-        self.assertTrue(manager.index in mappings)
-        mappings = mappings[manager.index]["mappings"]
-
+        # test collection
+        collections_name = [collection["name"] for collection in self.manager.search_engine.collections.retrieve()]
         for model in models:
-            self.assertTrue(model.get_es_document_type() in mappings)
+            self.assertTrue(model.get_document_type() in collections_name)
 
-        # analyzer
-        self.assertTrue("analysis" not in index_settings)
-        manager.setup_custom_analyzer()
-
-        index_settings = manager.es.indices.get_settings(index=manager.index)
-        self.assertTrue(manager.index in index_settings)
-        index_settings = index_settings[manager.index]["settings"]["index"]
-        self.assertTrue("analysis" in index_settings)
-
-        # 3. Clearing
-        manager.clear_es_index()
-        self.assertTrue(manager.index not in self.manager.es.cat.indices())  # back to the void
-
-    def test_custom_analyzer(self):
-        """Test our custom analyzer"""
-
-        if not self.manager.connected_to_es:
-            return
-
-        test_sentences = [
-            # stemming:
-            ("programmation programmer programmateur programmes", ["program", "program", "program", "program"]),
-            # keep "c" intact:
-            ("apprendre à programmer en C", ["aprendr", "program", "langage_c"]),
-            # remove HTML and some special characters:
-            ("<p>&laquo; test&#x202F;! &raquo;, en hurlant &hellip;</p>", ["test", "hurlant"]),
-            # keep "c++" and "linux" intact:
-            ("écrire un programme en C++ avec Linux", ["ecrir", "program", "c++", "linux"]),
-            # elision:
-            ("c'est de l'arnaque", ["arnaqu"]),
-        ]
-
-        for sentence in test_sentences:
-            tokens = self.manager.analyze_sentence(sentence[0])
-            self.assertEqual(len(tokens), len(sentence[1]))
-            self.assertEqual(tokens, sentence[1])
+        # 2. Clearing
+        self.manager.clear_index()
+        self.assertTrue(len(self.manager.search_engine.collections.retrieve()) == 0)  # back to the void
 
     def test_indexation(self):
         """test the indexation and deletion of the different documents"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search_engine:
             return
 
         # create a topic with a post
@@ -119,10 +59,10 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.es_already_indexed)
-        self.assertTrue(topic.es_flagged)
-        self.assertFalse(post.es_already_indexed)
-        self.assertTrue(post.es_flagged)
+        self.assertFalse(topic.search_engine_already_indexed)
+        self.assertTrue(topic.search_engine_flagged)
+        self.assertFalse(post.search_engine_already_indexed)
+        self.assertTrue(post.search_engine_flagged)
 
         # create a middle-tutorial and publish it
         tuto = PublishableContentFactory(type="TUTORIAL")
@@ -140,32 +80,30 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.es_already_indexed)
-        self.assertTrue(published.es_flagged)
+        self.assertFalse(published.search_engine_already_indexed)
+        self.assertTrue(published.search_engine_flagged)
 
         # 1. index all
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)
-            self.manager.refresh_index()
+            self.manager.indexing_of_model(model, force_reindexing=False)
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.es_already_indexed)
-        self.assertFalse(topic.es_flagged)
-        self.assertTrue(post.es_already_indexed)
-        self.assertFalse(post.es_flagged)
+        self.assertTrue(topic.search_engine_already_indexed)
+        self.assertFalse(topic.search_engine_flagged)
+        self.assertTrue(post.search_engine_already_indexed)
+        self.assertFalse(post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.es_already_indexed)
-        self.assertFalse(published.es_flagged)
+        self.assertTrue(published.search_engine_already_indexed)
+        self.assertFalse(published.search_engine_flagged)
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 4)  # get 4 results, one of each type
+        results = self.manager.search("*")  # get all documents
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 4)  # get 4 results, one of each type
 
         must_contain = {"post": False, "topic": False, "publishedcontent": False, "chapter": False}
         id_must_be = {
@@ -175,10 +113,12 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
             "chapter": tuto.slug + "__" + chapter1.slug,
         }
 
-        for hit in results:
-            doc_type = hit.meta.doc_type
+        for result in results:
+            doc_type = result["request_params"]["collection_name"]
             must_contain[doc_type] = True
-            self.assertEqual(hit.meta.id, id_must_be[doc_type])
+            for hit in result["hits"]:
+                doc_id = hit["document"]["id"]
+                self.assertEqual(doc_id, id_must_be[doc_type])
 
         self.assertTrue(all(must_contain))
 
@@ -187,11 +127,11 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         new_post = PostFactory(topic=new_topic, author=self.user, position=1)
 
         pk_of_topics_to_reindex = []
-        for item in Topic.get_es_indexable(force_reindexing=False):
+        for item in Topic.get_indexable(force_reindexing=False):
             pk_of_topics_to_reindex.append(item.pk)
 
         pk_of_posts_to_reindex = []
-        for item in Post.get_es_indexable(force_reindexing=False):
+        for item in Post.get_indexable(force_reindexing=False):
             pk_of_posts_to_reindex.append(item.pk)
 
         self.assertTrue(topic.pk not in pk_of_topics_to_reindex)
@@ -202,56 +142,59 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         for model in self.indexable:  # ok, so let's index that
             if model is FakeChapter:
                 continue
-            self.manager.es_bulk_indexing_of_model(model, force_reindexing=False)
-        self.manager.refresh_index()
+            self.manager.indexing_of_model(model, force_reindexing=False)
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 6)  # good!
+        results = self.manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 6)  # good!
 
         # 3. Test single deletion:
         new_post = Post.objects.get(pk=new_post.pk)
 
         self.manager.delete_document(new_post)
-        self.manager.refresh_index()
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 5)  # one is missing
+        results = self.manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 5)  # one is missing
 
-        for hit in results:
-            self.assertTrue(hit.meta.doc_type != Post.get_es_document_type() or hit.meta.id != new_post.es_id)
+        for result in results:
+            doc_type = result["request_params"]["collection_name"]
+            for hit in result["hits"]:
+                doc_id = hit["document"]["id"]
+                self.assertTrue(doc_type != Post.get_document_type() or doc_id != new_post.search_engine_id)
 
         # 4. Test "delete_by_query_deletion":
         topic = Topic.objects.get(pk=topic.pk)
         new_topic = Topic.objects.get(pk=new_topic.pk)
 
-        self.manager.delete_by_query(Topic.get_es_document_type(), MatchAll())  # the two topic are deleted
-        self.manager.refresh_index()
+        self.manager.delete_by_query(
+            Topic.get_document_type(), {"filter_by": f"id:= [{topic.search_engine_id}, {new_topic.search_engine_id}]"}
+        )  # the two topic are deleted
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 3)
+        results = self.manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 3)
 
-        for hit in results:
-            self.assertTrue(hit.meta.doc_type != Topic.get_es_document_type() or hit.meta.id != new_topic.es_id)
-            self.assertTrue(hit.meta.doc_type != Topic.get_es_document_type() or hit.meta.id != topic.es_id)
+        for result in results:
+            doc_type = result["request_params"]["collection_name"]
+            for hit in result["hits"]:
+                doc_id = hit["document"]["id"]
+                self.assertTrue(doc_type != Topic.get_document_type() or doc_id != new_topic.search_engine_id)
+                self.assertTrue(doc_type != Topic.get_document_type() or doc_id != topic.search_engine_id)
 
-        # 5. Test that the deletion of an object also triggers its deletion in ES
+        # 5. Test that the deletion of an object also triggers its deletion in Typesense
         post = Post.objects.get(pk=post.pk)
         post.delete()
-        self.manager.refresh_index()
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 2)
+        results = self.manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)
 
-        for hit in results:
-            self.assertTrue(hit.meta.doc_type != Post.get_es_document_type() or hit.meta.id != post.es_id)
+        for result in results:
+            doc_type = result["request_params"]["collection_name"]
+            for hit in result["hits"]:
+                doc_id = hit["document"]["id"]
+                self.assertTrue(doc_type != Post.get_document_type() or doc_id != post.search_engine_id)
 
         # 6. Test full desindexation:
         for model in self.indexable:
@@ -263,19 +206,19 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         new_topic = Topic.objects.get(pk=new_topic.pk)
         new_post = Post.objects.get(pk=new_post.pk)
 
-        self.assertFalse(new_topic.es_already_indexed)
-        self.assertTrue(new_topic.es_flagged)
-        self.assertFalse(new_post.es_already_indexed)
-        self.assertTrue(new_post.es_flagged)
+        self.assertFalse(new_topic.search_engine_already_indexed)
+        self.assertTrue(new_topic.search_engine_flagged)
+        self.assertFalse(new_post.search_engine_already_indexed)
+        self.assertTrue(new_post.search_engine_flagged)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.es_already_indexed)
-        self.assertTrue(published.es_flagged)
+        self.assertFalse(published.search_engine_already_indexed)
+        self.assertTrue(published.search_engine_flagged)
 
     def test_special_case_of_contents(self):
         """test that the old publishedcontent does not stay when a new one is created"""
 
-        if not self.manager.connected_to_es:
+        if not self.manager.connected_to_search_engine:
             return
 
         # 1. Create a middle-tutorial, publish it, then index it
@@ -293,17 +236,15 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
-        self.manager.es_bulk_indexing_of_model(PublishedContent, force_reindexing=True)  # index
-        self.manager.refresh_index()
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)  # index
 
         first_publication = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(first_publication.es_already_indexed)
-        self.assertFalse(first_publication.es_flagged)
+        self.assertTrue(first_publication.search_engine_already_indexed)
+        self.assertFalse(first_publication.search_engine_flagged)
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 2)  # get 2 results, one for the content and one for the chapter
+        results = self.manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # get 2 results, one for the content and one for the chapter
 
         self.assertEqual(PublishedContent.objects.count(), 1)
 
@@ -326,34 +267,32 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         first_publication = PublishedContent.objects.get(pk=first_publication.pk)
         self.assertTrue(first_publication.must_redirect)  # .. including the first one, for redirection
 
-        self.manager.refresh_index()
-
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 0)  # the old one is gone (and we need to reindex to get the new one)
+        results = self.manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 0)  # the old one is gone (and we need to reindex to get the new one)
 
         # 3. Check if indexation brings the new one, and not the old one
-        self.manager.es_bulk_indexing_of_model(PublishedContent, force_reindexing=True)  # index
-        self.manager.refresh_index()
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)  # index
 
         first_publication = PublishedContent.objects.get(pk=first_publication.pk)
         second_publication = PublishedContent.objects.get(pk=second_publication.pk)
 
-        s = Search()
-        s.query(MatchAll())
-        results = self.manager.setup_search(s).execute()
-        self.assertEqual(len(results), 2)  # Still 2, not 4 !
+        results = self.manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)  # Still 2, not 4 !
 
         found_old = False
         found_new = False
 
-        for hit in results:
-            if hit.meta.doc_type == PublishedContent.get_es_document_type():
-                if hit.meta.id == first_publication.es_id:
-                    found_old = True
-                if hit.meta.id == second_publication.es_id:
-                    found_new = True
+        for result in results:
+            doc_type = result["request_params"]["collection_name"]
+            for hit in result["hits"]:
+                doc_id = hit["document"]["id"]
+                if doc_type == PublishedContent.get_document_type():
+                    if doc_id == first_publication.search_engine_id:
+                        found_old = True
+                    if doc_id == second_publication.search_engine_id:
+                        found_new = True
 
         self.assertTrue(found_new)
         self.assertFalse(found_old)
@@ -362,4 +301,4 @@ class ESIndexManagerTests(TutorialTestMixin, TestCase):
         super().tearDown()
 
         # delete index:
-        self.manager.clear_es_index()
+        self.manager.clear_index()

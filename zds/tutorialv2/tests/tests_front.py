@@ -30,7 +30,7 @@ overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "content
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
+@override_settings(SEARCH_ENABLED=False)
 @tag("front")
 class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, TutorialFrontMixin):
     @classmethod

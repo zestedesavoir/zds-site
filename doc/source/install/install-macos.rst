@@ -216,7 +216,7 @@ lequel vous travaillerez avant d’envoyer des *Pull-Requests*.
 
 .. seealso::
 
-  - `Installation d’Elasticsearch <extra-install-es.html>`_ ;
+  - `Installation d’Elasticsearch <extra-install-search-engine.html>`_ ;
   - `installation de LaTeX <extra-install-latex.html>`_.
 
 Pour installer la version minimale, exécutez depuis la racine du dépôt que vous

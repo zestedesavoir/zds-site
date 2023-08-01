@@ -13,13 +13,13 @@ env:
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
   BLACK_VERSION: "23.3.0" # needs to be also updated in requirements-dev.txt and .pre-commit-config.yaml
   GECKODRIVER_VERSION: "0.33.0"
+  TYPESENSE_VERSION: "0.24.1" # needs to be also updated in scripts/define_variable.sh
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
   # reference. If you update these versions, you HAVE TO
   # update the versions in the services definitions of the
   # test job.
-  ELASTICSEARCH_VERSION: "5.5.2"
   MEMCACHED_VERSION: "1.6"
 
 jobs:
@@ -154,22 +154,6 @@ jobs:
           ]
 
     services:
-      elasticsearch:
-        image: "elasticsearch:5.5.2"
-        ports:
-          - "9200:9200"
-        env:
-          "http.host": "0.0.0.0"
-          "transport.host": "127.0.0.1"
-          "xpack.security.enabled": false
-          "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
-        options: >-
-          -e="discovery.type=single-node"
-          --health-cmd="curl http://localhost:9200/_cluster/health"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
       memcached:
         image: "memcached:1.6"
         ports:
@@ -190,6 +174,12 @@ jobs:
 
       - name: Install Firefox
         run: sudo apt-get update && sudo apt-get install firefox
+
+      - name: Start Typesense
+        uses: jirevwe/typesense-github-action@v1.0.1
+        with:
+          typesense-version: ${{ env.TYPESENSE_VERSION }}
+          typesense-api-key: xyz
 
       - name: Install Geckodriver
         run: |

@@ -1,8 +1,6 @@
 from zds import json_handler
-import operator
 
-from elasticsearch_dsl import Search
-from elasticsearch_dsl.query import Match, MultiMatch, FunctionScore, Term, Terms, Range
+from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -12,121 +10,122 @@ from django.utils.translation import gettext_lazy as _
 from django.shortcuts import render
 from django.urls import reverse
 from django.views.generic import CreateView
+from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
 from zds.searchv2.forms import SearchForm
-from zds.searchv2.models import ESIndexManager
+from zds.searchv2.models import SearchIndexManager
+from zds.searchv2.utils import SearchFilter
 from zds.utils.paginator import ZdSPagingListView
 from zds.utils.templatetags.authorized_forums import get_authorized_forums
-from functools import reduce
+
+from typesense import Client as SearchEngineClient
 
 
-class SimilarTopicsView(CreateView, SingleObjectMixin):
-    search_query = None
-    authorized_forums = ""
-    index_manager = None
-
-    def __init__(self, **kwargs):
-        """Overridden because the index manager must NOT be initialized elsewhere."""
-
-        super().__init__(**kwargs)
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+class SimilarTopicsView(View):
+    """
+    This view allows you to suggest similar topics when creating a new topic on
+    a forum. The idea is to avoid the creation of a topic on a subject already
+    treated on the forum.
+    """
 
     def get(self, request, *args, **kwargs):
-        if "q" in request.GET:
-            self.search_query = "".join(request.GET["q"])
-
         results = []
-        if self.index_manager.connected_to_es and self.search_query:
-            self.authorized_forums = get_authorized_forums(self.request.user)
 
-            search_queryset = Search()
-            query = (
-                Match(_type="topic")
-                & Terms(forum_pk=self.authorized_forums)
-                & MultiMatch(query=self.search_query, fields=["title", "subtitle", "tags"])
-            )
+        if settings.SEARCH_ENABLED:
+            search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
+            search_engine_manager = SearchIndexManager()
 
-            functions_score = [
-                {"filter": Match(is_solved=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]},
-                {"filter": Match(is_sticky=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]},
-                {"filter": Match(is_locked=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]},
-            ]
+            search_query = request.GET.get("q", "")
 
-            scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
-            search_queryset = search_queryset.query(scored_query)[:10]
+            if search_engine_manager.connected_to_search_engine and search_query:
+                max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
 
-            # Build the result
-            for hit in search_queryset.execute():
-                result = {
-                    "id": hit.pk,
-                    "url": str(hit.get_absolute_url),
-                    "title": str(hit.title),
-                    "subtitle": str(hit.subtitle),
-                    "forumTitle": str(hit.forum_title),
-                    "forumUrl": str(hit.forum_get_absolute_url),
-                    "pubdate": str(hit.pubdate),
+                filter_by = SearchFilter()
+                filter_by.add_exact_filter("forum_pk", get_authorized_forums(self.request.user))
+
+                search_parameters = {
+                    "q": search_query,
+                    "query_by": "title,subtitle,tags",
+                    "query_by_weights": "{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
+                    ),
+                    "filter_by": str(filter_by),
+                    "page": 1,
+                    "per_page": max_similar_topics,
                 }
-                results.append(result)
+
+                hits = search_engine.collections["topic"].documents.search(search_parameters)["hits"]
+                assert len(hits) <= max_similar_topics
+
+                for hit in hits:
+                    document = hit["document"]
+                    result = {
+                        "id": document["forum_pk"],
+                        "url": str(document["get_absolute_url"]),
+                        "title": str(document["title"]),
+                        "subtitle": str(document["subtitle"]),
+                        "forumTitle": str(document["forum_title"]),
+                        "forumUrl": str(document["forum_get_absolute_url"]),
+                        "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
+                    }
+                    results.append(result)
 
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
 
 
 class SuggestionContentView(CreateView, SingleObjectMixin):
+    """
+    Staff members can choose at the end of a publication to suggest another content of the site. can choose at the end of a publication to suggest another content of the site.
+    When they want to add a suggestion, they write in a text field the name of the content to suggest,
+    content proposals are then made, using the search engine through this view.
+    """
+
     search_query = None
-    authorized_forums = ""
-    index_manager = None
+    search_engine_manager = None
 
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super().__init__(**kwargs)
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.search_engine_manager = SearchIndexManager()
+
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
         excluded_content_ids = request.GET.get("excluded", "").split(",")
         results = []
-        if self.index_manager.connected_to_es and self.search_query:
-            self.authorized_forums = get_authorized_forums(self.request.user)
+        if self.search_engine_manager.connected_to_search_engine and self.search_query:
+            search_parameters = {
+                "q": self.search_query,
+                "query_by": "title,description",
+            }
 
-            search_queryset = Search()
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
-                search_queryset = search_queryset.exclude("terms", content_pk=excluded_content_ids)
-            query = Match(_type="publishedcontent") & MultiMatch(
-                query=self.search_query, fields=["title", "description"]
-            )
+                filter_by = SearchFilter()
+                filter_by.add_not_numerical_filter("content_pk", excluded_content_ids)
+                search_parameters["filter_by"] = str(filter_by)
 
-            functions_score = [
-                {
-                    "filter": Match(content_type="TUTORIAL"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"],
-                },
-                {
-                    "filter": Match(content_type="ARTICLE"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"],
-                },
-                {
-                    "filter": Match(content_type="OPINION"),
-                    "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"],
-                },
-            ]
-
-            scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
-            search_queryset = search_queryset.query(scored_query)[:10]
+            hits = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
 
             # Build the result
-            for hit in search_queryset.execute():
+            for hit in hits:
+                document = hit["document"]["_source"]
                 result = {
-                    "id": hit.content_pk,
-                    "pubdate": hit.publication_date,
-                    "title": str(hit.title),
-                    "description": str(hit.description),
+                    "id": document["content_pk"],
+                    "pubdate": document["publication_date"],
+                    "title": str(document["title"]),
+                    "description": str(document["description"]),
                 }
                 results.append(result)
-
         data = {"results": results}
 
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
@@ -143,22 +142,32 @@ class SearchView(ZdSPagingListView):
     search_query = None
     content_category = None
     content_subcategory = None
+    search_content_types = None
+    search_content_types_count = None
+    search_validated_content = None
 
     authorized_forums = ""
 
-    index_manager = None
+    search_engine_manager = None
 
     def __init__(self, **kwargs):
         """Overridden because the index manager must NOT be initialized elsewhere."""
 
         super().__init__(**kwargs)
-        self.index_manager = ESIndexManager(**settings.ES_SEARCH_INDEX)
+        self.search_engine_manager = SearchIndexManager()
+
+        self.search_engine = None
+
+        if settings.SEARCH_ENABLED:
+            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""
 
         if "q" in request.GET:
             self.search_query = "".join(request.GET["q"])
+
+        self.authorized_forums = get_authorized_forums(self.request.user)
 
         self.search_form = self.search_form_class(data=self.request.GET)
 
@@ -168,16 +177,15 @@ class SearchView(ZdSPagingListView):
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
-        if not self.index_manager.connected_to_es:
-            messages.warning(self.request, _("Impossible de se connecter à Elasticsearch"))
-            return []
+        result = []
 
-        if self.search_query:
-            # Searches forums the user is allowed to visit
-            self.authorized_forums = get_authorized_forums(self.request.user)
-
-            search_queryset = Search()
-
+        if not self.search_engine_manager.connected_to_search_engine:
+            messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
+        elif self.search_query == "*":
+            # '*' is used as the search string to return all documents:
+            # https://typesense.org/docs/0.23.1/api/search.html#query-parameters
+            messages.warning(self.request, _("Recherche invalide"))
+        elif self.search_query:
             # Restrict (sub)category if any
             if self.search_form.cleaned_data["category"]:
                 self.content_category = self.search_form.cleaned_data["category"]
@@ -189,102 +197,189 @@ class SearchView(ZdSPagingListView):
             if self.search_form.cleaned_data["from_library"] == "on":
                 self.from_library = True
 
-            # Setting the different querysets (according to the selected models, if any)
-            part_querysets = []
-            chosen_groups = self.search_form.cleaned_data["models"]
-
-            if chosen_groups:
-                models = []
-                for group in chosen_groups:
-                    if group in settings.ZDS_APP["search"]["search_groups"]:
-                        models.append(settings.ZDS_APP["search"]["search_groups"][group][1])
+            # Check in which collections search is performed
+            search_collections = self.search_form.cleaned_data["models"]
+            if len(search_collections) == 0:
+                # Search in all collections
+                search_collections = [c for _, v in settings.ZDS_APP["search"]["search_groups"].items() for c in v[1]]
             else:
-                models = [v[1] for k, v in settings.ZDS_APP["search"]["search_groups"].items()]
+                # Search in collections of selected models
+                search_collections = [
+                    c
+                    for k, v in settings.ZDS_APP["search"]["search_groups"].items()
+                    for c in v[1]
+                    if k in search_collections
+                ]
 
-            models = reduce(operator.concat, models)
+            # Check which content types are searched
+            self.search_content_types = self.search_form.cleaned_data["content_types"]
 
-            for model in models:
-                part_querysets.append(getattr(self, f"get_queryset_{model}s")())
+            # Check if the content must be validated
+            self.search_validated_content = self.search_form.cleaned_data["validated_content"]
+            if self.search_validated_content:
+                if "validated" in self.search_validated_content:
+                    for t in ["tutorial", "article"]:
+                        if t not in self.search_content_types:
+                            self.search_content_types.append(t)
+                if "no_validated" in self.search_validated_content and "opinion" not in self.search_content_types:
+                    self.search_content_types.append("opinion")
 
-            queryset = part_querysets[0]
-            for query in part_querysets[1:]:
-                queryset |= query
+            if self.search_content_types:
+                if "publishedcontent" not in search_collections:
+                    search_collections.append("publishedcontent")
+                if "tutorial" in self.search_content_types and "chapter" not in search_collections:
+                    search_collections.append("chapter")
 
-            # Weighting:
-            weight_functions = []
-            for _type, weights in list(settings.ZDS_APP["search"]["boosts"].items()):
-                if _type in models:
-                    weight_functions.append({"filter": Match(_type=_type), "weight": weights["global"]})
+            # Setup filters:
+            filter_authorized_forums = SearchFilter()
+            filter_authorized_forums.add_exact_filter("forum_pk", get_authorized_forums(self.request.user))
+            filter_publishedcontent = SearchFilter()
+            filter_chapter = SearchFilter()
+            if self.content_category:
+                filter_publishedcontent.add_exact_filter("categories", [self.content_category])
+                filter_chapter.add_exact_filter("categories", [self.content_category])
+            if self.content_subcategory:
+                filter_publishedcontent.add_exact_filter("subcategories", [self.content_subcategory])
+                filter_chapter.add_exact_filter("subcategories", [self.content_subcategory])
+            if self.search_content_types:
+                filter_publishedcontent.add_exact_filter("content_type", [self.search_content_types])
 
-            scored_queryset = FunctionScore(query=queryset, boost_mode="multiply", functions=weight_functions)
-            search_queryset = search_queryset.query(scored_queryset)
+            search_requests = {"searches": []}
 
-            # Highlighting:
-            search_queryset = search_queryset.highlight_options(
-                fragment_size=150, number_of_fragments=5, pre_tags=["[hl]"], post_tags=["[/hl]"]
-            )
-            search_queryset = search_queryset.highlight("text").highlight("text_html")
+            searches = {
+                "publishedcontent": {
+                    "collection": "publishedcontent",
+                    "q": self.search_query,
+                    "query_by": "title,description,categories,subcategories,tags,text",
+                    "query_by_weights": "{},{},{},{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["categories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["subcategories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
+                    ),
+                    "filter_by": str(filter_publishedcontent),
+                },
+                "chapter": {
+                    "collection": "chapter",
+                    "q": self.search_query,
+                    "query_by": "title,text",
+                    "query_by_weights": "{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
+                    ),
+                    "filter_by": str(filter_chapter),
+                },
+                "topic": {
+                    "collection": "topic",
+                    "q": self.search_query,
+                    "query_by": "title,subtitle,tags",
+                    "query_by_weights": "{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
+                        settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
+                    ),
+                    "filter_by": str(filter_authorized_forums),
+                },
+                "post": {
+                    "collection": "post",
+                    "q": self.search_query,
+                    "query_by": "text_html",
+                    "query_by_weights": "{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
+                    ),
+                    "filter_by": str(filter_authorized_forums),
+                },
+            }
 
-            # Executing:
-            return self.index_manager.setup_search(search_queryset)
+            # Check if the search is in several collections or not
+            if len(search_collections) == 1:
+                result = self._choose_single_collection_method(search_collections[0])
+            else:
+                for collection in search_collections:
+                    search_requests["searches"].append(searches[collection])
+                result = self.get_queryset_multisearch(search_requests, search_collections)
 
-        return []
+        return result
+
+    def get_queryset_multisearch(self, search_requests, collection_names):
+        """Return search in several collections
+        @search_requests : parameters of search
+        @collection_names : name of the collection to search
+        """
+        all_collection_result = []
+
+        common_search_params = {
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
+        }
+
+        results = self.search_engine.multi_search.perform(search_requests, common_search_params)["results"]
+        for k in range(len(results)):
+            if "hits" in results[k]:
+                for entry in results[k]["hits"]:
+                    if "text_match" in entry:
+                        entry["collection"] = collection_names[k]
+                        entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
+                        entry["document"]["highlights"] = entry["highlights"][0]
+                        all_collection_result.append(entry)
+
+            all_collection_result.sort(key=lambda result: result["document"]["final_score"], reverse=True)
+
+        return all_collection_result
 
     def get_queryset_publishedcontents(self):
-        """Search in PublishedContent objects."""
-
-        query = Match(_type="publishedcontent") & MultiMatch(
-            query=self.search_query, fields=["title", "description", "categories", "subcategories", "tags", "text"]
-        )
-
-        if self.from_library:
-            query &= Match(content_type="TUTORIAL") | Match(content_type="ARTICLE")
+        """Search in PublishedContent collection."""
+        filter_by = SearchFilter()
+        if self.search_content_types:
+            filter_by.add_exact_filter("content_type", self.search_content_types)
 
         if self.content_category:
-            query &= Match(categories=self.content_category)
+            filter_by.add_exact_filter("categories", self.content_category)
 
         if self.content_subcategory:
-            query &= Match(subcategories=self.content_subcategory)
+            filter_by.add_exact_filter("subcategories", self.content_subcategory)
 
-        functions_score = [
-            {
-                "filter": Match(content_type="TUTORIAL"),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"],
-            },
-            {
-                "filter": Match(content_type="TUTORIAL") & Match(has_chapters=True),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"],
-            },
-            {
-                "filter": Match(content_type="ARTICLE"),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"],
-            },
-            {
-                "filter": Match(content_type="OPINION"),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"],
-            },
-            {
-                "filter": Match(content_type="OPINION") & Match(picked=False),
-                "weight": settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"],
-            },
-        ]
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,description,categories,subcategories, tags, text",
+            "filter_by": str(filter_by),
+            "sort_by": "score:desc",
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
+        }
 
-        scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
+        result = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
 
-        return scored_query
+        for entry in result:
+            entry["collection"] = "publishedcontent"
+            entry["document"]["highlights"] = entry["highlights"][0]
+
+        return result
 
     def get_queryset_chapters(self):
-        """Search in content chapters."""
-
-        query = Match(_type="chapter") & MultiMatch(query=self.search_query, fields=["title", "text"])
-
+        """Search in chapters collection."""
+        filter_by = SearchFilter()
         if self.content_category:
-            query &= Match(categories=self.content_category)
+            filter_by.add_exact_filter("categories", self.content_category)
 
         if self.content_subcategory:
-            query &= Match(subcategories=self.content_subcategory)
+            filter_by.add_exact_filter("subcategories", self.content_subcategory)
 
-        return query
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,text",
+            "filter_by": str(filter_by),
+            "sort_by": "score:desc",
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
+        }
+
+        result = self.search_engine.collections["chapter"].documents.search(search_parameters)["hits"]
+
+        for entry in result:
+            entry["collection"] = "chapter"
+            entry["document"]["highlights"] = entry["highlights"][0]
+
+        return result
 
     def get_queryset_topics(self):
         """Search in topics, and remove the result if the forum is not allowed for the user.
@@ -295,22 +390,24 @@ class SearchView(ZdSPagingListView):
         + topic is sticky;
         + topic is locked.
         """
+        filter_by = SearchFilter()
+        filter_by.add_exact_filter("forum_pk", self.authorized_forums)
 
-        query = (
-            Match(_type="topic")
-            & Terms(forum_pk=self.authorized_forums)
-            & MultiMatch(query=self.search_query, fields=["title", "subtitle", "tags"])
-        )
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "title,subtitle,tags",
+            "filter_by": str(filter_by),
+            "sort_by": "score:desc",
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
+        }
 
-        functions_score = [
-            {"filter": Match(is_solved=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"]},
-            {"filter": Match(is_sticky=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"]},
-            {"filter": Match(is_locked=True), "weight": settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"]},
-        ]
+        result = self.search_engine.collections["topic"].documents.search(search_parameters)["hits"]
 
-        scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
+        for entry in result:
+            entry["collection"] = "topic"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
-        return scored_query
+        return result
 
     def get_queryset_posts(self):
         """Search in posts, and remove result if the forum is not allowed for the user or if the message is invisible.
@@ -322,36 +419,43 @@ class SearchView(ZdSPagingListView):
         + post has a like/dislike ratio above (has more likes than dislikes) or below (the other way around) 1.0.
         """
 
-        query = (
-            Match(_type="post")
-            & Terms(forum_pk=self.authorized_forums)
-            & Term(is_visible=True)
-            & MultiMatch(query=self.search_query, fields=["text_html"])
-        )
+        filter_by = SearchFilter()
+        filter_by.add_exact_filter("forum_pk", self.authorized_forums)
+        filter_by.add_bool_filter("is_visible", True)
+        search_parameters = {
+            "q": self.search_query,
+            "query_by": "text_html",
+            "filter_by": str(filter_by),
+            "sort_by": "score:desc",
+            "prefix": "false",  # Indicates that the last word in the query should be treated as a prefix, and not as a whole word.
+        }
 
-        functions_score = [
-            {"filter": Match(position=1), "weight": settings.ZDS_APP["search"]["boosts"]["post"]["if_first"]},
-            {"filter": Match(is_useful=True), "weight": settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"]},
-            {
-                "filter": Range(like_dislike_ratio={"gt": 1}),
-                "weight": settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"],
-            },
-            {
-                "filter": Range(like_dislike_ratio={"lt": 1}),
-                "weight": settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"],
-            },
-        ]
+        result = self.search_engine.collections["post"].documents.search(search_parameters)["hits"]
 
-        scored_query = FunctionScore(query=query, boost_mode="multiply", functions=functions_score)
+        for entry in result:
+            entry["collection"] = "post"
+            entry["document"]["highlights"] = entry["highlights"][0]
 
-        return scored_query
+        return result
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = self.search_form
         context["query"] = self.search_query is not None
-
         return context
+
+    def _choose_single_collection_method(self, name):
+        """
+        Return the result of search according the @name of the collection
+        """
+        if name == "publishedcontent":
+            return self.get_queryset_publishedcontents()
+        elif name == "post":
+            return self.get_queryset_posts()
+        elif name == "topic":
+            return self.get_queryset_topics()
+        else:
+            raise "Unknown collection name"
 
 
 def opensearch(request):

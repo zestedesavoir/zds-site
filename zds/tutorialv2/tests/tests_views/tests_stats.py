@@ -30,7 +30,7 @@ def daterange(start_date, end_date):
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
 @override_settings(ZDS_APP=overridden_zds_app)
-@override_settings(ES_ENABLED=False)
+@override_settings(SEARCH_ENABLED=False)
 class StatTests(TestCase, TutorialTestMixin):
     def setUp(self):
         self.nb_part = 1

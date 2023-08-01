@@ -10,8 +10,12 @@ if [[ $ZDS_NVM_VERSION == "" ]]; then
     ZDS_NVM_VERSION="0.33.11"
 fi
 
-if [[ $ZDS_ELASTIC_VERSION == "" ]]; then
-    ZDS_ELASTIC_VERSION="5.5.2"
+if [[ $ZDS_TYPESENSE_VERSION == "" ]]; then
+    ZDS_TYPESENSE_VERSION="0.24.1" # needs to be also updated in .github/workflows/ci.yml
+fi
+
+if [[ $ZDS_TYPESENSE_API_KEY == "" ]]; then
+    ZDS_TYPESENSE_API_KEY="xyz"
 fi
 
 if [[ $ZDS_LATEX_REPO == "" ]]; then
