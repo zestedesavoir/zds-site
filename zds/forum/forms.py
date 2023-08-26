@@ -27,9 +27,7 @@ class TopicForm(forms.Form, FieldValidatorMixin):
         label=_("Tag(s) séparés par une virgule (exemple: python,django,web)"),
         max_length=64,
         required=False,
-        widget=forms.TextInput(
-            attrs={"data-autocomplete": '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'}
-        ),
+        widget=forms.TextInput(),
     )
 
     text = forms.CharField(
@@ -44,6 +42,15 @@ class TopicForm(forms.Form, FieldValidatorMixin):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["tags"].widget.attrs.update(
+            {
+                "data-autocomplete": '{ "type": "multiple", "fieldname": "title", "url": "'
+                + reverse("api:utils:tags-list")
+                + '?search=%s" }'
+            }
+        )
+
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"
@@ -53,11 +60,11 @@ class TopicForm(forms.Form, FieldValidatorMixin):
             Field("subtitle", autocomplete="off"),
             Field("tags"),
             HTML(
-                """<div id="topic-suggest" style="display:none;"  url="/rechercher/sujets-similaires/">
+                """<div id="topic-suggest" style="display:none;"  url="{}">
   <label>{}</label>
   <div id="topic-result-container" data-neither="{}"></div>
 </div>""".format(
-                    _("Sujets similaires au vôtre :"), _("Aucun résultat")
+                    reverse("search:similar"), _("Sujets similaires au vôtre :"), _("Aucun résultat")
                 )
             ),
             CommonLayoutEditor(),
