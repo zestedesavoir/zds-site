@@ -936,6 +936,13 @@ class PublishedContent(AbstractESDjangoIndexable, TemplatableContentModelMixin, 
 
         return self.get_absolute_url_to_extra_content("zip")
 
+    def get_absolute_url(self):
+        """For admin interface.
+        get_absolute_url_online() should probably be directly used in other cases.
+        """
+
+        return self.get_absolute_url_online()
+
     def get_char_count(self, md_file_path=None):
         """Compute the number of letters for a given content
 

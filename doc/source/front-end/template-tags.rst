@@ -86,23 +86,24 @@ Ce filtre formate une date au format ``DateTime`` destiné à être affiché sur
 
 Ce filtre effectue la même chose que ``format_date`` mais à destination des ``tooltip``.
 
-``humane_time``
----------------
+``date_from_timestamp``
+-----------------------
 
-Formate une date au format *Nombre de seconde depuis Epoch* en un élément lisible. Ainsi :
+Convertit une date au format *Nombre de seconde depuis Epoch* en un objet
+accepté par les autres filtres de ce module. Ainsi :
 
 .. sourcecode:: html+django
 
     {% load date %}
-    {{ date_epoch|humane_time }}
+    {{ date_epoch|date_from_timestamp|format_date }}
 
 sera rendu :
 
 .. sourcecode:: text
 
-    jeudi 01 janvier 1970 à 00h00
+    jeudi 01 janvier 1970 à 00h02
 
- …si le contenu de ``date_epoch`` était de ``42``.
+ …si le contenu de ``date_epoch`` était de ``122``.
 
 ``from_elasticsearch_date``
 ---------------------------
