@@ -16,7 +16,7 @@ from zds.pages.views import (
 
 urlpatterns = [
     # single pages
-    path("apropos/", about, name="pages-about"),
+    path("apropos/", about, name="pages-technologies"),
     path("association/", association, name="pages-association"),
     path("contact/", ContactView.as_view(), name="pages-contact"),
     path("cgu/", eula, name="pages-eula"),
