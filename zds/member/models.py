@@ -466,9 +466,8 @@ class Profile(models.Model):
         skeleton = ""
         for ch in username:
             homoglyph = hg.Homoglyphs(languages={"fr"}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
-            if len(homoglyph) > 0:
-                if homoglyph[0].strip() != "":
-                    skeleton += homoglyph[0]
+            if len(homoglyph) > 0 and homoglyph[0].strip() != "":
+                skeleton += homoglyph[0]
         return skeleton.lower()
 
 

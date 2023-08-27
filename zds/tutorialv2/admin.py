@@ -118,11 +118,13 @@ class ContentReviewTypeAdmin(admin.ModelAdmin):
 class GoalAdmin(admin.ModelAdmin):
     list_display = ["name", "description"]
     ordering = ["position"]
+    prepopulated_fields = {"slug": ("name",)}
 
 
 class LabelAdmin(admin.ModelAdmin):
     list_display = ["name", "description"]
     ordering = ["name"]
+    prepopulated_fields = {"slug": ("name",)}
 
 
 admin.site.register(PublishableContent, PublishableContentAdmin)

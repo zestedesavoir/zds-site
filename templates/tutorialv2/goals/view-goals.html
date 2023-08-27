@@ -25,10 +25,10 @@
     <div class="mobile-menu-bloc mobile-all-links" data-title="Filtrer">
         <h3>Filtrer</h3>
         <ul>
-            <li><a href="{% url "content:view-goals" %}?non-classes" class="{% if only_not_classified %}selected{% endif %}">Sans objectif ({{ num_not_classified }})</a></li>
+            <li><a href="{{ url_not_classified }}" class="{% if only_not_classified %}selected{% endif %}">Sans objectif ({{ num_not_classified }})</a></li>
             {% for goal in goals %}
                 <li>
-                    <a href="{% url "content:view-goals" %}?objectif_{{ goal.id }}" class="{% if current_filter_pk == goal.pk %}selected{% endif %}">{{ goal.name }} ({{ goal.num_contents }})</a>
+                    <a href="{% url "content:view-goals" %}?{{ goal.slug }}" class="{% if current_filter_pk == goal.pk %}selected{% endif %}">{{ goal.name }} ({{ goal.num_contents }})</a>
                 </li>
             {% endfor %}
             <li><a href="{% url "content:view-goals" %}" class="{% if all %}selected{% endif %}">Toutes ({{ num_all }})</a></li>

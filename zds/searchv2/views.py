@@ -17,7 +17,7 @@ from django.views.generic.detail import SingleObjectMixin
 from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import ESIndexManager
 from zds.utils.paginator import ZdSPagingListView
-from zds.utils.templatetags.authorized_forums import get_authorized_forums
+from zds.forum.utils import get_authorized_forums_pk
 from functools import reduce
 
 
@@ -38,7 +38,7 @@ class SimilarTopicsView(CreateView, SingleObjectMixin):
 
         results = []
         if self.index_manager.connected_to_es and self.search_query:
-            self.authorized_forums = get_authorized_forums(self.request.user)
+            self.authorized_forums = get_authorized_forums_pk(self.request.user)
 
             search_queryset = Search()
             query = (
@@ -90,7 +90,7 @@ class SuggestionContentView(CreateView, SingleObjectMixin):
         excluded_content_ids = request.GET.get("excluded", "").split(",")
         results = []
         if self.index_manager.connected_to_es and self.search_query:
-            self.authorized_forums = get_authorized_forums(self.request.user)
+            self.authorized_forums = get_authorized_forums_pk(self.request.user)
 
             search_queryset = Search()
             if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
@@ -174,7 +174,7 @@ class SearchView(ZdSPagingListView):
 
         if self.search_query:
             # Searches forums the user is allowed to visit
-            self.authorized_forums = get_authorized_forums(self.request.user)
+            self.authorized_forums = get_authorized_forums_pk(self.request.user)
 
             search_queryset = Search()
 
