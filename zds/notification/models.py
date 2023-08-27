@@ -17,6 +17,7 @@ from zds.notification.managers import (
     SubscriptionManager,
     TopicFollowedManager,
     TopicAnswerSubscriptionManager,
+    NewPublicationSubscriptionManager,
     NewTopicSubscriptionManager,
 )
 from zds.utils.misc import convert_camel_to_underscore
@@ -349,7 +350,7 @@ class NewPublicationSubscription(Subscription, MultipleNotificationsMixin):
     """
 
     module = _("Contenu")
-    objects = SubscriptionManager()
+    objects = NewPublicationSubscriptionManager()
 
     def __str__(self):
         return _('<Abonnement du membre "{0}" aux nouvelles publications de l\'utilisateur #{1}>').format(
