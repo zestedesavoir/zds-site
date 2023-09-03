@@ -112,7 +112,7 @@ ZDS_APP = {
             "facebook": "https://www.facebook.com/ZesteDeSavoir",
             "twitter": "https://twitter.com/ZesteDeSavoir",
             "github": "https://github.com/zestedesavoir/zds-site",
-            # 'discord': 'https://discord.gg/ue5MTKq'
+            "discord": "https://discord.com/invite/ue5MTKq",
         },
         "cnil": "1771020",
     },
