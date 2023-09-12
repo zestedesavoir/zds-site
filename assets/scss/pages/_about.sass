@@ -10,7 +10,7 @@
 // “légal”. On peut les configurer via les variables Sass en haut.
 %about-two-columns
   --article-color: #{$white}
-  --article-bg: #{$primary-800}
+  --article-bg: linear-gradient(45deg, #{$primary-800}, #{$primary-500})
   --article-titles: #{$primary-000}
   --article-links: #{$primary-100}
   --article-links-hover: #{$primary-000}
@@ -23,7 +23,7 @@
   padding: $length-24
 
   border-radius: $radius-2
-  background-color: var(--article-bg)
+  background: var(--article-bg)
   color: var(--article-color)
 
   +mobile
