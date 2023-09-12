@@ -55,6 +55,9 @@
       line-height: 1.2
       color: var(--article-titles)
 
+      +mobile
+        font-size: $font-size-6
+
     p
       margin: $length-12 0
       font-family: $font-serif
@@ -62,6 +65,9 @@
       &:first-of-type
         &, a
           font-size: $font-size-7
+
+          +mobile
+            font-size: $font-size-8
 
       &.about-block-aside
         &, a
