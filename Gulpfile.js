@@ -233,6 +233,7 @@ function watch() {
   gulp.watch('assets/js/*.js', js)
   gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images)
   gulp.watch(['assets/scss/**/*.scss'], css)
+  gulp.watch(['assets/scss/**/*.sass'], css)
   gulp.watch(['errors/scss/main.scss'], errors)
   gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 }

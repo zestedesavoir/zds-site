@@ -252,6 +252,11 @@
                 &:first-child {
                     margin: 0;
                 }
+
+              // Avoids huge gap at the top of columns starting with a title
+              > h2:first-child, > h3:first-child {
+                margin-top: $length-14;
+              }
             }
 
             .article-content > .summary-part {
