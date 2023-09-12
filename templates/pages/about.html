@@ -85,7 +85,8 @@
                 <h3>{% trans "Technologies" %}</h3>
                 <p>
                     {% blocktrans %}
-                        {{ site_name }} est propulsé par les outils et technologies suivantes.
+                        {{ site_name }} est propulsé par les outils et technologies suivantes
+                        (<a href="{{ default_repository_url }}">et d'autres</a>).
                     {% endblocktrans %}
                 </p>
                 <p class="about-block-aside">
@@ -100,10 +101,29 @@
                 <dt>{% trans "Logiciels serveur" %}</dt>
                 <dd><a href="https://www.python.org">Python {{ python_major_version }}</a></dd>
                 <dd><a href="https://www.djangoproject.com">Django {{ django_major_version }}</a></dd>
+                <dd><a href="https://www.django-rest-framework.org">Django REST Framework</a></dd>
+                <dd>
+                    <a href="https://pillow.readthedocs.io/en/stable/">Pillow</a> &amp;
+                    <a href="https://easy-thumbnails.readthedocs.io/en/latest/">easy-thumbnails</a>
+                </dd>
+                <dd><a href="https://gitpython.readthedocs.io/en/stable/">GitPython</a></dd>
+                <dd>
+                    <a href="https://github.com/python-social-auth/social-app-django/">Python Social Auth – Django</a>
+                </dd>
 
                 <dt>{% trans "Bases de données" %}</dt>
                 <dd><a href="https://mariadb.org">MariaDB</a></dd>
                 <dd><a href="https://www.elastic.co/fr/elasticsearch">ElasticSearch</a></dd>
+
+                <dt>{% trans "Markdown et PDFs" %}</dt>
+                <dd><a href="https://github.com/zestedesavoir/zmarkdown">zmarkdown</a></dd>
+                <dd>
+                    <a href="https://github.com/remarkjs/remark">remark</a>,
+                    <a href="https://github.com/rehypejs/rehype">rehype</a>,
+                    <a href="https://github.com/A/textr">textr</a> et
+                    <a href="https://github.com/zestedesavoir/zmarkdown/tree/master/packages/rebber">rebber</a>
+                </dd>
+                <dd><a href="https://www.latex-project.org/">LaTeX</a></dd>
 
                 <dt>{% trans "Géolocalisation" %}</dt>
                 <dd>
@@ -114,15 +134,54 @@
                 </dd>
 
                 <dt>{% trans "Feuilles de style" %}</dt>
-                <dd><a href="https://sass-lang.com">SCSS</a></dd>
+                <dd><a href="https://sass-lang.com">Sass</a></dd>
+                <dd>
+                    <a href="https://postcss.org/">PostCSS</a> &amp;
+                    <a href="https://github.com/postcss/autoprefixer">Autoprefixer</a>
+                </dd>
                 <dd><a href="https://necolas.github.io/normalize.css/">Normalize.css</a></dd>
 
                 <dt>Javascript</dt>
+                <dd>
+                    <a href="https://gulpjs.com">Gulp</a> &amp;
+                    <a href="https://eslint.org/">ESLint</a>
+                </dd>
                 <dd><a href="https://jquery.com">jQuery 2.x</a></dd>
+                <dd>
+                    <a href="https://www.chartjs.org">chart.js</a> &amp;
+                    <a href="https://momentjs.com/">moment.js</a>
+                </dd>
+                <dd><a href="https://github.com/Ionaru/easy-markdown-editor">EasyMDE</a></dd>
 
-                <dt>HTTP(S) et WSGI</dt>
-                <dd><a href="https://nginx.org/en/">NGinx</a></dd>
+                <dt>{% trans "Tests" %}</dt>
+                <dd>
+                    <a href="https://faker.readthedocs.io/en/master/">Faker</a> &amp;
+                    <a href="https://factoryboy.readthedocs.io/en/stable/">factory_boy</a>
+                </dd>
+                <dd><a href="https://www.selenium.dev/">Selenium</a></dd>
+
+                <dt>{% trans "Déploiement" %}</dt>
+                <dd>
+                    <a href="https://www.ansible.com">Ansible</a>
+                    (<a href="https://github.com/zestedesavoir/ansible-zestedesavoir">playbook</a>)
+                </dd>
+                <dd><a href="https://nginx.org/en/">nginx</a></dd>
                 <dd><a href="https://gunicorn.org">Gunicorn</a></dd>
+
+                <dt>{% trans "Statistiques" %}</dt>
+                <dd><a href="https://fr.matomo.org/">Matomo</a></dd>
+
+                <dt>{% trans "Surveillance" %}</dt>
+                <dd><a href="https://munin-monitoring.org">Munin</a></dd>
+                <dd><a href="https://sentry.io">Sentry</a></dd>
+                <dd><a href="https://hetrixtools.com">HetrixTools</a></dd>
+
+                <dt>{% trans "Sauvegardes" %}</dt>
+                <dd><a href="https://www.borgbackup.org">BorgBackup</a></dd>
+                <dd><a href="https://mariadb.com/kb/en/mariabackup-overview/">MariaBackup</a></dd>
+
+                <dt>{% trans "Documentation" %}</dt>
+                <dd><a href="https://www.sphinx-doc.org/">Sphinx</a></dd>
             </dl>
         </article>
 
