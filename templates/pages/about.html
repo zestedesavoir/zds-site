@@ -137,7 +137,29 @@
             </header>
 
             <div>
+                <p>
+                    {% url "pages-contact" as contact_url %}
+                    {% blocktrans %}
+                        Ce site web est édité par l'association Zeste de Savoir, domiciliée à Levallois-Perret
+                        (Hauts-de-Seine, France) et parue au Journal Officiel le 19 avril 2014. La direction de la
+                        publication est assurée par son ou sa présidente, que vous pouvez retrouver
+                        <a href="{{ contact_url }}">sur la page contact du site.</a>
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans with asso_mail=app.site.association.email %}
+                        Vous pouvez joindre l’association via l’adresse courriel à l'adresse suivante :
+                        <a href="mailto:{{ asso_mail }}">{{ asso_mail }}</a>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        Le site est hébergé par GANDI SAS, dont le siège social est situé 63-65 boulevard Massena, 75013
+                        Paris, France.
+                    {% endblocktrans %}
+                </p>
                 {% if app.site.licenses %}
+                    <hr/>
                     {% if app.site.licenses.source %}
                         <p>
                             {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
