@@ -165,7 +165,9 @@
                             {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
                                 Le code source de {{ site_name }} est sous licence
                                 <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de
-                                <a href="{{ provider_url }}">{{ provider_name }}</a>.
+                                <a href="{{ provider_url }}">{{ provider_name }}</a>. Il a été écrit par
+                                <a href="{{ default_repository_url }}/graphs/contributors">plusieurs contributeurs et
+                                    contributrices.</a>
                             {% endblocktrans %}
                         </p>
                     {% endif %}
