@@ -17,19 +17,17 @@
 
 
 
-{% block content %}
+{% block content_out %}
     {% set app.site.literal_name as site_name %}
-    <main id="about-page">
+    <section id="about-page" class="content-wrapper">
         <header>
-            <p>
+            <h1>
                 {% blocktrans %}
                     {{ site_name }} est un média d’auto-formation, de vulgarisation, et d’information scientifique et
                     culturelle, depuis 2014.
                 {% endblocktrans %}
-            </p>
+            </h1>
         </header>
-
-        <!-- Nous publions en ligne depuis 2014, et organisons des activités hors-ligne depuis 2018.-->
 
         <article class="about-main">
             <p>
@@ -73,8 +71,11 @@
                 <img src="{% static "images/brands/gandi.svg" %}" alt="Gandi.net"/>
                 <figcaption>
                     {% blocktrans %}
-                        Gandi soutient {{ site_name }} dans ses projets et ambitions en fournissant ses solutions
-                        d'hébergement généreusement et en relayant certaines de nos actualités. Merci !
+                        <a href="https://news.gandi.net/fr/2021/02/gandi-soutient-zeste-de-savoir/">
+                            Gandi soutient {{ site_name }}
+                        </a>
+                        dans ses projets et ambitions en fournissant ses solutions d'hébergement généreusement et en
+                        relayant certaines de nos actualités. Merci !
                     {% endblocktrans %}
                 </figcaption>
             </figure>
@@ -251,6 +252,6 @@
                 {% endif %}
             </div>
         </article>
-    </main>
+    </section>
 
 {% endblock %}
