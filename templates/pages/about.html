@@ -47,9 +47,11 @@
                 {% endblocktrans %}
             </p>
             <p>
+                {% url "pages-association" as asso_url %}
                 {% blocktrans %}
-                    {{ site_name }} est géré par une association à but non lucratif loi 1901 basée en France, afin que
-                    tout cela reste sous une gouvernance non-commerciale.
+                    {{ site_name }} est géré par
+                    <a href="{{ asso_url }}">une association à but non lucratif loi 1901</a>
+                    basée en France, afin que tout cela reste sous une gouvernance non-commerciale.
                 {% endblocktrans %}
             </p>
         </article>
