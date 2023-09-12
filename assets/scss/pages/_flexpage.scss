@@ -308,7 +308,7 @@ $content-width: 1145px;
             }
         }
 
-        .aside {
+      .about-block-aside {
             margin-top: $length-10;
             margin-right: $length-20;
 
@@ -401,7 +401,7 @@ $content-width: 1145px;
 @include desktop {
     .flexpage-title-tool .actions {
         & ~ .title,
-        & ~ .aside {
+        & ~ .about-block-aside {
             margin-right: $length-192;
         }
     }
@@ -432,7 +432,7 @@ $content-width: 1145px;
                 display: none;
             }
 
-            .aside,
+          .about-block-aside,
             .title {
                 max-width: 100%;
             }
@@ -445,7 +445,7 @@ $content-width: 1145px;
         .flexpage-title-tool {
             padding: $length-16 0;
 
-            .aside {
+          .about-block-aside {
                 margin-right: 0;
 
                 .search label {
