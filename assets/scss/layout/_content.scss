@@ -1,17 +1,20 @@
 body:before {
-  counter-reset: part;
-  counter-reset: chapter;
-  counter-reset: section;
-  counter-reset: subsection;
+  counter-reset: part chapter section subsection;
 }
 
 .article-content {
+  h2, h3, h4, h5 {
+    &:before {
+      margin-inline-end: .4ex;
+    }
+  }
+
   h2 {
     counter-increment: part;
     counter-set: chapter;
 
     &:before {
-      content: counter(part) ". ";
+      content: counter(part) ".";
     }
   }
 
@@ -20,7 +23,7 @@ body:before {
     counter-set: section;
 
     &:before {
-      content: counter(part) "." counter(chapter) ". ";
+      content: counter(part) "." counter(chapter) ".";
     }
   }
 
@@ -37,7 +40,7 @@ body:before {
     counter-increment: subsection;
 
     &:before {
-      content: counter(part) "." counter(chapter) "." counter(section) "." counter(subsection) ". ";
+      content: counter(part) "." counter(chapter) "." counter(section) "." counter(subsection) ".";
     }
   }
 }
