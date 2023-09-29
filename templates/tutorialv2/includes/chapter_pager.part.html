@@ -13,9 +13,9 @@
         {% if container.parent %}
             <li class="summary-button">
                 <a href="{{ base_url }}{{ container.parent.get_url_path }}">{% trans "Sommaire" %}</a>
-            </li>        
+            </li>
         {% endif %}
-        
+
         {% if pager.next %}
             <li class="next">
                 <a href="{{ pager.next.url }}" class="ico-after arrow-right" rel="next">
