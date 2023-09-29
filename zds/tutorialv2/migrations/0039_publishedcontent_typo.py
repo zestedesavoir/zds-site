@@ -4,9 +4,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("tutorialv2", "0037_labels"),
+        ("tutorialv2", "0038_goals_forbid_unclassified_slug"),
     ]
 
     operations = [
