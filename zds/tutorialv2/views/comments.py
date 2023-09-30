@@ -20,6 +20,7 @@ from zds.notification.models import ContentReactionAnswerSubscription
 from zds.tutorialv2.forms import NoteForm, NoteEditForm
 from zds.tutorialv2.mixins import SingleOnlineContentFormViewMixin, MustRedirect, SingleOnlineContentViewMixin
 from zds.tutorialv2.models.database import ContentReaction
+from zds.utils.misc import is_ajax
 from zds.utils.models import CommentEdit, get_hat_from_request, Alert
 
 
@@ -97,7 +98,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
                 text = "\n".join("> " + line for line in reaction.text.split("\n"))
                 text += f"\nSource: [{reaction.author.username}]({reaction.get_absolute_url()})"
 
-                if self.request.is_ajax():
+                if is_ajax(self.request):
                     return StreamingHttpResponse(json_handler.dumps({"text": text}, ensure_ascii=False))
                 else:
                     self.quoted_reaction_text = text
@@ -110,7 +111,7 @@ class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewM
             )
 
     def post(self, request, *args, **kwargs):
-        if "preview" in request.POST and request.is_ajax():
+        if "preview" in request.POST and is_ajax(request):
             content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
             return StreamingHttpResponse(content)
         else:
@@ -362,6 +363,6 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
             response["follow"] = ContentReactionAnswerSubscription.objects.toggle_follow(
                 self.get_object(), self.request.user, True
             ).is_active
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return HttpResponse(json_handler.dumps(response), content_type="application/json")
         return redirect(self.get_object().get_absolute_url())
