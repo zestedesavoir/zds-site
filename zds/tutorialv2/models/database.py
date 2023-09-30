@@ -294,7 +294,8 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         validation = (
             Validation.objects.select_related("validator").filter(content=self).order_by("-date_proposition").first()
         )
-        validation.content = self
+        if validation is not None:
+            validation.content = self
         return validation
 
     def is_public(self, sha: str) -> bool:
