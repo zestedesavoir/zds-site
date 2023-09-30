@@ -30,6 +30,7 @@ from .models import (
     PrivatePostVote,
     is_reachable,
 )
+from zds.utils.misc import is_ajax
 
 
 class PrivateTopicList(LoginRequiredMixin, ZdSPagingListView):
@@ -64,7 +65,7 @@ class PrivateTopicNew(LoginRequiredMixin, CreateView):
         form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
-            if request.is_ajax():
+            if is_ajax(request):
                 content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                 return StreamingHttpResponse(content)
             else:
@@ -307,7 +308,7 @@ class PrivatePostEdit(LoginRequiredMixin, UpdateView, UpdatePrivatePost):
         form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
-            if request.is_ajax():
+            if is_ajax(request):
                 content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                 return StreamingHttpResponse(content)
         elif form.is_valid():

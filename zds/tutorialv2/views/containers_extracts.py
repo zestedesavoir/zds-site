@@ -27,6 +27,7 @@ from zds.tutorialv2.utils import (
     try_adopt_new_child,
     TooDeepContainerError,
 )
+from zds.utils.misc import is_ajax
 
 logger = logging.getLogger(__name__)
 
@@ -277,7 +278,7 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
         self.object.update(sha_draft=sha, update_date=datetime.now())
 
         self.success_url = extract.get_absolute_url()
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return JsonResponse(
                 {"result": "ok", "last_hash": extract.compute_hash(), "new_url": extract.get_edit_url()}
             )

@@ -12,6 +12,7 @@ from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.utils import mark_read
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.utils.misc import is_ajax
 
 
 class SingleContentViewMixin:
@@ -186,7 +187,7 @@ class FormWithPreview(FormView):
 
         if "preview" in request.POST:
             self.form_invalid(form)
-            if request.is_ajax():
+            if is_ajax(self.request):
                 content = render_to_string("misc/preview.part.html", {"text": request.POST.get("text")})
                 return StreamingHttpResponse(content)
 

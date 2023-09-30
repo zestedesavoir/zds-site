@@ -10,6 +10,7 @@ from threading import Thread
 from django.urls import reverse
 
 from zds.member.views import get_client_ip
+from zds.utils.misc import is_ajax
 
 matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]
 matomo_api_url = "{}/matomo.php?token_auth={}".format(settings.ZDS_APP["site"]["matomo_url"], matomo_token_auth)
@@ -96,7 +97,7 @@ class MatomoMiddleware:
             self.queue.put(tracking_params)
 
     def process_response(self, request, response):
-        if response.status_code not in tracked_status_code or request.is_ajax():
+        if response.status_code not in tracked_status_code or is_ajax(request):
             return response
         # only on get
         if request.method in tracked_methods:

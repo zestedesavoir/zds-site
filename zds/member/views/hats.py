@@ -15,6 +15,7 @@ from django.views.generic import DetailView, CreateView
 from zds.member.decorator import LoginRequiredMixin
 from zds.member.forms import HatRequestForm
 from zds.pages.models import GroupContact
+from zds.utils.misc import is_ajax
 from zds.utils.models import HatRequest, Hat, get_hat_to_add
 from zds.utils.paginator import ZdSPagingListView
 
@@ -74,7 +75,7 @@ class HatsSettings(LoginRequiredMixin, CreateView):
         return initial
 
     def post(self, request, *args, **kwargs):
-        if "preview" in request.POST and request.is_ajax():
+        if "preview" in request.POST and is_ajax(request):
             content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
             return StreamingHttpResponse(content)
 

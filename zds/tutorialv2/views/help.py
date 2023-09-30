@@ -12,6 +12,7 @@ from zds.tutorialv2.mixins import SingleContentFormViewMixin
 
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.utils.misc import is_ajax
 from zds.utils.paginator import ZdSPagingListView
 
 
@@ -84,12 +85,12 @@ class ChangeHelp(LoggedWithReadWriteHability, SingleContentFormViewMixin):
             self.object.helps.remove(data["help_wanted"])
         self.object.save()
         signals.help_management.send(sender=self.__class__, performer=self.request.user, content=self.object)
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return JsonResponse({"state": data["activated"]})
         self.success_url = self.object.get_absolute_url()
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return JsonResponse({"errors": form.errors}, status=400)
         return super().form_invalid(form)
