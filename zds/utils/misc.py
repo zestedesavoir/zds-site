@@ -61,7 +61,7 @@ def contains_utf8mb4(s):
 def check_essential_accounts():
     """
     Verify that essential accounts are present in the database.
-    Raise an exception if it not the case.
+    Raise an exception if it is not the case.
     """
 
     from django.conf import settings
