@@ -1,7 +1,16 @@
 from django.dispatch import Signal
 
-topic_moved = Signal(providing_args=["topic"])
-topic_edited = Signal(providing_args=["topic"])
-topic_read = Signal(providing_args=["instance", "user"])
-post_read = Signal(providing_args=["instance", "user"])
-post_unread = Signal(providing_args=["post", "user"])
+# argument: topic
+topic_moved = Signal()
+
+# argument: topic
+topic_edited = Signal()
+
+# arguments: instance, user
+topic_read = Signal()
+
+# arguments: instance, user
+post_read = Signal()
+
+# arguments: post, user
+post_unread = Signal()
