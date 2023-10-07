@@ -83,7 +83,7 @@ Pour vérifier, exécutez la commande suivante :
 
   python --version
 
-Si vous obtenez une version inférieure à Python 3.7 (et notamment si vous voyez
+Si vous obtenez une version inférieure à Python 3.9 (et notamment si vous voyez
 ``Python 2.7``), il vous faudra installer une version récente de Python avec
 Homebrew. Sinon, vous pouvez utiliser la version intégrée avec macOS de Python,
 mais vous devrez installer ``pip``.

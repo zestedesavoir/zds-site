@@ -4,10 +4,14 @@ if [[ $ZDS_VENV == "" ]]; then
     ZDS_VENV="zdsenv"
 fi
 
+if [[ $ZDS_VENV_VERSION == "" ]]; then
+    ZDS_VENV_VERSION="20.24.5"
+fi
+
 ZDS_NODE_VERSION=$(cat $ZDSSITE_DIR/.nvmrc)
 
 if [[ $ZDS_NVM_VERSION == "" ]]; then
-    ZDS_NVM_VERSION="0.33.11"
+    ZDS_NVM_VERSION="0.39.5"
 fi
 
 if [[ $ZDS_ELASTIC_VERSION == "" ]]; then
@@ -19,7 +23,7 @@ if [[ $ZDS_LATEX_REPO == "" ]]; then
 fi
 
 if [[ $ZDS_JDK_VERSION == "" ]]; then
-    ZDS_JDK_VERSION="11.0.14.1"
+    ZDS_JDK_VERSION="11.0.20.1"
     # shellcheck disable=SC2034
     ZDS_JDK_REV="1"
 fi

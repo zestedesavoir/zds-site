@@ -147,8 +147,8 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             fi
         fi
 
-        print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
-        pip3 install --user virtualenv==16.2.0
+        print_info "* [+virtualenv] installing \`virtualenv $ZDS_VENV_VERSION\` with pip"
+        pip3 install --user virtualenv==$ZDS_VENV_VERSION
 
         print_info "* [+virtualenv] creating virtualenv"
         err=$(python3 -m venv $ZDS_VENV 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)

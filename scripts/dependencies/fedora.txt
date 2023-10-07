@@ -1,5 +1,5 @@
 #title=Fedora
-#desc=Utilisation de dnf / Testé sur Fedora 29, 30
+#desc=Utilisation de dnf / Non testé sur les versions récentes
 #installcmd=dnf -y install
 git
 wget
