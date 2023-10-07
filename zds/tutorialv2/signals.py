@@ -1,11 +1,14 @@
 from django.dispatch.dispatcher import Signal
 
 # Display management
-content_read = Signal(providing_args=["instance", "user", "target"])
+# arguments: instance, user, target
+content_read = Signal()
 
 # Publication events
-content_published = Signal(providing_args=["instance", "user", "by_email"])
-content_unpublished = Signal(providing_args=["instance", "target", "moderator"])
+# arguments: instance, user, by_email
+content_published = Signal()
+# arguments: instance, target, moderator
+content_unpublished = Signal()
 
 # Authors management
 # For the signal below, the arguments "performer", "content", "author" and "action" shall be provided.

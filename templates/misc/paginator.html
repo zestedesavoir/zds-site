@@ -24,11 +24,11 @@
             {% if page_nb %}
                 <li>
                     <a
-                        {% ifnotequal page_nb page_obj.number %}
+                        {% if page_nb != page_obj.number %}
                             href="{% append_query_params page=page_nb %}{{ full_anchor }}"
                         {% else %}
                             class="current"
-                        {% endifnotequal %}
+                        {% endif %}
                         {% if page_nb|add:-1 == page_obj.number %}
                             rel="next"
                         {% elif page_nb|add:1 == page_obj.number %}
