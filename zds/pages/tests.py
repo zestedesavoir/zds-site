@@ -38,7 +38,7 @@ class PagesMemberTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse("pages-about"),
+            reverse("pages-technologies"),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -98,7 +98,7 @@ class PagesStaffTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse("pages-about"),
+            reverse("pages-technologies"),
         )
 
         self.assertEqual(result.status_code, 200)
@@ -154,7 +154,7 @@ class PagesGuestTests(TestCase):
         """Test: check that about page is alive."""
 
         result = self.client.get(
-            reverse("pages-about"),
+            reverse("pages-technologies"),
         )
 
         self.assertEqual(result.status_code, 200)

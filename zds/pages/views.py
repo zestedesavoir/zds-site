@@ -63,7 +63,7 @@ def about(request):
     """Display many informations about the website."""
     return render(
         request,
-        "pages/about.html",
+        "pages/technologies.html",
         {
             "default_repository_url": get_repository_url(
                 settings.ZDS_APP["github_projects"]["default_repository"], "base_url"
