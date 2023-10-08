@@ -172,7 +172,7 @@ fi
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     print_info "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn" --bold
 
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
+    wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
 
         # load nvm
