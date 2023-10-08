@@ -17,101 +17,245 @@
 
 
 
-{% block headline %}
-    <h1>{% trans "À propos" %}</h1>
-{% endblock %}
-
-
-
-{% block content %}
+{% block content_out %}
     {% set app.site.literal_name as site_name %}
-    <p>
-        {% blocktrans %}
-            Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{ default_repository_url }}">contribuer au développement du site</a> !
-        {% endblocktrans %}
-    </p>
+    <section id="about-page" class="content-wrapper">
+        <header>
+            <h1>
+                {% blocktrans %}
+                    {{ site_name }} est un média d’auto-formation, de vulgarisation, et d’information scientifique et
+                    culturelle, depuis 2014.
+                {% endblocktrans %}
+            </h1>
+        </header>
 
-    <div>
-        {% if app.site.licenses %}
-            <div class="content-col-3">
-                <h3>{% trans "Droits" %}</h3>
-                {% if app.site.licenses.source %}
-                    <p>
-                        {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
-                            {{ site_name }} est un site dont le code source est sous licence <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de <a href="{{ provider_url }}">{{ provider_name }}</a>.
-                        {% endblocktrans %}
-                    </p>
-                {% endif %}
-                {% if app.site.licenses.logo %}
-                    <p>
-                        {% blocktrans with author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
-                            Le logo de {{ site_name }} a été créé par {{ author_logo }} et est sous
-                            <a rel="license" href="{{ url_license }}">
-                            <img alt="{{ logo_title }}" src="{{ url_image }}">
-                            {{ logo_desc }}
-                            </a>
-                        {% endblocktrans %}
-                        <img alt="{% blocktrans %}Logo de {{ site_name }}{% endblocktrans %}" src="{% static 'images/logo-background.png' %}">
-                    </p>
-                {% endif %}
+        <article class="about-main">
+            <p>
+                {% blocktrans %}
+                    Nous publions — et permettons à des tiers de publier — des articles et actualités culturelles et
+                    scientifiques, ainsi que des cours. Nos contenus sont relus par une équipe éditoriale qualifiée
+                    avant
+                    publication, à l'exception des billets, publiés sous la seule responsabilité de leurs auteurs ou
+                    autrices.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Nous privilégions la libre diffusion des connaissances et des outils : la plateforme est sous
+                    licence libre
+                    et open source, et nous suggérons (sans pour autant imposer) de publier sous de telles licences.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% url "pages-association" as asso_url %}
+                {% blocktrans %}
+                    {{ site_name }} est géré par
+                    <a href="{{ asso_url }}">une association à but non lucratif loi 1901</a>
+                    basée en France, afin que tout cela reste sous une gouvernance non-commerciale.
+                {% endblocktrans %}
+            </p>
+        </article>
 
+        <aside class="about-partnerships">
+            <figure>
+                <img src="{% static "images/brands/cafe-des-sciences-membre.png" %}" alt="Membre du Café des Sciences"/>
+                <figcaption>
+                    {% blocktrans %}
+                        {{ site_name }} est membre du <a href="https://cafe-sciences.org">Café des Sciences</a>, une
+                        association rassemblant de nombreux acteurs et actrices du milieu de la communication
+                        scientifique
+                        et culturelle.
+                    {% endblocktrans %}
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="{% static "images/brands/gandi.svg" %}" alt="Gandi.net"/>
+                <figcaption>
+                    {% blocktrans %}
+                        <a href="https://news.gandi.net/fr/2021/02/gandi-soutient-zeste-de-savoir/">
+                            Gandi soutient {{ site_name }}
+                        </a>
+                        dans ses projets et ambitions en fournissant ses solutions d'hébergement généreusement et en
+                        relayant certaines de nos actualités. Merci !
+                    {% endblocktrans %}
+                </figcaption>
+            </figure>
+        </aside>
+
+        <article class="about-technology">
+            <header>
+                <h3>{% trans "Technologies" %}</h3>
                 <p>
                     {% blocktrans %}
-                        L'icône plume a été dessinée par <a href="https://fontawesome.com">FontAwesome</a>,
-                        <a href="https://fontawesome.com/license/free">sous licence CC BY</a>.
+                        {{ site_name }} est propulsé par les outils et technologies suivantes
+                        (<a href="{{ default_repository_url }}">et d'autres</a>).
                     {% endblocktrans %}
                 </p>
+                <p class="about-block-aside">
+                    {% blocktrans %}
+                        Si vous vous intéressez à tout cela, vous devriez songer à
+                        <a href="{{ default_repository_url }}">contribuer au développement du site</a> !
+                    {% endblocktrans %}
+                </p>
+            </header>
+
+            <dl>
+                <dt>{% trans "Logiciels serveur" %}</dt>
+                <dd><a href="https://www.python.org">Python {{ python_major_version }}</a></dd>
+                <dd><a href="https://www.djangoproject.com">Django {{ django_major_version }}</a></dd>
+                <dd><a href="https://www.django-rest-framework.org">Django REST Framework</a></dd>
+                <dd>
+                    <a href="https://pillow.readthedocs.io/en/stable/">Pillow</a> &amp;
+                    <a href="https://easy-thumbnails.readthedocs.io/en/latest/">easy-thumbnails</a>
+                </dd>
+                <dd><a href="https://gitpython.readthedocs.io/en/stable/">GitPython</a></dd>
+                <dd>
+                    <a href="https://github.com/python-social-auth/social-app-django/">Python Social Auth – Django</a>
+                </dd>
+
+                <dt>{% trans "Bases de données" %}</dt>
+                <dd><a href="https://mariadb.org">MariaDB</a></dd>
+                <dd><a href="https://www.elastic.co/fr/elasticsearch">ElasticSearch</a></dd>
+
+                <dt>{% trans "Markdown et PDFs" %}</dt>
+                <dd><a href="https://github.com/zestedesavoir/zmarkdown">zmarkdown</a></dd>
+                <dd>
+                    <a href="https://github.com/remarkjs/remark">remark</a>,
+                    <a href="https://github.com/rehypejs/rehype">rehype</a>,
+                    <a href="https://github.com/A/textr">textr</a> et
+                    <a href="https://github.com/zestedesavoir/zmarkdown/tree/master/packages/rebber">rebber</a>
+                </dd>
+                <dd><a href="https://www.latex-project.org/">LaTeX</a></dd>
+
+                <dt>{% trans "Géolocalisation" %}</dt>
+                <dd>
+                    {% blocktrans with geolite2="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data" eula="https://www.maxmind.com/en/geolite2/eula" %}
+                        <a href="{{ geolite2 }}">Données GeoLite2 de MaxMind</a>,
+                        sous <a href="{{ eula }}">une licence</a> proche de la CC-BY-SA 4.0
+                    {% endblocktrans %}
+                </dd>
+
+                <dt>{% trans "Feuilles de style" %}</dt>
+                <dd><a href="https://sass-lang.com">Sass</a></dd>
+                <dd>
+                    <a href="https://postcss.org/">PostCSS</a> &amp;
+                    <a href="https://github.com/postcss/autoprefixer">Autoprefixer</a>
+                </dd>
+                <dd><a href="https://necolas.github.io/normalize.css/">Normalize.css</a></dd>
+
+                <dt>Javascript</dt>
+                <dd>
+                    <a href="https://gulpjs.com">Gulp</a> &amp;
+                    <a href="https://eslint.org">ESLint</a>
+                </dd>
+                <dd><a href="https://jquery.com">jQuery 3</a></dd>
+                <dd>
+                    <a href="https://www.chartjs.org">chart.js</a> &amp;
+                    <a href="https://momentjs.com">moment.js</a>
+                </dd>
+                <dd><a href="https://github.com/Ionaru/easy-markdown-editor">EasyMDE</a></dd>
+
+                <dt>{% trans "Tests" %}</dt>
+                <dd>
+                    <a href="https://faker.readthedocs.io/en/master/">Faker</a> &amp;
+                    <a href="https://factoryboy.readthedocs.io/en/stable/">factory_boy</a>
+                </dd>
+                <dd><a href="https://www.selenium.dev">Selenium</a></dd>
+                <dd><a href="https://kitchen.ci">Test Kitchen</a> (pour Ansible)</dd>
+
+                <dt>{% trans "Déploiement" %}</dt>
+                <dd>
+                    <a href="https://www.ansible.com">Ansible</a>
+                    (<a href="https://github.com/zestedesavoir/ansible-zestedesavoir">playbook</a>)
+                </dd>
+                <dd><a href="https://nginx.org/en/">nginx</a></dd>
+                <dd><a href="https://gunicorn.org">Gunicorn</a></dd>
+
+                <dt>{% trans "Statistiques" %}</dt>
+                <dd><a href="https://fr.matomo.org/">Matomo</a> (suivi côté serveur)</dd>
+
+                <dt>{% trans "Surveillance" %}</dt>
+                <dd><a href="https://munin-monitoring.org">Munin</a></dd>
+                <dd><a href="https://sentry.io">Sentry</a></dd>
+                <dd><a href="https://hetrixtools.com">HetrixTools</a></dd>
+
+                <dt>{% trans "Sauvegardes" %}</dt>
+                <dd><a href="https://www.borgbackup.org">BorgBackup</a></dd>
+                <dd><a href="https://mariadb.com/kb/en/mariabackup-overview/">MariaBackup</a></dd>
+
+                <dt>{% trans "Documentation" %}</dt>
+                <dd><a href="https://www.sphinx-doc.org">Sphinx</a></dd>
+            </dl>
+        </article>
+
+        <article class="about-legal">
+            <header>
+                <h3>{% trans "Références légales et attributions" %}</h3>
+                <p>
+                    {% blocktrans %}
+                        Les petites lignes, malgré tout importantes.
+                    {% endblocktrans %}
+                </p>
+            </header>
+
+            <div>
+                <p>
+                    {% url "pages-contact" as contact_url %}
+                    {% blocktrans %}
+                        Ce site web est édité par l'association Zeste de Savoir, domiciliée à Levallois-Perret
+                        (Hauts-de-Seine, France) et parue au Journal Officiel le 19 avril 2014. La direction de la
+                        publication est assurée par son ou sa présidente, que vous pouvez retrouver
+                        <a href="{{ contact_url }}">sur la page contact du site</a>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans with asso_mail=app.site.association.email %}
+                        Vous pouvez joindre l’association via l’adresse courriel à l'adresse suivante :
+                        <a href="mailto:{{ asso_mail }}">{{ asso_mail }}</a>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        Le site est hébergé par GANDI SAS, dont le siège social est situé 63-65 boulevard Massena, 75013
+                        Paris, France.
+                    {% endblocktrans %}
+                </p>
+                {% if app.site.licenses %}
+                    <hr/>
+                    {% if app.site.licenses.source %}
+                        <p>
+                            {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
+                                Le code source de {{ site_name }} est sous licence
+                                <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de
+                                <a href="{{ provider_url }}">{{ provider_name }}</a>. Il a été écrit par
+                                <a href="{{ default_repository_url }}/graphs/contributors">plusieurs contributeurs et
+                                    contributrices.</a>
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+                    {% if app.site.licenses.logo %}
+                        <p>
+                            {% blocktrans with author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
+                                Le logo de {{ site_name }} a été créé par {{ author_logo }} et est sous
+                                <a rel="license" href="{{ url_license }}">
+                                    <img alt="{{ logo_title }}" src="{{ url_image }}">
+                                    {{ logo_desc }}
+                                </a>
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+
+                    <p>
+                        {% blocktrans %}
+                            L'icône plume a été dessinée par <a href="https://fontawesome.com">FontAwesome</a>,
+                            <a href="https://fontawesome.com/license/free">sous licence CC BY</a>.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
             </div>
-        {% endif %}
+        </article>
+    </section>
 
-        <div class="content-col-3">
-            <h3>{% trans "Système / Back-end" %}</h3>
-            <p>
-                {% trans "Le back-end est propulsé par les outils suivants." %}
-            </p>
 
-            <h4>{% trans "Site" %}</h4>
-            <ul>
-                <li><a href="https://www.python.org/">Python {{ python_major_version }}</a></li>
-                <li><a href="https://www.djangoproject.com/">Django {{ django_major_version }}</a></li>
-            </ul>
-
-            <h4>HTTP(S) + WSGI</h4>
-            <ul>
-                <li><a href="https://nginx.org/en/">NGinx</a></li>
-                <li><a href="https://gunicorn.org/">Gunicorn</a></li>
-            </ul>
-
-            <h4>{% trans "Base de données" %}</h4>
-            <ul>
-                <li><a href="https://mariadb.org/">MariaDB</a></li>
-            </ul>
-
-            <h4>{% trans "Géolocalisation des adresses IP" %}</h4>
-            <p>
-                {% trans "Données GeoLite2 créées par MaxMind, disponibles sous licence CC-BY-SA 4.0." %}
-            </p>
-            <ul>
-                <li><a href="https://www.maxmind.com/">https://www.maxmind.com</a></li>
-            </ul>
-        </div>
-
-        <div class="content-col-3">
-            <h3>{% trans "Front-end" %}</h3>
-            <p>
-                {% trans "Le front-end utilise les outils suivants." %}
-            </p>
-
-            <h4>{% trans "Feuilles de style" %}</h4>
-            <ul>
-                <li><a href="https://necolas.github.io/normalize.css/">Normalize.css</a></li>
-                <li><a href="https://sass-lang.com/">SCSS</a></li>
-            </ul>
-
-            <h4>Javascript</h4>
-            <ul>
-                <li><a href="https://jquery.com/">jQuery 2.x</a></li>
-            </ul>
-        </div>
-    </div>
 {% endblock %}
