@@ -1,6 +1,7 @@
 import logging
 import numbers
-from typing import Tuple, List, Iterator, Iterable
+from typing import Tuple, List
+from collections.abc import Iterator, Iterable
 
 from django import template
 from django.utils.translation import ngettext, gettext as _
@@ -42,7 +43,7 @@ def _truncate_duration(duration: int, bounds: Iterable[int], precisions: Iterabl
     return duration
 
 
-def _minutes_to_hours_and_minutes(duration_min: int) -> Tuple[int, int]:
+def _minutes_to_hours_and_minutes(duration_min: int) -> tuple[int, int]:
     """
     Convert a duration expressed in minutes to a duration expressed in hours and minutes.
     `duration_min` shall be positive to ensure a correct behavior.

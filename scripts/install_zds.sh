@@ -147,8 +147,8 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             fi
         fi
 
-        print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
-        pip3 install --user virtualenv==16.2.0
+        print_info "* [+virtualenv] installing \`virtualenv $ZDS_VENV_VERSION\` with pip"
+        pip3 install --user virtualenv==$ZDS_VENV_VERSION
 
         print_info "* [+virtualenv] creating virtualenv"
         err=$(python3 -m venv $ZDS_VENV 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
@@ -172,7 +172,7 @@ fi
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     print_info "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn" --bold
 
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
+    wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
 
         # load nvm

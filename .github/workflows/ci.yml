@@ -7,8 +7,8 @@ on:
     - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
-  NODE_VERSION: "16" # needs to be also updated in .nvmrc
-  PYTHON_VERSION: "3.7"
+  NODE_VERSION: "18" # needs to be also updated in .nvmrc
+  PYTHON_VERSION: "3.9"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
   GECKODRIVER_VERSION: "0.33.0"
