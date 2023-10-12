@@ -36,6 +36,7 @@ from zds.member.utils import get_bot_account
 from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
 from zds.tutorialv2.models import CONTENT_TYPES
 from zds.tutorialv2.models.database import PublishedContent, ContentContribution, ContentReaction
+from zds.utils.misc import is_ajax
 from zds.utils.templatetags.pluralize_fr import pluralize_fr
 
 
@@ -244,7 +245,7 @@ class UpdateMember(UpdateView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
 
-        if "preview" in request.POST and request.is_ajax():
+        if "preview" in request.POST and is_ajax(request):
             content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
             return StreamingHttpResponse(content)
 
