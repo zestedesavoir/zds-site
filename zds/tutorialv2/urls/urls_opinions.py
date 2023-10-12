@@ -21,7 +21,7 @@ urlpatterns = [
     path("", ListOpinions.as_view(), name="list"),
     path(
         "voir/<str:username>/",
-        ContentOfAuthor.as_view(type="OPINION", context_object_name="opinions", sort="creation"),
+        ContentOfAuthor.as_view(type="OPINION", context_object_name="opinions"),
         name="find-opinion",
     ),
 ]
