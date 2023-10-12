@@ -1165,7 +1165,7 @@ class Extract:
 
 class VersionedContent(Container, TemplatableContentModelMixin):
     """
-    This class is used to handle a specific version of a tutorial.
+    This class is used to handle a specific version of a content.
 
     It is created from the 'manifest.json' file, and could dump information in it.
 
