@@ -24,6 +24,22 @@ class UserFactory(factory.django.DjangoModelFactory):
 
     is_active = True
 
+    @classmethod
+    def _after_postgeneration(cls, instance, create, results=None):
+        """
+        Save the instance again after the post generation operations. Needed to save
+        the password which is set in a post generation method call.
+
+        Skip the save when the object was ‘built’ and not ‘created’. See the Factory Boy
+        documentation for details on those build strategies.
+
+        This method replaces the deprecated method from DjangoModelFactory which is
+        scheduled to be removed in the next major release (see factory_boy's changelog
+        entry for version 3.3.0).
+        """
+        if create:
+            instance.save()
+
 
 class StaffFactory(UserFactory):
     """
