@@ -1,0 +1,27 @@
+{% if content.has_extracts %}
+    {{ content.get_content_online|safe }}
+{% else %}
+    {% if content.introduction %}
+        {{ content.get_introduction_online|default:""|safe }}
+    {% endif %}
+
+    {% if not content.has_sub_containers %}
+        <ol class="summary-part">
+    {% endif %}
+
+    {% for child in content.children %}
+        {%  include "tutorialv2/includes/child_online.part.html" with child=child %}
+    {% endfor %}
+
+    {% if not content.has_sub_containers %}
+        </ol>
+    {% endif %}
+
+    <hr class="clearfix" />
+    <hr />
+
+    {% if content.conclusion %}
+        {{ content.get_conclusion_online|default:""|safe }}
+    {% endif %}
+
+{% endif %}

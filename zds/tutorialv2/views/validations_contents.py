@@ -1,9 +1,7 @@
 import logging
 from datetime import datetime
 
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
@@ -40,6 +38,7 @@ from zds.tutorialv2.publication_utils import (
     FailureDuringPublication,
     save_validation_state,
 )
+from zds.tutorialv2.utils import get_content_version_url
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
@@ -119,7 +118,6 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
     form_class = AskValidationForm
     must_be_author = True
     authorized_for_staff = True  # an admin could ask validation for a content
-    only_draft_version = False
     modal_form = True
 
     def get_form_kwargs(self):
@@ -162,7 +160,7 @@ class AskValidationForContent(LoggedWithReadWriteHability, SingleContentFormView
                 {
                     "content": self.versioned_object,
                     "validator": validation.validator.username,
-                    "url": self.versioned_object.get_absolute_url() + "?version=" + form.cleaned_data["version"],
+                    "url": get_content_version_url(self.versioned_object, form.cleaned_data["version"]),
                     "url_history": reverse("content:history", args=[self.object.pk, self.object.slug]),
                 },
             )
@@ -253,7 +251,7 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
                 {
                     "content": versioned,
                     "validator": validation.validator.username,
-                    "url": versioned.get_absolute_url() + "?version=" + validation.version,
+                    "url": get_content_version_url(versioned, validation.version),
                     "user": self.request.user,
                     "message": quote,
                 },
@@ -280,11 +278,8 @@ class CancelValidation(LoginRequiredMixin, ModalFormView):
             version=validation.version,
             action="cancel",
         )
-        self.success_url = (
-            reverse("content:view", args=[validation.content.pk, validation.content.slug])
-            + "?version="
-            + validation.version
-        )
+
+        self.success_url = get_content_version_url(validation.content, validation.version)
 
         return super().form_valid(form)
 
@@ -321,7 +316,7 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 "tutorialv2/messages/validation_reserve.md",
                 {
                     "content": versioned,
-                    "url": versioned.get_absolute_url() + "?version=" + validation.version,
+                    "url": get_content_version_url(versioned, validation.version),
                 },
             )
 
@@ -353,12 +348,8 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 version=validation.version,
                 action="reserve",
             )
-
-            return redirect(
-                reverse("content:view", args=[validation.content.pk, validation.content.slug])
-                + "?version="
-                + validation.version
-            )
+            redirect_url = get_content_version_url(validation.content, validation.version)
+            return redirect(redirect_url)
 
 
 class ValidationHistoryView(LoginRequiredMixin, PermissionRequiredMixin, RequiresValidationViewMixin):
@@ -421,7 +412,7 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
             "tutorialv2/messages/validation_reject.md",
             {
                 "content": versioned,
-                "url": versioned.get_absolute_url() + "?version=" + validation.version,
+                "url": get_content_version_url(versioned, validation.version),
                 "validator": validation.validator,
                 "message_reject": "\n".join(["> " + a for a in form.cleaned_data["text"].split("\n")]),
             },
@@ -570,7 +561,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                 "tutorialv2/messages/validation_revoke.md",
                 {
                     "content": versioned,
-                    "url": versioned.get_absolute_url() + "?version=" + validation.version,
+                    "url": get_content_version_url(versioned, validation.version),
                     "admin": self.request.user,
                     "message_reject": "\n".join(["> " + a for a in form.cleaned_data["text"].split("\n")]),
                 },
@@ -594,7 +585,7 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
                 )
 
         messages.success(self.request, _("Le contenu a bien été dépublié."))
-        self.success_url = self.versioned_object.get_absolute_url() + "?version=" + validation.version
+        self.success_url = get_content_version_url(versioned, validation.version)
         signals.validation_management.send(
             sender=self.__class__,
             content=validation.content,

@@ -1,0 +1,110 @@
+{% load i18n %}
+{% load emarkdown %}
+
+{% if content.introduction and content.get_introduction != "" %}
+    {{ content.get_introduction|emarkdown:is_js }}
+{% elif display_config.draft_actions.show_empty_section_warnings %}
+    <div class="ico-after warning">
+        <p>
+            {% trans "Il n’y a pas d’introduction." %}
+            {% trans "Vous pouvez " %}<a href="{% url "content:edit" content.pk content.slug %}">{% trans "en ajouter une" %}</a>.
+        </p>
+    </div>
+{% endif %}
+
+{% if content.has_extracts or content.can_add_extract %}
+    <ul>
+        {% for extract in content.children %}
+            <li>
+                <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
+                    {{ extract.title }}
+                </a>
+            </li>
+        {% endfor %}
+        {% if not content.can_add_container and content.can_add_extract and display_config.draft_actions.enable_edit %}
+            <li class="simple-create-button">
+                <a class="btn btn-grey" href="{% url "content:create-extract" content.pk content.slug %}">
+                    {% trans "Ajouter une section" %}
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+{% endif %}
+
+{% for child in content.children %}
+    {% include "tutorialv2/includes/child.part.html" with child=child %}
+{% empty %}
+    {% if content.can_add_extract and content.can_add_container and display_config.draft_actions.enable_edit %}
+        <div class="ico-after warning">
+            <p>
+                {% trans "Ce contenu est vide." %} {% trans "Vous pouvez :" %}
+            </p>
+            <ul>
+                <li>
+                    <a href="{% url "content:create-container" content.pk content.slug %}">{% trans "Ajouter une partie" %}</a>
+                    {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %}
+                </li>
+                <li>
+                    <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
+                    {% trans " pour adopter le format mini-tuto composé uniquement de sections." %}
+                </li>
+            </ul>
+        </div>
+    {% elif not display_config.draft_actions.enable_edit or not content.can_add_extract and not content.can_add_container %}
+        <div class="ico-after warning">
+            <p>
+                {% trans "Ce contenu est vide." %}
+            </p>
+        </div>
+    {% endif %}
+{% endfor %}
+
+{% if display_config.draft_actions.enable_edit %}
+    {% if content.can_add_container and not content.can_add_extract %}
+        <h2>
+            {% url "content:create-container" content.pk content.slug as create_container_url %}
+            <a class="force-blue" href="{{create_container_url}}">
+                {% trans "Ajouter une nouvelle partie" %}
+            </a>
+            <div class="actions-title">
+                <a href="{{ create_container_url }}" class="ico-after more btn btn-grey">
+                    {% trans "Ajouter" %}
+                </a>
+            </div>
+        </h2>
+    {% endif %}
+
+    {% if not content.can_add_container and content.can_add_extract %}
+        <h2>
+            {% url "content:create-extract" content.pk content.slug as create_extract_url %}
+            <a class="force-blue" href="{{ create_extract_url }}">
+                {% trans "Ajouter une section" %}
+            </a>
+            <div class="actions-title">
+                <a href="{{ create_extract_url }}" class="ico-after more btn btn-grey">
+                    {% trans "Ajouter" %}
+                </a>
+            </div>
+        </h2>
+        <div class="ico-after information">
+            <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
+        </div>
+    {% endif %}
+{% endif %}
+
+
+<hr class="clearfix" />
+<hr />
+
+{% if content.conclusion and content.get_conclusion != "" %}
+    {{ content.get_conclusion|emarkdown:is_js }}
+{% elif display_config.draft_actions.show_empty_section_warnings %}
+    <div class="ico-after warning">
+        <p>
+            {% trans "Il n’y a pas de conclusion." %}
+            {% if display_config.draft_actions.enable_edit %}
+                {% trans "Vous pouvez " %}<a href="{% url "content:edit" content.pk content.slug %}">{% trans "en ajouter une" %}</a>.
+            {% endif %}
+        </p>
+    </div>
+{% endif %}

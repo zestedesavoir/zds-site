@@ -11,18 +11,16 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView, FormView
 
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.tutorialv2.forms import ContainerForm, WarnTypoForm, ExtractForm, MoveElementForm
+from zds.tutorialv2.forms import ContainerForm, ExtractForm, MoveElementForm
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
     FormWithPreview,
-    SingleContentDetailViewMixin,
     SingleContentViewMixin,
     SingleContentPostMixin,
 )
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.utils import (
     search_container_or_404,
-    get_target_tagged_tree,
     search_extract_or_404,
     try_adopt_new_child,
     TooDeepContainerError,
@@ -71,64 +69,6 @@ class CreateContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, F
         self.success_url = parent.children[-1].get_absolute_url()
 
         return super().form_valid(form)
-
-
-class DisplayContainer(LoginRequiredMixin, SingleContentDetailViewMixin):
-    """Base class that can show any content in any state"""
-
-    model = PublishableContent
-    template_name = "tutorialv2/view/container.html"
-    sha = None
-    must_be_author = False  # beta state does not need the author
-    only_draft_version = False
-
-    def get_context_data(self, **kwargs):
-        """Show the given tutorial if exists."""
-        context = super().get_context_data(**kwargs)
-        container = search_container_or_404(self.versioned_object, self.kwargs)
-        context["containers_target"] = get_target_tagged_tree(container, self.versioned_object)
-
-        if self.versioned_object.is_beta:
-            context["formWarnTypo"] = WarnTypoForm(
-                self.versioned_object, container, public=False, initial={"target": container.get_path(relative=True)}
-            )
-
-        context["container"] = container
-
-        # pagination: search for `previous` and `next`, if available
-        if self.versioned_object.type != "ARTICLE" and not self.versioned_object.has_extracts():
-            chapters = self.versioned_object.get_list_of_chapters()
-            try:
-                position = chapters.index(container)
-            except ValueError:
-                pass  # this is not (yet?) a chapter
-            else:
-                context["has_pagination"] = True
-                context["previous"] = None
-                context["next"] = None
-                if position == 0:
-                    context["previous"] = container.parent
-                if position > 0:
-                    previous_chapter = chapters[position - 1]
-                    if previous_chapter.parent == container.parent:
-                        context["previous"] = previous_chapter
-                    else:
-                        context["previous"] = container.parent
-                if position < len(chapters) - 1:
-                    next_chapter = chapters[position + 1]
-                    if next_chapter.parent == container.parent:
-                        context["next"] = next_chapter
-                    else:
-                        context["next"] = next_chapter.parent
-
-        # check whether this tuto support js fiddle
-        if self.object.js_support:
-            is_js = "js"
-        else:
-            is_js = ""
-        context["is_js"] = is_js
-
-        return context
 
 
 class EditContainer(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):

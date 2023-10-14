@@ -4,6 +4,7 @@ import logging
 from urllib.parse import urlsplit, urlunsplit, quote
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from git import Repo, Actor
 
@@ -740,3 +741,9 @@ class BadArchiveError(Exception):
 
 
 NamedUrl = namedtuple("NamedUrl", ["name", "url", "level"])
+
+
+def get_content_version_url(versioned_content, version):
+    route_parameters = {"pk": versioned_content.pk, "slug": versioned_content.slug, "version": version}
+    url = reverse("content:view-version", kwargs=route_parameters)
+    return url

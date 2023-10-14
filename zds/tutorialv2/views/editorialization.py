@@ -17,7 +17,6 @@ from zds.utils import get_current_user
 class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
     form_class = RemoveSuggestionForm
     modal_form = True
-    only_draft_version = True
     permission_required = "tutorialv2.change_publishablecontent"
 
     @method_decorator(login_required)
@@ -59,7 +58,6 @@ class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
 
 
 class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, SingleContentFormViewMixin):
-    only_draft_version = True
     authorized_for_staff = True
     permission_required = "tutorialv2.change_publishablecontent"
 

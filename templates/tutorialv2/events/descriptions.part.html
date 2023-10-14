@@ -26,7 +26,7 @@
 
 
 {% elif event.type == "beta_management" %}
-    {% captureas version_href %}{% url "content:view" event.content.pk event.content.slug %}?version={{ event.version }}{% endcaptureas %}
+    {% url "content:view-version" pk=event.content.pk slug=event.content.slug version=event.version as version_href %}
     {% if event.action == "activate" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a mis une <a href="{{ version_href }}">version du contenu</a> en bêta.
     {% elif event.action == "deactivate" %}
@@ -37,7 +37,7 @@
 
 
 {% elif event.type == "validation_management" %}
-    {% captureas version_href %}{% url "content:view" event.content.pk event.content.slug %}?version={{ event.version }}{% endcaptureas %}
+    {% url "content:view-version" pk=event.content.pk slug=event.content.slug version=event.version as version_href %}
     {% if event.action == "request" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a demandé la validation d'une <a href="{{ version_href }}">version du contenu</a>.
     {% elif event.action == "cancel" %}

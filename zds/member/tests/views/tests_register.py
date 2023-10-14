@@ -80,22 +80,27 @@ class TestRegister(TutorialTestMixin, TestCase):
         # check if the new user is active.
         self.assertTrue(User.objects.get(username="firm1").is_active)
 
-    def test_unregister(self):
-        """
-        To test that unregistering user is working.
-        """
-
-        # test not logged user can't unregister.
+    def test_unauthenticated_user_cant_unregister(self):
+        """An unauthenticated user shall not be able to unregister."""
         self.client.logout()
         result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # test logged user can unregister.
+    def test_unregister_base_case(self):
+        """
+        An authenticated user shall be able to unregister.
+        Base case with no content, API keys, etc. attached to the user.
+        """
         user = ProfileFactory()
         self.client.force_login(user.user)
         result = self.client.post(reverse("member-unregister"), {"password": "hostel77"}, follow=False)
         self.assertEqual(result.status_code, 302)
         self.assertEqual(User.objects.filter(username=user.user.username).count(), 0)
+
+    def test_unregister_with_attached_artefacts(self):
+        """
+        Test unregistering a user with many contents, PM, API keys...
+        """
 
         # Attach a user at tutorials, articles, topics and private topics. After that,
         # unregister this user and check that he is well removed in all contents.

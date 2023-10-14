@@ -59,7 +59,6 @@ class BetaTests(TutorialTestMixin, TestCase):
 
         # login with guest and test the non-access
         self.client.force_login(self.user_guest)
-
         result = self.client.get(reverse("content:view", args=[self.tuto.pk, self.tuto.slug]), follow=False)
         self.assertEqual(result.status_code, 403)  # (get 403 since he is not part of the authors)
 
@@ -104,51 +103,37 @@ class BetaTests(TutorialTestMixin, TestCase):
 
         # test access for public
         self.client.logout()
-
-        result = self.client.get(
-            reverse("content:view", args=[self.tuto.pk, self.tuto.slug]) + "?version=" + current_sha_beta, follow=False
-        )
+        url = reverse("content:beta-view", args=[self.tuto.pk, self.tuto.slug])
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 302)  # (get 302: no access to beta for public)
 
-        # test access for guest;
+        # test access for guest
         self.client.force_login(self.user_guest)
-
-        # get 200 everywhere :)
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + current_sha_beta, follow=False
-        )
+        url = reverse("content:beta-view", args=[tuto.pk, tuto.slug])
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": self.part1.slug}
-            )
-            + "?version="
-            + current_sha_beta,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "container_slug": self.part1.slug,
+        }
+        url = reverse("content:beta-view-container", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": self.part1.slug,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + current_sha_beta,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": self.part1.slug,
+            "container_slug": self.chapter1.slug,
+        }
+        url = reverse("content:beta-view-container", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # change beta version
-        self.client.logout()
         self.client.force_login(self.user_author)
-
         result = self.client.post(
             reverse(
                 "content:edit-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": self.part1.slug}
@@ -192,28 +177,18 @@ class BetaTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(Post.objects.filter(topic=beta_topic).count(), 1)
 
-        # test if third author follow the topic
+        # test if third author follows the topic
         self.assertIsNotNone(TopicAnswerSubscription.objects.get_existing(third_author, beta_topic, is_active=True))
         self.assertEqual(TopicRead.objects.filter(topic__pk=beta_topic.pk, user__pk=third_author.pk).count(), 1)
 
         # then test for guest
-        self.client.logout()
         self.client.force_login(self.user_guest)
-
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + old_sha_beta, follow=False
-        )
-        self.assertEqual(result.status_code, 403)  # no access using the old version
-
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + current_sha_beta, follow=False
-        )
+        url = reverse("content:beta-view", args=[tuto.pk, tuto.slug])
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)  # ok for the new version
 
         # inactive beta
-        self.client.logout()
         self.client.force_login(self.user_author)
-
         result = self.client.post(
             reverse("content:inactive-beta", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
             {"version": current_sha_beta},
@@ -228,18 +203,13 @@ class BetaTests(TutorialTestMixin, TestCase):
         self.assertEqual(beta_management.send.call_args[1]["action"], "deactivate")
 
         # then test for guest
-        self.client.logout()
         self.client.force_login(self.user_guest)
-
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + current_sha_beta, follow=False
-        )
-        self.assertEqual(result.status_code, 403)  # no access anymore
+        url = reverse("content:beta-view", args=[tuto.pk, tuto.slug])
+        result = self.client.get(url, follow=False)
+        self.assertEqual(result.status_code, 404)
 
         # reactive beta
-        self.client.logout()
         self.client.force_login(self.user_author)
-
         result = self.client.post(
             reverse("content:set-beta", kwargs={"pk": tuto.pk, "slug": tuto.slug}),
             {"version": old_sha_beta},  # with a different version than the draft one
@@ -257,17 +227,9 @@ class BetaTests(TutorialTestMixin, TestCase):
         self.assertFalse(Topic.objects.get(pk=beta_topic.pk).is_locked)  # not locked anymore
 
         # then test for guest
-        self.client.logout()
         self.client.force_login(self.user_guest)
-
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + tuto.sha_draft, follow=False
-        )
-        self.assertEqual(result.status_code, 403)  # no access on the non-beta version (of course)
-
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, tuto.slug]) + "?version=" + old_sha_beta, follow=False
-        )
+        url = reverse("content:beta-view", args=[tuto.pk, tuto.slug])
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)  # access granted
 
     def test_beta_helps(self):

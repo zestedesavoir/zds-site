@@ -3,26 +3,15 @@
 {% load times %}
 {% load target_tree %}
 {% load feminize %}
+{% load captureas %}
 
 <h2 id="{{ child.position_in_parent }}-{{ child.slug }}"
 {% if not child.is_validable %}
     class="not-ready"
 {% endif %}>
-    <a
-    {% if content.is_beta %}
-        href="{{ child.get_absolute_url_beta }}"
-    {% else %}
-        {%  if child.text %}
-            href="{{ child.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ child.position_in_parent }}-{{ child.slug }}"
-        {% else %}
-            href="{{ child.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
-        {% endif %}
-    {% endif %}
-    >
-        {{ child.title }}
-    </a>
+    <a href="{{ base_url }}{{ child.get_url_path }}">{{ child.title }}</a>
 
-    {% if can_add_something %}
+    {% if display_config.draft_actions.enable_edit %}
         <div class="actions-title">
             <a href="{{ child.get_edit_url }}" class="ico-after edit btn btn-grey">
                 {% trans "Éditer" %}
@@ -67,7 +56,8 @@
                     {% trans "Déplacer" %}
                 </button>
             </form>
-            {% include "tutorialv2/includes/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
+
+            {% include "tutorialv2/includes/sidebar/delete.part.html" with object=child additional_classes="ico-after cross btn btn-grey" %}
         </div>
     {% endif %}
 </h2>
@@ -77,7 +67,7 @@
     {% if child.get_text.strip|length == 0 %}
         <div class="ico-after warning">
             <p>
-                {% trans "Cette section est actuellement vide." %}
+                {% trans "Cette section est vide." %}
             </p>
         </div>
     {% else %}
@@ -92,16 +82,12 @@
         <ol>
             {% for extract in child.children %}
             <li>
-                <a
-                    {% if content.is_beta %}
-                        href="{{ extract.get_absolute_url_beta }}"
-                    {% else %}
-                        href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
-                    {% endif %}
-                >{{ extract.title }}</a>
+                <a href="{{ base_url }}{{ extract.get_url_path }}">
+                    {{ extract.title }}
+                </a>
             </li>
             {% endfor %}
-            {% if can_add_something and child.can_add_extract %}
+            {% if display_config.draft_actions.enable_edit and child.can_add_extract %}
                 <li class="simple-create-button">
                     <a class="btn btn-grey" href="{% if child.parent == content %}
                                 {% url "content:create-extract" content.pk content.slug child.slug %}
@@ -118,29 +104,19 @@
             {% for subchild in child.children %}
                 <li>
                     <h3 class="{% if not subchild.ready_to_publish %}not-ready{% endif %}">
-                        <a
-                        {% if content.is_beta %}
-                            href="{{ subchild.get_absolute_url_beta }}"
-                        {% else %}
-                            href="{{ subchild.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}"
-                        {% endif %}
-                        >{{ subchild.title }}</a>
+                        <a href="{{ base_url }}{{ subchild.get_url_path }}">{{ subchild.title }}</a>
                     </h3>
                     <ol class="summary-part">
                         {% for extract in subchild.children %}
                             <li>
                                 <h4>
-                                    <a
-                                        {% if content.is_beta %}
-                                            href="{{ extract.get_absolute_url_beta }}"
-                                        {% else %}
-                                            href="{{ extract.container.get_absolute_url }}{% if version %}?version={{ version }}{% endif %}#{{ extract.position_in_parent }}-{{ extract.slug }}"
-                                        {% endif %}
-                                    >{{ extract.title }}</a>
+                                    <a href="{{ base_url }}{{ extract.get_url_path }}">
+                                        {{ extract.title }}
+                                    </a>
                                 </h4>
                             </li>
                         {% endfor %}
-                        {% if can_add_something %}
+                        {% if display_config.draft_actions.enable_edit %}
                             <li class="simple-create-button">
                                 <h4>
                                     <a class="btn btn-grey"
@@ -152,7 +128,7 @@
                     </ol>
                 </li>
             {% endfor %}
-            {% if can_add_something and child.can_add_container %}
+            {% if display_config.draft_actions.enable_edit and child.can_add_container %}
                 <li>
                     <h3>
                         <a class="force-blue"
@@ -167,32 +143,34 @@
             {% endif %}
         </ol>
     {% else %}
-        {% if not can_add_something or not child.is_chapter %}
-        <div class="ico-after warning">
-            <p>
-                {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }} {% trans "est actuellement vide." %}
-            </p>
-            {% if can_add_something and not child.is_chapter %}
-                <ul>
-                    <li>
-                        <a href="{% url "content:create-container" content.pk content.slug child.slug %}">{% trans "Ajouter un chapitre" %}</a>
-                        {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+        {% if display_config.draft_actions.enable_edit %}
+            {% if not child.is_chapter %}
+                <div class="ico-after warning">
+                    <p>
+                        {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }} {% trans "est vide." %}
+                    </p>
+                    {% if not child.is_chapter %}
+                        <ul>
+                            <li>
+                                <a href="{% url "content:create-container" content.pk content.slug child.slug %}">{% trans "Ajouter un chapitre" %}</a>
+                                {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+                            </li>
+                            <li>
+                                <a href="{% url "content:create-extract" content.pk content.slug child.slug %}">{% trans "Ajouter une section" %}</a>
+                                {% trans " pour adopter le format moyen-tuto, composé uniquement de sections." %}
+                            </li>
+                        </ul>
+                    {% endif %}
+                </div>
+            {% elif child.can_add_extract and child.is_chapter %}
+                <ol>
+                    <li class="simple-create-button">
+                        <a class="btn btn-grey" href="{% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}">
+                            {% trans "Ajouter une section" %}
+                        </a>
                     </li>
-                    <li>
-                        <a href="{% url "content:create-extract" content.pk content.slug child.slug %}">{% trans "Ajouter une section" %}</a>
-                        {% trans " pour adopter le format moyen-tuto, composé uniquement de sections." %}
-                    </li>
-                </ul>
+                </ol>
             {% endif %}
-        </div>
-        {% elif can_add_something and child.can_add_extract and child.is_chapter %}
-            <ol>
-                <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% url "content:create-extract" content.pk content.slug child.parent.slug child.slug %}">
-                        {% trans "Ajouter une section" %}
-                    </a>
-                </li>
-            </ol>
         {% endif %}
     {% endif %}
 {% endif %}

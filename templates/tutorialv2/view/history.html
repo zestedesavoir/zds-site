@@ -22,12 +22,6 @@
 
 
 {% block headline %}
-    {% if content.licence %}
-        <p class="license">
-            {{ content.licence }}
-        </p>
-    {% endif %}
-
     <h1 {% if content.image %}class="illu"{% endif %}>
         {% if content.image %}
             <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
@@ -43,7 +37,6 @@
         </h2>
     {% endif %}
 
-    {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
 {% endblock %}
 
 
@@ -114,7 +107,7 @@
                         {{ commit.authored_date|date_from_timestamp|format_date }}
                     </td>
                     <td>
-                        <a href="{% url "content:view" content.pk content.slug %}?version={{ commit.hexsha }}" >
+                            <a href="{% url "content:view-version" pk=content.pk slug=content.slug version=commit.hexsha %}">
                             {{ commit.message }}
                         </a>
                     </td>

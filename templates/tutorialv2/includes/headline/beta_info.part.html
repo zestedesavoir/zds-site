@@ -1,0 +1,28 @@
+{% load i18n %}
+
+{% if state.current_version %}
+    <div class="content-wrapper">
+        <div class="alert-box warning">
+            {% blocktrans %}
+                Cette version est en <strong>BÊTA</strong> !
+            {% endblocktrans %}
+
+            {% if beta_topic %}
+                {% blocktrans with url=beta_topic.get_absolute_url %}
+                    Vous pouvez y réagir sur <a href="{{ url }}">ce sujet</a>.
+                {% endblocktrans %}
+            {% endif %}
+        </div>
+    </div>
+{% endif %}
+
+{% if state.other_version %}
+    <div class="content-wrapper">
+        <div class="alert-box warning">
+            {% url "content:beta-view" content.pk content.slug as beta_url %}
+            {% blocktrans with beta_url=beta_url %}
+                Une <a href="{{ beta_url }}">autre version</a> de cette publication est en bêta.
+            {% endblocktrans %}
+        </div>
+    </div>
+{% endif %}

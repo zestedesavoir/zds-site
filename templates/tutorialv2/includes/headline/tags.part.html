@@ -1,0 +1,17 @@
+{% load captureas %}
+
+{% captureas tag_list_url %}
+    {% if content.is_opinion %}
+        {% url 'opinion:list' %}
+    {% else %}
+        {% url 'publication:list' %}
+    {% endif %}
+{% endcaptureas %}
+
+{% if db_content.tags.all|length > 0 %}
+    <ul class="taglist" itemprop="keywords">
+        {% for tag in db_content.tags.all %}
+            <li><a href="{{ tag_list_url }}?tag={{ tag.slug }}" rel="tag">{{ tag.title }}</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
