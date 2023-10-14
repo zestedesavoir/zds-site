@@ -950,4 +950,4 @@ class PrivatePostUnreadTest(TestCase):
         self.client.force_login(self.participant.user)
         self.client.get(reverse("mp:mark-post-unread", kwargs={"pk": self.post2.pk}), follow=True)
         topic_read_new = PrivateTopicRead.objects.filter(privatetopic=self.topic1, user=self.author.user)
-        self.assertQuerysetEqual(topic_read_old, [repr(t) for t in topic_read_new])
+        self.assertQuerysetEqual(topic_read_old, topic_read_new)
