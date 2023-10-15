@@ -1,10 +1,13 @@
-from django.conf import settings
-from django.contrib.auth.models import User
-from social_django.middleware import SocialAuthExceptionMiddleware
-from django.contrib import messages
-from django.utils.translation import gettext_lazy as _
-from django.urls import reverse
+from geoip2.errors import AddressNotFoundError
 import logging
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from social_django.middleware import SocialAuthExceptionMiddleware
 
 logger = logging.getLogger(__name__)
 
@@ -49,3 +52,27 @@ def get_anonymous_account() -> User:
     Used for example as a replacement for unregistered users.
     """
     return User.objects.get(username=settings.ZDS_APP["member"]["anonymous_account"])
+
+
+def get_geo_location_from_ip(ip: str) -> str:
+    """
+    Uses geo-localization to get physical localization of an IP address.
+    This works relatively well with IPv4 addresses (~city level), but is very
+    imprecise with IPv6 or exotic internet providers.
+    :return: The city and the country name of this IP.
+    """
+    try:
+        geo = GeoIP2().city(ip)
+    except AddressNotFoundError:
+        return ""
+    except GeoIP2Exception as e:
+        logger.warning(
+            f"GeoIP2 failed with the following message: '{e}'. "
+            "The Geolite2 database might not be installed or configured correctly. "
+            "Check the documentation for guidance on how to install it properly."
+        )
+        return ""
+    else:
+        city = geo["city"]
+        country = geo["country_name"]
+        return ", ".join(i for i in [city, country] if i)

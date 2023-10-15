@@ -1,14 +1,14 @@
 import ipaddress
+import logging
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import HttpResponseBadRequest
-from django.urls import reverse
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import redirect, render, get_object_or_404
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
@@ -23,7 +23,7 @@ from zds.member.commons import (
 from zds.member.decorator import can_write_and_read_now
 from zds.member.forms import MiniProfileForm
 from zds.member.models import Profile, KarmaNote
-import logging
+from zds.member.utils import get_geo_location_from_ip
 
 
 @login_required
@@ -32,17 +32,21 @@ def member_from_ip(request, ip_address):
     """List users connected from a particular IP, and an IPV6 subnetwork."""
 
     members = Profile.objects.filter(last_ip_address=ip_address).order_by("-last_visit")
-    members_and_ip = {"members": members, "ip": ip_address}
+    context_data = {
+        "members": members,
+        "ip": ip_address,
+        "ip_location": get_geo_location_from_ip(ip_address),
+    }
 
     if ":" in ip_address:  # Check if it's an IPV6
         network_ip = ipaddress.ip_network(ip_address + "/64", strict=False).network_address  # Get the network / block
         # Remove the additional ":" at the end of the network adresse, so we can filter the IP adresses on this network
         network_ip = str(network_ip)[:-1]
         network_members = Profile.objects.filter(last_ip_address__startswith=network_ip).order_by("-last_visit")
-        members_and_ip["network_members"] = network_members
-        members_and_ip["network_ip"] = network_ip
+        context_data["network_members"] = network_members
+        context_data["network_ip"] = network_ip
 
-    return render(request, "member/admin/memberip.html", members_and_ip)
+    return render(request, "member/admin/memberip.html", context_data)
 
 
 @login_required

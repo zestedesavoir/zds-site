@@ -25,8 +25,9 @@
 
 {% block content %}
     <p>
+        {% captureas city %}{% if ip_location %}&nbsp;({{ ip_location }}){% endif %}{% endcaptureas %}
         {% blocktrans %}
-            Liste des membres dont la dernière IP connue est <code>{{ ip }}</code>
+            Liste des membres dont la dernière IP connue est <code>{{ ip }}</code>{{ city }}
         {% endblocktrans %}
     </p>
 
@@ -55,7 +56,12 @@
     </div>
 
     <p>
-        En IPv6, les adresses sont attribuées par bloc d'IP. Un bot de spam peut donc facilement changer d'adresse IP au sein de ce bloc. Sont affichés ici tous les membres dont l'IPv6 fait partie du même bloc que l'IP demandée.
+        {% blocktrans %}
+            En IPv6, les adresses sont attribuées par bloc d'IP. Un bot de spam
+            peut donc facilement changer d'adresse IP au sein de ce bloc. Sont
+            affichés ici tous les membres dont l'IPv6 fait partie du même bloc que
+            l'IP demandée.
+        {% endblocktrans %}
     </p>
     {% endif %}
 {% endblock %}
