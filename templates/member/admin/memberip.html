@@ -31,13 +31,23 @@
         {% endblocktrans %}
     </p>
 
-    <div class="members">
-        <ul>
+    <table>
+        <thead>
+            <th>{% trans "Membre" %}</th>
+            <th>{% trans "Inscription" %}</th>
+            <th>{% trans "Dernière connexion" %}</th>
+        </thead>
+        <tbody>
             {% for member in members %}
-                <li>{% include "misc/member_item.part.html" with member=member info=member.last_visit|format_date:True avatar=True %}</li>
+                {% captureas last_visit %}{% if member.last_visit %}{{ member.last_visit|format_date:True }}{% else %}<i>{% trans "Jamais" %}</i>{% endif %}{% endcaptureas %}
+                <tr>
+                    <td>{% include "misc/member_item.part.html" with member=member avatar=True %}</td>
+                    <td>{{ member.user.date_joined|format_date:True }}</td>
+                    <td>{{ last_visit }}</td>
+                </tr>
             {% endfor %}
-        </ul>
-    </div>
+        </tbody>
+    </table>
 
     {# Checks if it's an IPV6 to show the members from the same IPV6 network #}
     {% if ":" in ip %}
@@ -47,13 +57,23 @@
         {% endblocktrans %}
     </p>
 
-    <div class="members">
-        <ul>
+    <table>
+        <thead>
+            <th>{% trans "Membre" %}</th>
+            <th>{% trans "Inscription" %}</th>
+            <th>{% trans "Dernière connexion" %}</th>
+        </thead>
+        <tbody>
             {% for member in network_members %}
-                <li>{% include "misc/member_item.part.html" with member=member info=member.last_visit|format_date:True avatar=True %}</li>
+                {% captureas last_visit %}{% if member.last_visit %}{{ member.last_visit|format_date:True }}{% else %}<i>{% trans "Jamais" %}</i>{% endif %}{% endcaptureas %}
+                <tr>
+                    <td>{% include "misc/member_item.part.html" with member=member avatar=True %}</td>
+                    <td>{{ member.user.date_joined|format_date:True }}</td>
+                    <td>{{ last_visit }}</td>
+                </tr>
             {% endfor %}
-        </ul>
-    </div>
+        </tbody>
+    </table>
 
     <p>
         {% blocktrans %}
