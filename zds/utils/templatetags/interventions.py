@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from django import template
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.db.models import F
 
@@ -151,6 +152,16 @@ def waiting_count(content_type):
 @register.filter(name="new_providers_count")
 def new_providers_count(user):
     return NewEmailProvider.objects.count()
+
+
+@register.filter(name="has_new_provider")
+def has_new_provider(user: User):
+    return NewEmailProvider.objects.where(user=user).exists()
+
+
+@register.filter(name="get_new_provider_pk")
+def get_new_provider_pk(user: User):
+    return NewEmailProvider.objects.where(user=user).get().pk
 
 
 @register.filter(name="requested_hats_count")

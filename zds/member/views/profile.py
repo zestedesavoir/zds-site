@@ -198,7 +198,7 @@ class MemberDetail(DetailView):
             context["karmaform"] = KarmaForm(profile)
             context["alerts"] = profile.alerts_on_this_profile.all().order_by("-pubdate")
             context["has_unsolved_alerts"] = profile.alerts_on_this_profile.filter(solved=False).exists()
-
+        context["can_ban_provider"] = self.request.user.has_perm("user.change_bannedemailprovider")
         context["summaries"] = self.get_summaries(profile, hide_forum_activity)
         return context
 
