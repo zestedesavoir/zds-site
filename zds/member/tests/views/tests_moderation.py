@@ -527,7 +527,7 @@ class TestsModeration(TestCase):
 
 
 class IpListingsTests(TestCase):
-    """Test the member_from_ip function : listing users from a same IPV4/IPV6 address or same IPV6 network."""
+    """Test the member_from_ip view: listing users from a same IPv4/IPv6 address or same IPv6 network."""
 
     def setUp(self) -> None:
         self.staff = StaffProfileFactory().user
@@ -599,6 +599,13 @@ class IpListingsTests(TestCase):
         self.assertNotContains(response, self.user_ipv6_same_ip_1.user.username)
         self.assertNotContains(response, self.user_ipv6_same_ip_2.user.username)
         self.assertNotContains(response, self.user_ipv6_same_network.user.username)
+
+    def test_ip_page_invalid_ip(self) -> None:
+        self.client.force_login(self.staff)
+        for ip in ["foo", "340.340.340.340", "2402:4899:1c8a:d75a:"]:
+            with self.subTest(ip):
+                response = self.client.get(reverse(member_from_ip, args=[ip]))
+                self.assertEqual(response.status_code, 404)
 
     def test_access_rights_to_ip_page_as_regular_user(self) -> None:
         self.client.force_login(self.regular_user.user)
