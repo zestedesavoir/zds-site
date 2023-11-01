@@ -109,12 +109,12 @@
         {% include "tutorialv2/includes/content/content_pager.part.html" with content=content %}
     {% endif %}
 
-    {% if display_config.info_config.show_warn_typo %}
-        {% include "tutorialv2/includes/content/warn_typo.part.html" with content=content %}
-    {% endif %}
-
     {% if display_config.alerts_config.show_alert_button %}
         {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
+    {% endif %}
+
+    {% if display_config.info_config.show_warn_typo %}
+        {% include "tutorialv2/includes/content/warn_typo.part.html" with content=content %}
     {% endif %}
 {% endblock %}
 
