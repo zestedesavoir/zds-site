@@ -62,17 +62,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         # Should be 1
         self.assertEqual(self.user1.get_topic_count(), 1)
 
-    def test_get_tuto_count(self):
-        # Start with 0
-        self.assertEqual(self.user1.get_tuto_count(), 0)
-        # Create Tuto !
-        minituto = PublishableContentFactory(type="TUTORIAL")
-        minituto.authors.add(self.user1.user)
-        minituto.gallery = GalleryFactory()
-        minituto.save()
-        # Should be 1
-        self.assertEqual(self.user1.get_tuto_count(), 1)
-
     def test_get_tutos(self):
         # Start with 0
         self.assertEqual(len(self.user1.get_tutos()), 0)
@@ -139,17 +128,6 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         betatetutos = self.user1.get_beta_tutos()
         self.assertEqual(len(betatetutos), 1)
         self.assertEqual(betatetuto, betatetutos[0])
-
-    def test_get_article_count(self):
-        # Start with 0
-        self.assertEqual(self.user1.get_tuto_count(), 0)
-        # Create article !
-        minituto = PublishableContentFactory(type="ARTICLE")
-        minituto.authors.add(self.user1.user)
-        minituto.gallery = GalleryFactory()
-        minituto.save()
-        # Should be 1
-        self.assertEqual(self.user1.get_article_count(), 1)
 
     def test_get_articles(self):
         # Start with 0

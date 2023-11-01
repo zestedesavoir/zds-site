@@ -185,15 +185,6 @@ class Profile(models.Model):
         """
         return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False)
 
-    def get_content_count(self, _type=None):
-        """
-        :param _type: if provided, request a specific type of content
-        :return: the count of contents with this user as author. Count all contents no only published one.
-        """
-        if self.is_private():
-            return 0
-        return self.get_user_contents_queryset(_type).count()
-
     def get_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
@@ -231,12 +222,6 @@ class Profile(models.Model):
         """
         return self.get_user_beta_contents_queryset(_type).all()
 
-    def get_tuto_count(self):
-        """
-        :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
-        """
-        return self.get_content_count(_type="TUTORIAL")
-
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
@@ -269,12 +254,6 @@ class Profile(models.Model):
         """
         return self.get_beta_contents(_type="TUTORIAL")
 
-    def get_article_count(self):
-        """
-        :return: the count of articles with this user as author. Count all articles, no only published one.
-        """
-        return self.get_content_count(_type="ARTICLE")
-
     def get_articles(self):
         """
         :return: All articles with this user as author.
@@ -306,12 +285,6 @@ class Profile(models.Model):
         :return: All articles in beta with this user as author.
         """
         return self.get_beta_contents(_type="ARTICLE")
-
-    def get_opinion_count(self):
-        """
-        :return: the count of opinions with this user as author. Count all opinions, no only published one.
-        """
-        return self.get_content_count(_type="OPINION")
 
     def get_opinions(self):
         """
