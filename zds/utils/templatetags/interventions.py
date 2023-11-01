@@ -154,16 +154,6 @@ def new_providers_count(user):
     return NewEmailProvider.objects.count()
 
 
-@register.filter(name="has_new_provider")
-def has_new_provider(user: User):
-    return NewEmailProvider.objects.where(user=user).exists()
-
-
-@register.filter(name="get_new_provider_pk")
-def get_new_provider_pk(user: User):
-    return NewEmailProvider.objects.where(user=user).get().pk
-
-
 @register.filter(name="requested_hats_count")
 def requested_hats_count(user):
     return HatRequest.objects.filter(is_granted__isnull=True).count()

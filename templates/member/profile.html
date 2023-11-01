@@ -858,10 +858,16 @@
                             </form>
                                 <!-- if the user was banned and he was the first for his mail provider, propose
                                 quick access to ban provider -->
-                                {% if profile.user | has_new_provider and can_ban_provider %}
-                                    <form method="post" action="{% url 'check-new-email-provider' user|get_new_provider_pk %}">
-                                {% csrf_token %}
-                                        <button type="submit" name="ban" class="btn btn-grey ico-after red cross">{% trans "Bannir le fournisseur" %}</button>
+                                {% if can_ban_provider %}
+                                    <a href="#ban-provider-{{ provider.pk }}" class="open-modal tail">
+                                        {% trans "Bannir le fournisseur" %}
+                                    <form method="post" action="{% url 'check-new-email-provider' provider.pk %}" id="ban-provider-{{ provider.pk }}"
+                                    class="modal modal-flex">
+                                    <p>
+                                        {% trans "Bannir le fournisseur email " %} {{ provider.provider }} ?
+                                    </p>
+                                        {% csrf_token %}
+                                        <button type="submit" name="ban" class="btn btn-submit">{% trans "Confirmer" %}</button>
                                     </form>
                                 {% endif %}
                             {% endif %}
