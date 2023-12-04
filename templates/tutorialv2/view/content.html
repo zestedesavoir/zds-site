@@ -172,6 +172,7 @@
 
     {% if display_config.draft_actions.show_license_edit  %}
         <li>
+            {{ content }}
             {% url "content:edit" content.pk content.slug as edit_url %}
             <a href="{{ edit_url }}" class="ico-after edit blue">{% trans "Éditer" %}</a>
         </li>
