@@ -1,7 +1,6 @@
 import contextlib
 import copy
 from pathlib import Path
-from typing import List
 
 from zds import json_handler
 from git import Repo
