@@ -203,7 +203,7 @@ function images() {
 // Generate PNG versions of SVG smileys.
 // Output files are not optimized for size.
 function convertSmileysToPng() {
-  const pathToScript = 'scripts/convert_smileys_to_svg.py'
+  const pathToScript = 'scripts/convert_smileys_to_png.py'
   const pathToSvgSmileys = 'assets/smileys/svg/'
   const pathToPngSmileys = 'dist/smileys/png'
   const convertToPng = run(`python ${pathToScript} ${pathToSvgSmileys} ${pathToPngSmileys}`)

@@ -16,11 +16,11 @@ import os
 import cairosvg
 
 
-def convert_folder_to_svg(src_folder: pathlib.Path, dst_folder: pathlib.Path) -> int:
+def convert_folder_to_png(src_folder: pathlib.Path, dst_folder: pathlib.Path) -> int:
     """
     Convert all SVGs from src_folder into PNGs and write them in dst_folder.
     Create dst_folder if needed.
-    Existing files in dst_fodler are overwritten.
+    Existing files in dst_folder are overwritten.
     Return the number of converted files.
     """
     src_files = src_folder.rglob("*.svg")
@@ -53,5 +53,5 @@ def get_cli_args():
 
 if __name__ == "__main__":
     args = get_cli_args()
-    file_count = convert_folder_to_svg(args["source"], args["destination"])
+    file_count = convert_folder_to_png(args["source"], args["destination"])
     print(f"{__file__}: {file_count} files converted.")
