@@ -1,3 +1,14 @@
+"""
+Convert smileys from SVG to PNG.
+
+In our codebase, the reference format for smileys is SVG. However, some epub readers cannot display SVGs,
+and we have chosen to fall back to PNG so that images are displayed properly with most epub readers.
+In order to avoid manual generation of PNG versions, we convert them automatically from the reference SVG files.
+
+This file provide tools to perform the conversion using a CLI interface.
+It relies on cairosvg to perform the file conversion.
+"""
+
 import argparse
 import pathlib
 import os
