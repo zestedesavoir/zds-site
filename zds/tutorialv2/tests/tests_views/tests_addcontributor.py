@@ -8,6 +8,7 @@ from django.utils.html import escape
 
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.tutorialv2.tests.factories import ContentContributionRoleFactory, PublishableContentFactory
 from zds.tutorialv2.views.contributors import ContributionForm
 from zds.tutorialv2.models.database import ContentContribution
@@ -63,12 +64,12 @@ class AddContributorPermissionTests(TutorialTestMixin, TestCase):
 
     def test_authenticated_staff(self):
         self.client.force_login(self.staff)
-        types = ["TUTORIAL", "ARTICLE", "OPINION"]
-        for type in types:
-            self.content.type = type
-            self.content.save()
-            response = self.client.post(self.form_url, self.form_data)
-            self.assertRedirects(response, self.content_url)
+        for type in CONTENT_TYPE_LIST:
+            with self.subTest(type):
+                self.content.type = type
+                self.content.save()
+                response = self.client.post(self.form_url, self.form_data)
+                self.assertRedirects(response, self.content_url)
 
 
 class AddContributorWorkflowTests(TutorialTestMixin, TestCase):
