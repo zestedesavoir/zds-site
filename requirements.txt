@@ -1,7 +1,7 @@
 # Implicit dependencies (optional dependencies of dependencies)
 elasticsearch-dsl==5.4.0
 elasticsearch==5.5.3
-social-auth-app-django==5.3.0
+social-auth-app-django==5.4.0
 
 # Explicit dependencies (references in code)
 beautifulsoup4==4.12.2
