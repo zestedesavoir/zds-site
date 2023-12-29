@@ -2,10 +2,11 @@
 {% load emarkdown %}
 
 {% if content.introduction and content.get_introduction != "" %}
-    <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_introduction">
-        {% trans "Modifier l'introduction" %}
-    </a>
-    <br />
+    <div class="simple-edit-button">
+      <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_introduction">
+          {% trans "Modifier l'introduction" %}
+      </a>
+    </div>
     {{ content.get_introduction|emarkdown:is_js }}
 {% elif display_config.draft_actions.show_empty_section_warnings %}
     <div class="ico-after warning">
@@ -101,10 +102,11 @@
 <hr />
 
 {% if content.conclusion and content.get_conclusion != "" %}
-    <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_conclusion">
-        {% trans "Modifier la conclusion" %}
-    </a>
-    <br />
+    <div class="simple-edit-button">
+        <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_conclusion">
+            {% trans "Modifier la conclusion" %}
+        </a>
+    </div>
     {{ content.get_conclusion|emarkdown:is_js }}
 {% elif display_config.draft_actions.show_empty_section_warnings %}
     <div class="ico-after warning">

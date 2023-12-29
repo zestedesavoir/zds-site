@@ -77,6 +77,15 @@
         color: $primary-300 !important;
     }
 
+    .simple-edit-button {
+       text-align: right;
+
+      .btn {
+        display: inline-block;
+        float: none;
+      }
+    }
+
     li.simple-create-button {
         list-style-type: '';
 
