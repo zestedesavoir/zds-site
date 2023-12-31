@@ -1,18 +1,22 @@
 {% load i18n %}
 {% load emarkdown %}
 
-{% if content.introduction and content.get_introduction != "" %}
-    <div class="simple-edit-button">
-      <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_introduction">
-          {% trans "Modifier l'introduction" %}
-      </a>
-    </div>
+{% if content.get_introduction %}
+    {% if display_config.draft_actions.enable_edit %}
+        <div class="simple-edit-button">
+          <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_introduction">
+              {% trans "Modifier l'introduction" %}
+          </a>
+        </div>
+    {% endif %}
     {{ content.get_introduction|emarkdown:is_js }}
 {% elif display_config.draft_actions.show_empty_section_warnings %}
     <div class="ico-after warning">
         <p>
             {% trans "Il n’y a pas d’introduction." %}
-            {% trans "Vous pouvez " %}<a href="{% url "content:edit" content.pk content.slug %}">{% trans "en ajouter une" %}</a>.
+            {% if display_config.draft_actions.enable_edit %}
+                {% trans "Vous pouvez " %}<a href="{% url "content:edit" content.pk content.slug %}">{% trans "en ajouter une" %}</a>.
+            {% endif %}
         </p>
     </div>
 {% endif %}
@@ -101,12 +105,14 @@
 <hr class="clearfix" />
 <hr />
 
-{% if content.conclusion and content.get_conclusion != "" %}
-    <div class="simple-edit-button">
-        <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_conclusion">
-            {% trans "Modifier la conclusion" %}
-        </a>
-    </div>
+{% if content.get_conclusion %}
+    {% if display_config.draft_actions.enable_edit %}
+        <div class="simple-edit-button">
+            <a class="ico-after edit btn btn-grey" href="{% url "content:edit" content.pk content.slug %}#div_id_conclusion">
+                {% trans "Modifier la conclusion" %}
+            </a>
+        </div>
+    {% endif %}
     {{ content.get_conclusion|emarkdown:is_js }}
 {% elif display_config.draft_actions.show_empty_section_warnings %}
     <div class="ico-after warning">
