@@ -11,7 +11,6 @@ env:
   PYTHON_VERSION: "3.9"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
-  GECKODRIVER_VERSION: "0.34.0"
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
@@ -184,15 +183,6 @@ jobs:
           mysql database: "ci_db_name"
           mysql root password: "ci_root_password"
 
-      - name: Install Firefox
-        run: sudo apt-get update && sudo apt-get install firefox
-
-      - name: Install Geckodriver
-        run: |
-          wget https://github.com/mozilla/geckodriver/releases/download/v${{ env.GECKODRIVER_VERSION }}/geckodriver-v${{ env.GECKODRIVER_VERSION }}-linux64.tar.gz
-          mkdir geckodriver
-          tar -xzf geckodriver-v${{ env.GECKODRIVER_VERSION }}-linux64.tar.gz -C geckodriver
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -248,9 +238,7 @@ jobs:
           make zmd-start
 
       - name: Run tests for ${{ matrix.module }}
-        run: |
-          export PATH="$PATH:$PWD/geckodriver"
-          coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
+        run: coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
 
       - name: Analyze coverage
         shell: bash -l {0}
