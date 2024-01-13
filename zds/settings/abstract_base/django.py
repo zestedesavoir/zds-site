@@ -163,7 +163,7 @@ INSTALLED_APPS = (
     "dry_rest_permissions",
     "corsheaders",
     "oauth2_provider",
-    "captcha",
+    "django_recaptcha",
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
     "zds.utils",

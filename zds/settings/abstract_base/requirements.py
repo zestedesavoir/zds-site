@@ -51,11 +51,6 @@ SOCIAL_AUTH_SANITIZE_REDIRECTS = social_auth_config.get(
 recaptcha_config = config.get("recaptcha", {})
 
 USE_CAPTCHA = recaptcha_config.get("use_captcha", False)
-# Seems to be used by `django-recaptcha` (what a poorly-namespaced
-# setting!).
-# Set to `True` to use the “No Captcha” engine instead of the old API.
-NOCAPTCHA = True
-RECAPTCHA_USE_SSL = True
 RECAPTCHA_PUBLIC_KEY = recaptcha_config.get("public_key", "dummy")
 RECAPTCHA_PRIVATE_KEY = recaptcha_config.get("private_key", "dummy")
 
