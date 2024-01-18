@@ -29,8 +29,6 @@ from zds.tutorialv2.mixins import (
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
-from zds.tutorialv2.views.goals import EditGoalsForm
-from zds.tutorialv2.views.labels import EditLabelsForm
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
