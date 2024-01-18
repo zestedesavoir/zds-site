@@ -228,11 +228,11 @@ class EditExtract(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 class DeleteContainerOrExtract(LoggedWithReadWriteHability, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     template_name = None
-    http_method_names = ["delete", "post"]
+    http_method_names = ["post"]
     object = None
     versioned_object = None
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         """delete any object, either Extract or Container"""
         self.object = self.get_object()
         self.versioned_object = self.get_versioned_object()
