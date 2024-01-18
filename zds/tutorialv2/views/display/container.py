@@ -72,7 +72,6 @@ class ContainerBaseView(SingleContentDetailViewMixin):
         context["base_url"] = self.get_base_url()
         container = search_container_or_404(self.versioned_object, self.kwargs)
         context["breadcrumb_items"] = self.get_breadcrumbs(container)
-        print(context["breadcrumb_items"])
         context["containers_target"] = get_target_tagged_tree(container, self.versioned_object)
         context["form_warn_typo"] = WarnTypoForm(
             self.versioned_object,
