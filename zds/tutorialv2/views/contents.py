@@ -279,18 +279,14 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
 
 class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
     model = PublishableContent
-    template_name = None
-    http_method_names = ["delete", "post"]
-    object = None
+    http_method_names = ["post"]
     authorized_for_staff = False  # deletion is creator's privilege
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        """rewrite delete() function to ensure repository deletion"""
-
+    def form_valid(self, form):
         self.object = self.get_object()
         object_type = self.object.type.lower()
 
@@ -362,4 +358,4 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
 
             messages.success(self.request, _("Vous avez bien supprimé {}.").format(_type))
 
-        return redirect(reverse(object_type + ":find-" + object_type, args=[request.user.username]))
+        return redirect(reverse(object_type + ":find-" + object_type, args=[self.request.user.username]))
