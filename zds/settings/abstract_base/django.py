@@ -159,7 +159,6 @@ INSTALLED_APPS = (
     "easy_thumbnails.optimize",
     "crispy_forms",
     "crispy_forms_bootstrap2",
-    "munin",
     "social_django",
     "rest_framework",
     "drf_yasg",
@@ -167,6 +166,7 @@ INSTALLED_APPS = (
     "corsheaders",
     "oauth2_provider",
     "django_recaptcha",
+    "django_munin.munin",
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
     "zds.utils",
