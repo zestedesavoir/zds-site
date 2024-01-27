@@ -143,6 +143,8 @@ django_template_engine = {
 
 TEMPLATES = [django_template_engine]
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap"
+
 CRISPY_TEMPLATE_PACK = "bootstrap"
 
 INSTALLED_APPS = (
@@ -156,6 +158,7 @@ INSTALLED_APPS = (
     "easy_thumbnails",
     "easy_thumbnails.optimize",
     "crispy_forms",
+    "crispy_forms_bootstrap2",
     "munin",
     "social_django",
     "rest_framework",
