@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.http import Http404, HttpResponseRedirect
-from django.views.generic import DeleteView, FormView, View
+from django.views.generic import FormView, View
 from django.shortcuts import redirect, get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -398,24 +398,23 @@ class EditImage(ImageFromGalleryContextViewMixin, ImageUpdateOrDeleteMixin, Logg
         return super().form_valid(form)
 
 
-class DeleteImages(ImageFromGalleryViewMixin, ImageUpdateOrDeleteMixin, LoggedWithReadWriteHability, DeleteView):
+class DeleteImages(ImageFromGalleryViewMixin, ImageUpdateOrDeleteMixin, LoggedWithReadWriteHability, View):
     """Delete a given image"""
 
     model = Image
-    http_method_names = ["post", "delete"]
+    http_method_names = ["post"]
     must_write = True
 
-    def delete(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         if "delete_multi" in request.POST:
             list_items = request.POST.getlist("g_items")
             Image.objects.filter(pk__in=list_items, gallery=self.gallery).delete()
         elif "delete" in request.POST:
             try:
-                self.get_image(self.request.POST.get("image"))
+                self.get_image(request.POST.get("image"))
                 self.perform_delete()
             except Image.DoesNotExist:
                 raise Http404()
-
         return redirect(self.gallery.get_absolute_url())
 
 
