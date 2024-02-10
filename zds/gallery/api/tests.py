@@ -9,10 +9,10 @@ from rest_framework import status
 from rest_framework.test import APITestCase, APIClient
 from rest_framework_extensions.settings import extensions_api_settings
 
+from zds.api.utils import authenticate_oauth2_client
 from zds.gallery.tests.factories import UserGalleryFactory, GalleryFactory, ImageFactory
 from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, Image, GALLERY_READ
 from zds.member.tests.factories import ProfileFactory
-from zds.member.api.tests import create_oauth2_client, authenticate_client
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
@@ -21,8 +21,7 @@ class GalleryListAPITest(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -92,8 +91,7 @@ class GalleryDetailAPITest(TutorialTestMixin, APITestCase):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
 
@@ -222,8 +220,7 @@ class ImageListAPITest(APITestCase):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
@@ -358,8 +355,7 @@ class ImageDetailAPITest(APITestCase):
         self.profile = ProfileFactory()
         self.other = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
@@ -506,8 +502,7 @@ class ParticipantListAPITest(TutorialTestMixin, APITestCase):
         self.other = ProfileFactory()
         self.client = APIClient()
         self.new_participant = ProfileFactory()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
@@ -620,8 +615,7 @@ class ParticipantDetailAPITest(TutorialTestMixin, APITestCase):
         self.other = ProfileFactory()
         self.new_participant = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.gallery = GalleryFactory()
         UserGalleryFactory(user=self.profile.user, gallery=self.gallery)
