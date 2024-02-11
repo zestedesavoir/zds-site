@@ -90,6 +90,20 @@ class TestsModeration(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(nb_users + 1, len(result.context["members"]))  # LS guy still shows up, good
 
+    def test_temp_ban_missing_duration(self):
+        # Test error is caught when the duration for temporary sanction is missing in submitted form.
+        staff = StaffProfileFactory()
+        self.client.force_login(staff.user)
+
+        profile = ProfileFactory()
+        ls_text = "Texte de test pour LS TEMP"
+        result = self.client.post(
+            reverse("member-modify-profile", kwargs={"user_pk": profile.user.id}),
+            {"ls-temp": "", "ls-text": ls_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
     def test_temp_ls_followed_by_unls(self):
         """
         Test various sanctions.
