@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL("DROP TABLE IF EXISTS munin_test"),
         migrations.CreateModel(
             name="Test",
             fields=[
