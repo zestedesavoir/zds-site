@@ -2,6 +2,8 @@ from django.urls import path
 from django.views.generic.base import RedirectView
 
 from zds.tutorialv2.views.contents import CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.display.container import ContainerValidationView
+from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
@@ -73,6 +75,24 @@ def get_beta_pages():
     return beta_pages
 
 
+def get_validation_pages():
+    base_pattern = "validation/<int:pk>/<slug:slug>"
+    pages = [
+        path(
+            f"{base_pattern}/<slug:parent_container_slug>/<slug:container_slug>/",
+            ContainerValidationView.as_view(public_is_prioritary=False),
+            name="validation-view-container",
+        ),
+        path(
+            f"{base_pattern}/<slug:container_slug>/",
+            ContainerValidationView.as_view(public_is_prioritary=False),
+            name="validation-view-container",
+        ),
+        path(f"{base_pattern}/", ContentValidationView.as_view(), name="validation-view"),
+    ]
+    return pages
+
+
 def get_version_pages():
     base_pattern = "version/<str:version>/<int:pk>/<slug:slug>"
     specific_version_page = [
@@ -91,6 +111,7 @@ urlpatterns = (
     feeds
     + get_version_pages()
     + get_beta_pages()
+    + get_validation_pages()
     + [
         path(
             "voir/<str:username>/", ContentOfAuthor.as_view(type="ALL", context_object_name="contents"), name="find-all"
