@@ -91,10 +91,6 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_publication"] = PublicationForm(versioned, initial={"source": self.object.source})
         context["gallery"] = self.object.gallery
         context["alerts"] = self.object.alerts_on_this_content.all()
-        data_form_revoke = {"version": self.versioned_object.sha_public}
-        context["form_revoke"] = RevokeValidationForm(self.versioned_object, initial=data_form_revoke)
-        data_form_unpublication = data_form_revoke
-        context["form_unpublication"] = UnpublicationForm(self.versioned_object, initial=data_form_unpublication)
         data_form_pick = data_form_revoke
         context["form_pick"] = PickOpinionForm(self.versioned_object, initial=data_form_pick)
         data_form_unpick = data_form_revoke
