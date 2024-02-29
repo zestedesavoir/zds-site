@@ -628,19 +628,9 @@ Ces paramètres sont à surcharger dans le dictionnaire ``ZDS_APP['opinions']``:
 Statistiques
 ============
 
-Pour permettre aux auteurs d'avoir des statistiques sur leurs contenus, il faut créer un fichier ``api_analytics_secrets.json`` contenant les identifiants nécessaires pour se connecter à l'API de Google Analytics. Voici un gabarit pour ce fichier :
+Les statistiques du site sont gérées par un serveur `Matomo
+<https://matomo.org/>`_. La collecte des statistiques est faite avec le
+middleware ``zds.middlewares.matomomiddleware.MatomoMiddleware``.
 
-.. sourcecode:: json
-
-    {
-        "type": "service_account",
-        "project_id": "fake-project_id",
-        "private_key_id": "fake-private_key_id",
-        "private_key": "fake_private_key",
-        "client_email": "fake-client_email",
-        "client_id": "fake-client_id",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://accounts.google.com/o/oauth2/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "fake-client_x509_cert_url"
-    }
+Chaque contenu a une page (non publique) *Statistiques* qui récupère auprès de
+Matomo et affiche les statistiques d'affichage de chaque page du contenu.

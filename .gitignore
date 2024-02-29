@@ -22,9 +22,6 @@ base.db
 /contents-private-test
 /contents-public-test
 
-api_analytics_secrets.json
-.ga-api-cache/
-
 /apache-solr
 
 /.tmp
