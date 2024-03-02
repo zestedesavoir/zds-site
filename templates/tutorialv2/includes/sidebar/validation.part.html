@@ -9,9 +9,9 @@
         <ul>
             {% if display_config.validation_actions.show_validation_link %}
                 <li>
-                    {% url "content:view-version" pk=content.pk slug=content.slug version=validation.version as url_validation %}
+                    {% url "content:validation-view" pk=content.pk slug=content.slug as url_validation %}
                     <a href="{{ url_validation }}" class="ico-after online blue">
-                        {% trans "Voir la version en validation" %}
+                        {% trans "Voir la page de validation" %}
                     </a>
                 </li>
             {% endif %}

@@ -474,3 +474,14 @@ class ConfigForBetaView(ViewConfig):
         self.validation_actions.enabled = False
         self.online_config.enabled = False
         self.info_config.show_warn_typo = True
+
+
+class ConfigForValidationView(ViewConfig):
+    def __init__(self, user, content: PublishableContent, versioned_content: VersionedContent):
+        super().__init__(user, content, versioned_content)
+        self.beta_actions.enabled = False
+        self.administration_actions.enabled = False
+        self.validation_actions.enabled = True
+        self.validation_actions.show_validation_link = False
+        self.online_config.enabled = False
+        self.info_config.show_warn_typo = True

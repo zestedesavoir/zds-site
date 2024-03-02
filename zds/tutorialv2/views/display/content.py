@@ -43,6 +43,7 @@ from zds.tutorialv2.views.display.config import (
     ConfigForVersionView,
     ConfigForOnlineView,
     ConfigForBetaView,
+    ConfigForValidationView,
 )
 from zds.tutorialv2.views.goals import EditGoalsForm
 from zds.tutorialv2.views.labels import EditLabelsForm
@@ -90,10 +91,6 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_publication"] = PublicationForm(versioned, initial={"source": self.object.source})
         context["gallery"] = self.object.gallery
         context["alerts"] = self.object.alerts_on_this_content.all()
-        data_form_revoke = {"version": self.versioned_object.sha_public}
-        context["form_revoke"] = RevokeValidationForm(self.versioned_object, initial=data_form_revoke)
-        data_form_unpublication = data_form_revoke
-        context["form_unpublication"] = UnpublicationForm(self.versioned_object, initial=data_form_unpublication)
         data_form_pick = data_form_revoke
         context["form_pick"] = PickOpinionForm(self.versioned_object, initial=data_form_pick)
         data_form_unpick = data_form_revoke
@@ -325,4 +322,37 @@ class ContentBetaView(LoginRequiredMixin, ContentBaseView):
     def get_base_url(self):
         route_parameters = {"pk": self.object.pk, "slug": self.object.slug}
         url = reverse("content:beta-view", kwargs=route_parameters)
+        return url
+
+
+class ContentValidationView(LoginRequiredMixin, ContentBaseView):
+    """Show the validation page of a content."""
+
+    must_be_author = False
+
+    sha = None
+
+    def get_object(self, queryset=None):
+        """Ensure that the version is set to validation, raise Http404 if there is no such version."""
+        obj = super().get_object(queryset)
+
+        if not obj.sha_validation:
+            raise Http404("Aucune version en validation n'existe pour ce contenu.")
+        else:
+            self.sha = obj.sha_validation
+
+        # make the slug always right in URLs resolution:
+        if "slug" in self.kwargs:
+            self.kwargs["slug"] = obj.slug
+
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["display_config"] = ConfigForValidationView(self.request.user, self.object, self.versioned_object)
+        return context
+
+    def get_base_url(self):
+        route_parameters = {"pk": self.object.pk, "slug": self.object.slug}
+        url = reverse("content:validation-view", kwargs=route_parameters)
         return url
