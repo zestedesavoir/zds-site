@@ -10,7 +10,7 @@ from rest_framework.test import APITestCase, APIClient
 from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
-from zds.member.api.tests import create_oauth2_client, authenticate_client
+from zds.api.utils import authenticate_oauth2_client
 from zds.member.tests.factories import ProfileFactory, UserFactory
 from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import PrivateTopic, PrivatePostVote
@@ -20,8 +20,7 @@ class PrivateTopicListAPITest(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.bot_group = Group()
         self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
@@ -395,8 +394,7 @@ class PrivateTopicDetailAPITest(APITestCase):
             author=self.profile.user, privatetopic=self.private_topic, position_in_topic=1
         )
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.bot_group = Group()
         self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
@@ -531,8 +529,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.private_topic.participants.add(another_profile.user)
 
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(another_profile.user)
-        authenticate_client(self.client, client_oauth2, another_profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, another_profile.user, "hostel77")
 
         data = {
             "title": "Good title",
@@ -550,8 +547,7 @@ class PrivateTopicDetailAPITest(APITestCase):
         self.private_topic.participants.add(another_profile.user)
 
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(another_profile.user)
-        authenticate_client(self.client, client_oauth2, another_profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, another_profile.user, "hostel77")
 
         data = {"participants": [third_profile.user.id]}
         response = self.client.put(reverse("api:mp:detail", args=[self.private_topic.id]), data)
@@ -628,8 +624,7 @@ class PrivatePostListAPI(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.private_topic = PrivateTopicFactory(author=self.profile.user)
         self.private_topic.participants.add(ProfileFactory().user)
@@ -869,8 +864,7 @@ class PrivatePostDetailAPI(APITestCase):
             author=self.profile.user, privatetopic=self.private_topic, position_in_topic=1
         )
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 
@@ -1013,13 +1007,11 @@ class PrivateTopicUnreadListAPITest(APITestCase):
     def setUp(self):
         self.profile = ProfileFactory()
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         self.another_profile = ProfileFactory()
         self.another_client = APIClient()
-        another_client_oauth2 = create_oauth2_client(self.another_profile.user)
-        authenticate_client(self.another_client, another_client_oauth2, self.another_profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.another_client, self.another_profile.user, "hostel77")
 
         self.bot_group = Group()
         self.bot_group.name = settings.ZDS_APP["member"]["bot_group"]
@@ -1071,9 +1063,7 @@ class PermissionMemberAPITest(APITestCase):
             author=self.profile.user, privatetopic=self.private_topic, position_in_topic=1
         )
 
-        authenticate_client(
-            self.client, create_oauth2_client(self.profile.user), self.profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
     def test_has_read_permission_for_authenticated_users(self):
         """
@@ -1106,9 +1096,7 @@ class PermissionMemberAPITest(APITestCase):
         another_profile = ProfileFactory()
         self.private_topic.participants.add(another_profile.user)
 
-        authenticate_client(
-            self.client, create_oauth2_client(another_profile.user), another_profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, another_profile.user, "hostel77")
         response = self.client.get(reverse("api:mp:detail", args=[self.private_topic.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get("permissions").get("update"))
@@ -1144,9 +1132,7 @@ class PermissionMemberAPITest(APITestCase):
         another_profile = ProfileFactory()
         self.private_topic.participants.add(another_profile.user)
 
-        authenticate_client(
-            self.client, create_oauth2_client(another_profile.user), another_profile.user.username, "hostel77"
-        )
+        authenticate_oauth2_client(self.client, another_profile.user, "hostel77")
         response = self.client.get(reverse("api:mp:message-detail", args=[self.private_topic.id, self.private_post.id]))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data.get("permissions").get("update"))
@@ -1160,8 +1146,7 @@ class PrivateTopicKarmaAPITest(APITestCase):
             author=self.profile.user, privatetopic=self.private_topic, position_in_topic=1
         )
         self.client = APIClient()
-        client_oauth2 = create_oauth2_client(self.profile.user)
-        authenticate_client(self.client, client_oauth2, self.profile.user.username, "hostel77")
+        authenticate_oauth2_client(self.client, self.profile.user, "hostel77")
 
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
 

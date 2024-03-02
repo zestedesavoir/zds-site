@@ -12,6 +12,7 @@ from zds.tutorialv2.views.display.config import (
     ConfigForOnlineView,
     ConfigForBetaView,
     ConfigForVersionView,
+    ConfigForValidationView,
 )
 
 
@@ -72,7 +73,6 @@ class ContainerBaseView(SingleContentDetailViewMixin):
         context["base_url"] = self.get_base_url()
         container = search_container_or_404(self.versioned_object, self.kwargs)
         context["breadcrumb_items"] = self.get_breadcrumbs(container)
-        print(context["breadcrumb_items"])
         context["containers_target"] = get_target_tagged_tree(container, self.versioned_object)
         context["form_warn_typo"] = WarnTypoForm(
             self.versioned_object,
@@ -187,4 +187,35 @@ class ContainerBetaView(LoginRequiredMixin, ContainerBaseView):
     def get_base_url(self):
         route_parameters = {"pk": self.object.pk, "slug": self.object.slug}
         url = reverse("content:beta-view", kwargs=route_parameters)
+        return url
+
+
+class ContainerValidationView(LoginRequiredMixin, ContainerBaseView):
+    """Show the validation page of a container."""
+
+    sha = None
+    warn_typo_public = False
+
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+
+        if not obj.sha_validation:
+            raise Http404("Aucune version en validation n'existe pour ce contenu.")
+        else:
+            self.sha = obj.sha_validation
+
+        # make the slug always right in URLs resolution:
+        if "slug" in self.kwargs:
+            self.kwargs["slug"] = obj.slug
+
+        return obj
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["display_config"] = ConfigForValidationView(self.request.user, self.object, self.versioned_object)
+        return context
+
+    def get_base_url(self):
+        route_parameters = {"pk": self.object.pk, "slug": self.object.slug}
+        url = reverse("content:validation-view", kwargs=route_parameters)
         return url

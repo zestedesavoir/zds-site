@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.validators import validate_ipv46_address
 from django.db import transaction
-from django.http import Http404, HttpResponseBadRequest
+from django.http import Http404
 from django.shortcuts import redirect, render, get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -178,19 +178,24 @@ def modify_profile(request, user_pk):
 
     try:
         ban = state.get_sanction(request.user, profile.user)
-    except ValueError:
-        raise HttpResponseBadRequest
-
-    state.apply_sanction(profile, ban)
-
-    if "un-ls" in request.POST or "un-ban" in request.POST:
-        msg = state.get_message_unsanction()
+    except (ValueError, TypeError):
+        # These exception can be raised if content of the POST parameters are
+        # not correctly (eg, empty string instead of integer), making the
+        # object state having invalid data. The validity of parameters should
+        # be checked when creating the `state` object above.
+        messages.error(request, _("Une erreur est survenue lors de la récupération de la sanction."))
     else:
-        msg = state.get_message_sanction()
+        state.apply_sanction(profile, ban)
 
-    msg = msg.format(
-        ban.user, ban.moderator, ban.type, state.get_detail(), ban.note, settings.ZDS_APP["site"]["literal_name"]
-    )
+        if "un-ls" in request.POST or "un-ban" in request.POST:
+            msg = state.get_message_unsanction()
+        else:
+            msg = state.get_message_sanction()
 
-    state.notify_member(ban, msg)
+        msg = msg.format(
+            ban.user, ban.moderator, ban.type, state.get_detail(), ban.note, settings.ZDS_APP["site"]["literal_name"]
+        )
+
+        state.notify_member(ban, msg)
+
     return redirect(profile.get_absolute_url())
