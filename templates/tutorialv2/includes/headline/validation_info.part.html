@@ -24,7 +24,7 @@
     {{ validation_comment_from_authors }}
 {% endif %}
 
-{% url "content:view-version" pk=content.pk slug=content.slug version=content.sha_validation as validation_version_url %}
+{% url "content:validation-view" pk=content.pk slug=content.slug as validation_version_url %}
 
 {% if state.other_version_and_reserved %}
     <p class="content-wrapper alert-box info">
