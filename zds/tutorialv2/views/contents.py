@@ -29,8 +29,6 @@ from zds.tutorialv2.mixins import (
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
-from zds.tutorialv2.views.goals import EditGoalsForm
-from zds.tutorialv2.views.labels import EditLabelsForm
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
@@ -279,18 +277,14 @@ class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
 
 class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
     model = PublishableContent
-    template_name = None
-    http_method_names = ["delete", "post"]
-    object = None
+    http_method_names = ["post"]
     authorized_for_staff = False  # deletion is creator's privilege
 
     @method_decorator(transaction.atomic)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        """rewrite delete() function to ensure repository deletion"""
-
+    def form_valid(self, form):
         self.object = self.get_object()
         object_type = self.object.type.lower()
 
@@ -362,4 +356,4 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
 
             messages.success(self.request, _("Vous avez bien supprimé {}.").format(_type))
 
-        return redirect(reverse(object_type + ":find-" + object_type, args=[request.user.username]))
+        return redirect(reverse(object_type + ":find-" + object_type, args=[self.request.user.username]))
