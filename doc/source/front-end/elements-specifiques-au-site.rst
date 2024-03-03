@@ -366,7 +366,7 @@ Les membres et listes de membres
 Afficher un membre
 ------------------
 
-Pour afficher un membre, utilisez le gabari ``misc/member_item.part.html``. Il dispose de plusieurs arguments :
+Pour afficher un membre, utilisez le gabarit ``misc/member_item.part.html``. Il dispose de plusieurs arguments :
 
   - ``member`` : le membre à afficher (ce peut être un ``Profile`` ou un ``User``, peu importe) ;
   - ``inline`` : si ``True``, l'élément sera stylisé pour une intégration au cœur d'un texte ;
@@ -376,7 +376,9 @@ Pour afficher un membre, utilisez le gabari ``misc/member_item.part.html``. Il d
   - ``info`` : si renseigné, le texte donné sera affiché après le pseudonyme du membre, afin de donner un détail sur ce
     dernier (ce texte sera entre parenthèses, sauf si le mode “pleine largeur” est actif — voir plus bas) ;
   - ``fullwidth`` : si ``True``, active le support du mode pleine largeur (ce qui concrètement écrit le texte de
-    ``info`` sans parenthèses).
+    ``info`` sans parenthèses) ;
+  - ``deletable`` : Si ``True``, active le formulaire permettant de retirer le membre de la liste des auteurs et
+    autrices d'une publication.
 
 Ce qui peut donner ceci par exemple.
 

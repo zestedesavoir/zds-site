@@ -1,7 +1,10 @@
 {% load profile %}
 {% load i18n %}
+{% load captureas %}
 
 {% with profile=member|profile %}
+    {% captureas username %}{{ profile.user.username }}{% endcaptureas %}
+    {% if deletable %}<div class="deletable">{% endif %}
     {% spaceless %}
         <a href="{{ profile.get_absolute_url }}"
            class="member-item{% if inline %} is-inline{% endif %}{% if link %} is-link{% endif %}"
@@ -16,7 +19,7 @@
                 <img src="{% avatar_url profile %}" alt="" class="avatar" itemprop="image" aria-hidden="true" />
             {% endif %}
 
-            <span itemprop="name">{{ profile.user.username }}</span>
+            <span itemprop="name">{{ username }}</span>
 
             {% if info %}
                 <span class="info">
@@ -24,5 +27,21 @@
                 </span>
             {% endif %}
         </a>
+
+        {% if deletable %}
+            {% captureas button_text %}{% blocktrans %}Retirer {{ username }} des auteurs et autrices{% endblocktrans %}{% endcaptureas %}
+            <a href="#remove-author-{{ profile.pk }}" class="open-modal delete-button" title="{{ button_text }}">
+                <span class="visuallyhidden">{{ button_text }}</span>
+            </a>
+            {% url "content:remove-author" content.pk as remove_author_url  %}
+            <form action="{{ remove_author_url }}" method="post" class="modal modal-flex" id="remove-author-{{ profile.pk }}"
+                data-modal-title="Retirer un auteur ou une autrice"
+                data-modal-close="Non, annuler">
+                <p>Voulez-vous retirer <em>{{ username }}</em> de la liste des auteurs et autrices ?<br /><strong>Cette action est irréversible</strong>.</p>
+                <button class="btn btn-submit" value="{{ username }}" name="username" type="submit">Oui, retirer</button>
+                {% csrf_token %}
+            </form>
+        {% endif %}
     {% endspaceless %}
+    {% if deletable %}</div>{% endif %}
 {% endwith %}

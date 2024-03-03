@@ -167,7 +167,8 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
 
         if not current_user:  # if the removed author is not current user
             messages.success(
-                self.request, _("Vous avez enlevé {} de la liste des auteurs de {}.").format(authors_list, _type[0])
+                self.request,
+                _("Vous avez enlevé {} de la liste des auteurs et autrices de {}.").format(authors_list, _type[0]),
             )
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
