@@ -37,7 +37,7 @@ Pré-requis
   Ces instructions expliquent comment installer XCode, Homebrew, Python, pip, et
   les utilitaires GNU, sur macOS. Si vous avez déjà :
 
-  - une installation fonctionnelle de Homebrew et de Python 3.7+ ;
+  - une installation fonctionnelle de Homebrew et de Python 3.8+ ;
   - configuré votre terminal pour utiliser les utilitaires GNU à la place de
     ceux de BSD (avec `linuxify <https://github.com/darksonic37/linuxify#install>`_,
     par exemple) ;
