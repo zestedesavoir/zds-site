@@ -15,7 +15,7 @@
 
 <aside class="meta">
     <div class="meta-column">
-        {% include "tutorialv2/includes/headline/authors.part.html" with db_content=db_content content=content add_author=display_config.draft_actions.show_author_management online_mode=display_config.online_config.enable_authors_online_mode %}
+        {% include "tutorialv2/includes/headline/authors.part.html" with db_content=db_content edit_authors=display_config.draft_actions.show_authors_management online_mode=display_config.online_config.enable_authors_online_mode %}
         {% include "tutorialv2/includes/headline/contributions.part.html" %}
         {% include "tutorialv2/includes/headline/categories.part.html" %}
         {% include "tutorialv2/includes/headline/goals.part.html" with goals=publishablecontent.goals.all %}
