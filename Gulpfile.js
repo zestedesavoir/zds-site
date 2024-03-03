@@ -117,7 +117,9 @@ async function jsLint() {
   console.log(resultText)
 }
 
-// Get JS minified files from packages
+/* Get JS minified files from packages
+ * Get also sourcemaps for all JS files, required by Django's ManifestStaticFilesStorage since 4.1 (see
+ * https://docs.djangoproject.com/fr/4.2/ref/contrib/staticfiles/#manifeststaticfilesstorage) */
 function jsPackages() {
   return gulp.src([
     require.resolve('jquery/dist/jquery.min.js'),
@@ -126,8 +128,8 @@ function jsPackages() {
     require.resolve('chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js'),
     require.resolve('chart.js/dist/chart.min.js'),
     require.resolve('easymde/dist/easymde.min.js')
-  ])
-    .pipe(gulp.dest('dist/js/'))
+  ], { sourcemaps: true })
+    .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }))
 }
 
 // Generates JS for the website
