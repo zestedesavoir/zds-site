@@ -14,17 +14,15 @@ from django.forms import (
     BooleanField,
     HiddenInput,
 )
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views import View
-from django.views.generic import TemplateView
 from django.views.generic.edit import BaseFormView
 
 from zds.tutorialv2 import signals
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.goals import Goal
 from zds.utils import get_current_user
 from zds.utils.paginator import ZdSPagingListView
