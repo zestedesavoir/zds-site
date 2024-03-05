@@ -23,6 +23,7 @@ from zds.member.utils import get_bot_account
 from zds.tutorialv2.forms import (
     ContentForm,
     FormWithTitle,
+    EditContentForm,
 )
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
@@ -133,16 +134,13 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = "tutorialv2/edit/content.html"
     model = PublishableContent
-    form_class = ContentForm
+    form_class = EditContentForm
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
         initial = super().get_initial()
         versioned = self.versioned_object
 
-        initial["title"] = versioned.title
-        initial["description"] = versioned.description
-        initial["type"] = versioned.type
         initial["introduction"] = versioned.get_introduction()
         initial["conclusion"] = versioned.get_conclusion()
         initial["source"] = versioned.source
@@ -181,9 +179,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)
-        title_is_changed = publishable.title != form.cleaned_data["title"]
-        publishable.title = form.cleaned_data["title"]
-        publishable.description = form.cleaned_data["description"]
         publishable.source = form.cleaned_data["source"]
 
         publishable.update_date = datetime.now()
@@ -206,19 +201,17 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             img.pubdate = datetime.now()
             publishable.image = img
 
-        publishable.save(force_slug_update=title_is_changed)
-        logger.debug("content %s updated, slug is %s", publishable.pk, publishable.slug)
-        # now, update the versioned information
-        versioned.description = form.cleaned_data["description"]
+        publishable.save()
 
+        # now, update the versioned information
         sha = versioned.repo_update_top_container(
-            form.cleaned_data["title"],
+            publishable.title,
             publishable.slug,
             form.cleaned_data["introduction"],
             form.cleaned_data["conclusion"],
             form.cleaned_data["msg_commit"],
         )
-        logger.debug("slug consistency after repo update repo=%s db=%s", versioned.slug, publishable.slug)
+
         # update relationships :
         publishable.sha_draft = sha
 

@@ -197,6 +197,36 @@ class ContentForm(ContainerForm):
         return cleaned_data
 
 
+class EditContentForm(ContentForm):
+    title = None
+    description = None
+    type = None
+
+    def _create_layout(self):
+        self.helper.layout = Layout(
+            IncludeEasyMDE(),
+            Field("image"),
+            Field("introduction", css_class="md-editor preview-source"),
+            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            HTML(
+                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
+                with text=form.introduction.value %}{% endif %}'
+            ),
+            Field("conclusion", css_class="md-editor preview-source"),
+            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            HTML(
+                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
+                with text=form.conclusion.value %}{% endif %}'
+            ),
+            Field("last_hash"),
+            Field("source"),
+            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
+        )
+
+        self.helper.layout.append(Field("msg_commit"))
+        self.helper.layout.append(StrictButton("Valider", type="submit"))
+
+
 class ExtractForm(FormWithTitle):
     text = forms.CharField(
         label=_("Texte"),
