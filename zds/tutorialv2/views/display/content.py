@@ -38,7 +38,7 @@ from zds.tutorialv2.models.database import (
     ContentReaction,
 )
 from zds.tutorialv2.utils import last_participation_is_old, mark_read
-from zds.tutorialv2.views.contents import EditTitleForm
+from zds.tutorialv2.views.contents import EditTitleForm, EditSubtitleForm
 from zds.tutorialv2.views.display.config import (
     ConfigForContentDraftView,
     ConfigForVersionView,
@@ -138,7 +138,7 @@ class ContentDraftView(LoginRequiredMixin, ContentBaseView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form_edit_title"] = EditTitleForm(self.versioned_object)
-        context["form_edit_subtitle"] = EditContentLicenseForm(self.versioned_object)  # TODO
+        context["form_edit_subtitle"] = EditSubtitleForm(self.versioned_object)
         context["display_config"] = ConfigForContentDraftView(self.request.user, self.object, self.versioned_object)
         return context
 

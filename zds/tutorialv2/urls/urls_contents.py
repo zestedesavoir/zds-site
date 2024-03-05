@@ -6,6 +6,7 @@ from zds.tutorialv2.views.contents import (
     EditContent,
     DeleteContent,
     EditTitle,
+    EditSubtitle,
 )
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
@@ -212,8 +213,9 @@ urlpatterns = (
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
         path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorFromContent.as_view(), name="remove-author"),
-        # Modify the title
+        # Modify the title and subtitle
         path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
+        path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
         # Modify the license
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         # Modify the tags

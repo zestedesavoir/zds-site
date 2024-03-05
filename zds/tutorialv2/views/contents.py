@@ -8,6 +8,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.forms import forms, CharField
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -267,7 +268,7 @@ class EditTitle(LoginRequiredMixin, SingleContentFormViewMixin):
         versioned = self.versioned_object
 
         self.update_title_in_database(publishable, form.cleaned_data["title"])
-        sha = self.update_title_in_repository(publishable, self.versioned_object, form.cleaned_data["title"])
+        sha = self.update_title_in_repository(publishable, versioned, form.cleaned_data["title"])
         self.update_sha_draft(publishable, sha)
 
         messages.success(self.request, self.success_message)
@@ -292,6 +293,78 @@ class EditTitle(LoginRequiredMixin, SingleContentFormViewMixin):
             versioned_content.get_introduction(),
             versioned_content.get_conclusion(),
             f"Nouveau titre ({title})",
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
+
+
+class EditSubtitleForm(forms.Form):
+    subtitle = CharField(
+        label=_("Sous-titre"),
+        max_length=PublishableContent._meta.get_field("description").max_length,
+        required=False,
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        kwargs["initial"] = {"subtitle": versioned_content.description}
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_id = "edit-subtitle"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_action = reverse("content:edit-subtitle", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            Field("subtitle"),
+            StrictButton("Modifier", type="submit"),
+        )
+        self.previous_page_url = reverse(
+            "content:view", kwargs={"pk": versioned_content.pk, "slug": versioned_content.slug}
+        )
+
+
+class EditSubtitle(LoginRequiredMixin, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditSubtitleForm
+    success_message = _("Le sous-titre de la publication a bien été changé.")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+
+        self.update_subtitle_in_database(publishable, form.cleaned_data["subtitle"])
+        sha = self.update_subtitle_in_repository(publishable, versioned, form.cleaned_data["subtitle"])
+        self.update_sha_draft(publishable, sha)
+
+        messages.success(self.request, self.success_message)
+
+        return redirect(form.previous_page_url)
+
+    @staticmethod
+    def update_subtitle_in_database(publishable_content, subtitle):
+        publishable_content.description = subtitle
+        publishable_content.save(force_update=True)
+
+    @staticmethod
+    def update_subtitle_in_repository(publishable_content, versioned_content, subtitle):
+        versioned_content.description = subtitle
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            versioned_content.get_introduction(),
+            versioned_content.get_conclusion(),
+            f"Nouveau sous-titre ({subtitle})",
         )
         return sha
 
