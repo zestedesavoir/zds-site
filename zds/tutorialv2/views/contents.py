@@ -261,7 +261,11 @@ class EditTitle(LoginRequiredMixin, SingleContentFormViewMixin):
         versioned = self.versioned_object
 
         self.update_title_in_database(publishable, form.cleaned_data["title"])
+        logger.debug("content %s updated, slug is %s", publishable.pk, publishable.slug)
+
         sha = self.update_title_in_repository(publishable, versioned, form.cleaned_data["title"])
+        logger.debug("slug consistency after repo update repo=%s db=%s", versioned.slug, publishable.slug)
+
         self.update_sha_draft(publishable, sha)
 
         messages.success(self.request, self.success_message)
