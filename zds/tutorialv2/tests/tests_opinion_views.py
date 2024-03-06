@@ -123,20 +123,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # Change the title:
-        random = "Whatever, we don't care about the details"
         result = self.client.post(
-            reverse("content:edit", args=[opinion.pk, opinion.slug]),
-            {
-                "title": "{} ({})".format(opinion.title, "modified"),
-                "description": random,
-                "introduction": random,
-                "conclusion": random,
-                "type": "OPINION",
-                "licence": opinion.licence.pk,
-                "subcategory": opinion.subcategory.first().pk,
-                "last_hash": opinion.load_version().compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[opinion.pk]),
+            {"title": f"{opinion.title} (modified)"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
