@@ -303,8 +303,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         result = self.client.post(
             reverse("content:edit", args=[pk, slug]),
             {
-                "title": random,
-                "description": random,
                 "introduction": random,
                 "conclusion": random,
                 "type": "TUTORIAL",
@@ -319,17 +317,11 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 2)  # new icon is uploaded
 
         tuto = PublishableContent.objects.get(pk=pk)
-        self.assertEqual(tuto.title, random)
-        self.assertEqual(tuto.description, random)
         self.assertEqual(tuto.licence, None)
         versioned = tuto.load_version()
         self.assertEqual(versioned.get_introduction(), random)
         self.assertEqual(versioned.get_conclusion(), random)
-        self.assertEqual(versioned.description, random)
         self.assertEqual(versioned.licence, None)
-        self.assertNotEqual(versioned.slug, slug)
-
-        slug = tuto.slug  # make the title change also change the slug !!
 
         # preview container
         result = self.client.post(
