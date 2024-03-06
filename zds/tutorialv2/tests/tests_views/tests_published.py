@@ -1188,21 +1188,10 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # change title
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
         old_slug = tuto.slug
-        random = "Whatever, we don't care about the details"
 
         result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": "{} ({})".format(self.tuto.title, "modified"),  # will change slug
-                "description": random,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": self.tuto.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": tuto.load_version().compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": "{self.tuto.title} (modified)"},  # will change the slug
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
