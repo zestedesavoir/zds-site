@@ -184,7 +184,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
                 "slug": slugify(publishable.title),
                 "pubdate": datetime.now(),
             }
-            gallery, _ = Gallery.objects.get_or_create(pk=publishable.gallery.pk, defaults=gallery_defaults)
+            gallery, _created = Gallery.objects.get_or_create(pk=publishable.gallery.pk, defaults=gallery_defaults)
             mixin = ImageCreateMixin()
             mixin.gallery = gallery
             try:
