@@ -41,15 +41,6 @@ from zds.tutorialv2.models import CONTENT_TYPE_LIST
 logger = logging.getLogger(__name__)
 
 
-def create_content_gallery(form):
-    gal = Gallery()
-    gal.title = form.cleaned_data["title"]
-    gal.slug = slugify(form.cleaned_data["title"])
-    gal.pubdate = datetime.now()
-    gal.save()
-    return gal
-
-
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
     """
     Handle content creation. Since v22 a licence must be explicitly selected
@@ -87,20 +78,23 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.source = form.cleaned_data["source"]
         self.content.creation_date = datetime.now()
 
-        # Creating the gallery
-        gal = create_content_gallery(form)
+        gallery = Gallery.objects.create(
+            title=self.content.title,
+            slug=slugify(self.content.title),
+            pubdate=datetime.now(),
+        )
 
         # create image:
         if "image" in self.request.FILES:
             mixin = ImageCreateMixin()
-            mixin.gallery = gal
+            mixin.gallery = gallery
             try:
                 img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
             except NotAnImage:
                 form.add_error("image", _("Image invalide"))
                 return super().form_invalid(form)
             img.pubdate = datetime.now()
-        self.content.gallery = gal
+        self.content.gallery = gallery
         self.content.save()
         if "image" in self.request.FILES:
             self.content.image = img
@@ -183,16 +177,16 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         publishable.update_date = datetime.now()
 
-        # update gallery and image:
-        gal = Gallery.objects.filter(pk=publishable.gallery.pk)
-        gal.update(title=publishable.title)
-        gal.update(slug=slugify(publishable.title))
-        gal.update(update=datetime.now())
-
+        # update image
         if "image" in self.request.FILES:
+            gallery_defaults = {
+                "title": publishable.title,
+                "slug": slugify(publishable.title),
+                "pubdate": datetime.now(),
+            }
+            gallery, _ = Gallery.objects.get_or_create(pk=publishable.gallery.pk, defaults=gallery_defaults)
             mixin = ImageCreateMixin()
-            # use .first because we need an instance of Gallery, not a queryset
-            mixin.gallery = gal.first() or create_content_gallery(form)
+            mixin.gallery = gallery
             try:
                 img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
             except NotAnImage:
@@ -259,13 +253,15 @@ class EditTitle(LoginRequiredMixin, SingleContentFormViewMixin):
     def form_valid(self, form):
         publishable = self.object
         versioned = self.versioned_object
+        title = form.cleaned_data["title"]
 
-        self.update_title_in_database(publishable, form.cleaned_data["title"])
+        self.update_title_in_database(publishable, title)
         logger.debug("content %s updated, slug is %s", publishable.pk, publishable.slug)
 
-        sha = self.update_title_in_repository(publishable, versioned, form.cleaned_data["title"])
+        sha = self.update_title_in_repository(publishable, versioned, title)
         logger.debug("slug consistency after repo update repo=%s db=%s", versioned.slug, publishable.slug)
 
+        self.update_gallery(publishable)
         self.update_sha_draft(publishable, sha)
 
         messages.success(self.request, self.success_message)
@@ -297,6 +293,14 @@ class EditTitle(LoginRequiredMixin, SingleContentFormViewMixin):
     def update_sha_draft(publishable_content, sha):
         publishable_content.sha_draft = sha
         publishable_content.save()
+
+    @staticmethod
+    def update_gallery(publishable_content):
+        gallery = Gallery.objects.filter(pk=publishable_content.gallery.pk).first()
+        gallery.title = publishable_content.title
+        gallery.slug = slugify(publishable_content.title)
+        gallery.update = datetime.now()
+        gallery.save()
 
 
 class EditSubtitleForm(forms.Form):
