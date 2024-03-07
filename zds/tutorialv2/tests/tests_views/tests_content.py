@@ -624,7 +624,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_author)
 
         tuto = PublishableContent.objects.get(pk=self.tuto.pk)
-        versioned = tuto.load_version()
 
         # check access
         result = self.client.get(reverse("content:view", args=[tuto.pk, tuto.slug]), follow=False)
@@ -656,21 +655,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         old_slug_tuto = tuto.slug
         version_1 = tuto.sha_draft  # 'version 1' is the one before any change
 
-        new_licence = LicenceFactory()
-        random = "Pâques, c'est bientôt?"
-
         result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": random,
-                "description": random,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": new_licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": "Pâques, c'est bientôt?"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -736,6 +723,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # edit container:
         old_slug_part = self.part1.slug
         part1 = tuto.load_version().children[0]
+        random = "Un, deux, trois, je vais dans les bois"
         result = self.client.post(
             reverse(
                 "content:edit-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": self.part1.slug}
