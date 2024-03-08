@@ -1,6 +1,9 @@
 import logging
 from datetime import datetime
 
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -18,6 +21,7 @@ from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.tutorialv2.forms import (
     ContentForm,
+    FormWithTitle,
 )
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
@@ -225,6 +229,76 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])
         return super().form_valid(form)
+
+
+class EditTitleForm(FormWithTitle):
+    def __init__(self, versioned_content, *args, **kwargs):
+        kwargs["initial"] = {"title": versioned_content.title}
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_id = "edit-title"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_action = reverse("content:edit-title", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            Field("title"),
+            StrictButton("Modifier", type="submit"),
+        )
+        self.previous_page_url = reverse(
+            "content:view", kwargs={"pk": versioned_content.pk, "slug": versioned_content.slug}
+        )
+
+
+class EditTitle(LoginRequiredMixin, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditTitleForm
+    success_message = _("Le titre de la publication a bien été changé.")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+
+        self.update_title_in_database(publishable, form.cleaned_data["title"])
+        sha = self.update_title_in_repository(publishable, self.versioned_object, form.cleaned_data["title"])
+        self.update_sha_draft(publishable, sha)
+
+        messages.success(self.request, self.success_message)
+
+        # A title update usually also changes the slug
+        form.previous_page_url = reverse("content:view", kwargs={"pk": versioned.pk, "slug": versioned.slug})
+
+        return redirect(form.previous_page_url)
+
+    @staticmethod
+    def update_title_in_database(publishable_content, title):
+        title_has_changed = publishable_content.title != title
+        publishable_content.title = title
+        publishable_content.save(force_slug_update=title_has_changed, force_update=True)
+
+    @staticmethod
+    def update_title_in_repository(publishable_content, versioned_content, title):
+        versioned_content.title = title
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            versioned_content.get_introduction(),
+            versioned_content.get_conclusion(),
+            f"Nouveau titre ({title})",
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
 
 
 class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):

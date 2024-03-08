@@ -22,6 +22,8 @@ class FormWithTitle(forms.Form):
         label=_("Titre"), max_length=PublishableContent._meta.get_field("title").max_length, required=False
     )
 
+    error_messages = {"bad_slug": _("Le titre « {} » n'est pas autorisé, car son slug est invalide !")}
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -33,10 +35,8 @@ class FormWithTitle(forms.Form):
 
         try:
             slugify_raise_on_invalid(title)
-        except InvalidSlugError as e:
-            self._errors["title"] = self.error_class(
-                [_("Ce titre n'est pas autorisé, son slug est invalide {} !").format(e)]
-            )
+        except InvalidSlugError:
+            self._errors["title"] = self.error_class([self.error_messages["bad_slug"].format(title)])
 
         return cleaned_data
 
