@@ -1,7 +1,13 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.contents import (
+    CreateContent,
+    EditContent,
+    EditContentLicense,
+    DeleteContent,
+    EditTitle,
+)
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
@@ -205,6 +211,8 @@ urlpatterns = (
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
         path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorFromContent.as_view(), name="remove-author"),
+        # Modify the title
+        path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
         # Modify the license
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         # Modify the tags
