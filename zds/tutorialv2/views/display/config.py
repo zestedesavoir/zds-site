@@ -164,6 +164,9 @@ class DraftActionsState:
     def show_license_edit(self) -> bool:
         return self.enabled and self.is_allowed and not self.is_container
 
+    def show_title_edit(self) -> bool:
+        return self.enabled and self.is_allowed and not self.is_container
+
     def show_authors_management(self) -> bool:
         return self.enabled and self.is_allowed
 
