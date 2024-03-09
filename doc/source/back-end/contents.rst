@@ -294,10 +294,9 @@ est configurable selon trois niveaux à affecter au paramètre ``ZDS_APP['conten
 **Ajouter un nouveau format d'export**
 
 Les fichiers téléchargeables générés le sont à partir d'un registre de créateur.
-Par défaut le registre contient les 3 formats pandoc HTML, PDF et EPUB.
+Par défaut le registre contient les 3 formats HTML, PDF et EPUB.
 
 Vous pouvez définir votre propre formateur qui devra alors hériter de la classe ``zds.tutorialv2.publication_utils.Publicator`` et implémenter la méthode ``publish``.
-Si vous désirez vous passer de pandoc, il vous suffira d'appeler ``map(PublicatorRegistry.unregister, ["pdf", "epub", "html"])``.
 Vous pouvez aussi simplement surcharger chacun des ``Publicator`` par défaut en en enregistrant un nouveau sous le même nom.
 
 L'entraide
@@ -490,7 +489,7 @@ La publication se passe comme suit :
     * Si celui-ci contient des extraits, ils sont tous rassemblés dans un seul fichier HTML, avec l'introduction et la conclusion ;
     * Dans le cas contraire, l'introduction et la conclusion sont placées dans des fichiers séparés, et les champs correspondants dans le *manifest* sont mis à jour.
 3. Le *manifest* correspondant à la version de validation est copié. Il sera nécessaire afin de valider les URLs et générer le sommaire. Néanmoins, les informations inutiles sont enlevées (champ ``text`` des extraits, champs ``introduction`` et ``conclusion`` des conteneurs comportant des extraits), une fois encore pour gagner du temps ;
-4. L'exportation vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `pandoc (en) <http://pandoc.org/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images qu'utilise le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
+4. L'exportation vers les autres formats est ensuite effectué (PDF, EPUB, ...) en utilisant `ZMarkdown <https://github.com/zestedesavoir/zmarkdown/>`__. Cette étape peut être longue si le contenu possède une taille importante. Il est également important de mentionner que pendant cette étape, l'ensemble des images qu'utilise le contenu est récupéré et que si ce n'est pas possible, une image par défaut est employée à la place, afin d'éviter les erreurs ;
 5. Finalement, si toutes les étapes précédentes se sont bien déroulées, le dossier temporaire est déplacé à la place de celui de l'ancienne version publiée. Un objet ``PublishedContent`` est alors créé (ou mis à jour si le contenu avait déjà été publié par le passé), contenant les informations nécessaire à l'affichage dans la liste des contenus publiés. Le ``sha_public`` est mis à jour dans la base de données et l'objet ``Validation`` est également changé.
 
 Consultation d'un contenu publié
@@ -629,19 +628,9 @@ Ces paramètres sont à surcharger dans le dictionnaire ``ZDS_APP['opinions']``:
 Statistiques
 ============
 
-Pour permettre aux auteurs d'avoir des statistiques sur leurs contenus, il faut créer un fichier ``api_analytics_secrets.json`` contenant les identifiants nécessaires pour se connecter à l'API de Google Analytics. Voici un gabarit pour ce fichier :
+Les statistiques du site sont gérées par un serveur `Matomo
+<https://matomo.org/>`_. La collecte des statistiques est faite avec le
+middleware ``zds.middlewares.matomomiddleware.MatomoMiddleware``.
 
-.. sourcecode:: json
-
-    {
-        "type": "service_account",
-        "project_id": "fake-project_id",
-        "private_key_id": "fake-private_key_id",
-        "private_key": "fake_private_key",
-        "client_email": "fake-client_email",
-        "client_id": "fake-client_id",
-        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-        "token_uri": "https://accounts.google.com/o/oauth2/token",
-        "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-        "client_x509_cert_url": "fake-client_x509_cert_url"
-    }
+Chaque contenu a une page (non publique) *Statistiques* qui récupère auprès de
+Matomo et affiche les statistiques d'affichage de chaque page du contenu.

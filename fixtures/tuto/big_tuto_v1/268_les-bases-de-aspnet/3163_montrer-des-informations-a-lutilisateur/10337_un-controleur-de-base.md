@@ -9,7 +9,7 @@ Visual studio possède un certain nombre de guides pour créer un contrôleur. C
 [[a]]
 |Assurez vous d'avoir créé un projet "Blog" avec le modèle `MVC` et l'authentification par défaut.
 
-Pour créer un contrôleur, nous allons cliquer droit sur le dossier `Controllers` puis `ajouter`->`Contrôleur`.  
+Pour créer un contrôleur, nous allons cliquer droit sur le dossier `Controllers` puis `ajouter`->`Contrôleur`.
 Là : sélectionnez "Contrôleur Vide", nommez-le `ArticleController`.
 
 ![Ajout d'un nouveau contrôleur](/media/galleries/304/6ade8186-e234-4e09-88b9-914914c5f070.png.960x960_q85.png)
@@ -29,7 +29,7 @@ Nous verrons plus tard comment utiliser de manière avancée Razor. Pour l'insta
 
 # Page statique
 
-Les pages statiques ne seront pas les pages les plus nombreuses de votre application, néanmoins, elles peuvent exister. Comme elles sont statiques, une bonne pratique consiste à indiquer au serveur qu'il ne doit pas refaire tout le déroulement de la requête mais aller tout de suite chercher la page déjà créée et la renvoyer à l'utilisateur.  
+Les pages statiques ne seront pas les pages les plus nombreuses de votre application, néanmoins, elles peuvent exister. Comme elles sont statiques, une bonne pratique consiste à indiquer au serveur qu'il ne doit pas refaire tout le déroulement de la requête mais aller tout de suite chercher la page déjà créée et la renvoyer à l'utilisateur.
 Cela se fait grâce à un filtre appelé [OutputCache](http://msdn.microsoft.com/fr-fr/library/system.web.mvc.outputcacheattribute%28v=vs.118%29.aspx).
 
 ```csharp
@@ -56,7 +56,7 @@ Lorsque vous êtes connectés, vous allez par contre pouvoir gérer votre compte
 
 Mais le mieux, c'est que selon que vous soyez utilisateur lambda ou administrateur, vous n'aurez pas accès aux mêmes liens.
 
-->![Menu simple utilisateur](/media/galleries/304/6f7721d7-b551-40a8-9f86-3d552de5cbdb.png.960x960_q85.png) ![Menu administrateur](/media/galleries/304/317f315d-5edd-4d3c-a5bd-e3321663349f.png.960x960_q85.png)  
+->![Menu simple utilisateur](/media/galleries/304/6f7721d7-b551-40a8-9f86-3d552de5cbdb.png.960x960_q85.png) ![Menu administrateur](/media/galleries/304/317f315d-5edd-4d3c-a5bd-e3321663349f.png.960x960_q85.png)
 Figure: Les menus utilisateurs et administrateurs sont différents<-
 
 Vous pouvez -comme nous l'avons vu dans notre `Hello Word`- ajouter des données *dynamiquement* de deux manières :

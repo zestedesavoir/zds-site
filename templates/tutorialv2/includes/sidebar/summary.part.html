@@ -1,0 +1,78 @@
+{% load emarkdown %}
+{% load profile %}
+{% load roman %}
+{% load i18n %}
+
+
+<div class="mobile-menu-bloc {% if not content.has_extracts %}accordeon{% endif %}" data-title="Sommaire du contenu">
+    <h3>{% trans "Sommaire" %}</h3>
+    {% if not content.children %}
+        <ul>
+            <li class="inactive">
+                <span class="disabled mobile-menu-link">{% trans "Ce conteneur est vide" %}</span>
+            </li>
+        </ul>
+    {% endif %}
+
+    {% if content.has_extracts %} {#  Mini-tutorial or article #}
+        <ol>
+            {% for child in content.children %}
+                <li>
+                    <a data-num="{{ child.position_in_parent }}"
+                       href="#{{ child.position_in_parent }}-{{ child.slug }}"
+                       class="mobile-menu-link mobile-menu-sublink"
+                    >
+                        {{ child.title }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ol>
+    {% else %}
+        {% for child in content.children %}
+             <h4 data-num="{{ child.position_in_parent|roman }}"
+                 {% if not child.is_validable %} class="not-ready" {% endif %}
+             >
+                <a class="mobile-menu-link" href="{{ base_url }}{{ child.get_url_path }}">
+                    {{ child.title }}
+                </a>
+            </h4>
+            {% if child.has_extracts %}
+               <ul {% if current_container.long_slug == child.long_slug %}class="unfolded"{% endif %}>
+                    {% for extract in child.children %}
+                        <li>
+                            <a href="{{ base_url }}{{ extract.get_url_path }}">
+                                {{ extract.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+               </ul>
+            {% else %}
+                <ol>
+                    {% for subchild in child.children %}
+                        <li class="{% if current_container.long_slug == subchild.long_slug %}current{% endif %}
+                            {% if not subchild.is_validable %} not-ready{% endif %}"
+                        >
+                            <a data-num="{{ subchild.position_in_parent }}"
+                                href="{{ base_url }}{{ subchild.get_url_path }}"
+                                class="mobile-menu-link mobile-menu-sublink {% if current_container.long_slug == subchild.long_slug %}unread{% endif %}"
+                            >
+                                {{ subchild.title }}
+                            </a>
+                            {% if current_container.long_slug == subchild.long_slug %}
+                                <ol class="mobile-menu-bloc mobile-all-links" data-title="Sommaire du chapitre">
+                                    {% for extract in subchild.children %}
+                                        <li {% if not extract.is_validable %} class="not-ready" {% endif %}>
+                                            <a href="{{ base_url }}{{ extract.get_url_path }}">
+                                                {{ extract.title }}
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
+        {% endfor %}
+    {%  endif %}
+</div>

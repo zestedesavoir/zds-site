@@ -1873,7 +1873,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_opinion_link_is_not_related_to_the_author(self):
         """
         Test that the next and previous link in the opinion page take all the opinions
-        into accounts and not only the ones of the author.
+        into account and not only the ones of the author.
         """
 
         opinion_not_picked = PublishedContentFactory(author_list=[self.user_author], type="OPINION")

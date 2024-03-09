@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "zmarkdown": "11.0.2"
+    "zmarkdown": "11.4.0"
   },
   "engines": {
     "node": ">=12.0.0"

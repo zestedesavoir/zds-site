@@ -1,0 +1,78 @@
+{% load i18n %}
+{% load pluralize_fr %}
+{% load captureas %}
+{% load set %}
+
+<h3 class="comments-title" id="comments">
+    {% if content.get_note_count > 0 %}
+        <span itemprop="commentCount">
+            {{ content.get_note_count }}
+        </span>
+        {% trans "commentaire" %}{{ content.get_note_count|pluralize_fr }}
+    {% else %}
+        {% trans "Aucun commentaire" %}
+    {% endif %}
+</h3>
+
+
+{% include "misc/paginator.html" with position="top" topic=content is_online=True anchor="comments" %}
+
+{% for message in reactions %}
+
+    {% captureas edit_link %}
+        {% url "content:update-reaction" %}?message={{ message.pk }}&amp;pk={{ content.pk }}
+    {% endcaptureas %}
+
+    {% captureas cite_link %}
+        {% url "content:add-reaction" %}?cite={{ message.pk }}&amp;pk={{ content.pk }}
+    {% endcaptureas %}
+
+    {% captureas karma_link %}
+        {% url "api:content:reaction-karma" message.pk %}
+    {% endcaptureas %}
+
+    {% captureas alerts_solve_link %}
+        {% url "content:resolve-reaction" %}
+    {% endcaptureas %}
+    {% captureas alert_link %}
+        {% url "content:alert-reaction" message.pk %}
+    {% endcaptureas %}
+    {% captureas hide_link %}
+        {% url "content:hide-reaction" message.pk%}
+    {% endcaptureas %}
+
+    {% captureas show_link %}
+        {% url "content:show-reaction" message.pk %}
+    {% endcaptureas %}
+
+    {% if forloop.first and page_obj.number > 1 %}
+        {% set True as is_repeated_message %}
+    {% else %}
+        {% set False as is_repeated_message %}
+    {% endif %}
+
+    {% if user == message.author or perms.tutorialv2.change_contentreaction %}
+        {% set True as can_view_history %}
+    {% else %}
+        {% set False as can_view_history %}
+    {% endif %}
+
+    {% include "misc/message.part.html" with perms_change=perms.tutorialv2.change_contentreaction topic=object %}
+{% endfor %}
+
+
+{% include "misc/paginator.html" with position="bottom" topic=content is_online=True anchor="comments" %}
+
+
+
+{% captureas form_action %}
+    {% url 'content:add-reaction' %}?pk={{ content.pk }}
+{% endcaptureas %}
+
+{% if object.last_note %}
+    {% captureas last_note_pk %}
+        {{ object.last_note.pk }}
+    {% endcaptureas %}
+{% endif %}
+
+{% include "misc/message_form.html" with member=user topic=content is_antispam=is_antispam %}

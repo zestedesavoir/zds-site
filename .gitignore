@@ -13,6 +13,7 @@ base.db
 /articles-data
 /zds/_version.py
 /geodata
+/errors/css
 
 /tutoriels-private-test
 /tutoriels-public-test
@@ -20,9 +21,6 @@ base.db
 /articles-data-test
 /contents-private-test
 /contents-public-test
-
-api_analytics_secrets.json
-.ga-api-cache/
 
 /apache-solr
 

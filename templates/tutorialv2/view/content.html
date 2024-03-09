@@ -7,6 +7,22 @@
 {% load feminize %}
 {% load captureas %}
 {% load pluralize_fr %}
+{% load set %}
+{% load date %}
+
+
+{% if display_config.online_config.show_dcmi_card %}
+    {% block DCMI_cards %}
+        {% include "tutorialv2/includes/meta/dcmi_cards.part.html" with db_content=db_content content=content is_online=db_content.public_version %}
+    {% endblock %}
+{% endif %}
+
+
+{% if display_config.show_meta_image %}
+    {% block meta_image %}{% spaceless %}
+        {% include "tutorialv2/includes/meta/image_illu.part.html" with content=content %}
+    {% endspaceless %}{% endblock %}
+{% endif %}
 
 
 {% block title %}
@@ -14,832 +30,210 @@
 {% endblock %}
 
 
+{% if display_config.online_config.show_meta_description %}
+    {% block description %}
+        {% if content.description %}
+            {{ content.description }}
+        {% else %}
+            Site et association de partage de connaissances animé par sa communauté. Vous y trouverez des tutoriels et des articles de tous niveaux et des forums.
+        {% endif %}
+    {% endblock %}
+{% endif %}
+
+
+{% if display_config.online_config.show_head_extra %}
+    {% block head_extra %}
+        {{ block.super }}
+        {% if content.converted_to.get_absolute_url_online %}
+            <link rel="canonical" href="{{ content.converted_to.get_absolute_url_online }}" />
+        {% endif %}
+    {% endblock %}
+{% endif %}
+
+
+{% if display_config.online_config.show_opengraph %}
+    {% block opengraph %}
+        {% include "tutorialv2/includes/meta/opengraph.part.html" %}
+    {% endblock %}
+{% endif %}
+
+
 {% block breadcrumb %}
     <li>{{ content.title }}</li>
 {% endblock %}
 
 
-
 {% block headline %}
-    {% if is_staff or can_edit %}
-        {% if content.licence %}
-          <div class="editable-element license">
-            <p>{{ content.licence }}</p>
-            <a href="#edit-license" class="open-modal edit-button" title="{% trans "Modifier la licence" %}">
-              <span class="visuallyhidden">{% trans "Modifier la licence" %}</span>
-            </a>
-          </div>
-        {% else %}
-            <p class="license">
-                <a href="#edit-license" class="open-modal">Choisissez la licence de votre publication !</a>
-            </p>
-        {% endif %}
+    {% include "tutorialv2/includes/headline/header.part.html" with show_thumbnail=True content=content title=content.title subtitle=content.description %}
 
-        {% crispy form_edit_license %}
-    {% elif content.licence %}
-        <span class="license">{{ content.licence }}</span>
+    {% include "tutorialv2/includes/headline/validation_info.part.html" with state=display_config.validation_info %}
+
+    {% include "tutorialv2/includes/headline/beta_info.part.html" with state=display_config.beta_info beta_topic=beta_topic %}
+
+    {% if display_config.info_config.show_help_info %}
+        {% include "tutorialv2/includes/headline/help_info.part.html" %}
     {% endif %}
 
-    <h1 {% if content.image %}class="illu"{% endif %}>
-        {% if content.image %}
-            <img src="{{ content.image.physical.tutorial_illu.url }}" alt="">
-        {% endif %}
-        {{ content.title }}
-    </h1>
-
-    {% if content.description %}
-        <h2 class="subtitle">
-            {{ content.description }}
-        </h2>
+    {% if display_config.info_config.show_opinion_moderation_warning %}
+        {% include "tutorialv2/includes/headline/opinion_moderation_warning.part.html" %}
     {% endif %}
 
-    {% if can_edit %}
-        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content add_author=True online=False %}
-    {% else %}
-        {% include 'tutorialv2/includes/tags_authors.part.html' with content=content online=False %}
+    {% if display_config.online_config.show_obsolescence_warning %}
+        {% include "tutorialv2/includes/headline/obsolescence_warning.part.html" with is_obsolete=is_obsolete %}
     {% endif %}
 
-    {% if is_staff or can_edit %}
-        {% if content.in_validation %}
-            {% if validation.version == content.current_version %}
-                {% if validation.is_pending %}
-                    <p class="content-wrapper alert-box alert">
-                        {% trans "Ce contenu est en attente d’un validateur." %}
-                    </p>
-                {% elif validation.is_pending_valid %}
-                    <p class="content-wrapper alert-box info">
-                        {% trans "Ce contenu est en cours de validation par" %}
-                        {% include "misc/member_item.part.html" with member=validation.validator %}
-                    </p>
-                {% endif %}
-                {% if validation.comment_authors %}
-                    <div class="content-wrapper comment-author">
-                        <p>
-                            {% trans "Le message suivant a été laissé à destination des validateurs" %} :
-                        </p>
-
-                        <blockquote>
-                            {{ validation.comment_authors|emarkdown }}
-                        </blockquote>
-                    </div>
-                {% endif %}
-            {% else %}
-                {% if validation.is_pending %}
-                    <p class="content-wrapper alert-box alert">
-                        <a href="{{ object.get_absolute_url }}?version={{ validation.version }}">
-                            {% trans "Une autre version de ce contenu" %}
-                        </a>
-                        {% trans "est en attente d’un validateur" %}
-                    </p>
-                {% elif validation.is_pending_valid %}
-                    <p class="content-wrapper alert-box info">
-                        <a href="{{ content.get_absolute_url }}?version={{ validation.version }}">
-                            {% trans "Une autre version de ce contenu" %}
-                        </a>
-                        {% trans "est en cours de validation par" %}
-                        {% include "misc/member_item.part.html" with member=validation.validator %}
-                    </p>
-                {% endif %}
-            {% endif %}
-        {% endif %}
-    {% endif %}
-
-    {% if content.is_beta %}
-        <div class="content-wrapper">
-            <div class="alert-box warning">
-                {% blocktrans %}
-                    Cette version est en <strong>"BÊTA"</strong> !
-                {% endblocktrans %}
-
-                {% if beta_topic %}
-                    {% blocktrans with url=beta_topic.get_absolute_url %}
-                        Vous pouvez y réagir sur <a href="{{ url }}">ce sujet</a>.
-                    {% endblocktrans %}
-                {% endif %}
-            </div>
+    {% if display_config.alerts_config.show_alerts %}
+        <div class="opinion-alerts">
+            {% include "misc/alerts.part.html" with alerts=alerts alerts_solve_url='content:resolve-content' %}
         </div>
-
-        {% if content_helps %}
-            <div class="content-wrapper">
-                <div class="alert-box info">
-                    {% if content.authors.count > 1 %}
-                        {% trans "Les auteurs de ce contenu recherchent" %}
-                    {% else %}
-                        {% trans "L’auteur de ce contenu recherche" %}
-                    {% endif %}
-
-                    {% for help in content_helps %}{% if not forloop.first %}{% if forloop.last %}{% trans ' et ' %}{% else %}{% trans ', ' %}{% endif %}{% endif %}un {{ help.title|lower }}{% if forloop.last %}{% trans '.' %}{% endif %}{% endfor %}
-
-                    {% if not can_edit %}
-                        {% blocktrans with plural=content.authors.count|pluralize_fr %}
-                            N’hésitez pas à <a href="{{ pm_link }}">le{{ plural }} contacter par MP</a> pour proposer votre aide !
-                        {% endblocktrans %}
-                    {% endif %}
-                </div>
-            </div>
-        {% endif %}
     {% endif %}
 
-    {% if not can_publish and content.is_opinion %}
-        <div class="content-wrapper">
-            <div class="alert-box warning">
-                {% trans "Ce contenu a été modéré. Il ne peut pas faire l'objet d'une nouvelle publication." %}
-            </div>
-        </div>
+    {% if display_config.info_config.show_opinion_promotion %}
+        {% include "tutorialv2/includes/headline/opinion_promotion_info.part.html" with content=content is_staff=is_staff %}
     {% endif %}
 {% endblock %}
 
 
 {% block content %}
-    {% if content.introduction and content.get_introduction != "" %}
-        {{ content.get_introduction|emarkdown:is_js }}
-    {% elif not content.is_beta %}
-        <div class="ico-after warning">
-            <p>
-                {% trans "Il n’y a pas d’introduction." %}
-                {% if can_add_something %}
-                    {% trans "Vous pouvez " %}<a href="{% url "content:edit" content.pk content.slug %}">{% trans "en ajouter une" %}</a>.
-                {% endif %}
-            </p>
-        </div>
+    {% if display_config.online_config.show_content_pager %}
+        {% include "tutorialv2/includes/content/content_pager.part.html" with content=content %}
     {% endif %}
 
-    {% if content.has_extracts or content.can_add_extract %}
-        <ul>
-            {% for extract in content.children %}
-                <li>
-                    <a href="#{{ extract.position_in_parent }}-{{ extract.slug }}">
-                        {{ extract.title }}
-                    </a>
-                </li>
-            {% endfor %}
-            {% if not content.can_add_container and content.can_add_extract and can_add_something %}
-                <li class="simple-create-button">
-                    <a class="btn btn-grey" href="{% url "content:create-extract" content.pk content.slug %}">
-                        {% trans "Ajouter une section" %}
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
+    {% if display_config.online_config.show_rendered_source %}
+        {% include "tutorialv2/includes/content/online_content.part.html" %}
+    {% else %}
+        {% include "tutorialv2/includes/content/content.part.html" %}
     {% endif %}
 
-    {% for child in content.children %}
-        {% include "tutorialv2/includes/child.part.html" with child=child %}
-    {% empty %}
-        {% if content.can_add_extract and content.can_add_container and can_add_something %}
-            <div class="ico-after warning">
-                <p>
-                    {% trans "Ce contenu est actuellement vide." %} {% trans "Vous pouvez :" %}
-                </p>
-                <ul>
-                    <li>
-                        <a href="{% url "content:create-container" content.pk content.slug %}">{% trans "Ajouter une partie" %}</a>
-                        {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %}
-                    </li>
-                    <li>
-                        <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
-                        {% trans " pour adopter le format mini-tuto composé uniquement de sections." %}
-                    </li>
-                </ul>
-            </div>
-        {% elif not can_add_something or not content.can_add_extract and not content.can_add_container %}
-            <div class="ico-after warning">
-                <p>
-                    {% trans "Ce contenu est actuellement vide." %}
-                </p>
-            </div>
-        {% endif %}
-    {% endfor %}
-    {% if can_add_something %}
-        {% if content.can_add_container and not content.can_add_extract %}
-            <h2>
-                <a class="force-blue" href="{% url "content:create-container" content.pk content.slug %}">
-                    {% trans "Ajouter une nouvelle partie" %}
-                </a>
-                <div class="actions-title">
-                    <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more btn btn-grey">
-                        {% trans "Ajouter" %}
-                    </a>
-                </div>
-            </h2>
-            <div class="ico-after information">
-                <p>{% trans "Cette partie n'est pas encore créée. Vous devez la créer avant de pouvoir y ajouter un élément." %}</p>
-            </div>
-        {% endif %}
-        {% if not content.can_add_container and content.can_add_extract %}
-            <h2>
-                <a class="force-blue" href="{% url "content:create-extract" content.pk content.slug %}">
-                    {% trans "Ajouter une section" %}
-                </a>
-                <div class="actions-title">
-                    <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more btn btn-grey">
-                        {% trans "Ajouter" %}
-                    </a>
-                </div>
-            </h2>
-            <div class="ico-after information">
-                <p>{% trans "Cliquer sur ajouter pour rédiger une nouvelle section." %}</p>
-            </div>
-        {% endif %}
+    {% if display_config.online_config.show_content_pager %}
+        {% include "tutorialv2/includes/content/content_pager.part.html" with content=content %}
     {% endif %}
 
-
-    <hr class="clearfix" />
-    <hr />
-
-    {% if content.conclusion and content.get_conclusion != "" %}
-        {{ content.get_conclusion|emarkdown:is_js }}
-    {% elif not content.is_beta %}
-        <div class="ico-after warning">
-            <p>
-                {% trans "Il n’y a pas de conclusion." %}
-                {% if can_add_something %}
-                    {% trans "Vous pouvez " %}<a href="{% url "content:edit" content.pk content.slug %}">{% trans "en ajouter une" %}</a>.
-                {% endif %}
-            </p>
-        </div>
+    {% if display_config.alerts_config.show_alert_button %}
+        {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
     {% endif %}
 
-    {% if content.is_beta %}
-        {% include "tutorialv2/includes/warn_typo.part.html" with content=content %}
+    {% if display_config.info_config.show_warn_typo %}
+        {% include "tutorialv2/includes/content/warn_typo.part.html" with content=content %}
     {% endif %}
 {% endblock %}
-
 
 
 {% block sidebar_new %}
-    {% if can_add_something %}
-        <a href="{% url "content:edit" content.pk content.slug %}" class="ico-after edit blue new-btn">
-            {% trans "Éditer" %}
+    {% if display_config.draft_actions.show_draft_link %}
+        <a href="{{ object.get_absolute_url }}" class="ico-after edit blue new-btn">
+            {% trans "Voir la page brouillon" %}
         </a>
-
-        {%  if content.can_add_container %}
-            <a href="{% url "content:create-container" content.pk content.slug %}" class="ico-after more blue new-btn">
-                {% trans "Ajouter " %} {{ "un"|feminize:content.get_next_level_as_string }} {{ content.get_next_level_as_string|lower }}
-            </a>
-        {% endif %}
-
-        {%  if content.can_add_extract %}
-            <a href="{% url "content:create-extract" content.pk content.slug %}" class="ico-after more blue new-btn">
-                {% trans "Ajouter une section" %}
-            </a>
-        {%  endif %}
-
-        <a href="{% url "content:import" content.pk content.slug %}" class="ico-after import blue new-btn">
-            {% trans "Importer une nouvelle version" %}
-        </a>
-    {% elif not version or version != content.sha_draft %}
-        {% if is_staff or can_edit %}
-            <a href="{{ object.get_absolute_url }}" class="ico-after arrow-right blue new-btn">
-                {% trans "Version brouillon" %}
-            </a>
-        {% endif %}
     {% endif %}
 {% endblock %}
 
 
-
 {% block sidebar_actions %}
-    {# AUTHORS #}
-    {% if can_add_something %}
-        <li>
-            <a href="#add-author" class="open-modal ico-after more blue">
-                {% trans "Ajouter un auteur" %}
-            </a>
-            <form action="{% url "content:add-author" content.pk %}" method="post" class="modal modal-flex" id="add-author">
-                {% csrf_token %}
-                <input type="text" name="username" placeholder="Pseudo de l’utilisateur à ajouter" data-autocomplete="{ 'type': 'single' }">
-                <button type="submit" name="add_author" class="btn btn-submit">
-                    {% trans "Confirmer" %}
-                </button>
-            </form>
-        </li>
-        <li>
-            <a href="#manage-authors" class="open-modal ico-after gear blue">
-                {% trans "Gérer les auteurs" %}
-            </a>
-            <form action="{% url "content:remove-author" content.pk  %}" method="post" class="modal modal-flex" id="manage-authors" data-modal-close="Fermer">
-                <table class="fullwidth">
-                    <thead>
-                        <th>{% trans "Auteur" %}</th>
-                        <th width="100px">{% trans "Actions" %}</th>
-                    </thead>
-                    <tbody>
-                        {% for member in content.authors.all %}
-                            <tr>
-                                <td>{% include "misc/member_item.part.html" %}</td>
-                                <td>
-                                    {% if content.authors.count > 1 %}
-
-                                        <button type="submit" data-value="{{ member.username }}" name="username" value="{{ member.username }}" class="modal-inner">
-                                            {% trans "Supprimer" %}
-                                        </button>
-                                    {% else %}
-                                        {% trans "Vous êtes seul" %} !
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-                {% csrf_token %}
-            </form>
-        </li>
+    {% if display_config.online_config.show_follow_actions %}
+        {% include "tutorialv2/includes/sidebar/follow_links.part.html" %}
     {% endif %}
-    {# END AUTHORS #}
-    {# CONTRIBUTORS #}
-    {% if can_add_something and formAddReviewer %}
-        <li>
-            <a href="#add-contributor" class="open-modal ico-after more blue">
-                {% trans "Ajouter un contributeur" %}
-            </a>
-            {% crispy formAddReviewer %}
-        </li>
-        <li>
-            <a href="#manage-contributions" class="open-modal ico-after gear blue">
-                {% trans "Gérer les contributeurs" %}
-            </a>
-            <form action="{% url "content:remove-contributor" content.pk  %}" method="post" class="modal modal-large" id="manage-contributions" data-modal-close="Fermer">
-                <table class="fullwidth">
-                    <thead>
-                        <th width="15%">{% trans "Membre" %}</th>
-                        <th width="15%">{% trans "Rôle" %}</th>
-                        <th>{% trans "Commentaire" %}</th>
-                        <th width="15%">{% trans "Actions" %}</th>
-                    </thead>
-                    <tbody>
-                        {% for contribution in contributions %}
-                            <tr>
-                                <td>{% include "misc/member_item.part.html" with member=contribution.user %}</td>
-                                <td>{{contribution.contribution_role.title}}</td>
-                                <td>{{contribution.comment|default:""}}</td>
-                                <td>
-                                    <button type="submit" data-value="{{ contribution.pk }}" name="pk_contribution" value="{{ contribution.pk }}" class="modal-inner">
-                                        {% trans "Supprimer" %}
-                                    </button>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr><td colspan="4">Aucun contributeur</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
 
-                {% csrf_token %}
-            </form>
-        </li>
-    {% endif %}
-    {# END CONTRIBUTORS #}
-    {% if can_edit or is_staff %}
-        {# BETA #}
-        {% if content.can_be_in_beta %}
-            {% if not content.in_beta %}
-                <li>
-                    <a href="#activ-beta" class="open-modal ico-after beta blue">
-                        {% trans "Mettre cette version en bêta" %}
-                    </a>
-                    <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="activ-beta">
-                        {% csrf_token %}
-                        <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
-                        <p>
-                            {% blocktrans with content_title=content.title %}
-                            Êtes-vous certain de vouloir <strong>activer</strong> la bêta de ce contenu
-                            "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
-                            {% endblocktrans %}
-                        </p>
-                        <button type="submit" class="btn btn-submit">
-                            {% trans "Confirmer" %}
-                        </button>
-                    </form>
-                </li>
+    {% if display_config.online_config.show_propose_feature %}
+        <li>
+            {% url 'content:request-featured' object.pk as link_request %}
+            {% if is_requesting %}
+                {% trans "Proposer la mise en une" as data_onclick %}
+                {% trans "Ne plus proposer la mise en une" as button_text %}
             {% else %}
-                {% if not content.is_beta %}
-                    <li>
-                        <a href="{{ content.get_absolute_url_beta }}" class="ico-after view blue">
-                            {% blocktrans %}
-                                Voir <span class="wide">la version</span> en bêta
-                            {% endblocktrans %}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#update-beta" class="open-modal ico-after beta blue">
-                            {% trans "Mettre à jour la bêta avec cette version" %}
-                        </a>
-                        <form action="{% url "content:set-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="update-beta">
-                            {% csrf_token %}
-                            <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
-                            <p>
-                                {% blocktrans with content_title=content.title %}
-                                Êtes-vous certain de vouloir <strong>mettre à jour</strong> la bêta de ce contenu
-                                "<em>{{ content_title }}</em>" dans la version que vous voyez actuellement ?
-                                {% endblocktrans %}
-                            </p>
-                            <p>
-                                {% blocktrans %}
-                                Si cette mise à jour fait suite à des commentaires obtenus lors de la bêta, pensez à en remercier leurs auteurs dans votre conclusion.
-                                {% endblocktrans %}
-                            </p>
-                            <button type="submit" class="btn btn-submit">
-                                {% trans "Confirmer" %}
-                            </button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li class="inactive">
-                        <span class="ico-after beta disabled">
-                            {% trans "Cette version est déjà en bêta" %}
-                        </span>
-                    </li>
-                {% endif %}
-                <li>
-                    <a href="#desactiv-beta" class="open-modal ico-after cross blue">
-                        {% trans "Désactiver la bêta" %}
-                    </a>
-                    <form action="{% url "content:inactive-beta" content.pk content.slug %}" method="post" class="modal modal-flex" id="desactiv-beta">
-                        {% csrf_token %}
-                        <input type="hidden" name="version" value="{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}">
-                        <p>
-                            {% blocktrans with content_title=content.title %}
-                            Êtes-vous certain de vouloir <strong>désactiver</strong> la bêta de ce contenu "<em>{{ content_title }}</em>" ?
-                            {% endblocktrans %}
-                        </p>
-                        <button type="submit" class="btn btn-submit">
-                            {% trans "Confirmer" %}
-                        </button>
-                    </form>
-                </li>
+                {% trans "Proposer la mise en une" as button_text %}
+                {% trans "Ne plus proposer la mise en une" as data_onclick %}
             {% endif %}
-            {% if beta_topic %}
-                <li>
-                    <a href="{{ beta_topic.get_absolute_url }}" class="ico-after online blue">
-                        {% trans "Voir le sujet de bêta" %}
-                    </a>
-                </li>
-            {% endif %}
-        {% endif %}
-        {# END BETA #}
-        {# ONLINE VERSION #}
-        {% if public_content_object %}
+            {% include "featured/includes/featured_request.part.html" with link=link_request is_requesting=is_requesting data_onclick=data_onclick button_text=button_text featured_request_count=featured_request_count %}
+        </li>
+    {% endif %}
+
+    {% if display_config.online_config.show_contact_authors %}
+        <li>
+            <a href="{{ pm_link }}" class="ico-after cite blue">
+                {% blocktrans count counter=content.authors.all|length %}
+                    Contacter l’auteur par MP
+                {% plural %}
+                    Contacter les auteurs par MP
+                {% endblocktrans %}
+            </a>
+        </li>
+    {% endif %}
+
+    {% if display_config.online_config.show_opinion_list_links %}
+        {% for author in public_object.authors.all %}
             <li>
-                <a href="{{ public_content_object.get_absolute_url_online }}" class="ico-after online blue">
-                    {% trans "Voir la version en ligne" %}
+                {% url "opinion:find-opinion" author.username as opinion_url %}
+                <a href="{{ opinion_url }}" class="ico-after offline blue">
+                    {% blocktrans %}Voir la tribune de {{ author }} {% endblocktrans %}
                 </a>
             </li>
-            <li>
-                <a href="{% url "content:stats-content" content.pk content.slug %}" class="ico-after stats blue">
-                    {% trans "Voir les statistiques" %}
-                </a>
-            </li>
-            <li>
-                {% include "tutorialv2/includes/exports.part.html" %}
-            </li>
-        {% endif %}
-        {# END ONLINE VERSION #}
-
-        {% if content.sha_public %}
-            {# interpreted as:  (version and (content.sha_public != version)) or ((not version) and (content.sha_public != content.sha_draft)) #}
-            {% if version and content.sha_public != version or not version and content.sha_public != content.sha_draft %}
-                <li>
-                    <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_public }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
-                        {% trans "Comparer avec la version en ligne" %}
-                    </a>
-                </li>
-            {% else %}
-                <li class="inactive">
-                    <span class="ico-after history disabled">
-                        {% trans "Comparer avec la version en ligne (identique)" %}
-                    </a>
-                </li>
-            {% endif %}
-        {% endif %}
-
-        {% if content.sha_beta %}
-            {# interpreted as:  (version and (content.sha_beta != version)) or ((not version) and (content.sha_beta != content.sha_draft)) #}
-            {% if version and content.sha_beta != version or not version and content.sha_beta != content.sha_draft %}
-                <li>
-                    <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ content.sha_beta }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
-                        {% trans "Comparer avec la bêta" %}
-                    </a>
-                </li>
-            {% else %}
-                <li class="inactive">
-                    <span class="ico-after history disabled">
-                        {% trans "Comparer avec la bêta (identique)" %}
-                    </a>
-                </li>
-            {% endif %}
-        {% endif %}
-
-        {% if content.in_validation %}
-            {# interpreted as:  (version and (validation.version != version)) or ((not version) and (validation.version != content.sha_draft)) #}
-            {% if version and validation.version != version or not version and validation.version != content.sha_draft %}
-                <li>
-                    <a href="{% url "content:diff" content.pk content.slug_repository %}?from={{ validation.version }}&amp;to={% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}" class="ico-after history blue">
-                        {% trans "Comparer avec la version en validation" %}
-                    </a>
-                </li>
-            {% else %}
-                <li class="inactive">
-                    <span class="ico-after history disabled">
-                        {% trans "Comparer avec la version en validation (identique)" %}
-                    </a>
-                </li>
-            {% endif %}
-        {% endif %}
-
-        {# HISTORY #}
-        <li>
-            <a href="{% url "content:history" content.pk content.slug_repository %}" class="ico-after history blue">
-                {% trans "Historique des versions" %}
-            </a>
-        </li>
-        {# END HISTORY #}
-
-        {# EVENTS #}
-        <li>
-            <a href="{% url "content:events" content.pk %}" class="ico-after history blue">
-                {% trans "Journal des événements" %}
-            </a>
-        </li>
-        {# END EVENTS #}
-
-        {# VALIDATION OR PUBLICATION (NO VALIDATION BEFORE) #}
-        {% if content.requires_validation %}
-            {# Validation (require validation before publication) #}
-            {% if not content.in_validation %}
-                {% if content.current_version != content.sha_public %}
-                    <li>
-                        <a href="#ask-validation" class="open-modal ico-after tick green">
-                            {% trans "Demander la validation" %}
-                        </a>
-                    </li>
-                {% endif %}
-                {% else %}
-                <li>
-                    <a href="#cancel-validation" class="open-modal ico-after cross blue">{% trans "Annuler la validation" %}</a>
-                    {% crispy formCancel %}
-                </li>
-                {% if not content.is_validation %}
-                    <li>
-                        <a href="#ask-validation" class="open-modal ico-after tick green">
-                            {% trans "Mettre à jour la version en validation" %}
-                        </a>
-                    </li>
-                {% endif %}
-                <li class="inactive">
-                    <span class="ico-after tick disabled">{% trans "En attente de validation" %}</span>
-                </li>
-            {% endif %}
-            {% crispy formAskValidation %}
-        {% else %}
-            {% if content.is_public %}
-                <li>
-                    <a href="#unpublish" class="ico-after open-modal cross blue">
-                        {% trans "Dépublier" %}
-                    </a>
-                    {% crispy formUnpublication %}
-                </li>
-            {% elif can_publish %}
-                <li>
-                    <a href="#valid-publication" class="open-modal ico-after tick green">
-                        {% trans "Publier" %}
-                    </a>
-                    {% crispy formPublication %}
-                </li>
-            {% else %}
-                <li class="inactive">
-                    <span class="ico-after cross disabled">
-                        {% trans "Billet modéré" %}
-                    </span>
-                </li>
-            {% endif %}
-        {% endif %}
-        {# END VALIDATION OR PUBLICATION #}
-
+        {% endfor %}
     {% endif %}
 
-    {# GALERY #}
-    {% if can_edit %}
+    {% if display_config.draft_actions.show_license_edit  %}
         <li>
-            <a href="{% url "gallery:details" gallery.pk gallery.slug %}" class="ico-after offline blue">
-                {% trans "Aller à la galerie liée" %}
-            </a>
+            {% url "content:edit" content.pk content.slug as edit_url %}
+            <a href="{{ edit_url }}" class="ico-after edit blue">{% trans "Éditer" %}</a>
         </li>
     {% endif %}
-    {# END GALERY #}
+
+    {% if display_config.draft_actions.show_import_link %}
+        <li>
+            {% url "content:import" content.pk content.slug as import_url %}
+            <a href="{{ import_url }}" class="ico-after import blue">{% trans "Importer une nouvelle version" %}</a>
+        </li>
+    {% endif %}
+
+    {% if display_config.draft_actions.show_contributors_management %}
+        {% include "tutorialv2/includes/sidebar/contributors_management.part.html" %}
+    {% endif %}
 
 {% endblock %}
 
 
 
 {% block sidebar_blocks %}
-    {% if is_staff %}
+    {% include "tutorialv2/includes/sidebar/public_actions.part.html" with public_actions=display_config.public_actions %}
 
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Validation">
-            <h3>{{ content.is_opinion|yesno:_("Modération,Validation") }}</h3>
-            <ul>
-                {% if not content.is_opinion %}
-                    <li>
-                        <a href="{% url "validation:history" content.pk content.slug %}" class="ico-after history blue">
-                            {% trans "Historique de validation" %}
-                        </a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="{% url "validation:ignore-opinion" content.pk content.slug %}" class="ico-after history blue">
-                            {% trans "Historique de modération" %}
-                        </a>
-                    </li>
-                {% endif %}
-                <li>
-                    <a  href="{% url "mp:create" %}?{% for username in content.authors.all %}&amp;username={{ username }}{% endfor %}"
-                        class="ico-after cite blue"
-                    >
-                        {% trans "Envoyer un MP" %}
-                        {% if content.authors.all|length > 1 %}
-                            {% trans "aux auteurs" %}
-                        {% else %}
-                            à {% trans "l’auteur" %}
-                        {% endif %}
-                    </a>
-                </li>
-                {% if content.requires_validation %}
-                    <li>
-                        {% if is_js %}
-                            <a href="#js-activation" class="open-modal ico-after cross red">
-                                {% trans "Désactiver JSFiddle" %}
-                            </a>
-                        {% else %}
-                            <a href="#js-activation" class="open-modal ico-after tick green">
-                                {% trans "Activer JSFiddle" %}
-                            </a>
-                        {% endif %}
-                    </li>
-                    {% crispy formJs %}
-                {% endif %}
+    {% include "tutorialv2/includes/sidebar/administration_actions.part.html" with administration_actions=display_config.administration_actions %}
 
-                {% if content.is_public and content.requires_validation %}
-                    <li>
-                        <a href="#unpublish" class="ico-after open-modal cross blue">
-                            {% trans "Dépublier" %}
-                        </a>
-                        {% crispy formRevokeValidation %}
-                    </li>
-                {% endif %}
+    {% include "tutorialv2/includes/sidebar/beta_actions.part.html" with beta_actions=display_config.beta_actions %}
 
-                {% if content.in_validation %}
-                    {% if validation.is_pending %}
-                        <li>
-                            <form action="{% url "validation:reserve" validation.pk %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="ico-after lock blue">
-                                    {% trans "Réserver" %}
-                                </button>
-                            </form>
-                        </li>
-                    {% elif validation.is_pending_valid %}
-                        {% if validation.validator == user %}
-                            <li>
-                                <form action="{% url "validation:reserve" validation.pk %}" method="post">
-                                    {% csrf_token %}
-                                    <button type="submit" class="ico-after lock blue">
-                                        {% trans "Annuler la réservation" %}
-                                    </button>
-                                </form>
-                            </li>
-                            <li>
-                                <a href="#valid-publish" class="open-modal ico-after tick green">{% trans "Valider et publier" %}</a>
-                                {% crispy formValid %}
-                            </li>
-                            <li>
-                                <a href="#reject" class="open-modal ico-after cross red">{% trans "Rejeter" %}</a>
-                                {% crispy formReject %}
-                            </li>
-                        {% else %}
-                            <li>
-                                <a href="#unreservation" class="open-modal ico-after lock blue">
-                                    {% blocktrans with validator_name=validation.validator.username %}
-                                        Réservé par <strong>{{ validator_name }}</strong>, le retirer
-                                    {% endblocktrans %}
-                                </a>
-                                <form action="{% url "validation:reserve" validation.pk %}" method="post" class="modal modal-flex" id="unreservation">
-                                    {% csrf_token %}
-                                    <p>
-                                        {% trans "La validation de ce contenu est actuellement réservée par" %}
-                                        {% include "misc/member_item.part.html" with member=validation.validator %}.
-                                        {% trans "Êtes-vous certain de vouloir le retirer" %} ?
-                                    </p>
-                                    <button type="submit" class="btn btn-submit">
-                                        {% trans "Confirmer" %}
-                                    </button>
-                                </form>
-                            </li>
-                        {% endif %}
-                    {% endif %}
-                {% endif %}
-            </ul>
-        </div>
+    {% include "tutorialv2/includes/sidebar/validation.part.html" %}
+
+    {% if display_config.draft_actions.show_helps %}
+        {% include "tutorialv2/includes/sidebar/helps.part.html" %}
     {% endif %}
 
-    {% if is_staff or can_edit %}
-        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Éditorialisation">
-            {%  include "tutorialv2/includes/editorialization.part.html"  %}
-        </div>
+    {% include "tutorialv2/includes/sidebar/editorialization.part.html" %}
+
+    {% if display_config.draft_actions.show_deletion_link %}
+        {% include "tutorialv2/includes/sidebar/delete_content.part.html" %}
     {% endif %}
 
-    {% if can_edit and not content.is_opinion %}
-        <div class="actions">
-            <h3 id="title-help">
-                {% trans "Demander de l'aide" %}
-                <a href="#what-is-a-help" class="help-question-mark open-modal"
-                   title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}" aria-haspopup="dialog">?</a>
-            </h3>
-            <div id="what-is-a-help" class="modal modal-flex" data-modal-title="{% trans "Qu'est-ce qu'une aide à la rédaction ?" %}"
-                 data-modal-close="{% trans "Fermer" %}">
-                {% url 'content:helps' as help_url %}
-                {% blocktrans%}
-                    <p>
-                        Lorsque vous rédigez un tutoriel ou un article, il se peut que vous ayiez
-                        besoin d'aide. La communauté est là pour vous ! En sélectionnant un des éléments
-                        ci-dessous, votre contenu sera répertorié dans <a href="{{ help_url }}">la page des aides</a>
-                        et la communauté pourra vous contacter.
-                    </p>
-                {% endblocktrans %}
-            </div>
-            <ul>
-                {# HELPS #}
-                {% for help in helps %}
-                    {% captureas current_status %}
-                        {% if help in content_helps %}true{% else %}false{% endif %}
-                    {% endcaptureas %}
-                    {% captureas desired_status %}
-                        {% if help in content_helps %}false{% else %}true{% endif %}
-                    {% endcaptureas %}
-                    {% captureas classes_when_activated %}
-                        {% if help in content_helps %}selected ico-after tick green{% endif %}
-                    {% endcaptureas %}
-                    <li>
-                        <form action="{% url "content:helps-change" content.pk %}" method="POST">
-                            {% csrf_token %}
-                            <input type="hidden" name="activated" value="{{ desired_status }}">
-                            <input type="hidden" name="help_wanted" value="{{ help.title }}">
-                            <button type="submit"
-                               class="button-toggle {{ classes_when_activated }} help-{{ help.slug }}"
-                               data-activated="{{ current_status }}">
-                                {{ help.title }}
-                            </button>
-                        </form>
-                    </li>
-                {% endfor %}
-                {# END HELPS #}
-            </ul>
+    {% include "tutorialv2/includes/sidebar/summary.part.html" %}
+
+    {% if display_config.online_config.show_social_buttons %}
+        {% include "misc/social_buttons.part.html" with link=content.get_absolute_url_online text=content.title %}
+    {% endif %}
+
+    {% if display_config.online_config.show_exports %}
+        <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Télécharger">
+            {% if not public_object or public_object.is_exported %}
+                {% include "tutorialv2/includes/sidebar/list_of_exports.html" %}
+            {% endif %}
         </div>
     {% endif %}
-    {%  include "tutorialv2/includes/summary.part.html"  %}
+{% endblock %}
 
-    {% if can_edit %}
-        {% if not version or content.sha_draft == version %}
-             <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Suppression">
-                <h3>{% trans "Suppression" %}</h3>
-                <ul>
-                    {% if not content.in_public %}
-                        <li>
-                            <a href="#delete-content" class="open-modal ico-after cross red">
-                                {% trans "Supprimer le contenu" %}
-                            </a>
-                            {% captureas need_reason %}{%  if validation and validation.status == 'PENDING_V' %}True{% endif %}{% endcaptureas %}
-                            <form action="{% url "content:delete" content.pk content.slug %}" method="post" id="delete-content" class="modal modal-flex">
-                                {% csrf_token %}
-                                <p>
-                                    {% blocktrans with content_title=content.title %}
-                                        Attention, vous vous apprêtez à <strong>supprimer définitivement</strong> « {{ content_title }} ». Cela aura pour effet de supprimer également la galerie associée.
-                                    {% endblocktrans %}
-                                    {%  if need_reason %}
-                                        {% blocktrans with username=validation.validator.username %}
-                                            Il est en cours de validation par <strong>{{ username }}</strong>, qui appréciera de savoir pourquoi vous souhaitez le supprimer :
-                                        {% endblocktrans %}
-                                    {% endif %}
-                                </p>
 
-                                {% if need_reason %}
-                                    <p><textarea name="text" class="textarea" placeholder="Raison de la suppression" cols="40"></textarea></p>
-                                {%  endif %}
 
-                                <button type="submit" class="btn btn-submit">
-                                    {% trans "Confirmer" %}
-                                </button>
-                            </form>
-                        </li>
-                    {% else %}
-                        <li class="inactive">
-                            <span class="ico-after cross disabled">
-                                {% trans "Impossible, car publié" %}
-                            </span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        {% endif %}
+{% block content_after %}
+    {% if display_config.online_config.show_suggestions %}
+        {% include "tutorialv2/includes/content_suggestion.part.html" with content=content content_suggestions=content_suggestions_random %}
+    {% endif %}
+
+    {% if display_config.online_config.show_comments %}
+        {% include "tutorialv2/includes/comments.part.html" with content=content reactions=reactions %}
     {% endif %}
 {% endblock %}

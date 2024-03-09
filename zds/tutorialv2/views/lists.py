@@ -61,6 +61,7 @@ class ListOnlineContents(ContentTypeMixin, ZdSPagingListView):
             queryset.prefetch_related("content")
             .prefetch_related("content__subcategory")
             .prefetch_related("content__authors")
+            .prefetch_related("content__tags")
             .select_related("content__licence")
             .select_related("content__image")
             .select_related("content__last_note")
@@ -394,7 +395,7 @@ class ContentOfAuthor(ZdSPagingListView):
         if "sort" in self.request.GET and self.request.GET["sort"].lower() in self.sorts:
             self.sort = self.request.GET["sort"]
         elif not self.sort:
-            self.sort = "abc"
+            self.sort = "modification"
         queryset = self.sorts[self.sort.lower()][0](queryset)
 
         return queryset

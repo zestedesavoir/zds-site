@@ -7,7 +7,7 @@ class NotificationAdmin(admin.ModelAdmin):
 
     list_display = ("subscription", "pubdate", "is_read", "is_dead", "sender")
     list_filter = ("is_read", "is_dead")
-    search_fields = ("subscription__user__username, sender__username", "url", "title")
+    search_fields = ("subscription__user__username", "sender__username", "url", "title")
     raw_id_fields = ("subscription", "sender")
 
 

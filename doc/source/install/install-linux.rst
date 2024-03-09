@@ -194,4 +194,3 @@ Le dépot installé est controlé par la variable d'environnement ``ZDS_LATEX_RE
     Si vous souhaitez réinstaller totalement TeX live, supprimez le dossier ``.local/texlive``.
 
 Vous pouvez néanmoins choisir d'installer manuellement ces outils, `tel que décrit ici <extra-install-latex.html>`_.
-

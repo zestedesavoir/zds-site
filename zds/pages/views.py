@@ -63,7 +63,7 @@ def about(request):
     """Display many informations about the website."""
     return render(
         request,
-        "pages/about.html",
+        "pages/technologies.html",
         {
             "default_repository_url": get_repository_url(
                 settings.ZDS_APP["github_projects"]["default_repository"], "base_url"
@@ -85,7 +85,9 @@ class ContactView(ListView):
     """
 
     model = GroupContact
-    queryset = GroupContact.objects.order_by("position").prefetch_related("group")
+    queryset = GroupContact.objects.prefetch_related("persons_in_charge__profile", "group__user_set__profile").order_by(
+        "position"
+    )
     template_name = "pages/contact.html"
     context_object_name = "groups"
 

@@ -17,6 +17,7 @@ from zds.tutorialv2.forms import WarnTypoForm
 from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, SingleContentFormViewMixin
 from zds.tutorialv2.utils import search_container_or_404
 from zds.mp.utils import send_mp
+from zds.utils.misc import is_ajax
 
 
 class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, SingleOnlineContentViewMixin, FormView):
@@ -32,7 +33,7 @@ class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, Sing
 
         response = dict()
         response["requesting"], response["newCount"] = self.toogle_featured_request(request.user)
-        if self.request.is_ajax():
+        if is_ajax(self.request):
             return HttpResponse(json_handler.dumps(response), content_type="application/json")
         return redirect(self.public_content_object.get_absolute_url_online())
 
@@ -68,7 +69,7 @@ class FollowNewContent(LoggedWithReadWriteHability, FormView):
             elif "email" in request.POST:
                 response["email"] = self.perform_follow_by_email(user_to_follow, request.user)
 
-        if request.is_ajax():
+        if is_ajax(self.request):
             return HttpResponse(json_handler.dumps(response), content_type="application/json")
         return redirect(request.META.get("HTTP_REFERER"))
 
@@ -77,7 +78,6 @@ class WarnTypo(SingleContentFormViewMixin):
     modal_form = True
     form_class = WarnTypoForm
     must_be_author = False
-    only_draft_version = False
 
     http_method_names = ["post"]
     object = None

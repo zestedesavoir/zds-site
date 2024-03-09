@@ -1,5 +1,5 @@
 #title=Debian
-#desc=Utilisation de apt-get / Testé sur Debian Stretch (9), Buster (10), Bullseye (11)
+#desc=Utilisation de apt-get / Testé sur Debian Bullseye (11), Bookworm (12)
 #updatecmd=apt-get -y update
 #installcmd=apt-get -y install
 git

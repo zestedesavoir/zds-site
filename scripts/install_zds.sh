@@ -147,8 +147,8 @@ if  ! $(_in "-virtualenv" $@) && ( $(_in "+virtualenv" $@) || $(_in "+base" $@) 
             fi
         fi
 
-        print_info "* [+virtualenv] installing \`virtualenv 16.2.0\` with pip"
-        pip3 install --user virtualenv==16.2.0
+        print_info "* [+virtualenv] installing \`virtualenv $ZDS_VENV_VERSION\` with pip"
+        pip3 install --user virtualenv==$ZDS_VENV_VERSION
 
         print_info "* [+virtualenv] creating virtualenv"
         err=$(python3 -m venv $ZDS_VENV 3>&1 1>&2 2>&3 | sudo tee /dev/stderr)
@@ -172,7 +172,7 @@ fi
 if  ! $(_in "-node" $@) && ( $(_in "+node" $@) || $(_in "+base" $@) || $(_in "+full" $@) ); then
     print_info "* [+node] installing nvm (v$ZDS_NVM_VERSION) & node (v$ZDS_NODE_VERSION) & yarn" --bold
 
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
+    wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v${ZDS_NVM_VERSION}/install.sh | bash
     if [[ $? == 0 ]]; then
 
         # load nvm
@@ -242,7 +242,7 @@ fi
 export ZDS_ENV=$(realpath $ZDS_VENV)
 
 
-# local jdk 
+# local jdk
 if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) ); then
     print_info "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)" --bold
 
@@ -303,7 +303,7 @@ if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full
 
     wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip -q --show-progress
     if [[ $? == 0 ]]; then
-        unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip 
+        unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip
         rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
         mv elasticsearch-${ZDS_ELASTIC_VERSION} elasticsearch
 
@@ -341,7 +341,7 @@ if  ! $(_in "-typesense-local" $@) && ( $(_in "+typesense-local" $@) || $(_in "+
         mv typesense-server-${ZDS_TYPESENSE_VERSION}-linux-amd64 typesense
 
         mkdir -p $typesense_path/typesense-data
-        ./$typesense_path/typesense-server --data-dir=$(pwd)/typesense-data --api-key=$ZDS_TYPESENSE_API_KEY 
+        ./$typesense_path/typesense-server --data-dir=$(pwd)/typesense-data --api-key=$ZDS_TYPESENSE_API_KEY
     else
         print_error "!! Cannot get typesense ${ZDS_TYPESENSE_VERSION}"
         exit 1

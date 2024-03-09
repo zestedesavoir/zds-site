@@ -55,9 +55,7 @@ clean-back: ## Remove Python bytecode files (*.pyc)
 	find . -name '*.pyc' -exec rm {} \;
 
 list-outdated-back: ## List outdated Python packages
-	@echo "Package                 Version   Latest    Type"
-	@echo "----------------------- --------- --------- -----"
-	@pip list --outdated | grep "`awk -F== '{ print $$1 }' requirements*.txt | tr -s '\n' '\n' | sort`"
+	python scripts/check_requirements_versions.py requirements*.txt
 
 ##
 ## ~ Frontend
@@ -148,9 +146,6 @@ generate-doc: ## Generate the project's documentation
 	cd doc && make html
 	@echo ""
 	@echo "Open 'doc/build/html/index.html' to read the documentation'"
-
-generate-release-summary: ## Generate a release summary from Github's issues and PRs
-	@python scripts/generate_release_summary.py
 
 start-publication-watchdog: ## Start the publication watchdog
 	@if curl -s $(ZMD_URL) > /dev/null; then \

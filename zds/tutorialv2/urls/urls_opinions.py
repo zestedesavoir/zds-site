@@ -3,14 +3,14 @@ from django.urls import path
 from zds.tutorialv2.feeds import LastOpinionsFeedRSS, LastOpinionsFeedATOM
 from zds.tutorialv2.views.lists import ListOpinions, ContentOfAuthor
 from zds.tutorialv2.views.download_online import DownloadOnlineOpinion
-from zds.tutorialv2.views.display import DisplayOnlineOpinion
+from zds.tutorialv2.views.display import OpinionOnlineView
 
 urlpatterns = [
     # Flux
     path("flux/rss/", LastOpinionsFeedRSS(), name="feed-rss"),
     path("flux/atom/", LastOpinionsFeedATOM(), name="feed-atom"),
     # View
-    path("<int:pk>/<slug:slug>/", DisplayOnlineOpinion.as_view(), name="view"),
+    path("<int:pk>/<slug:slug>/", OpinionOnlineView.as_view(), name="view"),
     # downloads:
     path("md/<int:pk>/<slug:slug>.md", DownloadOnlineOpinion.as_view(requested_file="md"), name="download-md"),
     path("pdf/<int:pk>/<slug:slug>.pdf", DownloadOnlineOpinion.as_view(requested_file="pdf"), name="download-pdf"),
@@ -21,7 +21,7 @@ urlpatterns = [
     path("", ListOpinions.as_view(), name="list"),
     path(
         "voir/<str:username>/",
-        ContentOfAuthor.as_view(type="OPINION", context_object_name="opinions", sort="creation"),
+        ContentOfAuthor.as_view(type="OPINION", context_object_name="opinions"),
         name="find-opinion",
     ),
 ]

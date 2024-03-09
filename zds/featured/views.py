@@ -336,20 +336,16 @@ class FeaturedMessageCreateUpdate(FeaturedViewMixin, FormView):
 
 
 class FeaturedMessageDelete(FeaturedViewMixin, DeleteView):
-    """
-    Delete the featured message.
-    """
+    """Delete the featured message."""
 
-    http_method_names = ["post", "delete"]
-    last_message = None
+    http_method_names = ["post"]
+    model = FeaturedMessage
 
-    def dispatch(self, request, *args, **kwargs):
-        self.last_message = FeaturedMessage.objects.get_last_message()
-        return super().dispatch(request, *args, **kwargs)
+    def get_object(self, queryset=None):
+        return FeaturedMessage.objects.get_last_message()
 
-    def delete(self, request, *args, **kwargs):
-        if self.last_message:
-            self.last_message.delete()
-
+    def form_valid(self, form):
+        if self.object is not None:
+            self.object.delete()
         messages.success(self.request, _("Le message a été supprimé."))
         return redirect(reverse("featured:resource-list"))

@@ -17,7 +17,7 @@ from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import SearchIndexManager
 from zds.searchv2.utils import SearchFilter
 from zds.utils.paginator import ZdSPagingListView
-from zds.utils.templatetags.authorized_forums import get_authorized_forums
+from zds.forum.utils import get_authorized_forums_pk
 
 from typesense import Client as SearchEngineClient
 

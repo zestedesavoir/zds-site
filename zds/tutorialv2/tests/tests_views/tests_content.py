@@ -715,36 +715,30 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 404)
 
         # check access with old slug and version
-        result = self.client.get(
-            reverse("content:view", args=[tuto.pk, old_slug_tuto]) + "?version=" + version_1, follow=False
-        )
+        route_parameters = {"pk": tuto.pk, "slug": old_slug_tuto, "version": version_1}
+        url = reverse("content:view-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": self.part1.slug},
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "container_slug": self.part1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": old_slug_tuto,
-                    "parent_container_slug": self.part1.slug,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "parent_container_slug": self.part1.slug,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # edit container:
@@ -765,84 +759,55 @@ class ContentTests(TutorialTestMixin, TestCase):
         current_slug_part = versioned.children[0].slug
 
         # we can still access to the container using old slug !
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part, "version": version_2}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_2,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # and even to it using version 1 and old tuto slug !!
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part, "version": version_1}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": old_slug_tuto,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # but you can also access it with the current slug (for retro-compatibility)
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part, "version": version_1}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # delete part
@@ -853,84 +818,54 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 302)
 
         # we can still access to the part in version 3:
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": current_slug_part}
-            )
-            + "?version="
-            + version_3,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": current_slug_part, "version": version_3}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": current_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_3,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": current_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_3,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
 
         # version 2:
         self.assertEqual(result.status_code, 200)
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "container_slug": old_slug_part, "version": version_2}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": tuto.slug,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_2,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": tuto.slug,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_2,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # version 1:
-        result = self.client.get(
-            reverse(
-                "content:view-container", kwargs={"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part}
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": old_slug_tuto, "container_slug": old_slug_part, "version": version_1}
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
-        result = self.client.get(
-            reverse(
-                "content:view-container",
-                kwargs={
-                    "pk": tuto.pk,
-                    "slug": old_slug_tuto,
-                    "parent_container_slug": old_slug_part,
-                    "container_slug": self.chapter1.slug,
-                },
-            )
-            + "?version="
-            + version_1,
-            follow=False,
-        )
+        route_parameters = {
+            "pk": tuto.pk,
+            "slug": old_slug_tuto,
+            "parent_container_slug": old_slug_part,
+            "container_slug": self.chapter1.slug,
+            "version": version_1,
+        }
+        url = reverse("content:view-container-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
     def test_if_none(self):
@@ -1711,7 +1646,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.client.force_login(self.user_staff)
 
         result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
+            reverse("content:view-version", kwargs={"pk": tuto.pk, "slug": tuto.slug, "version": validation.version}),
             follow=False,
         )
         self.assertEqual(result.status_code, 200)
@@ -1783,10 +1718,9 @@ class ContentTests(TutorialTestMixin, TestCase):
         # validate with staff
         self.client.force_login(self.user_staff)
 
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
+        route_parameters = {"pk": tuto.pk, "slug": tuto.slug, "version": validation.version}
+        url = reverse("content:view-version", kwargs=route_parameters)
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)
 
         # reserve tuto:
@@ -1866,31 +1800,20 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(Validation.objects.filter(content=tuto).last().status, "PENDING")
 
-        # logout, then login with guest
+        # No access for unauthenticated users
         self.client.logout()
+        url = reverse("content:view-version", kwargs={"pk": tuto.pk, "slug": tuto.slug, "version": validation.version})
+        result = self.client.get(url, follow=False)
+        self.assertEqual(result.status_code, 302)  # public cannot access a tutorial in validation ...
 
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)  # no, public cannot access a tutorial in validation ...
-
+        # No access for simple members
         self.client.force_login(self.user_guest)
-
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 403)  # ... Same for guest ...
 
-        # then try with staff
-        self.client.logout()
+        # Access for staff
         self.client.force_login(self.user_staff)
-
-        result = self.client.get(
-            reverse("content:view", kwargs={"pk": tuto.pk, "slug": tuto.slug}) + "?version=" + validation.version,
-            follow=False,
-        )
+        result = self.client.get(url, follow=False)
         self.assertEqual(result.status_code, 200)  # ... But staff can, obviously !
 
         # reserve tuto:
@@ -2991,12 +2914,12 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         # test existence and access for admin
         for extra in avail_extra:
-            self.assertTrue(published.has_type(extra), f'no extra content of format "{extra}" was found')
+            self.assertTrue(published.has_type(extra), msg=f'no extra content of format "{extra}" was found')
             result = self.client.get(published.get_absolute_url_to_extra_content(extra))
             self.assertEqual(result.status_code, 200)
 
-        self.assertNotEqual(0, published.get_size_file_type("pdf"), "pdf must have content")
-        self.assertNotEqual(0, published.get_size_file_type("epub"), "epub must have content")
+        self.assertNotEqual(0, published.get_size_file_type("pdf"), msg="pdf must have content")
+        self.assertNotEqual(0, published.get_size_file_type("epub"), msg="epub must have content")
 
         # test that deletion give a 404
         markdown_url = published.get_absolute_url_md()

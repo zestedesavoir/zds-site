@@ -28,6 +28,7 @@ from zds.featured.mixins import FeatureableMixin
 from zds.utils import old_slugify
 from zds.utils.context_processor import get_repository_url
 from zds.forum.utils import create_topic, send_post, CreatePostView
+from zds.utils.misc import is_ajax
 from zds.utils.mixins import FilterMixin
 from zds.utils.models import Alert, Tag, CommentVote
 from zds.utils.paginator import ZdSPagingListView
@@ -108,7 +109,7 @@ class ForumTopicsListView(FilterMixin, ForumEditMixin, ZdSPagingListView, Update
             response["email"] = self.perform_follow_by_email(self.object, request.user)
 
         self.object.save()
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
@@ -224,7 +225,10 @@ class TopicPostsListView(ZdSPagingListView, FeatureableMixin, SingleObjectMixin)
         if queryset is None:
             queryset = Topic.objects
         result = (
-            queryset.filter(pk=self.kwargs.get("topic_pk")).select_related("solved_by").select_related("author").first()
+            queryset.filter(pk=self.kwargs.get("topic_pk"))
+            .select_related("solved_by", "author")
+            .prefetch_related("tags")
+            .first()
         )
         if result is None:
             raise Http404(f"Pas de forum avec l'identifiant {self.kwargs.get('topic_pk')}")
@@ -262,7 +266,7 @@ class TopicNew(CreateView, SingleObjectMixin):
         form = self.get_form(self.form_class)
 
         if "preview" in request.POST:
-            if request.is_ajax():
+            if is_ajax(request):
                 content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                 return StreamingHttpResponse(content)
             else:
@@ -353,7 +357,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
             form = self.get_form(self.form_class)
 
             if "preview" in request.POST:
-                if request.is_ajax():
+                if is_ajax(request):
                     content = render(request, "misc/preview.part.html", {"text": request.POST["text"]})
                     return StreamingHttpResponse(content)
                 else:
@@ -388,7 +392,7 @@ class TopicEdit(UpdateView, SingleObjectMixin, TopicEditMixin, FeatureableMixin)
             response["requesting"], response["newCount"] = self.toogle_featured_request(request.user)
 
         self.object.save()
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
@@ -508,7 +512,7 @@ class FindTopicByTag(FilterMixin, ForumEditMixin, ZdSPagingListView, SingleObjec
             response["email"] = self.perform_follow_by_email(self.object, request.user)
 
         self.object.save()
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(response), content_type="application/json")
         return redirect(f"{self.object.get_absolute_url()}?page={self.page}")
 
@@ -632,7 +636,7 @@ class PostEdit(UpdateView, SinglePostObjectMixin, PostEditMixin):
             form = self.get_form(self.form_class)
 
             if "preview" in request.POST:
-                if request.is_ajax():
+                if is_ajax(request):
                     content = render(request, "misc/preview.part.html", {"text": request.POST.get("text")})
                     return StreamingHttpResponse(content)
                 else:
@@ -714,7 +718,7 @@ class PostUseful(UpdateView, SinglePostObjectMixin, PostEditMixin):
     def post(self, request, *args, **kwargs):
         self.perform_useful(self.object)
 
-        if request.is_ajax():
+        if is_ajax(request):
             return HttpResponse(json.dumps(self.object.is_useful), content_type="application/json")
 
         return redirect(self.object.get_absolute_url())

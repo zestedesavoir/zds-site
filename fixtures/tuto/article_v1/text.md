@@ -6,7 +6,7 @@ Avant d'en arriver là, Microsoft est passé par plusieurs étapes dans sa réfl
 
 # "Les promoteurs du libre? Des communistes"
 
-Alors qu'il était encore PDG de Microsoft, Bill Gates a dû faire face à la montée en puissance des logiciels libres et open source tels que OpenOffice en même temps que le piratage des licences de ses logiciels. Alors qu'il donnait une interview, il estimait alors : 
+Alors qu'il était encore PDG de Microsoft, Bill Gates a dû faire face à la montée en puissance des logiciels libres et open source tels que OpenOffice en même temps que le piratage des licences de ses logiciels. Alors qu'il donnait une interview, il estimait alors :
 
 >Il existe une nouvelle sorte de communistes modernes qui veut être exemptée de taxes rémunérant les musiciens, les cinéastes et les éditeurs de logiciels.
 Source: Bill Gates
@@ -17,7 +17,7 @@ L'arrivée de Azure (cloud de Microsoft) et des consoles XBox n'a pas vraiment r
 
 Depuis sa création, en 1975, Microsoft n'aura connu que trois PDG. L'histoire commence avec Bill Gates amenant la firme qu'il a co-fondée avec S.Allen au sommet de sa gloire jusqu'aux premiers procès antitrust des années 90.
 
-Suite à ces premiers procès antitrust, et désireux de se concentrer sur son engagement humanitaire avec sa femme, B.Gates cède la direction de Microsoft à Steeve Balmer qui y restera jusqu'en 2014 lorsqu'il cèdera sa place à Satya Nadella. 
+Suite à ces premiers procès antitrust, et désireux de se concentrer sur son engagement humanitaire avec sa femme, B.Gates cède la direction de Microsoft à Steeve Balmer qui y restera jusqu'en 2014 lorsqu'il cèdera sa place à Satya Nadella.
 
 Balmer sera le premier à infléchir la stratégie de Microsoft vers des cycles de développement plus rapides[^rapideIE] et à tenter de faire venir un maximum de développeurs vers les technologies Microsoft.
 
@@ -31,8 +31,8 @@ La plateforme .NET se base sur une machine virtuelle comparable à la Java Virtu
 
 - Proposer, comme pour Java, un environnement de développement multiplateforme (les programmes écrits grâce à la plateforme .NET sont dès le départ disponibles pour Windows 98, 2000, NT, XP et leurs équivalents côté serveur).
 - Permettre d'unifier les bibliothèques développées avec les différentes technologies. Ainsi vous pouvez développer un outil en Visual Basic .NET qui utilisera des bibliothèques écrites en Visual C++ ou plus tard en C#. Comme toutes ces technologies utilisent .NET, vous n'avez pas besoin d'adapter quoi que ce soit!
- 
-Rapidement, les développeurs remarqueront que le premier objectif n'est pas vraiment atteint : seules les plateformes Windows sont supportées. Une équipe se rassemblera alors autour du projet [Mono](http://www.mono-project.com/), qui aura pour but d'écrire un interpréteur de CLR pour Linux et Mac. 
+
+Rapidement, les développeurs remarqueront que le premier objectif n'est pas vraiment atteint : seules les plateformes Windows sont supportées. Une équipe se rassemblera alors autour du projet [Mono](http://www.mono-project.com/), qui aura pour but d'écrire un interpréteur de CLR pour Linux et Mac.
 
 Heureusement pour les développeurs de Mono, la CLI sera normalisée en majeure partie sous le doux nom de [ECMA335](http://www.ecma-international.org/publications/standards/Ecma-335.htm). Et Mono tentera de coller à cette norme.
 
@@ -46,15 +46,15 @@ En 2003, peu de temps après sa création, la société Ximian qui était le pri
 
 En 2006, Microsoft attaque Novell, la société qui sponsorisait le développement de Mono à cette époque, pour violation de brevet. Néanmoins, au vu de la popularité grandissante des outils Mono, notamment utilisés par SecondLife[^scripting], Microsoft accordera à Novel le droit d'utiliser les technologies développées pour Mono qui imitaient les brevets .NET[^patent].
 
-En 2007, un événement va bouleverser toute la stratégie de Microsoft : Apple sort son IPhone, première version. Le "virage du mobile" doit alors être négocié et ni Windows Mobile, ni Windows Phone 7.5 n'y parviendront. 
+En 2007, un événement va bouleverser toute la stratégie de Microsoft : Apple sort son IPhone, première version. Le "virage du mobile" doit alors être négocié et ni Windows Mobile, ni Windows Phone 7.5 n'y parviendront.
 
 ![Ventes de mobiles en 2011->2013 (gartner/eco-conscient)](http://www.eco-conscient.com/wp-content/uploads/cache/2013/11/gartner-os-smartphone-vente-quarter/558378059/2494269678.png)
 
-L'avenir de Mono va se jouer en 2011 lorsqu'une firme, nommée Xamarin est créée suite au rachat de Novell par un fond d'investissement, [AtacheMate](http://www.channelnews.fr/actu-societes/fournisseurs/8537-rachat-de-novell-par-attachmate-ce-quen-pensent-les-partenaires-francais.html).  
+L'avenir de Mono va se jouer en 2011 lorsqu'une firme, nommée Xamarin est créée suite au rachat de Novell par un fond d'investissement, [AtacheMate](http://www.channelnews.fr/actu-societes/fournisseurs/8537-rachat-de-novell-par-attachmate-ce-quen-pensent-les-partenaires-francais.html).
 Cette société a pour but de créer des applications *natives* sur *toutes* les plateformes présentes sur le marché (IOS, Android, Windows Phone 7.5 puis 8) à partir d'un code C# compilé depuis Mono justement.
 
 L'année 2011 sera d'autant plus importante qu'Unity3D, le [moteur de création de jeu vidéo ](http://openclassrooms.com/courses/realisez-votre-premier-jeu-video-avec-unity) intégrera Javascript et C# comme langage de *scripting*. L'intégration de C# se fera via Mono pour qu'Unity3D soit portable sur les différents OS. De même Sony utilisera C# et Mono pour la PS Suite.
- 
+
 Voyant dans cette société un potentiel énorme de création d'applications pour leur *store* alors peu fourni en comparaison avec la concurrence, Microsoft fait de Xamarin un de ses principaux partenaires dans le développement mobile. Pour la première fois, le projet Mono est soutenu officiellement par Microsoft, ce qui lui permet de voir s'ouvrir de nouvelles portes.
 
 Pour autant, Mono n'assure pas un support complet de ce qu'on peut trouver dans la plateforme .NET. En effet, le support du WPF n'est pas assuré. Microsoft n'a toujours pas donné les sources de cette bibliothèque graphique et la garde pour son propre environnement. De ce fait, Mono se cantonne au vieillissant WinForm qu'elle implémente grâce à [GTK#](https://github.com/mono/gtk-sharp).
@@ -71,7 +71,7 @@ Lorsque vous créez une bibliothèque de code, le partage de cette bibliothèque
 
 Depuis l'arrivée de Satya Nadella à la tête de Microsoft, une stratégie assumée d'ouverture se met en place. Bien que le PDG de la firme de Redmond soit encore parfois accusé d'utiliser la célèbre stratégie des 3E "Embrace Extend Extinguish"[^troise], plusieurs actions sont venues rassurer le monde du libre.
 
-Cette stratégie commerciale s'appuie sur un changement radical de politique de vente : toute licence OEM[^OEM] vendue sur un *device* dont l'écran fait moins de 10 pouces est gratuite.  
+Cette stratégie commerciale s'appuie sur un changement radical de politique de vente : toute licence OEM[^OEM] vendue sur un *device* dont l'écran fait moins de 10 pouces est gratuite.
 De plus, la direction de Microsoft adhère au constat qu'aujourd'hui, l'open source est passé de ["toléré" à "prévu"](http://opensource.com/business/14/10/interview-dwight-merriman-mongodb).
 
 Dans cette optique, le développement de [ASP.NET MVC](http://www.asp.net/mvc) ainsi que d'autres modules tels que [SignalR](http://signalr.net/) a dès le départ été rendus [open](http://aspnet.codeplex.com/SourceControl/latest) [source](https://github.com/SignalR/SignalR).

@@ -11,7 +11,7 @@
     {% endcaptureas %}
 
     <ul class="pagination pagination-{{ position }}">
-        {% ifnotequal nb 1 %}
+        {% if nb != 1 %}
             <li class="prev">
                 {% with prev=nb|add:-1 %}
                     <a href="{% append_query_params page=prev %}{{ full_anchor }}" class="ico-after arrow-left blue" rel="prev">
@@ -21,18 +21,18 @@
                     </a>
                 {% endwith %}
             </li>
-        {% endifnotequal %}
+        {% endif %}
 
 
         {% for page in pages %}
             {% if page %}
                 <li>
                     <a
-                        {% ifnotequal page nb %}
+                        {% if page != nb %}
                             href="{% append_query_params page=page %}{{ full_anchor }}"
                         {% else %}
                             class="current"
-                        {% endifnotequal %}
+                        {% endif %}
                         {% if page|add:-1 == nb %}
                             rel="next"
                         {% elif page|add:1 == nb %}

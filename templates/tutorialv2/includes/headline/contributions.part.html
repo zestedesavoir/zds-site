@@ -1,0 +1,21 @@
+{% load i18n %}
+{% load pluralize_fr %}
+
+{% with count_contributions=contributions|length %}
+    {% if count_contributions > 0 %}
+        <p>
+            {% trans "Ce contenu a bénéficié des apports de" %}
+            <a href="#view-contributions" class="open-modal">{{ count_contributions }} {% trans "contributeur" %}{{ count_contributions|pluralize }}</a>
+
+            <div class="modal modal-flex" id="view-contributions" data-modal-close="Fermer">
+                <div class="members is-fullwidth">
+                    <ul>
+                        {% for contribution in contributions %}
+                            <li>{% include "misc/member_item.part.html" with member=contribution.user info=contribution.contribution_role.title avatar=True fullwidth=True %}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </p>
+    {% endif %}
+{% endwith %}

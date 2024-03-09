@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from django import template
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -9,6 +11,7 @@ register = template.Library()
 
 
 @register.filter("profile")
+@lru_cache
 def profile(current_user):
     # we currently expect to receive a User in most cases, but as we move
     # toward using Profiles instead, we have to handle them as well.

@@ -1,25 +1,23 @@
-import logging
 from datetime import datetime
-from geoip2.errors import AddressNotFoundError
 from hashlib import md5
+import logging
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
-from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.models import Post, Topic
-from zds.notification.models import TopicAnswerSubscription
+from zds.forum.models import Forum, Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import ProfileManager
+from zds.member.utils import get_geo_location_from_ip
+from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils import old_slugify
 from zds.utils.models import Alert, Licence, Hat
 
-from zds.forum.models import Forum
 import homoglyphs as hg
 
 
@@ -71,6 +69,7 @@ class Profile(models.Model):
     last_visit = models.DateTimeField("Date de dernière visite", null=True, blank=True)
     _permissions = {}
     _groups = None
+    _hats = None
     _cached_city = None
 
     objects = ProfileManager()
@@ -90,30 +89,16 @@ class Profile(models.Model):
 
     def get_city(self):
         """
-        Uses geo-localization to get physical localization of a profile through its last IP address.
-        This works relatively well with IPv4 addresses (~city level), but is very imprecise with IPv6 or exotic internet
-        providers.
-        The result is cached on an instance level because this method is called a lot in the profile.
+        Uses geo-localization to get physical localization of a profile through
+        its last IP address.
+        The result is cached on an instance level because this method is called
+        a lot in the profile.
         :return: The city and the country name of this profile.
         """
         if self._cached_city is not None and self._cached_city[0] == self.last_ip_address:
             return self._cached_city[1]
 
-        try:
-            geo = GeoIP2().city(self.last_ip_address)
-        except AddressNotFoundError:
-            geo_location = ""
-        except GeoIP2Exception as e:
-            geo_location = ""
-            logging.getLogger(__name__).warning(
-                f"GeoIP2 failed with the following message: '{e}'. "
-                "The Geolite2 database might not be installed or configured correctly. "
-                "Check the documentation for guidance on how to install it properly."
-            )
-        else:
-            city = geo["city"]
-            country = geo["country_name"]
-            geo_location = ", ".join(i for i in [city, country] if i)
+        geo_location = get_geo_location_from_ip(self.last_ip_address)
 
         self._cached_city = (self.last_ip_address, geo_location)
 
@@ -200,15 +185,6 @@ class Profile(models.Model):
         """
         return self.get_user_contents_queryset(_type).filter(sha_beta__isnull=False)
 
-    def get_content_count(self, _type=None):
-        """
-        :param _type: if provided, request a specific type of content
-        :return: the count of contents with this user as author. Count all contents no only published one.
-        """
-        if self.is_private():
-            return 0
-        return self.get_user_contents_queryset(_type).count()
-
     def get_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
@@ -246,12 +222,6 @@ class Profile(models.Model):
         """
         return self.get_user_beta_contents_queryset(_type).all()
 
-    def get_tuto_count(self):
-        """
-        :return: the count of tutorials with this user as author. Count all tutorials, no only published one.
-        """
-        return self.get_content_count(_type="TUTORIAL")
-
     def get_tutos(self):
         """
         :return: All tutorials with this user as author.
@@ -284,12 +254,6 @@ class Profile(models.Model):
         """
         return self.get_beta_contents(_type="TUTORIAL")
 
-    def get_article_count(self):
-        """
-        :return: the count of articles with this user as author. Count all articles, no only published one.
-        """
-        return self.get_content_count(_type="ARTICLE")
-
     def get_articles(self):
         """
         :return: All articles with this user as author.
@@ -321,12 +285,6 @@ class Profile(models.Model):
         :return: All articles in beta with this user as author.
         """
         return self.get_beta_contents(_type="ARTICLE")
-
-    def get_opinion_count(self):
-        """
-        :return: the count of opinions with this user as author. Count all opinions, no only published one.
-        """
-        return self.get_content_count(_type="OPINION")
 
     def get_opinions(self):
         """
@@ -409,15 +367,16 @@ class Profile(models.Model):
         """
         Return all hats the user is allowed to use.
         """
-        profile_hats = list(self.hats.all())
-        groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
-        hats = profile_hats + groups_hats
+        if self._hats is None:
+            profile_hats = list(self.hats.all())
+            groups_hats = list(Hat.objects.filter(group__in=self.user.groups.all()))
+            self._hats = profile_hats + groups_hats
 
-        # We sort internal hats before the others, and we slugify for sorting to sort correctly
-        # with diatrics.
-        hats.sort(key=lambda hat: f'{"a" if hat.is_staff else "b"}-{old_slugify(hat.name)}')
+            # We sort internal hats before the others, and we slugify for sorting to sort correctly
+            # with diatrics.
+            self._hats.sort(key=lambda hat: f'{"a" if hat.is_staff else "b"}-{old_slugify(hat.name)}')
 
-        return hats
+        return self._hats
 
     def get_requested_hats(self):
         """
@@ -466,9 +425,8 @@ class Profile(models.Model):
         skeleton = ""
         for ch in username:
             homoglyph = hg.Homoglyphs(languages={"fr"}, strategy=hg.STRATEGY_LOAD).to_ascii(ch)
-            if len(homoglyph) > 0:
-                if homoglyph[0].strip() != "":
-                    skeleton += homoglyph[0]
+            if len(homoglyph) > 0 and homoglyph[0].strip() != "":
+                skeleton += homoglyph[0]
         return skeleton.lower()
 
 

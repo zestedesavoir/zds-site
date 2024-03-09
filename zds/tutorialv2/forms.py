@@ -7,6 +7,7 @@ from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidde
 from django.urls import reverse
 from django.core.validators import MinLengthValidator
 
+from zds.tutorialv2.utils import get_content_version_url
 from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory, Licence
 from zds.tutorialv2.models import TYPE_CHOICES
@@ -320,9 +321,7 @@ class EditContentTagsForm(forms.Form):
         label=_("Tags séparés par des virgules (exemple : python,api,web) :"),
         max_length=64,
         required=False,
-        widget=forms.TextInput(
-            attrs={"data-autocomplete": '{ "type": "multiple", "fieldname": "title", "url": "/api/tags/?search=%s" }'}
-        ),
+        widget=forms.TextInput(),
         error_messages={"max_length": _("La liste de tags saisie dépasse la longueur maximale autorisée.")},
     )
 
@@ -330,6 +329,14 @@ class EditContentTagsForm(forms.Form):
         self.db_content = db_content
         kwargs["initial"] = {"tags": ", ".join(db_content.tags.values_list("title", flat=True))}
         super(forms.Form, self).__init__(*args, **kwargs)
+
+        self.fields["tags"].widget.attrs.update(
+            {
+                "data-autocomplete": '{ "type": "multiple", "fieldname": "title", "url": "'
+                + reverse("api:utils:tags-list")
+                + '?search=%s" }',
+            }
+        )
 
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
@@ -341,7 +348,9 @@ class EditContentTagsForm(forms.Form):
             HTML(
                 """<p>Les tags permettent de grouper les publications plus finement que les catégories.
                     Par exemple, vous pouvez indiquer une technologie ou une sous-discipline.
-                     Consultez <a href="/contenus/tags">la page des tags</a> pour voir des exemples."""
+                     Consultez <a href="{}">la page des tags</a> pour voir des exemples.""".format(
+                    reverse("content:tags")
+                )
             ),
             Field("tags"),
             ButtonHolder(StrictButton("Valider", type="submit")),
@@ -689,7 +698,7 @@ class AskValidationForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # modal form, send back to previous page:
-        self.previous_page_url = content.get_absolute_url() + "?version=" + content.current_version
+        self.previous_page_url = get_content_version_url(content, content.current_version)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:ask", kwargs={"pk": content.pk, "slug": content.slug})
@@ -763,13 +772,7 @@ class AcceptValidationForm(forms.Form):
         :param kwargs:
         :return:
         """
-
-        # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
         super().__init__(*args, **kwargs)
 
@@ -799,12 +802,7 @@ class CancelValidationForm(forms.Form):
     def __init__(self, validation, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:cancel", kwargs={"pk": validation.pk})
@@ -854,12 +852,7 @@ class RejectValidationForm(forms.Form):
         """
         super().__init__(*args, **kwargs)
 
-        # modal form, send back to previous page:
-        self.previous_page_url = (
-            reverse("content:view", kwargs={"pk": validation.content.pk, "slug": validation.content.slug})
-            + "?version="
-            + validation.version
-        )
+        self.previous_page_url = get_content_version_url(validation.content, validation.version)
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("validation:reject", kwargs={"pk": validation.pk})
@@ -1302,20 +1295,22 @@ class SearchSuggestionForm(forms.Form):
     suggestion_pk = forms.CharField(
         label="Contenu à suggérer",
         required=False,
-        widget=forms.TextInput(
-            attrs={
-                "data-autocomplete": '{"type": "multiple_checkbox",'
-                '"limit": 10,'
-                '"fieldname": "title",'
-                '"url": "/rechercher/suggestion-contenu/?q=%s&excluded=%e"}',
-                "placeholder": "Rechercher un contenu",
-            }
-        ),
+        widget=forms.TextInput(),
     )
     excluded_pk = forms.CharField(required=False, widget=forms.HiddenInput(attrs={"class": "excluded_field"}))
 
     def __init__(self, content, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["suggestion_pk"].widget.attrs.update(
+            {
+                "data-autocomplete": '{"type": "multiple_checkbox",'
+                '"limit": 10,'
+                '"fieldname": "title",'
+                '"url": "' + reverse("search:suggestion") + '?q=%s&excluded=%e"}',
+                "placeholder": "Rechercher un contenu",
+            }
+        )
 
         self.helper = FormHelper()
         self.helper.form_action = reverse("content:add-suggestion", kwargs={"pk": content.pk})
@@ -1326,7 +1321,6 @@ class SearchSuggestionForm(forms.Form):
         self.helper.layout = Layout(
             Field("suggestion_pk"), Field("excluded_pk"), StrictButton(_("Ajouter"), type="submit")
         )
-        super().__init__(*args, **kwargs)
 
 
 class RemoveSuggestionForm(forms.Form):

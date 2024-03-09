@@ -1,0 +1,11 @@
+{% load i18n %}
+
+{% if is_obsolete %}
+    <div class="content-wrapper">
+        <div class="alert-box warning">
+            {% blocktrans %}
+                Ce contenu est obsolète. Il peut contenir des informations intéressantes mais soyez prudent avec celles-ci.
+            {% endblocktrans %}
+        </div>
+    </div>
+{% endif %}

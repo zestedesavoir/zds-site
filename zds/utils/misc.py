@@ -2,6 +2,7 @@ import hashlib
 import re
 
 from django.contrib.auth import get_user_model
+from django.http import HttpRequest
 
 THUMB_MAX_WIDTH = 80
 THUMB_MAX_HEIGHT = 80
@@ -61,7 +62,7 @@ def contains_utf8mb4(s):
 def check_essential_accounts():
     """
     Verify that essential accounts are present in the database.
-    Raise an exception if it not the case.
+    Raise an exception if it is not the case.
     """
 
     from django.conf import settings
@@ -78,3 +79,22 @@ def check_essential_accounts():
                 f"User {username!r} does not exist. You must create it to run the server. "
                 f"On a development instance, load the fixtures to solve this issue."
             )
+
+
+def is_ajax(request: HttpRequest):
+    """
+    Check whether the request was sent asynchronously.
+
+    The function returns True for :
+
+    * requests sent using jQuery.ajax() since it sets the header `X-Requested-With`
+      to `XMLHttpRequest` by default ;
+    * requests sent using the tools provided by `ajax.js`, which reproduce the behavior
+      described above to ease the progressive removal of jQuery from the codebase.
+
+    The function returns False for requests without the appropriate header.
+    These requests will not be recognized as AJAX.
+
+    The function replaces `request.is_ajax()`, which is removed starting from Django 4.0.
+    """
+    return request.META.get("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"

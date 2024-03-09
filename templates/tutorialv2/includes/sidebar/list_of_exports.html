@@ -1,0 +1,75 @@
+{% load i18n %}
+
+<h3>{% trans "Télécharger" %}</h3>
+<ul>
+    {% if public_object %}
+        {% if is_staff or is_author %}
+            {% if public_object.has_md %}
+                <li>
+                    <a href="{{ public_object.get_absolute_url_md }}" class="ico-after download blue">
+                        {% trans "Markdown" %}
+                        {% with size=public_object.get_size_md %}
+                            {% if size %}
+                                ({{ size|filesizeformat }})
+                            {% endif %}
+                        {% endwith %}
+                    </a>
+                </li>
+            {% endif %}
+        {% endif %}
+        {% if public_object.has_pdf %}
+            <li>
+                <a href="{{ public_object.get_absolute_url_pdf }}" class="ico-after download blue">
+                    {% trans "PDF" %}
+                    {% with size=public_object.get_size_pdf %}
+                        {% if size %}
+                            ({{ size|filesizeformat }})
+                        {% endif %}
+                    {% endwith %}
+                </a>
+            </li>
+        {% endif %}
+        {% if public_object.has_tex %}
+            <li>
+                <a href="{{ public_object.get_absolute_url_tex }}" class="ico-after download blue">
+                    {% trans "LaTeX" %}
+                    {% with size=public_object.get_size_tex %}
+                        {% if size %}
+                            ({{ size|filesizeformat }})
+                        {% endif %}
+                    {% endwith %}
+                </a>
+            </li>
+        {% endif %}
+        {% if public_object.has_epub %}
+            <li>
+                <a href="{{ public_object.get_absolute_url_epub }}" class="ico-after download blue">
+                    {% trans "EPUB" %}
+                    {% with size=public_object.get_size_epub %}
+                        {% if size %}
+                            ({{ size|filesizeformat }})
+                        {% endif %}
+                    {% endwith %}
+                </a>
+            </li>
+        {% endif %}
+        {% if public_object.has_zip %}
+            <li>
+                <a href="{{ public_object.get_absolute_url_zip }}" class="ico-after download blue">
+                    {% trans "Archive" %}
+                    {% with size=public_object.get_size_zip %}
+                        {% if size %}
+                            ({{ size|filesizeformat }})
+                        {% endif %}
+                    {% endwith %}
+                </a>
+            </li>
+        {% endif %}
+    {% else %}
+        <li>
+            <a href="{% url "content:download-zip" content.pk content.slug %}{% if version %}?version={{ version }}{% endif %}" class="ico-after download blue">
+                {% trans "Archive" %}
+            </a>
+        </li>
+    {% endif %}
+</ul>

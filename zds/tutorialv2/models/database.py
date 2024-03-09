@@ -33,11 +33,17 @@ from zds.searchv2.models import (
     clean_html,
 )
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
-from zds.tutorialv2.models import TYPE_CHOICES, STATUS_CHOICES, CONTENT_TYPES_REQUIRING_VALIDATION, PICK_OPERATIONS
+from zds.tutorialv2.models import (
+    TYPE_CHOICES,
+    STATUS_CHOICES,
+    CONTENT_TYPES_REQUIRING_VALIDATION,
+    PICK_OPERATIONS,
+    CONTENT_TYPES_BETA,
+)
 from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.models.versioned import NotAPublicVersion, VersionedContent
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, Licence, Comment, Tag
@@ -255,6 +261,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             user_gallery.user = author
             user_gallery.save()
 
+    def can_be_in_beta(self) -> bool:
+        return self.type in CONTENT_TYPES_BETA
+
     def in_beta(self) -> bool:
         """Return True if a beta version of the content exists, and False otherwise."""
         return (self.sha_beta is not None) and (self.sha_beta.strip() != "")
@@ -279,9 +288,26 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """Return True if the given sha corresponds to the version in validation, and False otherwise."""
         return self.in_validation() and sha == self.sha_validation
 
+    def get_validation(self):
+        # TODO: this function could be improved by declaring explicitly the model Validation
+        #  as the support of a ManyToMany relationship in PublishableContent.
+        validation = (
+            Validation.objects.select_related("validator").filter(content=self).order_by("-date_proposition").first()
+        )
+        if validation is not None:
+            validation.content = self
+        return validation
+
     def is_public(self, sha: str) -> bool:
         """Return True if the given sha corresponds to the public version, and False otherwise."""
         return self.in_public() and sha == self.sha_public
+
+    def is_picked(self):
+        return self.in_public() and self.sha_public == self.sha_picked
+
+    def is_author(self, user: User) -> bool:
+        # This is fast because there are few authors and the QuerySet is usually prefetched and cached.
+        return user in self.authors.all()
 
     def is_permanently_unpublished(self):
         """Is this content permanently unpublished by a moderator ?"""
@@ -297,7 +323,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         :type public: PublishedContent
         :raise Http404: if sha is not None and related version could not be found
         :return: the versioned content
-        :rtype: zds.tutorialv2.models.versioned.ViersionedContent
+        :rtype: zds.tutorialv2.models.versioned.VersionedContent
         """
         try:
             return self.load_version(sha, public)
@@ -647,11 +673,10 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
     publication_date = models.DateTimeField("Date de publication", db_index=True, blank=True, null=True)
     update_date = models.DateTimeField("Date de mise à jour", db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField("Sha1 de la version publiée", blank=True, null=True, max_length=80, db_index=True)
-    char_count = models.IntegerField(default=None, null=True, verbose_name=b"Nombre de lettres du contenu", blank=True)
+    char_count = models.IntegerField(default=None, null=True, verbose_name="Nombre de lettres du contenu", blank=True)
 
-    # NOTE: removing the spurious space in the field description requires a database migration !
     must_redirect = models.BooleanField(
-        "Redirection vers  une version plus récente", blank=True, db_index=True, default=False
+        "Redirection vers une version plus récente", blank=True, db_index=True, default=False
     )
 
     authors = models.ManyToManyField(User, verbose_name="Auteurs", db_index=True)
@@ -935,6 +960,13 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         """
 
         return self.get_absolute_url_to_extra_content("zip")
+
+    def get_absolute_url(self):
+        """For admin interface.
+        get_absolute_url_online() should probably be directly used in other cases.
+        """
+
+        return self.get_absolute_url_online()
 
     def get_char_count(self, md_file_path=None):
         """Compute the number of letters for a given content
@@ -1524,7 +1556,9 @@ class ContentSuggestion(models.Model):
         Get random public suggestions for the given publication.
         At most `count` suggestions are returned.
         """
-        all_suggestions = ContentSuggestion.objects.filter(publication=publication).order_by("?")
+        all_suggestions = (
+            ContentSuggestion.objects.filter(publication=publication).order_by("?").prefetch_related("suggestion")
+        )
         public_suggestions = [suggestion for suggestion in all_suggestions if suggestion.suggestion.in_public()]
         return public_suggestions[:count]
 

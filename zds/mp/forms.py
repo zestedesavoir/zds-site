@@ -16,9 +16,8 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
         label=_("Participants"),
         widget=forms.TextInput(
             attrs={
-                "placeholder": _("Les participants doivent " "être séparés par une virgule."),
+                "placeholder": _("Les participants doivent être séparés par une virgule."),
                 "required": "required",
-                "data-autocomplete": '{ "type": "multiple", "url": "/api/membres/?search=%s" }',
             }
         ),
     )
@@ -40,6 +39,12 @@ class PrivateTopicForm(forms.Form, ParticipantsStringValidator, TitleValidator, 
 
     def __init__(self, username, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["participants"].widget.attrs.update(
+            {
+                "data-autocomplete": '{ "type": "multiple", "url": "' + reverse("api:member:list") + '?search=%s" }',
+            }
+        )
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
         self.helper.form_method = "post"

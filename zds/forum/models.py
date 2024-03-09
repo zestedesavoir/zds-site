@@ -221,7 +221,13 @@ class Topic(AbstractSearchIndexableModel):
     tags = models.ManyToManyField(Tag, verbose_name="Tags du forum", blank=True, db_index=True)
 
     objects = TopicManager()
-    _first_post = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._last_user_post = dict()
+        self._last_post = None
+        self._first_post = None
+        self._is_read = None
 
     def __str__(self):
         return self.title
@@ -266,7 +272,10 @@ class Topic(AbstractSearchIndexableModel):
         """
         :return: the last post in the thread.
         """
-        return self.last_message
+        if self._last_post is None:
+            self._last_post = Post.objects.filter(pk=self.last_message).select_related("author").first()
+
+        return self._last_post
 
     def get_last_answer(self):
         """
@@ -404,7 +413,11 @@ class Topic(AbstractSearchIndexableModel):
         if user is None:
             user = get_current_user()
 
-        last_user_post = Post.objects.filter(topic=self).filter(author=user.pk).order_by("position").last()
+        if user not in self._last_user_post:
+            self._last_user_post[user] = (
+                Post.objects.filter(topic=self).filter(author=user.pk).order_by("position").last()
+            )
+        last_user_post = self._last_user_post[user]
 
         if last_user_post and last_user_post == self.get_last_post():
             duration = datetime.now() - last_user_post.pubdate
@@ -431,7 +444,9 @@ class Topic(AbstractSearchIndexableModel):
 
     @property
     def is_read(self):
-        return self.is_read_by_user(get_current_user())
+        if self._is_read is None:
+            self._is_read = self.is_read_by_user(get_current_user())
+        return self._is_read
 
     def is_read_by_user(self, user=None, check_auth=True):
         return TopicRead.objects.is_topic_last_message_read(self, user, check_auth)

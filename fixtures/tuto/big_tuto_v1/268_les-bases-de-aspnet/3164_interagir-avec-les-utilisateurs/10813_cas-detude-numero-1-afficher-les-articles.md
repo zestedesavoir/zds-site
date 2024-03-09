@@ -2,7 +2,7 @@ Ce premier cas d'étude vous permettra de mettre en oeuvre :
 
 - la création d'un contrôleur qui nous retourne une liste d'article
 - la création d'une vue avec un modèle fortement typé
-- l'utilisation du layout 
+- l'utilisation du layout
 
 # S'organiser pour répondre au problème
 
@@ -27,7 +27,7 @@ Comme c'est notre premier cas d'étude, je vais vous faire un pas à pas détail
 |page de         |                                                             |
 |disposition     |                                                             |
 +----------------+-------------------------------------------------------------+
-Tableau: les paramètres à entrer  
+Tableau: les paramètres à entrer
 ![Liste des paramètres](/media/galleries/304/ab5d290c-79b9-4c78-8cf1-930e5c25d402.png.960x960_q85.png)<-
 
 Voici le code qui permet de récupérer le chemin de votre fichier qui se trouve dans le dossier App_Data
@@ -51,7 +51,7 @@ Bien sur comme d'habitude, je vous invite à lancer votre application pour voir 
 | using System.Linq;
 | using System.Web;
 | using System.Web.Mvc;
-| 
+|
 | namespace Blog.Controllers
 | {
 |     public class ArticleController : Controller
@@ -60,7 +60,7 @@ Bien sur comme d'habitude, je vous invite à lancer votre application pour voir 
 |        /// Champ qui va permettre d'appeler des méthodes pour faire des actions sur notre fichier
 |        /// </summary>
 |         private readonly ArticleJSONRepository _repository;
-| 
+|
 |         /// <summary>
 |         /// Constructeur par défaut, permet d'initialiser le chemin du fichier JSON
 |         /// </summary>
@@ -69,7 +69,7 @@ Bien sur comme d'habitude, je vous invite à lancer votre application pour voir 
 |             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "App_Data", "liste_article_tuto_full.json");
 |             _repository = new ArticleJSONRepository(path);
 |         }
-| 
+|
 |         // GET: List
 |         public ActionResult List()
 |         {
@@ -87,14 +87,14 @@ Bien sur comme d'habitude, je vous invite à lancer votre application pour voir 
 | }
 | ```
 | Code: Le contrôleur
-| 
+|
 | ```csharp
 | @model IEnumerable<Blog.Models.Article>
-| 
+|
 | @{
 |     ViewBag.Title = "Blog";
 | }
-| 
+|
 | <p>
 |     @Html.ActionLink("Create New", "Create")
 | </p>
@@ -111,7 +111,7 @@ Bien sur comme d'habitude, je vous invite à lancer votre application pour voir 
 |         </th>
 |         <th></th>
 |     </tr>
-| 
+|
 | @foreach (var item in Model) {
 |     <tr>
 |         <td>
@@ -130,7 +130,7 @@ Bien sur comme d'habitude, je vous invite à lancer votre application pour voir 
 |         </td>
 |     </tr>
 | }
-| 
+|
 | </table>
 | ```
 | Code: La vue

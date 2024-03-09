@@ -9,4 +9,3 @@ assignees: ''
 **La question**
 
 Posez votre question en donnant le plus de détails possible pour être certain d'avoir une réponse.
-

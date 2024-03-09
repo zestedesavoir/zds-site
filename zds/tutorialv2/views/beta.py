@@ -31,7 +31,6 @@ class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin)
     model = PublishableContent
     form_class = BetaForm
     authorized_for_staff = True
-    only_draft_version = False
 
     action = None
 

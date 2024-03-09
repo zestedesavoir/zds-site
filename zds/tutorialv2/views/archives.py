@@ -39,7 +39,6 @@ class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):
     """
 
     mimetype = "application/zip"
-    only_draft_version = False  # beta version can also be downloaded
     must_be_author = False  # other user can download archive
 
     @staticmethod

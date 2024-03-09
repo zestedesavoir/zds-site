@@ -7,12 +7,10 @@ on:
     - cron: "30 3 * * WED" # every Wednesday at 3:30 AM, only main branch
 
 env:
-  NODE_VERSION: "16" # needs to be also updated in .nvmrc
-  PYTHON_VERSION: "3.7"
+  NODE_VERSION: "18" # needs to be also updated in .nvmrc
+  PYTHON_VERSION: "3.9"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
-  BLACK_VERSION: "23.3.0" # needs to be also updated in requirements-dev.txt and .pre-commit-config.yaml
-  GECKODRIVER_VERSION: "0.33.0"
   TYPESENSE_VERSION: "0.24.1" # needs to be also updated in scripts/define_variable.sh
 
   # As GitHub Action does not allow environment variables
@@ -23,9 +21,9 @@ env:
   MEMCACHED_VERSION: "1.6"
 
 jobs:
-  # Lint the Python back-end with flake8.
-  lint-back:
-    name: Lint back-end
+  # Lint all source files by executing pre-commit hooks.
+  lint:
+    name: Lint
     runs-on: ubuntu-22.04
 
     # do not execute scheduled jobs on forks:
@@ -33,18 +31,15 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
-      - name: Install python dependencies
-        run: pip install black==${{ env.BLACK_VERSION }}
-
-      - name: Lint back-end
-        run: make lint-back
+      - name: Execute pre-commit
+        uses: pre-commit/action@v3.0.1
 
   # Build the documentation and upload it as an artifact.
   build-doc:
@@ -56,10 +51,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -71,7 +66,7 @@ jobs:
         run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
@@ -85,7 +80,7 @@ jobs:
         run: make generate-doc
 
       - name: Upload documentation as a page artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: doc/build/html
 
@@ -99,10 +94,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ env.NODE_VERSION }}"
 
@@ -111,7 +106,7 @@ jobs:
         run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -129,7 +124,7 @@ jobs:
         run: make build-front
 
       - name: Upload font-end assets for subsequent tests
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: assets
           path: dist
@@ -172,26 +167,17 @@ jobs:
           mysql database: "ci_db_name"
           mysql root password: "ci_root_password"
 
-      - name: Install Firefox
-        run: sudo apt-get update && sudo apt-get install firefox
-
       - name: Start Typesense
         uses: jirevwe/typesense-github-action@v1.0.1
         with:
           typesense-version: ${{ env.TYPESENSE_VERSION }}
           typesense-api-key: xyz
 
-      - name: Install Geckodriver
-        run: |
-          wget https://github.com/mozilla/geckodriver/releases/download/v${{ env.GECKODRIVER_VERSION }}/geckodriver-v${{ env.GECKODRIVER_VERSION }}-linux64.tar.gz
-          mkdir geckodriver
-          tar -xzf geckodriver-v${{ env.GECKODRIVER_VERSION }}-linux64.tar.gz -C geckodriver
-
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Download previously built assets
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: assets
           path: dist
@@ -205,7 +191,7 @@ jobs:
         run: echo "dir=$(pip cache dir)" >> $GITHUB_OUTPUT
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pip-cache.outputs.dir }}
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
@@ -213,7 +199,7 @@ jobs:
             ${{ runner.os }}-pip-
 
       - name: Cache Node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('zmd/package-lock.json') }}
@@ -221,12 +207,12 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "${{ env.NODE_VERSION }}"
 
@@ -242,9 +228,7 @@ jobs:
           make zmd-start
 
       - name: Run tests for ${{ matrix.module }}
-        run: |
-          export PATH="$PATH:$PWD/geckodriver"
-          coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
+        run: coverage run --source='.' manage.py test -v=2 --keepdb --settings zds.settings.ci_test ${{ matrix.module }}
 
       - name: Analyze coverage
         shell: bash -l {0}
@@ -265,7 +249,7 @@ jobs:
 
     steps:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "${{ env.PYTHON_VERSION }}"
 
@@ -296,4 +280,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4

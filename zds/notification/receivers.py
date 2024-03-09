@@ -157,13 +157,20 @@ def mark_content_reactions_read(sender, *, instance, user=None, target, **__):
             subscription = ContentReactionAnswerSubscription.objects.get_existing(user, instance, is_active=True)
             if subscription:
                 subscription.mark_notification_read()
-    elif target == PublishableContent:
-        authors = list(instance.authors.all())
-        for author in authors:
-            subscription = NewPublicationSubscription.objects.get_existing(user, author)
-            # a subscription has to be handled only if it is active OR if it was triggered from the publication
-            # event that creates an "autosubscribe" which is immediately deactivated.
-            if subscription and (subscription.is_active or subscription.user in authors):
+    elif target == PublishableContent and user is not None:
+        # We cannot use the list of authors of the content, because the user we
+        # are subscribed to may have left the authorship of the content (see issue #5544).
+        followed_users = list(NewPublicationSubscription.objects.get_objects_followed_by(user))
+        if user not in followed_users:
+            # When a content is published, their authors are subscribed for
+            # notifications of their own publications, but these subscriptions
+            # are not activated (see receiver for signal content_published).
+            # Since followed_users contains only active subscriptions, current
+            # user should not be in it, so we add it manually:
+            followed_users.append(user)
+        for followed_user in followed_users:
+            subscription = NewPublicationSubscription.objects.get_existing(user, followed_user)
+            if subscription:
                 subscription.mark_notification_read(content=instance)
 
 

@@ -11,6 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
+from zds.notification.models import Notification
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ExtractFactory,
@@ -80,6 +81,11 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertIsNotNone(opinion.public_version)
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
+        # By visiting the published content, the author marks the publication notification as read:
+        self.assertEqual(Notification.objects.get_unread_notifications_of(self.user_author).count(), 1)
+        self.client.get(result.url)
+        self.assertEqual(Notification.objects.get_unread_notifications_of(self.user_author).count(), 0)
+
     @patch("zds.tutorialv2.signals.opinions_management")
     def test_publish_content_change_title_before_watchdog(self, opinions_management):
         """
@@ -145,7 +151,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # and publish it a second time now it has a new title:
         result = self.client.post(
             reverse("validation:publish-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
-            {"text": "Blabla", "source": "", "version": opinion_draft.current_version},
+            {"text": "Blabla", "source": "", "version": opinion.sha_draft},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -162,7 +168,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         requested_events = PublicationEvent.objects.filter(state_of_processing="REQUESTED")
         self.assertEqual(requested_events.count(), 4)
 
-        # Now, call the watchdog:
+        # TODO (Arnaud-D): This must be fixed as it creates coupling between tests.
+        #  Other tests check the presence of exports and fail if this one is not executed successfully before.
         call_command("publication_watchdog", "--once")
 
         requested_events = PublicationEvent.objects.filter(state_of_processing="REQUESTED")
@@ -177,7 +184,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         opinion.save()
         self.client.force_login(self.user_author)
         resp = self.client.get(reverse("opinion:view", kwargs={"pk": opinion.pk, "slug": opinion.slug}))
-        self.assertContains(resp, "Version brouillon", msg_prefix="Author must access their draft directly")
+        self.assertContains(resp, "Voir la page brouillon", msg_prefix="Author must access their draft directly")
         self.assertNotContains(resp, "{}?subcategory=".format(reverse("publication:list")))
         self.assertContains(resp, "{}?category=".format(reverse("opinion:list")))
 

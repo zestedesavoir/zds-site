@@ -24,4 +24,3 @@ Une description claire et concise des solutions alternatives qui auraient pu aus
 **Contexte additionnel**
 
 Ajoute n'importe quel autre élément de contexte qui peut aider à mieux comprendre l'idée (capture d'écran, maquette, etc).
-

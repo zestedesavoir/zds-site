@@ -4,7 +4,7 @@ from django.views.generic.base import RedirectView
 from zds.tutorialv2.views.contributors import ContentOfContributors
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor
 from zds.tutorialv2.views.download_online import DownloadOnlineArticle
-from zds.tutorialv2.views.display import DisplayOnlineArticle
+from zds.tutorialv2.views.display import ArticleOnlineView
 from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
 
 urlpatterns = [
@@ -12,7 +12,7 @@ urlpatterns = [
     path("flux/rss/", LastArticlesFeedRSS(), name="feed-rss"),
     path("flux/atom/", LastArticlesFeedATOM(), name="feed-atom"),
     # View
-    path("<int:pk>/<slug:slug>/", DisplayOnlineArticle.as_view(), name="view"),
+    path("<int:pk>/<slug:slug>/", ArticleOnlineView.as_view(), name="view"),
     # Downloads
     path("md/<int:pk>/<slug:slug>.md", DownloadOnlineArticle.as_view(requested_file="md"), name="download-md"),
     path("pdf/<int:pk>/<slug:slug>.pdf", DownloadOnlineArticle.as_view(requested_file="pdf"), name="download-pdf"),

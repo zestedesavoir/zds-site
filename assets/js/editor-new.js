@@ -949,7 +949,7 @@
       ]
     })
 
-    if (smdeUniqueContent != null && localStorage['smde_' + mdeUniqueKey] !== textarea.value) {
+    if (smdeUniqueContent != null && localStorage['smde_' + mdeUniqueKey] !== textarea.defaultValue) {
       const $alertbox = $('<div class="alert-box info"></div>')
 
       const $hide = $("<a>Masquer l'alerte</a>")
@@ -961,7 +961,7 @@
       })
 
       const $undo = $('<a href="javascript:void(0)">cliquant ici</a>.').click(function() {
-        window.editors[textarea.id].value(textarea.value)
+        window.editors[textarea.id].value(textarea.defaultValue)
         easyMDE.codemirror.off('keyHandled', onKeyHandled)
         localStorage.removeItem('smde_' + mdeUniqueKey)
         $alertbox.hide(() => $(this).remove())
@@ -984,7 +984,7 @@
 
       const spanContent = [
         'La version actuelle du contenu provient d\'une sauvegarde de votre navigateur. ',
-        'Vous pouvez revenir à la version originale (du serveur) avec CTRL+Z ou en ',
+        'Vous pouvez revenir à la version originale (du serveur) en ',
         $undo,
         '.'
       ]
@@ -994,7 +994,7 @@
         .appendTo($alertbox)
         .after($hide)
 
-      $(easyMDE.element.parentElement).children('.editor-toolbar').before($alertbox)
+      formEditor.find('.editor-toolbar').before($alertbox)
     }
 
     window.editors[this.id] = easyMDE

@@ -12,6 +12,7 @@ from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
 from zds.tutorialv2.utils import mark_read
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.utils.misc import is_ajax
 
 
 class SingleContentViewMixin:
@@ -29,10 +30,9 @@ class SingleContentViewMixin:
     2. In ``get_versioned_object()``:
         - Deal with sha : assume ``self.object.sha_draft`` by default, but reset according to \
         ``self.request.GET['version']``, if exists. \
-        Then, check ``self.only_draft_version`` and raise ``PermissionDenied`` if any
         - Fetch the ``VersionedContent``. Due to  the use of ``self.object.load_version_or_404(sha)``,\
         raise ``Http404``.
-        - Check if its the beta or public version, and allow access if it's the case. Raise ``PermissionDenied``.
+        - Check if it's the beta or public version, and allow access if it's the case. Raise ``PermissionDenied``.
         - Check slug if ``self.kwargs['slug']`` is defined. Raise ``Http404`` if any.
 
     3. In ``get_public_object()``, fetch the last published version, if any
@@ -50,7 +50,6 @@ class SingleContentViewMixin:
     authorized_for_staff = True
     is_staff = False
     is_author = False
-    only_draft_version = True
     must_redirect = False
     public_is_prioritary = True
 
@@ -92,19 +91,7 @@ class SingleContentViewMixin:
     def get_versioned_object(self):
         """Gets the asked version of current content."""
 
-        # fetch version:
-        sha = self.object.sha_draft
-
-        if not self.only_draft_version:
-            if self.sha:
-                sha = self.sha
-            else:
-                if "version" in self.request.GET:
-                    sha = self.request.GET["version"]
-                elif "version" in self.request.POST:
-                    sha = self.request.POST["version"]
-
-        self.sha = sha
+        self.sha = self._get_sha()
 
         # if beta or public version, user can also access to it
         is_beta = self.object.is_beta(self.sha)
@@ -116,6 +103,7 @@ class SingleContentViewMixin:
 
         # load versioned file
         versioned = self.object.load_version_or_404(self.sha)
+        versioned.current_version = self.sha
 
         # check slug, if any:
         if "slug" in self.kwargs:
@@ -125,6 +113,18 @@ class SingleContentViewMixin:
                     raise Http404("Ce slug n'existe pas pour ce contenu.")
 
         return versioned
+
+    def _get_sha(self):
+        if self.sha:
+            return self.sha
+        elif "version" in self.request.GET:
+            return self.request.GET["version"]
+        elif "version" in self.request.POST:
+            return self.request.POST["version"]
+        elif "version" in self.kwargs:
+            return self.kwargs["version"]
+        else:
+            return self.object.sha_draft
 
     def get_public_object(self):
         """Get the published version, if any"""
@@ -186,7 +186,7 @@ class FormWithPreview(FormView):
 
         if "preview" in request.POST:
             self.form_invalid(form)
-            if request.is_ajax():
+            if is_ajax(self.request):
                 content = render_to_string("misc/preview.part.html", {"text": request.POST.get("text")})
                 return StreamingHttpResponse(content)
 
@@ -220,26 +220,12 @@ class SingleContentFormViewMixin(SingleContentViewMixin, ModalFormView):
 
 
 class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
-    """
-    This enhanced DetailView ensures,
-
-    - by rewriting `get()`, that:
-        * `self.object` contains the result of `get_object()` (as it must be if `get()` is not rewritten)
-        * `self.sha` is set according to `self.request.GET['version']` (if any) and `self.object.sha_draft` otherwise
-        * `self.versioned_object` contains the results of `get_versioned_object()`
-    - by surcharging `get_context_data()`, that
-        * context['content'] contains `self.versioned_object`
-        * context['can_edit'] is set
-        * context['version'] is set (if different from `self.object.sha_draft`)
-        * context['beta_topic'] is set (if any)
-    """
-
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
         if not self.sha:
             try:
-                self.sha = request.GET["version"]
+                self.sha = kwargs["version"]
             except KeyError:
                 self.sha = self.object.sha_draft
 
@@ -255,23 +241,11 @@ class SingleContentDetailViewMixin(SingleContentViewMixin, DetailView):
         context["helps"] = list(HelpWriting.objects.all())
         context["content_helps"] = list(self.object.helps.all())
         context["content"] = self.versioned_object
+        context["db_content"] = self.object
         context["can_edit"] = self.is_author
         context["is_staff"] = self.is_staff
-        if self.object.type == "OPINION":
-            context["can_publish"] = not self.object.is_permanently_unpublished()
-        if self.sha != self.object.sha_draft:
-            context["version"] = self.sha
-
-        is_allowed = self.is_author or self.is_staff
-        is_same_version = not self.sha or self.sha == self.object.sha_draft
-        context["can_add_something"] = is_allowed and is_same_version
-
-        if self.object.beta_topic:
-            beta_topic = Topic.objects.get(pk=self.object.beta_topic.pk)
-
-            if beta_topic:
-                context["beta_topic"] = beta_topic
-
+        context["version"] = self.sha
+        context["beta_topic"] = self.object.beta_topic
         return context
 
 
@@ -453,7 +427,6 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context["is_obsolete"] = self.object.is_obsolete
         context["public_object"] = self.public_content_object
         context["can_edit"] = self.request.user in self.object.authors.all()
-        context["is_antispam"] = self.object.antispam(self.request.user)
         context["is_staff"] = self.is_staff
         context["is_author"] = self.is_author
         context["db_content"] = self.object

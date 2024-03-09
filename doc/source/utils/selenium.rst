@@ -52,7 +52,7 @@ Voici le contenu d'un test :
       def setUpClass(cls):
           super().setUpClass()
           options = Options()
-          options.headless = True
+          options.add_argument("--headless")
           cls.selenium = Firefox(options=options)
           cls.selenium.implicitly_wait(30)
 
@@ -69,4 +69,3 @@ Lancement des tests
 ~~~~~~~~~~~~~~~~~~~
 
 Il suffit d'utiliser le Makefile et de lancer ``make test-back-selenium``.
-

@@ -15,9 +15,9 @@ C'est à ce *mapper* que sont accrochés les *connecteurs* qui vous permettront 
 
 Quand vous utilisez un ORM, il faudra parfois décrire les relations entre les classes. En effet, certaines sont complexes et peuvent être interprétées de plusieurs manière, il vous faudra donc dire explicitement ce qu'il faut faire.
 
-Vous pouvez aussi vouloir nommer vos champs et tables autrement que ce que désire la *convention*. 
+Vous pouvez aussi vouloir nommer vos champs et tables autrement que ce que désire la *convention*.
 
-Pour cela, vous avez deux grandes méthodes avec EntityFramework. 
+Pour cela, vous avez deux grandes méthodes avec EntityFramework.
 
 ## Les annotations
 
@@ -25,7 +25,7 @@ Comme nous l'avions vu lorsque nous avons voulu vérifier la cohérence des donn
 
 Les annotations les plus importantes seront :
 
-- `[Index]` : elle permet de s'assurer qu'une entrée est **unique** dans la table et grâce à ça accélérer fortement les recherches. 
+- `[Index]` : elle permet de s'assurer qu'une entrée est **unique** dans la table et grâce à ça accélérer fortement les recherches.
 - `[Key]` : Si votre clef primaire ne doit pas s'appeler ID ou bien qu'elle est plus complexe, il faudra utiliser l'attribut Key
 - `[Required]`: Il s'agit du même `[Required]` que pour les vues[^vue_modele], il a juste un autre effet : il interdit les valeurs `NULL` ce qui est une contrainte très forte.
 
@@ -35,7 +35,7 @@ Les annotations les plus importantes seront :
 
 La seconde méthode a été nommée "Fluent API". Elle a été créée pour que ça soit encore une fois la production de code qui permette de décrire le modèle.
 
-La Fluent API est **beaucoup plus avancée** en terme de fonctionnalité et vous permet d'utiliser les outils les plus optimisés de votre base de données. 
+La Fluent API est **beaucoup plus avancée** en terme de fonctionnalité et vous permet d'utiliser les outils les plus optimisés de votre base de données.
 
 Je ne vais pas plus loin dans l'explication de la Fluent API, nous ne l'observeront à l'action que bien plus tard dans le cours, lorsque nous aurons affaire aux cas complexes dont je vous parlais plus tôt.
 
@@ -43,6 +43,6 @@ Je ne vais pas plus loin dans l'explication de la Fluent API, nous ne l'observer
 
 Troisième et dernier outil, qui aura sont propre chapitre tant il est important et puissant.
 
-Les migrations sont de simple fichier de code (on ne vous a pas menti en disant que c'était du Code First) qui expliquent à la base de données comment se mettre à jour au fur et à mesure que vous faîtes évoluer votre modèle. 
+Les migrations sont de simple fichier de code (on ne vous a pas menti en disant que c'était du Code First) qui expliquent à la base de données comment se mettre à jour au fur et à mesure que vous faîtes évoluer votre modèle.
 
 Une migration se termine toujours par l'exécution d'une méthode appelée `Seed` qui ajoute ou met à jour des données dans la base de données soit pour **tester** soit pour créer un environnement minimum (exemple un compte administrateur).

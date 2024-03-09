@@ -6,7 +6,7 @@ Ce premier cas d'étude vous permettra de mettre en oeuvre :
 
 # Ce qu'est la pagination
 
-La pagination, c'est une technique très utile quand vous devez afficher des listes très longues de contenu.  
+La pagination, c'est une technique très utile quand vous devez afficher des listes très longues de contenu.
 Sur un blog, vous aurez - à partir d'un moment - une liste assez importante d'articles. Disons pour faire simple que vous en avez 42.
 
 Pensez-vous qu'afficher les 42 articles sur la page d'accueil soit une bonne chose?
@@ -15,9 +15,9 @@ Pensez-vous qu'afficher les 42 articles sur la page d'accueil soit une bonne cho
 
 De ce fait, vous allez décider de n'afficher que 5 articles et de mettre les 5 suivants dans une autre page et ainsi de suite.
 
-Votre but sera donc d'afficher la liste des articles puis de mettre à disposition de vos utilisateurs un bouton "page précédente", un autre "page suivante", et un formulaire permettant de se rendre à une page quelconque. 
+Votre but sera donc d'afficher la liste des articles puis de mettre à disposition de vos utilisateurs un bouton "page précédente", un autre "page suivante", et un formulaire permettant de se rendre à une page quelconque.
 
-Voici un petit aperçu du contrôle proposé : 
+Voici un petit aperçu du contrôle proposé :
 
 -> ![Aperçu formulaire pagination](/media/galleries/304/5f1b9af0-3999-4039-9a9b-b8a61210c4db.png.960x960_q85.png) <-
 
@@ -28,7 +28,7 @@ Comme c'est notre premier cas d'étude, vous vais vous faire un pas à pas déta
 1. Dans le contrôleur Article, créez une méthode List `public ActionResult List(int page = 0)`
 2. Rendez-vous dans le dossier `View\Article`, cliquez-droit, `Ajouter`->`Vue`, Entrez les paramètres décrits dans le tableau
 3. Ajoutez les liens Précédent/Suivant à la vue
-4. Déterminez si vous devez utiliser un formulaire GET ou POST et créez-le. 
+4. Déterminez si vous devez utiliser un formulaire GET ou POST et créez-le.
 
 ->
 +----------------+-------------------------------------------------------------+
@@ -44,7 +44,7 @@ Comme c'est notre premier cas d'étude, vous vais vous faire un pas à pas déta
 |page de         |                                                             |
 |disposition     |                                                             |
 +----------------+-------------------------------------------------------------+
-Tableau: les paramètres à entrer  
+Tableau: les paramètres à entrer
 ![Liste des paramètres](/media/galleries/304/ab5d290c-79b9-4c78-8cf1-930e5c25d402.png.960x960_q85.png)<-
 
 
@@ -55,7 +55,7 @@ Comme vous l'aurez sûrement compris, nous sommes dans le cas d'un formulaire qu
 
 
 [[secret]]
-| 
+|
 | ```csharp
 |         public ActionResult List(int page = 0)
 |         {
@@ -72,21 +72,21 @@ Comme vous l'aurez sûrement compris, nous sommes dans le cas d'un formulaire qu
 |             {
 |                 return View(new List<Article>());
 |             }
-| 
+|
 |         }
 | ```
 | Code: Le contrôleur
-| 
+|
 | ```csharp
 | @model List<TutoBlog.Models.Article>
-| 
+|
 | @{
 |     ViewBag.Title = "Liste des articles";
 |     Layout = "~/Views/Shared/_Layout.cshtml";
 | }
 | <section>
 |     <h2>List</h2>
-| 
+|
 |     <p>
 |         @Html.ActionLink("Create New", "Create")
 |     </p>
@@ -103,7 +103,7 @@ Comme vous l'aurez sûrement compris, nous sommes dans le cas d'un formulaire qu
 |             </th>
 |             <th></th>
 |         </tr>
-| 
+|
 |         @foreach (var item in Model)
 |         {
 |             <tr>
@@ -123,16 +123,16 @@ Comme vous l'aurez sûrement compris, nous sommes dans le cas d'un formulaire qu
 |                 </td>
 |             </tr>
 |         }
-| 
+|
 |     </table>
 |     <footer class="pagination-nav">
 |         <ul>
 |             <li>
 |                 @if ((int)ViewBag.Page > 0)
 |                 {
-| 
+|
 |                     @Html.ActionLink("Précédent", "List", "Article", new { page = ViewBag.Page - 1 }, new { @class = "button" })
-| 
+|
 |                 }
 |             </li>
 |             <li>
@@ -142,17 +142,17 @@ Comme vous l'aurez sûrement compris, nous sommes dans le cas d'un formulaire qu
 |                     {
 |                         @Html.TextBox("page", 0, new { type = "number" })
 |                         <button type="submit">Aller à</button>
-| 
+|
 |                     }
-| 
-| 
+|
+|
 |                 }
 |             </li>
 |             <li>
 |                 @if (Model.Count == TutoBlog.Controllers.ArticleController.ArticlePerPage)
 |                 {
 |                     @Html.ActionLink("Suivant", "List", "Article", new { page = ViewBag.Page + 1 }, new { @class = "button" })
-| 
+|
 |                 }
 |             </li>
 |         </ul>

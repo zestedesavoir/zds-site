@@ -23,7 +23,7 @@ Notre projet technique est constitué de plusieurs éléments :
 Contribuer à Zeste de Savoir
 ============================
 
-`Notre documentation technique <https://docs.zestedesavoir.com>`__ devrait vous être utile pour bien appréhender notre projet. 
+`Notre documentation technique <https://docs.zestedesavoir.com>`__ devrait vous être utile pour bien appréhender notre projet.
 
 Merci de prendre connaissance du `Code de Conduite de Contributeurs <https://github.com/zestedesavoir/zds-site/blob/dev/CODE_OF_CONDUCT.md>`__ et de le respecter pour garder ce projet ouvert et accueillant !
 

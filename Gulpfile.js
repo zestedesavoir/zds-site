@@ -117,7 +117,9 @@ async function jsLint() {
   console.log(resultText)
 }
 
-// Get JS minified files from packages
+/* Get JS minified files from packages
+ * Get also sourcemaps for all JS files, required by Django's ManifestStaticFilesStorage since 4.1 (see
+ * https://docs.djangoproject.com/fr/4.2/ref/contrib/staticfiles/#manifeststaticfilesstorage) */
 function jsPackages() {
   return gulp.src([
     require.resolve('jquery/dist/jquery.min.js'),
@@ -126,8 +128,8 @@ function jsPackages() {
     require.resolve('chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js'),
     require.resolve('chart.js/dist/chart.min.js'),
     require.resolve('easymde/dist/easymde.min.js')
-  ])
-    .pipe(gulp.dest('dist/js/'))
+  ], { sourcemaps: true })
+    .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }))
 }
 
 // Generates JS for the website
@@ -205,11 +207,12 @@ function watch() {
   gulp.watch('assets/js/*.js', js)
   gulp.watch(['assets/{images,smileys}/**/*', '!assets/images/sprite/*.png'], images)
   gulp.watch(['assets/scss/**/*.scss'], css)
+  gulp.watch(['errors/scss/main.scss'], errors)
   gulp.watch(['assets/images/sprite/*.png', 'assets/scss/_sprite.scss.hbs'], gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 }
 
 // Build the front
-const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
+const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, errors, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
 
 exports.build = build
 exports.watch = gulp.series(build, watch)
@@ -219,4 +222,3 @@ exports.errors = errors
 exports.prepareZmd = prepareZmd
 exports.prepareEasyMde = prepareEasyMde
 exports.default = gulp.parallel(watch, jsLint)
-

@@ -1,0 +1,13 @@
+<meta property="og:type" content="article">
+
+{% if tutorial.create_at %}
+    <meta property="og:article:published_time" content="{{ content.creation_date|date:"c" }}">
+{% endif %}
+{% if tutorial.pubdate %}
+    <meta property="og:article:modified_time" content="{{ content.pubdate|date:"c" }}">
+{% endif %}
+
+<meta property="og:article:section" content="Tutoriels">
+{% for catofsubcat in content.subcategory.all %}
+    <meta property="og:article:tag" content="{{ catofsubcat.title }}">
+{% endfor %}
