@@ -20,7 +20,6 @@ from zds.tutorialv2.forms import (
     UnpublicationForm,
     WarnTypoForm,
     JsFiddleActivationForm,
-    EditContentLicenseForm,
     PublicationForm,
     PickOpinionForm,
     UnpickOpinionForm,
@@ -28,6 +27,7 @@ from zds.tutorialv2.forms import (
     SearchSuggestionForm,
     ContributionForm,
 )
+from zds.tutorialv2.views.licence import EditContentLicenseForm
 from zds.tutorialv2.views.tags import EditTagsForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import (

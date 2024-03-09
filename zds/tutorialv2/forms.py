@@ -9,7 +9,7 @@ from django.core.validators import MinLengthValidator
 
 from zds.tutorialv2.utils import get_content_version_url
 from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
-from zds.utils.models import SubCategory, Licence
+from zds.utils.models import SubCategory
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole, ContentSuggestion
@@ -314,60 +314,6 @@ class ContentForm(ContainerForm):
                 ]
             )
         return cleaned_data
-
-
-class EditContentLicenseForm(forms.Form):
-    license = forms.ModelChoiceField(
-        label=_("Licence de votre publication : "),
-        queryset=Licence.objects.order_by("title").all(),
-        required=True,
-        empty_label=_("Choisir une licence"),
-        error_messages={
-            "required": _("Merci de choisir une licence."),
-            "invalid_choice": _("Merci de choisir une licence valide dans la liste."),
-        },
-    )
-
-    update_preferred_license = forms.BooleanField(
-        label=_("Je souhaite utiliser cette licence comme choix par défaut pour mes futures publications."),
-        required=False,
-    )
-
-    def __init__(self, versioned_content, *args, **kwargs):
-        kwargs["initial"] = {"license": versioned_content.licence}
-        super(forms.Form, self).__init__(*args, **kwargs)
-
-        self.helper = FormHelper()
-        self.helper.form_class = "content-wrapper"
-        self.helper.form_method = "post"
-        self.helper.form_id = "edit-license"
-        self.helper.form_class = "modal modal-flex"
-        self.helper.form_action = reverse("content:edit-license", kwargs={"pk": versioned_content.pk})
-        self.previous_page_url = reverse(
-            "content:view", kwargs={"pk": versioned_content.pk, "slug": versioned_content.slug}
-        )
-        self._create_layout()
-
-        if "type" in self.initial:
-            self.helper["type"].wrap(Field, disabled=True)
-
-    def _create_layout(self):
-        self.helper.layout = Layout(
-            HTML(
-                """<p>{} encourage l'utilisation de licences facilitant le partage,
-                    telles que les licences <a href="https://creativecommons.org/">Creative Commons</a>.</p>
-                    <p>Pour choisir la licence de votre publication, aidez-vous de la
-                    <a href="{}" alt="{}">présentation
-                    des différentes licences proposées sur le site</a>.</p>""".format(
-                    settings.ZDS_APP["site"]["literal_name"],
-                    settings.ZDS_APP["site"]["licenses"]["licence_info_title"],
-                    settings.ZDS_APP["site"]["licenses"]["licence_info_link"],
-                )
-            ),
-            Field("license"),
-            Field("update_preferred_license"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
-        )
 
 
 class ExtractForm(FormWithTitle):
