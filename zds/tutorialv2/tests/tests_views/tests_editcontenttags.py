@@ -5,8 +5,7 @@ from django.urls import reverse
 from django.utils.html import escape
 
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.views.editorialization import EditContentTags
-from zds.tutorialv2.forms import EditContentTagsForm
+from zds.tutorialv2.views.tags import EditTagsForm, EditTags
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
@@ -73,8 +72,8 @@ class EditContentTagsWorkflowTests(TutorialTestMixin, TestCase):
 
         # Get information to be reused in tests
         self.form_url = reverse("content:edit-tags", kwargs={"pk": self.content.pk})
-        self.error_messages = EditContentTagsForm.declared_fields["tags"].error_messages
-        self.success_message = EditContentTags.success_message
+        self.error_messages = EditTagsForm.declared_fields["tags"].error_messages
+        self.success_message = EditTags.success_message
 
         # Log in with an authorized user (e.g the author of the content) to perform the tests
         self.client.force_login(self.author.user)
@@ -90,7 +89,7 @@ class EditContentTagsWorkflowTests(TutorialTestMixin, TestCase):
             "success_tags": {"inputs": {"tags": "test, test1"}, "expected_outputs": [self.success_message]},
             "stripped_to_empty": {"inputs": {"tags": " "}, "expected_outputs": [self.success_message]},
             "tags_string_too_long": {
-                "inputs": {"tags": "a" * (EditContentTagsForm.declared_fields["tags"].max_length + 1)},
+                "inputs": {"tags": "a" * (EditTagsForm.declared_fields["tags"].max_length + 1)},
                 "expected_outputs": [self.error_messages["max_length"]],
             },
             "invalid_slug_tag": {

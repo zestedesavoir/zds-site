@@ -15,7 +15,7 @@ from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole, ContentSuggestion
 from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
-from zds.utils.forms import TagValidator, IncludeEasyMDE
+from zds.utils.forms import IncludeEasyMDE
 from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
 
 
@@ -314,55 +314,6 @@ class ContentForm(ContainerForm):
                 ]
             )
         return cleaned_data
-
-
-class EditContentTagsForm(forms.Form):
-    tags = forms.CharField(
-        label=_("Tags séparés par des virgules (exemple : python,api,web) :"),
-        max_length=64,
-        required=False,
-        widget=forms.TextInput(),
-        error_messages={"max_length": _("La liste de tags saisie dépasse la longueur maximale autorisée.")},
-    )
-
-    def __init__(self, content, db_content, *args, **kwargs):
-        self.db_content = db_content
-        kwargs["initial"] = {"tags": ", ".join(db_content.tags.values_list("title", flat=True))}
-        super(forms.Form, self).__init__(*args, **kwargs)
-
-        self.fields["tags"].widget.attrs.update(
-            {
-                "data-autocomplete": '{ "type": "multiple", "fieldname": "title", "url": "'
-                + reverse("api:utils:tags-list")
-                + '?search=%s" }',
-            }
-        )
-
-        self.helper = FormHelper()
-        self.helper.form_class = "content-wrapper"
-        self.helper.form_method = "post"
-        self.helper.form_id = "edit-tags"
-        self.helper.form_class = "modal modal-flex"
-        self.helper.form_action = reverse("content:edit-tags", kwargs={"pk": content.pk})
-        self.helper.layout = Layout(
-            HTML(
-                """<p>Les tags permettent de grouper les publications plus finement que les catégories.
-                    Par exemple, vous pouvez indiquer une technologie ou une sous-discipline.
-                     Consultez <a href="{}">la page des tags</a> pour voir des exemples.""".format(
-                    reverse("content:tags")
-                )
-            ),
-            Field("tags"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
-        )
-        self.previous_page_url = reverse("content:view", kwargs={"pk": content.pk, "slug": content.slug})
-
-    def clean_tags(self):
-        validator = TagValidator()
-        cleaned_tags = self.cleaned_data.get("tags")
-        if not validator.validate_raw_string(cleaned_tags):
-            self.add_error("tags", self.error_class(validator.errors))
-        return cleaned_tags
 
 
 class EditContentLicenseForm(forms.Form):

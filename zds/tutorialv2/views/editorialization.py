@@ -7,11 +7,10 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability, can_write_and_read_now
-from zds.tutorialv2.forms import RemoveSuggestionForm, EditContentTagsForm
+from zds.tutorialv2.forms import RemoveSuggestionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import ContentSuggestion, PublishableContent
 import zds.tutorialv2.signals as signals
-from zds.utils import get_current_user
 
 
 class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
@@ -112,24 +111,3 @@ class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, Single
             return redirect(self.object.get_absolute_url_online())
         else:
             return redirect(self.object.get_absolute_url())
-
-
-class EditContentTags(LoggedWithReadWriteHability, SingleContentFormViewMixin):
-    modal_form = True
-    model = PublishableContent
-    form_class = EditContentTagsForm
-    success_message = _("Les tags ont bien été modifiés.")
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["content"] = self.versioned_object
-        kwargs["db_content"] = self.object
-        return kwargs
-
-    def form_valid(self, form):
-        self.object.tags.clear()
-        self.object.add_tags(form.cleaned_data["tags"].split(","))
-        self.object.save()
-        messages.success(self.request, EditContentTags.success_message)
-        signals.tags_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
-        return redirect(form.previous_page_url)

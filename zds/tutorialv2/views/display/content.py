@@ -21,7 +21,6 @@ from zds.tutorialv2.forms import (
     WarnTypoForm,
     JsFiddleActivationForm,
     EditContentLicenseForm,
-    EditContentTagsForm,
     PublicationForm,
     PickOpinionForm,
     UnpickOpinionForm,
@@ -29,6 +28,7 @@ from zds.tutorialv2.forms import (
     SearchSuggestionForm,
     ContributionForm,
 )
+from zds.tutorialv2.views.tags import EditTagsForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import (
     ContentSuggestion,
@@ -98,7 +98,7 @@ class ContentBaseView(SingleContentDetailViewMixin):
         data_form_convert = data_form_revoke
         context["form_convert"] = PromoteOpinionToArticleForm(self.versioned_object, initial=data_form_convert)
         context["form_warn_typo"] = WarnTypoForm(self.versioned_object, self.versioned_object)
-        context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
+        context["form_edit_tags"] = EditTagsForm(self.versioned_object, self.object)
         context["form_edit_goals"] = EditGoalsForm(self.object)
         context["form_edit_labels"] = EditLabelsForm(self.object)
         context["is_antispam"] = self.object.antispam(self.request.user)
