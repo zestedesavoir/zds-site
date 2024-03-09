@@ -11,7 +11,6 @@ from zds.tutorialv2.utils import get_content_version_url
 from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory
 from zds.tutorialv2.models import TYPE_CHOICES
-from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.models.database import PublishableContent
 from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
@@ -1126,15 +1125,3 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_("Vous devez choisir des URL a comparer"))
         if len(urls) < 2:
             raise forms.ValidationError(_("Il faut au minimum 2 urls à comparer"))
-
-
-class ToggleHelpForm(forms.Form):
-    help_wanted = forms.CharField()
-    activated = forms.BooleanField(required=False)
-
-    def clean(self):
-        clean_data = super().clean()
-        clean_data["help_wanted"] = HelpWriting.objects.filter(title=(self.data["help_wanted"] or "").strip()).first()
-        if not clean_data["help_wanted"]:
-            self.add_error("help_wanted", _("Inconnu"))
-        return clean_data
