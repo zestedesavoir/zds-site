@@ -295,7 +295,6 @@ class MustRedirect(Exception):
 
 
 class SingleOnlineContentViewMixin(ContentTypeMixin):
-
     """
     Base mixin to get only one content online content
 
