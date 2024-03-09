@@ -486,7 +486,6 @@ class PrivatePost(models.Model):
 
 
 class PrivatePostVote(models.Model):
-
     """Set of Private Post votes."""
 
     class Meta:
