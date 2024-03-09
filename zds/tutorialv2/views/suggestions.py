@@ -1,16 +1,67 @@
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability, can_write_and_read_now
-from zds.tutorialv2.forms import RemoveSuggestionForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import ContentSuggestion, PublishableContent
 import zds.tutorialv2.signals as signals
+
+
+class SearchSuggestionForm(forms.Form):
+    suggestion_pk = forms.CharField(
+        label="Contenu à suggérer",
+        required=False,
+        widget=forms.TextInput(),
+    )
+    excluded_pk = forms.CharField(required=False, widget=forms.HiddenInput(attrs={"class": "excluded_field"}))
+
+    def __init__(self, content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["suggestion_pk"].widget.attrs.update(
+            {
+                "data-autocomplete": '{"type": "multiple_checkbox",'
+                '"limit": 10,'
+                '"fieldname": "title",'
+                '"url": "' + reverse("search:suggestion") + '?q=%s&excluded=%e"}',
+                "placeholder": "Rechercher un contenu",
+            }
+        )
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse("content:add-suggestion", kwargs={"pk": content.pk})
+        self.helper.form_class = "modal modal-large"
+        self.helper.form_id = "add-suggestion"
+        self.helper.form_method = "post"
+
+        self.helper.layout = Layout(
+            Field("suggestion_pk"), Field("excluded_pk"), StrictButton(_("Ajouter"), type="submit")
+        )
+
+
+class RemoveSuggestionForm(forms.Form):
+    pk_suggestion = forms.IntegerField(
+        label=_("Suggestion"),
+        required=True,
+        error_messages={"does_not_exist": _("La suggestion sélectionnée n'existe pas.")},
+    )
+
+    def clean_pk_suggestion(self):
+        pk_suggestion = self.cleaned_data.get("pk_suggestion")
+        suggestion = ContentSuggestion.objects.filter(id=pk_suggestion).first()
+        if suggestion is None:
+            self.add_error("pk_suggestion", self.fields["pk_suggestion"].error_messages["does_not_exist"])
+        return pk_suggestion
 
 
 class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):

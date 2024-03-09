@@ -7,7 +7,7 @@ from zds.tutorialv2 import signals
 from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
-from zds.tutorialv2.views.editorialization import AddSuggestion, RemoveSuggestion
+from zds.tutorialv2.views.suggestions import AddSuggestion, RemoveSuggestion
 from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.labels import EditLabels

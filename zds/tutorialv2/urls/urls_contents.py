@@ -36,7 +36,7 @@ from zds.tutorialv2.views.contributors import (
     RemoveContributorFromContent,
     ContentOfContributors,
 )
-from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion
+from zds.tutorialv2.views.suggestions import RemoveSuggestion, AddSuggestion
 from zds.tutorialv2.views.tags import EditTags
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
