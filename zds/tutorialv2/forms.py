@@ -12,7 +12,7 @@ from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
 from zds.utils.models import SubCategory
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.tutorialv2.models.database import PublishableContent, ContentContributionRole
+from zds.tutorialv2.models.database import PublishableContent
 from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
 from zds.utils.forms import IncludeEasyMDE
@@ -46,66 +46,6 @@ class FormWithTitle(forms.Form):
 class ReviewerTypeModelChoiceField(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return obj.title
-
-
-class ContributionForm(forms.Form):
-    contribution_role = ReviewerTypeModelChoiceField(
-        label=_("Role"),
-        required=True,
-        queryset=ContentContributionRole.objects.order_by("title").all(),
-    )
-
-    username = forms.CharField(
-        label=_("Contributeur"),
-        required=True,
-        widget=forms.TextInput(
-            attrs={"placeholder": _("Pseudo du membre à ajouter."), "data-autocomplete": "{ 'type': 'single' }"}
-        ),
-    )
-
-    comment = forms.CharField(
-        label=_("Commentaire"),
-        required=False,
-        widget=forms.Textarea(attrs={"placeholder": _("Commentaire sur ce contributeur."), "rows": "3"}),
-    )
-
-    def __init__(self, content, *args, **kwargs):
-        self.helper = FormHelper()
-        self.helper.form_class = "modal modal-flex"
-        self.helper.form_id = "add-contributor"
-        self.helper.form_method = "post"
-        self.helper.form_action = reverse("content:add-contributor", kwargs={"pk": content.pk})
-        self.helper.layout = Layout(
-            Field("username"),
-            Field("contribution_role"),
-            Field("comment"),
-            ButtonHolder(
-                StrictButton(_("Ajouter"), type="submit", css_class="btn-submit"),
-            ),
-        )
-        super().__init__(*args, **kwargs)
-
-    def clean_username(self):
-        cleaned_data = super().clean()
-        if cleaned_data.get("username"):
-            username = cleaned_data.get("username")
-            user = Profile.objects.contactable_members().filter(user__username__iexact=username.strip().lower()).first()
-            if user is not None:
-                cleaned_data["user"] = user.user
-            else:
-                self._errors["user"] = self.error_class([_("L'utilisateur sélectionné n'existe pas")])
-
-        if "user" not in cleaned_data:
-            self._errors["user"] = self.error_class([_("Veuillez renseigner l'utilisateur")])
-
-        return cleaned_data
-
-
-class RemoveContributionForm(forms.Form):
-    pk_contribution = forms.CharField(
-        label=_("Contributeur"),
-        required=True,
-    )
 
 
 class AuthorForm(forms.Form):

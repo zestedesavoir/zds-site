@@ -24,8 +24,8 @@ from zds.tutorialv2.forms import (
     PickOpinionForm,
     UnpickOpinionForm,
     PromoteOpinionToArticleForm,
-    ContributionForm,
 )
+from zds.tutorialv2.views.contributors import ContributionForm
 from zds.tutorialv2.views.suggestions import SearchSuggestionForm
 from zds.tutorialv2.views.licence import EditContentLicenseForm
 from zds.tutorialv2.views.tags import EditTagsForm
