@@ -1,4 +1,5 @@
 import contextlib
+import hashlib
 import logging
 import os
 import shutil
@@ -1532,6 +1533,28 @@ def transfer_paternity_receiver(sender, instance, **kwargs):
     external = get_external_account()
     PublishableContent.objects.transfer_paternity(instance, external, UserGallery)
     PublishedContent.objects.transfer_paternity(instance, external)
+
+
+class Clap(models.Model):
+    class Meta:
+        verbose_name = "Clap"
+        verbose_name_plural = "Claps"
+
+    content = models.ForeignKey(
+        PublishableContent,
+        verbose_name="Contenu",
+        on_delete=models.CASCADE,
+        related_name="claps",
+        db_index=True,
+    )
+    user = models.ForeignKey(User, db_index=True, on_delete=models.SET_NULL, null=True)
+    hash_ip_address = models.CharField(db_index=True, max_length=64)
+    claps_count = models.IntegerField()
+    date = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def hash_ip(ip_address) -> str:
+        return hashlib.sha256(bytes(settings.SECRET_KEY + ip_address, "utf-8")).hexdigest()
 
 
 import zds.tutorialv2.receivers  # noqa

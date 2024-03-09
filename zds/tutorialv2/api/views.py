@@ -1,13 +1,15 @@
 import contextlib
 from pathlib import Path
 
+from django.conf import settings
+from django.db.models import Sum
 from django.db.models.query import prefetch_related_objects
 from django.http import Http404
 from django.utils import translation
 from django.utils.translation import gettext as _
 from rest_framework import status
 from rest_framework.fields import empty
-from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404
+from rest_framework.generics import ListAPIView, UpdateAPIView, get_object_or_404, CreateAPIView
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.serializers import Serializer, CharField, BooleanField
@@ -18,6 +20,7 @@ from zds.member.api.permissions import (
     IsNotOwnerOrReadOnly,
     IsAuthorOrStaff,
 )
+from zds.member.views import get_client_ip
 from zds.tutorialv2.publication_utils import PublicatorRegistry
 from zds.tutorialv2.utils import search_container_or_404
 from zds.utils.api.views import KarmaView
@@ -26,6 +29,7 @@ from zds.tutorialv2.models.database import (
     ContentReaction,
     PublishableContent,
     PublicationEvent,
+    Clap,
 )
 
 
@@ -154,3 +158,33 @@ class ExportsView(ListAPIView):
         prefetch_related_objects(exports, "published_object")
 
         return exports
+
+
+class ClapView(APIView):
+    def post(self, request, *args, **kwargs):
+        try:
+            additional_claps = int(request.data["claps_count"])
+
+            if additional_claps < 0:
+                raise ValueError
+        except (ValueError, KeyError):
+            return Response(None, status=status.HTTP_400_BAD_REQUEST)
+
+        content = get_object_or_404(PublishableContent.objects, pk=kwargs["pk"])
+        user = request.user if request.user.is_authenticated else None
+        hash_ip_address = Clap.hash_ip(get_client_ip(request)) if request.user.is_anonymous else ""
+
+        current_claps = (
+            Clap.objects.filter(content=content, user=user, hash_ip_address=hash_ip_address).aggregate(
+                Sum("claps_count")
+            )["claps_count__sum"]
+        ) or 0
+
+        if current_claps + additional_claps > settings.ZDS_APP["content"]["max_claps_per_content"]:
+            additional_claps = settings.ZDS_APP["content"]["max_claps_per_content"] - current_claps
+
+        if additional_claps > 0:
+            clap = Clap(content=content, user=user, hash_ip_address=hash_ip_address, claps_count=additional_claps)
+            clap.save()
+
+        return Response({"claps": current_claps + additional_claps}, status=status.HTTP_201_CREATED)
