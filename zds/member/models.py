@@ -90,7 +90,8 @@ class Profile(models.Model):
     def get_city(self):
         """
         Uses geo-localization to get physical localization of a profile through
-        its last IP address.
+        its last IP address. This works relatively well with IPv4 addresses (~city level),
+        but is very imprecise with IPv6 or exotic internet providers.
         The result is cached on an instance level because this method is called
         a lot in the profile.
         :return: The city and the country name of this profile.

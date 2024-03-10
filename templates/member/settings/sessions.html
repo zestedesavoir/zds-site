@@ -1,0 +1,71 @@
+{% extends "member/settings/base.html" %}
+{% load i18n %}
+{% load date %}
+
+
+{% block title %}
+    {% trans "Gestion des sessions" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        {% trans "Gestion des sessions" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Gestion des sessions" %}
+{% endblock %}
+
+
+
+{% block content %}
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if sessions %}
+    <div class="table-wrapper">
+        <table class="fullwidth">
+            <thead>
+                <th>{% trans "Session" %}</th>
+                <th>{% trans "Appareil" %}</th>
+                <th>{% trans "Adresse IP" %}</th>
+                <th>{% trans "Géolocalisation" %}</th>
+                <th>{% trans "Dernière utilisation" %}</th>
+                <th>{% trans "Actions" %}</th>
+            </thead>
+            <tbody>
+                {% for session in sessions %}
+                    <tr>
+                        {% if session.is_active %}
+                            <td><strong>{% trans "Session actuelle" %}</strong></td>
+                        {% else %}
+                            <td>{% trans "Autre session" %}</td>
+                        {% endif %}
+                        <td>{{ session.user_agent }}</td>
+                        <td>{{ session.ip_address }}</td>
+                        <td>{{ session.geolocation }}</td>
+                        <td>{{ session.last_visit|date_from_timestamp|format_date }}</td>
+                        <td>
+                            <form method="post" action="{% url 'delete-session' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="session_key" value="{{ session.session_key }}">
+                                <button type="submit" class="btn btn-grey ico-after red cross" {% if session.is_active %}disabled{% endif %}>
+                                    {% trans "Déconnecter" %}
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <em>{% trans "Aucune session ne correspond à votre compte." %}</em>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
