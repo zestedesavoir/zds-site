@@ -4,7 +4,7 @@ from django.core.validators import EmailValidator, ProhibitNullCharactersValidat
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
-from zds.utils.misc import contains_utf8mb4, replace_utf8mb4
+from zds.utils.misc import contains_utf8mb4, remove_utf8mb4
 from zds.member.models import BannedEmailProvider, Profile
 
 
@@ -74,7 +74,9 @@ def clean_username_social_auth(username):
     """
     Clean username of accounts created using social auth.
     """
-    return replace_utf8mb4(username).replace(",", "").replace("/", "")
+    # These three conditions are the same as the first three in the "validate_zds_username" function below.
+    # If you modify one of them here, make sure you do the same there!
+    return remove_utf8mb4(username).replace(",", "").replace("/", "")
 
 
 def validate_zds_username(value, check_username_available=True):
@@ -95,6 +97,9 @@ def validate_zds_username(value, check_username_available=True):
     msg = None
     user_count = User.objects.filter(username=value).count()
     skeleton_user_count = Profile.objects.filter(username_skeleton=Profile.find_username_skeleton(value)).count()
+
+    # These first three conditions are the same as those in the "clean_username_social_auth" function above.
+    # If you modify one of them here, make sure you do the same there!
     if "," in value:
         msg = _("Le nom d'utilisateur ne peut contenir de virgules")
     elif "/" in value:

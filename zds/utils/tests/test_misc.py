@@ -3,19 +3,19 @@ from django.conf import settings
 from django.test import TestCase
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.tests.factories import PublishedContentFactory
-from zds.utils.misc import contains_utf8mb4, check_essential_accounts, replace_utf8mb4
+from zds.utils.misc import contains_utf8mb4, check_essential_accounts, remove_utf8mb4
 from zds.utils.models import Alert
 from zds.utils.context_processor import get_header_notifications
 
 
 class Misc(TestCase):
-    def test_replace_utf8mb4(self):
-        self.assertEqual("abc", replace_utf8mb4("abc"))
-        self.assertEqual("abc", replace_utf8mb4("abc"))
-        self.assertEqual("abc€", replace_utf8mb4("abc€"))
-        self.assertEqual("abc€", replace_utf8mb4("abc€"))
-        self.assertEqual("a�tbc€", replace_utf8mb4("a🐙tbc€"))
-        self.assertEqual("a�tbc€", replace_utf8mb4("a🐙tbc€"))
+    def test_remove_utf8mb4(self):
+        self.assertEqual("abc", remove_utf8mb4("abc"))
+        self.assertEqual("abc", remove_utf8mb4("abc"))
+        self.assertEqual("abc€", remove_utf8mb4("abc€"))
+        self.assertEqual("abc€", remove_utf8mb4("abc€"))
+        self.assertEqual("atbc€", remove_utf8mb4("a🐙tbc€"))
+        self.assertEqual("atbc€", remove_utf8mb4("a🐙tbc€"))
 
     def test_contains_utf8mb4(self):
         self.assertFalse(contains_utf8mb4("abc"))
