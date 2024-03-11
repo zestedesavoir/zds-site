@@ -3,25 +3,26 @@ crispy-forms-bootstrap2==2024.1
 social-auth-app-django==5.4.0
 
 # Explicit dependencies (references in code)
-beautifulsoup4==4.12.2
-django-crispy-forms==2.0
-django-model-utils==4.3.1
+beautifulsoup4==4.12.3
+django-crispy-forms==2.1
+django-model-utils==4.4.0
 django-recaptcha==4.0.0
-Django==4.2.6
+Django==4.2.11
 easy-thumbnails[svg]==2.8.5
 factory-boy==3.3.0
 geoip2==4.8.0
-GitPython==3.1.41
+GitPython==3.1.42
 homoglyphs==2.0.4
 lxml==5.1.0
 Pillow==10.2.0
 pymemcache==4.0.0
 requests==2.31.0
 typesense==0.15.1
+ua-parser==0.18.0
 
 # Api dependencies
 django-cors-headers==4.3.1
-django-filter==23.5
+django-filter==24.1
 django-oauth-toolkit==2.3.0
 djangorestframework==3.14.0
 drf-extensions==0.7.1
@@ -30,7 +31,7 @@ drf-yasg==1.21.7
 
 # Dependencies for slug generation, please be extra careful with those
 django-uuslug==2.0.0
-python-slugify==8.0.1
+python-slugify==8.0.4
 
 # tomllib was added to the standard library in Python 3.11
 # tomli is only needed for older Python versions

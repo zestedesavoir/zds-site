@@ -8,6 +8,7 @@ from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from social_django.middleware import SocialAuthExceptionMiddleware
+from ua_parser import user_agent_parser
 
 logger = logging.getLogger(__name__)
 
@@ -76,3 +77,14 @@ def get_geo_location_from_ip(ip: str) -> str:
         city = geo["city"]
         country = geo["country_name"]
         return ", ".join(i for i in [city, country] if i)
+
+
+def get_info_from_user_agent(user_agent):
+    """Parse the user agent and extract information about the device, OS and browser."""
+
+    parsed_ua = user_agent_parser.Parse(user_agent)
+    device = parsed_ua["device"]["family"]
+    os = user_agent_parser.PrettyOS(*parsed_ua["os"].values())
+    browser = user_agent_parser.PrettyUserAgent(*parsed_ua["user_agent"].values())
+
+    return f"{device} / {os} / {browser}"

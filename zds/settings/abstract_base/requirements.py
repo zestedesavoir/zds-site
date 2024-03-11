@@ -10,9 +10,12 @@ THUMBNAIL_PRESERVE_EXTENSIONS = ("svg",)
 
 social_auth_config = config.get("social_auth", {})
 
+SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = "zds.member.validators.clean_username_social_auth"
+
 SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 SOCIAL_AUTH_FACEBOOK_SCOPE = ["email"]
+SOCIAL_AUTH_FACEBOOK_PROFILE_EXTRA_PARAMS = {"fields": "name,email"}
 
 SOCIAL_AUTH_PIPELINE = (
     "social_core.pipeline.social_auth.social_details",

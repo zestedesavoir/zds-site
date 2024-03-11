@@ -49,14 +49,21 @@ def convert_camel_to_underscore(camel_case):
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def contains_utf8mb4(s):
+def remove_utf8mb4(s):
     """
-    This string contains at least one character of more than 3 bytes
+    Remove characters of more than 3 bytes.
     """
     if not isinstance(s, str):
         s = str(s, "utf-8")
     re_pattern = re.compile("[^\u0000-\uD7FF\uE000-\uFFFF]", re.UNICODE)
-    return s != re_pattern.sub("\uFFFD", s)
+    return re_pattern.sub("", s)
+
+
+def contains_utf8mb4(s):
+    """
+    Check if this string contains at least one character of more than 3 bytes.
+    """
+    return s != remove_utf8mb4(s)
 
 
 def check_essential_accounts():
