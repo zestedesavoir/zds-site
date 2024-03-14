@@ -1,0 +1,152 @@
+version: '3.1'
+
+services:
+  back:
+    build:
+      context: .
+      dockerfile: back.Dockerfile
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    command: > 
+      bash -c "dockerize -wait tcp://database:3306 -wait tcp://cache:11211 -wait tcp://elasticsearch:9200 -wait tcp://zmd:27272 -timeout 60s
+      && python manage.py migrate --settings zds.settings.docker
+      && python manage.py runserver 0.0.0.0:8000 --settings zds.settings.docker"
+    depends_on:
+      - front
+      - database
+      - cache
+      - zmd
+    links:
+      - database
+      - elasticsearch
+      - cache
+      - zmd
+    volumes:
+      - .:/src:rw
+  watchdog:
+    build:
+      context: .
+      dockerfile: back.Dockerfile
+    command: > 
+      bash -c "dockerize -wait tcp://back:8000 -timeout 120s
+      && python manage.py publication_watchdog --settings zds.settings.docker"
+    depends_on:
+      - back
+    links:
+      - database
+      - elasticsearch
+      - cache
+      - zmd
+    volumes:
+      - .:/src:rw
+  indexer:
+    build:
+      context: .
+      dockerfile: back.Dockerfile
+    command: > 
+      bash -c "dockerize -wait tcp://back:8000 -timeout 240s
+      && python manage.py es_manager index_flagged --settings zds.settings.docker
+      && sleep 60"
+    restart: always
+    depends_on:
+      - back
+    links:
+      - database
+      - elasticsearch
+      - cache
+      - zmd
+    volumes:
+      - .:/src:ro
+    profiles:
+      - donotstart
+  index-setup:
+    build:
+      context: .
+      dockerfile: back.Dockerfile
+    command: > 
+      bash -c "dockerize -wait tcp://back:8000 -wait tcp://elasticsearch:9200 -timeout 240s
+      && python manage.py es_manager setup --settings zds.settings.docker
+      && python manage.py es_manager index_all --settings zds.settings.docker"
+    depends_on:
+      - back
+      - elasticsearch
+    links:
+      - database
+      - elasticsearch
+      - cache
+      - zmd
+    volumes:
+      - .:/src:rw
+  fixtures:
+    build:
+      context: .
+      dockerfile: back.Dockerfile
+    command: > 
+      bash -c "dockerize -wait tcp://back:8000 -timeout 120s
+      && python manage.py loaddata fixtures/*.yaml --settings zds.settings.docker
+      && python manage.py load_factory_data fixtures/advanced/aide_tuto_media.yaml --settings zds.settings.docker
+      && python manage.py load_fixtures --size=low --all --settings zds.settings.docker
+      && python manage.py es_manager index_all --settings zds.settings.docker"
+    depends_on:
+      - back
+    links:
+      - database
+      - elasticsearch
+      - cache
+      - zmd
+    volumes:
+      - .:/src:rw
+    profiles:
+      - donotstart
+  front:
+    build:
+      context: .
+      dockerfile: front.Dockerfile
+    command: "yarn run watch"
+    volumes:
+      - ./assets:/src/assets:ro
+      - ./dist:/src/dist:rw
+  doc:
+    build:
+      context: .
+      dockerfile: back.Dockerfile
+    command: bash -c "cd doc && make html"
+    volumes:
+      - .:/src:rw
+    profiles:
+      - donotstart
+  zmd:
+    build:
+      context: .
+      dockerfile: zmd.Dockerfile
+    command: bash -c "cd ./node_modules/zmarkdown && npm run server && pm2 monit"
+    expose:
+      - "27272"
+  cache:
+    image: memcached:1.5-alpine
+    expose:
+      - "11211"
+  database:
+    image: mariadb:10.4
+    expose:
+      - "3306"
+    restart: always
+    environment:
+      MYSQL_DATABASE: zds_docker
+      MYSQL_ROOT_PASSWORD: 'zds_password'
+    volumes:
+      - ./data_mysql:/var/lib/mysql
+  elasticsearch:
+    image: elasticsearch:5.5.2
+    expose:
+      - "9200"
+    environment:
+      - "http.host=0.0.0.0"
+      - "xpack.security.enabled=false"
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.type=single-node"
+
+
+
