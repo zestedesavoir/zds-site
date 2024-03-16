@@ -79,7 +79,7 @@ class RemoveContributorPermissionTests(TutorialTestMixin, TestCase):
         self.content.type = "OPINION"
         self.content.save()
         response = self.client.post(self.form_url, self.form_data)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.content_url)
 
 
 class RemoveContributorWorkflowTests(TutorialTestMixin, TestCase):
