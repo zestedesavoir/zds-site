@@ -9,7 +9,7 @@ from django.utils.html import escape
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import ContentContributionRoleFactory, PublishableContentFactory
-from zds.tutorialv2.forms import ContributionForm
+from zds.tutorialv2.views.contributors import ContributionForm
 from zds.tutorialv2.models.database import ContentContribution
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 

@@ -1,7 +1,8 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.contents import CreateContent, EditContent, DeleteContent
+from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
@@ -35,7 +36,8 @@ from zds.tutorialv2.views.contributors import (
     RemoveContributorFromContent,
     ContentOfContributors,
 )
-from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion, EditContentTags
+from zds.tutorialv2.views.suggestions import RemoveSuggestion, AddSuggestion
+from zds.tutorialv2.views.tags import EditTags
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
@@ -208,7 +210,7 @@ urlpatterns = (
         # Modify the license
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         # Modify the tags
-        path("modifier-tags/<int:pk>/", EditContentTags.as_view(), name="edit-tags"),
+        path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
         # beta:
         path("activer-beta/<int:pk>/<slug:slug>/", ManageBetaContent.as_view(action="set"), name="set-beta"),
         path(

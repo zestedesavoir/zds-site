@@ -7,7 +7,8 @@ from zds.tutorialv2 import signals
 from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
-from zds.tutorialv2.views.editorialization import EditContentTags, AddSuggestion, RemoveSuggestion
+from zds.tutorialv2.views.suggestions import AddSuggestion, RemoveSuggestion
+from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.labels import EditLabels
 from zds.tutorialv2.views.help import ChangeHelp
@@ -132,7 +133,7 @@ def record_event_validation_management(sender, performer, signal, content, versi
     ).save()
 
 
-@receiver(signals.tags_management, sender=EditContentTags)
+@receiver(signals.tags_management, sender=EditTags)
 def record_event_tags_management(sender, performer, signal, content, **_):
     Event(
         performer=performer,
