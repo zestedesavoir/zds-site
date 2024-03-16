@@ -24,6 +24,8 @@ class FormWithTitle(forms.Form):
         label=_("Titre"), max_length=PublishableContent._meta.get_field("title").max_length, required=False
     )
 
+    error_messages = {"bad_slug": _("Le titre « {} » n'est pas autorisé, car son slug est invalide !")}
+
     def clean(self):
         cleaned_data = super().clean()
 
@@ -35,10 +37,8 @@ class FormWithTitle(forms.Form):
 
         try:
             slugify_raise_on_invalid(title)
-        except InvalidSlugError as e:
-            self._errors["title"] = self.error_class(
-                [_("Ce titre n'est pas autorisé, son slug est invalide {} !").format(e)]
-            )
+        except InvalidSlugError:
+            self._errors["title"] = self.error_class([self.error_messages["bad_slug"].format(title)])
 
         return cleaned_data
 
@@ -314,6 +314,36 @@ class ContentForm(ContainerForm):
                 ]
             )
         return cleaned_data
+
+
+class EditContentForm(ContentForm):
+    title = None
+    description = None
+    type = None
+
+    def _create_layout(self):
+        self.helper.layout = Layout(
+            IncludeEasyMDE(),
+            Field("image"),
+            Field("introduction", css_class="md-editor preview-source"),
+            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            HTML(
+                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
+                with text=form.introduction.value %}{% endif %}'
+            ),
+            Field("conclusion", css_class="md-editor preview-source"),
+            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            HTML(
+                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
+                with text=form.conclusion.value %}{% endif %}'
+            ),
+            Field("last_hash"),
+            Field("source"),
+            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
+        )
+
+        self.helper.layout.append(Field("msg_commit"))
+        self.helper.layout.append(StrictButton("Valider", type="submit"))
 
 
 class EditContentTagsForm(forms.Form):
