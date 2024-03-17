@@ -259,8 +259,6 @@ class SearchIndexManager:
             except:
                 self.connected_to_search_engine = False
                 self.logger.warn("failed to connect to the search engine")
-            else:
-                self.logger.info("connected to the search engine")
 
     def clear_index(self):
         """Clear index"""
