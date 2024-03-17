@@ -77,57 +77,61 @@ class SimilarTopicsView(View):
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
 
 
-class SuggestionContentView(CreateView, SingleObjectMixin):
+class SuggestionContentView(View):
     """
-    Staff members can choose at the end of a publication to suggest another content of the site. can choose at the end of a publication to suggest another content of the site.
-    When they want to add a suggestion, they write in a text field the name of the content to suggest,
-    content proposals are then made, using the search engine through this view.
+    Staff members can choose at the end of a publication to suggest another
+    content of the site.  When they want to add a suggestion, they write in a
+    text field the name of the content to suggest, content proposals are then
+    made, using the search engine through this view.
     """
-
-    search_query = None
-    search_engine_manager = None
-
-    def __init__(self, **kwargs):
-        """Overridden because the index manager must NOT be initialized elsewhere."""
-
-        super().__init__(**kwargs)
-        self.search_engine_manager = SearchIndexManager()
-
-        self.search_engine = None
-
-        if settings.SEARCH_ENABLED:
-            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
-        if "q" in request.GET:
-            self.search_query = "".join(request.GET["q"])
-        excluded_content_ids = request.GET.get("excluded", "").split(",")
         results = []
-        if self.search_engine_manager.connected_to_search_engine and self.search_query:
-            search_parameters = {
-                "q": self.search_query,
-                "query_by": "title,description",
-            }
 
-            if len(excluded_content_ids) > 0 and excluded_content_ids != [""]:
-                filter_by = SearchFilter()
-                filter_by.add_not_numerical_filter("content_pk", excluded_content_ids)
-                search_parameters["filter_by"] = str(filter_by)
+        if settings.SEARCH_ENABLED:
+            search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
+            search_engine_manager = SearchIndexManager()
 
-            hits = self.search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"][:10]
+            search_query = request.GET.get("q", "")
 
-            # Build the result
-            for hit in hits:
-                document = hit["document"]["_source"]
-                result = {
-                    "id": document["content_pk"],
-                    "pubdate": document["publication_date"],
-                    "title": str(document["title"]),
-                    "description": str(document["description"]),
+            if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
+                max_suggestion_search_results = settings.ZDS_APP["content"]["max_suggestion_search_results"]
+
+                search_parameters = {
+                    "q": search_query,
+                    "query_by": "title,description,categories,subcategories,tags,text",
+                    "query_by_weights": "{},{},{},{},{},{}".format(
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["categories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["subcategories"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
+                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
+                    ),
+                    "page": 1,
+                    "per_page": max_suggestion_search_results,
+                    "sort_by": "score:desc",
                 }
-                results.append(result)
-        data = {"results": results}
 
+                # We exclude contents already picked as a suggestion:
+                excluded_content_ids = request.GET.get("excluded", "")
+                if excluded_content_ids:
+                    filter_by = SearchFilter()
+                    filter_by.add_not_numerical_filter("content_pk", excluded_content_ids.split(","))
+                    search_parameters["filter_by"] = str(filter_by)
+
+                hits = search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
+                assert len(hits) <= max_suggestion_search_results
+
+                for hit in hits:
+                    document = hit["document"]
+                    result = {
+                        "id": document["content_pk"],
+                        "title": str(document["title"]),
+                    }
+                    results.append(result)
+
+        data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
 
 

@@ -182,6 +182,7 @@ ZDS_APP = {
         "helps_per_page": 20,
         "commits_per_page": 20,
         "suggestions_per_page": 2,
+        "max_suggestion_search_results": 10,
         "mass_edit_goals_content_per_page": 25,
         "view_contents_by_goal_content_per_page": 42,
         "view_contents_by_label_content_per_page": 42,

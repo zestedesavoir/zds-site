@@ -1049,6 +1049,56 @@ class ViewsTests(TutorialTestMixin, TestCase):
             tuto_2.slug + "__" + chapter_2.slug,
         )
 
+    def test_suggestion_content(self):
+        text = "test"
+
+        article1 = PublishedContentFactory(type="ARTICLE", title=f"{text} 1")
+        published_article1 = PublishedContent.objects.get(content_pk=article1.pk)
+
+        article2 = PublishedContentFactory(type="ARTICLE", title=f"{text} 2")
+        published_article2 = PublishedContent.objects.get(content_pk=article2.pk)
+
+        self._index_everything()
+
+        # Without search term: no result
+        result = self.client.get(reverse("search:suggestion"), follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
+
+        # With empty query: no result
+        result = self.client.get(reverse("search:suggestion") + "?q=", follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
+
+        # No result is returned when '*' is searched:
+        result = self.client.get(reverse("search:suggestion") + "?q=*", follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
+
+        # Search term with zero match:
+        result = self.client.get(reverse("search:suggestion") + "?q=foo", follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
+
+        # Two matches:
+        result = self.client.get(reverse("search:suggestion") + "?q=" + text, follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 2)
+
+        # Two matches, but they are both excluded:
+        result = self.client.get(
+            reverse("search:suggestion") + f"?q={text}&excluded={published_article1.pk},{published_article2.pk}",
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
+
     def tearDown(self):
         super().tearDown()
 
