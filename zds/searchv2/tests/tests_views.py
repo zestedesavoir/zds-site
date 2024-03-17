@@ -180,6 +180,12 @@ class ViewsTests(TutorialTestMixin, TestCase):
         content = json_handler.loads(result.content.decode("utf-8"))
         self.assertEqual(len(content["results"]), 2)
 
+        # Should not get any result:
+        result = self.client.get(reverse("search:similar") + "?q=*", follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
+
     def test_hidden_post_are_not_result(self):
         """Hidden posts should not show up in the search results"""
 

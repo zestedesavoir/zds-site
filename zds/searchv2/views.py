@@ -38,11 +38,11 @@ class SimilarTopicsView(View):
 
             search_query = request.GET.get("q", "")
 
-            if search_engine_manager.connected_to_search_engine and search_query:
+            if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
                 max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
 
                 filter_by = SearchFilter()
-                filter_by.add_exact_filter("forum_pk", get_authorized_forums(self.request.user))
+                filter_by.add_exact_filter("forum_pk", get_authorized_forums_pk(self.request.user))
 
                 search_parameters = {
                     "q": search_query,
