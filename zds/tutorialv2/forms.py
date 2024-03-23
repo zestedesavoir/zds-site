@@ -124,13 +124,6 @@ class ContentForm(ContainerForm):
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
 
-    subcategory = forms.ModelMultipleChoiceField(
-        label=_("Sélectionnez les catégories qui correspondent à votre contenu."),
-        queryset=SubCategory.objects.order_by("title").all(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple(),
-    )
-
     source = forms.URLField(
         label=_(
             """Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
@@ -166,7 +159,6 @@ class ContentForm(ContainerForm):
             ),
             Field("last_hash"),
             Field("source"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
         )
 
         self.helper.layout.append(Field("msg_commit"))
