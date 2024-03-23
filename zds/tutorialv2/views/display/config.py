@@ -170,6 +170,9 @@ class DraftActionsState:
     def show_authors_management(self) -> bool:
         return self.enabled and self.is_allowed
 
+    def show_categories_management(self) -> bool:
+        return self.enabled and self.is_allowed
+
     def show_contributors_management(self) -> bool:
         return self.enabled and self.is_allowed and self.requires_validation
 

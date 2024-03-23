@@ -5,7 +5,7 @@
         {% include "tutorialv2/includes/headline/authors.part.html" with db_content=db_content edit_authors=display_config.draft_actions.show_authors_management online_mode=display_config.online_config.enable_authors_online_mode %}
         {% include "tutorialv2/includes/headline/licence.part.html" with licence=content.licence show_form=display_config.draft_actions.show_license_edit form=form_edit_license %}
         {% include "tutorialv2/includes/headline/contributions.part.html" %}
-        {% include "tutorialv2/includes/headline/categories.part.html" %}
+        {% include "tutorialv2/includes/headline/categories.part.html" with content=content show_form=display_config.draft_actions.show_categories_management %}
         {% include "tutorialv2/includes/headline/goals.part.html" with goals=publishablecontent.goals.all %}
         {% include "tutorialv2/includes/headline/labels.part.html" with labels=publishablecontent.labels.all %}
 
