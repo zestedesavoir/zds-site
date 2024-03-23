@@ -509,9 +509,9 @@ class AskValidationForm(forms.Form):
         no_category_msg = HTML(
             _(
                 """<p><strong>Votre publication n'est dans aucune catégorie.
-                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    Vous devez <a href="{}">choisir une catégorie</a>
                                     avant de demander la validation.</strong></p>""".format(
-                    reverse("content:edit", kwargs={"pk": content.pk, "slug": content.slug}), "div_id_subcategory"
+                    reverse("content:edit-categories", kwargs={"pk": content.pk}),
                 )
             )
         )
@@ -884,9 +884,9 @@ class PublicationForm(forms.Form):
         no_category_msg = HTML(
             _(
                 """<p><strong>Votre publication n'est dans aucune catégorie.
-                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    Vous devez <a href="{}">choisir une catégorie</a>
                                     avant de publier.</strong></p>""".format(
-                    reverse("content:edit", kwargs={"pk": content.pk, "slug": content.slug}), "div_id_subcategory"
+                    reverse("content:edit-categories", kwargs={"pk": content.pk})
                 )
             )
         )
