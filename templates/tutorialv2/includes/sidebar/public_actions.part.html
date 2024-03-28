@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load captureas %}
 {% load crispy_forms_tags %}
+{% load get_item %}
 
 {% if public_actions.show_block %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Version publique">
@@ -14,11 +15,27 @@
                 </li>
             {% endif %}
 
-            {% if public_actions.show_identical_version_message %}
+            {% if public_actions.show_identical_public_version_message %}
                 <li class="inactive">
                     <span class="ico-after pin disabled">
-                        {% trans "La version publique est identique à cette version." %}
+                        {{ public_actions.messages|get_item:"public_is_same" }}
                     </span>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_identical_draft_version_message %}
+                <li class="inactive">
+                    <span class="ico-after pin disabled">
+                        {{ public_actions.messages|get_item:"draft_is_same" }}
+                    </span>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_more_recent_draft_version_link %}
+                <li>
+                    <a href="{{ object.get_absolute_url }}" class="ico-after online blue">
+                        {{ public_actions.messages|get_item:"draft_is_more_recent" }}
+                    </a>
                 </li>
             {% endif %}
 
@@ -30,13 +47,6 @@
                 </li>
             {% endif %}
 
-            {% if public_actions.show_stats_link %}
-                <li>
-                    {% url "content:stats-content" content.pk content.slug as stats_url %}
-                    <a href="{{ stats_url }}" class="ico-after stats blue">{% trans "Voir les statistiques" %}</a>
-                </li>
-            {% endif %}
-
             {% if public_actions.show_comparison_link %}
                 <li>
                     {% captureas to_sha %}{% if version %}{{ version }}{% else %}{{ content.sha_draft }}{% endif %}{% endcaptureas %}
@@ -44,6 +54,13 @@
                     <a href="{{ diff_public_url }}" class="ico-after history blue">
                         {% trans "Comparer avec la version en ligne" %}
                     </a>
+                </li>
+            {% endif %}
+
+            {% if public_actions.show_stats_link %}
+                <li>
+                    {% url "content:stats-content" content.pk content.slug as stats_url %}
+                    <a href="{{ stats_url }}" class="ico-after stats blue">{% trans "Voir les statistiques" %}</a>
                 </li>
             {% endif %}
 

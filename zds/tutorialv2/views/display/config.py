@@ -1,3 +1,5 @@
+from django.utils.translation import gettext_lazy as _
+
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.versioned import VersionedContent
 
@@ -50,16 +52,21 @@ class AdministrationActionsState:
 
 
 class PublicActionsState:
-    def __init__(
-        self, user, content: PublishableContent, versioned_content: VersionedContent, is_public_page=False, enabled=True
-    ):
+    messages = {
+        "draft_is_same": _("La version brouillon est identique à cette version."),
+        "draft_is_more_recent": _("La version brouillon est plus récente que cette version."),
+        "public_is_same": _("La version publique est identique à cette version."),
+    }
+
+    def __init__(self, user, content: PublishableContent, versioned_content: VersionedContent):
         self.is_staff = user.has_perm("tutorialv2.change_publishablecontent")
         self.is_author_or_staff = content.is_author(user) or self.is_staff
         self.in_public = content.in_public()
         self.is_same_as_public = content.is_public(versioned_content.current_version)
+        self.is_same_as_draft = not content.is_draft_more_recent_than_public()
         self.requires_validation = content.requires_validation()
-        self.is_public_page = is_public_page
-        self.enabled = enabled
+        self.is_public_page = False
+        self.enabled = True
 
     def show_block(self) -> bool:
         return (
@@ -67,7 +74,9 @@ class PublicActionsState:
             and self.is_author_or_staff
             and (
                 self.show_stats_link()
-                or self.show_identical_version_message()
+                or self.show_identical_public_version_message()
+                or self.show_identical_draft_version_message()
+                or self.show_more_recent_draft_version_link()
                 or self.show_page_link()
                 or self.show_public_page_message()
                 or self.show_comparison_link()
@@ -79,8 +88,14 @@ class PublicActionsState:
     def show_stats_link(self) -> bool:
         return self.is_author_or_staff and self.in_public
 
-    def show_identical_version_message(self) -> bool:
-        return self.is_author_or_staff and self.in_public and self.is_same_as_public
+    def show_identical_public_version_message(self) -> bool:
+        return self.is_author_or_staff and self.in_public and self.is_same_as_public and not self.is_public_page
+
+    def show_more_recent_draft_version_link(self) -> bool:
+        return self.is_author_or_staff and self.is_public_page and not self.is_same_as_draft
+
+    def show_identical_draft_version_message(self) -> bool:
+        return self.is_author_or_staff and self.is_public_page and self.is_same_as_draft
 
     def show_page_link(self) -> bool:
         return self.is_author_or_staff and self.in_public and not self.is_public_page
@@ -258,7 +273,11 @@ class OnlineState:
 
 
 class ValidationActions:
-    def __init__(self, user, content: PublishableContent, versioned_content: VersionedContent, enabled=True):
+    messages = {
+        "validation_is_same": _("La version en validation est identique à cette version."),
+    }
+
+    def __init__(self, user, content: PublishableContent, versioned_content: VersionedContent):
         self.is_staff = user.has_perm("tutorialv2.change_publishablecontent")
         self.is_author_or_staff = content.is_author(user) or self.is_staff
         self.in_validation = content.in_validation()
@@ -266,7 +285,8 @@ class ValidationActions:
         self.requires_validation = content.requires_validation()
         self.in_public = content.in_public()
         self.content_is_picked = content.is_picked()
-        self.enabled = enabled
+        self.enabled = True
+        self.is_validation_page = False
         validation = content.get_validation()
         self.reserved = (validation is not None) and validation.is_pending_valid()
 
@@ -294,7 +314,7 @@ class ValidationActions:
         return self.enabled and self.is_author_or_staff and self.in_validation
 
     def show_identical_message(self) -> bool:
-        return self.enabled and self.is_author_or_staff and self.version_is_validation
+        return self.enabled and self.is_author_or_staff and self.version_is_validation and not self.is_validation_page
 
     def show_validation_admin(self) -> bool:
         return self.enabled and self.is_staff
@@ -491,3 +511,4 @@ class ConfigForValidationView(ViewConfig):
         self.validation_actions.show_validation_link = False
         self.online_config.enabled = False
         self.info_config.show_warn_typo = True
+        self.validation_actions.is_validation_page = True
