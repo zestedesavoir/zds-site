@@ -3,8 +3,7 @@ from django.urls import reverse
 
 from zds.tutorialv2.models.database import PublishableContent
 from zds.member.models import Profile
-from zds.tutorialv2.views.contents import EditContentLicense
-from zds.tutorialv2.forms import EditContentLicenseForm
+from zds.tutorialv2.views.licence import EditContentLicenseForm, EditContentLicense
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import PublishableContentFactory

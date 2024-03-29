@@ -5,7 +5,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -15,11 +15,9 @@ from django.views.generic import DeleteView
 from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.member.models import Profile
 from zds.member.utils import get_bot_account
 from zds.tutorialv2.forms import (
     ContentForm,
-    EditContentLicenseForm,
 )
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
@@ -227,52 +225,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])
         return super().form_valid(form)
-
-
-class EditContentLicense(LoginRequiredMixin, SingleContentFormViewMixin):
-    modal_form = True
-    model = PublishableContent
-    form_class = EditContentLicenseForm
-    success_message_license = _("La licence de la publication a bien été changée.")
-    success_message_profile_update = _("Votre licence préférée a bien été mise à jour.")
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs["versioned_content"] = self.versioned_object
-        return kwargs
-
-    def form_valid(self, form):
-        publishable = self.object
-
-        # Update license in database
-        publishable.licence = form.cleaned_data["license"]
-        publishable.update_date = datetime.now()
-        publishable.save()
-
-        # Update license in repository
-        self.versioned_object.licence = form.cleaned_data["license"]
-        sha = self.versioned_object.repo_update_top_container(
-            publishable.title,
-            publishable.slug,
-            self.versioned_object.get_introduction(),
-            self.versioned_object.get_conclusion(),
-            "Nouvelle licence ({})".format(form.cleaned_data["license"]),
-        )
-
-        # Update relationships in database
-        publishable.sha_draft = sha
-        publishable.save()
-
-        messages.success(self.request, EditContentLicense.success_message_license)
-
-        # Update the preferred license of the user
-        if form.cleaned_data["update_preferred_license"]:
-            profile = get_object_or_404(Profile, user=self.request.user)
-            profile.licence = form.cleaned_data["license"]
-            profile.save()
-            messages.success(self.request, EditContentLicense.success_message_profile_update)
-
-        return redirect(form.previous_page_url)
 
 
 class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
