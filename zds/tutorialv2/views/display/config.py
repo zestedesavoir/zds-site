@@ -24,6 +24,7 @@ class AdministrationActionsState:
                 or self.show_opinion_moderated()
                 or self.show_gallery_link()
                 or self.show_jsfiddle()
+                or self.show_content_reactions_lock()
             )
         )
 
@@ -47,6 +48,9 @@ class AdministrationActionsState:
 
     def show_jsfiddle(self) -> bool:
         return self.enabled and self.is_staff and self.requires_validation
+
+    def show_content_reactions_lock(self) -> bool:
+        return self.enabled and self.is_staff
 
 
 class PublicActionsState:

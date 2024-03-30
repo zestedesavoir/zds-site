@@ -49,6 +49,7 @@ from zds.tutorialv2.views.comments import (
     SendNoteAlert,
     SolveNoteAlert,
     FollowContentReaction,
+    LockContentReactions,
 )
 
 feeds = [
@@ -139,6 +140,7 @@ urlpatterns = (
         ),
         path("<int:pk>/<slug:slug>/", ContentDraftView.as_view(public_is_prioritary=False), name="view"),
         path("telecharger/<int:pk>/<slug:slug>/", DownloadContent.as_view(), name="download-zip"),
+        path("verrouiller-commentaires/<int:pk>/", LockContentReactions.as_view(), name="lock-reactions"),
         # reactions:
         path("reactions/ajouter/", SendNoteFormView.as_view(redirection_is_needed=False), name="add-reaction"),
         path("reactions/editer/", UpdateNoteView.as_view(redirection_is_needed=False), name="update-reaction"),

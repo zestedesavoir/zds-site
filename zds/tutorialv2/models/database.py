@@ -464,6 +464,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             "sha_picked",
             "converted_to",
             "type",
+            "is_locked",
         ]
 
         fns = ["in_beta", "in_validation", "in_public", "get_absolute_contact_url", "get_note_count", "antispam"]
