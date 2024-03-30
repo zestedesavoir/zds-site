@@ -221,10 +221,9 @@ class EditContentForm(ContentForm):
             Field("last_hash"),
             Field("source"),
             Field("subcategory", template="crispy/checkboxselectmultiple.html"),
+            Field("msg_commit"),
+            StrictButton("Valider", type="submit"),
         )
-
-        self.helper.layout.append(Field("msg_commit"))
-        self.helper.layout.append(StrictButton("Valider", type="submit"))
 
 
 class ExtractForm(FormWithTitle):
