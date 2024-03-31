@@ -19,8 +19,7 @@ class AdministrationActionsState:
             self.enabled
             and self.is_allowed
             and (
-                self.show_exports_request()
-                or self.show_versions_history_link()
+                self.show_versions_history_link()
                 or self.show_events_history_link()
                 or self.show_opinion_publish()
                 or self.show_opinion_moderated()
@@ -28,9 +27,6 @@ class AdministrationActionsState:
                 or self.show_jsfiddle()
             )
         )
-
-    def show_exports_request(self) -> bool:
-        return self.is_allowed
 
     def show_versions_history_link(self) -> bool:
         return self.is_allowed
@@ -56,6 +52,7 @@ class PublicActionsState:
         "draft_is_same": _("La version brouillon est identique à cette version."),
         "draft_is_more_recent": _("La version brouillon est plus récente que cette version."),
         "public_is_same": _("La version publique est identique à cette version."),
+        "export_content": _("Exports du contenu"),
     }
 
     def __init__(self, user, content: PublishableContent, versioned_content: VersionedContent):
@@ -74,6 +71,7 @@ class PublicActionsState:
             and self.is_author_or_staff
             and (
                 self.show_stats_link()
+                or self.show_exports_request()
                 or self.show_identical_public_version_message()
                 or self.show_identical_draft_version_message()
                 or self.show_more_recent_draft_version_link()
@@ -84,6 +82,9 @@ class PublicActionsState:
                 or self.show_opinion_unpublish()
             )
         )
+
+    def show_exports_request(self) -> bool:
+        return self.is_author_or_staff and self.in_public and self.is_public_page
 
     def show_stats_link(self) -> bool:
         return self.is_author_or_staff and self.in_public

@@ -64,6 +64,12 @@
                 </li>
             {% endif %}
 
+            {% if public_actions.show_exports_request %}
+                <li>
+                    {% include "tutorialv2/includes/sidebar/exports.part.html" %}
+                </li>
+            {% endif %}
+
             {% if public_actions.show_content_revoke %}
                 <li>
                     <a href="#unpublish" class="ico-after open-modal cross blue">

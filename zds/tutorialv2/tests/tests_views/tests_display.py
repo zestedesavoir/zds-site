@@ -40,12 +40,14 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertContains(public_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(public_page, PublicActionsState.messages["public_is_same"])
         self.assertNotContains(public_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertContains(public_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(public_page, ValidationActions.messages["validation_is_same"])
         # Draft page:
         draft_page = self.client.get(reverse("content:view", args=[article.pk, article.slug]), follow=False)
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_more_recent"])
         self.assertContains(draft_page, PublicActionsState.messages["public_is_same"])
+        self.assertNotContains(draft_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(draft_page, ValidationActions.messages["validation_is_same"])
 
         # Create a new draft version:
@@ -71,6 +73,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(public_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(public_page, PublicActionsState.messages["public_is_same"])
         self.assertContains(public_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertContains(public_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(public_page, ValidationActions.messages["validation_is_same"])
         # Draft page:
         draft_page = self.client.get(reverse("content:view", args=[article.pk, article.slug]), follow=False)
@@ -78,6 +81,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(draft_page, PublicActionsState.messages["public_is_same"])
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertNotContains(draft_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(draft_page, ValidationActions.messages["validation_is_same"])
 
         # Ask validation:
@@ -87,12 +91,14 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(public_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(public_page, PublicActionsState.messages["public_is_same"])
         self.assertContains(public_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertContains(public_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(public_page, ValidationActions.messages["validation_is_same"])
         # Draft page:
         draft_page = self.client.get(reverse("content:view", args=[article.pk, article.slug]), follow=False)
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(draft_page, PublicActionsState.messages["public_is_same"])
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertNotContains(draft_page, PublicActionsState.messages["export_content"])
         self.assertContains(draft_page, ValidationActions.messages["validation_is_same"])
         # Validation page:
         validation_page = self.client.get(
@@ -101,6 +107,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(validation_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(validation_page, PublicActionsState.messages["public_is_same"])
         self.assertNotContains(validation_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertNotContains(validation_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(validation_page, ValidationActions.messages["validation_is_same"])
 
         # Now a new draft version, to have different version from validation:
@@ -126,6 +133,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(public_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(public_page, PublicActionsState.messages["public_is_same"])
         self.assertContains(public_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertContains(public_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(public_page, ValidationActions.messages["validation_is_same"])
         # Draft page:
         draft_page = self.client.get(reverse("content:view", args=[article.pk, article.slug]), follow=False)
@@ -133,6 +141,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(draft_page, PublicActionsState.messages["public_is_same"])
         self.assertNotContains(draft_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertNotContains(draft_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(draft_page, ValidationActions.messages["validation_is_same"])
         # Validation page:
         validation_page = self.client.get(
@@ -141,4 +150,5 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(validation_page, PublicActionsState.messages["draft_is_same"])
         self.assertNotContains(validation_page, PublicActionsState.messages["public_is_same"])
         self.assertNotContains(validation_page, PublicActionsState.messages["draft_is_more_recent"])
+        self.assertNotContains(validation_page, PublicActionsState.messages["export_content"])
         self.assertNotContains(validation_page, ValidationActions.messages["validation_is_same"])
