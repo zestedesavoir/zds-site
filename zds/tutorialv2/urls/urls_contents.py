@@ -1,13 +1,19 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import CreateContent, EditContent, DeleteContent
-from zds.tutorialv2.views.licence import EditContentLicense
+from zds.tutorialv2.views.contents import (
+    CreateContent,
+    EditContent,
+    DeleteContent,
+    EditTitle,
+    EditSubtitle,
+)
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
+from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -207,6 +213,9 @@ urlpatterns = (
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
         path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorFromContent.as_view(), name="remove-author"),
+        # Modify the title and subtitle
+        path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
+        path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
         # Modify the license
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         # Modify the tags

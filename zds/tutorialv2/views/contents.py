@@ -1,10 +1,14 @@
 import logging
 from datetime import datetime
 
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
+from django.forms import forms, CharField
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -18,6 +22,8 @@ from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.tutorialv2.forms import (
     ContentForm,
+    FormWithTitle,
+    EditContentForm,
 )
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
@@ -33,15 +39,6 @@ from zds.utils.uuslug_wrapper import slugify
 from zds.tutorialv2.models import CONTENT_TYPE_LIST
 
 logger = logging.getLogger(__name__)
-
-
-def create_content_gallery(form):
-    gal = Gallery()
-    gal.title = form.cleaned_data["title"]
-    gal.slug = slugify(form.cleaned_data["title"])
-    gal.pubdate = datetime.now()
-    gal.save()
-    return gal
 
 
 class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
@@ -81,20 +78,23 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.source = form.cleaned_data["source"]
         self.content.creation_date = datetime.now()
 
-        # Creating the gallery
-        gal = create_content_gallery(form)
+        gallery = Gallery.objects.create(
+            title=self.content.title,
+            slug=slugify(self.content.title),
+            pubdate=datetime.now(),
+        )
 
         # create image:
         if "image" in self.request.FILES:
             mixin = ImageCreateMixin()
-            mixin.gallery = gal
+            mixin.gallery = gallery
             try:
                 img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
             except NotAnImage:
                 form.add_error("image", _("Image invalide"))
                 return super().form_invalid(form)
             img.pubdate = datetime.now()
-        self.content.gallery = gal
+        self.content.gallery = gallery
         self.content.save()
         if "image" in self.request.FILES:
             self.content.image = img
@@ -128,16 +128,13 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
     template_name = "tutorialv2/edit/content.html"
     model = PublishableContent
-    form_class = ContentForm
+    form_class = EditContentForm
 
     def get_initial(self):
         """rewrite function to pre-populate form"""
         initial = super().get_initial()
         versioned = self.versioned_object
 
-        initial["title"] = versioned.title
-        initial["description"] = versioned.description
-        initial["type"] = versioned.type
         initial["introduction"] = versioned.get_introduction()
         initial["conclusion"] = versioned.get_conclusion()
         initial["source"] = versioned.source
@@ -176,23 +173,20 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             return self.form_invalid(form)
 
         # first, update DB (in order to get a new slug if needed)
-        title_is_changed = publishable.title != form.cleaned_data["title"]
-        publishable.title = form.cleaned_data["title"]
-        publishable.description = form.cleaned_data["description"]
         publishable.source = form.cleaned_data["source"]
 
         publishable.update_date = datetime.now()
 
-        # update gallery and image:
-        gal = Gallery.objects.filter(pk=publishable.gallery.pk)
-        gal.update(title=publishable.title)
-        gal.update(slug=slugify(publishable.title))
-        gal.update(update=datetime.now())
-
+        # update image
         if "image" in self.request.FILES:
+            gallery_defaults = {
+                "title": publishable.title,
+                "slug": slugify(publishable.title),
+                "pubdate": datetime.now(),
+            }
+            gallery, _created = Gallery.objects.get_or_create(pk=publishable.gallery.pk, defaults=gallery_defaults)
             mixin = ImageCreateMixin()
-            # use .first because we need an instance of Gallery, not a queryset
-            mixin.gallery = gal.first() or create_content_gallery(form)
+            mixin.gallery = gallery
             try:
                 img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
             except NotAnImage:
@@ -201,19 +195,17 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             img.pubdate = datetime.now()
             publishable.image = img
 
-        publishable.save(force_slug_update=title_is_changed)
-        logger.debug("content %s updated, slug is %s", publishable.pk, publishable.slug)
-        # now, update the versioned information
-        versioned.description = form.cleaned_data["description"]
+        publishable.save()
 
+        # now, update the versioned information
         sha = versioned.repo_update_top_container(
-            form.cleaned_data["title"],
+            publishable.title,
             publishable.slug,
             form.cleaned_data["introduction"],
             form.cleaned_data["conclusion"],
             form.cleaned_data["msg_commit"],
         )
-        logger.debug("slug consistency after repo update repo=%s db=%s", versioned.slug, publishable.slug)
+
         # update relationships :
         publishable.sha_draft = sha
 
@@ -225,6 +217,162 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])
         return super().form_valid(form)
+
+
+class EditTitleForm(FormWithTitle):
+    def __init__(self, versioned_content, *args, **kwargs):
+        kwargs["initial"] = {"title": versioned_content.title}
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_id = "edit-title"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_action = reverse("content:edit-title", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            Field("title"),
+            StrictButton("Modifier", type="submit"),
+        )
+        self.previous_page_url = reverse(
+            "content:view", kwargs={"pk": versioned_content.pk, "slug": versioned_content.slug}
+        )
+
+
+class EditTitle(LoginRequiredMixin, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditTitleForm
+    success_message = _("Le titre de la publication a bien été changé.")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+        title = form.cleaned_data["title"]
+
+        self.update_title_in_database(publishable, title)
+        logger.debug("content %s updated, slug is %s", publishable.pk, publishable.slug)
+
+        sha = self.update_title_in_repository(publishable, versioned, title)
+        logger.debug("slug consistency after repo update repo=%s db=%s", versioned.slug, publishable.slug)
+
+        self.update_gallery(publishable)
+        self.update_sha_draft(publishable, sha)
+
+        messages.success(self.request, self.success_message)
+
+        # A title update usually also changes the slug
+        form.previous_page_url = reverse("content:view", kwargs={"pk": versioned.pk, "slug": versioned.slug})
+
+        return redirect(form.previous_page_url)
+
+    @staticmethod
+    def update_title_in_database(publishable_content, title):
+        title_has_changed = publishable_content.title != title
+        publishable_content.title = title
+        publishable_content.save(force_slug_update=title_has_changed, force_update=True)
+
+    @staticmethod
+    def update_title_in_repository(publishable_content, versioned_content, title):
+        versioned_content.title = title
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            versioned_content.get_introduction(),
+            versioned_content.get_conclusion(),
+            f"Nouveau titre ({title})",
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
+
+    @staticmethod
+    def update_gallery(publishable_content):
+        gallery = Gallery.objects.filter(pk=publishable_content.gallery.pk).first()
+        gallery.title = publishable_content.title
+        gallery.slug = slugify(publishable_content.title)
+        gallery.update = datetime.now()
+        gallery.save()
+
+
+class EditSubtitleForm(forms.Form):
+    subtitle = CharField(
+        label=_("Sous-titre"),
+        max_length=PublishableContent._meta.get_field("description").max_length,
+        required=False,
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        kwargs["initial"] = {"subtitle": versioned_content.description}
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_id = "edit-subtitle"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_action = reverse("content:edit-subtitle", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            Field("subtitle"),
+            StrictButton("Modifier", type="submit"),
+        )
+        self.previous_page_url = reverse(
+            "content:view", kwargs={"pk": versioned_content.pk, "slug": versioned_content.slug}
+        )
+
+
+class EditSubtitle(LoginRequiredMixin, SingleContentFormViewMixin):
+    modal_form = True
+    model = PublishableContent
+    form_class = EditSubtitleForm
+    success_message = _("Le sous-titre de la publication a bien été changé.")
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+
+        self.update_subtitle_in_database(publishable, form.cleaned_data["subtitle"])
+        sha = self.update_subtitle_in_repository(publishable, versioned, form.cleaned_data["subtitle"])
+        self.update_sha_draft(publishable, sha)
+
+        messages.success(self.request, self.success_message)
+
+        return redirect(form.previous_page_url)
+
+    @staticmethod
+    def update_subtitle_in_database(publishable_content, subtitle):
+        publishable_content.description = subtitle
+        publishable_content.save(force_update=True)
+
+    @staticmethod
+    def update_subtitle_in_repository(publishable_content, versioned_content, subtitle):
+        versioned_content.description = subtitle
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            versioned_content.get_introduction(),
+            versioned_content.get_conclusion(),
+            f"Nouveau sous-titre ({subtitle})",
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
 
 
 class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):

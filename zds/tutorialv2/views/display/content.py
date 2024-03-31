@@ -38,6 +38,7 @@ from zds.tutorialv2.models.database import (
     ContentReaction,
 )
 from zds.tutorialv2.utils import last_participation_is_old, mark_read
+from zds.tutorialv2.views.contents import EditTitleForm, EditSubtitleForm
 from zds.tutorialv2.views.display.config import (
     ConfigForContentDraftView,
     ConfigForVersionView,
@@ -88,6 +89,7 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_warn_typo"] = WarnTypoForm(versioned, versioned, public=False)
         context["form_jsfiddle"] = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
         context["form_edit_license"] = EditContentLicenseForm(versioned)
+
         context["form_publication"] = PublicationForm(versioned, initial={"source": self.object.source})
         context["gallery"] = self.object.gallery
         context["alerts"] = self.object.alerts_on_this_content.all()
@@ -135,6 +137,8 @@ class ContentDraftView(LoginRequiredMixin, ContentBaseView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["form_edit_title"] = EditTitleForm(self.versioned_object)
+        context["form_edit_subtitle"] = EditSubtitleForm(self.versioned_object)
         context["display_config"] = ConfigForContentDraftView(self.request.user, self.object, self.versioned_object)
         return context
 
