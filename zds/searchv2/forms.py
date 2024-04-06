@@ -50,7 +50,6 @@ class SearchForm(forms.Form):
 
     category = forms.CharField(widget=forms.HiddenInput, required=False)
     subcategory = forms.CharField(widget=forms.HiddenInput, required=False)
-    from_library = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -74,5 +73,4 @@ class SearchForm(forms.Form):
             StrictButton(_("Rechercher"), type="submit", css_class="ico-after ico-search", title=_("Rechercher")),
             Field("category"),
             Field("subcategory"),
-            Field("from_library"),
         )
