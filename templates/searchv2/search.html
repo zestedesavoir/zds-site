@@ -48,7 +48,7 @@
     </section>
 
     <div class="flexpage-wrapper">
-        {% if query %}
+        {% if has_query %}
             {% include "misc/paginator.html" with position="top" %}
 
             {% if object_list %}

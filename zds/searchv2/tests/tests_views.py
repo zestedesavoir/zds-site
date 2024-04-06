@@ -129,12 +129,16 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 self.assertEqual(r["document"]["id"], ids[doc_type][i])  # … with the right id !
 
     def test_invalid_search(self):
-        """Check if the request is *, no result is displayed"""
-
         if not self.manager.connected_to_search_engine:
             return
 
+        # Check if the request is *, no result is displayed
         result = self.client.get(reverse("search:query") + "?q=*", follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context["object_list"]), 0)
+
+        # Check if there is no query parametern there is no error:
+        result = self.client.get(reverse("search:query"), follow=False)
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context["object_list"]), 0)
 
