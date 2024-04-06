@@ -1,14 +1,15 @@
-from zds import json_handler
+from copy import deepcopy
 import datetime
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.urls import reverse
 
-from django.contrib.auth.models import Group
+from zds import json_handler
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
 from zds.forum.tests.factories import create_category_and_forum
-
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.models import SearchIndexManager
 from zds.tutorialv2.tests.factories import (
@@ -23,6 +24,13 @@ from zds.tutorialv2.models.database import PublishedContent, FakeChapter, Publis
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"
+overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
+overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
+
+
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_for_contents(SEARCH_ENABLED=True)
 class ViewsTests(TutorialTestMixin, TestCase):
     def setUp(self):
@@ -45,7 +53,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         for model in self.indexable:
             if model is FakeChapter:
                 continue
-            self.manager.indexing_of_model(model, force_reindexing=True)
+            self.manager.indexing_of_model(model, force_reindexing=True, verbose=False)
 
     def test_basic_search(self):
         """Basic search and filtering"""
@@ -685,8 +693,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         topic_1.save()
 
         self.manager.reset_index([Topic, Post])
-        self.manager.indexing_of_model(Topic, force_reindexing=True)
-        self.manager.indexing_of_model(Post, force_reindexing=True)
+        self.manager.indexing_of_model(Topic, force_reindexing=True, verbose=False)
+        self.manager.indexing_of_model(Post, force_reindexing=True, verbose=False)
 
         result = self.client.get(
             reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
@@ -802,7 +810,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         self.manager.reset_index([PublishedContent, FakeChapter])
-        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True, verbose=False)
         self.manager.indexing_of_model(FakeChapter)
 
         results = self.manager.search("*")

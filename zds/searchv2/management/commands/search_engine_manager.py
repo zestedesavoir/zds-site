@@ -28,6 +28,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "action", type=str, help="action to perform", choices=["setup", "clear", "index_all", "index_flagged"]
         )
+        parser.add_argument("-q", "--quiet", action="store_true", default=False)
 
     def handle(self, *args, **options):
         if options["action"] == "setup":
@@ -35,9 +36,9 @@ class Command(BaseCommand):
         elif options["action"] == "clear":
             self.clear_search_engine()
         elif options["action"] == "index_all":
-            self.index_documents(force_reindexing=True)
+            self.index_documents(force_reindexing=True, quiet=options["quiet"])
         elif options["action"] == "index_flagged":
-            self.index_documents(force_reindexing=False)
+            self.index_documents(force_reindexing=False, quiet=options["quiet"])
         else:
             raise CommandError("unknown action {}".format(options["action"]))
 
@@ -50,7 +51,7 @@ class Command(BaseCommand):
         for model in self.models:
             self.search_engine_manager.clear_indexing_of_model(model)
 
-    def index_documents(self, force_reindexing=False):
+    def index_documents(self, force_reindexing=False, quiet=False):
         if force_reindexing:
             self.setup_search_engine()  # remove all previous data
 
@@ -59,8 +60,10 @@ class Command(BaseCommand):
                 continue
 
             if force_reindexing:
-                print(f"- indexing {model.get_document_type()}s")
+                self.stdout.write(f"- indexing {model.get_document_type()}s")
 
-            indexed_counter = self.search_engine_manager.indexing_of_model(model, force_reindexing=force_reindexing)
+            indexed_counter = self.search_engine_manager.indexing_of_model(
+                model, force_reindexing=force_reindexing, verbose=not quiet
+            )
             if force_reindexing:
-                print(f"  {indexed_counter}\titems indexed")
+                self.stdout.write(f"  {indexed_counter}\titems indexed")

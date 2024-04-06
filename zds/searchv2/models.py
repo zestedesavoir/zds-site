@@ -270,8 +270,6 @@ class SearchIndexManager:
         for collection in collections:
             self.search_engine.collections[collection["name"]].delete()
 
-        self.logger.info(f"index cleared, {len(collections)} collections deleted")
-
     def reset_index(self, models):
         """Delete old collections and create new ones.
         Then, set schemas for the different models.
@@ -289,8 +287,6 @@ class SearchIndexManager:
             schema = model.get_document_schema()
             self.search_engine.collections.create(schema)
 
-        self.logger.info("index created")
-
     def clear_indexing_of_model(self, model):
         """Nullify the indexing of a given model by setting
         ``search_engine_already_index=False`` to all objects.
@@ -302,14 +298,12 @@ class SearchIndexManager:
         if issubclass(model, AbstractSearchIndexableModel):  # use a global update with Django
             objs = model.get_indexable_objects(force_reindexing=True)
             objs.update(search_engine_flagged=True, search_engine_already_indexed=False)
-
-            self.logger.info(f"unindex {model.get_document_type()}")
         elif len(model.get_indexable(force_reindexing=True)) > 0:
             # This sould never happen: if the origin object is not in the
             # database, there is no field to update and save.
             self.logger.warn(f"Did not reset indexing of {model.get_document_type()} objects")
 
-    def indexing_of_model(self, model, force_reindexing=False):
+    def indexing_of_model(self, model, force_reindexing=False, verbose=True):
         """Index documents of a given model. Use the ``objects_per_batch`` property to index.
 
         See https://typesense.org/docs/0.23.1/api/documents.html#index-multiple-documents
@@ -321,6 +315,8 @@ class SearchIndexManager:
         :type model: AbstractSearchIndexableModel
         :param force_reindexing: force all document to be indexed
         :type force_reindexing: bool
+        :param verbose: whether to display or not the progress
+        :type verbose: bool
         :return: the number of indexed documents
         :rtype: int
         """
@@ -412,7 +408,7 @@ class SearchIndexManager:
                     last_batch_duration = int(now - then) or 1
                     then = now
                     obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
-                    if force_reindexing:
+                    if force_reindexing and verbose:
                         print(f"    {indexed_counter} so far ({obj_per_sec} obj/s, batch size: {objects_per_batch})")
 
                     if prev_obj_per_sec is False:
@@ -423,7 +419,7 @@ class SearchIndexManager:
                         # shrink/increase batch size
                         if abs(1 - ratio) > 0.1:
                             objects_per_batch = int(objects_per_batch * ratio)
-                            if force_reindexing:
+                            if force_reindexing and verbose:
                                 print(f"     {round(ratio, 2)}x, new batch size: {objects_per_batch}")
                         prev_obj_per_sec = obj_per_sec
 

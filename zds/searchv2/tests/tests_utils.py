@@ -1,5 +1,9 @@
+from copy import deepcopy
+import os
+
 from django.conf import settings
 from django.test import TestCase
+from django.test.utils import override_settings
 from django.core.management import call_command
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
@@ -13,6 +17,13 @@ from zds.searchv2.utils import SearchFilter
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"
+overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
+overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
+
+
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_for_contents(SEARCH_ENABLED=True)
 class UtilsTests(TutorialTestMixin, TestCase):
     def setUp(self):
@@ -32,6 +43,10 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         if not self.search_engine_manager.connected_to_search_engine:
             return
+
+        def call_search_engine_manager_command(cmd: str):
+            with open(os.devnull, "w") as f:
+                call_command("search_engine_manager", "--quiet", cmd, stdout=f, stderr=f)
 
         # in the beginning: the void
         self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
@@ -74,7 +89,8 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(published.search_engine_flagged)
 
         # 1. test "index-all"
-        call_command("search_engine_manager", "index_all")
+        call_search_engine_manager_command("index_all")
+
         self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
         topic = Topic.objects.get(pk=topic.pk)
@@ -113,7 +129,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         # 2. test "clear"
         self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
 
-        call_command("search_engine_manager", "clear")
+        call_search_engine_manager_command("clear")
         self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)  # back to void
 
         # must reset every object
@@ -130,7 +146,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(published.search_engine_flagged)
 
         # 3. test "setup"
-        call_command("search_engine_manager", "setup")
+        call_search_engine_manager_command("setup")
 
         self.assertNotEqual(
             len(self.search_engine_manager.search_engine.collections.retrieve()), 0
@@ -141,7 +157,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertEqual(number_of_results, 0)  # ... but with nothing in it
 
         # 4. test "index-flagged" once ...
-        call_command("search_engine_manager", "index_flagged")
+        call_search_engine_manager_command("index_flagged")
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)

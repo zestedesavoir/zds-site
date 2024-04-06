@@ -1,5 +1,8 @@
+from copy import deepcopy
+
 from django.conf import settings
 from django.test import TestCase
+from django.test.utils import override_settings
 
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
@@ -10,6 +13,13 @@ from zds.tutorialv2.models.database import PublishedContent, FakeChapter, Publis
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"
+overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
+overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
+
+
+@override_settings(ZDS_APP=overridden_zds_app)
 @override_for_contents(SEARCH_ENABLED=True)
 class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def setUp(self):
@@ -236,7 +246,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
-        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)  # index
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True, verbose=False)  # index
 
         first_publication = PublishedContent.objects.get(content_pk=tuto.pk)
         self.assertTrue(first_publication.search_engine_already_indexed)
@@ -272,7 +282,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.assertEqual(number_of_results, 0)  # the old one is gone (and we need to reindex to get the new one)
 
         # 3. Check if indexation brings the new one, and not the old one
-        self.manager.indexing_of_model(PublishedContent, force_reindexing=True)  # index
+        self.manager.indexing_of_model(PublishedContent, force_reindexing=True, verbose=False)  # index
 
         first_publication = PublishedContent.objects.get(pk=first_publication.pk)
         second_publication = PublishedContent.objects.get(pk=second_publication.pk)
