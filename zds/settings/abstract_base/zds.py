@@ -264,6 +264,11 @@ ZDS_APP = {
                 "tags": global_weight_publishedcontent * 1,
                 "text": global_weight_publishedcontent * 2,
             },
+            "chapter": {
+                "global": global_weight_chapter,
+                "title": global_weight_chapter * 3,
+                "text": global_weight_chapter * 2,
+            },
             "topic": {
                 "global": global_weight_topic,
                 "if_solved": global_weight_topic * 1.1,
@@ -272,11 +277,6 @@ ZDS_APP = {
                 "title": global_weight_topic * 3,
                 "subtitle": global_weight_topic * 2,
                 "tags": global_weight_topic * 1,
-            },
-            "chapter": {
-                "global": global_weight_chapter,
-                "title": global_weight_chapter * 3,
-                "text": global_weight_chapter * 2,
             },
             "post": {
                 "global": global_weight_post,

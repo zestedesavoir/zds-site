@@ -1141,6 +1141,21 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         )
         return weight_article * is_article + weight_opinion * is_opinion + weight_tutorial * is_tutorial
 
+    @classmethod
+    def get_search_query(cls):
+        return {
+            "query_by": "title,description,categories,subcategories,tags,text",
+            "query_by_weights": "{},{},{},{},{},{}".format(
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["categories"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["subcategories"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
+                settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
+            ),
+            "sort_by": "score:desc",
+        }
+
 
 @receiver(pre_delete, sender=PublishedContent)
 def delete_published_content_in_search_engine(sender, instance, **kwargs):
@@ -1258,6 +1273,17 @@ class FakeChapter(AbstractSearchIndexable):
         data["text"] = clean_html(self.text)
 
         return data
+
+    @classmethod
+    def get_search_query(cls):
+        return {
+            "query_by": "title,text",
+            "query_by_weights": "{},{}".format(
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
+            ),
+            "sort_by": "score:desc",
+        }
 
 
 class ContentReaction(Comment):

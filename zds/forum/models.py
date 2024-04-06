@@ -9,8 +9,8 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
 
-from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.forum import signals
+from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
 from zds.searchv2.models import (
     AbstractSearchIndexableModel,
     delete_document_in_search_engine,
@@ -18,6 +18,7 @@ from zds.searchv2.models import (
     date_to_timestamp_int,
     clean_html,
 )
+from zds.searchv2.utils import SearchFilter
 from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 
@@ -26,6 +27,13 @@ def sub_tag(tag):
     start = tag.group("start")
     end = tag.group("end")
     return f"{start + end}"
+
+
+def get_search_filter_authorized_forums(user: User) -> SearchFilter:
+    filter_by = SearchFilter()
+    filter_by.add_exact_filter("forum_pk", Forum.objects.get_authorized_forums_pk(user))
+
+    return filter_by
 
 
 class ForumCategory(models.Model):
@@ -493,6 +501,18 @@ class Topic(AbstractSearchIndexableModel):
 
         return data
 
+    @classmethod
+    def get_search_query(cls, user):
+        return {
+            "query_by": "title,subtitle,tags",
+            "query_by_weights": "{},{},{}".format(
+                settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
+                settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
+                settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
+            ),
+            "filter_by": str(get_search_filter_authorized_forums(user)),
+        }
+
     def save(self, *args, **kwargs):
         """Overridden to handle the displacement of the topic to another forum"""
 
@@ -652,6 +672,19 @@ class Post(Comment, AbstractSearchIndexableModel):
             weight_ld_ratio_below_1 * is_ratio_below_1,
             weight_global,
         )
+
+    @classmethod
+    def get_search_query(cls, user):
+        filter_by = get_search_filter_authorized_forums(user)
+        filter_by.add_bool_filter("is_visible", True)
+
+        return {
+            "query_by": "text_html",
+            "query_by_weights": "{}".format(
+                settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
+            ),
+            "filter_by": str(filter_by),
+        }
 
 
 @receiver(pre_delete, sender=Post)

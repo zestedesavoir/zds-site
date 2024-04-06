@@ -1,5 +1,3 @@
-from zds import json_handler
-
 from datetime import datetime
 
 from django.conf import settings
@@ -13,11 +11,13 @@ from django.views.generic import CreateView
 from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
+from zds import json_handler
+from zds.forum.models import Topic, Post
 from zds.searchv2.forms import SearchForm
 from zds.searchv2.models import SearchIndexManager
 from zds.searchv2.utils import SearchFilter
+from zds.tutorialv2.models.database import FakeChapter, PublishedContent
 from zds.utils.paginator import ZdSPagingListView
-from zds.forum.utils import get_authorized_forums_pk
 
 from typesense import Client as SearchEngineClient
 
@@ -41,21 +41,11 @@ class SimilarTopicsView(View):
             if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
                 max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
 
-                filter_by = SearchFilter()
-                filter_by.add_exact_filter("forum_pk", get_authorized_forums_pk(self.request.user))
-
                 search_parameters = {
                     "q": search_query,
-                    "query_by": "title,subtitle,tags",
-                    "query_by_weights": "{},{},{}".format(
-                        settings.ZDS_APP["search"]["boosts"]["topic"]["title"],
-                        settings.ZDS_APP["search"]["boosts"]["topic"]["subtitle"],
-                        settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
-                    ),
-                    "filter_by": str(filter_by),
                     "page": 1,
                     "per_page": max_similar_topics,
-                }
+                } | Topic.get_search_query(self.request.user)
 
                 hits = search_engine.collections["topic"].documents.search(search_parameters)["hits"]
                 assert len(hits) <= max_similar_topics
@@ -99,19 +89,9 @@ class SuggestionContentView(View):
 
                 search_parameters = {
                     "q": search_query,
-                    "query_by": "title,description,categories,subcategories,tags,text",
-                    "query_by_weights": "{},{},{},{},{},{}".format(
-                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
-                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["description"],
-                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["categories"],
-                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["subcategories"],
-                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
-                        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
-                    ),
                     "page": 1,
                     "per_page": max_suggestion_search_results,
-                    "sort_by": "score:desc",
-                }
+                } | PublishedContent.get_search_query()
 
                 # We exclude contents already picked as a suggestion:
                 excluded_content_ids = request.GET.get("excluded", "")
