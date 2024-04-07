@@ -3,7 +3,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 
 from django import forms
-from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
@@ -22,8 +22,14 @@ class EditCategoriesForm(forms.Form):
         widget=forms.CheckboxSelectMultiple(),
     )
 
-    def __init__(self, *args, **kwargs):
+    error_messages = {
+        "no_category_but_public": _("Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.")
+    }
+
+    def __init__(self, content, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.content = content
 
         self.helper = FormHelper()
         self.helper.form_class = "content-wrapper"
@@ -32,6 +38,13 @@ class EditCategoriesForm(forms.Form):
             Field("subcategory", template="crispy/checkboxselectmultiple.html"),
             StrictButton(_("Valider"), type="submit"),
         )
+
+    def clean_subcategory(self):
+        subcategory = self.cleaned_data["subcategory"]
+        # Forbid removing all categories of a validated content
+        if self.content.in_public() and not subcategory:
+            raise ValidationError(message=self.error_messages["no_category_but_public"])
+        return subcategory
 
 
 class EditCategoriesView(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormView):
@@ -44,21 +57,18 @@ class EditCategoriesView(LoggedWithReadWriteHability, SingleContentFormViewMixin
         initial["subcategory"] = self.object.subcategory.all()
         return initial
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["content"] = self.object
+        return kwargs
+
     def form_valid(self, form):
-        publishable = self.object
+        content = self.object
 
-        # Forbid removing all categories of a validated content
-        if publishable.in_public() and not form.cleaned_data["subcategory"]:
-            messages.error(
-                self.request, _("Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.")
-            )
-            return self.form_invalid(form)
-
-        # Update categories
-        publishable.subcategory.clear()
+        content.subcategory.clear()
         for subcat in form.cleaned_data["subcategory"]:
-            publishable.subcategory.add(subcat)
+            content.subcategory.add(subcat)
 
-        self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])
+        self.success_url = reverse("content:view", args=[content.pk, content.slug])
 
         return super().form_valid(form)

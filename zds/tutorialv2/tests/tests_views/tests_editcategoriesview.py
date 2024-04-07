@@ -6,6 +6,7 @@ from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import PublishableContentFactory
+from zds.tutorialv2.views.categories import EditCategoriesForm
 from zds.utils.tests.factories import SubCategoryFactory
 
 
@@ -128,5 +129,5 @@ class FunctionalTests(TutorialTestMixin, TestCase):
 
         form_data = {"subcategory": []}
         response = self.client.post(self.url, form_data, follow=True)
-        self.assertContains(response, escape("car ce contenu est déjà publié."))
+        self.assertContains(response, escape(EditCategoriesForm.error_messages["no_category_but_public"]))
         self.assertQuerysetEqual(self.content.subcategory.all(), [self.category_0])
