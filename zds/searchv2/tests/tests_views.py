@@ -1064,11 +1064,11 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_suggestion_content(self):
         text = "test"
 
-        article1 = PublishedContentFactory(type="ARTICLE", title=f"{text} 1")
-        published_article1 = PublishedContent.objects.get(content_pk=article1.pk)
+        publishable_article1 = PublishedContentFactory(type="ARTICLE", title=f"{text} 1")
+        published_article1 = PublishedContent.objects.get(content_pk=publishable_article1.pk)
 
-        article2 = PublishedContentFactory(type="ARTICLE", title=f"{text} 2")
-        published_article2 = PublishedContent.objects.get(content_pk=article2.pk)
+        publishable_article2 = PublishedContentFactory(type="ARTICLE", title=f"{text} 2")
+        published_article2 = PublishedContent.objects.get(content_pk=publishable_article2.pk)
 
         self._index_everything()
 
@@ -1104,7 +1104,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # Two matches, but they are both excluded:
         result = self.client.get(
-            reverse("search:suggestion") + f"?q={text}&excluded={published_article1.pk},{published_article2.pk}",
+            # /!\ This route expects IDs of publish**able** contents:
+            reverse("search:suggestion") + f"?q={text}&excluded={publishable_article1.pk},{publishable_article2.pk}",
             follow=False,
         )
         self.assertEqual(result.status_code, 200)
