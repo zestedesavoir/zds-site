@@ -328,6 +328,7 @@ doivent ensuite être surchargées :
               data["forum_title"] = self.forum.title
               data["forum_get_absolute_url"] = self.forum.get_absolute_url()
               data["pubdate"] = date_to_timestamp_int(self.pubdate)
+              data["text"] = clean_html(self.text_html)
               data["score"] = self._compute_search_score()
 
               return data
@@ -335,8 +336,14 @@ doivent ensuite être surchargées :
       Dans cet exemple (issu de la classe ``Post``), on voit que certains
       champs ne peuvent être directement indexés car ils appartiennent au
       *topic* et au *forum* parent. Il sont donc exclus du mécanisme par défaut
-      (via la variable ``excluded_fields``), leur valeur est récupérée et
-      définie par après.
+      (via la variable ``excluded_fields``) et leur valeur est récupérée et
+      définie dans la suite de la méthode.
+
+      Cet exemple permet également de remarquer que le contenu indéxé ne
+      contient jamais de balises HTML (c'est le rôle de la fonction
+      ``clean_html()``). Il est ainsi possible d'afficher de façon sûre le
+      contenu renvoyé par Typesense (utile en particulier pour afficher les
+      balises ``<mark>`` pour surligner les termes recherchés).
 
 
 Finalement, il est important **pour chaque type de document** d'attraper le

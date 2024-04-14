@@ -224,6 +224,7 @@ class SearchView(ZdSPagingListView):
                 "q": self.search_query,
                 # Indicates that the last word in the query should be treated as a prefix, and not as a whole word:
                 "prefix": "false",
+                "highlight_start_tag": '<mark class="highlighted">',
             }
 
             search_results = self.search_engine.multi_search.perform(search_requests, common_search_params)["results"]

@@ -591,7 +591,7 @@ class Post(Comment, AbstractSearchIndexableModel):
             {"name": "topic_title", "type": "string", "facet": True},
             {"name": "forum_title", "type": "string", "facet": True},
             {"name": "position", "type": "int64"},
-            {"name": "text_html", "type": "string"},
+            {"name": "text", "type": "string"},
             {"name": "is_visible", "type": "bool"},
             {"name": "is_useful", "type": "bool"},
             {"name": "pubdate", "type": "int64"},
@@ -625,7 +625,7 @@ class Post(Comment, AbstractSearchIndexableModel):
                 "forum_get_absolute_url",
                 "pubdate",
                 "score",
-                "text_html",
+                "text",
             ]
         )
 
@@ -639,7 +639,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         data["forum_title"] = self.topic.forum.title
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
-        data["text_html"] = clean_html(self.text_html)
+        data["text"] = clean_html(self.text_html)
         data["score"] = self._compute_search_score(data["like_dislike_ratio"])
 
         return data
@@ -679,9 +679,9 @@ class Post(Comment, AbstractSearchIndexableModel):
         filter_by.add_bool_filter("is_visible", True)
 
         return {
-            "query_by": "text_html",
+            "query_by": "text",
             "query_by_weights": "{}".format(
-                settings.ZDS_APP["search"]["boosts"]["post"]["text_html"],
+                settings.ZDS_APP["search"]["boosts"]["post"]["text"],
             ),
             "filter_by": str(filter_by),
         }

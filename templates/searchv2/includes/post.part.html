@@ -1,7 +1,5 @@
-{% load emarkdown %}
 {% load i18n %}
 {% load date %}
-{% load highlight %}
 
 <div class="content-info">
     <header>
@@ -14,7 +12,7 @@
         <p class="content-description">
             <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.topic_title }}">
                 {% if search_result.highlights.snippet %}
-                    {{ search_result.highlights.snippet | highlight  }}
+                    {{ search_result.highlights.snippet|safe }}
                 {% else %}
                     {{ search_result.text_html|striptags }}
                 {% endif %}
