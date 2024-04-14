@@ -268,10 +268,9 @@ Afin d'être indexable, un modèle Django doit dériver de
 
     Le code est écrit de manière à ce que l'id utilisé par Typesense (champ
     ``id``) corresponde à la *pk* du modèle (via la variable
-    ``search_engine_id``). TODO : pas clair
-    Il est donc facile de récupérer un objet dans Typesense si on en connait la
-    *pk*, à l'aide de ``GET /<nom de l'index>/<type de document>/<pk>``. TODO :
-    toujours valide avec Typesense ?
+    ``search_engine_id``). De cette façon, si on en connait la *pk* d'un objet
+    Django, il est possible de récupérer l'objet Typesense correspondant à
+    l'aide de ``GET /collections/<nom de la collection>/documents/<pk>``.
 
 Différentes méthodes de la classe ``AbstractSearchIndexableModel`` peuvent ou
 doivent ensuite être surchargées :
