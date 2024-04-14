@@ -171,22 +171,29 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_hidden.text = post_hidden.text_html = text
         post_hidden.save()
 
-        # 1. Should not get any result
+        # Should not get any result
         result = self.client.get(reverse("search:similar") + "?q=est", follow=False)
         self.assertEqual(result.status_code, 200)
         content = json_handler.loads(result.content.decode("utf-8"))
         self.assertEqual(len(content["results"]), 0)
 
-        # index
+        # Should not get a 500 if collections do not exist:
+        self.manager.clear_index()
+        result = self.client.get(reverse("search:similar") + "?q=mange", follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
+
+        # create collections and index content:
         self._index_everything()
 
-        # 2. Should get exactly one result
+        # Should get exactly one result
         result = self.client.get(reverse("search:similar") + "?q=mange", follow=False)
         self.assertEqual(result.status_code, 200)
         content = json_handler.loads(result.content.decode("utf-8"))
         self.assertEqual(len(content["results"]), 1)
 
-        # 2. Should get exactly two results
+        # Should get exactly two results
         result = self.client.get(reverse("search:similar") + "?q=Clem", follow=False)
         self.assertEqual(result.status_code, 200)
         content = json_handler.loads(result.content.decode("utf-8"))
@@ -1069,6 +1076,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         publishable_article2 = PublishedContentFactory(type="ARTICLE", title=f"{text} 2")
         published_article2 = PublishedContent.objects.get(content_pk=publishable_article2.pk)
+
+        # Should not get a 500 if collections do not exist:
+        self.manager.clear_index()
+        result = self.client.get(reverse("search:suggestion") + "?q=foo", follow=False)
+        self.assertEqual(result.status_code, 200)
+        content = json_handler.loads(result.content.decode("utf-8"))
+        self.assertEqual(len(content["results"]), 0)
 
         self._index_everything()
 

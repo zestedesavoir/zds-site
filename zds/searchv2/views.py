@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -36,32 +37,36 @@ class SimilarTopicsView(View):
             search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
             search_engine_manager = SearchIndexManager()
 
-            search_query = request.GET.get("q", "")
+            collections = [c["name"] for c in search_engine.collections.retrieve()]
+            if "topic" in collections:
+                search_query = request.GET.get("q", "")
 
-            if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
-                max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
+                if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
+                    max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
 
-                search_parameters = {
-                    "q": search_query,
-                    "page": 1,
-                    "per_page": max_similar_topics,
-                } | Topic.get_search_query(self.request.user)
+                    search_parameters = {
+                        "q": search_query,
+                        "page": 1,
+                        "per_page": max_similar_topics,
+                    } | Topic.get_search_query(self.request.user)
 
-                hits = search_engine.collections["topic"].documents.search(search_parameters)["hits"]
-                assert len(hits) <= max_similar_topics
+                    hits = search_engine.collections["topic"].documents.search(search_parameters)["hits"]
+                    assert len(hits) <= max_similar_topics
 
-                for hit in hits:
-                    document = hit["document"]
-                    result = {
-                        "id": document["forum_pk"],
-                        "url": str(document["get_absolute_url"]),
-                        "title": str(document["title"]),
-                        "subtitle": str(document["subtitle"]),
-                        "forumTitle": str(document["forum_title"]),
-                        "forumUrl": str(document["forum_get_absolute_url"]),
-                        "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
-                    }
-                    results.append(result)
+                    for hit in hits:
+                        document = hit["document"]
+                        result = {
+                            "id": document["forum_pk"],
+                            "url": str(document["get_absolute_url"]),
+                            "title": str(document["title"]),
+                            "subtitle": str(document["subtitle"]),
+                            "forumTitle": str(document["forum_title"]),
+                            "forumUrl": str(document["forum_get_absolute_url"]),
+                            "pubdate": str(datetime.fromtimestamp(document["pubdate"])),
+                        }
+                        results.append(result)
+            else:
+                logging.getLogger(__name__).warning("SimilarTopicView called, but there is no 'topic' collection.")
 
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
@@ -84,32 +89,38 @@ class SuggestionContentView(View):
 
             search_query = request.GET.get("q", "")
 
-            if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
-                max_suggestion_search_results = settings.ZDS_APP["content"]["max_suggestion_search_results"]
+            collections = [c["name"] for c in search_engine.collections.retrieve()]
+            if "publishedcontent" in collections:
+                if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
+                    max_suggestion_search_results = settings.ZDS_APP["content"]["max_suggestion_search_results"]
 
-                search_parameters = {
-                    "q": search_query,
-                    "page": 1,
-                    "per_page": max_suggestion_search_results,
-                } | PublishedContent.get_search_query()
+                    search_parameters = {
+                        "q": search_query,
+                        "page": 1,
+                        "per_page": max_suggestion_search_results,
+                    } | PublishedContent.get_search_query()
 
-                # We exclude contents already picked as a suggestion:
-                excluded_content_ids = request.GET.get("excluded", "")
-                if excluded_content_ids:
-                    filter_by = SearchFilter()
-                    filter_by.add_not_numerical_filter("content_pk", excluded_content_ids.split(","))
-                    search_parameters["filter_by"] = str(filter_by)
+                    # We exclude contents already picked as a suggestion:
+                    excluded_content_ids = request.GET.get("excluded", "")
+                    if excluded_content_ids:
+                        filter_by = SearchFilter()
+                        filter_by.add_not_numerical_filter("content_pk", excluded_content_ids.split(","))
+                        search_parameters["filter_by"] = str(filter_by)
 
-                hits = search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
-                assert len(hits) <= max_suggestion_search_results
+                    hits = search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
+                    assert len(hits) <= max_suggestion_search_results
 
-                for hit in hits:
-                    document = hit["document"]
-                    result = {
-                        "id": document["content_pk"],
-                        "title": str(document["title"]),
-                    }
-                    results.append(result)
+                    for hit in hits:
+                        document = hit["document"]
+                        result = {
+                            "id": document["content_pk"],
+                            "title": str(document["title"]),
+                        }
+                        results.append(result)
+            else:
+                logging.getLogger(__name__).warning(
+                    "SuggestionContentView called, but there is no 'publishedcontent' collection."
+                )
 
         data = {"results": results}
         return HttpResponse(json_handler.dumps(data), content_type="application/json")
