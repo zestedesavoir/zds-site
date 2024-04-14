@@ -182,46 +182,9 @@ class SearchView(ZdSPagingListView):
                     if k in search_collections
                 ]
 
-            search_content_types = self.search_form.cleaned_data["content_types"]
-            search_validated_content = self.search_form.cleaned_data["validated_content"]
-            if search_validated_content:
-                if "validated" in search_validated_content:
-                    for t in ["tutorial", "article"]:
-                        if t not in search_content_types:
-                            search_content_types.append(t)
-                if "no_validated" in search_validated_content and "opinion" not in search_content_types:
-                    search_content_types.append("opinion")
-
-            if search_content_types:
-                if "publishedcontent" not in search_collections:
-                    search_collections.append("publishedcontent")
-                if "tutorial" in search_content_types and "chapter" not in search_collections:
-                    search_collections.append("chapter")
-
-            content_category = self.search_form.cleaned_data["category"]
-            content_subcategory = self.search_form.cleaned_data["subcategory"]
-
-            # Setup filters:
-            filter_publishedcontent = SearchFilter()
-            filter_chapter = SearchFilter()
-            if content_category:
-                filter_publishedcontent.add_exact_filter("categories", [content_category])
-                filter_chapter.add_exact_filter("categories", [content_category])
-            if content_subcategory:
-                filter_publishedcontent.add_exact_filter("subcategories", [content_subcategory])
-                filter_chapter.add_exact_filter("subcategories", [content_subcategory])
-            if search_content_types:
-                filter_publishedcontent.add_exact_filter("content_type", [search_content_types])
-
             searches = {
-                "publishedcontent": {
-                    "filter_by": str(filter_publishedcontent),
-                }
-                | PublishedContent.get_search_query(),
-                "chapter": {
-                    "filter_by": str(filter_chapter),
-                }
-                | FakeChapter.get_search_query(),
+                "publishedcontent": PublishedContent.get_search_query(),
+                "chapter": FakeChapter.get_search_query(),
                 "topic": Topic.get_search_query(self.request.user),
                 "post": Post.get_search_query(self.request.user),
             }

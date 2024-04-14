@@ -28,22 +28,6 @@
                     </li>
                 {% endfor %}
             </ul>
-            <ul class="search-filters">
-                {% for radio in form.content_types %}
-                    <li>
-                        {{ radio.tag }}
-                        <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                    </li>
-                {% endfor %}
-            </ul>
-            <ul class="search-filters">
-                {% for radio in form.validated_content %}
-                    <li>
-                        {{ radio.tag }}
-                        <label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
-                    </li>
-                {% endfor %}
-            </ul>
         </div>
     </section>
 
