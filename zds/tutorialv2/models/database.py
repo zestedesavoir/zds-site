@@ -32,6 +32,7 @@ from zds.searchv2.models import (
     date_to_timestamp_int,
     clean_html,
 )
+from zds.searchv2.utils import SearchFilter
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import (
     TYPE_CHOICES,
@@ -1049,9 +1050,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
                 if versioned.has_sub_containers():
                     # delete possible previous chapters
                     if content.search_engine_already_indexed:
-                        search_engine_manager.delete_by_query(
-                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
-                        )
+                        FakeChapter.remove_from_search_engine(search_engine_manager, content.search_engine_id)
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
                         chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
@@ -1159,23 +1158,21 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
 @receiver(pre_delete, sender=PublishedContent)
 def delete_published_content_in_search_engine(sender, instance, **kwargs):
-    """Catch the pre_delete signal to ensure the deletion in Typesense. Also, handle the deletion of the corresponding
-    chapters.
+    """Catch the pre_delete signal to ensure the deletion in the search engine.
+    Also, handle the deletion of the corresponding chapters.
     """
 
     search_engine_manager = SearchIndexManager()
-
-    search_engine_manager.delete_by_query(
-        FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + instance.search_engine_id}
-    )
+    FakeChapter.remove_from_search_engine(search_engine_manager, instance.search_engine_id)
 
     return delete_document_in_search_engine(instance)
 
 
 @receiver(pre_save, sender=PublishedContent)
 def delete_published_content_in_search_engine_if_set_to_redirect(sender, instance, **kwargs):
-    """If the slug of the content changes, the ``must_redirect`` field is set to ``True`` and a new
-    PublishedContnent is created. To avoid duplicates, the previous ones must be removed from Typesense.
+    """If the slug of the content changes, the ``must_redirect`` field is set
+    to ``True`` and a new PublishedContnent is created. To avoid duplicates,
+    the previous ones must be removed from the search engine.
     """
 
     try:
@@ -1284,6 +1281,13 @@ class FakeChapter(AbstractSearchIndexable):
             ),
             "sort_by": "score:desc",
         }
+
+    @classmethod
+    def remove_from_search_engine(cls, search_engine_manager: SearchIndexManager, parent_search_engine_id: int):
+        filter_by = SearchFilter()
+        filter_by.add_exact_filter("parent_id", parent_search_engine_id)
+
+        search_engine_manager.delete_by_query(cls.get_document_type(), {"filter_by": str(filter_by)})
 
 
 class ContentReaction(Comment):
