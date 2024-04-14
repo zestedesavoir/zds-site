@@ -99,18 +99,15 @@ zmd-stop: ## Stop the zmarkdown server
 	node ./zmd/node_modules/pm2/bin/pm2 kill
 
 ##
-## ~ Elastic Search
+## ~ Search Engine
 
-run-elasticsearch: ## Run the Elastic Search server
-	elasticsearch || echo 'No Elastic Search installed (you can add it locally with `./scripts/install_zds.sh +elastic-local`)'
+run-search-engine: ## Run the search server
+	./.local/typesense/typesense-server --data-dir=.local/typesense/typesense-data --api-key=xyz || echo 'No Typesense installed (you can add it locally with `./scripts/install_zds.sh +typesense-local`)'
 
-run-typesense: ## Run the Typesense Search server
-	./.local/typesense-server --data-dir=.local/typesense/typesense-data --api-key=xyz --enable-cors || echo 'No Typesense installed (you can add it locally with `./scripts/install_zds.sh +typesense-local`)'
-
-index-all: ## Index the database in a new Elastic Search index
+index-all: ## Index the whole database in the search engine
 	python manage.py search_engine_manager index_all
 
-index-flagged: ## Index the database in the current Elastic Search index
+index-flagged: ## Index new content in the search engine
 	python manage.py search_engine_manager index_flagged
 
 ##

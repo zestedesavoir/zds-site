@@ -24,7 +24,7 @@ Après avoir cloné le dépôt du code source, installer ZdS sous Linux est rela
 
     make install-linux
 
-Notez que si vous voulez installer une version complète (avec une version locale  `de LaTeX <#composant-tex-local-et-latex-template>`_ et `de Elasticsearch <#composant-elastic-local>`_, plus d'infos ci-dessous), utilisez plutôt
+Notez que si vous voulez installer une version complète (avec une version locale  `de LaTeX <#composant-tex-local-et-latex-template>`_ et `de Typesense <#composant-typesense-local>`_, plus d'infos ci-dessous), utilisez plutôt
 
 .. sourcecode:: bash
 
@@ -72,7 +72,7 @@ Notez que si vous ne souhaitez pas un de ces compsants, vous pouvez utiliser la 
 Composants ``full``
 ===================
 
-Équivalent à ``+base +elastic-local +tex-local +latex-template`` (plus de détails ci-dessous).
+Équivalent à ``+base +typesense-local +tex-local +latex-template`` (plus de détails ci-dessous).
 De même que pour `base <#composants-base>`_, vous pouvez agrémenter de ``-composant`` pour ne pas installer un composant donné.
 
 
@@ -164,14 +164,13 @@ Strictement équivalent à la commande suivantes:
 
 Plus d'info sur cette fonctionalité `sur la page dédiée <../utils/fixture_loaders.html>`_.
 
-Composant ``elastic-local``
-===========================
+Composant ``typesense-local``
+=============================
 
-Installe une version **locale** d'Elasticsearch dans un dossier ``.local`` situé dans le dossier de ZdS.
-La commande ``elasticsearch`` est ensuite ajoutée dans le *virtualenv*, de telle sorte à ce que ce soit cette version locale qui soit utilisée.
-La version d'Elasticsearch installée est controlée par la variable d'environnement ``ZDS_ELASTIC_VERSION`` (voir ``scripts/define_variable.sh`` pour la valeur par défaut).
+Installe une version **locale** de Typesense dans un dossier ``.local`` situé dans le dossier de ZdS.
+La version de Typesense installée est controlée par la variable d'environnement ``ZDS_TYPESENSE_VERSION`` (voir ``scripts/define_variable.sh`` pour la valeur par défaut).
 
-Notez que vous pouvez choisir d'installer Elasticsearch manuellement, `comme décrit ici <./extra-install-search-engine.html#sous-linux>`_.
+Notez que vous pouvez choisir d'installer Typesense manuellement, `comme décrit ici <./extra-install-search-engine.html#sous-linux>`_.
 
 Composant ``tex-local`` et ``latex-template``
 =============================================
