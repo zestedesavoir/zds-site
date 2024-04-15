@@ -123,11 +123,9 @@ class AbstractSearchIndexable:
 
 class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     """Version of AbstractSearchIndexable for a Django object, with some improvements:
-
     - Already include ``pk`` in schema;
     - Makes the search engine ID field to be equal to the database primary key;
-    - Override ``search_engine_already_indexed`` class attribute to be a database field;
-    - Define a ``search_engine_flagged`` database field to be able to index only new and modified data;
+    - Define a ``search_engine_requires_index`` database field to be able to index only new and modified data;
     - Override ``save()`` to mark the object as requiring to be indexed;
     - Define a ``get_indexable_objects()`` method that can be overridden to
       change the queryset to fetch objects to index.
@@ -136,11 +134,8 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     class Meta:
         abstract = True
 
-    search_engine_flagged = models.BooleanField(
+    search_engine_requires_index = models.BooleanField(
         _("Doit être (ré)indexé par le moteur de recherche"), default=True, db_index=True
-    )
-    search_engine_already_indexed = models.BooleanField(
-        _("Déjà indexé par le moteur de recherche"), default=False, db_index=True
     )
 
     def __init__(self, *args, **kwargs):
@@ -164,7 +159,7 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
         query = cls.objects
 
         if not force_reindexing:
-            query = query.filter(search_engine_flagged=True)
+            query = query.filter(search_engine_requires_index=True)
 
         return query
 
@@ -183,10 +178,10 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
         (since a save assumes a modification of the object).
 
         .. note::
-            Flagging can be prevented using ``save(search_engine_flagged=False)``.
+            Flagging can be prevented using ``save(search_engine_requires_index=False)``.
         """
 
-        self.search_flagged = kwargs.pop("search_engine_flagged", True)
+        self.search_engine_requires_index = kwargs.pop("search_engine_requires_index", True)
 
         return super().save(*args, **kwargs)
 
@@ -289,7 +284,7 @@ class SearchIndexManager:
 
     def clear_indexing_of_model(self, model):
         """Nullify the indexing of a given model by setting
-        ``search_engine_already_index=False`` to all objects.
+        ``search_engine_requires_index=True`` to all objects.
 
         :param model: the model
         :type model: class
@@ -297,7 +292,7 @@ class SearchIndexManager:
 
         if issubclass(model, AbstractSearchIndexableModel):  # use a global update with Django
             objs = model.get_indexable_objects(force_reindexing=True)
-            objs.update(search_engine_flagged=True, search_engine_already_indexed=False)
+            objs.update(search_engine_requires_index=True)
         elif len(model.get_indexable(force_reindexing=True)) > 0:
             # This sould never happen: if the origin object is not in the
             # database, there is no field to update and save.
@@ -365,9 +360,7 @@ class SearchIndexManager:
                         self.logger.warn(f"Error when indexing {doc_type} objects: {error}.")
                     else:
                         # mark all these objects as indexed at once
-                        model_to_update.objects.filter(pk__in=pks).update(
-                            search_engine_already_indexed=True, search_engine_flagged=False
-                        )
+                        model_to_update.objects.filter(pk__in=pks).update(search_engine_requires_index=False)
                         indexed_counter += len(objects)
         else:
             then = time.time()
@@ -398,9 +391,7 @@ class SearchIndexManager:
                         self.logger.warn(f"Error when indexing {doc_type} objects: {error}.")
                     else:
                         # mark all these objects as indexed at once
-                        model.objects.filter(pk__in=[o.pk for o in objects]).update(
-                            search_engine_already_indexed=True, search_engine_flagged=False
-                        )
+                        model.objects.filter(pk__in=[o.pk for o in objects]).update(search_engine_requires_index=False)
                         indexed_counter += len(objects)
 
                     # basic estimation of indexed objects per second

@@ -69,10 +69,8 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.search_engine_already_indexed)
-        self.assertTrue(topic.search_engine_flagged)
-        self.assertFalse(post.search_engine_already_indexed)
-        self.assertTrue(post.search_engine_flagged)
+        self.assertTrue(topic.search_engine_requires_index)
+        self.assertTrue(post.search_engine_requires_index)
 
         # create a middle-tutorial and publish it
         tuto = PublishableContentFactory(type="TUTORIAL")
@@ -90,8 +88,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.search_engine_already_indexed)
-        self.assertTrue(published.search_engine_flagged)
+        self.assertTrue(published.search_engine_requires_index)
 
         # 1. index all
         for model in self.indexable:
@@ -102,14 +99,11 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.search_engine_already_indexed)
-        self.assertFalse(topic.search_engine_flagged)
-        self.assertTrue(post.search_engine_already_indexed)
-        self.assertFalse(post.search_engine_flagged)
+        self.assertFalse(topic.search_engine_requires_index)
+        self.assertFalse(post.search_engine_requires_index)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.search_engine_already_indexed)
-        self.assertFalse(published.search_engine_flagged)
+        self.assertFalse(published.search_engine_requires_index)
 
         results = self.manager.search("*")  # get all documents
         number_of_results = sum(result["found"] for result in results)
@@ -216,14 +210,11 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         new_topic = Topic.objects.get(pk=new_topic.pk)
         new_post = Post.objects.get(pk=new_post.pk)
 
-        self.assertFalse(new_topic.search_engine_already_indexed)
-        self.assertTrue(new_topic.search_engine_flagged)
-        self.assertFalse(new_post.search_engine_already_indexed)
-        self.assertTrue(new_post.search_engine_flagged)
+        self.assertTrue(new_topic.search_engine_requires_index)
+        self.assertTrue(new_post.search_engine_requires_index)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.search_engine_already_indexed)
-        self.assertTrue(published.search_engine_flagged)
+        self.assertTrue(published.search_engine_requires_index)
 
     def test_special_case_of_contents(self):
         """test that the old publishedcontent does not stay when a new one is created"""
@@ -249,8 +240,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.manager.indexing_of_model(PublishedContent, force_reindexing=True, verbose=False)  # index
 
         first_publication = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(first_publication.search_engine_already_indexed)
-        self.assertFalse(first_publication.search_engine_flagged)
+        self.assertFalse(first_publication.search_engine_requires_index)
 
         results = self.manager.search("*")
         number_of_results = sum(result["found"] for result in results)

@@ -62,10 +62,8 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.search_engine_already_indexed)
-        self.assertTrue(topic.search_engine_flagged)
-        self.assertFalse(post.search_engine_already_indexed)
-        self.assertTrue(post.search_engine_flagged)
+        self.assertTrue(topic.search_engine_requires_index)
+        self.assertTrue(post.search_engine_requires_index)
 
         # create a middle-tutorial and publish it
         tuto = PublishableContentFactory(type="TUTORIAL")
@@ -85,8 +83,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         tuto.save()
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.search_engine_already_indexed)
-        self.assertTrue(published.search_engine_flagged)
+        self.assertTrue(published.search_engine_requires_index)
 
         # 1. test "index-all"
         call_search_engine_manager_command("index_all")
@@ -96,14 +93,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.search_engine_already_indexed)
-        self.assertFalse(topic.search_engine_flagged)
-        self.assertTrue(post.search_engine_already_indexed)
-        self.assertFalse(post.search_engine_flagged)
+        self.assertFalse(topic.search_engine_requires_index)
+        self.assertFalse(post.search_engine_requires_index)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.search_engine_already_indexed)
-        self.assertFalse(published.search_engine_flagged)
+        self.assertFalse(published.search_engine_requires_index)
 
         results = self.search_engine_manager.search("*")
         number_of_results = sum(result["found"] for result in results)
@@ -136,14 +130,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertFalse(topic.search_engine_already_indexed)
-        self.assertTrue(topic.search_engine_flagged)
-        self.assertFalse(post.search_engine_already_indexed)
-        self.assertTrue(post.search_engine_flagged)
+        self.assertTrue(topic.search_engine_requires_index)
+        self.assertTrue(post.search_engine_requires_index)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertFalse(published.search_engine_already_indexed)
-        self.assertTrue(published.search_engine_flagged)
+        self.assertTrue(published.search_engine_requires_index)
 
         # 3. test "setup"
         call_search_engine_manager_command("setup")
@@ -162,14 +153,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
 
-        self.assertTrue(topic.search_engine_already_indexed)
-        self.assertFalse(topic.search_engine_flagged)
-        self.assertTrue(post.search_engine_already_indexed)
-        self.assertFalse(post.search_engine_flagged)
+        self.assertFalse(topic.search_engine_requires_index)
+        self.assertFalse(post.search_engine_requires_index)
 
         published = PublishedContent.objects.get(content_pk=tuto.pk)
-        self.assertTrue(published.search_engine_already_indexed)
-        self.assertFalse(published.search_engine_flagged)
+        self.assertFalse(published.search_engine_requires_index)
 
         results = self.search_engine_manager.search("*")
         number_of_results = sum(result["found"] for result in results)

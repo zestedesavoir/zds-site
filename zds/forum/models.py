@@ -522,7 +522,7 @@ class Topic(AbstractSearchIndexableModel):
             pass
         else:
             if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
-                Post.objects.filter(topic__pk=self.pk).update(search_engine_flagged=True)
+                Post.objects.filter(topic__pk=self.pk).update(search_engine_requires_index=True)
         return super().save(*args, **kwargs)
 
     def _compute_search_score(self):
