@@ -1,7 +1,7 @@
 class SearchFilter:
     """Class to generate filters for Typesense queries.
 
-    See https://typesense.org/docs/0.24.1/api/search.html#filter-parameters
+    See https://typesense.org/docs/26.0/api/search.html#filter-parameters
     """
 
     def __init__(self):
@@ -24,11 +24,7 @@ class SearchFilter:
         :param values: A list of values the field can have.
         :type values: list
         """
-        f = f"{field}:={values[0]}"
-        for value in values[1:]:
-            f += f"||{field}:={value}"
-
-        self._add_filter(f)
+        self._add_filter(f"{field}:=[" + ",".join(map(str, values)) + "]")
 
     def add_bool_filter(self, field: str, value: bool):
         self._add_filter(f"{field}:{str(value).lower()}")
@@ -40,10 +36,6 @@ class SearchFilter:
         :param field: Name of the field to filter.
         :type field: str
         :param values: A list of integer values the field cannot have.
-        :type values: list[str]
+        :type values: list[int]
         """
-        f = f"({field}:<{values[0]}||{field}:>{values[0]})"
-        for value in values[1:]:
-            f += f"&&({field}:<{value}||{field}:>{value})"
-
-        self._add_filter(f)
+        self._add_filter(f"{field}:!=[" + ",".join(map(str, values)) + "]")

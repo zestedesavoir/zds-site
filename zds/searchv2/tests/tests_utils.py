@@ -187,15 +187,15 @@ class SearchFilterTests(TestCase):
         f = SearchFilter()
 
         f.add_exact_filter("foo", [1])
-        self.assertEqual(str(f), "(foo:=1)")
+        self.assertEqual(str(f), "(foo:=[1])")
 
         f.add_exact_filter("bar", [3, 4, "bla"])
-        self.assertEqual(str(f), "(foo:=1) && (bar:=3||bar:=4||bar:=bla)")
+        self.assertEqual(str(f), "(foo:=[1]) && (bar:=[3,4,bla])")
 
         f.add_bool_filter("z", True)
-        self.assertEqual(str(f), "(foo:=1) && (bar:=3||bar:=4||bar:=bla) && (z:true)")
+        self.assertEqual(str(f), "(foo:=[1]) && (bar:=[3,4,bla]) && (z:true)")
 
         f = SearchFilter()
 
         f.add_not_numerical_filter("forum_pk", [6, 7])
-        self.assertEqual(str(f), "((forum_pk:<6||forum_pk:>6)&&(forum_pk:<7||forum_pk:>7))")
+        self.assertEqual(str(f), "(forum_pk:!=[6,7])")
