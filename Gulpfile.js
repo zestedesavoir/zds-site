@@ -72,6 +72,14 @@ function customSassError(error) {
   // TODO: https://github.com/A-312/gulp-terser-js#can-i-use-terser-to-format-error-of-an-other-gulp-module-
 }
 
+/* Get CSS minified files from packages
+ * Get also sourcemaps for all CSS files, required by Django's ManifestStaticFilesStorage since 4.1 (see
+ * https://docs.djangoproject.com/fr/4.2/ref/contrib/staticfiles/#manifeststaticfilesstorage) */
+function cssPackages() {
+  return gulp.src(require.resolve('@fortawesome/fontawesome-free/css/all.min.css'), { sourcemaps: true })
+    .pipe(gulp.dest('dist/css/', { sourcemaps: '.' }))
+}
+
 // Generates CSS for the website and the ebooks
 function css() {
   return gulp.src(['assets/scss/main.scss', 'assets/scss/zmd.scss'], { sourcemaps: true })
@@ -79,6 +87,12 @@ function css() {
     .on('error', customSassError)
     .pipe(gulpif(!fast, postcss(postcssPlugins))) // Adds browsers prefixs and minifies
     .pipe(gulp.dest('dist/css/', { sourcemaps: '.' }))
+}
+
+// Get webfonts files from packages
+function webfontsPackages() {
+  return gulp.src(path.resolve('node_modules/@fortawesome/fontawesome-free/webfonts/*'))
+    .pipe(gulp.dest('dist/webfonts/'))
 }
 
 // Generates CSS for the static error pages in the folder `errors/`
@@ -212,7 +226,7 @@ function watch() {
 }
 
 // Build the front
-const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, errors, gulp.series(spriteCss, gulp.parallel(css, spriteImages)))
+const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, errors, gulp.series(spriteCss, gulp.parallel(cssPackages, css, spriteImages)), webfontsPackages)
 
 exports.build = build
 exports.watch = gulp.series(build, watch)
