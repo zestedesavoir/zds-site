@@ -123,6 +123,7 @@ class AbstractSearchIndexable:
 
 class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     """Version of AbstractSearchIndexable for a Django object, with some improvements:
+
     - Already include ``pk`` in schema;
     - Makes the search engine ID field to be equal to the database primary key;
     - Define a ``search_engine_requires_index`` database field to be able to index only new and modified data;
