@@ -27,12 +27,14 @@ from zds.mp.models import PrivateTopic
 from zds.searchv2.models import (
     AbstractSearchIndexableModel,
     AbstractSearchIndexable,
+)
+from zds.searchv2.utils import (
+    SearchFilter,
     delete_document_in_search_engine,
     SearchIndexManager,
     date_to_timestamp_int,
     clean_html,
 )
-from zds.searchv2.utils import SearchFilter
 from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
 from zds.tutorialv2.models import (
     TYPE_CHOICES,

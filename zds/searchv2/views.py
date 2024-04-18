@@ -4,23 +4,18 @@ import logging
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.utils.translation import gettext_lazy as _
 from django.shortcuts import render
 from django.urls import reverse
-from django.views.generic import CreateView
 from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
-from zds import json_handler
 from zds.forum.models import Topic, Post
 from zds.searchv2.forms import SearchForm
-from zds.searchv2.models import SearchIndexManager
-from zds.searchv2.utils import SearchFilter
+from zds.searchv2.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.models.database import FakeChapter, PublishedContent
 from zds.utils.paginator import ZdSPagingListView
-
-from typesense import Client as SearchEngineClient
 
 
 class SimilarTopicsView(View):
@@ -33,15 +28,12 @@ class SimilarTopicsView(View):
     def get(self, request, *args, **kwargs):
         results = []
 
-        if settings.SEARCH_ENABLED:
-            search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
-            search_engine_manager = SearchIndexManager()
-
-            collections = [c["name"] for c in search_engine.collections.retrieve()]
-            if "topic" in collections:
+        search_engine_manager = SearchIndexManager()
+        if search_engine_manager.connected:
+            if "topic" in search_engine_manager.collections:
                 search_query = request.GET.get("q", "")
 
-                if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
+                if search_query and "*" not in search_query:
                     max_similar_topics = settings.ZDS_APP["forum"]["max_similar_topics"]
 
                     search_parameters = {
@@ -50,7 +42,7 @@ class SimilarTopicsView(View):
                         "per_page": max_similar_topics,
                     } | Topic.get_search_query(self.request.user)
 
-                    hits = search_engine.collections["topic"].documents.search(search_parameters)["hits"]
+                    hits = search_engine_manager.engine.collections["topic"].documents.search(search_parameters)["hits"]
                     assert len(hits) <= max_similar_topics
 
                     for hit in hits:
@@ -68,8 +60,7 @@ class SimilarTopicsView(View):
             else:
                 logging.getLogger(__name__).warning("SimilarTopicView called, but there is no 'topic' collection.")
 
-        data = {"results": results}
-        return HttpResponse(json_handler.dumps(data), content_type="application/json")
+        return JsonResponse({"results": results})
 
 
 class SuggestionContentView(View):
@@ -83,15 +74,13 @@ class SuggestionContentView(View):
     def get(self, request, *args, **kwargs):
         results = []
 
-        if settings.SEARCH_ENABLED:
-            search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
-            search_engine_manager = SearchIndexManager()
+        search_engine_manager = SearchIndexManager()
 
+        if search_engine_manager.connected:
             search_query = request.GET.get("q", "")
 
-            collections = [c["name"] for c in search_engine.collections.retrieve()]
-            if "publishedcontent" in collections:
-                if search_engine_manager.connected_to_search_engine and search_query and "*" not in search_query:
+            if "publishedcontent" in search_engine_manager.collections:
+                if search_query and "*" not in search_query:
                     max_suggestion_search_results = settings.ZDS_APP["content"]["max_suggestion_search_results"]
 
                     search_parameters = {
@@ -107,7 +96,9 @@ class SuggestionContentView(View):
                         filter_by.add_not_numerical_filter("content_pk", excluded_content_ids.split(","))
                         search_parameters["filter_by"] = str(filter_by)
 
-                    hits = search_engine.collections["publishedcontent"].documents.search(search_parameters)["hits"]
+                    hits = search_engine_manager.engine.collections["publishedcontent"].documents.search(
+                        search_parameters
+                    )["hits"]
                     assert len(hits) <= max_suggestion_search_results
 
                     for hit in hits:
@@ -122,8 +113,7 @@ class SuggestionContentView(View):
                     "SuggestionContentView called, but there is no 'publishedcontent' collection."
                 )
 
-        data = {"results": results}
-        return HttpResponse(json_handler.dumps(data), content_type="application/json")
+        return JsonResponse({"results": results})
 
 
 class SearchView(ZdSPagingListView):
@@ -132,18 +122,8 @@ class SearchView(ZdSPagingListView):
     template_name = "searchv2/search.html"
     paginate_by = settings.ZDS_APP["search"]["results_per_page"]
 
-    search_engine = None
     search_form = None
     search_query = None
-
-    def __init__(self, **kwargs):
-        """Overridden because the index manager must NOT be initialized elsewhere."""
-
-        super().__init__(**kwargs)
-        self.search_engine_manager = SearchIndexManager()
-
-        if settings.SEARCH_ENABLED:
-            self.search_engine = SearchEngineClient(settings.SEARCH_CONNECTION)
 
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""
@@ -161,7 +141,9 @@ class SearchView(ZdSPagingListView):
     def get_queryset(self):
         result = []
 
-        if not self.search_engine_manager.connected_to_search_engine:
+        search_engine_manager = SearchIndexManager()
+
+        if not search_engine_manager.connected:
             messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
         elif self.search_query and "*" in self.search_query:
             # '*' is used as the search string to return all documents:
@@ -201,7 +183,9 @@ class SearchView(ZdSPagingListView):
                 "highlight_start_tag": '<mark class="highlighted">',
             }
 
-            search_results = self.search_engine.multi_search.perform(search_requests, common_search_params)["results"]
+            search_results = search_engine_manager.engine.multi_search.perform(search_requests, common_search_params)[
+                "results"
+            ]
             for i in range(len(search_results)):
                 if "hits" in search_results[i]:
                     for entry in search_results[i]["hits"]:

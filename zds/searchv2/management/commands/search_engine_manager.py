@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from zds.searchv2.models import SearchIndexManager, get_all_indexable_objects
+from zds.searchv2.utils import SearchIndexManager, get_all_indexable_objects
 from zds.tutorialv2.models.database import FakeChapter
 
 
@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
         self.search_engine_manager = SearchIndexManager()
 
-        if not self.search_engine_manager.connected_to_search_engine:
+        if not self.search_engine_manager.connected:
             raise Exception("Unable to connect to the search engine, aborting.")
 
     def add_arguments(self, parser):

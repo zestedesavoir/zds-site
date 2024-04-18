@@ -11,14 +11,14 @@ from django.db.models.signals import pre_delete
 
 from zds.forum import signals
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
-from zds.searchv2.models import (
-    AbstractSearchIndexableModel,
-    delete_document_in_search_engine,
+from zds.searchv2.models import AbstractSearchIndexableModel
+from zds.searchv2.utils import (
+    SearchFilter,
     SearchIndexManager,
+    delete_document_in_search_engine,
     date_to_timestamp_int,
     clean_html,
 )
-from zds.searchv2.utils import SearchFilter
 from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 

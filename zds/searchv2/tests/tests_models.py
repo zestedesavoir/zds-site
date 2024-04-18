@@ -7,7 +7,7 @@ from django.test.utils import override_settings
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.searchv2.models import SearchIndexManager
+from zds.searchv2.utils import SearchIndexManager
 from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
 from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
@@ -40,7 +40,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def test_setup_functions(self):
         """Test the behavior of the reset_index() and clear_index() functions"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Creation:
@@ -48,18 +48,17 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.manager.reset_index(models)
 
         # test collection
-        collections_name = [collection["name"] for collection in self.manager.search_engine.collections.retrieve()]
         for model in models:
-            self.assertTrue(model.get_document_type() in collections_name)
+            self.assertTrue(model.get_document_type() in self.manager.collections)
 
         # 2. Clearing
         self.manager.clear_index()
-        self.assertTrue(len(self.manager.search_engine.collections.retrieve()) == 0)  # back to the void
+        self.assertTrue(len(self.manager.collections) == 0)  # back to the void
 
     def test_indexation(self):
         """test the indexation and deletion of the different documents"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # create a topic with a post
@@ -219,7 +218,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def test_special_case_of_contents(self):
         """test that the old publishedcontent does not stay when a new one is created"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Create a middle-tutorial, publish it, then index it

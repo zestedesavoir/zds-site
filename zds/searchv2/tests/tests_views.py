@@ -11,7 +11,7 @@ from zds import json_handler
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
 from zds.forum.tests.factories import create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.searchv2.models import SearchIndexManager
+from zds.searchv2.utils import SearchIndexManager
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,
@@ -58,7 +58,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_basic_search(self):
         """Basic search and filtering"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Index and test search:
@@ -129,7 +129,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 self.assertEqual(r["document"]["id"], ids[doc_type][i])  # … with the right id !
 
     def test_invalid_search(self):
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # Check if the request is *, no result is displayed
@@ -145,7 +145,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_get_similar_topics(self):
         """Get similar topics lists"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         text = "Clem ne se mange pas"
@@ -208,7 +208,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_hidden_post_are_not_result(self):
         """Hidden posts should not show up in the search results"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Index and test search:
@@ -254,7 +254,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_hidden_forums_give_no_results_if_user_not_allowed(self):
         """Long name, isn't ?"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Create a hidden forum belonging to a hidden staff group.
@@ -307,7 +307,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_boosts(self):
         """Check if boosts are doing their job"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Create topics (with identical titles), posts (with identical texts), an article and a tuto
@@ -662,7 +662,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 settings.ZDS_APP["search"]["boosts"][collection][key] = 1
 
     def test_change_topic_impacts_posts(self):
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Create a hidden forum belonging to a hidden group and add staff in it.
@@ -751,7 +751,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 0)  # ok
 
     def test_change_publishedcontents_impacts_chapter(self):
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Create middle-size content and index it
@@ -859,7 +859,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_upercase_and_lowercase_search_give_same_results(self):
         """Pretty self-explanatory function name, isn't it ?"""
 
-        if not self.manager.connected_to_search_engine:
+        if not self.manager.connected:
             return
 
         # 1. Index lowercase stuffs

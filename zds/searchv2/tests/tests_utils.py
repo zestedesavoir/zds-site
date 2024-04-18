@@ -12,8 +12,7 @@ from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
-from zds.searchv2.models import SearchIndexManager
-from zds.searchv2.utils import SearchFilter
+from zds.searchv2.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 
@@ -41,7 +40,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
     def test_manager(self):
         """Test the behavior of the ``search_engine_manager`` command"""
 
-        if not self.search_engine_manager.connected_to_search_engine:
+        if not self.search_engine_manager.connected:
             return
 
         def call_search_engine_manager_command(cmd: str):
@@ -49,7 +48,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
                 call_command("search_engine_manager", "--quiet", cmd, stdout=f, stderr=f)
 
         # in the beginning: the void
-        self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
+        self.assertEqual(len(self.search_engine_manager.collections), 0)
 
         text = "Ceci est un texte de test"
 
@@ -88,7 +87,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         # 1. test "index-all"
         call_search_engine_manager_command("index_all")
 
-        self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
+        self.assertNotEqual(len(self.search_engine_manager.collections), 0)
 
         topic = Topic.objects.get(pk=topic.pk)
         post = Post.objects.get(pk=post.pk)
@@ -121,10 +120,10 @@ class UtilsTests(TutorialTestMixin, TestCase):
         self.assertTrue(all(must_contain))
 
         # 2. test "clear"
-        self.assertNotEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)
+        self.assertNotEqual(len(self.search_engine_manager.collections), 0)
 
         call_search_engine_manager_command("clear")
-        self.assertEqual(len(self.search_engine_manager.search_engine.collections.retrieve()), 0)  # back to void
+        self.assertEqual(len(self.search_engine_manager.collections), 0)  # back to void
 
         # must reset every object
         topic = Topic.objects.get(pk=topic.pk)
@@ -139,9 +138,7 @@ class UtilsTests(TutorialTestMixin, TestCase):
         # 3. test "setup"
         call_search_engine_manager_command("setup")
 
-        self.assertNotEqual(
-            len(self.search_engine_manager.search_engine.collections.retrieve()), 0
-        )  # collections back in
+        self.assertNotEqual(len(self.search_engine_manager.collections), 0)  # collections back in
 
         results = self.search_engine_manager.search("*")
         number_of_results = sum(result["found"] for result in results)
