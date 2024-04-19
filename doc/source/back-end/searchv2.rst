@@ -395,46 +395,6 @@ est effectuée en même temps que l'indexation des contenus publiés
 qui est surchargée, profitant du fait que cette méthode peut renvoyer n'importe
 quel type de document à indexer.
 
-.. sourcecode:: python
-
-    @classmethod
-    def get_indexable(cls, force_reindexing=False):
-        """Overridden to also include chapters"""
-
-        search_engine_manager = SearchIndexManager()
-        last_pk = 0
-        objects_source = super().get_indexable(force_reindexing)
-        objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
-        while objects:
-            chapters = []
-
-            for content in objects:
-                versioned = content.load_public_version()
-
-                if versioned.has_sub_containers(): # chapters are only indexed for middle and big tuto
-
-                    # delete possible previous chapters
-                    if content.search_engine_already_indexed:
-                        search_engine_manager.delete_by_query(
-                            FakeChapter.get_document_type(), {"filter_by": "parent_id:=" + content.search_engine_id}
-                        )
-                    # (re)index the new one(s)
-                    for chapter in versioned.get_list_of_chapters():
-                        chapters.append(FakeChapter(chapter, versioned, content.search_engine_id))
-
-            if chapters:
-                # since we want to return at most PublishedContent.objects_per_batch items
-                # we have to split further
-                while chapters:
-                    yield chapters[:PublishedContent.objects_per_batch]
-                    chapters = chapters[PublishedContent.objects_per_batch:]
-            if objects:
-                yield objects
-
-            # fetch next batch
-            last_pk = objects[-1].pk
-            objects = list(objects_source.filter(pk__gt=last_pk)[:PublishedContent.objects_per_batch])
-
 Le code tient aussi compte du fait que la classe ``PublishedContent`` `gère le
 changement de slug <contents.html#le-stockage-en-base-de-donnees>`_ afin de
 maintenir le SEO.  Ainsi, la méthode ``save()`` est modifiée de manière à

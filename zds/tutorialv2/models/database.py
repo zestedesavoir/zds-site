@@ -1050,8 +1050,8 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
                 # chapters are only indexed for middle and big tuto
                 if versioned.has_sub_containers():
-                    # delete possible previous chapters
-                    if content.search_engine_already_indexed:
+                    # delete previous chapters already indexed
+                    if not content.search_engine_requires_index:
                         FakeChapter.remove_from_search_engine(search_engine_manager, content.search_engine_id)
                     # (re)index the new one(s)
                     for chapter in versioned.get_list_of_chapters():
@@ -1191,7 +1191,7 @@ class FakeChapter(AbstractSearchIndexable):
 
     In schema, this class defines PublishedContent as its parent. Also, indexing is done by the parent.
 
-    Note that this class is only indexable, not updatable, since it does not maintain value of ``search_engine_already_indexed``
+    Note that this class is only indexable, not updatable, since it cannot maintain a value of ``search_engine_requires_index``.
     """
 
     parent_model = PublishedContent

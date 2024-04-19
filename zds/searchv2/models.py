@@ -16,11 +16,13 @@ class AbstractSearchIndexable:
     - ``get_document()`` (not mandatory, but may be useful if data differ from
       schema or extra stuffs need to be done).
 
-    You also need to maintain ``search_engine_id`` and
-    ``search_engine_already_indexed`` for indexing (if any).
+    You also need to maintain ``search_engine_id``, which is actually a string.
+    For objects that are also stored in the database, we use the database
+    primary key. We have to define it here (and not in child class
+    ``AbstractSearchIndexableModel``) because there are objects indexed in the
+    search engine, but not stored in the database.
     """
 
-    search_engine_already_indexed = False
     search_engine_id = ""
 
     objects_per_batch = 100
