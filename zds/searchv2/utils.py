@@ -172,7 +172,7 @@ class SearchIndexManager:
                         doc_type = model.get_document_type()
 
                     answer = self.engine.collections[doc_type].documents.import_(
-                        [obj.get_document_for_indexing() for obj in objects], {"action": "create"}
+                        [obj.get_document_source() for obj in objects], {"action": "create"}
                     )
 
                     error = None
@@ -203,7 +203,7 @@ class SearchIndexManager:
                         break
 
                     answer = self.engine.collections[doc_type].documents.import_(
-                        [obj.get_document_for_indexing() for obj in objects], {"action": "create"}
+                        [obj.get_document_source() for obj in objects], {"action": "create"}
                     )
 
                     error = None

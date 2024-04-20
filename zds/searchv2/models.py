@@ -95,21 +95,9 @@ class AbstractSearchIndexable:
 
             data[field] = v
 
+        data["id"] = self.search_engine_id
+
         return data
-
-    def get_document_for_indexing(self):
-        """Create a document formatted for indexing.
-
-        See https://typesense.org/docs/0.24.1/api/documents.html#index-a-document
-
-        :return: the document
-        :rtype: dict
-        """
-
-        document = self.get_document_source()
-        document["id"] = self.search_engine_id
-
-        return document
 
 
 class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):

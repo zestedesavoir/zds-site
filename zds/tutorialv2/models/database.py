@@ -1070,10 +1070,9 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             last_pk = objects[-1].pk
             objects = list(objects_source.filter(pk__gt=last_pk)[: PublishedContent.objects_per_batch])
 
-    def get_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=[]):
         """Overridden to handle the fact that most information are versioned"""
 
-        excluded_fields = excluded_fields or []
         excluded_fields.extend(
             ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date", "score"]
         )
