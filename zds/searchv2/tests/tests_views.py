@@ -46,10 +46,10 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager = SearchIndexManager()
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
-        self.manager.reset_index(self.indexable)
+        self.manager.reset_index()
 
     def _index_everything(self):
-        self.manager.reset_index(self.indexable)
+        self.manager.reset_index()
         for model in self.indexable:
             if model is FakeChapter:
                 continue
@@ -703,7 +703,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         topic_1.title = "new title"
         topic_1.save()
 
-        self.manager.reset_index([Topic, Post])
+        self.manager.reset_index()
         self.manager.indexing_of_model(Topic, force_reindexing=True, verbose=False)
         self.manager.indexing_of_model(Post, force_reindexing=True, verbose=False)
 
@@ -725,7 +725,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(302, response.status_code)
 
-        self.manager.reset_index([Topic, Post])
+        self.manager.reset_index()
         self.manager.indexing_of_model(Topic)
         self.manager.indexing_of_model(Post)
 
@@ -820,7 +820,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.public_version = published
         tuto.save()
 
-        self.manager.reset_index([PublishedContent, FakeChapter])
+        self.manager.reset_index()
         self.manager.indexing_of_model(PublishedContent, force_reindexing=True, verbose=False)
         self.manager.indexing_of_model(FakeChapter)
 

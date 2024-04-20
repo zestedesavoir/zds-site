@@ -1,28 +1,13 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from zds.searchv2.utils import SearchIndexManager, get_all_indexable_objects
-from zds.tutorialv2.models.database import FakeChapter
+from zds.searchv2.utils import SearchIndexManager, get_all_indexable_classes
 
 
 class Command(BaseCommand):
     help = "Index data in Typesense and manage them"
 
     search_engine_manager = None
-    models = get_all_indexable_objects()
-
-    def __init__(self, *args, **kwargs):
-        """Overridden because FakeChapter needs to be present for schema.
-        Also, its schema needs to be defined before the one of PublishedContent for parenting reasons (!!!).
-        """
-
-        super().__init__(*args, **kwargs)
-        self.models.insert(0, FakeChapter)
-
-        self.search_engine_manager = SearchIndexManager()
-
-        if not self.search_engine_manager.connected:
-            raise Exception("Unable to connect to the search engine, aborting.")
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -31,10 +16,15 @@ class Command(BaseCommand):
         parser.add_argument("-q", "--quiet", action="store_true", default=False)
 
     def handle(self, *args, **options):
+        self.search_engine_manager = SearchIndexManager()
+
+        if not self.search_engine_manager.connected:
+            raise Exception("Unable to connect to the search engine, aborting.")
+
         if options["action"] == "setup":
-            self.setup_search_engine()
+            self.search_engine_manager.reset_index()
         elif options["action"] == "clear":
-            self.clear_search_engine()
+            self.search_engine_manager.clear_index()
         elif options["action"] == "index_all":
             self.index_documents(force_reindexing=True, quiet=options["quiet"])
         elif options["action"] == "index_flagged":
@@ -42,23 +32,12 @@ class Command(BaseCommand):
         else:
             raise CommandError("unknown action {}".format(options["action"]))
 
-    def setup_search_engine(self):
-        self.search_engine_manager.reset_index(self.models)
-
-    def clear_search_engine(self):
-        self.search_engine_manager.clear_index()
-
-        for model in self.models:
-            self.search_engine_manager.clear_indexing_of_model(model)
-
     def index_documents(self, force_reindexing=False, quiet=False):
         if force_reindexing:
-            self.setup_search_engine()  # remove all previous data
+            self.search_engine_manager.reset_index()  # remove all previous data
 
-        for model in self.models:
-            if model is FakeChapter:
-                continue
-
+        for model in get_all_indexable_classes(only_models=True):
+            # Models takes care of indexing classes that are not models
             if force_reindexing:
                 self.stdout.write(f"- indexing {model.get_document_type()}s")
 

@@ -35,7 +35,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.manager = SearchIndexManager()
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
 
-        self.manager.reset_index(self.indexable)
+        self.manager.reset_index()
 
     def test_setup_functions(self):
         """Test the behavior of the reset_index() and clear_index() functions"""
@@ -45,7 +45,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
         # 1. Creation:
         models = [Topic, Post]
-        self.manager.reset_index(models)
+        self.manager.reset_index()
 
         # test collection
         for model in models:
@@ -200,10 +200,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
                 self.assertTrue(doc_type != Post.get_document_type() or doc_id != post.search_engine_id)
 
         # 6. Test full desindexation:
-        for model in self.indexable:
-            if model is FakeChapter:
-                continue
-            self.manager.clear_indexing_of_model(model)
+        self.manager.reset_index()
 
         # note "topic" is gone since "post" is gone, due to relationships at the Django level
         new_topic = Topic.objects.get(pk=new_topic.pk)

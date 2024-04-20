@@ -57,9 +57,16 @@ def delete_document_in_search_engine(instance):
     search_engine_manager.delete_document(instance)
 
 
-def get_all_indexable_objects():
-    """Return all indexable objects registered in Django"""
-    return [model for model in apps.get_models() if issubclass(model, AbstractSearchIndexableModel)]
+def get_all_indexable_classes(only_models=False):
+    """Return all indexable classes"""
+
+    classes = [model for model in apps.get_models() if issubclass(model, AbstractSearchIndexableModel)]
+    if not only_models:
+        # Import here instead of at the top of the file to avoid circular dependencies
+        from zds.tutorialv2.models.database import FakeChapter
+
+        classes.append(FakeChapter)
+    return classes
 
 
 class SearchIndexManager:
@@ -88,7 +95,7 @@ class SearchIndexManager:
         return [c["name"] for c in self.engine.collections.retrieve()]
 
     def clear_index(self):
-        """Clear index"""
+        """Remove all data and schemes from search engine and mark all objects as to be reindexed"""
 
         if not self.connected:
             return
@@ -96,7 +103,12 @@ class SearchIndexManager:
         for collection in self.collections:
             self.engine.collections[collection].delete()
 
-    def reset_index(self, models):
+        for model in get_all_indexable_classes(only_models=True):
+            assert issubclass(model, AbstractSearchIndexableModel)
+            objs = model.get_indexable_objects(force_reindexing=True)
+            objs.update(search_engine_requires_index=True)
+
+    def reset_index(self):
         """Delete old collections and create new ones.
         Then, set schemas for the different models.
 
@@ -108,35 +120,16 @@ class SearchIndexManager:
             return
 
         self.clear_index()
-        models = set(models)  # avoid duplicates
-        for model in models:
-            schema = model.get_document_schema()
-            self.engine.collections.create(schema)
-
-    def clear_indexing_of_model(self, model):
-        """Nullify the indexing of a given model by setting
-        ``search_engine_requires_index=True`` to all objects.
-
-        :param model: the model
-        :type model: class
-        """
-
-        if issubclass(model, AbstractSearchIndexableModel):  # use a global update with Django
-            objs = model.get_indexable_objects(force_reindexing=True)
-            objs.update(search_engine_requires_index=True)
-        elif len(model.get_indexable(force_reindexing=True)) > 0:
-            # This sould never happen: if the origin object is not in the
-            # database, there is no field to update and save.
-            # XXX
-            self.logger.warn(f"Did not reset indexing of {model.get_document_type()} objects")
+        for model in get_all_indexable_classes():
+            self.engine.collections.create(model.get_document_schema())
 
     def indexing_of_model(self, model, force_reindexing=False, verbose=True):
-        """Index documents of a given model. Use the ``objects_per_batch`` property to index.
+        """Index documents of a given model in batch, using the ``objects_per_batch`` property.
 
         See https://typesense.org/docs/0.23.1/api/documents.html#index-multiple-documents
 
         .. attention::
-            + Currently only working with ``AbstractSearchIndexableModel``.
+            + Designed to work only with ``AbstractSearchIndexableModel``.
 
         :param model: a model
         :type model: AbstractSearchIndexableModel
