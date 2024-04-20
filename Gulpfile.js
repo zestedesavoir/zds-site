@@ -141,7 +141,8 @@ function jsPackages() {
     require.resolve('moment/locale/fr.js'),
     require.resolve('chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js'),
     require.resolve('chart.js/dist/chart.min.js'),
-    require.resolve('easymde/dist/easymde.min.js')
+    require.resolve('easymde/dist/easymde.min.js'),
+    path.resolve('node_modules/mathjax/unpacked/**')
   ], { sourcemaps: true })
     .pipe(gulp.dest('dist/js/', { sourcemaps: '.' }))
 }
