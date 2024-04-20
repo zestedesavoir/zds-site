@@ -89,11 +89,22 @@ function css() {
     .pipe(gulp.dest('dist/css/', { sourcemaps: '.' }))
 }
 
-// Get webfonts files from packages
-function webfontsPackages() {
+// Get icon fonts files from packages
+function iconFonts() {
   return gulp.src(path.resolve('node_modules/@fortawesome/fontawesome-free/webfonts/*'))
     .pipe(gulp.dest('dist/webfonts/'))
 }
+
+// Get text fonts files from packages
+function textFonts() {
+  return gulp.src([
+    path.resolve('node_modules/@fontsource/source-sans-pro/files/*'),
+    path.resolve('node_modules/@fontsource/source-code-pro/files/*'),
+    path.resolve('node_modules/@fontsource/merriweather/files/*')
+  ])
+    .pipe(gulp.dest('dist/css/files'))
+}
+
 
 // Generates CSS for the static error pages in the folder `errors/`
 function errors() {
@@ -227,7 +238,7 @@ function watch() {
 }
 
 // Build the front
-const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, errors, gulp.series(spriteCss, gulp.parallel(cssPackages, css, spriteImages)), webfontsPackages)
+const build = gulp.parallel(prepareZmd, prepareEasyMde, jsPackages, js, images, errors, gulp.series(spriteCss, gulp.parallel(cssPackages, css, spriteImages)), iconFonts, textFonts)
 
 exports.build = build
 exports.watch = gulp.series(build, watch)
