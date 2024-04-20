@@ -5396,6 +5396,11 @@ matchdep@^2.0.0:
     resolve "^1.4.0"
     stack-trace "0.0.10"
 
+mathjax@2.7.1:
+  version "2.7.1"
+  resolved "https://registry.yarnpkg.com/mathjax/-/mathjax-2.7.1.tgz#c82d2f853b2f58f738e3355329adf0b2d8f8face"
+  integrity sha512-zHrO6dTaHXquznvmSKVQhla1A2iQl/jhzOf8hqV7cEhYXcvNHyHf0aFJNFeqwY1oVk3WQGziQOa2t4K/aZCNMQ==
+
 mdn-data@2.0.14:
   version "2.0.14"
   resolved "https://registry.npmjs.org/mdn-data/-/mdn-data-2.0.14.tgz"
