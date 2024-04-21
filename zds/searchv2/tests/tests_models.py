@@ -49,7 +49,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
         # test collection
         for model in models:
-            self.assertTrue(model.get_document_type() in self.manager.collections)
+            self.assertTrue(model.get_search_document_type() in self.manager.collections)
 
         # 2. Clearing
         self.manager.clear_index()
@@ -164,14 +164,15 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
             doc_type = result["request_params"]["collection_name"]
             for hit in result["hits"]:
                 doc_id = hit["document"]["id"]
-                self.assertTrue(doc_type != Post.get_document_type() or doc_id != new_post.search_engine_id)
+                self.assertTrue(doc_type != Post.get_search_document_type() or doc_id != new_post.search_engine_id)
 
         # 4. Test "delete_by_query_deletion":
         topic = Topic.objects.get(pk=topic.pk)
         new_topic = Topic.objects.get(pk=new_topic.pk)
 
         self.manager.delete_by_query(
-            Topic.get_document_type(), {"filter_by": f"id:= [{topic.search_engine_id}, {new_topic.search_engine_id}]"}
+            Topic.get_search_document_type(),
+            {"filter_by": f"id:= [{topic.search_engine_id}, {new_topic.search_engine_id}]"},
         )  # the two topic are deleted
 
         results = self.manager.search("*")
@@ -182,8 +183,8 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
             doc_type = result["request_params"]["collection_name"]
             for hit in result["hits"]:
                 doc_id = hit["document"]["id"]
-                self.assertTrue(doc_type != Topic.get_document_type() or doc_id != new_topic.search_engine_id)
-                self.assertTrue(doc_type != Topic.get_document_type() or doc_id != topic.search_engine_id)
+                self.assertTrue(doc_type != Topic.get_search_document_type() or doc_id != new_topic.search_engine_id)
+                self.assertTrue(doc_type != Topic.get_search_document_type() or doc_id != topic.search_engine_id)
 
         # 5. Test that the deletion of an object also triggers its deletion in Typesense
         post = Post.objects.get(pk=post.pk)
@@ -197,7 +198,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
             doc_type = result["request_params"]["collection_name"]
             for hit in result["hits"]:
                 doc_id = hit["document"]["id"]
-                self.assertTrue(doc_type != Post.get_document_type() or doc_id != post.search_engine_id)
+                self.assertTrue(doc_type != Post.get_search_document_type() or doc_id != post.search_engine_id)
 
         # 6. Test full desindexation:
         self.manager.reset_index()
@@ -284,7 +285,7 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
             doc_type = result["request_params"]["collection_name"]
             for hit in result["hits"]:
                 doc_id = hit["document"]["id"]
-                if doc_type == PublishedContent.get_document_type():
+                if doc_type == PublishedContent.get_search_document_type():
                     if doc_id == first_publication.search_engine_id:
                         found_old = True
                     if doc_id == second_publication.search_engine_id:

@@ -229,7 +229,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_1 = Post.objects.get(pk=post_1.pk)
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -244,7 +244,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         post_1.hide_comment_by_user(self.staff, "Un abus de pouvoir comme un autre ;)")
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -392,7 +392,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # 3. Test posts
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -410,7 +410,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self._index_everything()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -429,7 +429,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self._index_everything()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -448,7 +448,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self._index_everything()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -467,7 +467,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self._index_everything()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -486,7 +486,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         # 4. Test topics
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -502,7 +502,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self._index_everything()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -519,7 +519,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self._index_everything()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -536,7 +536,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self._index_everything()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Topic.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -643,7 +643,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         for model in self.indexable:
             # set a huge number to overcome the small differences:
-            collection = model.get_document_type()
+            collection = model.get_search_document_type()
             for key in settings.ZDS_APP["search"]["boosts"][collection]:
                 settings.ZDS_APP["search"]["boosts"][collection][key] = 10.0
 
@@ -688,13 +688,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(number_of_results, 2)  # indexing ok
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
         response = result.context["object_list"]
         self.assertEqual(len(response), 1)  # ok
-        self.assertEqual(response[0]["collection"], Post.get_document_type())
+        self.assertEqual(response[0]["collection"], Post.get_search_document_type())
         self.assertEqual(response[0]["document"]["forum_pk"], self.forum.pk)
         self.assertEqual(response[0]["document"]["topic_pk"], topic_1.pk)
         self.assertEqual(response[0]["document"]["topic_title"], topic_1.title)
@@ -708,7 +708,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.indexing_of_model(Post, force_reindexing=True, verbose=False)
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -730,7 +730,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.manager.indexing_of_model(Post)
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -743,7 +743,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.client.logout()
 
         result = self.client.get(
-            reverse("search:query") + "?q=" + text + "&models=" + Post.get_document_type(), follow=False
+            reverse("search:query") + "?q=" + text + "&models=" + Post.get_search_document_type(), follow=False
         )
 
         self.assertEqual(result.status_code, 200)
@@ -796,7 +796,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
 
         chapters = [r for r in response if r["collection"] == "chapter"]
-        self.assertEqual(chapters[0]["collection"], FakeChapter.get_document_type())
+        self.assertEqual(chapters[0]["collection"], FakeChapter.get_search_document_type())
         self.assertEqual(chapters[0]["document"]["id"], published.content_public_slug + "__" + chapter1.slug)
 
         # 2. Change tuto: delete chapter and insert new one !
@@ -843,7 +843,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         chapters = [r for r in response if r["collection"] == "chapter"]
         self.assertEqual(len(response), 1)
-        self.assertEqual(chapters[0]["collection"], FakeChapter.get_document_type())
+        self.assertEqual(chapters[0]["collection"], FakeChapter.get_search_document_type())
         self.assertEqual(
             chapters[0]["document"]["id"], published.content_public_slug + "__" + chapter2.slug
         )  # got new chapter

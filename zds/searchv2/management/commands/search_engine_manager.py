@@ -39,7 +39,7 @@ class Command(BaseCommand):
         for model in get_all_indexable_classes(only_models=True):
             # Models takes care of indexing classes that are not models
             if force_reindexing:
-                self.stdout.write(f"- indexing {model.get_document_type()}s")
+                self.stdout.write(f"- indexing {model.get_search_document_type()}s")
 
             indexed_counter = self.search_engine_manager.indexing_of_model(
                 model, force_reindexing=force_reindexing, verbose=not quiet

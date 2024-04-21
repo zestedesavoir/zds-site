@@ -121,7 +121,7 @@ class SearchIndexManager:
 
         self.clear_index()
         for model in get_all_indexable_classes():
-            self.engine.collections.create(model.get_document_schema())
+            self.engine.collections.create(model.get_search_document_schema())
 
     def indexing_of_model(self, model, force_reindexing=False, verbose=True):
         """Index documents of a given model in batch, using the ``objects_per_batch`` property.
@@ -169,7 +169,7 @@ class SearchIndexManager:
                     else:
                         model_to_update = model
                         pks = [o.pk for o in objects]
-                        doc_type = model.get_document_type()
+                        doc_type = model.get_search_document_type()
 
                     answer = self.engine.collections[doc_type].documents.import_(
                         [obj.get_document_source() for obj in objects], {"action": "create"}
@@ -192,7 +192,7 @@ class SearchIndexManager:
             prev_obj_per_sec = False
             last_pk = 0
             object_source = model.get_indexable(force_reindexing)
-            doc_type = model.get_document_type()
+            doc_type = model.get_search_document_type()
 
             while True:
                 with transaction.atomic():
@@ -257,7 +257,7 @@ class SearchIndexManager:
         if not self.connected:
             return
 
-        doc_type = document.get_document_type()
+        doc_type = document.get_search_document_type()
         doc_id = document.search_engine_id
         answer = self.engine.collections[doc_type].documents[doc_id].update(fields_values)
         if not fields_values.items() <= answer.items():  # the expected answer returns the whole updated document
@@ -273,7 +273,7 @@ class SearchIndexManager:
         if not self.connected:
             return
 
-        doc_type = document.get_document_type()
+        doc_type = document.get_search_document_type()
         doc_id = document.search_engine_id
         answer = self.engine.collections[doc_type].documents[doc_id].delete()
         if "id" not in answer or answer["id"] != doc_id:

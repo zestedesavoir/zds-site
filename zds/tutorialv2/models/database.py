@@ -996,8 +996,8 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         return max(self.publication_date, self.update_date or datetime.min)
 
     @classmethod
-    def get_document_schema(cls):
-        search_engine_schema = super().get_document_schema()
+    def get_search_document_schema(cls):
+        search_engine_schema = super().get_search_document_schema()
 
         search_engine_schema["fields"] = [
             {"name": "title", "type": "string", "facet": False},
@@ -1232,14 +1232,14 @@ class FakeChapter(AbstractSearchIndexable):
                 self.categories.append(parent_category.slug)
 
     @classmethod
-    def get_document_type(cls):
+    def get_search_document_type(cls):
         return "chapter"
 
     @classmethod
-    def get_document_schema(self):
+    def get_search_document_schema(self):
         """Define schema and parenting"""
-        search_engine_schema = super().get_document_schema()
-        search_engine_schema["name"] = self.get_document_type()
+        search_engine_schema = super().get_search_document_schema()
+        search_engine_schema["name"] = self.get_search_document_type()
 
         search_engine_schema["fields"] = [
             {"name": "parent_id", "type": "string", "facet": False},
@@ -1288,7 +1288,7 @@ class FakeChapter(AbstractSearchIndexable):
         filter_by = SearchFilter()
         filter_by.add_exact_filter("parent_id", parent_search_engine_id)
 
-        search_engine_manager.delete_by_query(cls.get_document_type(), {"filter_by": str(filter_by)})
+        search_engine_manager.delete_by_query(cls.get_search_document_type(), {"filter_by": str(filter_by)})
 
 
 class ContentReaction(Comment):

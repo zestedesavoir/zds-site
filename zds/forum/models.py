@@ -460,8 +460,8 @@ class Topic(AbstractSearchIndexableModel):
         return TopicRead.objects.is_topic_last_message_read(self, user, check_auth)
 
     @classmethod
-    def get_document_schema(cls):
-        search_engine_schema = super().get_document_schema()
+    def get_search_document_schema(cls):
+        search_engine_schema = super().get_search_document_schema()
 
         search_engine_schema["fields"] = [
             {"name": "forum_pk", "type": "int32", "facet": False},
@@ -582,8 +582,8 @@ class Post(Comment, AbstractSearchIndexableModel):
         return self.topic.title
 
     @classmethod
-    def get_document_schema(cls):
-        search_engine_schema = super().get_document_schema()
+    def get_search_document_schema(cls):
+        search_engine_schema = super().get_search_document_schema()
 
         search_engine_schema["fields"] = [
             {"name": "topic_pk", "type": "int64"},

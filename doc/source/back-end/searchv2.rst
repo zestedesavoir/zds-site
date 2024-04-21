@@ -275,14 +275,14 @@ Afin d'être indexable, un modèle Django doit dériver de
 Différentes méthodes de la classe ``AbstractSearchIndexableModel`` peuvent ou
 doivent ensuite être surchargées :
 
-+ ``get_document_schema()`` permet de définir le *schéma* d'un document, c'est
++ ``get_search_document_schema()`` permet de définir le *schéma* d'un document, c'est
   à dire quels champs seront indexés avec quels types. Par exemple :
 
       .. sourcecode:: python
 
                 @classmethod
-                def get_document_schema(cls):
-                    search_engine_schema = super().get_document_schema()
+                def get_search_document_schema(cls):
+                    search_engine_schema = super().get_search_document_schema()
 
                     search_engine_schema["fields"] = [
                         {"name": "topic_pk", "type": "int64"},
@@ -364,7 +364,7 @@ disponibles `dans la documentation technique
 .. attention::
 
       À chaque fois que vous modifiez la définition d'un schéma d'une
-      collection dans ``get_document_schema()``, toutes les données doivent
+      collection dans ``get_search_document_schema()``, toutes les données doivent
       être réindexées.
 
 Le cas particulier des contenus

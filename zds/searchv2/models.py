@@ -28,12 +28,12 @@ class AbstractSearchIndexable:
     objects_per_batch = 100
 
     @classmethod
-    def get_document_type(cls):
+    def get_search_document_type(cls):
         """Name of the collection in the search engine for the class."""
         return cls.__name__.lower()
 
     @classmethod
-    def get_document_schema(self):
+    def get_search_document_schema(self):
         """Setup schema for the model (data scheme).
 
         See https://typesense.org/docs/0.23.1/api/collections.html#with-pre-defined-schema
@@ -46,7 +46,7 @@ class AbstractSearchIndexable:
         :rtype: dict
         """
         search_engine_schema = dict()
-        search_engine_schema["name"] = self.get_document_type()
+        search_engine_schema["name"] = self.get_search_document_type()
         search_engine_schema["fields"] = [{"name": ".*", "type": "auto"}]
         return search_engine_schema
 
@@ -79,7 +79,7 @@ class AbstractSearchIndexable:
         """
 
         cls = self.__class__
-        schema = cls.get_document_schema()["fields"]
+        schema = cls.get_search_document_schema()["fields"]
         fields = list(schema[i]["name"] for i in range(len(schema)))
 
         data = {}
