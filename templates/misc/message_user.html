@@ -5,7 +5,7 @@
 <div class="user">
     {% with profile=member|profile %}
         <a href="{{ member.get_absolute_url }}" class="avatar-link">
-            <img src="{% avatar_url profile %}" alt="" class="avatar">
+            {% avatar profile %}
         </a>
 
         {% include 'misc/badge.part.html' %}

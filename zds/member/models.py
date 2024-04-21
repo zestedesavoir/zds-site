@@ -118,9 +118,7 @@ class Profile(models.Model):
             else:
                 return self.avatar_url
         else:
-            return "https://secure.gravatar.com/avatar/{}?d=identicon&s={}".format(
-                md5(self.user.email.lower().encode("utf-8")).hexdigest(), size
-            )
+            return ""
 
     def get_post_count(self):
         """

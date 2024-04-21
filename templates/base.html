@@ -241,6 +241,10 @@
 
     {# Javascript stuff start #}
     <script src="{% static "js/jquery.min.js" %}"></script>
+    <script>
+        window.jdenticon_config = {backColor: "#fff"}
+    </script>
+    <script src="{% static "js/jdenticon.min.js" %}"></script>
     {% block extra_js %}
     {% endblock %}
     <script src="{% static "js/script.js" %}"></script>

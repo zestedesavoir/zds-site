@@ -194,9 +194,7 @@ class MiniProfileForm(forms.Form):
         label="Avatar",
         required=False,
         max_length=Profile._meta.get_field("avatar_url").max_length,
-        widget=forms.TextInput(
-            attrs={"placeholder": _("Lien vers un avatar externe (laissez vide pour utiliser Gravatar).")}
-        ),
+        widget=forms.TextInput(attrs={"placeholder": _("Lien vers un avatar externe.")}),
     )
 
     sign = forms.CharField(

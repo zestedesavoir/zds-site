@@ -140,7 +140,7 @@
                                         {% with answer=topic.get_last_answer %}
                                             {% if answer %}
                                                 {% with profile=answer.author|profile %}
-                                                    <img src="{% avatar_url profile %}" alt="" class="avatar">
+                                                    {% avatar profile %}
                                                 {% endwith %}
                                                 <span class="topic-last-answer">
                                                     {% trans "Dernière réponse" %}

@@ -30,8 +30,8 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
         self.assertEqual(self.user1.get_absolute_url(), f"/@{self.user1.user.username}")
 
     def test_get_avatar_url(self):
-        # if no url was specified -> gravatar !
-        self.assertIn("gravatar.com", self.user1.get_avatar_url())
+        # if no url was specified -> nothing !
+        self.assertEqual("", self.user1.get_avatar_url())
 
         # if an url is specified -> take it !
         user2 = ProfileFactory()
