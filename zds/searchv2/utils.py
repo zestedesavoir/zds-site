@@ -1,4 +1,5 @@
 from datetime import datetime
+from functools import lru_cache
 import logging
 import re
 import time
@@ -55,6 +56,7 @@ def get_all_indexable_classes(only_models=False):
     return classes
 
 
+@lru_cache  # to mimic a singleton design pattern: we need only one SearchIndexManager instance across the application
 class SearchIndexManager:
     """Manage interactions with the search engine"""
 
