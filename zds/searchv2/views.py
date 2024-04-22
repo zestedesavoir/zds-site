@@ -193,6 +193,14 @@ class SearchView(ZdSPagingListView):
                             entry["collection"] = search_collections[i]
                             entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
                             entry["document"]["highlights"] = entry["highlights"][0]
+
+                            if "tags" in entry["document"] and "tag_slugs" in entry["document"]:
+                                assert len(entry["document"]["tags"]) == len(entry["document"]["tag_slugs"])
+                                entry["document"]["tags"] = [
+                                    {"title": entry["document"]["tags"][i], "slug": entry["document"]["tag_slugs"][i]}
+                                    for i in range(len(entry["document"]["tags"]))
+                                ]
+
                             result.append(entry)
 
             result.sort(key=lambda result: result["document"]["final_score"], reverse=True)

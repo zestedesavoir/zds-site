@@ -37,3 +37,13 @@
     </footer>
 
 </div>
+
+{% if search_result.tags %}
+    <ul class="content-tags" itemprop="keywords">
+        {% for tag in search_result.tags|slice:":3" %}
+            <li>
+                <a href="{% url 'forum:topic-tag-find' tag.slug %}">{{ tag.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

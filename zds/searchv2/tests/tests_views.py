@@ -61,10 +61,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         if not self.manager.connected:
             return
 
+        tag = TagFactory(title="Clémentine à pépins")  # with accents to make a different slug
+
         # 1. Index and test search:
         text = "test"
 
         topic_1 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        topic_1.tags.add(tag)
         post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
         post_1.text = post_1.text_html = text
         post_1.save()
@@ -73,6 +76,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto = PublishableContentFactory(type="TUTORIAL")
         tuto_draft = tuto.load_version()
 
+        tuto.tags.add(tag)
         tuto.title = text
         tuto.authors.add(self.user)
         tuto.save()
@@ -104,6 +108,9 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
 
         self.assertEqual(len(response), 4)  # get 4 results
+        # The tag appears 4 times: in the menu of the library, in the menu of forums and in two search results
+        self.assertEqual(result.content.decode().count(tag.title), 4)
+        self.assertEqual(result.content.decode().count(tag.slug), 4)
 
         # 2. Test filtering:
         topic_1 = Topic.objects.get(pk=topic_1.pk)

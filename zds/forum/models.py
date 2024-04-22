@@ -468,6 +468,7 @@ class Topic(AbstractSearchIndexableModel):
             {"name": "subtitle", "type": "string", "optional": True},
             {"name": "forum_title", "type": "string", "facet": True},
             {"name": "tags", "type": "string[]", "facet": True},
+            {"name": "tag_slugs", "type": "string[]", "facet": True, "optional": True},
             {"name": "is_locked", "type": "bool"},
             {"name": "is_solved", "type": "bool"},
             {"name": "is_sticky", "type": "bool"},
@@ -491,7 +492,11 @@ class Topic(AbstractSearchIndexableModel):
         excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "score"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
-        data["tags"] = [tag.title for tag in self.tags.all()]
+        data["tags"] = []
+        data["tag_slugs"] = []
+        for tag in self.tags.all():
+            data["tags"].append(tag.title)
+            data["tag_slugs"].append(tag.slug)  # store also slugs to have them from search results
         data["forum_pk"] = self.forum.pk
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()

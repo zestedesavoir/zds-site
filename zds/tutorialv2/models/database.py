@@ -1004,6 +1004,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             {"name": "content_type", "type": "string", "facet": True},
             {"name": "publication_date", "type": "int64", "facet": False},
             {"name": "tags", "type": "string[]", "facet": True, "optional": True},
+            {"name": "tag_slugs", "type": "string[]", "facet": True, "optional": True},
             {"name": "has_chapters", "type": "bool", "facet": False},
             {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
             {"name": "categories", "type": "string[]", "facet": True, "optional": True},
@@ -1083,35 +1084,32 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         data["title"] = versioned.title
         data["description"] = versioned.description
-        data["tags"] = [tag.title for tag in versioned.tags.all()]
+        data["picked"] = self.content_type == "OPINION" and self.content.sha_picked is not None
+        data["publication_date"] = date_to_timestamp_int(self.publication_date)
+
+        data["tags"] = []
+        data["tag_slugs"] = []
+        for tag in versioned.tags.all():
+            data["tags"].append(tag.title)
+            data["tag_slugs"].append(tag.slug)  # store also slugs to have them from search results
 
         if self.content.image:
             data["thumbnail"] = self.content.image.physical["content_thumb"].url
 
-        categories = []
-        subcategories = []
+        data["categories"] = []
+        data["subcategories"] = []
         for subcategory in versioned.subcategory.all():
             parent_category = subcategory.get_parent_category()
-            if subcategory.slug not in subcategories:
-                subcategories.append(subcategory.slug)
-            if parent_category and parent_category.slug not in categories:
-                categories.append(parent_category.slug)
-
-        data["categories"] = categories
-        data["subcategories"] = subcategories
+            if subcategory.slug not in data["subcategories"]:
+                data["subcategories"].append(subcategory.slug)
+            if parent_category and parent_category.slug not in data["categories"]:
+                data["categories"].append(parent_category.slug)
 
         if versioned.has_extracts():
             data["text"] = clean_html(versioned.get_content_online())
             data["has_chapters"] = False
         else:
             data["has_chapters"] = True
-
-        data["picked"] = False
-
-        if self.content_type == "OPINION" and self.content.sha_picked is not None:
-            data["picked"] = True
-
-        data["publication_date"] = date_to_timestamp_int(self.publication_date)
 
         is_medium_big_tutorial = versioned.has_sub_containers()
         data["score"] = self._compute_search_score(self.content_type, is_medium_big_tutorial, data["picked"])
