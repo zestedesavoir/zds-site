@@ -585,7 +585,6 @@ class Post(Comment, AbstractSearchIndexableModel):
             {"name": "forum_title", "type": "string", "facet": True},
             {"name": "position", "type": "int64"},
             {"name": "text", "type": "string"},
-            {"name": "is_visible", "type": "bool"},
             {"name": "is_useful", "type": "bool"},
             {"name": "pubdate", "type": "int64"},
             {"name": "get_absolute_url", "type": "string"},
@@ -600,7 +599,13 @@ class Post(Comment, AbstractSearchIndexableModel):
     def get_indexable_objects(cls, force_reindexing=False):
         """Overridden to prefetch stuffs"""
 
-        q = super().get_indexable_objects(force_reindexing).prefetch_related("topic").prefetch_related("topic__forum")
+        q = (
+            super()
+            .get_indexable_objects(force_reindexing)
+            .filter(is_visible=True)
+            .prefetch_related("topic")
+            .prefetch_related("topic__forum")
+        )
 
         return q
 
@@ -610,6 +615,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         excluded_fields = excluded_fields or []
         excluded_fields.extend(
             [
+                "is_visible",
                 "like_dislike_ratio",
                 "topic_title",
                 "topic_pk",
@@ -638,12 +644,12 @@ class Post(Comment, AbstractSearchIndexableModel):
         return data
 
     def hide_comment_by_user(self, user, text_hidden):
-        """Overridden to directly hide the post in the search engine as well"""
+        """Overridden to directly delete the post in the search engine as well"""
 
         super().hide_comment_by_user(user, text_hidden)
 
         search_engine_manager = SearchIndexManager()
-        search_engine_manager.update_single_document(self, {"is_visible": False})
+        search_engine_manager.delete_document(self)
 
     def _compute_search_score(self, like_dislike_ratio: float):
         """
@@ -669,7 +675,6 @@ class Post(Comment, AbstractSearchIndexableModel):
     @classmethod
     def get_search_query(cls, user):
         filter_by = get_search_filter_authorized_forums(user)
-        filter_by.add_bool_filter("is_visible", True)
 
         return {
             "query_by": "text",
