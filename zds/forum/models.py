@@ -15,7 +15,6 @@ from zds.searchv2.models import AbstractSearchIndexableModel
 from zds.searchv2.utils import (
     SearchFilter,
     SearchIndexManager,
-    delete_document_in_search_engine,
     date_to_timestamp_int,
     clean_html,
 )
@@ -547,12 +546,6 @@ class Topic(AbstractSearchIndexableModel):
         )
 
 
-@receiver(pre_delete, sender=Topic)
-def delete_topic_in_search(sender, instance, **kwargs):
-    """catch the pre_delete signal to ensure the deletion in the search engine"""
-    return delete_document_in_search_engine(instance)
-
-
 class Post(Comment, AbstractSearchIndexableModel):
     """
     A forum post written by a user.
@@ -687,10 +680,11 @@ class Post(Comment, AbstractSearchIndexableModel):
         }
 
 
+@receiver(pre_delete, sender=Topic)
 @receiver(pre_delete, sender=Post)
-def delete_post_in_search(sender, instance, **kwargs):
+def delete_in_search(sender, instance, **kwargs):
     """catch the pre_delete signal to ensure the deletion in the search engine"""
-    return delete_document_in_search_engine(instance)
+    SearchIndexManager().delete_document(instance)
 
 
 class TopicRead(models.Model):

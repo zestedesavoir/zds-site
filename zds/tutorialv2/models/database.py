@@ -30,7 +30,6 @@ from zds.searchv2.models import (
 )
 from zds.searchv2.utils import (
     SearchFilter,
-    delete_document_in_search_engine,
     SearchIndexManager,
     date_to_timestamp_int,
     clean_html,
@@ -1164,9 +1163,9 @@ def delete_published_content_in_search_engine(sender, instance, **kwargs):
     """
 
     search_engine_manager = SearchIndexManager()
-    FakeChapter.remove_from_search_engine(search_engine_manager, instance.search_engine_id)
 
-    return delete_document_in_search_engine(instance)
+    FakeChapter.remove_from_search_engine(search_engine_manager, instance.search_engine_id)
+    search_engine_manager.delete_document(instance)
 
 
 @receiver(pre_save, sender=PublishedContent)

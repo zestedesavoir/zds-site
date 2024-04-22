@@ -346,16 +346,8 @@ doivent ensuite être surchargées :
 
 
 Finalement, il est important **pour chaque type de document** d'attraper le
-signal de pré-suppression avec la fonction
-``delete_document_in_search_engine()``, afin qu'un document supprimé par Django
-soit également supprimé du moteur de recherche. Par exemple, pour la classe
-``Post`` :
-
-.. sourcecode:: python
-
-      @receiver(pre_delete, sender=Post)
-      def delete_post_in_search(sender, instance, **kwargs):
-          return delete_document_in_search_engine(instance)
+signal de pré-suppression en base de données, afin que le document soit
+également supprimé du moteur de recherche.
 
 Plus d'informations sur les méthodes qui peuvent être surchargées sont
 disponibles `dans la documentation technique

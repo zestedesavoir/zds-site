@@ -43,20 +43,6 @@ def clean_html(text):
     return result
 
 
-def delete_document_in_search_engine(instance):
-    """Delete an AbstractSearchIndexable from the search engine database.
-
-    All classes that derive from AbstractSearchIndexableModel have to implement
-    a ``delete_document()`` method.
-
-    :param instance: the document to delete
-    :type instance: AbstractSearchIndexable
-    """
-
-    search_engine_manager = SearchIndexManager()
-    search_engine_manager.delete_document(instance)
-
-
 def get_all_indexable_classes(only_models=False):
     """Return all indexable classes"""
 
