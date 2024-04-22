@@ -150,19 +150,7 @@ class SearchView(ZdSPagingListView):
             # https://typesense.org/docs/0.23.1/api/search.html#query-parameters
             messages.warning(self.request, _("Les termes recherchés ne peuvent pas contenir le caractère '*'."))
         elif self.search_query:
-            # Check in which collections search is performed
-            search_collections = self.search_form.cleaned_data["models"]
-            if len(search_collections) == 0:
-                # Search in all collections
-                search_collections = [c for _, v in settings.ZDS_APP["search"]["search_groups"].items() for c in v[1]]
-            else:
-                # Search in collections of selected models
-                search_collections = [
-                    c
-                    for k, v in settings.ZDS_APP["search"]["search_groups"].items()
-                    for c in v[1]
-                    if k in search_collections
-                ]
+            search_collections = self.search_form.cleaned_data["search_collections"]
 
             searches = {
                 "publishedcontent": PublishedContent.get_search_query(),
