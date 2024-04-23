@@ -240,6 +240,19 @@
 
 
     {# Javascript stuff start #}
+    <script>
+        // This script is hard-coded into the HTML code for performance reasons.
+        // The rest of the code can be found in assets/js/iframe-consent.js
+        window.iframeStash = []
+        for (const [index, iframe] of document.querySelectorAll('iframe').entries()) {
+            window.iframeStash.push(iframe.outerHTML)
+            const placeholder = document.createElement('div')
+            placeholder.classList.add('iframe-placeholder')
+            placeholder.dataset.iframeIndex = index
+            iframe.parentElement.replaceChild(placeholder, iframe)
+        }
+    </script>
+
     <script src="{% static "js/jquery.min.js" %}"></script>
     {% block extra_js %}
     {% endblock %}
