@@ -108,9 +108,15 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
 
         self.assertEqual(len(response), 4)  # get 4 results
-        # The tag appears 4 times: in the menu of the library, in the menu of forums and in two search results
-        self.assertEqual(result.content.decode().count(tag.title), 4)
-        self.assertEqual(result.content.decode().count(tag.slug), 4)
+
+        # Ugly hack to search only in search results. In the menu in the
+        # header, the last tags are showed, but this section is cached:
+        # depending on which tests are launched and in which order, the menu
+        # may contain or not these tags.
+        content_search_results = result.content.decode()[result.content.decode().find("search-results") :]
+        # The tag appears 2 times: in two search results
+        self.assertEqual(content_search_results.count(tag.title), 2)
+        self.assertEqual(content_search_results.count(tag.slug), 2)
 
         # 2. Test filtering:
         topic_1 = Topic.objects.get(pk=topic_1.pk)
