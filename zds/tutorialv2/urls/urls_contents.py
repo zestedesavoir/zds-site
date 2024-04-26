@@ -1,6 +1,7 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
+from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contents import (
     CreateContent,
     EditContent,
@@ -220,6 +221,8 @@ urlpatterns = (
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         # Modify the tags
         path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
+        # Modify the categories
+        path("modifier-categories/<int:pk>/", EditCategoriesView.as_view(), name="edit-categories"),
         # beta:
         path("activer-beta/<int:pk>/<slug:slug>/", ManageBetaContent.as_view(action="set"), name="set-beta"),
         path(

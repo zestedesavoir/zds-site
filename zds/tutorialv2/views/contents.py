@@ -105,11 +105,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
 
         self.content.ensure_author_gallery()
         self.content.save()
-        # Add subcategories on tutorial
-        for subcat in form.cleaned_data["subcategory"]:
-            self.content.subcategory.add(subcat)
-
-        self.content.save()
 
         # create a new repo :
         init_new_repo(
@@ -165,13 +160,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             messages.error(self.request, _("Une nouvelle version a été postée avant que vous ne validiez."))
             return self.form_invalid(form)
 
-        # Forbid removing all categories of a validated content
-        if publishable.in_public() and not form.cleaned_data["subcategory"]:
-            messages.error(
-                self.request, _("Vous devez choisir au moins une catégorie, car ce contenu est déjà publié.")
-            )
-            return self.form_invalid(form)
-
         # first, update DB (in order to get a new slug if needed)
         publishable.source = form.cleaned_data["source"]
 
@@ -208,10 +196,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         # update relationships :
         publishable.sha_draft = sha
-
-        publishable.subcategory.clear()
-        for subcat in form.cleaned_data["subcategory"]:
-            publishable.subcategory.add(subcat)
 
         publishable.save()
 

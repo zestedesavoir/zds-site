@@ -124,13 +124,6 @@ class ContentForm(ContainerForm):
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
 
-    subcategory = forms.ModelMultipleChoiceField(
-        label=_("Sélectionnez les catégories qui correspondent à votre contenu."),
-        queryset=SubCategory.objects.order_by("title").all(),
-        required=False,
-        widget=forms.CheckboxSelectMultiple(),
-    )
-
     source = forms.URLField(
         label=_(
             """Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
@@ -166,7 +159,6 @@ class ContentForm(ContainerForm):
             ),
             Field("last_hash"),
             Field("source"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
         )
 
         self.helper.layout.append(Field("msg_commit"))
@@ -517,9 +509,9 @@ class AskValidationForm(forms.Form):
         no_category_msg = HTML(
             _(
                 """<p><strong>Votre publication n'est dans aucune catégorie.
-                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    Vous devez <a href="{}">choisir une catégorie</a>
                                     avant de demander la validation.</strong></p>""".format(
-                    reverse("content:edit", kwargs={"pk": content.pk, "slug": content.slug}), "div_id_subcategory"
+                    reverse("content:edit-categories", kwargs={"pk": content.pk}),
                 )
             )
         )
@@ -892,9 +884,9 @@ class PublicationForm(forms.Form):
         no_category_msg = HTML(
             _(
                 """<p><strong>Votre publication n'est dans aucune catégorie.
-                                    Vous devez <a href="{}#{}">choisir une catégorie</a>
+                                    Vous devez <a href="{}">choisir une catégorie</a>
                                     avant de publier.</strong></p>""".format(
-                    reverse("content:edit", kwargs={"pk": content.pk, "slug": content.slug}), "div_id_subcategory"
+                    reverse("content:edit-categories", kwargs={"pk": content.pk})
                 )
             )
         )
