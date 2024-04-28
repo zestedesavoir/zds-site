@@ -7,11 +7,17 @@ from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
 from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory
 
 
-@override_for_contents()
-class BasicRouteTests(TestCase, TutorialTestMixin):
+def mock_publication_process(content: PublishableContent):
+    published = publish_content(content, content.load_version())
+    content.sha_public = content.sha_draft
+    content.public_version = published
+    content.save()
+
+
+class BasicRouteTestsMixin(TutorialTestMixin):
     def setUp(self):
         self.build_content(self.content_type)
-        self.mock_publication_process(self.content)
+        mock_publication_process(self.content)
 
     def build_content(self, type):
         self.content = PublishableContentFactory()
@@ -21,75 +27,52 @@ class BasicRouteTests(TestCase, TutorialTestMixin):
         self.container = ContainerFactory(parent=content_versioned, db_object=self.content)
         self.subcontainer = ContainerFactory(parent=self.container, db_object=self.content)
 
+    def test_view(self):
+        route_args = {
+            "pk": self.content.pk,
+            "slug": self.content.slug,
+        }
+        self.assert_can_be_reached(self.view_name, route_args)
+
+    def test_view_container_one_level_deep(self):
+        route_args = {
+            "pk": self.content.pk,
+            "slug": self.content.slug,
+            "container_slug": self.container.slug,
+        }
+        self.assert_can_be_reached(self.container_view_name, route_args)
+
+    def test_view_container_two_level_deep(self):
+        route_args = {
+            "pk": self.content.pk,
+            "slug": self.content.slug,
+            "parent_container_slug": self.container.slug,
+            "container_slug": self.subcontainer.slug,
+        }
+        self.assert_can_be_reached(self.container_view_name, route_args)
+
     def assert_can_be_reached(self, route, route_args):
         url = reverse(route, kwargs=route_args)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    def mock_publication_process(self, content: PublishableContent):
-        published = publish_content(content, content.load_version())
-        content.sha_public = content.sha_draft
-        content.public_version = published
-        content.save()
 
-
-class OpinionDisplayRoutesTests(BasicRouteTests):
+@override_for_contents()
+class OpinionDisplayRoutesTests(BasicRouteTestsMixin, TestCase):
     content_type = "OPINION"
-
-    def test_view(self):
-        route = "opinion:view"
-        route_args = {
-            "pk": self.content.pk,
-            "slug": self.content.slug,
-        }
-        self.assert_can_be_reached(route, route_args)
-
-    def test_view_container_one_level_deep(self):
-        route = "opinion:view-container"
-        route_args = {
-            "pk": self.content.pk,
-            "slug": self.content.slug,
-            "container_slug": self.container.slug,
-        }
-        self.assert_can_be_reached(route, route_args)
-
-    def test_view_container_two_level_deep(self):
-        route = "opinion:view-container"
-        route_args = {
-            "pk": self.content.pk,
-            "slug": self.content.slug,
-            "parent_container_slug": self.container.slug,
-            "container_slug": self.subcontainer.slug,
-        }
-        self.assert_can_be_reached(route, route_args)
+    view_name = "opinion:view"
+    container_view_name = "opinion:view-container"
 
 
-class ArticlesDisplayRoutesTests(BasicRouteTests):
+@override_for_contents()
+class ArticlesDisplayRoutesTests(BasicRouteTestsMixin, TestCase):
     content_type = "ARTICLE"
+    view_name = "article:view"
+    container_view_name = "article:view-container"
 
-    def test_view(self):
-        route = "article:view"
-        route_args = {
-            "pk": self.content.pk,
-            "slug": self.content.slug,
-        }
-        self.assert_can_be_reached(route, route_args)
 
-    def test_view_container_one_level_deep(self):
-        route = "article:view-container"
-        route_args = {
-            "pk": self.content.pk,
-            "slug": self.content.slug,
-            "container_slug": self.container.slug,
-        }
-        self.assert_can_be_reached(route, route_args)
-
-    def test_view_container_two_level_deep(self):
-        route = "article:view-container"
-        route_args = {
-            "pk": self.content.pk,
-            "slug": self.content.slug,
-            "parent_container_slug": self.container.slug,
-            "container_slug": self.subcontainer.slug,
-        }
-        self.assert_can_be_reached(route, route_args)
+@override_for_contents()
+class TutorialsDisplayRoutesTests(BasicRouteTestsMixin, TestCase):
+    content_type = "TUTORIAL"
+    view_name = "tutorial:view"
+    container_view_name = "tutorial:view-container"
