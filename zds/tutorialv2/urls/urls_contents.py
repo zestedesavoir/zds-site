@@ -1,6 +1,7 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
+from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contents import (
     CreateContent,
@@ -221,6 +222,8 @@ urlpatterns = (
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         # Modify the tags
         path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
+        # Modify the canonical link
+        path("modifier-lien-canonique/<int:pk>", EditCanonicalLinkView.as_view(), name="edit-canonical-link"),
         # Modify the categories
         path("modifier-categories/<int:pk>/", EditCategoriesView.as_view(), name="edit-categories"),
         # beta:

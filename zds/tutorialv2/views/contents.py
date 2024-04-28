@@ -75,7 +75,6 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.description = form.cleaned_data["description"]
         self.content.type = form.cleaned_data["type"]
         self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
-        self.content.source = form.cleaned_data["source"]
         self.content.creation_date = datetime.now()
 
         gallery = Gallery.objects.create(
@@ -132,7 +131,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         initial["introduction"] = versioned.get_introduction()
         initial["conclusion"] = versioned.get_conclusion()
-        initial["source"] = versioned.source
         initial["subcategory"] = self.object.subcategory.all()
         initial["last_hash"] = versioned.compute_hash()
 
@@ -159,9 +157,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             form.data = data
             messages.error(self.request, _("Une nouvelle version a été postée avant que vous ne validiez."))
             return self.form_invalid(form)
-
-        # first, update DB (in order to get a new slug if needed)
-        publishable.source = form.cleaned_data["source"]
 
         publishable.update_date = datetime.now()
 
