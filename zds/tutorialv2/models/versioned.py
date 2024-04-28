@@ -258,15 +258,14 @@ class Container:
             long_slug = self.parent.long_slug() + "__"
         return long_slug + self.slug
 
-    def can_add_container(self):
+    def can_add_container(self) -> bool:
         """
-        :return: ``True`` if this container accepts child containers, ``False`` otherwise
-        :rtype: bool
+        Return `True` if adding child containers is allowed.
+        Adding subcontainers is forbidden:
+        * if the container already has extracts as children,
+        * or if the limit of nested containers has been reached.
         """
-        if not self.has_extracts():
-            if self.get_tree_depth() < settings.ZDS_APP["content"]["max_tree_depth"] - 1:
-                return True
-        return False
+        return not self.has_extracts() and self.get_tree_depth() < settings.ZDS_APP["content"]["max_tree_depth"] - 1
 
     def can_add_extract(self):
         """Return ``True`` if this container can contain extracts, i.e doesn't
