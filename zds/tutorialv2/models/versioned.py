@@ -1338,7 +1338,7 @@ class VersionedContent(Container, TemplatableContentModelMixin):
                         continuous_list.append(child)  # it contains Extract, this is a chapter, so paginated
                     else:  # Container is a part
                         for sub_child in child.children:
-                            continuous_list.append(sub_child)  # even if empty `sub_child.childreen`, it's chapter
+                            continuous_list.append(sub_child)  # even if `sub_child.children` is empty, it's a chapter
         return continuous_list
 
     def get_json(self):
