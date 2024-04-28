@@ -64,7 +64,6 @@ class OpinionDisplayRoutesTests(BasicRouteTests):
         self.assert_can_be_reached(route, route_args)
 
 
-@override_for_contents()
 class ArticlesDisplayRoutesTests(BasicRouteTests):
     content_type = "ARTICLE"
 
