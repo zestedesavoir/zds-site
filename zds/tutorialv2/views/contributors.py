@@ -3,17 +3,15 @@ from collections import OrderedDict
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
-from django import forms
 
+from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoggedWithReadWriteHability
@@ -80,13 +78,6 @@ class ContributionForm(forms.Form):
         return cleaned_data
 
 
-class RemoveContributionForm(forms.Form):
-    pk_contribution = forms.CharField(
-        label=_("Contributeur"),
-        required=True,
-    )
-
-
 class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     must_be_author = True
     form_class = ContributionForm
@@ -103,18 +94,11 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
         return redirect(url, self.request.user)
 
     def form_valid(self, form):
-        _type = _("à l'article")
-
-        if self.object.is_tutorial:
-            _type = _("au tutoriel")
-        elif self.object.is_opinion:
-            raise PermissionDenied
-
         bot = get_bot_account()
         all_authors_pk = [author.pk for author in self.object.authors.all()]
         user = form.cleaned_data["user"]
         if user.pk in all_authors_pk:
-            messages.error(self.request, _("Un auteur ne peut pas être désigné comme contributeur"))
+            messages.error(self.request, _("Un auteur ne peut pas être désigné comme contributeur."))
             return redirect(self.object.get_absolute_url())
         else:
             contribution_role = form.cleaned_data.get("contribution_role")
@@ -126,7 +110,7 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
                     self.request,
                     _(
                         "Ce membre fait déjà partie des "
-                        'contributeurs {} avec pour rôle "{}"'.format(_type, contribution_role.title)
+                        'contributeurs à la publication avec pour rôle "{}"'.format(contribution_role.title)
                     ),
                 )
                 return redirect(self.object.get_absolute_url())
@@ -139,13 +123,12 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
             send_mp(
                 bot,
                 [user],
-                format_lazy("{} {}", _("Contribution"), _type),
+                _("Contribution à la publication"),
                 self.versioned_object.title,
                 render_to_string(
                     "tutorialv2/messages/add_contribution_pm.md",
                     {
                         "content": self.object,
-                        "type": _type,
                         "url": self.object.get_absolute_url(),
                         "index": url_index,
                         "user": user.username,
@@ -168,18 +151,19 @@ class AddContributorToContent(LoggedWithReadWriteHability, SingleContentFormView
         return super().form_valid(form)
 
 
+class RemoveContributionForm(forms.Form):
+    pk_contribution = forms.CharField(
+        label=_("Contributeur"),
+        required=True,
+    )
+
+
 class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     form_class = RemoveContributionForm
     must_be_author = True
     authorized_for_staff = True
 
     def form_valid(self, form):
-        _type = _("cet article")
-        if self.object.is_tutorial:
-            _type = _("ce tutoriel")
-        elif self.object.is_opinion:
-            raise PermissionDenied
-
         contribution = get_object_or_404(ContentContribution, pk=form.cleaned_data["pk_contribution"])
         user = contribution.user
         contribution.delete()
@@ -187,7 +171,8 @@ class RemoveContributorFromContent(LoggedWithReadWriteHability, SingleContentFor
             sender=self.__class__, content=self.object, performer=self.request.user, contributor=user, action="remove"
         )
         messages.success(
-            self.request, _("Vous avez enlevé {} de la liste des contributeurs de {}.").format(user.username, _type)
+            self.request,
+            _("Vous avez enlevé {} de la liste des contributeurs de cette publication.").format(user.username),
         )
         self.success_url = self.object.get_absolute_url()
 
