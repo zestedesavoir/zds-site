@@ -124,16 +124,6 @@ class ContentForm(ContainerForm):
 
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
 
-    source = forms.URLField(
-        label=_(
-            """Si votre contenu est publié en dehors de Zeste de Savoir (blog, site personnel, etc.),
-                       indiquez le lien de la publication originale : """
-        ),
-        max_length=PublishableContent._meta.get_field("source").max_length,
-        required=False,
-        widget=forms.TextInput(attrs={"placeholder": _("https://...")}),
-    )
-
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
@@ -158,11 +148,9 @@ class ContentForm(ContainerForm):
             with text=form.conclusion.value %}{% endif %}'
             ),
             Field("last_hash"),
-            Field("source"),
+            Field("msg_commit"),
+            ButtonHolder(StrictButton("Valider", type="submit")),
         )
-
-        self.helper.layout.append(Field("msg_commit"))
-        self.helper.layout.append(ButtonHolder(StrictButton("Valider", type="submit")))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -211,10 +199,9 @@ class EditContentForm(ContentForm):
                 with text=form.conclusion.value %}{% endif %}'
             ),
             Field("last_hash"),
-            Field("source"),
             Field("subcategory", template="crispy/checkboxselectmultiple.html"),
             Field("msg_commit"),
-            StrictButton("Valider", type="submit"),
+            ButtonHolder(StrictButton("Valider", type="submit")),
         )
 
 

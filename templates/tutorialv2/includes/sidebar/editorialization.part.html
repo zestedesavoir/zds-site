@@ -12,6 +12,13 @@
                 {% crispy form_edit_tags %}
             </li>
 
+            <li>
+                <a href="#edit-canonical-link" class="open-modal ico-after gear blue">
+                    {% trans "Modifier le lien canonique" %}
+                </a>
+                {% crispy form_edit_canonical_link %}
+            </li>
+
             {% if perms.tutorialv2.change_publishablecontent %}
                 <li>
                     <a href="#edit-goals" class="open-modal ico-after gear blue">
