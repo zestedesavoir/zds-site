@@ -21,8 +21,69 @@
             margin-bottom: $length-10;
 
             >.content-thumbnail-group {
+                flex-grow: 0;
                 flex-shrink: 0;
+
+                display:block;
+                height: $length-64;
+                width: $length-64;
+
                 margin-right: $length-10;
+
+                background-size: contain;
+
+                >.thumbnail {
+                    width: 100%;
+                    height: 100%;
+                    border: $length-1 solid $grey-200;
+                    box-sizing: border-box;
+                }
+
+                &:hover>.edit-thumbnail {
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+
+                    background-color: rgba($grey-200, 0.7);
+
+                    &.with-thumbnail {
+                        position: relative;
+                        top: -$length-64;
+                    }
+
+                    &.with-placeholder{
+                        position: relative;
+                        top: 0;
+                    }
+
+                    &::after {
+                        content: " ";
+
+                        display: block;
+                        width: $length-16;
+                        height: $length-16;
+
+                        position: relative;
+                        top: calc($length-64/2 - $length-16/2);
+                        left: calc($length-64/2 - $length-16/2);
+
+                        @include sprite;
+                        @include sprite-position($edit-blue);
+                        background-repeat: no-repeat;
+                    }
+                }
+
+                &.article-illu {
+                    background-image: url("/static/images/article-illu.png");
+                }
+
+                &.tutorial-illu {
+                    background-image: url("/static/images/tutorial-illu.png");
+                }
+
+                &.opinion-illu {
+                    background-image: url("/static/images/opinion-illu.png");
+                }
             }
 
             >.content-title-and-subtitle-group {
