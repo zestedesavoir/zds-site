@@ -108,29 +108,13 @@ class ContainerForm(FormWithTitle):
 
 
 class ContentForm(ContainerForm):
-    description = forms.CharField(
-        label=_("Description"),
-        max_length=PublishableContent._meta.get_field("description").max_length,
-        required=False,
-    )
-
-    image = forms.FileField(
-        label=_("Sélectionnez le logo du contenu (max. {} Ko).").format(
-            str(settings.ZDS_APP["gallery"]["image_max_size"] / 1024)
-        ),
-        validators=[with_svg_validator],
-        required=False,
-    )
-
     type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
 
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
             Field("title"),
-            Field("description"),
             Field("type"),
-            Field("image"),
             Field("introduction", css_class="md-editor preview-source"),
             ButtonHolder(
                 StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
@@ -163,19 +147,6 @@ class ContentForm(ContainerForm):
         if "type" in self.initial:
             self.helper["type"].wrap(Field, disabled=True)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        image = cleaned_data.get("image", None)
-        if image is not None and image.size > settings.ZDS_APP["gallery"]["image_max_size"]:
-            self._errors["image"] = self.error_class(
-                [
-                    _("Votre logo est trop lourd, la limite autorisée est de {} Ko").format(
-                        settings.ZDS_APP["gallery"]["image_max_size"] / 1024
-                    )
-                ]
-            )
-        return cleaned_data
-
 
 class EditContentForm(ContentForm):
     title = None
@@ -185,7 +156,6 @@ class EditContentForm(ContentForm):
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
-            Field("image"),
             Field("introduction", css_class="md-editor preview-source"),
             StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
             HTML(
@@ -199,7 +169,6 @@ class EditContentForm(ContentForm):
                 with text=form.conclusion.value %}{% endif %}'
             ),
             Field("last_hash"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
             Field("msg_commit"),
             ButtonHolder(StrictButton("Valider", type="submit")),
         )

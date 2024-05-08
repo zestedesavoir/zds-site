@@ -15,6 +15,7 @@
                 <a href="#edit-thumbnail" class="open-modal edit-thumbnail {{ class_modifier }}" title="{% trans "Modifier la miniature" %}">
                     <span class="visuallyhidden">{% trans "Modifier la miniature" %}</span>
                 </a>
+                {% crispy form_edit_thumbnail %}
             {% endif %}
         </div>
     {% endif %}
