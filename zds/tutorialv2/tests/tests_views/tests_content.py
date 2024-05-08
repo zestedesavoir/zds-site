@@ -232,8 +232,6 @@ class ContentTests(TutorialTestMixin, TestCase):
 
     def test_basic_tutorial_workflow(self):
         """General test on the basic workflow of a tutorial: creation, edition, deletion for the author"""
-
-        # login with author
         self.client.force_login(self.user_author)
 
         # create tutorial
@@ -262,13 +260,10 @@ class ContentTests(TutorialTestMixin, TestCase):
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
             {
                 "title": title,
-                "description": description,
                 "introduction": intro,
                 "conclusion": conclusion,
                 "type": "TUTORIAL",
                 "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "image": (settings.BASE_DIR / "fixtures" / "noir_black.png").open("rb"),
             },
             follow=False,
         )
@@ -282,7 +277,6 @@ class ContentTests(TutorialTestMixin, TestCase):
 
         self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
         self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
-        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 1)  # icon is uploaded
 
         # access to tutorial
         result = self.client.get(reverse("content:edit", args=[pk, slug]), follow=False)
@@ -308,13 +302,10 @@ class ContentTests(TutorialTestMixin, TestCase):
                 "type": "TUTORIAL",
                 "subcategory": self.subcategory.pk,
                 "last_hash": versioned.compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
             },
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
-
-        self.assertEqual(Image.objects.filter(gallery__pk=tuto.gallery.pk).count(), 2)  # new icon is uploaded
 
         tuto = PublishableContent.objects.get(pk=pk)
         self.assertEqual(tuto.licence, None)
