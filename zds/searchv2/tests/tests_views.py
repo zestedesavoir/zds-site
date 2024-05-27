@@ -400,7 +400,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
             for key in settings.ZDS_APP["search"]["boosts"][doc_type]:
                 settings.ZDS_APP["search"]["boosts"][doc_type][key] = 1.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         # 3. Test posts
@@ -412,14 +412,14 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 3)
 
-        # score are equals without boost:
+        # Weights are equal without boost:
         self.assertTrue(
-            response[0]["document"]["score"] == response[1]["document"]["score"] == response[2]["document"]["score"]
+            response[0]["document"]["weight"] == response[1]["document"]["weight"] == response[2]["document"]["weight"]
         )
 
         settings.ZDS_APP["search"]["boosts"]["post"]["if_first"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weights
         self._index_everything()
 
         result = self.client.get(
@@ -431,14 +431,14 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 3)
 
         self.assertTrue(
-            response[0]["document"]["score"] == response[1]["document"]["score"] > response[2]["document"]["score"]
+            response[0]["document"]["weight"] == response[1]["document"]["weight"] > response[2]["document"]["weight"]
         )
         self.assertEqual(response[2]["document"]["id"], str(post_2_useful.pk))  # post 2 is the only one not first
 
         settings.ZDS_APP["search"]["boosts"]["post"]["if_first"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weights
         self._index_everything()
 
         result = self.client.get(
@@ -450,14 +450,14 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 3)
 
         self.assertTrue(
-            response[0]["document"]["score"] > response[1]["document"]["score"] == response[2]["document"]["score"]
+            response[0]["document"]["weight"] > response[1]["document"]["weight"] == response[2]["document"]["weight"]
         )
         self.assertEqual(response[0]["document"]["id"], str(post_2_useful.pk))  # post 2 is useful
 
         settings.ZDS_APP["search"]["boosts"]["post"]["if_useful"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(
@@ -469,14 +469,14 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 3)
 
         self.assertTrue(
-            response[0]["document"]["score"] == response[1]["document"]["score"] > response[2]["document"]["score"]
+            response[0]["document"]["weight"] == response[1]["document"]["weight"] > response[2]["document"]["weight"]
         )
         self.assertEqual(response[0]["document"]["id"], str(post_2_useful.pk))  # post 2 have a l/d ratio of 5/2
 
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"] = 2.0  # no one would do that in real life
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(
@@ -488,13 +488,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 3)
 
         self.assertTrue(
-            response[0]["document"]["score"] > response[1]["document"]["score"] == response[2]["document"]["score"]
+            response[0]["document"]["weight"] > response[1]["document"]["weight"] == response[2]["document"]["weight"]
         )
         self.assertEqual(response[0]["document"]["id"], str(post_3_ld_below_1.pk))  # post 3 have a l/d ratio of 2/5
 
         settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"] = 1.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         # 4. Test topics
@@ -506,12 +506,12 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 2)
 
-        # score are equals without boost:
-        self.assertTrue(response[0]["document"]["score"] == response[1]["document"]["score"])
+        # Weights are equal without boost:
+        self.assertTrue(response[0]["document"]["weight"] == response[1]["document"]["weight"])
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(
@@ -522,13 +522,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 2)
 
-        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(topic_1_solved_sticky.pk))  # topic 1 is sticky
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_sticky"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(
@@ -539,13 +539,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 2)
 
-        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(topic_1_solved_sticky.pk))  # topic 1 is solved
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_solved"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"] = 2.0  # no one would do that in real life
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(
@@ -556,12 +556,12 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 2)
 
-        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(topic_2_locked.pk))  # topic 2 is locked
 
         settings.ZDS_APP["search"]["boosts"]["topic"]["if_locked"] = 1.0  # no one would do that in real life
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         # 5. Test published contents
@@ -571,17 +571,17 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 5)
 
-        # score are equals without boost:
+        # Weights are equal without boost:
         self.assertTrue(
-            response[0]["document"]["score"]
-            == response[1]["document"]["score"]
-            == response[2]["document"]["score"]
-            == response[3]["document"]["score"]
+            response[0]["document"]["weight"]
+            == response[1]["document"]["weight"]
+            == response[2]["document"]["weight"]
+            == response[3]["document"]["weight"]
         )
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
@@ -590,13 +590,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 5)
 
-        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(published_article.pk))  # obvious
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
@@ -605,7 +605,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 5)
 
-        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 1.0
@@ -613,7 +613,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"] = 4.0
         # Note: in "real life", unpicked opinion would get a boost < 1.
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
@@ -623,7 +623,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 5)
 
         self.assertTrue(
-            response[0]["document"]["score"] > response[1]["document"]["score"] > response[2]["document"]["score"]
+            response[0]["document"]["weight"] > response[1]["document"]["weight"] > response[2]["document"]["weight"]
         )
         self.assertEqual(
             response[0]["document"]["id"], str(published_opinion_not_picked.pk)
@@ -634,7 +634,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         result = self.client.get(reverse("search:query") + "?q=" + text + "&models=publishedcontent", follow=False)
@@ -643,16 +643,16 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
         self.assertEqual(len(response), 5)
 
-        self.assertTrue(response[0]["document"]["score"] > response[1]["document"]["score"])
+        self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 1.0
 
-        # Reindex to update the score
+        # Reindex to update the weight
         self._index_everything()
 
         # 6. Test global boosts
-        # NOTE: score are NOT the same for all documents, no matter how hard it tries to, small differences exists
+        # NOTE: weights are NOT the same for all documents, no matter how hard it tries to, small differences exists
 
         for model in self.indexable:
             # set a huge number to overcome the small differences:
@@ -660,7 +660,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
             for key in settings.ZDS_APP["search"]["boosts"][collection]:
                 settings.ZDS_APP["search"]["boosts"][collection][key] = 10.0
 
-            # Reindex to update the score
+            # Reindex to update the weight
             self._index_everything()
 
             result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)

@@ -1013,7 +1013,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             {"name": "picked", "type": "bool", "facet": False},
             {"name": "get_absolute_url_online", "type": "string", "facet": False},
             {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
-            {"name": "score", "type": "float", "facet": False},
+            {"name": "weight", "type": "float", "facet": False},
         ]
 
         return search_engine_schema
@@ -1074,7 +1074,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         """Overridden to handle the fact that most information are versioned"""
 
         excluded_fields.extend(
-            ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date", "score"]
+            ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date", "weight"]
         )
 
         data = super().get_document_source(excluded_fields=excluded_fields)
@@ -1112,13 +1112,13 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             data["has_chapters"] = True
 
         is_medium_big_tutorial = versioned.has_sub_containers()
-        data["score"] = self._compute_search_score(self.content_type, is_medium_big_tutorial, data["picked"])
+        data["weight"] = self._compute_search_weight(self.content_type, is_medium_big_tutorial, data["picked"])
 
         return data
 
-    def _compute_search_score(self, type_content: str, is_medium_big_tutorial: bool, is_picked: bool):
+    def _compute_search_weight(self, type_content: str, is_medium_big_tutorial: bool, is_picked: bool):
         """
-        This function calculates a score for publishedcontent in order to sort them according to different boosts.
+        This function calculates a weight for publishedcontent in order to sort them according to different boosts.
         There is a boost according to the type of content (article, opinion, tutorial),
         if it is a big tutorial or if it is picked.
         """
@@ -1150,7 +1150,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
                 settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["tags"],
                 settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["text"],
             ),
-            "sort_by": "score:desc",
+            "sort_by": "weight:desc",
         }
 
 
@@ -1249,7 +1249,7 @@ class FakeChapter(AbstractSearchIndexable):
             {"name": "get_absolute_url_online", "type": "string", "facet": False},
             {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
             {"name": "thumbnail", "type": "string", "facet": False},
-            {"name": "score", "type": "float", "facet": False},
+            {"name": "weight", "type": "float", "facet": False},
         ]
 
         return search_engine_schema
@@ -1264,7 +1264,7 @@ class FakeChapter(AbstractSearchIndexable):
 
         data["parent_publication_date"] = date_to_timestamp_int(self.parent_publication_date)
 
-        data["score"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
+        data["weight"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
         data["text"] = clean_html(self.text)
 
         return data
@@ -1277,7 +1277,7 @@ class FakeChapter(AbstractSearchIndexable):
                 settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
                 settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
             ),
-            "sort_by": "score:desc",
+            "sort_by": "weight:desc",
         }
 
     @classmethod

@@ -475,7 +475,7 @@ class Topic(AbstractSearchIndexableModel):
             {"name": "pubdate", "type": "int64", "facet": True},
             {"name": "get_absolute_url", "type": "string"},
             {"name": "forum_get_absolute_url", "type": "string"},
-            {"name": "score", "type": "float", "facet": False},
+            {"name": "weight", "type": "float", "facet": False},
         ]
 
         return search_engine_schema
@@ -489,7 +489,7 @@ class Topic(AbstractSearchIndexableModel):
 
     def get_document_source(self, excluded_fields=None):
         excluded_fields = excluded_fields or []
-        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "score"])
+        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "weight"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
         data["tags"] = []
@@ -501,7 +501,7 @@ class Topic(AbstractSearchIndexableModel):
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
-        data["score"] = self._compute_search_score()
+        data["weight"] = self._compute_search_weight()
 
         return data
 
@@ -529,9 +529,9 @@ class Topic(AbstractSearchIndexableModel):
                 Post.objects.filter(topic__pk=self.pk).update(search_engine_requires_index=True)
         return super().save(*args, **kwargs)
 
-    def _compute_search_score(self):
+    def _compute_search_weight(self):
         """
-        This function calculates a score for topics in order to sort them according to different boosts.
+        This function calculates a weight for topics in order to sort them according to different boosts.
         There is a boost according to the state of the topic:
         - Solved: it was a question, and this question has been answered. The "solved" state is set at author's discretion.
         - Locked: nobody can write on a locked topic.
@@ -595,7 +595,7 @@ class Post(Comment, AbstractSearchIndexableModel):
             {"name": "get_absolute_url", "type": "string"},
             {"name": "forum_get_absolute_url", "type": "string"},
             {"name": "like_dislike_ratio", "type": "float"},
-            {"name": "score", "type": "float", "facet": False},
+            {"name": "weight", "type": "float", "facet": False},
         ]
 
         return search_engine_schema
@@ -628,7 +628,7 @@ class Post(Comment, AbstractSearchIndexableModel):
                 "forum_pk",
                 "forum_get_absolute_url",
                 "pubdate",
-                "score",
+                "weight",
                 "text",
             ]
         )
@@ -644,7 +644,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
         data["text"] = clean_html(self.text_html)
-        data["score"] = self._compute_search_score(data["like_dislike_ratio"])
+        data["weight"] = self._compute_search_weight(data["like_dislike_ratio"])
 
         return data
 
@@ -656,9 +656,9 @@ class Post(Comment, AbstractSearchIndexableModel):
         search_engine_manager = SearchIndexManager()
         search_engine_manager.delete_document(self)
 
-    def _compute_search_score(self, like_dislike_ratio: float):
+    def _compute_search_weight(self, like_dislike_ratio: float):
         """
-        This function calculates a score for post in order to sort them according to different boosts.
+        This function calculates a weight for post in order to sort them according to different boosts.
         There is a boost according to the position, the usefulness and the ration of likes.
         """
         weight_first = settings.ZDS_APP["search"]["boosts"]["post"]["if_first"]

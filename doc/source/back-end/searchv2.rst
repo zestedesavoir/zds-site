@@ -292,7 +292,7 @@ doivent ensuite être surchargées :
 
       Les schémas Typesense sont des `dictionnaires
       <https://typesense.org/docs/0.23.0/api/collections.html#with-pre-defined-schema>`_.
-      On indique également dans les schémas un score de recherche qui est
+      On indique également dans les schémas un poids de recherche qui est
       calculé selon différent critères, ce champ correspond au boost que reçoit
       le contenu lors de la phase de recherche.
 
@@ -319,7 +319,7 @@ doivent ensuite être surchargées :
 
           def get_document_source(self, excluded_fields=None):
               excluded_fields = excluded_fields or []
-              excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "score"])
+              excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "weight"])
 
               data = super().get_document_source(excluded_fields=excluded_fields)
               data["tags"] = [tag.title for tag in self.tags.all()]
@@ -328,7 +328,7 @@ doivent ensuite être surchargées :
               data["forum_get_absolute_url"] = self.forum.get_absolute_url()
               data["pubdate"] = date_to_timestamp_int(self.pubdate)
               data["text"] = clean_html(self.text_html)
-              data["score"] = self._compute_search_score()
+              data["weight"] = self._compute_search_weight()
 
               return data
 

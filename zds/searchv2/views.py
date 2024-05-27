@@ -179,7 +179,7 @@ class SearchView(ZdSPagingListView):
                     for entry in search_results[i]["hits"]:
                         if "text_match" in entry:
                             entry["collection"] = search_collections[i]
-                            entry["document"]["final_score"] = entry["text_match"] * entry["document"]["score"]
+                            entry["document"]["final_score"] = entry["text_match"] * entry["document"]["weight"]
                             entry["document"]["highlights"] = entry["highlights"][0]
 
                             if "tags" in entry["document"] and "tag_slugs" in entry["document"]:
