@@ -22,12 +22,6 @@ from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 
 
-def sub_tag(tag):
-    start = tag.group("start")
-    end = tag.group("end")
-    return f"{start + end}"
-
-
 def get_search_filter_authorized_forums(user: User) -> SearchFilter:
     filter_by = SearchFilter()
     filter_by.add_exact_filter("forum_pk", Forum.objects.get_authorized_forums_pk(user))
