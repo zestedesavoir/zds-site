@@ -5,6 +5,14 @@
 @import "../variables/media-queries"
 
 
+// This SASS file is used by all about-like pages: pages/about, pages/technologies.
+
+
+\:root
+  --bold-about-block-background: linear-gradient(45deg, #{$primary-800}, #{$primary-500})
+  --bold-about-block-color: #{$white}
+
+
 // In lots of places in this file, you'll see selectors like “&, a”
 // inside a paragraph or any other text container. Links are stylised
 // strongly with low-specificity selectors, hence the need to apply
@@ -18,8 +26,8 @@
 // and “legal” sections. One can configure the sections’ styles with
 // CSS variables (beware of accessibility), or override the grid.
 %about-two-columns
-  --about-color: #{$white}
-  --about-bg: linear-gradient(45deg, #{$primary-800}, #{$primary-500})
+  --about-color: var(--bold-about-block-color)
+  --about-bg: var(--bold-about-block-background)
   --about-titles: #{$primary-000}
   --about-links: #{$primary-100}
   --about-links-hover: #{$primary-000}
@@ -42,7 +50,7 @@
     padding: $length-16
     border-radius: 0
 
-    h3, p
+    h2, h3, p
       margin-right: 0
       margin-left: 0
       padding-right: 0
@@ -62,16 +70,20 @@
     +mobile
       margin-bottom: $length-24
 
-    h3
+    h2, h3
       margin-top: 0
       margin-bottom: 0
 
       font-size: $font-size-5
+      font-weight: bold
       line-height: 1.2
       color: var(--about-titles)
 
       +mobile
         font-size: $font-size-6
+
+    h2
+      border: none
 
     p
       margin: $length-12 0
@@ -91,10 +103,10 @@
           font-size: $font-size-9
           font-style: italic
 
-    a
-      color: var(--about-links)
+  a
+    color: var(--about-links)
 
-      &:hover
+    &:hover
         color: var(--about-links-hover)
 
   > dl, > div, > p
@@ -112,6 +124,9 @@ section#about-page
   grid-template-columns: repeat(3, 1fr)
   grid-gap: $length-16
 
+  +until-extra-wide
+    grid-column-gap: $length-32
+
   // On mobile, we deactivate the grid: all the blocks stack up naturally.
   +mobile
     display: block
@@ -123,6 +138,12 @@ section#about-page
     grid-row: 1
     grid-column: 1 / 4
 
+    +until-extra-wide
+      grid-column: 1 / 3
+
+    +until-desktop
+      grid-column: 1 / 4
+
     > h1
       margin-top: 0
       margin-bottom: 1rem
@@ -133,10 +154,14 @@ section#about-page
 
       border: none
 
+      +until-extra-wide
+        font-size: $font-size-5
+
       +mobile
-        font-size: $font-size-6
-        font-weight: 400
         margin-bottom: $length-24
+
+      +tiny
+        font-size: $font-size-6
 
 
   // Same as above, the main description spans over 2/3 of the page.
@@ -147,6 +172,9 @@ section#about-page
     > p
       font-family: $font-serif
       font-size: $font-size-8
+
+      +until-extra-wide
+        font-size: $font-size-9
 
       &:first-child
         margin-top: 0
@@ -164,6 +192,12 @@ section#about-page
     grid-row: 2 / 3
     grid-column: 3 / 4
 
+    +until-extra-wide
+      grid-row: 1 / 3
+
+    +until-desktop
+      grid-row: 2 / 3
+
     figure
       margin: $length-32 0 0 0
       text-align: center
@@ -177,6 +211,9 @@ section#about-page
 
       img
         max-width: 70%
+
+        +until-extra-wide
+          max-width: 50%
 
       figcaption
         margin-top: $length-8
@@ -255,7 +292,8 @@ section#about-page
 
 
   // The legal block.
-  > article.about-legal
+  > article.about-legal,
+  > article.about-association
     grid-row: 4
     grid-column: 1 / 4
 
@@ -274,11 +312,11 @@ section#about-page
     // We invert all colors to get a light-theme box.
     // Also we don't keep the gradient here.
     // This is legal stuff. Serious stuff.
-    --about-color: #{$primary-700}
+    --about-color: #{$primary-800}
     --about-bg: #{$primary-000}
     --about-titles: #{$primary-900}
-    --about-links: #{$primary-700}
-    --about-links-hover: #{$primary-800}
+    --about-links: #{$primary-500}
+    --about-links-hover: #{$primary-900}
 
     p
       &, a
@@ -294,3 +332,20 @@ section#about-page
     // (Default is $grey-200.)
     hr
       border-color: $grey-000
+
+  &.is-technologies-page
+    display: block  // no grid needed
+
+    .about-partnerships
+      display: flex
+      flex-direction: row
+      align-items: center
+      justify-content: space-evenly
+
+      flex-wrap: wrap
+      gap: $length-20
+
+      margin: $length-48 $length-10
+
+      img, svg
+        max-height: $length-48

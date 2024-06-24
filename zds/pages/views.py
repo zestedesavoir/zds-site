@@ -66,6 +66,26 @@ def about(request):
     """
     return render(
         request,
+        "pages/about.html",
+        {
+            "default_repository_url": get_repository_url(
+                settings.ZDS_APP["github_projects"]["default_repository"], "base_url"
+            ),
+            "how_to_contribute_url": "https://docs.zestedesavoir.com/contributing.html",
+            "django_major_version": django.VERSION[0],
+            "python_major_version": sys.version_info.major,
+            "contents_count": PublishedContent.objects.get_contents_count(),
+        },
+    )
+
+
+def technologies(request):
+    """
+    Display information about the website, the French non-profit behind it, other projects, partnerships, tech,
+    and some legal stuff.
+    """
+    return render(
+        request,
         "pages/technologies.html",
         {
             "default_repository_url": get_repository_url(

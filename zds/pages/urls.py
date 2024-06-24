@@ -2,6 +2,7 @@ from django.urls import path
 
 from zds.pages.views import (
     about,
+    technologies,
     association,
     eula,
     alerts,
@@ -16,7 +17,8 @@ from zds.pages.views import (
 
 urlpatterns = [
     # single pages
-    path("technologies/", about, name="pages-technologies"),
+    path("a-propos/", about, name="pages-about"),
+    path("technologies/", technologies, name="pages-technologies"),
     path("association/", association, name="pages-association"),
     path("contact/", ContactView.as_view(), name="pages-contact"),
     path("cgu/", eula, name="pages-eula"),
