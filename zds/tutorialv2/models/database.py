@@ -150,8 +150,6 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     is_locked = models.BooleanField("Est verrouillé", default=False)
     js_support = models.BooleanField("Support du Javascript", default=False)
 
-    must_reindex = models.BooleanField("Si le contenu doit-être ré-indexé", default=True)
-
     is_obsolete = models.BooleanField("Est obsolète", default=False)
 
     public_version = models.ForeignKey(
