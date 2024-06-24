@@ -234,7 +234,10 @@ class BetaContentFactory(PublishableContentFactory):
 
 class PublishedContentFactory(PublishableContentFactory):
     """
-    Factory that creates a PublishableContent and the publish it.
+    Factory that creates a PublishableContent and then publishes it.
+
+    NOTE: This factory returns the PublishableContent object, not the
+    PublishedContent object (accessible through content.public_version).
     """
 
     @classmethod
