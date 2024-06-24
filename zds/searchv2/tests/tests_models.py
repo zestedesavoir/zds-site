@@ -4,13 +4,20 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.tests.factories import create_category_and_forum
+from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
+from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.searchv2.utils import SearchIndexManager
-from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory, publish_content
+from zds.tutorialv2.tests.factories import (
+    PublishableContentFactory,
+    PublishedContentFactory,
+    ContainerFactory,
+    ExtractFactory,
+    publish_content,
+)
 from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory
 
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
@@ -293,6 +300,224 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
         self.assertTrue(found_new)
         self.assertFalse(found_old)
+
+    def test_update_topic(self):
+        """test that changing an attribute of a topic marks it as to index"""
+
+        if not self.manager.connected:
+            return
+
+        _, other_forum = create_category_and_forum()
+
+        other_topic = TopicFactory(forum=other_forum, author=self.user)
+        other_topic.save(search_engine_requires_index=False)
+
+        topic = TopicFactory(forum=self.forum, author=self.user)
+        topic.save(search_engine_requires_index=False)
+
+        # Rename the forum (changes forum_title)
+        topic.save(search_engine_requires_index=False)
+        self.forum.title = "Other title"
+        self.forum.save()
+        topic.refresh_from_db()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Move the topic to another forum (changes forum_pk and forum_title)
+        topic.save(search_engine_requires_index=False)
+        topic.forum = other_forum
+        topic.save()
+        topic.refresh_from_db()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Update title:
+        topic.save(search_engine_requires_index=False)
+        topic.title = "Changed title"
+        topic.save()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Update subtitle:
+        topic.save(search_engine_requires_index=False)
+        topic.subtitle = "Changed subtitle"
+        topic.save()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Add a tag:
+        topic.save(search_engine_requires_index=False)
+        tag = TagFactory()
+        tag.save()
+        topic.tags.add(tag)
+        topic.save()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Rename the tag:
+        topic.save(search_engine_requires_index=False)
+        tag.title = "New tag"
+        tag.save()
+        topic.refresh_from_db()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Change the locked status
+        topic.save(search_engine_requires_index=False)
+        topic.is_locked = not topic.is_locked
+        topic.save()
+        topic.refresh_from_db()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Change the solved status
+        topic.save(search_engine_requires_index=False)
+        topic.solved_by = self.user
+        topic.save()
+        topic.refresh_from_db()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # Change the sticky status
+        topic.save(search_engine_requires_index=False)
+        topic.is_sticky = not topic.is_sticky
+        topic.save()
+        topic.refresh_from_db()
+        self.assertTrue(topic.search_engine_requires_index)
+
+        # It did not impact other topics:
+        other_topic.refresh_from_db()
+        self.assertFalse(other_topic.search_engine_requires_index)
+
+    def test_update_post(self):
+        """test that changing an attribute of a post marks it as to index"""
+
+        if not self.manager.connected:
+            return
+
+        _, other_forum = create_category_and_forum()
+
+        topic = create_topic_in_forum(self.forum, self.user.profile)
+        topic.save()
+        post = PostFactory(topic=topic, author=self.user, position=2)
+        post.save(search_engine_requires_index=False)
+
+        other_topic = create_topic_in_forum(self.forum, self.user.profile)
+        other_topic.save()
+        other_post = PostFactory(topic=other_topic, author=self.user, position=2)
+        other_post.save(search_engine_requires_index=False)
+
+        # Move the topic to another forum (changes forum_pk)
+        post.save(search_engine_requires_index=False)
+        post.topic.forum = other_forum
+        post.topic.save()
+        post.refresh_from_db()
+        self.assertTrue(post.search_engine_requires_index)
+
+        # Change the topic title (changes topic_title)
+        post.save(search_engine_requires_index=False)
+        post.topic.title = "Changed title"
+        post.topic.save()
+        post.refresh_from_db()
+        self.assertTrue(post.search_engine_requires_index)
+
+        # Change the forum title (changes forum_title)
+        post.save(search_engine_requires_index=False)
+        post.topic.forum.title = "Changed title"
+        post.topic.forum.save()
+        post.refresh_from_db()
+        self.assertTrue(post.search_engine_requires_index)
+
+        # Change the content
+        post.save(search_engine_requires_index=False)
+        post.text = "New text"
+        post.save()
+        post.refresh_from_db()
+        self.assertTrue(post.search_engine_requires_index)
+
+        # Mark it as useful
+        post.save(search_engine_requires_index=False)
+        post.is_useful = not post.is_useful
+        post.save()
+        post.refresh_from_db()
+        self.assertTrue(post.search_engine_requires_index)
+
+        # Like it
+        post.save(search_engine_requires_index=False)
+        post.like += 1
+        post.save()
+        post.refresh_from_db()
+        self.assertTrue(post.search_engine_requires_index)
+
+        # Dislike it
+        post.save(search_engine_requires_index=False)
+        post.dislike += 1
+        post.save()
+        post.refresh_from_db()
+        self.assertTrue(post.search_engine_requires_index)
+
+        # It did not impact other posts:
+        other_post.refresh_from_db()
+        self.assertFalse(other_post.search_engine_requires_index)
+
+    def test_update_published_content(self):
+        """
+        Test that changing an attribute of a published content marks it as to
+        index.
+
+        No need to test the update of FakeChapter, since the reindex of a
+        published content starts by removing all its fake chapters from the
+        search engine.
+        """
+
+        if not self.manager.connected:
+            return
+
+        published_content = PublishedContentFactory().public_version
+        published_content.save(search_engine_requires_index=False)
+
+        other_published_content = PublishedContentFactory().public_version
+        other_published_content.save(search_engine_requires_index=False)
+
+        tag = TagFactory()
+        tag.save()
+
+        category = CategoryFactory()
+        category.save()
+
+        subcategory = SubCategoryFactory(category=category)
+        subcategory.save()
+
+        # Add a tag
+        published_content.save(search_engine_requires_index=False)
+        published_content.content.tags.add(tag)
+        published_content.content.save()
+        published_content.refresh_from_db()
+        self.assertTrue(published_content.search_engine_requires_index)
+
+        # Rename the tag
+        published_content.save(search_engine_requires_index=False)
+        tag.title = "New tag"
+        tag.save()
+        published_content.refresh_from_db()
+        self.assertTrue(published_content.search_engine_requires_index)
+
+        # Add a subcategory
+        published_content.save(search_engine_requires_index=False)
+        published_content.content.subcategory.add(subcategory)
+        published_content.content.save()
+        published_content.refresh_from_db()
+        self.assertTrue(published_content.search_engine_requires_index)
+
+        # Rename the subcategory
+        published_content.save(search_engine_requires_index=False)
+        subcategory.title = "New subcategory"
+        subcategory.save()
+        published_content.refresh_from_db()
+        self.assertTrue(published_content.search_engine_requires_index)
+
+        # Rename the category
+        published_content.save(search_engine_requires_index=False)
+        category.title = "New category"
+        category.save()
+        published_content.refresh_from_db()
+        self.assertTrue(published_content.search_engine_requires_index)
+
+        # It did not impact other contents:
+        other_published_content.refresh_from_db()
+        self.assertFalse(other_published_content.search_engine_requires_index)
 
     def tearDown(self):
         super().tearDown()

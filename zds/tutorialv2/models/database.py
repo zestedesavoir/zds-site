@@ -10,7 +10,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE
-from django.db.models.signals import pre_delete, post_delete, pre_save
+from django.db.models.signals import pre_delete, post_delete, pre_save, post_save
 from django.dispatch import receiver
 from django.http import Http404
 from django.urls import reverse
@@ -48,7 +48,7 @@ from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLin
 from zds.tutorialv2.models.versioned import NotAPublicVersion, VersionedContent
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
 from zds.utils import get_current_user
-from zds.utils.models import SubCategory, Licence, Comment, Tag
+from zds.utils.models import Category, SubCategory, Licence, Comment, Tag
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.uuslug_wrapper import uuslug
@@ -194,6 +194,13 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
             self.slug = uuslug(self.title, instance=self, max_length=80)
         if update_date:
             self.update_date = datetime.now()
+        if self.public_version:
+            # This will probably triggers more reindexing than actually
+            # required (for instance, when updating an attribute that is not
+            # indexed), but it's definitely simpler than tracking which
+            # attributes are changed.
+            self.public_version.search_engine_requires_index = True
+            self.public_version.save()
         super().save(*args, **kwargs)
 
     def get_absolute_url_beta(self):
@@ -648,6 +655,29 @@ def delete_gallery(sender, instance, **kwargs):
     """catch the post_delete signal to ensure the deletion of the gallery (otherwise, you generate a loop)"""
     if instance.gallery:
         instance.gallery.delete()
+
+
+@receiver(post_save, sender=Tag)
+def content_tags_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        PublishedContent.objects.filter(content__tags=instance.pk).update(search_engine_requires_index=True)
+
+
+@receiver(post_save, sender=SubCategory)
+def content_subcategories_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        PublishedContent.objects.filter(content__subcategory=instance.pk).update(search_engine_requires_index=True)
+
+
+@receiver(post_save, sender=Category)
+def content_categories_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        PublishedContent.objects.filter(content__subcategory__categorysubcategory__category=instance.pk).update(
+            search_engine_requires_index=True
+        )
 
 
 class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixin, OnlineLinkableContentMixin):

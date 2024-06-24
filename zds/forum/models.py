@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group, User, AnonymousUser
 from django.urls import reverse
 from django.db import models
 from django.dispatch import receiver
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_save
 
 from zds.forum import signals
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
@@ -543,6 +543,21 @@ class Topic(AbstractSearchIndexableModel):
             weight_locked * self.is_locked,
             is_global * weight_global,
         )
+
+
+@receiver(post_save, sender=Tag)
+def topic_tags_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        Topic.objects.filter(tags=instance.pk).update(search_engine_requires_index=True)
+
+
+@receiver(post_save, sender=Forum)
+def forum_title_changed(instance, created, **kwargs):
+    if not created:
+        # It is an update of an existing object
+        Topic.objects.filter(forum=instance.pk).update(search_engine_requires_index=True)
+        Post.objects.filter(topic__forum=instance.pk).update(search_engine_requires_index=True)
 
 
 class Post(Comment, AbstractSearchIndexableModel):
