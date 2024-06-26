@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load date %}
 
-<a href="{{ search_result.get_absolute_url_online }}" tabindex="-1" class="content-illu">
+<a href="{{ search_result.get_absolute_url_online }}" tabindex="-1" class="content-illu {{ search_result.content_type|lower }}-illu">
     {% if search_result.thumbnail %}
         <img src="{{ search_result.thumbnail }}" alt="{{ search_result.title }}">
     {% endif %}
