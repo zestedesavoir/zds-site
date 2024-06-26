@@ -20,15 +20,16 @@ from zds.tutorialv2.forms import (
     UnpublicationForm,
     WarnTypoForm,
     JsFiddleActivationForm,
-    EditContentLicenseForm,
-    EditContentTagsForm,
     PublicationForm,
     PickOpinionForm,
     UnpickOpinionForm,
     PromoteOpinionToArticleForm,
-    SearchSuggestionForm,
-    ContributionForm,
 )
+from zds.tutorialv2.views.canonical import EditCanonicalLinkForm
+from zds.tutorialv2.views.contributors import ContributionForm
+from zds.tutorialv2.views.suggestions import SearchSuggestionForm
+from zds.tutorialv2.views.licence import EditContentLicenseForm
+from zds.tutorialv2.views.tags import EditTagsForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import (
     ContentSuggestion,
@@ -38,6 +39,7 @@ from zds.tutorialv2.models.database import (
     ContentReaction,
 )
 from zds.tutorialv2.utils import last_participation_is_old, mark_read
+from zds.tutorialv2.views.contents import EditTitleForm, EditSubtitleForm
 from zds.tutorialv2.views.display.config import (
     ConfigForContentDraftView,
     ConfigForVersionView,
@@ -88,6 +90,7 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_warn_typo"] = WarnTypoForm(versioned, versioned, public=False)
         context["form_jsfiddle"] = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
         context["form_edit_license"] = EditContentLicenseForm(versioned)
+
         context["form_publication"] = PublicationForm(versioned, initial={"source": self.object.source})
         context["gallery"] = self.object.gallery
         context["alerts"] = self.object.alerts_on_this_content.all()
@@ -98,7 +101,8 @@ class ContentBaseView(SingleContentDetailViewMixin):
         data_form_convert = data_form_revoke
         context["form_convert"] = PromoteOpinionToArticleForm(self.versioned_object, initial=data_form_convert)
         context["form_warn_typo"] = WarnTypoForm(self.versioned_object, self.versioned_object)
-        context["form_edit_tags"] = EditContentTagsForm(self.versioned_object, self.object)
+        context["form_edit_tags"] = EditTagsForm(self.versioned_object, self.object)
+        context["form_edit_canonical_link"] = EditCanonicalLinkForm(self.object)
         context["form_edit_goals"] = EditGoalsForm(self.object)
         context["form_edit_labels"] = EditLabelsForm(self.object)
         context["is_antispam"] = self.object.antispam(self.request.user)
@@ -135,6 +139,8 @@ class ContentDraftView(LoginRequiredMixin, ContentBaseView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["form_edit_title"] = EditTitleForm(self.versioned_object)
+        context["form_edit_subtitle"] = EditSubtitleForm(self.versioned_object)
         context["display_config"] = ConfigForContentDraftView(self.request.user, self.object, self.versioned_object)
         return context
 

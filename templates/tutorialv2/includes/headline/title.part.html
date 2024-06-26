@@ -1,0 +1,43 @@
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+<div class="title-block">
+    {% if show_thumbnail and content.image %}
+        <div class="content-thumbnail-group">
+            <img class="thumbnail" src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
+        </div>
+    {% endif %}
+    <div class="content-title-and-subtitle-group">
+        <div class="content-title-group">
+            {% spaceless %}
+            <h1 class="title">{{ title }}</h1>
+            {% if show_form %}
+                <a href="#edit-title" class="open-modal edit-button" title="{% trans "Modifier le titre" %}">
+                    <span class="visuallyhidden">{% trans "Modifier le titre" %}</span>
+                </a>
+                {% crispy form_title %}
+            {% endif %}
+            {% endspaceless %}
+        </div>
+
+        <div class="content-subtitle-group">
+            {% spaceless %}
+            {% if show_form %}
+                {% if subtitle %}
+                    <p class="subtitle">{{ subtitle }}</p>
+                    <a href="#edit-subtitle" class="open-modal edit-button" title="{% trans "Modifier le sous-titre" %}">
+                        <span class="visuallyhidden">{% trans "Modifier le sous-titre" %}</span>
+                    </a>
+                {% else %}
+                    <a href="#edit-subtitle" class="open-modal" title="{% trans "Modifier le sous-titre" %}">
+                        {% trans "Ajoutez un sous-titre !" %}
+                    </a>
+                {% endif %}
+                {% crispy form_subtitle %}
+            {% else %}
+                <p class="subtitle">{{ subtitle }}</p>
+            {% endif %}
+            {% endspaceless %}
+        </div>
+    </div>
+</div>

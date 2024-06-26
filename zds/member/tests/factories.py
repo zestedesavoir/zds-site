@@ -103,6 +103,22 @@ class NonAsciiUserFactory(UserFactory):
     username = factory.Sequence("ïéàçÊÀ{}".format)
 
 
+class MultipleGroupsUserFactory(UserFactory):
+    """
+    Factory that creates a User with multiple groups
+
+    WARNING: Don't try to directly use `MultipleGroupsUserFactory` because it won't create the associated Profile.
+    Use `MultipleGroupsProfileFactory` instead.
+    """
+
+    @factory.post_generation
+    def groups(self, create, extracted, **kwargs):
+        for group_name in ("first_group", "second_group"):
+            group = Group(name=group_name)
+            group.save()
+            self.groups.add(group)
+
+
 class ProfileFactory(factory.django.DjangoModelFactory):
     """
     Use this factory when you need a complete Profile for a standard User.
@@ -153,3 +169,11 @@ class NonAsciiProfileFactory(ProfileFactory):
     """
 
     user = factory.SubFactory(NonAsciiUserFactory)
+
+
+class MultipleGroupsProfileFactory(ProfileFactory):
+    """
+    Use this factory when you need a complete Profile for a User with multiple groups.
+    """
+
+    user = factory.SubFactory(MultipleGroupsUserFactory)

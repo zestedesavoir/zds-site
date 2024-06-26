@@ -60,6 +60,8 @@
 {% elif event.type == "tags_management" %}
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les tags du contenu.
 
+{% elif event.type == "canonical_link_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié le lien canonique du contenu.
 
 {% elif event.type == "goals_management" %}
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les objectifs du contenu.

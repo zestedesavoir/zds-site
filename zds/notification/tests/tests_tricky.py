@@ -9,7 +9,7 @@ from django.test.utils import override_settings
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.forum.models import Topic
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
+from zds.member.tests.factories import StaffProfileFactory, ProfileFactory, MultipleGroupsProfileFactory
 from zds.notification.models import (
     NewTopicSubscription,
     TopicAnswerSubscription,
@@ -40,13 +40,19 @@ class ForumNotification(TestCase):
         self.user2 = ProfileFactory().user
         self.to_be_changed_staff = StaffProfileFactory().user
         self.staff = StaffProfileFactory().user
+        self.multi_groups_user = MultipleGroupsProfileFactory().user
         self.assertTrue(self.staff.has_perm("forum.change_topic"))
         self.category1 = ForumCategoryFactory(position=1)
         self.forum11 = ForumFactory(category=self.category1, position_in_category=1)
         self.forum12 = ForumFactory(category=self.category1, position_in_category=2)
+        self.forum13 = ForumFactory(category=self.category1, position_in_category=3)
         for group in self.staff.groups.all():
             self.forum12.groups.add(group)
+            self.forum13.groups.add(group)
         self.forum12.save()
+        for group in self.multi_groups_user.groups.all():
+            self.forum13.groups.add(group)
+        self.forum13.save()
 
     def test_ping_unknown(self):
         self.client.force_login(self.user2)
@@ -339,6 +345,37 @@ class ForumNotification(TestCase):
         self.assertIsNotNone(subscription, "There must be an inactive subscription now")
         self.assertFalse(subscription.is_active)
         self.assertTrue(subscription.last_notification.is_read, "As forum is not reachable, notification is read")
+
+    def test_keep_new_topic_notif_if_losing_only_one_group(self):
+        """
+        Context: self.multi_groups_user is in two groups that both give access to self.forum13
+        If this user leaves one of the two groups, they should keep receiving new topic notifications.
+        """
+
+        NewTopicSubscription.objects.get_or_create_active(self.multi_groups_user, self.forum13)
+        self.client.force_login(self.staff)
+        self.client.post(
+            reverse("forum:topic-new") + f"?forum={self.forum13.pk}",
+            {
+                "title": "Super sujet",
+                "subtitle": "Pour tester les notifs",
+                "text": "En tout cas l'un abonnement",
+                "tags": "",
+            },
+            follow=False,
+        )
+        subscription = NewTopicSubscription.objects.get_existing(self.multi_groups_user, self.forum13, True)
+        self.assertIsNotNone(subscription, "There must be an active subscription for now")
+        self.assertIsNotNone(subscription.last_notification, "There must be a notification.")
+        self.assertFalse(subscription.last_notification.is_read, "The notification has not been read yet")
+
+        self.multi_groups_user.groups.remove(list(self.multi_groups_user.groups.all())[0])
+        self.multi_groups_user.save()
+
+        subscription = NewTopicSubscription.objects.get_existing(self.multi_groups_user, self.forum13, True)
+        self.assertIsNotNone(subscription, "There must still be an active subscription")
+        self.assertTrue(subscription.is_active)
+        self.assertFalse(subscription.last_notification.is_read, "The notification has not been read yet")
 
     def test_no_more_topic_answer_notif_on_losing_all_groups(self):
         self.client.force_login(self.to_be_changed_staff)

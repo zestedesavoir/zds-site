@@ -25,6 +25,10 @@
   },
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
+    "@fontsource/merriweather": "5.0.12",
+    "@fontsource/source-code-pro": "5.0.17",
+    "@fontsource/source-sans-pro": "5.0.8",
+    "@fortawesome/fontawesome-free": "5.12.1",
     "autoprefixer": "10.4.18",
     "chart.js": "3.9.1",
     "chartjs-adapter-moment": "1.0.1",
@@ -41,6 +45,7 @@
     "gulp-terser-js": "5.2.2",
     "gulp.spritesmith": "6.13.0",
     "jquery": "3.7.1",
+    "mathjax": "2.7.1",
     "moment": "2.30.1",
     "normalize.css": "8.0.1",
     "postcss": "8.4.35"

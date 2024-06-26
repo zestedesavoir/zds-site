@@ -164,11 +164,17 @@ class DraftActionsState:
     def show_license_edit(self) -> bool:
         return self.enabled and self.is_allowed and not self.is_container
 
+    def show_title_edit(self) -> bool:
+        return self.enabled and self.is_allowed and not self.is_container
+
     def show_authors_management(self) -> bool:
         return self.enabled and self.is_allowed
 
+    def show_categories_management(self) -> bool:
+        return self.enabled and self.is_allowed
+
     def show_contributors_management(self) -> bool:
-        return self.enabled and self.is_allowed and self.requires_validation
+        return self.enabled and self.is_allowed
 
     def show_ready_to_publish(self) -> bool:
         return self.enabled and self.is_allowed and self.requires_validation

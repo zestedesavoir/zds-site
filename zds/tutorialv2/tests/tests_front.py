@@ -155,9 +155,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
             "content:create-content", kwargs={"created_content_type": "ARTICLE"}
         )
         selenium.get(new_article_url)
-        WebDriverWait(self.selenium, 10).until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, "input[type=checkbox][name=subcategory]"))
-        ).click()
+        WebDriverWait(self.selenium, 10).until(ec.element_to_be_clickable((By.CSS_SELECTOR, "#id_title"))).click()
 
         self.find_element("#id_title").send_keys("Oulipo")
 

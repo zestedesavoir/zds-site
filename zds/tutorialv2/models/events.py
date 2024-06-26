@@ -6,8 +6,10 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2 import signals
 from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
 from zds.tutorialv2.views.beta import ManageBetaContent
+from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
-from zds.tutorialv2.views.editorialization import EditContentTags, AddSuggestion, RemoveSuggestion
+from zds.tutorialv2.views.suggestions import AddSuggestion, RemoveSuggestion
+from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.labels import EditLabels
 from zds.tutorialv2.views.help import ChangeHelp
@@ -47,6 +49,7 @@ types = {
     signals.beta_management: "beta_management",
     signals.validation_management: "validation_management",
     signals.tags_management: "tags_management",
+    signals.canonical_link_management: "canonical_link_management",
     signals.goals_management: "goals_management",
     signals.labels_management: "labels_management",
     signals.suggestions_management: "suggestions_management",
@@ -132,8 +135,17 @@ def record_event_validation_management(sender, performer, signal, content, versi
     ).save()
 
 
-@receiver(signals.tags_management, sender=EditContentTags)
+@receiver(signals.tags_management, sender=EditTags)
 def record_event_tags_management(sender, performer, signal, content, **_):
+    Event(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    ).save()
+
+
+@receiver(signals.canonical_link_management, sender=EditCanonicalLinkView)
+def record_event_canonical_link_management(sender, performer, signal, content, **_):
     Event(
         performer=performer,
         type=types[signal],

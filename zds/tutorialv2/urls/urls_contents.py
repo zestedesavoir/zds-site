@@ -1,12 +1,21 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.canonical import EditCanonicalLinkView
+from zds.tutorialv2.views.categories import EditCategoriesView
+from zds.tutorialv2.views.contents import (
+    CreateContent,
+    EditContent,
+    DeleteContent,
+    EditTitle,
+    EditSubtitle,
+)
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
+from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -35,7 +44,8 @@ from zds.tutorialv2.views.contributors import (
     RemoveContributorFromContent,
     ContentOfContributors,
 )
-from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion, EditContentTags
+from zds.tutorialv2.views.suggestions import RemoveSuggestion, AddSuggestion
+from zds.tutorialv2.views.tags import EditTags
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
@@ -205,10 +215,17 @@ urlpatterns = (
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
         path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorFromContent.as_view(), name="remove-author"),
+        # Modify the title and subtitle
+        path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
+        path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
         # Modify the license
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         # Modify the tags
-        path("modifier-tags/<int:pk>/", EditContentTags.as_view(), name="edit-tags"),
+        path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
+        # Modify the canonical link
+        path("modifier-lien-canonique/<int:pk>", EditCanonicalLinkView.as_view(), name="edit-canonical-link"),
+        # Modify the categories
+        path("modifier-categories/<int:pk>/", EditCategoriesView.as_view(), name="edit-categories"),
         # beta:
         path("activer-beta/<int:pk>/<slug:slug>/", ManageBetaContent.as_view(action="set"), name="set-beta"),
         path(
