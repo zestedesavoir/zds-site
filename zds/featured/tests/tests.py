@@ -474,6 +474,31 @@ class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
 
         self.assertEqual(len(response.context["featured_request_list"]), 1)  # it is back!
 
+    def test_success_list_with_deleted_content(self):
+        # create a topic
+        author = ProfileFactory().user
+        category = ForumCategoryFactory(position=1)
+        forum = ForumFactory(category=category, position_in_category=1)
+        topic = TopicFactory(forum=forum, author=author)
+
+        # create a published content
+        tutorial = PublishedContentFactory(author_list=[author])
+        tutorial.save()
+
+        # request for the topic and the content to be featured
+        FeaturedRequested.objects.toogle_request(topic, author)
+        FeaturedRequested.objects.toogle_request(tutorial, author)
+
+        # delete both this topic and this content
+        topic.delete()
+        tutorial.delete()
+
+        # check that the page listing the requests still works
+        staff = StaffProfileFactory()
+        self.client.force_login(staff.user)
+        response = self.client.get(reverse("featured:resource-requests"))
+        self.assertEqual(200, response.status_code)
+
 
 class FeaturedRequestUpdateViewTest(TestCase):
     def test_update(self):
