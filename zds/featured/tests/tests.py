@@ -9,6 +9,7 @@ from zds.featured.tests.factories import FeaturedResourceFactory
 from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, ImageFactory
+from zds.tutorialv2.publication_utils import unpublish_content
 from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
@@ -488,10 +489,14 @@ class FeaturedRequestListViewTest(TutorialTestMixin, TestCase):
         # request for the topic and the content to be featured
         FeaturedRequested.objects.toogle_request(topic, author)
         FeaturedRequested.objects.toogle_request(tutorial, author)
+        count = FeaturedRequested.objects.count()
 
-        # delete both this topic and this content
+        # delete the topic and unpublish the content
         topic.delete()
-        tutorial.delete()
+        unpublish_content(tutorial)
+
+        # check that the FeaturedRequested objects have been deleted
+        self.assertEqual(FeaturedRequested.objects.count(), count - 2)
 
         # check that the page listing the requests still works
         staff = StaffProfileFactory()
