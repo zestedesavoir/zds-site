@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load captureas %}
+{% load get_item %}
 
 
 {% if display_config.validation_actions.show_validation_actions %}
@@ -19,7 +20,7 @@
             {% if display_config.validation_actions.show_identical_message %}
                 <li class="inactive">
                     <span class="ico-after pin disabled">
-                        {% trans "La version en validation est identique à cette version." %}
+                        {{ display_config.validation_actions.messages|get_item:"validation_is_same" }}
                     </span>
                 </li>
             {% endif %}

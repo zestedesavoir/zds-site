@@ -302,6 +302,10 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         """Return True if the given sha corresponds to the public version, and False otherwise."""
         return self.in_public() and sha == self.sha_public
 
+    def is_draft_more_recent_than_public(self) -> bool:
+        """Return True if there is a draft version more recent than the published version, and False otherwise."""
+        return self.in_public() and self.in_drafting() and self.sha_public != self.sha_draft
+
     def is_picked(self):
         return self.in_public() and self.sha_public == self.sha_picked
 
