@@ -13,8 +13,10 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery
+from zds.tutorialv2 import signals
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils import get_current_user
 from zds.utils.uuslug_wrapper import slugify
 
 from zds.utils.validators import with_svg_validator
@@ -98,5 +100,7 @@ class EditThumbnailView(LoginRequiredMixin, SingleContentFormViewMixin):
         publishable.save()
 
         messages.success(self.request, self.success_message)
+
+        signals.thumbnail_management.send(sender=self.__class__, performer=get_current_user(), content=publishable)
 
         return redirect(form.previous_page_url)

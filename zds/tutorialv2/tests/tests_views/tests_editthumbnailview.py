@@ -1,4 +1,5 @@
 from datetime import datetime
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test import TestCase
@@ -109,7 +110,8 @@ class FunctionalTests(TutorialTestMixin, TestCase):
 
         self.client.force_login(self.author.user)
 
-    def test_normal(self):
+    @patch("zds.tutorialv2.signals.thumbnail_management")
+    def test_normal(self, thumbnail_management):
         self.assertEqual(self.content.title, self.content.gallery.title)
         start_date = datetime.now()
         self.assertTrue(self.content.update_date < start_date)
@@ -121,3 +123,4 @@ class FunctionalTests(TutorialTestMixin, TestCase):
 
         self.assertIsNotNone(self.content.image)
         self.assertEqual(self.content.gallery.get_images().count(), 1)
+        self.assertEqual(thumbnail_management.send.call_count, 1)
