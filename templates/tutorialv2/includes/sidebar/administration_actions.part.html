@@ -7,12 +7,6 @@
         <h3>{% trans "Administration" %}</h3>
 
         <ul>
-            {% if administration_actions.show_exports_request %}
-                <li>
-                    {% include "tutorialv2/includes/sidebar/exports.part.html" %}
-                </li>
-            {% endif %}
-
             {% if administration_actions.show_versions_history_link %}
                 <li>
                     <a href="{% url "content:history" content.pk content.slug_repository %}" class="ico-after history blue">

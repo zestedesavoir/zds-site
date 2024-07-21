@@ -1,10 +1,6 @@
+from functools import wraps
 import inspect
 import logging
-
-try:
-    from functools import wraps
-except ImportError:
-    from django.utils.functional import wraps
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
