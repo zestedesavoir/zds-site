@@ -1988,7 +1988,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def check_images_socials(self, result, pattern_link_image, title, description):
         start_reg = r"<meta(\s+)(\S+)"
 
-        for meta in ["twitter:image", "og:image:url"]:
+        for meta in ["X:image", "og:image:url"]:
             self.assertRegex(
                 result.content.decode("utf-8"),
                 start_reg + meta + r'(\S+)(\s+)content="http://(\S+)/' + pattern_link_image + r'(\S+)"',
@@ -1998,14 +1998,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
                 result.content.decode("utf-8"),
                 start_reg + meta + r'(\S+)(\s+)content="https://(\S+)/' + pattern_link_image + r'(\S+)"',
             )
-        for meta in ["twitter:description"]:
+        for meta in ["X:description"]:
             self.assertRegex(result.content.decode("utf-8"), start_reg + meta + r'(\S+)(\s+)content="' + description)
-        for meta in ["twitter:title", "og:title"]:
+        for meta in ["X:title", "og:title"]:
             self.assertRegex(result.content.decode("utf-8"), start_reg + meta + r'(\S+)(\s+)content="' + title)
 
     def test_social_cards_without_image(self):
         """
-        Check that all cards are produce for social network twitter
+        Check that all cards are produce for social network X
         """
         # test access for guest user (bot of social network for example)
         self.client.logout()

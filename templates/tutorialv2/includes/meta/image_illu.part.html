@@ -1,6 +1,6 @@
 {% load thumbnail %}{% spaceless %}
     {% if content.image %}
-        {% if request.GET.twittercard == "large"  %}
+        {% if request.GET.Xcard == "large"  %}
             {{ content.image.physical|thumbnail_url:'social_network_large' }}
         {% else %}
             {{ content.image.physical|thumbnail_url:'social_network' }}
