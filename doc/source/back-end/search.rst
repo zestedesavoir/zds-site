@@ -351,7 +351,7 @@ signal de pré-suppression en base de données, afin que le document soit
 
 Plus d'informations sur les méthodes qui peuvent être surchargées sont
 disponibles `dans la documentation technique
-<../back-end-code/searchv2.html>`_.
+<../back-end-code/search.html>`_.
 
 .. attention::
 

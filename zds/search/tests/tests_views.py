@@ -11,7 +11,7 @@ from zds import json_handler
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
 from zds.forum.tests.factories import create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.searchv2.utils import SearchIndexManager
+from zds.search.utils import SearchIndexManager
 from zds.tutorialv2.tests.factories import (
     PublishableContentFactory,
     ContainerFactory,

@@ -11,7 +11,7 @@ from django.db import transaction
 from bs4 import BeautifulSoup
 from typesense import Client as TypesenseClient
 
-from zds.searchv2.models import AbstractSearchIndexableModel
+from zds.search.models import AbstractSearchIndexableModel
 
 
 def date_to_timestamp_int(date):

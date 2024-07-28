@@ -11,8 +11,8 @@ from django.db.models.signals import pre_delete, post_save
 
 from zds.forum import signals
 from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
-from zds.searchv2.models import AbstractSearchIndexableModel
-from zds.searchv2.utils import (
+from zds.search.models import AbstractSearchIndexableModel
+from zds.search.utils import (
     SearchFilter,
     SearchIndexManager,
     date_to_timestamp_int,

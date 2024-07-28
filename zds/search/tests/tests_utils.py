@@ -12,7 +12,7 @@ from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
 from zds.forum.tests.factories import create_category_and_forum
-from zds.searchv2.utils import SearchFilter, SearchIndexManager
+from zds.search.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 
 

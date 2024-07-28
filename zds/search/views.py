@@ -12,8 +12,8 @@ from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.models import Topic, Post
-from zds.searchv2.forms import SearchForm
-from zds.searchv2.utils import SearchFilter, SearchIndexManager
+from zds.search.forms import SearchForm
+from zds.search.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.models.database import FakeChapter, PublishedContent
 from zds.utils.paginator import ZdSPagingListView
 
@@ -119,7 +119,7 @@ class SuggestionContentView(View):
 class SearchView(ZdSPagingListView):
     """Search view."""
 
-    template_name = "searchv2/search.html"
+    template_name = "search/search.html"
     paginate_by = settings.ZDS_APP["search"]["results_per_page"]
 
     search_form = None
@@ -207,7 +207,7 @@ def opensearch(request):
 
     return render(
         request,
-        "searchv2/opensearch.xml",
+        "search/opensearch.xml",
         {
             "site_name": settings.ZDS_APP["site"]["literal_name"],
             "site_url": settings.ZDS_APP["site"]["url"],

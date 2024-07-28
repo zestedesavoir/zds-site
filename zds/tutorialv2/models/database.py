@@ -24,11 +24,11 @@ from zds.forum.models import Topic
 from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
-from zds.searchv2.models import (
+from zds.search.models import (
     AbstractSearchIndexableModel,
     AbstractSearchIndexable,
 )
-from zds.searchv2.utils import (
+from zds.search.utils import (
     SearchFilter,
     SearchIndexManager,
     date_to_timestamp_int,

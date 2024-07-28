@@ -83,4 +83,4 @@ Pour indexer uniquement les nouvelles données, utilisez la commande suivante :
 
 Plus d'informations sur la commande ``search_engine_manager`` sont disponibles
 sur la page `concernant la recherche sur Zeste de Savoir
-<../back-end/searchv2.html>`_.
+<../back-end/search.html>`_.

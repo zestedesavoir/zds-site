@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
-from zds.searchv2.utils import SearchIndexManager, get_all_indexable_classes
+from zds.search.utils import SearchIndexManager, get_all_indexable_classes
 
 
 class Command(BaseCommand):
