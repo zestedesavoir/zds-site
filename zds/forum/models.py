@@ -531,7 +531,7 @@ class Topic(AbstractSearchIndexableModel):
                 search_engine_manager = SearchIndexManager()
 
                 filter_by = SearchFilter()
-                filter_by.add_exact_filter("topic_pk", str(self.pk))
+                filter_by.add_exact_filter("topic_pk", [self.pk])
 
                 search_engine_manager.delete_by_query(Post.get_search_document_type(), {"filter_by": str(filter_by)})
                 search_engine_manager.delete_document(self)
