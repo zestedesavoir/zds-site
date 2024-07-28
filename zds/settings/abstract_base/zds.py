@@ -23,7 +23,7 @@ SEARCH_CONNECTION = {
         }
     ],
     "api_key": "xyz",
-    "connection_timeout_seconds": 2,
+    "connection_timeout_seconds": 5,
 }
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
