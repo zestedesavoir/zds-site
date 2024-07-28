@@ -144,7 +144,30 @@ class UtilsTests(TutorialTestMixin, TestCase):
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 0)  # ... but with nothing in it
 
-        # 4. test "index-flagged" once ...
+        # 4. test "index_flagged"
+        call_search_engine_manager_command("index_flagged")
+
+        topic = Topic.objects.get(pk=topic.pk)
+        post = Post.objects.get(pk=post.pk)
+
+        self.assertFalse(topic.search_engine_requires_index)
+        self.assertFalse(post.search_engine_requires_index)
+
+        published = PublishedContent.objects.get(content_pk=tuto.pk)
+        self.assertFalse(published.search_engine_requires_index)
+
+        results = self.search_engine_manager.search("*")
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 4)  # get the 4 results back
+
+        # 5. test "index_flagged" with something to update
+        topic.search_engine_requires_index = True
+        topic.save()
+        post.search_engine_requires_index = True
+        post.save()
+        published.search_engine_requires_index = True
+        published.save()
+
         call_search_engine_manager_command("index_flagged")
 
         topic = Topic.objects.get(pk=topic.pk)

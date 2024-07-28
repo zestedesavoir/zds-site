@@ -133,6 +133,17 @@ class SearchIndexManager:
             if force_reindexing and verbose:
                 print(*args, **kwargs)
 
+        def import_documents(objects, doc_type):
+            """'upsert' is the action that updates an existing document or
+            creates it, based on the 'id' field. We need this action, since
+            this function is called for initial indexing, but also to update
+            indexed records. See
+            https://typesense.org/docs/26.0/api/documents.html#index-multiple-documents
+            """
+            return self.engine.collections[doc_type].documents.import_(
+                [obj.get_document_source() for obj in objects], {"action": "upsert"}
+            )
+
         if not self.connected:
             return
 
@@ -163,10 +174,7 @@ class SearchIndexManager:
                         pks = [o.pk for o in objects]
                         doc_type = model.get_search_document_type()
 
-                    answer = self.engine.collections[doc_type].documents.import_(
-                        [obj.get_document_source() for obj in objects], {"action": "create"}
-                    )
-
+                    answer = import_documents(objects, doc_type)
                     error = None
                     for a in answer:
                         if "success" not in a or a["success"] is not True:
@@ -196,15 +204,24 @@ class SearchIndexManager:
                     if not objects:
                         break
 
-                    answer = self.engine.collections[doc_type].documents.import_(
-                        [obj.get_document_source() for obj in objects], {"action": "create"}
-                    )
-
+                    answer = import_documents(objects, doc_type)
                     error = None
                     for a in answer:
                         if "success" not in a or a["success"] is not True:
                             error = a
                             break
+
+                    """The error management is not done correctly here: if a
+                    batch contains only one error (for a single record), the
+                    whole batch isn't marked as not requiring indexation
+                    anymore and we move to the next batch.
+                    However, how to handle this properly isn't straightforward:
+                    what to do with bugged record: retry them? How many times?
+                    Should the next batch start just after the first bugged
+                    record?
+                    In practice, errors do not happen, and if so, missed
+                    records will be indexed during the next index_flagged.
+                    """
 
                     if error is not None:
                         self.logger.warn(f"Error when indexing {doc_type} objects: {error}.")
