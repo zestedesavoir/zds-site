@@ -1,6 +1,7 @@
 from copy import deepcopy
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.test.utils import override_settings
 
@@ -307,13 +308,38 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         if not self.manager.connected:
             return
 
+        group = Group.objects.create(name="DummyGroup_1")
+        self.user.groups.add(group)
+        self.user.save()
+
         _, other_forum = create_category_and_forum()
+        _, private_forum = create_category_and_forum(group)
 
         other_topic = TopicFactory(forum=other_forum, author=self.user)
         other_topic.save(search_engine_requires_index=False)
 
         topic = TopicFactory(forum=self.forum, author=self.user)
         topic.save(search_engine_requires_index=False)
+
+        private_topic = TopicFactory(forum=self.forum, author=self.user)
+        private_topic.save(search_engine_requires_index=True)
+
+        # index all topics
+        self.manager.indexing_of_model(Topic, force_reindexing=False)
+        results = self.manager.search("*")  # get all documents
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 1)
+
+        # Move the private topic to a private forum
+        private_topic = Topic.objects.get(pk=private_topic.pk)  # to get the search_engine_id
+        private_topic.forum = private_forum
+        private_topic.save()
+        private_topic.refresh_from_db()
+        self.assertTrue(private_topic.search_engine_requires_index)
+        # the topic was removed from the search engine:
+        results = self.manager.search("*")  # get all documents
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 0)
 
         # Rename the forum (changes forum_title)
         topic.save(search_engine_requires_index=False)
@@ -387,17 +413,43 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         if not self.manager.connected:
             return
 
+        group = Group.objects.create(name="DummyGroup_1")
+        self.user.groups.add(group)
+        self.user.save()
+
         _, other_forum = create_category_and_forum()
+        _, private_forum = create_category_and_forum(group)
+
+        private_topic = TopicFactory(forum=self.forum, author=self.user)
+        private_topic.save(search_engine_requires_index=True)
+        private_post = PostFactory(topic=private_topic, author=self.user, position=2)
+        private_post.save(search_engine_requires_index=True)
 
         topic = create_topic_in_forum(self.forum, self.user.profile)
-        topic.save()
+        topic.save(search_engine_requires_index=False)
         post = PostFactory(topic=topic, author=self.user, position=2)
         post.save(search_engine_requires_index=False)
 
         other_topic = create_topic_in_forum(self.forum, self.user.profile)
-        other_topic.save()
+        other_topic.save(search_engine_requires_index=False)
         other_post = PostFactory(topic=other_topic, author=self.user, position=2)
         other_post.save(search_engine_requires_index=False)
+
+        # index all posts
+        self.manager.indexing_of_model(Post, force_reindexing=False)
+        results = self.manager.search("*")  # get all documents
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 3)
+
+        # Move the private topic to a private forum
+        private_topic.forum = private_forum
+        private_topic.save()
+        private_topic.refresh_from_db()
+        self.assertTrue(private_topic.search_engine_requires_index)
+        # the post was removed from the search engine:
+        results = self.manager.search("*")  # get all documents
+        number_of_results = sum(result["found"] for result in results)
+        self.assertEqual(number_of_results, 2)
 
         # Move the topic to another forum (changes forum_pk)
         post.save(search_engine_requires_index=False)

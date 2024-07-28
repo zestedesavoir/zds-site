@@ -519,8 +519,23 @@ class Topic(AbstractSearchIndexableModel):
         except Topic.DoesNotExist:
             pass
         else:
-            if old_self.forum.pk != self.forum.pk or old_self.title != self.title:
-                Post.objects.filter(topic__pk=self.pk).update(search_engine_requires_index=True)
+            is_moved = old_self.forum.pk != self.forum.pk
+            posts = Post.objects.filter(topic__pk=self.pk)
+            if is_moved or old_self.title != self.title:
+                posts.update(search_engine_requires_index=True)
+
+            if is_moved and self.forum.groups is not None:
+                # Moved to a restricted forum, we remove it from the search
+                # engine, will be correctly reindexed later (this approach is
+                # simpler than updating everything in the search engine)
+                search_engine_manager = SearchIndexManager()
+
+                filter_by = SearchFilter()
+                filter_by.add_exact_filter("topic_pk", str(self.pk))
+
+                search_engine_manager.delete_by_query(Post.get_search_document_type(), {"filter_by": str(filter_by)})
+                search_engine_manager.delete_document(self)
+
         return super().save(*args, **kwargs)
 
     def _compute_search_weight(self):

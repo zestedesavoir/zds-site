@@ -121,7 +121,7 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     def __init__(self, *args, **kwargs):
         """Override to make the search engine document ID equal to the database primary key."""
         super().__init__(*args, **kwargs)
-        self.search_engine_id = str(self.pk)
+        self.search_engine_id = str(self.pk) if self.pk else None
 
     @classmethod
     def get_indexable_objects(cls, force_reindexing=False):
