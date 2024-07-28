@@ -11,7 +11,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "action", type=str, help="action to perform", choices=["setup", "clear", "index_all", "index_flagged"]
+            "action",
+            type=str,
+            help="action to perform (clear: remove everything, setup: clear + create schemes, index_all: setup + index everything, index_flagged: index only what is required)",
+            choices=["setup", "clear", "index_all", "index_flagged"],
         )
         parser.add_argument("-q", "--quiet", action="store_true", default=False)
 
@@ -34,7 +37,7 @@ class Command(BaseCommand):
 
     def index_documents(self, force_reindexing=False, quiet=False):
         if force_reindexing:
-            self.search_engine_manager.reset_index()  # remove all previous data
+            self.search_engine_manager.reset_index()  # remove all previous data and create schemes
 
         for model in get_all_indexable_classes(only_models=True):
             # Models takes care of indexing classes that are not models
