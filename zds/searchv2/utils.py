@@ -150,7 +150,6 @@ class SearchIndexManager:
         if not issubclass(model, AbstractSearchIndexableModel):
             return
 
-        objects_per_batch = getattr(model, "objects_per_batch", 100)
         indexed_counter = 0
         if model.__name__ == "PublishedContent":
             generate = model.get_indexable(force_reindexing)
@@ -190,14 +189,16 @@ class SearchIndexManager:
                         verbose_print("." * len(objects), end="", flush=True)
             verbose_print("")
         else:
-            then = time.time()
-            prev_obj_per_sec = False
+            objects_per_batch = getattr(model, "initial_search_index_batch_size", 1)
+            prev_obj_per_sec = None
             last_pk = 0
             object_source = model.get_indexable(force_reindexing)
             doc_type = model.get_search_document_type()
 
             while True:
                 with transaction.atomic():
+                    time_start = time.time()
+
                     # fetch a batch
                     objects = list(object_source.filter(pk__gt=last_pk)[:objects_per_batch])
 
@@ -231,24 +232,24 @@ class SearchIndexManager:
                         indexed_counter += len(objects)
 
                     # basic estimation of indexed objects per second
-                    now = time.time()
-                    last_batch_duration = int(now - then) or 1
-                    then = now
+                    time_end = time.time()
+                    last_batch_duration = time_end - time_start
                     obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
                     verbose_print(
                         f"    {indexed_counter} so far ({obj_per_sec} obj/s, batch size: {objects_per_batch})"
                     )
 
-                    if prev_obj_per_sec is False:
-                        prev_obj_per_sec = obj_per_sec
-                    else:
+                    if prev_obj_per_sec is not None:
                         ratio = obj_per_sec / prev_obj_per_sec
-                        # if we processed this batch 10% slower/faster than the previous one,
-                        # shrink/increase batch size
-                        if abs(1 - ratio) > 0.1:
-                            objects_per_batch = int(objects_per_batch * ratio)
+                        # if we processed this batch 20% slower/faster than the previous one, adjust batch size following exponential algorithm
+                        if ratio > 1.2 or (ratio < 0.8 and objects_per_batch > 1):
+                            if ratio > 1:
+                                # Performance was better, increase batch size to see if we can do even better with larger batch size:
+                                objects_per_batch *= 2
+                            else:
+                                objects_per_batch >> 1  # use >> 1 instead of / 2 to keep an int
                             verbose_print(f"     {round(ratio, 2)}x, new batch size: {objects_per_batch}")
-                        prev_obj_per_sec = obj_per_sec
+                    prev_obj_per_sec = obj_per_sec
 
                     last_pk = objects[-1].pk
 

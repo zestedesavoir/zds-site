@@ -183,7 +183,7 @@ class Topic(AbstractSearchIndexableModel):
     - Sticky: sticky topics are displayed on top of topic lists (ex: on forum page).
     """
 
-    objects_per_batch = 1000
+    initial_search_index_batch_size = 256
 
     class Meta:
         verbose_name = "Sujet"
@@ -567,7 +567,7 @@ class Post(Comment, AbstractSearchIndexableModel):
     displayed as is on front.
     """
 
-    objects_per_batch = 2000
+    initial_search_index_batch_size = 512
 
     topic = models.ForeignKey(Topic, verbose_name="Sujet", db_index=True, on_delete=models.CASCADE)
 
