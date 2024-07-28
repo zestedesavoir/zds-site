@@ -129,6 +129,10 @@ class SearchIndexManager:
         :rtype: int
         """
 
+        def verbose_print(*args, **kwargs):
+            if force_reindexing and verbose:
+                print(*args, **kwargs)
+
         if not self.connected:
             return
 
@@ -175,6 +179,8 @@ class SearchIndexManager:
                         # mark all these objects as indexed at once
                         model_to_update.objects.filter(pk__in=pks).update(search_engine_requires_index=False)
                         indexed_counter += len(objects)
+                        verbose_print("." * len(objects), end="", flush=True)
+            verbose_print("")
         else:
             then = time.time()
             prev_obj_per_sec = False
@@ -212,8 +218,9 @@ class SearchIndexManager:
                     last_batch_duration = int(now - then) or 1
                     then = now
                     obj_per_sec = round(float(objects_per_batch) / last_batch_duration, 2)
-                    if force_reindexing and verbose:
-                        print(f"    {indexed_counter} so far ({obj_per_sec} obj/s, batch size: {objects_per_batch})")
+                    verbose_print(
+                        f"    {indexed_counter} so far ({obj_per_sec} obj/s, batch size: {objects_per_batch})"
+                    )
 
                     if prev_obj_per_sec is False:
                         prev_obj_per_sec = obj_per_sec
@@ -223,8 +230,7 @@ class SearchIndexManager:
                         # shrink/increase batch size
                         if abs(1 - ratio) > 0.1:
                             objects_per_batch = int(objects_per_batch * ratio)
-                            if force_reindexing and verbose:
-                                print(f"     {round(ratio, 2)}x, new batch size: {objects_per_batch}")
+                            verbose_print(f"     {round(ratio, 2)}x, new batch size: {objects_per_batch}")
                         prev_obj_per_sec = obj_per_sec
 
                     last_pk = objects[-1].pk

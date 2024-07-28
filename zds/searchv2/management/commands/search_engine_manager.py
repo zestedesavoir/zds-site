@@ -36,16 +36,19 @@ class Command(BaseCommand):
             raise CommandError("unknown action {}".format(options["action"]))
 
     def index_documents(self, force_reindexing=False, quiet=False):
+        verbose = not quiet
+
         if force_reindexing:
             self.search_engine_manager.reset_index()  # remove all previous data and create schemes
 
         for model in get_all_indexable_classes(only_models=True):
-            # Models takes care of indexing classes that are not models
-            if force_reindexing:
+            # Models take care of indexing classes that are not models
+            if verbose:
                 self.stdout.write(f"- indexing {model.get_search_document_type()}s")
 
             indexed_counter = self.search_engine_manager.indexing_of_model(
-                model, force_reindexing=force_reindexing, verbose=not quiet
+                model, force_reindexing=force_reindexing, verbose=verbose
             )
-            if force_reindexing:
+
+            if verbose:
                 self.stdout.write(f"  {indexed_counter}\titems indexed")
