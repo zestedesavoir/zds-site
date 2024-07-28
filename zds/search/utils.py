@@ -255,26 +255,6 @@ class SearchIndexManager:
 
         return indexed_counter
 
-    def update_single_document(self, document, fields_values):
-        """Update given fields of a single document.
-
-        See https://typesense.org/docs/0.23.1/api/documents.html#update-a-document
-
-        :param document: the document to update
-        :type document: AbstractSearchIndexable
-        :param fields_values: fields to update
-        :type fields_values: dict
-        """
-
-        if not self.connected:
-            return
-
-        doc_type = document.get_search_document_type()
-        doc_id = document.search_engine_id
-        answer = self.engine.collections[doc_type].documents[doc_id].update(fields_values)
-        if not fields_values.items() <= answer.items():  # the expected answer returns the whole updated document
-            self.logger.warn(f"Error when updating: {answer}.")
-
     def delete_document(self, document):
         """Delete a given document
 
