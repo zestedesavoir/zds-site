@@ -30,7 +30,7 @@ def easy_tag(func):
         except TypeError:
             import inspect
 
-            args = inspect.getargspec(func).args[1:]
+            args = inspect.getfullargspec(func).args[1:]
 
             err_msg = 'Bad arguments for tag "{0}".\nThe tag "{0}" take {1} arguments ({2}).\n {3} were provided ({4}).'
             fstring = err_msg.format(split_arg[0], len(args), ", ".join(args), len(split_arg), ", ".join(split_arg))
