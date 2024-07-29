@@ -267,8 +267,11 @@ class SearchIndexManager:
 
         doc_type = document.get_search_document_type()
         doc_id = document.search_engine_id
-        if doc_id is None:
+
+        if doc_id is None or doc_type not in self.collections:
+            # This condition is here especially for tests
             return
+
         answer = self.engine.collections[doc_type].documents[doc_id].delete()
         if "id" not in answer or answer["id"] != doc_id:
             self.logger.warn(f"Error when deleting: {answer}.")
@@ -288,6 +291,10 @@ class SearchIndexManager:
         """
 
         if not self.connected:
+            return
+
+        if doc_type not in self.collections:
+            # This condition is here especially for tests
             return
 
         self.engine.collections[doc_type].documents.delete(query)
