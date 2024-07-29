@@ -239,7 +239,8 @@ class SearchIndexManager:
                         f"    {indexed_counter} so far ({obj_per_sec} obj/s, batch size: {objects_per_batch})"
                     )
 
-                    if prev_obj_per_sec is not None:
+                    if prev_obj_per_sec is not None and len(objects) == objects_per_batch:
+                        # we are not in the first neither in the last batch, let see if we should adjust batch size:
                         ratio = obj_per_sec / prev_obj_per_sec
                         # if we processed this batch 20% slower/faster than the previous one, adjust batch size following exponential algorithm
                         if ratio > 1.2 or (ratio < 0.8 and objects_per_batch > 1):
