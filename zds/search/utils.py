@@ -248,7 +248,7 @@ class SearchIndexManager:
                                 # Performance was better, increase batch size to see if we can do even better with larger batch size:
                                 objects_per_batch *= 2
                             else:
-                                objects_per_batch >>= 1  # use >> 1 instead of / 2 to keep an int
+                                objects_per_batch //= 2
                             verbose_print(f"     {round(ratio, 2)}x, new batch size: {objects_per_batch}")
                     prev_obj_per_sec = obj_per_sec
 
