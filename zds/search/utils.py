@@ -60,13 +60,16 @@ def get_all_indexable_classes(only_models=False):
 class SearchIndexManager:
     """Manage interactions with the search engine"""
 
-    def __init__(self):
+    def __init__(self, disable_timeout=False):
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
         self.engine = None
         self.connected = False
 
         if settings.SEARCH_ENABLED:
+            if disable_timeout:
+                settings.SEARCH_CONNECTION["connection_timeout_seconds"] = None
+
             self.engine = TypesenseClient(settings.SEARCH_CONNECTION)
 
             try:

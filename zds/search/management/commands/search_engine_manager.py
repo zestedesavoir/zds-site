@@ -21,7 +21,8 @@ class Command(BaseCommand):
         parser.add_argument("-q", "--quiet", action="store_true", default=False)
 
     def handle(self, *args, **options):
-        self.search_engine_manager = SearchIndexManager()
+        # Removing and indexing collections can take time, so disable timeout for management.
+        self.search_engine_manager = SearchIndexManager(disable_timeout=True)
 
         if not self.search_engine_manager.connected:
             raise Exception("Unable to connect to the search engine, aborting.")
