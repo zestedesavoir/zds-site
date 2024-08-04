@@ -48,6 +48,10 @@ class AbstractSearchIndexable:
         search_engine_schema = dict()
         search_engine_schema["name"] = self.get_search_document_type()
         search_engine_schema["fields"] = [{"name": ".*", "type": "auto"}]
+        search_engine_schema["symbols_to_index"] = [
+            "+",  # c++
+            "#",  # c#
+        ]
         return search_engine_schema
 
     @classmethod
