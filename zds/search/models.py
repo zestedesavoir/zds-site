@@ -65,7 +65,7 @@ class AbstractSearchIndexable:
 
         return []
 
-    def get_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=[]):
         """Create a document from the instance of the class, based on the schema.
 
         .. attention::
@@ -85,7 +85,7 @@ class AbstractSearchIndexable:
         data = {}
 
         for field in fields:
-            if excluded_fields and field in excluded_fields:
+            if field in excluded_fields:
                 data[field] = None
                 continue
 

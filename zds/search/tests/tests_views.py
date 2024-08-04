@@ -218,7 +218,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         content = json_handler.loads(result.content.decode("utf-8"))
         self.assertEqual(len(content["results"]), 0)
 
-    def test_hidden_post_are_not_result(self):
+    def test_hidden_post_are_not_in_results(self):
         """Hidden posts should not show up in the search results"""
 
         if not self.manager.connected:
@@ -250,7 +250,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         response = result.context["object_list"]
 
         self.assertEqual(len(response), 1)
-        self.assertEqual(response[0]["document"]["position"], post_1.position)
+        self.assertEqual(response[0]["document"]["get_absolute_url"], post_1.get_absolute_url())
         self.assertEqual(response[0]["document"]["topic_pk"], post_1.topic.pk)
 
         # 2. Hide, reindex and search again:

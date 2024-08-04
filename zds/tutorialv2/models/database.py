@@ -1031,21 +1031,19 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         search_engine_schema = super().get_search_document_schema()
 
         search_engine_schema["fields"] = [
-            {"name": "title", "type": "string", "facet": False},
-            {"name": "content_pk", "type": "int32", "facet": False},
-            {"name": "content_type", "type": "string", "facet": True},
-            {"name": "publication_date", "type": "int64", "facet": False},
-            {"name": "tags", "type": "string[]", "facet": True, "optional": True},
-            {"name": "tag_slugs", "type": "string[]", "facet": True, "optional": True},
-            {"name": "has_chapters", "type": "bool", "facet": False},
-            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},
-            {"name": "categories", "type": "string[]", "facet": True, "optional": True},
-            {"name": "text", "type": "string", "facet": False, "optional": True},
-            {"name": "description", "type": "string", "facet": False, "optional": True},
-            {"name": "picked", "type": "bool", "facet": False},
-            {"name": "get_absolute_url_online", "type": "string", "facet": False},
-            {"name": "thumbnail", "type": "string", "facet": False, "optional": True},
-            {"name": "weight", "type": "float", "facet": False},
+            {"name": "title", "type": "string", "facet": False},  # we search on it
+            {"name": "content_pk", "type": "int32", "facet": False},  # we filter on it
+            {"name": "content_type", "type": "string", "index": False},
+            {"name": "publication_date", "type": "int64", "index": False},
+            {"name": "tags", "type": "string[]", "facet": True, "optional": True},  # we search on it
+            {"name": "tag_slugs", "type": "string[]", "index": False, "optional": True},
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},  # we search on it
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},  # we search on it
+            {"name": "text", "type": "string", "facet": False, "optional": True},  # we search on it
+            {"name": "description", "type": "string", "facet": False, "optional": True},  # we search on it
+            {"name": "get_absolute_url_online", "type": "string", "index": False},
+            {"name": "thumbnail", "type": "string", "index": False, "optional": True},
+            {"name": "weight", "type": "float"},  # we sort on it
         ]
 
         return search_engine_schema
@@ -1105,9 +1103,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
     def get_document_source(self, excluded_fields=[]):
         """Overridden to handle the fact that most information are versioned"""
 
-        excluded_fields.extend(
-            ["title", "description", "tags", "categories", "text", "thumbnail", "picked", "publication_date", "weight"]
-        )
+        excluded_fields.extend(["title", "description", "tags", "categories", "text", "thumbnail", "publication_date"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
 
@@ -1116,7 +1112,6 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         data["title"] = versioned.title
         data["description"] = versioned.description
-        data["picked"] = self.content_type == "OPINION" and self.content.sha_picked is not None
         data["publication_date"] = date_to_timestamp_int(self.publication_date)
 
         data["tags"] = []
@@ -1139,36 +1134,33 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         if versioned.has_extracts():
             data["text"] = clean_html(versioned.get_content_online())
-            data["has_chapters"] = False
-        else:
-            data["has_chapters"] = True
 
         is_medium_big_tutorial = versioned.has_sub_containers()
-        data["weight"] = self._compute_search_weight(self.content_type, is_medium_big_tutorial, data["picked"])
+        data["weight"] = self._compute_search_weight(is_medium_big_tutorial)
 
         return data
 
-    def _compute_search_weight(self, type_content: str, is_medium_big_tutorial: bool, is_picked: bool):
+    def _compute_search_weight(self, is_medium_big_tutorial: bool):
         """
         This function calculates a weight for publishedcontent in order to sort them according to different boosts.
         There is a boost according to the type of content (article, opinion, tutorial),
         if it is a big tutorial or if it is picked.
         """
-        is_article = 1 if type_content == "ARTICLE" else 0
-        is_tutorial = 1 if type_content == "TUTORIAL" else 0
-        is_opinion = 1 if type_content == "OPINION" else 0
-        weight_article = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"]
-        weight_tutorial = (
-            settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_tutorial"]
-            if not is_medium_big_tutorial
-            else settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"]
-        )
-        weight_opinion = (
-            settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"]
-            if is_picked
-            else settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"]
-        )
-        return weight_article * is_article + weight_opinion * is_opinion + weight_tutorial * is_tutorial
+        weights = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]
+
+        if self.content_type == "ARTICLE":
+            return weights["if_article"]
+        elif self.content_type == "TUTORIAL":
+            if is_medium_big_tutorial:
+                return weights["if_medium_or_big_tutorial"]
+            else:
+                return weights["if_tutorial"]
+        else:
+            assert self.content_type == "OPINION"
+            if self.content.sha_picked is not None:
+                return weights["if_opinion"]
+            else:
+                return weights["if_opinion_not_picked"]
 
     @classmethod
     def get_search_query(cls):
@@ -1266,36 +1258,29 @@ class FakeChapter(AbstractSearchIndexable):
 
     @classmethod
     def get_search_document_schema(self):
-        """Define schema and parenting"""
         search_engine_schema = super().get_search_document_schema()
-        search_engine_schema["name"] = self.get_search_document_type()
 
         search_engine_schema["fields"] = [
-            {"name": "parent_id", "type": "string", "facet": False},
-            {"name": "title", "type": "string", "facet": False},
-            {"name": "parent_title", "type": "string"},
-            {"name": "subcategories", "type": "string[]", "facet": True},
-            {"name": "categories", "type": "string[]", "facet": True},
-            {"name": "parent_publication_date", "type": "int64", "facet": False},
-            {"name": "text", "type": "string", "facet": False},
-            {"name": "get_absolute_url_online", "type": "string", "facet": False},
-            {"name": "parent_get_absolute_url_online", "type": "string", "facet": False},
-            {"name": "thumbnail", "type": "string", "facet": False},
-            {"name": "weight", "type": "float", "facet": False},
+            {"name": "parent_id", "type": "string", "facet": False},  # we filter on it when content is removed
+            {"name": "title", "type": "string", "facet": False},  # we search on it
+            {"name": "parent_title", "type": "string", "index": False},
+            {"name": "parent_publication_date", "type": "int64", "index": False},
+            {"name": "text", "type": "string", "facet": False},  # we search on it
+            {"name": "get_absolute_url_online", "type": "string", "index": False},
+            {"name": "parent_get_absolute_url_online", "type": "string", "index": False},
+            {"name": "thumbnail", "type": "string", "index": False},
+            {"name": "weight", "type": "float", "facet": False},  # we sort on it
         ]
 
         return search_engine_schema
 
-    def get_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=[]):
         """Overridden to handle the fact that most information are versioned"""
 
-        excluded_fields = excluded_fields or []
-        excluded_fields.extend(["parent_publication_date", "text"])
+        excluded_fields.extend(["text"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
-
         data["parent_publication_date"] = date_to_timestamp_int(self.parent_publication_date)
-
         data["weight"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
         data["text"] = clean_html(self.text)
 

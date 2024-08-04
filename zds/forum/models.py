@@ -457,19 +457,16 @@ class Topic(AbstractSearchIndexableModel):
         search_engine_schema = super().get_search_document_schema()
 
         search_engine_schema["fields"] = [
-            {"name": "forum_pk", "type": "int32", "facet": False},
-            {"name": "title", "type": "string"},
-            {"name": "subtitle", "type": "string", "optional": True},
-            {"name": "forum_title", "type": "string", "facet": True},
-            {"name": "tags", "type": "string[]", "facet": True},
-            {"name": "tag_slugs", "type": "string[]", "facet": True, "optional": True},
-            {"name": "is_locked", "type": "bool"},
-            {"name": "is_solved", "type": "bool"},
-            {"name": "is_sticky", "type": "bool"},
-            {"name": "pubdate", "type": "int64", "facet": True},
-            {"name": "get_absolute_url", "type": "string"},
-            {"name": "forum_get_absolute_url", "type": "string"},
-            {"name": "weight", "type": "float", "facet": False},
+            {"name": "forum_pk", "type": "int32", "facet": False},  # we can filter on it
+            {"name": "title", "type": "string"},  # we search on it
+            {"name": "subtitle", "type": "string", "optional": True},  # we search on it
+            {"name": "forum_title", "type": "string", "index": False},
+            {"name": "tags", "type": "string[]", "facet": True},  # we search on it
+            {"name": "tag_slugs", "type": "string[]", "optional": True, "index": False},
+            {"name": "pubdate", "type": "int64", "index": False},
+            {"name": "get_absolute_url", "type": "string", "index": False},
+            {"name": "forum_get_absolute_url", "type": "string", "index": False},
+            {"name": "weight", "type": "float"},  # we sort on it
         ]
 
         return search_engine_schema
@@ -481,9 +478,8 @@ class Topic(AbstractSearchIndexableModel):
         query = super().get_indexable_objects(force_reindexing)
         return query.prefetch_related("tags").select_related("forum")
 
-    def get_document_source(self, excluded_fields=None):
-        excluded_fields = excluded_fields or []
-        excluded_fields.extend(["tags", "forum_pk", "forum_title", "forum_get_absolute_url", "pubdate", "weight"])
+    def get_document_source(self, excluded_fields=[]):
+        excluded_fields.extend(["tags", "pubdate"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
         data["tags"] = []
@@ -509,6 +505,7 @@ class Topic(AbstractSearchIndexableModel):
                 settings.ZDS_APP["search"]["boosts"]["topic"]["tags"],
             ),
             "filter_by": str(get_search_filter_authorized_forums(user)),
+            "sort_by": "weight:desc",
         }
 
     def save(self, *args, **kwargs):
@@ -608,18 +605,15 @@ class Post(Comment, AbstractSearchIndexableModel):
         search_engine_schema = super().get_search_document_schema()
 
         search_engine_schema["fields"] = [
-            {"name": "topic_pk", "type": "int64"},
-            {"name": "forum_pk", "type": "int64"},
-            {"name": "topic_title", "type": "string", "facet": True},
-            {"name": "forum_title", "type": "string", "facet": True},
-            {"name": "position", "type": "int64"},
-            {"name": "text", "type": "string"},
-            {"name": "is_useful", "type": "bool"},
-            {"name": "pubdate", "type": "int64"},
-            {"name": "get_absolute_url", "type": "string"},
-            {"name": "forum_get_absolute_url", "type": "string"},
-            {"name": "like_dislike_ratio", "type": "float"},
-            {"name": "weight", "type": "float", "facet": False},
+            {"name": "topic_pk", "type": "int64"},  # we filter on it when a topic is moved
+            {"name": "forum_pk", "type": "int64"},  # we can filter on it
+            {"name": "topic_title", "type": "string", "index": False},
+            {"name": "forum_title", "type": "string", "index": False},
+            {"name": "text", "type": "string"},  # we search on it
+            {"name": "pubdate", "type": "int64", "index": False},
+            {"name": "get_absolute_url", "type": "string", "index": False},
+            {"name": "forum_get_absolute_url", "type": "string", "index": False},
+            {"name": "weight", "type": "float", "facet": False},  # we sort on it
         ]
 
         return search_engine_schema
@@ -638,29 +632,12 @@ class Post(Comment, AbstractSearchIndexableModel):
 
         return q
 
-    def get_document_source(self, excluded_fields=None):
+    def get_document_source(self, excluded_fields=[]):
         """Overridden to handle the information of the topic"""
 
-        excluded_fields = excluded_fields or []
-        excluded_fields.extend(
-            [
-                "is_visible",
-                "like_dislike_ratio",
-                "topic_title",
-                "topic_pk",
-                "forum_title",
-                "forum_pk",
-                "forum_get_absolute_url",
-                "pubdate",
-                "weight",
-                "text",
-            ]
-        )
+        excluded_fields.extend(["pubdate", "text"])
 
         data = super().get_document_source(excluded_fields=excluded_fields)
-        data["like_dislike_ratio"] = (
-            (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
-        )
         data["topic_pk"] = self.topic.pk
         data["topic_title"] = self.topic.title
         data["forum_pk"] = self.topic.forum.pk
@@ -668,7 +645,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
         data["text"] = clean_html(self.text_html)
-        data["weight"] = self._compute_search_weight(data["like_dislike_ratio"])
+        data["weight"] = self._compute_search_weight()
 
         return data
 
@@ -680,7 +657,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         search_engine_manager = SearchIndexManager()
         search_engine_manager.delete_document(self)
 
-    def _compute_search_weight(self, like_dislike_ratio: float):
+    def _compute_search_weight(self):
         """
         This function calculates a weight for post in order to sort them according to different boosts.
         There is a boost according to the position, the usefulness and the ration of likes.
@@ -690,9 +667,13 @@ class Post(Comment, AbstractSearchIndexableModel):
         weight_ld_ratio_above_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_above_1"]
         weight_ld_ratio_below_1 = settings.ZDS_APP["search"]["boosts"]["post"]["ld_ratio_below_1"]
         weight_global = settings.ZDS_APP["search"]["boosts"]["post"]["global"]
+
+        like_dislike_ratio = (self.like / self.dislike) if self.dislike != 0 else self.like if self.like != 0 else 1
         is_ratio_above_1 = 1 if like_dislike_ratio >= 1 else 0
         is_ratio_below_1 = 1 - is_ratio_above_1
+
         is_first = 1 if self.position == 1 else 0
+
         return max(
             weight_first * is_first,
             weight_useful * self.is_useful,
@@ -711,6 +692,7 @@ class Post(Comment, AbstractSearchIndexableModel):
                 settings.ZDS_APP["search"]["boosts"]["post"]["text"],
             ),
             "filter_by": str(filter_by),
+            "sort_by": "weight:desc",
         }
 
 
