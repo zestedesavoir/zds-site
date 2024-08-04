@@ -1,3 +1,5 @@
+import time
+
 from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
 
@@ -41,8 +43,13 @@ class Command(BaseCommand):
         if force_reindexing:
             self.search_engine_manager.reset_index()  # remove all previous data and create schemes
 
+        global_start_time = time.time()
+
         for model in get_all_indexable_classes(only_models=True):
             # Models take care of indexing classes that are not models
+
+            model_start_time = time.time()
+
             if verbose:
                 self.stdout.write(f"- indexing {model.get_search_document_type()}s")
 
@@ -51,4 +58,9 @@ class Command(BaseCommand):
             )
 
             if verbose:
-                self.stdout.write(f"  {indexed_counter}\titems indexed")
+                duration = int(time.time() - model_start_time)
+                self.stdout.write(f"  {indexed_counter}\titems indexed in {duration//60}min{duration%60}s")
+
+        if verbose:
+            duration = int(time.time() - global_start_time)
+            self.stdout.write(f"All done in {duration//60}min{duration%60}s")
