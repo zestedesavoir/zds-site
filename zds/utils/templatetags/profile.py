@@ -59,13 +59,7 @@ def user_groups(user):
 @register.filter("state")
 def state(current_user):
     try:
-        try:
-            user_profile = current_user.profile
-        except AttributeError:
-            if isinstance(current_user, Profile):
-                user_profile = current_user
-            else:
-                raise
+        user_profile = current_user.profile
         if not user_profile.user.is_active:
             user_state = "DOWN"
         elif not user_profile.can_read_now():

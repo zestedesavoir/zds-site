@@ -43,7 +43,7 @@
                 <tr>
                     <td>
                         {% include "misc/member_item.part.html" with member=member avatar=True %}
-                        {% include 'misc/badge.part.html' with member=member long_badge=True %}
+                        {% include "misc/badge.part.html" with member=member.user long_badge=False %}
                     </td>
                     <td>{{ member.user.date_joined|format_date:True }}</td>
                     <td>{{ last_visit }}</td>
