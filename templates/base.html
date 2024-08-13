@@ -79,7 +79,7 @@
     <meta property="twitter:title" content="{{ title|safe }}">
     <meta property="twitter:description" content="{{ description|safe }}">
     <meta property="twitter:site" content="@{{app.site.name}}">
-    <meta property="twitter:creator" content="@{% block X_creator %}{{app.site.name}}{% endblock %}">
+    <meta property="twitter:creator" content="@{{app.site.name}}">
     <meta property="twitter:image" content="http://{{ meta_image }}">
 
     {% block DCMI_cards %}{% endblock %}
