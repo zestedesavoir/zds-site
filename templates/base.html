@@ -69,18 +69,18 @@
 
 
     {# X cards #}
-    <meta property="X:domain" content="{{app.site.url}}/">
-    {% if request.GET.Xcard == 'large' %}
-        <meta property="X:card" content="summary_large_image">
+    <meta property="twitter:domain" content="{{app.site.url}}/">
+    {% if request.GET.twittercard == 'large' %}
+        <meta property="twitter:card" content="summary_large_image">
     {% else %}
-        <meta property="X:card" content="summary">
+        <meta property="twitter:card" content="summary">
     {% endif %}
-    <meta property="X:url" content="{{app.site.url}}{{ request.path }}">
-    <meta property="X:title" content="{{ title|safe }}">
-    <meta property="X:description" content="{{ description|safe }}">
-    <meta property="X:site" content="@{{app.site.name}}">
-    <meta property="X:creator" content="@{% block X_creator %}{{app.site.name}}{% endblock %}">
-    <meta property="X:image" content="http://{{ meta_image }}">
+    <meta property="twitter:url" content="{{app.site.url}}{{ request.path }}">
+    <meta property="twitter:title" content="{{ title|safe }}">
+    <meta property="twitter:description" content="{{ description|safe }}">
+    <meta property="twitter:site" content="@{{app.site.name}}">
+    <meta property="twitter:creator" content="@{% block X_creator %}{{app.site.name}}{% endblock %}">
+    <meta property="twitter:image" content="http://{{ meta_image }}">
 
     {% block DCMI_cards %}{% endblock %}
 
