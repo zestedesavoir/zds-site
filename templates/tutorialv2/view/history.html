@@ -72,17 +72,17 @@
                             <ul class="unstyled-list">
                                 {% if content.sha_validation == commit.hexsha %}
                                     {% url "content:validation-view" pk=content.pk slug=content.slug as url_validation %}
-                                    <a href="{{ url_validation }}"><li>{% trans "Validation" %}</li></a>
+                                    <li><a href="{{ url_validation }}">{% trans "Validation" %}</a></li>
                                 {% endif %}
                                 {% if content.sha_beta == commit.hexsha %}
                                     {% url "content:beta-view" pk=content.pk slug=content.slug as url_beta %}
-                                    <a href="{{ url_beta }}"><li>{% trans "Bêta" %}</li></a>
+                                    <li><a href="{{ url_beta }}">{% trans "Bêta" %}</a></li>
                                 {% endif %}
                                 {% if content.sha_draft == commit.hexsha %}
-                                    <a href="{{ content.get_absolute_url }}"><li>{% trans "Brouillon" %}</li></a>
+                                    <li><a href="{{ content.get_absolute_url }}">{% trans "Brouillon" %}</a></li>
                                 {% endif %}
                                 {% if content.sha_public == commit.hexsha %}
-                                    <a href="{{ content.get_absolute_url_online }}"><li>{% trans "Publiée" %}</li></a>
+                                    <li><a href="{{ content.get_absolute_url_online }}">{% trans "Publiée" %}</a></li>
                                 {% endif %}
                             </ul>
                         {% endif %}
