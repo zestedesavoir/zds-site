@@ -1,10 +1,11 @@
+{% load get_item %}
 {% load i18n %}
 
 <a href="#exports-modal" class="open-modal ico-after gear blue"
    data-exports-id="{{ content.pk }}"
    data-exports-api="{% url "api:content:list_exports" content.pk %}"
    data-request-export-api="{% url "api:content:generate_export" content.pk %}">
-  {% trans "Exports du contenu" %}
+    {{ public_actions.messages|get_item:"export_content" }}
 </a>
 
 <div class="modal modal-flex" id="exports-modal" data-modal-close="Fermer">

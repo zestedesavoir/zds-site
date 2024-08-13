@@ -4,13 +4,7 @@ from django.urls import reverse
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests.factories import PublishableContentFactory, ValidationFactory
-
-
-def request_validation(content):
-    """Emulate a proper validation request."""
-    ValidationFactory(content=content, status="PENDING")
-    content.sha_validation = content.sha_draft
-    content.save()
+from zds.tutorialv2.tests.utils import request_validation
 
 
 @override_for_contents()
