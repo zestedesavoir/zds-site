@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase
@@ -169,6 +171,29 @@ class LoginTests(TestCase):
             follow=False,
         )
         self.assertContains(result, escape(LoginForm.error_messages["banned"]))
+
+    def test_previously_temp_banned_user(self):
+        """
+        Nominal case: correct username, activated user, correct password, previously temp banned user.
+        Expected: successful login, redirect to homepage.
+        """
+
+        # Equivalent to a previously temporary banned user
+        self.profile.can_read = False
+        self.profile.end_ban_read = datetime.now() - timedelta(days=30)
+        self.profile.save()
+
+        result = self.client.post(
+            self.login_url,
+            {
+                "username": self.correct_username,
+                "password": self.correct_password,
+            },
+            follow=True,
+        )
+
+        self.assertRedirects(result, reverse("homepage"))
+        self.assertTrue(self.client.session.get_expire_at_browser_close())
 
     def test_redirection_good_target(self):
         """Nominal case: redirection to an existing page with the parameter 'next'."""
