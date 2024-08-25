@@ -6,7 +6,10 @@ from django.db import models
 class CustomSession(AbstractBaseSession):
     """Custom session model to link each session to its user.
     This is necessary to list a user's sessions without having to browse all sessions.
-    Based on https://docs.djangoproject.com/en/4.2/topics/http/sessions/#example"""
+    Based on https://docs.djangoproject.com/en/4.2/topics/http/sessions/#example
+
+    This will create a table named utils_customsession and use it instead of
+    the table django_session. The content of the latest can be dropped."""
 
     account_id = models.IntegerField(null=True, db_index=True)
 
