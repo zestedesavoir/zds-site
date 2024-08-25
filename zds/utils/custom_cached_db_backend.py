@@ -1,4 +1,4 @@
-from django.contrib.sessions.backends.cached_db import SessionStore as DBStore
+from django.contrib.sessions.backends.cached_db import SessionStore as CachedDBStore
 from django.contrib.sessions.base_session import AbstractBaseSession
 from django.db import models
 
@@ -15,7 +15,7 @@ class CustomSession(AbstractBaseSession):
         return SessionStore
 
 
-class SessionStore(DBStore):
+class SessionStore(CachedDBStore):
     """Custom session store for the custom session model."""
 
     cache_key_prefix = "zds.utils.custom_cached_db_backend"
