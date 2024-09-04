@@ -115,7 +115,7 @@ ZDS_APP = {
         "social": {
             "mastodon": "https://framapiaf.org/@ZesteDeSavoir",
             "facebook": "https://www.facebook.com/ZesteDeSavoir",
-            "twitter": "https://twitter.com/ZesteDeSavoir",
+            "X": "https://x.com/ZesteDeSavoir",
             "github": "https://github.com/zestedesavoir/zds-site",
             "discord": "https://discord.com/invite/ue5MTKq",
         },

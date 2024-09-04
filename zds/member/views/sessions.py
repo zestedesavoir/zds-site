@@ -1,3 +1,6 @@
+from importlib import import_module
+
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -5,21 +8,24 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
 from zds.member.utils import get_geo_location_from_ip, get_info_from_user_agent
-from zds.utils.custom_cached_db_backend import CustomSession, SessionStore
 from zds.utils.paginator import ZdSPagingListView
+
+
+Session = import_module(settings.SESSION_ENGINE).CustomSession
+SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 
 
 class ListSessions(LoginRequiredMixin, ZdSPagingListView):
     """List the user's sessions with useful information (user agent, IP address, geolocation and last visit)."""
 
-    model = CustomSession
+    model = Session
     context_object_name = "sessions"
     template_name = "member/settings/sessions.html"
     paginate_by = 10
 
     def get_context_data(self, **kwargs):
         self.object_list = []
-        for session in CustomSession.objects.filter(account_id=self.request.user.pk).iterator():
+        for session in Session.objects.filter(account_id=self.request.user.pk).iterator():
             data = session.get_decoded()
             session_context = {
                 "session_key": session.session_key,

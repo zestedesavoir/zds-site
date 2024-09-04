@@ -2005,7 +2005,7 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
 
     def test_social_cards_without_image(self):
         """
-        Check that all cards are produce for social network twitter
+        Check that all cards are produce for social network X
         """
         # test access for guest user (bot of social network for example)
         self.client.logout()
