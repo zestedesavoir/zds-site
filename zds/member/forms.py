@@ -49,7 +49,7 @@ class LoginForm(AuthenticationForm):
             " <a href={}>Vous n’avez pas reçu le courriel d'activation ?</a>"
         ),
         "banned": _(
-            "Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur pour la raison suivante : "
+            "Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur pour la raison suivante : « {} »."
         ),
     }
 
@@ -83,10 +83,10 @@ class LoginForm(AuthenticationForm):
                 error_text,
                 code="inactive",
             )
-        elif not user.profile.is_banned():
-            ban_rationale = Ban.objects.filter(user=user).order_by("-pubdate")[0].note
+        elif user.profile.is_banned():
+            ban_rationale = Ban.objects.filter(user=user).order_by("-pubdate").first().note
             raise ValidationError(
-                self.error_messages["banned"] + ban_rationale,
+                self.error_messages["banned"].format(ban_rationale),
                 code="banned",
             )
 
