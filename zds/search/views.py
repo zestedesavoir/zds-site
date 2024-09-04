@@ -18,6 +18,9 @@ from zds.tutorialv2.models.database import FakeChapter, PublishedContent
 from zds.utils.paginator import ZdSPagingListView
 
 
+logger = logging.getLogger(__name__)
+
+
 class SimilarTopicsView(View):
     """
     This view allows you to suggest similar topics when creating a new topic on
@@ -58,7 +61,7 @@ class SimilarTopicsView(View):
                         }
                         results.append(result)
             else:
-                logging.getLogger(__name__).warning("SimilarTopicView called, but there is no 'topic' collection.")
+                logger.warning("SimilarTopicView called, but there is no 'topic' collection.")
 
         return JsonResponse({"results": results})
 
@@ -109,9 +112,7 @@ class SuggestionContentView(View):
                         }
                         results.append(result)
             else:
-                logging.getLogger(__name__).warning(
-                    "SuggestionContentView called, but there is no 'publishedcontent' collection."
-                )
+                logger.warning("SuggestionContentView called, but there is no 'publishedcontent' collection.")
 
         return JsonResponse({"results": results})
 
@@ -175,6 +176,13 @@ class SearchView(ZdSPagingListView):
                 "results"
             ]
             for i in range(len(search_results)):
+                if "error" in search_results[i]:
+                    logger.warning(f"Typesearch answered with an error: {search_results[i]['error']}")
+                    messages.warning(
+                        self.request, _(f"Le moteur de recherche a renvoyé une erreur: {search_results[i]['error']}")
+                    )
+                    break
+
                 if "hits" in search_results[i]:
                     for entry in search_results[i]["hits"]:
                         if "text_match" in entry:
