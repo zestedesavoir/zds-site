@@ -52,7 +52,7 @@ Un **contenu** est un agencement particulier de conteneurs et d'extraits. Il
 est décrit par des métadonnées (*metadata*), détaillées
 `ici <./contents_manifest.html>`__. Une de ces métadonnées est le type : article, tutoriel ou billet.
 
-Techniquement, le type n'a pas d'influencevsur la structure du contenu. On rencontre cependant
+Techniquement, le type n'a pas d'influence sur la structure du contenu. On rencontre cependant
 des structures typiques selon la longueur du contenu.
 
 Structure typique pour un contenu court :
