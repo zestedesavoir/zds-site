@@ -398,7 +398,6 @@ def load_contents(cli, size, fake, _type, *_, **__):
     nb_avg_containers_in_content = size
     nb_avg_extracts_in_content = size
 
-    is_articles = _type == "ARTICLE"
     is_tutorials = _type == "TUTORIAL"
     is_opinion = _type == "OPINION"
 
@@ -411,14 +410,11 @@ def load_contents(cli, size, fake, _type, *_, **__):
     # small introduction
     cli.stdout.write(f"À créer: {nb_contents:d} {textual_type}s", ending="")
 
-    if is_tutorials:
-        cli.stdout.write(
-            " ({:g} petits, {:g} moyens et {:g} grands)".format(
-                nb_contents * percent_mini, nb_contents * percent_medium, nb_contents * percent_big
-            )
+    cli.stdout.write(
+        " ({:g} petits, {:g} moyens et {:g} grands)".format(
+            nb_contents * percent_mini, nb_contents * percent_medium, nb_contents * percent_big
         )
-    else:
-        cli.stdout.write("")
+    )
 
     cli.stdout.write(
         " - {:g} en brouillon".format(
@@ -523,15 +519,9 @@ def load_contents(cli, size, fake, _type, *_, **__):
         versioned = content.load_version()
 
         generate_text_for_content(
-            current_size,
-            fake,
-            is_articles,
-            is_opinion,
-            nb_avg_containers_in_content,
-            nb_avg_extracts_in_content,
-            versioned,
+            current_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content, versioned
         )
-        # add some informations:
+        # add some information
         author = users[random.randint(0, nb_users - 1)].user
         content.authors.add(author)
         UserGalleryFactory(gallery=content.gallery, mode="W", user=author)
@@ -573,18 +563,19 @@ def validate_edited_content(content, fake, nb_staffs, staffs, to_do, versioned):
     content.save()
 
 
-def generate_text_for_content(
-    current_size, fake, is_articles, is_opinion, nb_avg_containers_in_content, nb_avg_extracts_in_content, versioned
-):
-    if current_size == 0 or is_articles or is_opinion:
-        for _ in range(random.randint(1, nb_avg_extracts_in_content * 2)):
-            ExtractFactory(container=versioned, title=fake.text(max_nb_chars=60), light=False)
+def generate_text_for_content(content_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content, versioned):
+    if content_size == 0:
+        nb_extracts = random.randint(1, nb_avg_extracts_in_content * 2)
+        for _ in range(nb_extracts):
+            extract_title = fake.text(max_nb_chars=60)
+            ExtractFactory(container=versioned, title=extract_title, light=False)
     else:
-        for _ in range(random.randint(1, nb_avg_containers_in_content * 2)):
-            container = ContainerFactory(parent=versioned, title=fake.text(max_nb_chars=60))
-
+        nb_containers = random.randint(1, nb_avg_containers_in_content * 2)
+        for _ in range(nb_containers):
+            container_title = fake.text(max_nb_chars=60)
+            container = ContainerFactory(parent=versioned, title=container_title)
             handle_content_with_chapter_and_parts(
-                container, current_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content
+                container, content_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content
             )
 
 
@@ -599,17 +590,23 @@ def publish_opinion(content, action_flag, versioned):
 
 
 def handle_content_with_chapter_and_parts(
-    container, current_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content
+    container, size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content
 ):
-    if current_size == 1:  # medium size tutorial
-        for k in range(random.randint(1, nb_avg_extracts_in_content * 2)):
-            ExtractFactory(container=container, title=fake.text(max_nb_chars=60), light=False)
+    if size == 1:  # medium size tutorial
+        nb_of_extracts = random.randint(1, nb_avg_extracts_in_content * 2)
+        for k in range(nb_of_extracts):
+            extract_title = fake.text(max_nb_chars=60)
+            ExtractFactory(container=container, title=extract_title, light=False)
     else:  # big-size tutorial
-        for k in range(random.randint(1, nb_avg_containers_in_content * 2)):
-            subcontainer = ContainerFactory(parent=container, title=fake.text(max_nb_chars=60))
+        nb_of_containers = random.randint(1, nb_avg_containers_in_content * 2)
+        for _ in range(nb_of_containers):
+            subcontainer_title = fake.text(max_nb_chars=60)
+            subcontainer = ContainerFactory(parent=container, title=subcontainer_title)
 
-            for m in range(random.randint(1, nb_avg_extracts_in_content * 2)):
-                ExtractFactory(container=subcontainer, title=fake.text(max_nb_chars=60), light=False)
+            nb_of_extracts = random.randint(1, nb_avg_extracts_in_content * 2)
+            for _ in range(nb_of_extracts):
+                extract_title = fake.text(max_nb_chars=60)
+                ExtractFactory(container=subcontainer, title=extract_title, light=False)
 
 
 ZDSResource = collections.namedtuple("zdsresource", ["name", "description", "callback", "extra_args"])
