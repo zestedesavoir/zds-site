@@ -1,6 +1,6 @@
-=========================
-Les tutoriels et articles
-=========================
+================================
+Les tutoriels, articles, billets
+================================
 
 Vocabulaire et définitions
 ==========================
@@ -50,56 +50,54 @@ Un contenu
 
 Un **contenu** est un agencement particulier de conteneurs et d'extraits. Il
 est décrit par des métadonnées (*metadata*), détaillées
-`ici <./contents_manifest.html>`__. Une de ces métadonnées est le type : article
-ou tutoriel. Leur visée pédagogique diffère, mais aussi leur structure : un
-article ne peut comporter de conteneurs, seulement des extraits, ce qui n'est
-pas le cas d'un tutoriel.
+`ici <./contents_manifest.html>`__. Une de ces métadonnées est le type : article, tutoriel ou billet.
 
-Les exemples suivants devraient éclairer ces notions.
+Techniquement, le type n'a pas d'influence sur la structure du contenu. On rencontre cependant
+des structures typiques selon la longueur du contenu.
 
-Communément appelé « mini-tutoriel » :
+Structure typique pour un contenu court :
 
 .. sourcecode:: none
 
-    + Tutoriel
+    + Contenu
         + Section
         + Section
         + Section
 
-Communément appelé « moyen-tutoriel » :
+Structure typique pour un contenu de taille moyenne :
+
+.. sourcecode:: none
+
+    + Contenu
+        + Partie
+            + Section
+        + Partie
+            + Section
+            + Section
+
+Structure typique pour un contenu long :
+
+.. sourcecode:: none
+
+    + Contenu
+        + Partie
+            + Chapitre
+                + Section
+                + Section
+            + Chapitre
+                + Section
+        + Partie
+            + Chapitre
+                + Section
+                + Section
+
+Des structures plus complexes sont possibles, avec des niveaux de conteneurs différents selon les parties :
 
 .. sourcecode:: none
 
     + Tutoriel
         + Partie
             + Section
-        + Partie
-            + Section
-            + Section
-
-Communément appelé « big-tutoriel » :
-
-.. sourcecode:: none
-
-    + Tutoriel
-        + Partie
-            + Chapitre
-                + Section
-                + Section
-            + Chapitre
-                + Section
-        + Partie
-            + Chapitre
-                + Section
-                + Section
-
-On peut aussi faire un mélange des conteneurs :
-
-.. sourcecode:: none
-
-    + Tutoriel
-        + Partie
-            + Section
             + Section
         + Partie
             + Chapitre
@@ -107,7 +105,7 @@ On peut aussi faire un mélange des conteneurs :
             + Chapitre
                 + Section
 
-Mais pas de conteneurs et d'extraits adjacents :
+Il n'est pas possible d'avoir à la fois des conteneurs et des extraits au même niveau :
 
 .. sourcecode:: none
 
@@ -121,15 +119,6 @@ Mais pas de conteneurs et d'extraits adjacents :
             + Chapitre
                 + Section
             + Section /!\ Impossible !
-
-Pour finir, un article. Même structure qu'un mini-tutoriel, mais vocation
-pédagogique différente :
-
-.. sourcecode:: none
-
-    + Article
-        + Section
-        + Section
 
 D'autre part, tout contenu se voit attribuer un identifiant unique sous la
 forme d'un entier naturel (en anglais : *pk*, pour *primary key*). Cet

@@ -177,14 +177,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertNotContains(resp, "{}?subcategory=".format(reverse("publication:list")))
         self.assertContains(resp, "{}?category=".format(reverse("opinion:list")))
 
-    def test_no_help_for_tribune(self):
-        self.client.force_login(self.user_author)
-
-    def test_help_for_article(self):
-        self.client.force_login(self.user_author)
-        resp = self.client.get(reverse("content:create-content", kwargs={"created_content_type": "ARTICLE"}))
-        self.assertEqual(200, resp.status_code)
-
     def test_opinion_publication_staff(self):
         """
         Test the publication of PublishableContent where type is OPINION (with staff).

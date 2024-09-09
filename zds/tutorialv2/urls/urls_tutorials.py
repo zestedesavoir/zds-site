@@ -8,17 +8,12 @@ from zds.tutorialv2.views.display import TutorialOnlineView, ContainerOnlineView
 from zds.tutorialv2.views.redirect import RedirectContentSEO, RedirectOldBetaTuto
 from zds.tutorialv2.feeds import LastTutorialsFeedRSS, LastTutorialsFeedATOM
 
-
-urlpatterns = [
-    # flux
+feed_patterns = [
     path("flux/rss/", LastTutorialsFeedRSS(), name="feed-rss"),
     path("flux/atom/", LastTutorialsFeedATOM(), name="feed-atom"),
-    # view
-    path(
-        "<int:pk>/<slug:slug>/<int:p2>/<slug:parent_container_slug>/<int:p3>/<slug:container_slug>/",
-        RedirectContentSEO.as_view(),
-        name="redirect_old_tuto",
-    ),
+]
+
+display_patterns = [
     path(
         "<int:pk>/<slug:slug>/<slug:parent_container_slug>/<slug:container_slug>/",
         ContainerOnlineView.as_view(),
@@ -26,15 +21,17 @@ urlpatterns = [
     ),
     path("<int:pk>/<slug:slug>/<slug:container_slug>/", ContainerOnlineView.as_view(), name="view-container"),
     path("<int:pk>/<slug:slug>/", TutorialOnlineView.as_view(), name="view"),
-    # downloads:
+]
+
+download_patterns = [
     path("md/<int:pk>/<slug:slug>.md", DownloadOnlineTutorial.as_view(requested_file="md"), name="download-md"),
     path("pdf/<int:pk>/<slug:slug>.pdf", DownloadOnlineTutorial.as_view(requested_file="pdf"), name="download-pdf"),
     path("epub/<int:pk>/<slug:slug>.epub", DownloadOnlineTutorial.as_view(requested_file="epub"), name="download-epub"),
     path("zip/<int:pk>/<slug:slug>.zip", DownloadOnlineTutorial.as_view(requested_file="zip"), name="download-zip"),
     path("tex/<int:pk>/<slug:slug>.tex", DownloadOnlineTutorial.as_view(requested_file="tex"), name="download-tex"),
-    #  Old beta url compatibility
-    path("beta/<int:pk>/<slug:slug>/", RedirectOldBetaTuto.as_view(), name="old-beta-url"),
-    # Listing
+]
+
+listing_patterns = [
     path("", RedirectView.as_view(pattern_name="publication:list", permanent=True)),
     path("tags/", TagsListView.as_view(displayed_types=["TUTORIAL"]), name="tags"),
     path(
@@ -48,3 +45,14 @@ urlpatterns = [
         name="find-contributions-tutorial",
     ),
 ]
+
+redirect_patterns = [
+    path(
+        "<int:pk>/<slug:slug>/<int:p2>/<slug:parent_container_slug>/<int:p3>/<slug:container_slug>/",
+        RedirectContentSEO.as_view(),
+        name="redirect_old_tuto",
+    ),
+    path("beta/<int:pk>/<slug:slug>/", RedirectOldBetaTuto.as_view(), name="old-beta-url"),
+]
+
+urlpatterns = feed_patterns + display_patterns + download_patterns + listing_patterns + redirect_patterns
