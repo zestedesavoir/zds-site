@@ -592,12 +592,12 @@ def publish_opinion(content, action_flag, versioned):
 def handle_content_with_chapter_and_parts(
     container, size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content
 ):
-    if size == 1:  # medium size tutorial
+    if size == 1:  # medium size content
         nb_of_extracts = random.randint(1, nb_avg_extracts_in_content * 2)
         for k in range(nb_of_extracts):
             extract_title = fake.text(max_nb_chars=60)
             ExtractFactory(container=container, title=extract_title, light=False)
-    else:  # big-size tutorial
+    else:  # big-size content
         nb_of_containers = random.randint(1, nb_avg_containers_in_content * 2)
         for _ in range(nb_of_containers):
             subcontainer_title = fake.text(max_nb_chars=60)
