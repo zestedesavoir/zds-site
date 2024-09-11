@@ -4,7 +4,7 @@ from django.views.generic.base import RedirectView
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contents import (
-    CreateContent,
+    CreateContentView,
     EditContent,
     DeleteContent,
     EditTitle,
@@ -168,7 +168,7 @@ urlpatterns = (
         # typo:
         path("reactions/typo/", WarnTypo.as_view(), name="warn-typo"),
         # create:
-        path("nouveau-contenu/<str:created_content_type>/", CreateContent.as_view(), name="create-content"),
+        path("nouveau-contenu/<str:created_content_type>/", CreateContentView.as_view(), name="create-content"),
         path(
             "nouveau-conteneur/<int:pk>/<slug:slug>/<slug:container_slug>/",
             CreateContainer.as_view(),

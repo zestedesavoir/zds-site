@@ -14,7 +14,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, FormView
 
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
@@ -40,25 +40,15 @@ from zds.tutorialv2.models import CONTENT_TYPE_LIST
 logger = logging.getLogger(__name__)
 
 
-class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
-    """
-    Handle content creation. Since v22 a licence must be explicitly selected
-    instead of defaulting to "All rights reserved". Users can however
-    set a default licence in their profile.
-    """
-
+class CreateContentView(LoggedWithReadWriteHability, FormView):
     template_name = "tutorialv2/create/content.html"
     model = PublishableContent
     form_class = ContentForm
-    content = None
-    created_content_type = "TUTORIAL"
 
     def get_form(self, form_class=ContentForm):
         form = super().get_form(form_class)
         content_type = self.kwargs["created_content_type"]
-        if content_type in CONTENT_TYPE_LIST:
-            self.created_content_type = content_type
-        form.initial["type"] = self.created_content_type
+        form.initial["type"] = content_type if content_type in CONTENT_TYPE_LIST else "TUTORIAL"
         return form
 
     def get_context_data(self, **kwargs):
@@ -88,12 +78,7 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         self.content.ensure_author_gallery()
 
         # Create a new git repository
-        init_new_repo(
-            self.content,
-            form.cleaned_data["introduction"],
-            form.cleaned_data["conclusion"],
-            form.cleaned_data["msg_commit"],
-        )
+        init_new_repo(self.content)
 
         return super().form_valid(form)
 

@@ -507,7 +507,7 @@ def fill_containers_from_json(json_sub, parent):
                 raise BadManifestError(_("Type d'objet inconnu : « {} »").format(child["object"]))
 
 
-def init_new_repo(db_object, introduction_text, conclusion_text, commit_message="", do_commit=True):
+def init_new_repo(db_object, introduction_text="", conclusion_text="", commit_message="", do_commit=True):
     """Create a new repository in ``settings.ZDS_APP['contents']['private_repo']``\
      to store the files for a new content. Note that ``db_object.sha_draft`` will be set to the good value
 
