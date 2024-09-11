@@ -19,11 +19,7 @@ from django.views.generic import DeleteView, FormView
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
-from zds.tutorialv2.forms import (
-    ContentForm,
-    FormWithTitle,
-    EditContentForm,
-)
+from zds.tutorialv2.forms import ContentForm, FormWithTitle
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
     SingleContentViewMixin,
@@ -84,62 +80,6 @@ class CreateContentView(LoggedWithReadWriteHability, FormView):
 
     def get_success_url(self):
         return reverse("content:view", args=[self.content.pk, self.content.slug])
-
-
-class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
-    template_name = "tutorialv2/edit/content.html"
-    model = PublishableContent
-    form_class = EditContentForm
-
-    def get_initial(self):
-        """rewrite function to pre-populate form"""
-        initial = super().get_initial()
-        versioned = self.versioned_object
-
-        initial["introduction"] = versioned.get_introduction()
-        initial["conclusion"] = versioned.get_conclusion()
-        initial["subcategory"] = self.object.subcategory.all()
-        initial["last_hash"] = versioned.compute_hash()
-
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if "preview" not in self.request.POST:
-            context["gallery"] = self.object.gallery
-
-        return context
-
-    def form_valid(self, form):
-        versioned = self.versioned_object
-        publishable = self.object
-
-        # check if content has changed:
-        current_hash = versioned.compute_hash()
-        if current_hash != form.cleaned_data["last_hash"]:
-            data = form.data.copy()
-            data["last_hash"] = current_hash
-            data["introduction"] = versioned.get_introduction()
-            data["conclusion"] = versioned.get_conclusion()
-            form.data = data
-            messages.error(self.request, _("Une nouvelle version a été postée avant que vous ne validiez."))
-            return self.form_invalid(form)
-
-        publishable.update_date = datetime.now()
-
-        # now, update the versioned information
-        sha = versioned.repo_update_top_container(
-            publishable.title,
-            publishable.slug,
-            form.cleaned_data["introduction"],
-            form.cleaned_data["conclusion"],
-            form.cleaned_data["msg_commit"],
-        )
-        publishable.sha_draft = sha
-        publishable.save()
-
-        self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])
-        return super().form_valid(form)
 
 
 class EditTitleForm(FormWithTitle):
