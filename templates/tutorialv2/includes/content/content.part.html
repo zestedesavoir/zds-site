@@ -15,7 +15,7 @@
         <p>
             {% trans "Il n’y a pas d’introduction." %}
             {% if display_config.draft_actions.enable_edit %}
-                {% trans "Vous pouvez " %}<a href="{% url "content:edit-conclusion" content.pk %}">{% trans "en ajouter une" %}</a>.
+                {% trans "Vous pouvez " %}<a href="{% url "content:edit-introduction" content.pk %}">{% trans "en ajouter une" %}</a>.
             {% endif %}
         </p>
     </div>

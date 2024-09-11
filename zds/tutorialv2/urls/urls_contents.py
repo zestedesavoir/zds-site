@@ -3,7 +3,13 @@ from django.views.generic.base import RedirectView
 
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
-from zds.tutorialv2.views.contents import CreateContentView, DeleteContent, EditTitle, EditSubtitle
+from zds.tutorialv2.views.contents import (
+    CreateContentView,
+    DeleteContent,
+    EditTitle,
+    EditSubtitle,
+    EditIntroductionView,
+)
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
@@ -212,11 +218,7 @@ urlpatterns = (
         path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
         path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
         path("modifier-miniature/<int:pk>/", EditThumbnailView.as_view(), name="edit-thumbnail"),
-        path(
-            "modifier-introduction/<int:pk>/",
-            ContentDraftView.as_view(public_is_prioritary=False),
-            name="edit-introduction",
-        ),
+        path("modifier-introduction/<int:pk>/", EditIntroductionView.as_view(), name="edit-introduction"),
         path(
             "modifier-conclusion/<int:pk>/",
             ContentDraftView.as_view(public_is_prioritary=False),

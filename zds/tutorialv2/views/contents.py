@@ -3,12 +3,12 @@ from datetime import datetime
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Layout, Field, HTML, Div
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.forms import forms, CharField
+from django.forms import forms, CharField, Textarea
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -23,10 +23,12 @@ from zds.tutorialv2.forms import ContentForm, FormWithTitle
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
     SingleContentViewMixin,
+    FormWithPreview,
 )
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
+from zds.utils.forms import IncludeEasyMDE
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
@@ -228,6 +230,86 @@ class EditSubtitle(LoginRequiredMixin, SingleContentFormViewMixin):
             versioned_content.get_introduction(),
             versioned_content.get_conclusion(),
             f"Nouveau sous-titre ({subtitle})",
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
+
+
+class EditIntroductionForm(forms.Form):
+    introduction = CharField(
+        label=_("Introduction"),
+        required=False,
+        widget=Textarea(
+            attrs={"placeholder": _("Votre introduction, au format Markdown."), "class": "md-editor preview-source"}
+        ),
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_action = reverse("content:edit-introduction", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            IncludeEasyMDE(),
+            Field("introduction"),
+            Div(
+                StrictButton(_("Modifier"), type="submit"),
+                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            ),
+            HTML(
+                """{% if form.introduction.value %}{% include "misc/preview.part.html" with text=form.introduction.value %}{% endif %}"""
+            ),
+        )
+
+
+class EditIntroductionView(LoginRequiredMixin, SingleContentFormViewMixin, FormWithPreview):
+    model = PublishableContent
+    form_class = EditIntroductionForm
+    template_name = "tutorialv2/edit/introduction.html"
+    success_message = _("L'introduction de la publication a bien été changée.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "preview" not in self.request.POST:
+            context["gallery"] = self.object.gallery
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        introduction = self.versioned_object.get_introduction()
+        initial["introduction"] = introduction
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+        sha = self.update_introduction_in_repository(publishable, versioned, form.cleaned_data["introduction"])
+        self.update_sha_draft(publishable, sha)
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("content:view", args=[self.object.pk, self.object.slug])
+
+    @staticmethod
+    def update_introduction_in_repository(publishable_content, versioned_content, introduction):
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            introduction,
+            versioned_content.get_conclusion(),
+            "Modification de l'introduction",
         )
         return sha
 
