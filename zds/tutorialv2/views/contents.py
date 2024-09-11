@@ -23,7 +23,6 @@ from zds.tutorialv2.forms import ContentForm, FormWithTitle
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
     SingleContentViewMixin,
-    FormWithPreview,
 )
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
