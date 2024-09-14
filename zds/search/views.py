@@ -125,6 +125,7 @@ class SearchView(ZdSPagingListView):
 
     search_form = None
     search_query = None
+    has_more_results = False
 
     def get(self, request, *args, **kwargs):
         """Overridden to catch the request and fill the form."""
@@ -165,11 +166,36 @@ class SearchView(ZdSPagingListView):
                 searches[collection]["collection"] = collection
                 search_requests["searches"].append(searches[collection])
 
+            """
+            Here, we reach a limitation of multicollection search of Typesense.
+            We need to search in each collection, then merge the results,
+            compute the final_score and finally sort according to the score.
+            If we want to be able to show all results, we need to loop over the
+            number of pages of search results found by Typesense, making a
+            Typesense request in each iteration. Then we need to take into
+            account which page of results the user requested. The simplest is
+            to fetch all pages from Typesense, sort all results and then send
+            the slice corresponding to the page requested by the user. However,
+            this is a considerable waste of resources: fetching many data while
+            we need only a small subset of it.
+
+            For all this reasons, we choose to set a maximum of 250 results per
+            collection. We still paginate the results presented to the user. If
+            the user has to go the last page of the 250x#collections, it
+            probably means they should refine their search query...
+
+            Having a 1:1 relationship between pages returned by Typesense and
+            pages sent to the user would probably be possible if all data we
+            can search in were in only one collection.
+            """
+
             common_search_params = {
                 "q": self.search_query,
                 # Indicates that the last word in the query should be treated as a prefix, and not as a whole word:
                 "prefix": "false",
                 "highlight_start_tag": '<mark class="highlighted">',
+                "per_page": 250,  # this is the maximum
+                "page": "1",
             }
 
             search_results = search_engine_manager.engine.multi_search.perform(search_requests, common_search_params)[
@@ -199,6 +225,9 @@ class SearchView(ZdSPagingListView):
 
                             result.append(entry)
 
+                    if not self.has_more_results and search_results[i]["found"] > common_search_params["per_page"]:
+                        self.has_more_results = True
+
             result.sort(key=lambda result: result["document"]["final_score"], reverse=True)
 
         return result
@@ -207,6 +236,7 @@ class SearchView(ZdSPagingListView):
         context = super().get_context_data(**kwargs)
         context["form"] = self.search_form
         context["has_query"] = self.search_query is not None
+        context["has_more_results"] = self.has_more_results
         return context
 
 

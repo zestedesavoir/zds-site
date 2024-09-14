@@ -51,6 +51,12 @@
                     </article>
                     {% endfor %}
                 </div>
+
+                {% if paginator.num_pages > 1 and not page_obj.has_next and has_more_results %}
+                    <div class="align-center">
+                        {% trans "Vous êtes sur la dernière page des résultats. Il y a plus de résultats, mais nous vous conseillons plutôt d'affiner les termes de votre recherche." %}
+                    </div>
+                {% endif %}
             {% else %}
                 <p>
                     {% trans "Aucun résultat trouvé." %}

@@ -138,6 +138,10 @@ nav {
     }
 }
 
+.align-center {
+    text-align: center;
+}
+
 @include desktop {
     body {
         min-height: 100%;

@@ -1,5 +1,6 @@
 from copy import deepcopy
 import datetime
+from math import ceil
 
 from django.conf import settings
 from django.contrib.auth.models import Group
@@ -140,6 +141,58 @@ class ViewsTests(TutorialTestMixin, TestCase):
                     r["collection"], settings.ZDS_APP["search"]["search_groups"][doc_type][1]
                 )  # … and only of the right type …
                 self.assertEqual(r["document"]["id"], ids[doc_type][i])  # … with the right id !
+
+    def test_search_many_pages(self):
+        if not self.manager.connected:
+            return
+
+        text = "foo"
+        url = reverse("search:query") + "?q=" + text
+        results_per_page = settings.ZDS_APP["search"]["results_per_page"]
+
+        # 1. There are less than 250 results per collection
+        nb_topics = 150
+        nb_pages = ceil(2 * nb_topics / results_per_page)
+
+        for i in range(nb_topics):
+            topic = TopicFactory(forum=self.forum, author=self.user, title=text)
+            post = PostFactory(topic=topic, author=self.user, position=1)
+            post.text = post.text_html = text
+            post.save()
+
+        self._index_everything()
+
+        result = self.client.get(url, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.context["paginator"].num_pages, nb_pages)
+        self.assertEqual(len(result.context["object_list"]), results_per_page)
+
+        result = self.client.get(f"{url}&page={nb_pages}", follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context["object_list"]), 2 * nb_topics - (nb_pages - 1) * results_per_page)
+        self.assertFalse(result.context["has_more_results"])
+
+        # 2. There are more than 250 results per collection
+        nb_pages = ceil(2 * min(2 * nb_topics, 250) / results_per_page)
+
+        # Append 150 new topics, making it > 250
+        for i in range(nb_topics):
+            topic = TopicFactory(forum=self.forum, author=self.user, title=text)
+            post = PostFactory(topic=topic, author=self.user, position=1)
+            post.text = post.text_html = text
+            post.save()
+
+        self._index_everything()
+
+        result = self.client.get(url, follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.context["paginator"].num_pages, nb_pages)
+        self.assertEqual(len(result.context["object_list"]), results_per_page)
+
+        result = self.client.get(f"{url}&page={nb_pages}", follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context["object_list"]), results_per_page)
+        self.assertTrue(result.context["has_more_results"])
 
     def test_invalid_search(self):
         if not self.manager.connected:
