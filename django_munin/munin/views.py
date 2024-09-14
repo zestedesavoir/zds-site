@@ -4,6 +4,7 @@ import time
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from .helpers import muninview
 from .models import Test
 
@@ -14,10 +15,16 @@ Session = import_module(settings.SESSION_ENGINE).CustomSession
 
 @muninview(
     config="""graph_title Total Users
-graph_vlabel users"""
+graph_vlabel users
+graph_args --lower-limit 0
+graph_scale no"""
 )
 def total_users(request):
-    return [("users", User.objects.all().count())]
+    return [
+        ("users", User.objects.all().count()),
+        ("confirmed_users", User.objects.filter(is_active=True).count()),
+        ("logged_once_users", User.objects.filter(~Q(last_login=None)).count()),
+    ]
 
 
 @muninview(

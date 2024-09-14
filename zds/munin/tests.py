@@ -12,6 +12,7 @@ class Munin(TestCase):
             "base:total-sessions",
             "base:active-sessions",
             "base:db-performance",
+            "banned-users",
             "total-topics",
             "total-posts",
             "total-mp",
@@ -44,3 +45,18 @@ class Munin(TestCase):
 
         response = self.client.get(reverse("munin:base:total-sessions"))
         self.assertEqual(response.content.decode(), "sessions 1")
+
+    def test_banned_users(self):
+        response = self.client.get(reverse("munin:banned-users"))
+        self.assertEqual(response.content.decode(), "banned_users 0")
+
+        profile = ProfileFactory()
+
+        response = self.client.get(reverse("munin:banned-users"))
+        self.assertEqual(response.content.decode(), "banned_users 0")
+
+        profile.can_read = False
+        profile.save()
+
+        response = self.client.get(reverse("munin:banned-users"))
+        self.assertEqual(response.content.decode(), "banned_users 1")
