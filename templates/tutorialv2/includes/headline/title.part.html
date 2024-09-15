@@ -6,7 +6,7 @@
 <div class="title-block">
 
     {% if show_thumbnail %}
-        <div class="content-thumbnail-group {{ content.type|lower }}-illu">
+        <div class="content-thumbnail-group {% if not content.image %}{{ content.type|lower }}-illu{% endif %}">
             {% if content.image %}
                 <img class="thumbnail" src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
             {% endif %}
