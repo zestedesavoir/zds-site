@@ -930,18 +930,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         given_title = "Oh, le beau titre à lire !"
         some_text = "À lire à un moment ou un autre, Über utile"  # accentuated characters are important for the test
 
-        # create a tutorial
+        # Create a tutorial and modify its introduction and conclusion
         result = self.client.post(
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": given_title,
-                "description": some_text,
-                "introduction": some_text,
-                "conclusion": some_text,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-            },
+            {"title": given_title, "type": "TUTORIAL"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -950,6 +942,20 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.last()
         tuto_pk = tuto.pk
         tuto_slug = tuto.slug
+
+        result = self.client.post(
+            reverse("content:edit-introduction", args=[tuto.pk]),
+            {"introduction": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse("content:edit-conclusion", args=[tuto.pk]),
+            {"conclusion": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
 
         # add a chapter
         result = self.client.post(
