@@ -1287,17 +1287,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         old_title = tuto.title
         new_title = "a brand new title"
         self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": new_title,
-                "description": tuto.description,
-                "introduction": "a",
-                "conclusion": "b",
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": tuto.sha_draft,
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": new_title},
             follow=False,
         )
         self.client.logout()
