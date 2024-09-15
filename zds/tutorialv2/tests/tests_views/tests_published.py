@@ -1332,18 +1332,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         registered_validation.save()
         self.client.force_login(self.user_staff)
         self.client.post(
-            reverse("content:edit", args=[article.pk, article.slug]),
-            {
-                "title": "new title so that everything explode",
-                "description": article.description,
-                "introduction": article.load_version().get_introduction(),
-                "conclusion": article.load_version().get_conclusion(),
-                "type": "ARTICLE",
-                "licence": article.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": article.load_version(article.sha_draft).compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[article.pk]),
+            {"title": "new title so that everything explode"},
             follow=False,
         )
         public_count = PublishedContent.objects.count()
