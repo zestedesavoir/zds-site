@@ -10,6 +10,7 @@ from zds.tutorialv2.views.contents import (
     EditTitle,
     EditSubtitle,
 )
+from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
@@ -215,16 +216,12 @@ urlpatterns = (
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
         path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorFromContent.as_view(), name="remove-author"),
-        # Modify the title and subtitle
         path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
         path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
-        # Modify the license
+        path("modifier-miniature/<int:pk>/", EditThumbnailView.as_view(), name="edit-thumbnail"),
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
-        # Modify the tags
         path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
-        # Modify the canonical link
         path("modifier-lien-canonique/<int:pk>", EditCanonicalLinkView.as_view(), name="edit-canonical-link"),
-        # Modify the categories
         path("modifier-categories/<int:pk>/", EditCategoriesView.as_view(), name="edit-categories"),
         # beta:
         path("activer-beta/<int:pk>/<slug:slug>/", ManageBetaContent.as_view(action="set"), name="set-beta"),

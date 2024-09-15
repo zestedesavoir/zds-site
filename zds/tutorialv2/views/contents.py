@@ -16,7 +16,6 @@ from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DeleteView
 
-from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
@@ -69,43 +68,26 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         return context
 
     def form_valid(self, form):
-        # create the object:
-        self.content = PublishableContent()
-        self.content.title = form.cleaned_data["title"]
-        self.content.description = form.cleaned_data["description"]
-        self.content.type = form.cleaned_data["type"]
-        self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
-        self.content.creation_date = datetime.now()
+        self.content = PublishableContent(
+            title=form.cleaned_data["title"],
+            type=form.cleaned_data["type"],
+            licence=self.request.user.profile.licence,  # Use the preferred license of the user if it exists
+            creation_date=datetime.now(),
+        )
 
-        gallery = Gallery.objects.create(
+        self.content.gallery = Gallery.objects.create(
             title=self.content.title,
             slug=slugify(self.content.title),
             pubdate=datetime.now(),
         )
 
-        # create image:
-        if "image" in self.request.FILES:
-            mixin = ImageCreateMixin()
-            mixin.gallery = gallery
-            try:
-                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
-            except NotAnImage:
-                form.add_error("image", _("Image invalide"))
-                return super().form_invalid(form)
-            img.pubdate = datetime.now()
-        self.content.gallery = gallery
-        self.content.save()
-        if "image" in self.request.FILES:
-            self.content.image = img
-            self.content.save()
+        self.content.save()  # Commit to database before updating relationships
 
-        # We need to save the content before changing its author list since it's a many-to-many relationship
+        # Update relationships
         self.content.authors.add(self.request.user)
-
         self.content.ensure_author_gallery()
-        self.content.save()
 
-        # create a new repo :
+        # Create a new git repository
         init_new_repo(
             self.content,
             form.cleaned_data["introduction"],
@@ -160,26 +142,6 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
 
         publishable.update_date = datetime.now()
 
-        # update image
-        if "image" in self.request.FILES:
-            gallery_defaults = {
-                "title": publishable.title,
-                "slug": slugify(publishable.title),
-                "pubdate": datetime.now(),
-            }
-            gallery, _created = Gallery.objects.get_or_create(pk=publishable.gallery.pk, defaults=gallery_defaults)
-            mixin = ImageCreateMixin()
-            mixin.gallery = gallery
-            try:
-                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
-            except NotAnImage:
-                form.add_error("image", _("Image invalide"))
-                return super().form_invalid(form)
-            img.pubdate = datetime.now()
-            publishable.image = img
-
-        publishable.save()
-
         # now, update the versioned information
         sha = versioned.repo_update_top_container(
             publishable.title,
@@ -188,10 +150,7 @@ class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormW
             form.cleaned_data["conclusion"],
             form.cleaned_data["msg_commit"],
         )
-
-        # update relationships :
         publishable.sha_draft = sha
-
         publishable.save()
 
         self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])

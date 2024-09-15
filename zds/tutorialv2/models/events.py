@@ -13,6 +13,7 @@ from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.labels import EditLabels
 from zds.tutorialv2.views.help import ChangeHelp
+from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.validations_contents import (
     ReserveValidation,
     AskValidationForContent,
@@ -48,6 +49,7 @@ types = {
     signals.contributors_management: "contributors_management",
     signals.beta_management: "beta_management",
     signals.validation_management: "validation_management",
+    signals.thumbnail_management: "thumbnail_management",
     signals.tags_management: "tags_management",
     signals.canonical_link_management: "canonical_link_management",
     signals.goals_management: "goals_management",
@@ -133,6 +135,15 @@ def record_event_validation_management(sender, performer, signal, content, versi
         version=version,
         action=action,
     ).save()
+
+
+@receiver(signals.thumbnail_management, sender=EditThumbnailView)
+def record_event_thumbnail_management(sender, performer, signal, content, **_):
+    Event.objects.create(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    )
 
 
 @receiver(signals.tags_management, sender=EditTags)

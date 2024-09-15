@@ -57,6 +57,9 @@
     {% endif %}
 
 
+{% elif event.type == "thumbnail_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié la miniature du contenu.
+
 {% elif event.type == "tags_management" %}
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les tags du contenu.
 

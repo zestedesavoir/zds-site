@@ -2044,37 +2044,25 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.check_images_socials(result, "static/images/tutorial-illu", self.chapter1.title, self.tuto.description)
 
     def test_social_cards_with_image(self):
-        """
-        Check that all cards are produce for socials network
-        """
-        # connect with author:
+        """Check that all cards are produced for socials network"""
         self.client.force_login(self.user_author)
-        # add image to public tutorial
+
+        # Add image to public tutorial
         self.client.post(
-            reverse("content:edit", args=[self.tuto.pk, self.tuto.slug]),
-            {
-                "title": self.tuto.title,
-                "description": self.tuto.description,
-                "introduction": "",
-                "conclusion": "",
-                "type": "TUTORIAL",
-                "licence": self.tuto.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": self.tuto.load_version().compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-thumbnail", args=[self.tuto.pk]),
+            {"image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb")},
             follow=True,
         )
 
-        # test access for guest user (bot of social network for example)
+        # Test as a guest (bot of social network for example)
         self.client.logout()
 
-        # check tutorial cards
+        # Check tutorial cards
         result = self.client.get(reverse("tutorial:view", kwargs={"pk": self.tuto.pk, "slug": self.tuto.slug}))
         self.assertEqual(result.status_code, 200)
-
         self.check_images_socials(result, "media/galleries/", self.tuto.title, self.tuto.description)
-        # check part cards
+
+        # Check part cards
         result = self.client.get(
             reverse(
                 "tutorial:view-container",
@@ -2082,10 +2070,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             )
         )
         self.assertEqual(result.status_code, 200)
-
         self.check_images_socials(result, "media/galleries/", self.part1.title, self.tuto.description)
 
-        # check chapter cards
+        # Check chapter cards
         result = self.client.get(
             reverse(
                 "tutorial:view-container",
@@ -2098,7 +2085,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
             )
         )
         self.assertEqual(result.status_code, 200)
-
         self.check_images_socials(result, "media/galleries/", self.chapter1.title, self.tuto.description)
 
     def test_add_help_tuto(self):
