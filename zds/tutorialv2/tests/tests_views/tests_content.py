@@ -1652,21 +1652,12 @@ class ContentTests(TutorialTestMixin, TestCase):
         # Re-ask a new validation
         self.client.force_login(self.user_author)
 
+        # Update the title to spice things up
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version()
         self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": "new title so that everything explode",
-                "description": tuto.description,
-                "introduction": tuto.load_version().get_introduction(),
-                "conclusion": tuto.load_version().get_conclusion(),
-                "type": "ARTICLE",
-                "licence": tuto.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": tuto.load_version(tuto.sha_draft).compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": "new title so that everything explode"},
             follow=False,
         )
 
@@ -2531,55 +2522,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         random_with_md = "un text contenant du **markdown** ."
 
         self.client.force_login(self.user_author)
-
-        # no hash, no edition
-        result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": tuto.title,
-                "description": tuto.description,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": "",
-            },
-            follow=True,
-        )
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertNotEqual(versioned.get_introduction(), random)
-        self.assertNotEqual(versioned.get_conclusion(), random)
-
-        result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": tuto.title,
-                "description": tuto.description,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),  # good hash
-            },
-            follow=True,
-        )
-        self.assertEqual(result.status_code, 200)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertEqual(versioned.get_introduction(), random)
-        self.assertEqual(versioned.get_conclusion(), random)
 
         # edit container:
         result = self.client.post(
