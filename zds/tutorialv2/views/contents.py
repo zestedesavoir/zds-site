@@ -319,6 +319,86 @@ class EditIntroductionView(LoginRequiredMixin, SingleContentFormViewMixin, FormW
         publishable_content.save()
 
 
+class EditConclusionForm(forms.Form):
+    conclusion = CharField(
+        label=_("Conclusion"),
+        required=False,
+        widget=Textarea(
+            attrs={"placeholder": _("Votre conclusion, au format Markdown."), "class": "md-editor preview-source"}
+        ),
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_action = reverse("content:edit-conclusion", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            IncludeEasyMDE(),
+            Field("conclusion"),
+            Div(
+                StrictButton(_("Modifier"), type="submit"),
+                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            ),
+            HTML(
+                """{% if form.conclusion.value %}{% include "misc/preview.part.html" with text=form.conclusion.value %}{% endif %}"""
+            ),
+        )
+
+
+class EditConclusionView(LoginRequiredMixin, SingleContentFormViewMixin, FormWithPreview):
+    model = PublishableContent
+    form_class = EditConclusionForm
+    template_name = "tutorialv2/edit/conclusion.html"
+    success_message = _("La conclusion de la publication a bien été changée.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "preview" not in self.request.POST:
+            context["gallery"] = self.object.gallery
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        conclusion = self.versioned_object.get_conclusion()
+        initial["conclusion"] = conclusion
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+        sha = self.update_conclusion_in_repository(publishable, versioned, form.cleaned_data["conclusion"])
+        self.update_sha_draft(publishable, sha)
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("content:view", args=[self.object.pk, self.object.slug])
+
+    @staticmethod
+    def update_conclusion_in_repository(publishable_content, versioned_content, conclusion):
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            versioned_content.get_introduction(),
+            conclusion,
+            "Modification de la conclusion",
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
+
+
 class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
     model = PublishableContent
     http_method_names = ["post"]

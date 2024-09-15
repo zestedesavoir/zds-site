@@ -9,6 +9,7 @@ from zds.tutorialv2.views.contents import (
     EditTitle,
     EditSubtitle,
     EditIntroductionView,
+    EditConclusionView,
 )
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.display.container import ContainerValidationView
@@ -219,11 +220,7 @@ urlpatterns = (
         path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
         path("modifier-miniature/<int:pk>/", EditThumbnailView.as_view(), name="edit-thumbnail"),
         path("modifier-introduction/<int:pk>/", EditIntroductionView.as_view(), name="edit-introduction"),
-        path(
-            "modifier-conclusion/<int:pk>/",
-            ContentDraftView.as_view(public_is_prioritary=False),
-            name="edit-conclusion",
-        ),
+        path("modifier-conclusion/<int:pk>/", EditConclusionView.as_view(), name="edit-conclusion"),
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
         path("modifier-lien-canonique/<int:pk>", EditCanonicalLinkView.as_view(), name="edit-canonical-link"),
