@@ -1408,17 +1408,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         published = PublishedContentFactory(author_list=[self.user_author])
         self.client.force_login(self.user_author)
         result = self.client.post(
-            reverse("content:edit", args=[published.pk, published.slug]),
-            {
-                "title": published.title,
-                "description": published.description,
-                "introduction": "crappy crap",
-                "conclusion": "crappy crap",
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": published.load_version().compute_hash(),  # good hash
-            },
+            reverse("content:edit-subtitle", args=[published.pk]),
+            {"subtitle": "Sous-titre qui fait une nouvelle version"},
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
