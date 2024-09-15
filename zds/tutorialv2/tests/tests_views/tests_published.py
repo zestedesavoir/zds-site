@@ -1492,18 +1492,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # login with user, edit content and ask validation for update
         self.client.force_login(self.user_author)
         result = self.client.post(
-            reverse("content:edit", args=[content_draft.pk, content_draft.slug]),
-            {
-                "title": content_draft.title + "2",
-                "description": content_draft.description,
-                "introduction": content_draft.introduction,
-                "conclusion": content_draft.conclusion,
-                "type": content_draft.type,
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": content_draft.compute_hash(),
-                "image": content_draft.image or "None",
-            },
+            reverse("content:edit-title", args=[content_draft.pk]),
+            {"title": content_draft.title + "2"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
