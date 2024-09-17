@@ -230,8 +230,25 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
+    def test_create_tutorial(self):
+        """Test the creation of a new content."""
+        self.client.force_login(self.user_author)
+
+        title = "un titre"
+        result = self.client.post(
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
+            {"title": title, "type": "TUTORIAL"},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.all().count(), 2)
+
+        tuto = PublishableContent.objects.last()
+        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
+
     def test_basic_tutorial_workflow(self):
-        """General test on the basic workflow of a tutorial: creation, edition, deletion for the author"""
+        """General test on the basic workflow of a tutorial: edition, deletion for the author"""
         self.client.force_login(self.user_author)
 
         # create tutorial
@@ -242,77 +259,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         random = "un truc à la rien à voir"
         random_with_md = "un text contenant du **markdown** ."
 
-        response = self.client.post(
-            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "text": random_with_md,
-                "preview": "",
-            },
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
-
-        self.assertEqual(200, response.status_code)
-
-        result_string = "".join(str(a, "utf-8") for a in response.streaming_content)
-        self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
-
-        result = self.client.post(
-            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": title,
-                "introduction": intro,
-                "conclusion": conclusion,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.all().count(), 2)
-
-        tuto = PublishableContent.objects.last()
+        tuto = PublishableContentFactory(type="TUTORIAL")
+        tuto.authors.add(self.user_author)
         pk = tuto.pk
         slug = tuto.slug
-        versioned = tuto.load_version()
-
-        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
-        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
-
-        # access to tutorial
-        result = self.client.get(reverse("content:edit", args=[pk, slug]), follow=False)
-        self.assertEqual(result.status_code, 200)
-
-        # preview tutorial
-        result = self.client.post(
-            reverse("content:edit", args=[pk, slug]),
-            {"text": random_with_md, "last_hash": versioned.compute_hash(), "preview": ""},
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
-
-        self.assertEqual(result.status_code, 200)
-
-        result_string = "".join(a.decode() for a in result.streaming_content)
-        self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
-
-        result = self.client.post(
-            reverse("content:edit", args=[pk, slug]),
-            {
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-
-        tuto = PublishableContent.objects.get(pk=pk)
-        self.assertEqual(tuto.licence, None)
-        versioned = tuto.load_version()
-        self.assertEqual(versioned.get_introduction(), random)
-        self.assertEqual(versioned.get_conclusion(), random)
-        self.assertEqual(versioned.licence, None)
 
         # preview container
         result = self.client.post(

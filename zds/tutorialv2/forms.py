@@ -108,7 +108,7 @@ class ContainerForm(FormWithTitle):
 
 
 class ContentForm(ContainerForm):
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=True)
 
     def _create_layout(self):
         self.helper.layout = Layout(
