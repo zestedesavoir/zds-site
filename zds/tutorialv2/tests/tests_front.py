@@ -121,7 +121,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         article.sha_draft = versioned_article.repo_update("article", "", "", update_slug=False)
         article.save()
 
-        article_edit_url = reverse("content:edit", args=[article.pk, article.slug])
+        article_edit_url = reverse("content:edit-introduction", args=[article.pk])
 
         self.login(author)
         selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
