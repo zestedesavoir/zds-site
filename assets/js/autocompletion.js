@@ -236,7 +236,8 @@
         self.handleInput()
       }
 
-      list = self.filterData(list, self.extractWords(this.$input.val()))
+      const alreadyChosenWords = self.extractWords(this.$input.val()).slice(0, -1)
+      list = self.filterData(list, alreadyChosenWords)
 
       if (list.length > this.options.limit) list = list.slice(0, this.options.limit)
 
