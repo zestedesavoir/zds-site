@@ -449,26 +449,34 @@ class ContentTests(TutorialTestMixin, TestCase):
         old_description = article.public_version.description()
         article.licence = LicenceFactory()
         article.save()
+
         self.client.force_login(self.user_author)
-        self.client.post(
-            reverse("content:edit", args=[article.pk, article.slug]),
-            {
-                "title": old_title + "bla",
-                "description": old_description + "bla",
-                "type": "ARTICLE",
-                "licence": article.licence.pk,
-                "subcategory": SubCategoryFactory().pk,
-                "last_hash": article.sha_draft,
-            },
+
+        new_title = old_title + "bla"
+        result = self.client.post(
+            reverse("content:edit-title", args=[article.pk]),
+            {"title": new_title},
+            follow=True,
         )
+        self.assertEqual(result.status_code, 200)
+
+        new_description = old_description + "bla"
+        result = self.client.post(
+            reverse("content:edit-subtitle", args=[article.pk]),
+            {"subtitle": new_description},
+            follow=True,
+        )
+        self.assertEqual(result.status_code, 200)
+
         article = PublishableContent.objects.prefetch_related("public_version").get(pk=article.pk)
         article.public_version.load_public_version()
         self.assertEqual(old_title, article.public_version.title())
         self.assertEqual(old_description, article.public_version.description())
         self.assertEqual(old_date, article.public_version.publication_date)
+
         publish_content(article, article.load_version(), False)
-        article = PublishableContent.objects.get(pk=article.pk)
-        article.public_version.load_public_version()
+
+        article = PublishableContent.objects.prefetch_related("public_version").get(pk=article.pk)
         self.assertEqual(old_date, article.public_version.publication_date)
         self.assertNotEqual(old_date, article.public_version.update_date)
 
