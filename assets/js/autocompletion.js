@@ -104,12 +104,12 @@
           jsonData
             .done(function(data) {
               self.updateCache(data.results)
-              self.updateDropdown(self.sortList(data.results, search))
+              self.updateDropdown(data.results)
             })
             .fail(function() {
-              console.error('[Autocompletition] Something went wrong...')
+              console.error('[Autocompletion] Something went wrong...')
             })
-          this.updateDropdown(this.sortList(this.searchCache(search), search))
+          this.updateDropdown(this.searchCache(search))
           this.showDropdown()
         }
       }
@@ -262,32 +262,6 @@
       this.$dropdown.append($list)
 
       if (!selected) { this.select($list.find('li').first().attr('data-autocomplete-id')) }
-    },
-
-    sortList: function(list, search) {
-      const bestMatches = []
-      const otherMatches = []
-
-      for (let i = 0; i < list.length; i++) {
-        if (list[i][this.options.fieldname].indexOf(search) === 0) {
-          bestMatches.push(list[i])
-        } else {
-          otherMatches.push(list[i])
-        }
-      }
-
-      const sortFn = function(a, b) {
-        const valueA = a[this.options.fieldname].toLowerCase()
-        const valueB = b[this.options.fieldname].toLowerCase()
-        if (valueA < valueB) { return -1 }
-        if (valueA > valueB) { return 1 }
-        return 0
-      }
-
-      bestMatches.sort(sortFn.bind(this))
-      otherMatches.sort(sortFn.bind(this))
-
-      return bestMatches.concat(otherMatches)
     },
 
     fetchData: function(input, excludeTerms) {
