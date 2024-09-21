@@ -140,6 +140,18 @@ class MemberListAPITest(APITestCase):
         self.assertIsNone(response.data.get("next"))
         self.assertIsNone(response.data.get("previous"))
 
+    def test_search_with_results_in_right_order(self):
+        """
+        Gets list of users corresponding to part of a username and
+        verifies that the list of usernames returned is in the right order.
+        """
+        for username in ("pierre", "andr", "Radon", "alexandre", "MisterAndrew", "andré", "dragon", "Andromède"):
+            ProfileFactory(user__username=username)
+
+        response = self.client.get(reverse("api:member:list") + "?search=Andr")
+        list_of_usernames = [item.get("username") for item in response.data.get("results")]
+        self.assertEqual(list_of_usernames, ["andr", "Andromède", "andré", "MisterAndrew", "alexandre"])
+
     def test_register_new_user(self):
         """
         Registers a new user in the database.
