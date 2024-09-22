@@ -236,6 +236,7 @@
         self.handleInput()
       }
 
+      // Exclude already selected items but the last one (it's the prefix of the item we are looking for)
       const alreadyChosenWords = self.extractWords(this.$input.val()).slice(0, -1)
       list = self.filterData(list, alreadyChosenWords)
 
