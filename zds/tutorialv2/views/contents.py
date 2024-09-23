@@ -3,12 +3,12 @@ from datetime import datetime
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, HTML, Div
+from crispy_forms.layout import Layout, Field, HTML, ButtonHolder
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.forms import forms, CharField, Textarea
+from django.forms import forms, CharField, Textarea, TextInput
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -248,6 +248,13 @@ class EditIntroductionForm(forms.Form):
         ),
     )
 
+    commit_message = CharField(
+        label=_("Message de suivi"),
+        max_length=400,
+        required=False,
+        widget=TextInput(attrs={"placeholder": _("Un résumé de vos ajouts et modifications.")}),
+    )
+
     def __init__(self, versioned_content, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -258,13 +265,14 @@ class EditIntroductionForm(forms.Form):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
             Field("introduction"),
-            Div(
-                StrictButton(_("Modifier"), type="submit"),
+            ButtonHolder(
                 StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
             ),
             HTML(
                 """{% if form.introduction.value %}{% include "misc/preview.part.html" with text=form.introduction.value %}{% endif %}"""
             ),
+            Field("commit_message"),
+            ButtonHolder(StrictButton(_("Modifier"), type="submit")),
         )
 
 
@@ -294,8 +302,16 @@ class EditIntroductionView(LoginRequiredMixin, SingleContentFormViewMixin, FormW
     def form_valid(self, form):
         publishable = self.object
         versioned = self.versioned_object
-        sha = self.update_introduction_in_repository(publishable, versioned, form.cleaned_data["introduction"])
+
+        commit_message = "Modification de l'introduction"
+        if form.cleaned_data["commit_message"] != "":
+            commit_message = form.cleaned_data["commit_message"]
+
+        sha = self.update_introduction_in_repository(
+            publishable, versioned, form.cleaned_data["introduction"], commit_message
+        )
         self.update_sha_draft(publishable, sha)
+
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
@@ -303,13 +319,13 @@ class EditIntroductionView(LoginRequiredMixin, SingleContentFormViewMixin, FormW
         return reverse("content:view", args=[self.object.pk, self.object.slug])
 
     @staticmethod
-    def update_introduction_in_repository(publishable_content, versioned_content, introduction):
+    def update_introduction_in_repository(publishable_content, versioned_content, introduction, commit_message):
         sha = versioned_content.repo_update_top_container(
             publishable_content.title,
             publishable_content.slug,
             introduction,
             versioned_content.get_conclusion(),
-            "Modification de l'introduction",
+            commit_message,
         )
         return sha
 
@@ -328,6 +344,13 @@ class EditConclusionForm(forms.Form):
         ),
     )
 
+    commit_message = CharField(
+        label=_("Message de suivi"),
+        max_length=400,
+        required=False,
+        widget=TextInput(attrs={"placeholder": _("Un résumé de vos ajouts et modifications.")}),
+    )
+
     def __init__(self, versioned_content, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -338,13 +361,14 @@ class EditConclusionForm(forms.Form):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
             Field("conclusion"),
-            Div(
-                StrictButton(_("Modifier"), type="submit"),
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            ButtonHolder(
+                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn")
             ),
             HTML(
                 """{% if form.conclusion.value %}{% include "misc/preview.part.html" with text=form.conclusion.value %}{% endif %}"""
             ),
+            Field("commit_message"),
+            ButtonHolder(StrictButton(_("Modifier"), type="submit")),
         )
 
 
@@ -374,8 +398,16 @@ class EditConclusionView(LoginRequiredMixin, SingleContentFormViewMixin, FormWit
     def form_valid(self, form):
         publishable = self.object
         versioned = self.versioned_object
-        sha = self.update_conclusion_in_repository(publishable, versioned, form.cleaned_data["conclusion"])
+
+        commit_message = "Modification de la conclusion"
+        if form.cleaned_data["commit_message"] != "":
+            commit_message = form.cleaned_data["commit_message"]
+
+        sha = self.update_conclusion_in_repository(
+            publishable, versioned, form.cleaned_data["conclusion"], commit_message
+        )
         self.update_sha_draft(publishable, sha)
+
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
 
@@ -383,13 +415,13 @@ class EditConclusionView(LoginRequiredMixin, SingleContentFormViewMixin, FormWit
         return reverse("content:view", args=[self.object.pk, self.object.slug])
 
     @staticmethod
-    def update_conclusion_in_repository(publishable_content, versioned_content, conclusion):
+    def update_conclusion_in_repository(publishable_content, versioned_content, conclusion, commit_message):
         sha = versioned_content.repo_update_top_container(
             publishable_content.title,
             publishable_content.slug,
             versioned_content.get_introduction(),
             conclusion,
-            "Modification de la conclusion",
+            commit_message,
         )
         return sha
 
