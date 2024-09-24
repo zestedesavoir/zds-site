@@ -14,7 +14,7 @@ from zds.tutorialv2.models import TYPE_CHOICES
 from zds.tutorialv2.models.database import PublishableContent
 from django.utils.translation import gettext_lazy as _
 from zds.utils.forms import IncludeEasyMDE
-from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
+from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError
 
 
 class FormWithTitle(forms.Form):
@@ -108,32 +108,14 @@ class ContainerForm(FormWithTitle):
 
 
 class ContentForm(ContainerForm):
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=True)
 
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
             Field("title"),
             Field("type"),
-            Field("introduction", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-            with text=form.introduction.value %}{% endif %}'
-            ),
-            Field("conclusion", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-            with text=form.conclusion.value %}{% endif %}'
-            ),
-            Field("last_hash"),
-            Field("msg_commit"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
+            StrictButton("Valider", type="submit"),
         )
 
     def __init__(self, *args, **kwargs):
@@ -146,32 +128,6 @@ class ContentForm(ContainerForm):
 
         if "type" in self.initial:
             self.helper["type"].wrap(Field, disabled=True)
-
-
-class EditContentForm(ContentForm):
-    title = None
-    description = None
-    type = None
-
-    def _create_layout(self):
-        self.helper.layout = Layout(
-            IncludeEasyMDE(),
-            Field("introduction", css_class="md-editor preview-source"),
-            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-                with text=form.introduction.value %}{% endif %}'
-            ),
-            Field("conclusion", css_class="md-editor preview-source"),
-            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-                with text=form.conclusion.value %}{% endif %}'
-            ),
-            Field("last_hash"),
-            Field("msg_commit"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
-        )
 
 
 class ExtractForm(FormWithTitle):

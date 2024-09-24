@@ -1287,17 +1287,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         old_title = tuto.title
         new_title = "a brand new title"
         self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": new_title,
-                "description": tuto.description,
-                "introduction": "a",
-                "conclusion": "b",
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": tuto.sha_draft,
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": new_title},
             follow=False,
         )
         self.client.logout()
@@ -1332,18 +1323,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         registered_validation.save()
         self.client.force_login(self.user_staff)
         self.client.post(
-            reverse("content:edit", args=[article.pk, article.slug]),
-            {
-                "title": "new title so that everything explode",
-                "description": article.description,
-                "introduction": article.load_version().get_introduction(),
-                "conclusion": article.load_version().get_conclusion(),
-                "type": "ARTICLE",
-                "licence": article.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": article.load_version(article.sha_draft).compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[article.pk]),
+            {"title": "new title so that everything explode"},
             follow=False,
         )
         public_count = PublishedContent.objects.count()
@@ -1418,17 +1399,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         published = PublishedContentFactory(author_list=[self.user_author])
         self.client.force_login(self.user_author)
         result = self.client.post(
-            reverse("content:edit", args=[published.pk, published.slug]),
-            {
-                "title": published.title,
-                "description": published.description,
-                "introduction": "crappy crap",
-                "conclusion": "crappy crap",
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": published.load_version().compute_hash(),  # good hash
-            },
+            reverse("content:edit-subtitle", args=[published.pk]),
+            {"subtitle": "Sous-titre qui fait une nouvelle version"},
             follow=True,
         )
         self.assertEqual(result.status_code, 200)
@@ -1492,18 +1464,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         # login with user, edit content and ask validation for update
         self.client.force_login(self.user_author)
         result = self.client.post(
-            reverse("content:edit", args=[content_draft.pk, content_draft.slug]),
-            {
-                "title": content_draft.title + "2",
-                "description": content_draft.description,
-                "introduction": content_draft.introduction,
-                "conclusion": content_draft.conclusion,
-                "type": content_draft.type,
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": content_draft.compute_hash(),
-                "image": content_draft.image or "None",
-            },
+            reverse("content:edit-title", args=[content_draft.pk]),
+            {"title": content_draft.title + "2"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)

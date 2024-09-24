@@ -5,12 +5,12 @@
 {% load feminize %}
 
 {% block title %}
-    {% trans "Éditer " %}{{ content.textual_type }}
+    {% trans "Modifier l'introduction de " %}{{ content.title }}
 {% endblock %}
 
 {% block breadcrumb %}
     <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
-    <li>{% trans "Éditer " %}{{ content.textual_type|lower }}</li>
+    <li>{% trans "Modifier l'introduction" %}</li>
 {% endblock %}
 
 {% block headline %}
@@ -18,12 +18,8 @@
         {% if content.image %}
             <img src="{{content.image.physical.tutorial_illu.url }}" alt="">
         {% endif %}
-        {% trans "Éditer" %} : {{ content.title }}
+        {% blocktrans with title=content.title %}Modifier l'introduction de « {{ title }} »{% endblocktrans %}
     </h1>
-{% endblock %}
-
-{% block headline_sub %}
-   {{ content.description }}
 {% endblock %}
 
 

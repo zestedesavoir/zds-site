@@ -4,7 +4,6 @@ from django.conf import settings
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory
 from zds.tutorialv2.tests import TutorialTestMixin
@@ -34,23 +33,14 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.user_author = ProfileFactory().user
         self.client.force_login(self.user_author)
 
-        # Publish an article:
+        # Publish an article
         self.article = PublishedContentFactory(author_list=[self.user_author], type="ARTICLE")
 
     def _new_draft_version(self, text):
-        # Create a new draft version:
-        versioned = self.article.load_version()
+        """Create a new draft version."""
         result = self.client.post(
-            reverse("content:edit", args=[self.article.pk, self.article.slug]),
-            {
-                "title": self.article.title,
-                "description": self.article.description,
-                "introduction": text,
-                "conclusion": "Modified conclusion",
-                "type": self.article.type,
-                "subcategory": self.article.subcategory.first().pk,
-                "last_hash": versioned.compute_hash(),
-            },
+            reverse("content:edit-introduction", args=[self.article.pk]),
+            {"introduction": text},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -84,7 +74,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(public_page, PublicActionsState.messages["draft_is_same"])
         self.assertContains(public_page, PublicActionsState.messages["draft_is_more_recent"])
 
-        # Now a new draft version, to have different version from validation:
+        # Now a new draft version, to have different version from validation
         self._new_draft_version(self.TEXT_SECOND_MODIFICATION)
 
         public_page = common_tests()
@@ -123,7 +113,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self.assertNotContains(draft_page, PublicActionsState.messages["public_is_same"])
         self.assertContains(draft_page, ValidationActions.messages["validation_is_same"])
 
-        # Now a new draft version, to have different version from validation:
+        # Now a new draft version, to have different version from validation
         self._new_draft_version(self.TEXT_SECOND_MODIFICATION)
 
         draft_page = common_tests()
@@ -150,9 +140,7 @@ class DisplayConfigTests(TutorialTestMixin, TestCase):
         self._new_draft_version(self.TEXT_FIRST_MODIFICATION)
         request_validation(self.article)
 
-        validation_page = common_tests()
-
-        # Now a new draft version, to have different version from validation:
+        # Now a new draft version, to have different version from validation
         self._new_draft_version(self.TEXT_SECOND_MODIFICATION)
 
         validation_page = common_tests()

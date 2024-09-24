@@ -121,7 +121,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         article.sha_draft = versioned_article.repo_update("article", "", "", update_slug=False)
         article.save()
 
-        article_edit_url = reverse("content:edit", args=[article.pk, article.slug])
+        article_edit_url = reverse("content:edit-introduction", args=[article.pk])
 
         self.login(author)
         selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
@@ -130,7 +130,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
         intro = self.find_element("div#div_id_introduction div.CodeMirror")
         # ActionChains: Support for CodeMirror https://stackoverflow.com/a/48969245/2226755
         action_chains = ActionChains(selenium)
-        scrollDriverTo(selenium, 0, 312)
+        scroll_driver_to(selenium, 0, 312)
         action_chains.click(intro).perform()
         action_chains.send_keys("intro").perform()
 
@@ -144,36 +144,7 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
         self.assertEqual("new intro", self.find_element(".md-editor#id_introduction").get_attribute("value"))
 
-    def test_the_editor_forgets_its_content_on_form_submission(self):
-        selenium = self.selenium
 
-        author = ProfileFactory()
-
-        self.login(author)
-        selenium.execute_script('localStorage.setItem("editor_choice", "new")')  # we want the new editor
-        new_article_url = self.live_server_url + reverse(
-            "content:create-content", kwargs={"created_content_type": "ARTICLE"}
-        )
-        selenium.get(new_article_url)
-        WebDriverWait(self.selenium, 10).until(ec.element_to_be_clickable((By.CSS_SELECTOR, "#id_title"))).click()
-
-        self.find_element("#id_title").send_keys("Oulipo")
-
-        intro = self.find_element("div#div_id_introduction div.CodeMirror")
-        action_chains = ActionChains(selenium)
-        scrollDriverTo(selenium, 0, 312)
-        action_chains.click(intro).perform()
-        action_chains.send_keys("Le cadavre exquis boira le vin nouveau.").perform()
-
-        self.find_element(".content-container button[type=submit]").click()
-
-        self.assertTrue(WebDriverWait(selenium, 10).until(ec.title_contains("Oulipo")))
-
-        selenium.get(new_article_url)
-
-        self.assertEqual("", self.find_element(".md-editor#id_introduction").get_attribute("value"))
-
-
-def scrollDriverTo(driver, x, y):
-    scriptScrollTo = f"window.scrollTo({x}, {y});"
-    driver.execute_script(scriptScrollTo)
+def scroll_driver_to(driver, x, y):
+    script_scroll_to = f"window.scrollTo({x}, {y});"
+    driver.execute_script(script_scroll_to)

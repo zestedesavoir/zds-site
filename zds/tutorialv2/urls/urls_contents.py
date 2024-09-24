@@ -4,11 +4,12 @@ from django.views.generic.base import RedirectView
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contents import (
-    CreateContent,
-    EditContent,
+    CreateContentView,
     DeleteContent,
     EditTitle,
     EditSubtitle,
+    EditIntroductionView,
+    EditConclusionView,
 )
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.display.container import ContainerValidationView
@@ -168,7 +169,7 @@ urlpatterns = (
         # typo:
         path("reactions/typo/", WarnTypo.as_view(), name="warn-typo"),
         # create:
-        path("nouveau-contenu/<str:created_content_type>/", CreateContent.as_view(), name="create-content"),
+        path("nouveau-contenu/<str:created_content_type>/", CreateContentView.as_view(), name="create-content"),
         path(
             "nouveau-conteneur/<int:pk>/<slug:slug>/<slug:container_slug>/",
             CreateContainer.as_view(),
@@ -208,7 +209,6 @@ urlpatterns = (
             name="edit-extract",
         ),
         path("editer-section/<int:pk>/<slug:slug>/<slug:extract_slug>/", EditExtract.as_view(), name="edit-extract"),
-        path("editer/<int:pk>/<slug:slug>/", EditContent.as_view(), name="edit"),
         path("deplacer/", MoveChild.as_view(), name="move-element"),
         path("historique/<int:pk>/<slug:slug>/", DisplayHistory.as_view(), name="history"),
         path("comparaison/<int:pk>/<slug:slug>/", DisplayDiff.as_view(), name="diff"),
@@ -219,6 +219,8 @@ urlpatterns = (
         path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
         path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
         path("modifier-miniature/<int:pk>/", EditThumbnailView.as_view(), name="edit-thumbnail"),
+        path("modifier-introduction/<int:pk>/", EditIntroductionView.as_view(), name="edit-introduction"),
+        path("modifier-conclusion/<int:pk>/", EditConclusionView.as_view(), name="edit-conclusion"),
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
         path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
         path("modifier-lien-canonique/<int:pk>", EditCanonicalLinkView.as_view(), name="edit-canonical-link"),

@@ -230,8 +230,25 @@ class ContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
+    def test_create_tutorial(self):
+        """Test the creation of a new content."""
+        self.client.force_login(self.user_author)
+
+        title = "un titre"
+        result = self.client.post(
+            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
+            {"title": title, "type": "TUTORIAL"},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+        self.assertEqual(PublishableContent.objects.all().count(), 2)
+
+        tuto = PublishableContent.objects.last()
+        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
+        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
+
     def test_basic_tutorial_workflow(self):
-        """General test on the basic workflow of a tutorial: creation, edition, deletion for the author"""
+        """General test on the basic workflow of a tutorial: edition, deletion for the author"""
         self.client.force_login(self.user_author)
 
         # create tutorial
@@ -242,77 +259,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         random = "un truc à la rien à voir"
         random_with_md = "un text contenant du **markdown** ."
 
-        response = self.client.post(
-            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "text": random_with_md,
-                "preview": "",
-            },
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
-
-        self.assertEqual(200, response.status_code)
-
-        result_string = "".join(str(a, "utf-8") for a in response.streaming_content)
-        self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
-
-        result = self.client.post(
-            reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": title,
-                "introduction": intro,
-                "conclusion": conclusion,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-        self.assertEqual(PublishableContent.objects.all().count(), 2)
-
-        tuto = PublishableContent.objects.last()
+        tuto = PublishableContentFactory(type="TUTORIAL")
+        tuto.authors.add(self.user_author)
         pk = tuto.pk
         slug = tuto.slug
-        versioned = tuto.load_version()
-
-        self.assertEqual(Gallery.objects.filter(pk=tuto.gallery.pk).count(), 1)
-        self.assertEqual(UserGallery.objects.filter(gallery__pk=tuto.gallery.pk).count(), tuto.authors.count())
-
-        # access to tutorial
-        result = self.client.get(reverse("content:edit", args=[pk, slug]), follow=False)
-        self.assertEqual(result.status_code, 200)
-
-        # preview tutorial
-        result = self.client.post(
-            reverse("content:edit", args=[pk, slug]),
-            {"text": random_with_md, "last_hash": versioned.compute_hash(), "preview": ""},
-            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
-        )
-
-        self.assertEqual(result.status_code, 200)
-
-        result_string = "".join(a.decode() for a in result.streaming_content)
-        self.assertIn("<strong>markdown</strong>", result_string, "We need the text to be properly formatted")
-
-        result = self.client.post(
-            reverse("content:edit", args=[pk, slug]),
-            {
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),
-            },
-            follow=False,
-        )
-        self.assertEqual(result.status_code, 302)
-
-        tuto = PublishableContent.objects.get(pk=pk)
-        self.assertEqual(tuto.licence, None)
-        versioned = tuto.load_version()
-        self.assertEqual(versioned.get_introduction(), random)
-        self.assertEqual(versioned.get_conclusion(), random)
-        self.assertEqual(versioned.licence, None)
 
         # preview container
         result = self.client.post(
@@ -930,18 +880,10 @@ class ContentTests(TutorialTestMixin, TestCase):
         given_title = "Oh, le beau titre à lire !"
         some_text = "À lire à un moment ou un autre, Über utile"  # accentuated characters are important for the test
 
-        # create a tutorial
+        # Create a tutorial and modify its introduction and conclusion
         result = self.client.post(
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": given_title,
-                "description": some_text,
-                "introduction": some_text,
-                "conclusion": some_text,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-            },
+            {"title": given_title, "type": "TUTORIAL"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -950,6 +892,20 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.last()
         tuto_pk = tuto.pk
         tuto_slug = tuto.slug
+
+        result = self.client.post(
+            reverse("content:edit-introduction", args=[tuto.pk]),
+            {"introduction": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse("content:edit-conclusion", args=[tuto.pk]),
+            {"conclusion": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
 
         # add a chapter
         result = self.client.post(
@@ -1093,14 +1049,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # create a tutorial
         result = self.client.post(
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": given_title,
-                "description": some_text,
-                "introduction": some_text,
-                "conclusion": some_text,
-                "type": "TUTORIAL",
-                "subcategory": self.subcategory.pk,
-            },
+            {"title": given_title, "type": "TUTORIAL"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1109,6 +1058,20 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.last()
         tuto_pk = tuto.pk
         tuto_slug = tuto.slug
+
+        result = self.client.post(
+            reverse("content:edit-introduction", args=[tuto.pk]),
+            {"introduction": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse("content:edit-conclusion", args=[tuto.pk]),
+            {"conclusion": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
 
         # add a chapter
         result = self.client.post(
@@ -1209,15 +1172,7 @@ class ContentTests(TutorialTestMixin, TestCase):
         # create a tutorial
         result = self.client.post(
             reverse("content:create-content", kwargs={"created_content_type": "TUTORIAL"}),
-            {
-                "title": given_title,
-                "description": some_text,
-                "introduction": some_text,
-                "conclusion": some_text,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-            },
+            {"title": given_title, "type": "TUTORIAL"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -1226,6 +1181,20 @@ class ContentTests(TutorialTestMixin, TestCase):
         tuto = PublishableContent.objects.last()
         tuto_pk = tuto.pk
         tuto_slug = tuto.slug
+
+        result = self.client.post(
+            reverse("content:edit-introduction", args=[tuto.pk]),
+            {"introduction": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        result = self.client.post(
+            reverse("content:edit-conclusion", args=[tuto.pk]),
+            {"conclusion": some_text},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
 
         # add a chapter
         result = self.client.post(
@@ -1652,21 +1621,12 @@ class ContentTests(TutorialTestMixin, TestCase):
         # Re-ask a new validation
         self.client.force_login(self.user_author)
 
+        # Update the title to spice things up
         tuto = PublishableContent.objects.get(pk=tuto.pk)
         versioned = tuto.load_version()
         self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": "new title so that everything explode",
-                "description": tuto.description,
-                "introduction": tuto.load_version().get_introduction(),
-                "conclusion": tuto.load_version().get_conclusion(),
-                "type": "ARTICLE",
-                "licence": tuto.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": tuto.load_version(tuto.sha_draft).compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[tuto.pk]),
+            {"title": "new title so that everything explode"},
             follow=False,
         )
 
@@ -2531,55 +2491,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         random_with_md = "un text contenant du **markdown** ."
 
         self.client.force_login(self.user_author)
-
-        # no hash, no edition
-        result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": tuto.title,
-                "description": tuto.description,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": "",
-            },
-            follow=True,
-        )
-        self.assertEqual(result.status_code, 200)
-
-        msgs = result.context["messages"]
-        last = None
-        for msg in msgs:
-            last = msg
-        self.assertEqual(last.level, messages.ERROR)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertNotEqual(versioned.get_introduction(), random)
-        self.assertNotEqual(versioned.get_conclusion(), random)
-
-        result = self.client.post(
-            reverse("content:edit", args=[tuto.pk, tuto.slug]),
-            {
-                "title": tuto.title,
-                "description": tuto.description,
-                "introduction": random,
-                "conclusion": random,
-                "type": "TUTORIAL",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": versioned.compute_hash(),  # good hash
-            },
-            follow=True,
-        )
-        self.assertEqual(result.status_code, 200)
-
-        tuto = PublishableContent.objects.get(pk=tuto.pk)
-        versioned = tuto.load_version()
-        self.assertEqual(versioned.get_introduction(), random)
-        self.assertEqual(versioned.get_conclusion(), random)
 
         # edit container:
         result = self.client.post(
