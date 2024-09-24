@@ -40,6 +40,7 @@ from zds.tutorialv2.models.database import (
 )
 from zds.tutorialv2.utils import last_participation_is_old, mark_read
 from zds.tutorialv2.views.contents import EditTitleForm, EditSubtitleForm
+from zds.tutorialv2.views.thumbnail import EditThumbnailForm
 from zds.tutorialv2.views.display.config import (
     ConfigForContentDraftView,
     ConfigForVersionView,
@@ -141,6 +142,7 @@ class ContentDraftView(LoginRequiredMixin, ContentBaseView):
         context = super().get_context_data(**kwargs)
         context["form_edit_title"] = EditTitleForm(self.versioned_object)
         context["form_edit_subtitle"] = EditSubtitleForm(self.versioned_object)
+        context["form_edit_thumbnail"] = EditThumbnailForm(self.versioned_object)
         context["display_config"] = ConfigForContentDraftView(self.request.user, self.object, self.versioned_object)
         return context
 

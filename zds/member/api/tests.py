@@ -140,6 +140,29 @@ class MemberListAPITest(APITestCase):
         self.assertIsNone(response.data.get("next"))
         self.assertIsNone(response.data.get("previous"))
 
+    def test_search_with_results_in_right_order(self):
+        """
+        Gets list of users corresponding to part of a username and
+        verifies that this list is in the right order, which is:
+        1. "is equal" case sensitive
+        2. "is equal" ignoring the case
+        3. "starts with" case sensitive
+        4. "starts with" ignoring the case
+        5. "contains" case sensitive
+        6. "contains" ignoring the case
+
+        The test also checks that:
+        - usernames containing letters of the searched word (here: 'a', 'n', 'd' and 'r')
+          but NOT the searched word ("andr") are not returned
+        - usernames containing non-ascii letters (eg with accents) can be returned as well
+        """
+        for username in ("pierre", "andr", "Radon", "alexandre", "MisterAndrew", "andré", "dragon", "Andromède"):
+            ProfileFactory(user__username=username)
+
+        response = self.client.get(reverse("api:member:list") + "?search=Andr")
+        list_of_usernames = [item.get("username") for item in response.data.get("results")]
+        self.assertEqual(list_of_usernames, ["andr", "Andromède", "andré", "MisterAndrew", "alexandre"])
+
     def test_register_new_user(self):
         """
         Registers a new user in the database.

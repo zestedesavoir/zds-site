@@ -14,7 +14,7 @@ from zds.tutorialv2.models import TYPE_CHOICES
 from zds.tutorialv2.models.database import PublishableContent
 from django.utils.translation import gettext_lazy as _
 from zds.utils.forms import IncludeEasyMDE
-from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
+from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError
 
 
 class FormWithTitle(forms.Form):
@@ -108,48 +108,14 @@ class ContainerForm(FormWithTitle):
 
 
 class ContentForm(ContainerForm):
-    description = forms.CharField(
-        label=_("Description"),
-        max_length=PublishableContent._meta.get_field("description").max_length,
-        required=False,
-    )
-
-    image = forms.FileField(
-        label=_("Sélectionnez le logo du contenu (max. {} Ko).").format(
-            str(settings.ZDS_APP["gallery"]["image_max_size"] / 1024)
-        ),
-        validators=[with_svg_validator],
-        required=False,
-    )
-
-    type = forms.ChoiceField(choices=TYPE_CHOICES, required=False)
+    type = forms.ChoiceField(choices=TYPE_CHOICES, required=True)
 
     def _create_layout(self):
         self.helper.layout = Layout(
             IncludeEasyMDE(),
             Field("title"),
-            Field("description"),
             Field("type"),
-            Field("image"),
-            Field("introduction", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-            with text=form.introduction.value %}{% endif %}'
-            ),
-            Field("conclusion", css_class="md-editor preview-source"),
-            ButtonHolder(
-                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            ),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-            with text=form.conclusion.value %}{% endif %}'
-            ),
-            Field("last_hash"),
-            Field("msg_commit"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
+            StrictButton("Valider", type="submit"),
         )
 
     def __init__(self, *args, **kwargs):
@@ -162,47 +128,6 @@ class ContentForm(ContainerForm):
 
         if "type" in self.initial:
             self.helper["type"].wrap(Field, disabled=True)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        image = cleaned_data.get("image", None)
-        if image is not None and image.size > settings.ZDS_APP["gallery"]["image_max_size"]:
-            self._errors["image"] = self.error_class(
-                [
-                    _("Votre logo est trop lourd, la limite autorisée est de {} Ko").format(
-                        settings.ZDS_APP["gallery"]["image_max_size"] / 1024
-                    )
-                ]
-            )
-        return cleaned_data
-
-
-class EditContentForm(ContentForm):
-    title = None
-    description = None
-    type = None
-
-    def _create_layout(self):
-        self.helper.layout = Layout(
-            IncludeEasyMDE(),
-            Field("image"),
-            Field("introduction", css_class="md-editor preview-source"),
-            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            HTML(
-                '{% if form.introduction.value %}{% include "misc/preview.part.html" \
-                with text=form.introduction.value %}{% endif %}'
-            ),
-            Field("conclusion", css_class="md-editor preview-source"),
-            StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
-            HTML(
-                '{% if form.conclusion.value %}{% include "misc/preview.part.html" \
-                with text=form.conclusion.value %}{% endif %}'
-            ),
-            Field("last_hash"),
-            Field("subcategory", template="crispy/checkboxselectmultiple.html"),
-            Field("msg_commit"),
-            ButtonHolder(StrictButton("Valider", type="submit")),
-        )
 
 
 class ExtractForm(FormWithTitle):

@@ -3,28 +3,23 @@ from datetime import datetime
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Layout, Field, HTML, ButtonHolder
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.forms import forms, CharField
+from django.forms import forms, CharField, Textarea, TextInput
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, FormView
 
-from zds.gallery.mixins import ImageCreateMixin, NotAnImage
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
-from zds.tutorialv2.forms import (
-    ContentForm,
-    FormWithTitle,
-    EditContentForm,
-)
+from zds.tutorialv2.forms import ContentForm, FormWithTitle
 from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
     SingleContentViewMixin,
@@ -33,6 +28,7 @@ from zds.tutorialv2.mixins import (
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
+from zds.utils.forms import IncludeEasyMDE
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
@@ -41,25 +37,15 @@ from zds.tutorialv2.models import CONTENT_TYPE_LIST
 logger = logging.getLogger(__name__)
 
 
-class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
-    """
-    Handle content creation. Since v22 a licence must be explicitly selected
-    instead of defaulting to "All rights reserved". Users can however
-    set a default licence in their profile.
-    """
-
+class CreateContentView(LoggedWithReadWriteHability, FormView):
     template_name = "tutorialv2/create/content.html"
     model = PublishableContent
     form_class = ContentForm
-    content = None
-    created_content_type = "TUTORIAL"
 
     def get_form(self, form_class=ContentForm):
         form = super().get_form(form_class)
         content_type = self.kwargs["created_content_type"]
-        if content_type in CONTENT_TYPE_LIST:
-            self.created_content_type = content_type
-        form.initial["type"] = self.created_content_type
+        form.initial["type"] = content_type if content_type in CONTENT_TYPE_LIST else "TUTORIAL"
         return form
 
     def get_context_data(self, **kwargs):
@@ -69,133 +55,32 @@ class CreateContent(LoggedWithReadWriteHability, FormWithPreview):
         return context
 
     def form_valid(self, form):
-        # create the object:
-        self.content = PublishableContent()
-        self.content.title = form.cleaned_data["title"]
-        self.content.description = form.cleaned_data["description"]
-        self.content.type = form.cleaned_data["type"]
-        self.content.licence = self.request.user.profile.licence  # Use the preferred license of the user if it exists
-        self.content.creation_date = datetime.now()
+        self.content = PublishableContent(
+            title=form.cleaned_data["title"],
+            type=form.cleaned_data["type"],
+            licence=self.request.user.profile.licence,  # Use the preferred license of the user if it exists
+            creation_date=datetime.now(),
+        )
 
-        gallery = Gallery.objects.create(
+        self.content.gallery = Gallery.objects.create(
             title=self.content.title,
             slug=slugify(self.content.title),
             pubdate=datetime.now(),
         )
 
-        # create image:
-        if "image" in self.request.FILES:
-            mixin = ImageCreateMixin()
-            mixin.gallery = gallery
-            try:
-                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
-            except NotAnImage:
-                form.add_error("image", _("Image invalide"))
-                return super().form_invalid(form)
-            img.pubdate = datetime.now()
-        self.content.gallery = gallery
-        self.content.save()
-        if "image" in self.request.FILES:
-            self.content.image = img
-            self.content.save()
+        self.content.save()  # Commit to database before updating relationships
 
-        # We need to save the content before changing its author list since it's a many-to-many relationship
+        # Update relationships
         self.content.authors.add(self.request.user)
-
         self.content.ensure_author_gallery()
-        self.content.save()
 
-        # create a new repo :
-        init_new_repo(
-            self.content,
-            form.cleaned_data["introduction"],
-            form.cleaned_data["conclusion"],
-            form.cleaned_data["msg_commit"],
-        )
+        # Create a new git repository
+        init_new_repo(self.content)
 
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse("content:view", args=[self.content.pk, self.content.slug])
-
-
-class EditContent(LoggedWithReadWriteHability, SingleContentFormViewMixin, FormWithPreview):
-    template_name = "tutorialv2/edit/content.html"
-    model = PublishableContent
-    form_class = EditContentForm
-
-    def get_initial(self):
-        """rewrite function to pre-populate form"""
-        initial = super().get_initial()
-        versioned = self.versioned_object
-
-        initial["introduction"] = versioned.get_introduction()
-        initial["conclusion"] = versioned.get_conclusion()
-        initial["subcategory"] = self.object.subcategory.all()
-        initial["last_hash"] = versioned.compute_hash()
-
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if "preview" not in self.request.POST:
-            context["gallery"] = self.object.gallery
-
-        return context
-
-    def form_valid(self, form):
-        versioned = self.versioned_object
-        publishable = self.object
-
-        # check if content has changed:
-        current_hash = versioned.compute_hash()
-        if current_hash != form.cleaned_data["last_hash"]:
-            data = form.data.copy()
-            data["last_hash"] = current_hash
-            data["introduction"] = versioned.get_introduction()
-            data["conclusion"] = versioned.get_conclusion()
-            form.data = data
-            messages.error(self.request, _("Une nouvelle version a été postée avant que vous ne validiez."))
-            return self.form_invalid(form)
-
-        publishable.update_date = datetime.now()
-
-        # update image
-        if "image" in self.request.FILES:
-            gallery_defaults = {
-                "title": publishable.title,
-                "slug": slugify(publishable.title),
-                "pubdate": datetime.now(),
-            }
-            gallery, _created = Gallery.objects.get_or_create(pk=publishable.gallery.pk, defaults=gallery_defaults)
-            mixin = ImageCreateMixin()
-            mixin.gallery = gallery
-            try:
-                img = mixin.perform_create(str(_("Icône du contenu")), self.request.FILES["image"])
-            except NotAnImage:
-                form.add_error("image", _("Image invalide"))
-                return super().form_invalid(form)
-            img.pubdate = datetime.now()
-            publishable.image = img
-
-        publishable.save()
-
-        # now, update the versioned information
-        sha = versioned.repo_update_top_container(
-            publishable.title,
-            publishable.slug,
-            form.cleaned_data["introduction"],
-            form.cleaned_data["conclusion"],
-            form.cleaned_data["msg_commit"],
-        )
-
-        # update relationships :
-        publishable.sha_draft = sha
-
-        publishable.save()
-
-        self.success_url = reverse("content:view", args=[publishable.pk, publishable.slug])
-        return super().form_valid(form)
 
 
 class EditTitleForm(FormWithTitle):
@@ -345,6 +230,198 @@ class EditSubtitle(LoginRequiredMixin, SingleContentFormViewMixin):
             versioned_content.get_introduction(),
             versioned_content.get_conclusion(),
             f"Nouveau sous-titre ({subtitle})",
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
+
+
+class EditIntroductionForm(forms.Form):
+    introduction = CharField(
+        label=_("Introduction"),
+        required=False,
+        widget=Textarea(
+            attrs={"placeholder": _("Votre introduction, au format Markdown."), "class": "md-editor preview-source"}
+        ),
+    )
+
+    commit_message = CharField(
+        label=_("Message de suivi"),
+        max_length=400,
+        required=False,
+        widget=TextInput(attrs={"placeholder": _("Un résumé de vos ajouts et modifications.")}),
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_action = reverse("content:edit-introduction", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            IncludeEasyMDE(),
+            Field("introduction"),
+            ButtonHolder(
+                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn"),
+            ),
+            HTML(
+                """{% if form.introduction.value %}{% include "misc/preview.part.html" with text=form.introduction.value %}{% endif %}"""
+            ),
+            Field("commit_message"),
+            ButtonHolder(StrictButton(_("Modifier"), type="submit")),
+        )
+
+
+class EditIntroductionView(LoginRequiredMixin, SingleContentFormViewMixin, FormWithPreview):
+    model = PublishableContent
+    form_class = EditIntroductionForm
+    template_name = "tutorialv2/edit/introduction.html"
+    success_message = _("L'introduction de la publication a bien été changée.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "preview" not in self.request.POST:
+            context["gallery"] = self.object.gallery
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        introduction = self.versioned_object.get_introduction()
+        initial["introduction"] = introduction
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+
+        commit_message = "Modification de l'introduction"
+        if form.cleaned_data["commit_message"] != "":
+            commit_message = form.cleaned_data["commit_message"]
+
+        sha = self.update_introduction_in_repository(
+            publishable, versioned, form.cleaned_data["introduction"], commit_message
+        )
+        self.update_sha_draft(publishable, sha)
+
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("content:view", args=[self.object.pk, self.object.slug])
+
+    @staticmethod
+    def update_introduction_in_repository(publishable_content, versioned_content, introduction, commit_message):
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            introduction,
+            versioned_content.get_conclusion(),
+            commit_message,
+        )
+        return sha
+
+    @staticmethod
+    def update_sha_draft(publishable_content, sha):
+        publishable_content.sha_draft = sha
+        publishable_content.save()
+
+
+class EditConclusionForm(forms.Form):
+    conclusion = CharField(
+        label=_("Conclusion"),
+        required=False,
+        widget=Textarea(
+            attrs={"placeholder": _("Votre conclusion, au format Markdown."), "class": "md-editor preview-source"}
+        ),
+    )
+
+    commit_message = CharField(
+        label=_("Message de suivi"),
+        max_length=400,
+        required=False,
+        widget=TextInput(attrs={"placeholder": _("Un résumé de vos ajouts et modifications.")}),
+    )
+
+    def __init__(self, versioned_content, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.form_action = reverse("content:edit-conclusion", kwargs={"pk": versioned_content.pk})
+        self.helper.layout = Layout(
+            IncludeEasyMDE(),
+            Field("conclusion"),
+            ButtonHolder(
+                StrictButton(_("Aperçu"), type="preview", name="preview", css_class="btn btn-grey preview-btn")
+            ),
+            HTML(
+                """{% if form.conclusion.value %}{% include "misc/preview.part.html" with text=form.conclusion.value %}{% endif %}"""
+            ),
+            Field("commit_message"),
+            ButtonHolder(StrictButton(_("Modifier"), type="submit")),
+        )
+
+
+class EditConclusionView(LoginRequiredMixin, SingleContentFormViewMixin, FormWithPreview):
+    model = PublishableContent
+    form_class = EditConclusionForm
+    template_name = "tutorialv2/edit/conclusion.html"
+    success_message = _("La conclusion de la publication a bien été changée.")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if "preview" not in self.request.POST:
+            context["gallery"] = self.object.gallery
+        return context
+
+    def get_initial(self):
+        initial = super().get_initial()
+        conclusion = self.versioned_object.get_conclusion()
+        initial["conclusion"] = conclusion
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["versioned_content"] = self.versioned_object
+        return kwargs
+
+    def form_valid(self, form):
+        publishable = self.object
+        versioned = self.versioned_object
+
+        commit_message = "Modification de la conclusion"
+        if form.cleaned_data["commit_message"] != "":
+            commit_message = form.cleaned_data["commit_message"]
+
+        sha = self.update_conclusion_in_repository(
+            publishable, versioned, form.cleaned_data["conclusion"], commit_message
+        )
+        self.update_sha_draft(publishable, sha)
+
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse("content:view", args=[self.object.pk, self.object.slug])
+
+    @staticmethod
+    def update_conclusion_in_repository(publishable_content, versioned_content, conclusion, commit_message):
+        sha = versioned_content.repo_update_top_container(
+            publishable_content.title,
+            publishable_content.slug,
+            versioned_content.get_introduction(),
+            conclusion,
+            commit_message,
         )
         return sha
 

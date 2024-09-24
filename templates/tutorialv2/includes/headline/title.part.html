@@ -1,12 +1,25 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load captureas %}
+
 
 <div class="title-block">
-    {% if show_thumbnail and content.image %}
-        <div class="content-thumbnail-group">
-            <img class="thumbnail" src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
+
+    {% if show_thumbnail %}
+        <div class="content-thumbnail-group {% if not content.image %}{{ content.type|lower }}-illu{% endif %}">
+            {% if content.image %}
+                <img class="thumbnail" src="{{ content.image.physical.tutorial_illu.url }}" alt="" itemprop="thumbnailUrl">
+            {% endif %}
+            {% if show_form %}
+                {% captureas class_modifier %}{% if content.image %}with-thumbnail{% else %}with-placeholder{% endif %}{% endcaptureas %}
+                <a href="#edit-thumbnail" class="open-modal edit-thumbnail {{ class_modifier }}" title="{% trans "Modifier la miniature" %}">
+                    <span class="visuallyhidden">{% trans "Modifier la miniature" %}</span>
+                </a>
+                {% crispy form_edit_thumbnail %}
+            {% endif %}
         </div>
     {% endif %}
+
     <div class="content-title-and-subtitle-group">
         <div class="content-title-group">
             {% spaceless %}
