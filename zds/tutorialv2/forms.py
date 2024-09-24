@@ -14,7 +14,7 @@ from zds.tutorialv2.models import TYPE_CHOICES
 from zds.tutorialv2.models.database import PublishableContent
 from django.utils.translation import gettext_lazy as _
 from zds.utils.forms import IncludeEasyMDE
-from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
+from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError
 
 
 class FormWithTitle(forms.Form):
