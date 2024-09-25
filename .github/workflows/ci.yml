@@ -182,6 +182,11 @@ jobs:
           name: assets
           path: dist
 
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ env.PYTHON_VERSION }}"
+
       - name: Upgrade pip
         run: |
           pip install --upgrade pip
@@ -205,11 +210,6 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('zmd/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: "${{ env.PYTHON_VERSION }}"
 
       - name: Set up NodeJS ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v4
