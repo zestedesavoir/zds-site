@@ -24,7 +24,7 @@ jobs:
   # Lint all source files by executing pre-commit hooks.
   lint:
     name: Lint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     # do not execute scheduled jobs on forks:
     if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
@@ -44,7 +44,7 @@ jobs:
   # Build the documentation and upload it as an artifact.
   build-doc:
     name: Build Sphinx documentation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     # do not execute scheduled jobs on forks:
     if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
@@ -87,7 +87,7 @@ jobs:
   # Build the website front-end and upload built assets as an artifact.
   build-front:
     name: Lint and build front-end
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     # do not execute scheduled jobs on forks:
     if: ${{ github.event_name != 'schedule' || github.repository_owner == 'zestedesavoir' }}
@@ -137,7 +137,7 @@ jobs:
   test:
     name: Install and test zds-site
     needs: build-front
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
@@ -246,7 +246,7 @@ jobs:
   coverage:
     name: Push coverage to Coveralls
     needs: test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Set up Python ${{ env.PYTHON_VERSION }}
@@ -266,7 +266,7 @@ jobs:
   push_doc:
     name: Push documentation to GitHub Pages
     needs: ["build-doc", "test"]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: "github.ref == 'refs/heads/dev'"
 
     environment:
