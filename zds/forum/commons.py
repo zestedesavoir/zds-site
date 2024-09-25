@@ -71,8 +71,6 @@ class TopicEditMixin:
                 raise Http404("Forum not found", e)
             forum = get_object_or_404(Forum, pk=forum_pk)
             self.object.forum = forum
-
-            # Save topic to update update_index_date
             self.object.save()
 
             signals.topic_moved.send(sender=self.object.__class__, topic=self.object)

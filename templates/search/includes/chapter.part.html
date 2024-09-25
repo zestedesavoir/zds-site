@@ -1,9 +1,7 @@
-{% load emarkdown %}
 {% load i18n %}
 {% load date %}
-{%  load elasticsearch %}
 
-<a href="{{ search_result.get_absolute_url_online }}" tabindex="-1" class="content-illu">
+<a href="{{ search_result.get_absolute_url_online }}" tabindex="-1" class="content-illu tutorial-illu">
     {% if search_result.thumbnail %}
         <img src="{{ search_result.thumbnail }}" alt="{{ search_result.title }}">
     {% endif %}
@@ -17,9 +15,13 @@
             </a>
         </h3>
 
-        <p class="content-description is-long">
+        <p class="content-description is-long" {% if not search_result.text and not search_result.description %}aria-hidden="true"{% endif %}>
             <a href="{{ search_result.get_absolute_url_online }}" title="{{ search_result.title }}">
-                {% highlight search_result "text" %}
+                {% if search_result.highlights.snippet %}
+                    {{ search_result.highlights.snippet|safe }}
+                {% else %}
+                    {{ search_result.description }}
+                {% endif %}
             </a>
         </p>
     </header>
@@ -30,9 +32,9 @@
                 {% trans "Chapitre du tutoriel" %}
                 <a href="{{ search_result.parent_get_absolute_url_online }}">{{ search_result.parent_title }}</a> &bullet;
 
-                <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date|from_elasticsearch_date }}">
-                    <span class="long">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date|capfirst }}</span>
-                    <span class="short">{{ search_result.parent_publication_date|from_elasticsearch_date|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ search_result.parent_publication_date|date_from_timestamp }}">
+                    <span class="long">{{ search_result.parent_publication_date|date_from_timestamp|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.parent_publication_date|date_from_timestamp|format_date:True|capfirst }}</span>
                 </time>
             </p>
         </div>

@@ -106,7 +106,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_type = versioned.type
     public_version.content_pk = db_object.pk
     public_version.content = db_object
-    public_version.must_reindex = True
     public_version.char_count = char_count
     public_version.save()
     with contextlib.suppress(FileExistsError):

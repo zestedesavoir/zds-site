@@ -11,13 +11,13 @@ env:
   PYTHON_VERSION: "3.9"
   MARIADB_VERSION: "10.4.10"
   COVERALLS_VERSION: "3.3.1" # check if Coverage needs to be also updated in requirements-ci.txt
+  TYPESENSE_VERSION: "27.0" # needs to be also updated in scripts/define_variable.sh
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
   # reference. If you update these versions, you HAVE TO
   # update the versions in the services definitions of the
   # test job.
-  ELASTICSEARCH_VERSION: "5.5.2"
   MEMCACHED_VERSION: "1.6"
 
 jobs:
@@ -132,7 +132,7 @@ jobs:
 
   # Test the zds-site project.
   # Install the project, using assets created during the previous job,
-  # and install elasticsearch & memcache as a service. Then, run the tests
+  # and install Typesense & Memcached as a service. Then, run the tests
   # in a matrix build to parallelize multiple components.
   test:
     name: Install and test zds-site
@@ -144,27 +144,11 @@ jobs:
         module:
           [
             "zds.tutorialv2",
-            "zds.member zds.gallery zds.searchv2 zds.middlewares zds.pages",
+            "zds.member zds.gallery zds.search zds.middlewares zds.pages",
             "zds.forum zds.featured zds.mp zds.notification zds.utils",
           ]
 
     services:
-      elasticsearch:
-        image: "elasticsearch:5.5.2"
-        ports:
-          - "9200:9200"
-        env:
-          "http.host": "0.0.0.0"
-          "transport.host": "127.0.0.1"
-          "xpack.security.enabled": false
-          "ES_JAVA_OPTS": "-Xms512m -Xmx512m"
-        options: >-
-          -e="discovery.type=single-node"
-          --health-cmd="curl http://localhost:9200/_cluster/health"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
-
       memcached:
         image: "memcached:1.6"
         ports:
@@ -182,6 +166,12 @@ jobs:
           mariadb version: "${{ env.MARIADB_VERSION }}"
           mysql database: "ci_db_name"
           mysql root password: "ci_root_password"
+
+      - name: Start Typesense
+        uses: jirevwe/typesense-github-action@v1.0.1
+        with:
+          typesense-version: ${{ env.TYPESENSE_VERSION }}
+          typesense-api-key: xyz
 
       - name: Checkout
         uses: actions/checkout@v4

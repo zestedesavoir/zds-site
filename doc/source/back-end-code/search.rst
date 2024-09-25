@@ -1,19 +1,19 @@
 ============================
-La recherche (``searchv2/``)
+La recherche (``search/``)
 ============================
 
-Module situé dans ``zds/searchv2/``.
+Module situé dans ``zds/search/``.
 
 .. contents:: Fichiers documentés :
 
 Modèles (``models.py``)
 =======================
 
-.. automodule:: zds.searchv2.models
+.. automodule:: zds.search.models
     :members:
 
 Vues (``views.py``)
 ===================
 
-.. automodule:: zds.searchv2.views
+.. automodule:: zds.search.views
     :members:

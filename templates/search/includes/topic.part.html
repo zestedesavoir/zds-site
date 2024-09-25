@@ -1,4 +1,3 @@
-{% load emarkdown %}
 {% load i18n %}
 {% load date %}
 
@@ -13,7 +12,11 @@
         <p class="content-description">
             <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.title }}">
                 {% with text=search_result.subtitle|striptags|safe %}
-                    {{ text }}
+                    {% if search_result.highlights.snippet %}
+                        {{ search_result.highlights.snippet|safe }}
+                    {% else %}
+                        {{ text }}
+                    {% endif %}
                 {% endwith %}
             </a>
         </p>
@@ -25,12 +28,22 @@
                 {% trans "Sujet du forum" %}
                 <a href="{{ search_result.forum_get_absolute_url }}">{{ search_result.forum_title }}</a> &bullet;
 
-                <time class="content-pubdate" pubdate="{{ search_result.pubdate|from_elasticsearch_date }}">
-                    <span class="long">{{ search_result.pubdate|from_elasticsearch_date|format_date|capfirst }}</span>
-                    <span class="short">{{ search_result.pubdate|from_elasticsearch_date|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ search_result.pubdate|date_from_timestamp }}">
+                    <span class="long">{{ search_result.pubdate|date_from_timestamp|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.pubdate|date_from_timestamp|format_date:True|capfirst }}</span>
                 </time>
             </p>
         </div>
     </footer>
 
 </div>
+
+{% if search_result.tags %}
+    <ul class="content-tags" itemprop="keywords">
+        {% for tag in search_result.tags|slice:":3" %}
+            <li>
+                <a href="{% url 'forum:topic-tag-find' tag.slug %}">{{ tag.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

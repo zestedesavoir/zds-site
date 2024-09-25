@@ -12,18 +12,18 @@ LOGOUT_REDIRECT_URL = "homepage"
 GEOIP_PATH = str(BASE_DIR / "geodata")
 GEOIP_CITY = "GeoLite2-City.mmdb"
 
-ES_ENABLED = True
+SEARCH_ENABLED = True
 
-ES_CONNECTIONS = {
-    "default": {
-        "hosts": ["localhost:9200"],
-    }
-}
-
-ES_SEARCH_INDEX = {
-    "name": "zds_search",
-    "shards": 3,
-    "replicas": 0,
+SEARCH_CONNECTION = {
+    "nodes": [
+        {
+            "host": "localhost",
+            "port": "8108",
+            "protocol": "http",
+        }
+    ],
+    "api_key": "xyz",
+    "connection_timeout_seconds": 5,
 }
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
@@ -50,6 +50,11 @@ THUMBNAIL_ALIASES = {
 }
 
 DEFAULT_ASSO_LINK = "https://www.helloasso.com/associations/zeste-de-savoir/adhesions/zeste-de-savoir-cotisations-2018"
+
+global_weight_publishedcontent = 2
+global_weight_topic = 2
+global_weight_chapter = 1.5
+global_weight_post = 0.8
 
 ZDS_APP = {
     "site": {
@@ -177,6 +182,7 @@ ZDS_APP = {
         "helps_per_page": 20,
         "commits_per_page": 20,
         "suggestions_per_page": 2,
+        "max_suggestion_search_results": 10,
         "mass_edit_goals_content_per_page": 25,
         "view_contents_by_goal_content_per_page": 42,
         "view_contents_by_label_content_per_page": 42,
@@ -210,6 +216,7 @@ ZDS_APP = {
         "top_tag_exclu": ["bug", "suggestion", "tutoriel", "beta", "article"],
         "greetings": ["salut", "bonjour", "yo ", "hello", "bon matin", "tout le monde se secoue"],
         "description_size": 120,
+        "max_similar_topics": 10,
     },
     "topic": {
         "home_number": 5,
@@ -227,37 +234,57 @@ ZDS_APP = {
     },
     "paginator": {"folding_limit": 4},
     "search": {
-        "mark_keywords": ["javafx", "haskell", "groovy", "powershell", "latex", "linux", "windows"],
         "results_per_page": 20,
         "search_groups": {
-            "content": (_("Contenus publiés"), ["publishedcontent", "chapter"]),
+            "publishedcontent": (_("Contenus publiés"), ["publishedcontent", "chapter"]),
             "topic": (_("Sujets du forum"), ["topic"]),
             "post": (_("Messages du forum"), ["post"]),
         },
+        "search_content_type": {
+            "tutorial": (_("Tutoriels"), ["tutorial"]),
+            "article": (_("Articles"), ["article"]),
+            "opinion": (_("Billet"), ["opinion"]),
+        },
+        "search_validated_content": {
+            "validated": (_("Contenus validés"), ["validated"]),
+            "no_validated": (_("Contenus libres"), ["no_validated"]),
+        },
         "boosts": {
             "publishedcontent": {
-                "global": 3.0,
-                "if_article": 1.0,
-                "if_tutorial": 1.0,
-                "if_medium_or_big_tutorial": 1.5,
-                "if_opinion": 0.66,
-                "if_opinion_not_picked": 0.5,
-            },
-            "topic": {
-                "global": 2.0,
-                "if_solved": 1.1,
-                "if_sticky": 1.2,
-                "if_locked": 0.1,
+                "global": global_weight_publishedcontent,
+                "if_article": global_weight_publishedcontent * 1.5,
+                "if_tutorial": global_weight_publishedcontent * 1.5,
+                "if_medium_or_big_tutorial": global_weight_publishedcontent * 1.7,
+                "if_opinion": global_weight_publishedcontent * 1.3,
+                "if_opinion_not_picked": global_weight_publishedcontent * 1.1,
+                "title": global_weight_publishedcontent * 4,
+                "description": global_weight_publishedcontent * 2,
+                "categories": global_weight_publishedcontent * 1,
+                "subcategories": global_weight_publishedcontent * 1,
+                "tags": global_weight_publishedcontent * 1,
+                "text": global_weight_publishedcontent * 2,
             },
             "chapter": {
-                "global": 1.5,
+                "global": global_weight_chapter,
+                "title": global_weight_chapter * 3,
+                "text": global_weight_chapter * 2,
+            },
+            "topic": {
+                "global": global_weight_topic,
+                "if_solved": global_weight_topic * 1.1,
+                "if_sticky": global_weight_topic * 1.2,
+                "if_locked": global_weight_topic * 0.1,
+                "title": global_weight_topic * 3,
+                "subtitle": global_weight_topic * 2,
+                "tags": global_weight_topic * 1,
             },
             "post": {
-                "global": 1.0,
-                "if_first": 1.2,
-                "if_useful": 1.5,
-                "ld_ratio_above_1": 1.05,
-                "ld_ratio_below_1": 0.95,
+                "global": global_weight_post,
+                "if_first": global_weight_post * 1.5,
+                "if_useful": global_weight_post * 1.2,
+                "ld_ratio_above_1": global_weight_post * 1.05,
+                "ld_ratio_below_1": global_weight_post * 0.95,
+                "text": global_weight_post,
             },
         },
     },

@@ -18,20 +18,15 @@ class SearchForm(forms.Form):
         widget=forms.TextInput(attrs={"type": "search", "required": "required", "id": "search-home"}),
     )
 
-    choices = sorted(
+    model_choices = sorted(
         ((k, v[0]) for k, v in settings.ZDS_APP["search"]["search_groups"].items()), key=lambda pair: pair[1]
     )
-
     models = forms.MultipleChoiceField(
         label="",
         widget=forms.CheckboxSelectMultiple(attrs={"class": "search-filters", "form": "search-form"}),
         required=False,
-        choices=choices,
+        choices=model_choices,
     )
-
-    category = forms.CharField(widget=forms.HiddenInput, required=False)
-    subcategory = forms.CharField(widget=forms.HiddenInput, required=False)
-    from_library = forms.CharField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,7 +48,24 @@ class SearchForm(forms.Form):
         self.helper.layout = Layout(
             Field("q"),
             StrictButton(_("Rechercher"), type="submit", css_class="ico-after ico-search", title=_("Rechercher")),
-            Field("category"),
-            Field("subcategory"),
-            Field("from_library"),
         )
+
+    def clean(self):
+        """Override clean() to add a field containing collections we have actually to search into."""
+        cleaned_data = super().clean()
+
+        if len(cleaned_data["models"]) == 0:
+            # Search in all collections
+            cleaned_data["search_collections"] = [
+                c for _, v in settings.ZDS_APP["search"]["search_groups"].items() for c in v[1]
+            ]
+        else:
+            # Search in collections of selected models
+            cleaned_data["search_collections"] = [
+                c
+                for k, v in settings.ZDS_APP["search"]["search_groups"].items()
+                for c in v[1]
+                if k in cleaned_data["models"]
+            ]
+
+        return cleaned_data

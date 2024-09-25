@@ -1,19 +1,21 @@
-{% load emarkdown %}
 {% load i18n %}
 {% load date %}
-{% load elasticsearch %}
 
 <div class="content-info">
     <header>
         <h3 class="content-title" itemprop="itemListElement">
             <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.topic_title }}">
-                {%  trans "Dans le topic" %} « {{ search_result.topic_title }} »
+                {%  trans "Dans le sujet" %} « {{ search_result.topic_title }} »
             </a>
         </h3>
 
         <p class="content-description">
             <a href="{{ search_result.get_absolute_url }}" title="{{ search_result.topic_title }}">
-                {% highlight search_result "text_html" %}
+                {% if search_result.highlights.snippet %}
+                    {{ search_result.highlights.snippet|safe }}
+                {% else %}
+                    {{ search_result.text_html|striptags }}
+                {% endif %}
             </a>
         </p>
     </header>
@@ -24,9 +26,9 @@
                 {% trans "Message du forum" %}
                 <a href="{{ search_result.forum_get_absolute_url }}">{{ search_result.forum_title }}</a> &bullet;
 
-                <time class="content-pubdate" pubdate="{{ search_result.pubdate|from_elasticsearch_date }}">
-                    <span class="long">{{ search_result.pubdate|from_elasticsearch_date|format_date|capfirst }}</span>
-                    <span class="short">{{ search_result.pubdate|from_elasticsearch_date|format_date:True|capfirst }}</span>
+                <time class="content-pubdate" pubdate="{{ search_result.pubdate|date_from_timestamp }}">
+                    <span class="long">{{ search_result.pubdate|date_from_timestamp|format_date|capfirst }}</span>
+                    <span class="short">{{ search_result.pubdate|date_from_timestamp|format_date:True|capfirst }}</span>
                 </time>
             </p>
         </div>

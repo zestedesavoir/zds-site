@@ -124,9 +124,7 @@ THUMBNAIL_OPTIMIZE_COMMAND = {
 ###############################################################################
 # ZESTE DE SAVOIR SETTINGS
 
-
-ES_SEARCH_INDEX["shards"] = config["elasticsearch"].get("shards", 3)
-
+SEARCH_CONNECTION["api_key"] = config["typesense"].get("api_key", "xyz")
 
 ZDS_APP["site"]["association"]["email"] = "communication@zestedesavoir.com"
 
