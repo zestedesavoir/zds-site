@@ -25,7 +25,16 @@ body {
 }
 
 // Elements with a dark background
-.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .modal-title, .taglist, .hat, .linkbox-item.primary {
+.flexpage-header,
+.write-tutorial,
+.page-footer,
+.header-menu,
+.header-right,
+.modal-title,
+.taglist,
+.hat,
+.linkbox-item.primary,
+article.about-technology {
     &::selection, *::selection {
         @include negative-selection;
     }

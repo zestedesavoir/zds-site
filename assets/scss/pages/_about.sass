@@ -1,0 +1,351 @@
+@import "../variables/typography"
+@import "../variables/colors"
+@import "../variables/lengths"
+@import "../variables/radius"
+@import "../variables/media-queries"
+
+
+// This SASS file is used by all about-like pages: pages/about, pages/technologies.
+
+
+\:root
+  --bold-about-block-background: linear-gradient(45deg, #{$primary-800}, #{$primary-500})
+  --bold-about-block-color: #{$white}
+
+
+// In lots of places in this file, you'll see selectors like “&, a”
+// inside a paragraph or any other text container. Links are stylised
+// strongly with low-specificity selectors, hence the need to apply
+// styles like font size of font style explicitly using these double
+// selectors. We would have to do the same with other inline text
+// elements like `strong`, `em`, `abbr`, and such.
+
+
+// This placeholder generates a rounded colored-background block with
+// two columns, by default with a 2/5 — 3/5 layout, for “technology”
+// and “legal” sections. One can configure the sections’ styles with
+// CSS variables (beware of accessibility), or override the grid.
+%about-two-columns
+  --about-color: var(--bold-about-block-color)
+  --about-bg: var(--bold-about-block-background)
+  --about-titles: #{$primary-000}
+  --about-links: #{$primary-100}
+  --about-links-hover: #{$primary-000}
+
+  display: grid
+  grid-template-columns: repeat(5, 1fr)
+  grid-gap: $length-10
+
+  margin-top: $length-96
+  padding: $length-24
+
+  border-radius: $radius-2
+  background: var(--about-bg)
+  color: var(--about-color)
+
+  +mobile
+    // On mobile, we deactivate the grid: all the blocks stack up naturally.
+    display: block
+
+    padding: $length-16
+    border-radius: 0
+
+    h2, h3, p
+      margin-right: 0
+      margin-left: 0
+      padding-right: 0
+      padding-left: 0
+
+  // On tablets, the block touches the screen edges.
+  // Rounded corners are unsightly.
+  +tablet-only
+    border-radius: 0
+
+  > header
+    grid-row: 1
+    grid-column: 1 / 3
+
+    // On mobile everything is stacked up. So we need a vertical margin.
+    // Useless on desktop as there is nothing under the header.
+    +mobile
+      margin-bottom: $length-24
+
+    h2, h3
+      margin-top: 0
+      margin-bottom: 0
+
+      font-size: $font-size-5
+      font-weight: bold
+      line-height: 1.2
+      color: var(--about-titles)
+
+      +mobile
+        font-size: $font-size-6
+
+    h2
+      border: none
+
+    p
+      margin: $length-12 0
+      font-family: $font-serif
+
+      // The first paragraph is like a subtitle.
+      // It is displayed bigger.
+      &:first-of-type
+        &, a
+          font-size: $font-size-7
+
+          +mobile
+            font-size: $font-size-8
+
+      &.about-block-aside
+        &, a
+          font-size: $font-size-9
+          font-style: italic
+
+  a
+    color: var(--about-links)
+
+    &:hover
+        color: var(--about-links-hover)
+
+  > dl, > div, > p
+    grid-row: 1
+    grid-column: 3 / 6
+
+    +mobile
+      grid-row: 2
+      grid-column: 1
+
+
+
+section#about-page
+  display: grid
+  grid-template-columns: repeat(3, 1fr)
+  grid-gap: $length-16
+
+  +until-extra-wide
+    grid-column-gap: $length-32
+
+  // On mobile, we deactivate the grid: all the blocks stack up naturally.
+  +mobile
+    display: block
+
+  // The header and the main description of the “about” page spans over
+  // two-thirds of the page/grid. We have to override some properties due
+  // to low-specificity generic legacy styles.
+  > header
+    grid-row: 1
+    grid-column: 1 / 4
+
+    +until-extra-wide
+      grid-column: 1 / 3
+
+    +until-desktop
+      grid-column: 1 / 4
+
+    > h1
+      margin-top: 0
+      margin-bottom: 1rem
+
+      font-family: $font-sans-serif
+      font-size: $font-size-4
+      font-weight: 300
+
+      border: none
+
+      +until-extra-wide
+        font-size: $font-size-5
+
+      +mobile
+        margin-bottom: $length-24
+
+      +tiny
+        font-size: $font-size-6
+
+
+  // Same as above, the main description spans over 2/3 of the page.
+  > article.about-main
+    grid-row: 2
+    grid-column: 1 / 3
+
+    > p
+      font-family: $font-serif
+      font-size: $font-size-8
+
+      +until-extra-wide
+        font-size: $font-size-9
+
+      &:first-child
+        margin-top: 0
+
+      &:last-child
+        margin-bottom: 0
+
+
+  // Partnerships are displayed in the 1/3rd right part of the grid,
+  // alongside the header and main description.
+  // If in the future, lots of partnerships are added, we may want to
+  // move that under the titles and description, somewhere like
+  // grid-row: 2; grid-column: 1 / 4, with an horizontal internal layout.
+  > aside.about-partnerships
+    grid-row: 2 / 3
+    grid-column: 3 / 4
+
+    +until-extra-wide
+      grid-row: 1 / 3
+
+    +until-desktop
+      grid-row: 2 / 3
+
+    figure
+      margin: $length-32 0 0 0
+      text-align: center
+
+      +mobile
+        margin-top: $length-48
+
+      +tablet
+        &:first-child
+          margin-top: 0
+
+      img
+        max-width: 70%
+
+        +until-extra-wide
+          max-width: 50%
+
+      figcaption
+        margin-top: $length-8
+        font-size: $font-size-9
+        font-style: italic
+
+
+  // The technology block.
+  > article.about-technology
+    grid-row: 3
+    grid-column: 1 / 4
+
+    @extend %about-two-columns
+
+    // We use a definition list to display technologies
+    // sorted by category as these have a semantic meaning
+    // of key(s)-value(s) pairs, exactly what we need.
+    > dl
+
+      // To align dt and dd side-by-side, we use CSS Grid:
+      // terms are on column 1 and definitions on column 2.
+      display: grid
+
+      // grid-auto-rows: min-content is used to avoid lines
+      // to be huge and irregular.
+      grid-auto-rows: min-content
+      grid-template-columns: max-content auto
+      grid-gap: 0 $length-24
+
+      margin: 0
+
+      // Same as above, we deactivate the grid on mobile for everything
+      // to naturally stack up.
+      +mobile
+        display: block
+
+      dt
+        grid-column: 1
+
+        font-size: $font-size-7
+        font-weight: 600
+
+        text-align: right
+
+        +mobile
+          text-align: left
+
+        // Space separation when the tech category changes,
+        // i.e. when we hit a new dt. We add a margin at the
+        // top of this dt, and at the top of the next dd, so
+        // they stay aligned on their grid line.
+        // See on browser with grid inspector turned on for a
+        // visual explanation.
+        &:not(:first-child)
+          &, & + dd
+            margin-top: $length-24
+
+          +mobile
+            & + dd
+              margin-top: 0
+
+      dd
+        grid-column: 2
+        margin: 0
+
+        &, a
+          font-size: $font-size-7
+
+        a
+          color: $grey-100
+          text-decoration-color: rgba($grey-200, .8)
+          text-decoration-thickness: from-font
+
+          &:hover
+            color: $primary-000
+
+
+  // The legal block.
+  > article.about-legal,
+  > article.about-association
+    grid-row: 4
+    grid-column: 1 / 4
+
+    @extend %about-two-columns
+
+    // Narrower title column of only one third.
+    grid-template-columns: repeat(3, 1fr)
+    grid-gap: $length-16
+
+    > header
+      grid-column: 1
+
+    > div
+      grid-column: 2 / 4
+
+    // We invert all colors to get a light-theme box.
+    // Also we don't keep the gradient here.
+    // This is legal stuff. Serious stuff.
+    --about-color: #{$primary-800}
+    --about-bg: #{$primary-000}
+    --about-titles: #{$primary-900}
+    --about-links: #{$primary-500}
+    --about-links-hover: #{$primary-900}
+
+    p
+      &, a
+        font-size: $font-size-9
+
+      &:first-child
+        margin-top: 0
+
+      &:last-child
+        margin-bottom: 0
+
+    // Brighter horizontal rule blends better with this light background.
+    // (Default is $grey-200.)
+    hr
+      border-color: $grey-000
+
+  &.is-technologies-page
+    display: block  // no grid needed
+
+    .about-partnerships
+      display: flex
+      flex-direction: row
+      align-items: center
+      justify-content: space-evenly
+
+      flex-wrap: wrap
+      gap: $length-20
+
+      margin: $length-48 $length-10
+
+      img, svg
+        max-height: $length-48

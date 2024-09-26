@@ -1,0 +1,166 @@
+{% extends "pages/base.html" %}
+
+{% load i18n %}
+{% load pluralize_fr %}
+{% load static %}
+{% load set %}
+
+
+
+{% block title %}
+    {% trans "À propos" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>{% trans "À propos" %}</li>
+{% endblock %}
+
+
+
+{% block content_out %}
+    {% set app.site.literal_name as site_name %}
+    <section id="about-page" class="content-wrapper">
+        <header>
+            <h1>
+                {% blocktrans %}
+                    {{ site_name }} est un média d’auto-formation, de vulgarisation, et d’information scientifique et
+                    culturelle, en activité depuis 2014.
+                {% endblocktrans %}
+            </h1>
+        </header>
+
+        <article class="about-main">
+            <p>
+                {% blocktrans %}
+                    Nous publions — et permettons à des tiers de publier — des articles et actualités culturelles et
+                    scientifiques, ainsi que des cours. Nos contenus sont relus par une équipe éditoriale qualifiée
+                    avant publication — à l'exception des billets, publiés sous la seule responsabilité de leurs auteurs
+                    ou autrices.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans with plural=contents_count|pluralize_fr %}
+                    Nous vous proposons actuellement {{ contents_count }} publication{{ plural }} dans de nombreux
+                    domaines, allant de l’informatique aux sciences sociales, en passant par les sciences naturelles…
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Nous participons également à des événements de médiation et culture scientifique.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Nous privilégions la libre diffusion des connaissances et des outils : la plateforme est sous
+                    licence libre
+                    et open source, et nous suggérons (sans pour autant imposer) de publier sous de telles licences.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% url "pages-association" as asso_url %}
+                {% blocktrans %}
+                    {{ site_name }} est géré par
+                    <a href="{{ asso_url }}">une association à but non lucratif loi 1901</a>
+                    basée en France, afin que tout cela reste sous une gouvernance non-commerciale.
+                {% endblocktrans %}
+            </p>
+        </article>
+
+        <aside class="about-partnerships">
+            <figure>
+                <img src="{% static "images/brands/cafe-des-sciences-membre.png" %}" alt="Membre du Café des Sciences"/>
+                <figcaption>
+                    {% blocktrans %}
+                        {{ site_name }} est membre du <a href="https://cafe-sciences.org">Café des Sciences</a>, une
+                        association rassemblant de nombreux acteurs et actrices du milieu de la communication
+                        scientifique
+                        et culturelle.
+                    {% endblocktrans %}
+                </figcaption>
+            </figure>
+
+            <figure>
+                <img src="{% static "images/brands/gandi.svg" %}" alt="Gandi.net"/>
+                <figcaption>
+                    {% blocktrans %}
+                        <a href="https://news.gandi.net/fr/2021/02/gandi-soutient-zeste-de-savoir/">
+                            Gandi soutient {{ site_name }}
+                        </a>
+                        dans ses projets et ambitions en fournissant ses solutions d'hébergement généreusement et en
+                        relayant certaines de nos actualités. Merci !
+                    {% endblocktrans %}
+                </figcaption>
+            </figure>
+        </aside>
+
+        <article class="about-association">
+            <header>
+                <h2>{% trans "L’association" %}</h2>
+                <p>
+                    {% blocktrans %}
+                        Que fait l’organe légal derrière Zeste de Savoir&nbsp;?
+                    {% endblocktrans %}
+                </p>
+            </header>
+
+            <div>
+                <p>
+                    {% url "pages-contact" as contact_url %}
+                    {% blocktrans %}
+                        Ce site web est édité par l'association Zeste de Savoir, domiciliée à Levallois-Perret
+                        (Hauts-de-Seine, France) et parue au Journal Officiel le 19 avril 2014. La direction de la
+                        publication est assurée par son ou sa présidente, que vous pouvez retrouver
+                        <a href="{{ contact_url }}">sur la page contact du site</a>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans with asso_mail=app.site.association.email %}
+                        Vous pouvez joindre l’association via l’adresse courriel à l'adresse suivante :
+                        <a href="mailto:{{ asso_mail }}">{{ asso_mail }}</a>.
+                    {% endblocktrans %}
+                </p>
+                <p>
+                    {% blocktrans %}
+                        Le site est hébergé par GANDI SAS, dont le siège social est situé 63-65 boulevard Massena, 75013
+                        Paris, France.
+                    {% endblocktrans %}
+                </p>
+                {% if app.site.licenses %}
+                    <hr/>
+                    {% if app.site.licenses.source %}
+                        <p>
+                            {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
+                                Le code source de {{ site_name }} est sous licence
+                                <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de
+                                <a href="{{ provider_url }}">{{ provider_name }}</a>. Il a été écrit par
+                                <a href="{{ default_repository_url }}/graphs/contributors">plusieurs contributeurs et
+                                    contributrices.</a>
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+                    {% if app.site.licenses.logo %}
+                        <p>
+                            {% blocktrans with author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
+                                Le logo de {{ site_name }} a été créé par {{ author_logo }} et est sous
+                                <a rel="license" href="{{ url_license }}">
+                                    <img alt="{{ logo_title }}" src="{{ url_image }}">
+                                    {{ logo_desc }}
+                                </a>
+                            {% endblocktrans %}
+                        </p>
+                    {% endif %}
+
+                    <p>
+                        {% blocktrans %}
+                            L'icône plume a été dessinée par <a href="https://fontawesome.com">FontAwesome</a>,
+                            <a href="https://fontawesome.com/license/free">sous licence CC BY</a>.
+                        {% endblocktrans %}
+                    </p>
+                {% endif %}
+            </div>
+        </article>
+    </section>
+
+{% endblock %}

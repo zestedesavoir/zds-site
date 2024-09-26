@@ -1,5 +1,7 @@
 {% extends "pages/base.html" %}
+
 {% load i18n %}
+{% load pluralize_fr %}
 {% load static %}
 {% load set %}
 
@@ -17,101 +19,213 @@
 
 
 
-{% block headline %}
-    <h1>{% trans "Crédits techniques" %}</h1>
-{% endblock %}
-
-
-
-{% block content %}
+{% block content_out %}
     {% set app.site.literal_name as site_name %}
-    <p>
-        {% blocktrans %}
-            Si vous vous intéressez à tout cela, vous devriez songer à <a href="{{ default_repository_url }}">contribuer au développement du site</a> !
-        {% endblocktrans %}
-    </p>
+    <section id="about-page" class="content-wrapper is-technologies-page" aria-label="{% trans "Comment Zeste de Savoir est-il construit ?" %}">
+        <header>
+            <h1>
+                {% blocktrans %}
+                    {{ site_name }} est un logiciel libre, construit à l’aide de nombreuses autres technologies
+                    libres.
+                {% endblocktrans %}
+            </h1>
+        </header>
 
-    <div>
-        {% if app.site.licenses %}
-            <div class="content-col-3">
-                <h3>{% trans "Droits" %}</h3>
-                {% if app.site.licenses.source %}
-                    <p>
-                        {% blocktrans with src_url_license=app.site.licenses.source.url_license src_code=app.site.licenses.source.code provider_url=app.site.licenses.source.provider_url provider_name=app.site.licenses.source.provider_name %}
-                            {{ site_name }} est un site dont le code source est sous licence <a href="{{ src_url_license }}">{{ src_code }}</a>, et provient en partie de <a href="{{ provider_url }}">{{ provider_name }}</a>.
-                        {% endblocktrans %}
-                    </p>
-                {% endif %}
-                {% if app.site.licenses.logo %}
-                    <p>
-                        {% blocktrans with author_logo=app.site.licenses.logo.author url_license=app.site.licenses.logo.url_license url_image=app.site.licenses.logo.url_image logo_title=app.site.licenses.logo.title logo_desc=app.site.licenses.logo.description %}
-                            Le logo de {{ site_name }} a été créé par {{ author_logo }} et est sous
-                            <a rel="license" href="{{ url_license }}">
-                            <img alt="{{ logo_title }}" src="{{ url_image }}">
-                            {{ logo_desc }}
-                            </a>
-                        {% endblocktrans %}
-                        <img alt="{% blocktrans %}Logo de {{ site_name }}{% endblocktrans %}" src="{% static 'images/logo-background.png' %}">
-                    </p>
-                {% endif %}
+        <aside class="about-partnerships" aria-label="{% trans "Liste des technologies principales" %}">
+            <img src="{% static "images/brands/tech/python.svg" %}" alt="Python" title="Python" />
+            <img src="{% static "images/brands/tech/django.svg" %}" alt="Django" title="Django" />
+            <img src="{% static "images/brands/tech/git.svg" %}" alt="git" title="git" />
+            <img src="{% static "images/brands/tech/sass.svg" %}" alt="Sass" title="Sass" />
+            <img src="{% static "images/brands/tech/postcss.svg" %}" alt="PostCSS" title="PostCSS" />
+            <img src="{% static "images/brands/tech/javascript.svg" %}" alt="JavaScript" title="JavaScript" />
+            <img src="{% static "images/brands/tech/yarn.svg" %}" alt="yarn" title="yarn" />
+            <img src="{% static "images/brands/tech/gulp.svg" %}" alt="Gulp" title="Gulp" />
+            <img src="{% static "images/brands/tech/jest.svg" %}" alt="Jest" title="Jest" />
+            <img src="{% static "images/brands/tech/remark.svg" %}" alt="remark" title="remark" />
+        </aside>
 
+        <article class="about-main">
+            <p>
+                {% blocktrans %}
+                    Zeste de Savoir applique ses principes d’ouverture jusqu’à son logiciel interne lui-même. Le site
+                    internet que vous êtes en train de consulter est libre et open-source, et
+                    <a href="{{ default_repository_url }}">son développement est communautaire</a>. Oui,
+                    <a href="{{ how_to_contribute_url }}">vous pouvez contribuer !</a>
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans with plural=contents_count|pluralize_fr %}
+                    <strong>Le cœur du site est développé en
+                        <a href="https://zestedesavoir.com/tutoriels/2514/un-zeste-de-python/">Python</a></strong>, à
+                    l’aide de <a href="https://www.djangoproject.com">Django</a>, un <em lang="en">framework</em>
+                    simple, mais puissant. Les données sont stockées dans une base <strong>MariaDB</strong>, à
+                    l’exception des contenus.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    <strong>Chaque contenu est <a href="https://docs.zestedesavoir.com/back-end/contents.html">stocké
+                        dans un dépôt git</a></strong>, ce qui nous permet de facilement versionner ces derniers : les
+                    auteurs et autrices peuvent aisément revenir à n’importe quelle version antérieure.
+
+                    Ces contenus sont constitués de fichiers
+                    <a href="https://zestedesavoir.com/tutoriels/249/rediger-sur-zds/">Markdown</a> et d’un fichier
+                    coordinateur, <a href="https://docs.zestedesavoir.com/back-end/contents_manifest.html">un
+                    <em lang="en">manifest</em></a>, stockant les métadonnées du contenu et indiquant à quelle section
+                    correspond chaque fichier Markdown.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    <strong>L’interface du site est réalisée à l’aide de <a href="https://sass-lang.com/">Sass</a> et de
+                        petites touches de JavaScript.</strong>
+                    jQuery est également utilisé, mais nous sommes en train de le supprimer petit à petit, au profit de
+                    JavaScript pur.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Pour compiler et optimiser nos fichiers Sass, assembler nos fichiers JavaScript, et minifier
+                    l’ensemble, <strong>nous utilisons <a href="https://gulpjs.com/">Gulp</a></strong>, un utilitaire en
+                    JavaScript permettant d’automatiser du traitement de fichiers, et
+                    <strong><a href="https://postcss.org/">PostCSS</a></strong> pour rendre automatiquement nos styles
+                    compatibles avec tous les navigateurs.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Lorsque l’on rédige sur Zeste de Savoir, nous utilisons du Markdown. Derrière, tourne
+                    <strong><a href="https://github.com/zestedesavoir/zmarkdown/">zmarkdown</a>, qui transforme Markdown
+                        en HTML et en LaTeX</strong> (pour les exports PDF).
+
+                    Il se base sur <a href="https://github.com/remarkjs/remark/tree/main">remark</a> et son arbre
+                    abstrait de syntaxe (AST) <a href="https://github.com/syntax-tree/mdast">mdast</a>.
+
+                    Il y a des plans pour migrer vers <a href="https://github.com/micromark/micromark">micromark</a>, le
+                    successeur des précédents, mais cela nécessite beaucoup de temps et d’effort.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Enfin, pour tester automatiquement tout cela, nous utilisons
+                    <a href="https://docs.djangoproject.com/en/5.0/topics/testing/">le <em lang="en">framework</em> de
+                        tests de Django</a> (basé sur
+                    <a href="https://docs.python.org/3/library/unittest.html">unittest</a>) pour le serveur, et
+                    <a href="https://jestjs.io">Jest</a> pour zmarkdown.
+                {% endblocktrans %}
+            </p>
+            <p>
+                {% blocktrans %}
+                    Vous voulez plus de détails&nbsp;? Continuez de défiler&nbsp;!
+                {% endblocktrans %}
+            </p>
+        </article>
+
+        <article class="about-technology" aria-label="{% trans "Liste des technologies utilisées" %}">
+            <header>
+                <h2>{% trans "Technologies" %}</h2>
                 <p>
                     {% blocktrans %}
-                        L'icône plume a été dessinée par <a href="https://fontawesome.com">FontAwesome</a>,
-                        <a href="https://fontawesome.com/license/free">sous licence CC BY</a>.
+                        {{ site_name }} est propulsé par les outils et technologies suivantes
+                        (<a href="{{ default_repository_url }}">et d’autres</a>).
                     {% endblocktrans %}
                 </p>
-            </div>
-        {% endif %}
+                <p class="about-block-aside">
+                    {% blocktrans %}
+                        Si vous vous intéressez à tout cela, vous devriez songer à
+                        <a href="{{ default_repository_url }}">contribuer au développement du site</a> !
+                    {% endblocktrans %}
+                </p>
+            </header>
 
-        <div class="content-col-3">
-            <h3>{% trans "Système / Back-end" %}</h3>
-            <p>
-                {% trans "Le back-end est propulsé par les outils suivants." %}
-            </p>
+            <dl>
+                <dt>{% trans "Logiciels serveur" %}</dt>
+                <dd><a href="https://www.python.org">Python {{ python_major_version }}</a></dd>
+                <dd><a href="https://www.djangoproject.com">Django {{ django_major_version }}</a></dd>
+                <dd><a href="https://www.django-rest-framework.org">Django REST Framework</a></dd>
+                <dd>
+                    <a href="https://pillow.readthedocs.io/en/stable/">Pillow</a> &amp;
+                    <a href="https://easy-thumbnails.readthedocs.io/en/latest/">easy-thumbnails</a>
+                </dd>
+                <dd><a href="https://gitpython.readthedocs.io/en/stable/">GitPython</a></dd>
+                <dd>
+                    <a href="https://github.com/python-social-auth/social-app-django/">Python Social Auth – Django</a>
+                </dd>
 
-            <h4>{% trans "Site" %}</h4>
-            <ul>
-                <li><a href="https://www.python.org/">Python {{ python_major_version }}</a></li>
-                <li><a href="https://www.djangoproject.com/">Django {{ django_major_version }}</a></li>
-            </ul>
+                <dt>{% trans "Bases de données" %}</dt>
+                <dd><a href="https://mariadb.org">MariaDB</a></dd>
+                <dd><a href="https://www.elastic.co/fr/elasticsearch">ElasticSearch</a></dd>
 
-            <h4>HTTP(S) + WSGI</h4>
-            <ul>
-                <li><a href="https://nginx.org/en/">NGinx</a></li>
-                <li><a href="https://gunicorn.org/">Gunicorn</a></li>
-            </ul>
+                <dt>{% trans "Markdown et PDFs" %}</dt>
+                <dd><a href="https://github.com/zestedesavoir/zmarkdown">zmarkdown</a></dd>
+                <dd>
+                    <a href="https://github.com/remarkjs/remark">remark</a>,
+                    <a href="https://github.com/rehypejs/rehype">rehype</a>,
+                    <a href="https://github.com/A/textr">textr</a> et
+                    <a href="https://github.com/zestedesavoir/zmarkdown/tree/master/packages/rebber">rebber</a>
+                </dd>
+                <dd><a href="https://www.latex-project.org/">LaTeX</a></dd>
 
-            <h4>{% trans "Base de données" %}</h4>
-            <ul>
-                <li><a href="https://mariadb.org/">MariaDB</a></li>
-            </ul>
+                <dt>{% trans "Géolocalisation" %}</dt>
+                <dd>
+                    {% blocktrans with geolite2="https://dev.maxmind.com/geoip/geolite2-free-geolocation-data" eula="https://www.maxmind.com/en/geolite2/eula" %}
+                        <a href="{{ geolite2 }}">Données GeoLite2 de MaxMind</a>,
+                        sous <a href="{{ eula }}">une licence</a> proche de la CC-BY-SA 4.0
+                    {% endblocktrans %}
+                </dd>
 
-            <h4>{% trans "Géolocalisation des adresses IP" %}</h4>
-            <p>
-                {% trans "Données GeoLite2 créées par MaxMind, disponibles sous licence CC-BY-SA 4.0." %}
-            </p>
-            <ul>
-                <li><a href="https://www.maxmind.com/">https://www.maxmind.com</a></li>
-            </ul>
-        </div>
+                <dt>{% trans "Feuilles de style" %}</dt>
+                <dd><a href="https://sass-lang.com">Sass</a></dd>
+                <dd>
+                    <a href="https://postcss.org/">PostCSS</a> &amp;
+                    <a href="https://github.com/postcss/autoprefixer">Autoprefixer</a>
+                </dd>
+                <dd><a href="https://necolas.github.io/normalize.css/">Normalize.css</a></dd>
 
-        <div class="content-col-3">
-            <h3>{% trans "Front-end" %}</h3>
-            <p>
-                {% trans "Le front-end utilise les outils suivants." %}
-            </p>
+                <dt>Javascript</dt>
+                <dd>
+                    <a href="https://gulpjs.com">Gulp</a> &amp;
+                    <a href="https://eslint.org">ESLint</a>
+                </dd>
+                <dd><a href="https://jquery.com">jQuery</a> (en cours de suppression)</dd>
+                <dd>
+                    <a href="https://www.chartjs.org">chart.js</a> &amp;
+                    <a href="https://momentjs.com">moment.js</a>
+                </dd>
+                <dd><a href="https://github.com/Ionaru/easy-markdown-editor">EasyMDE</a></dd>
 
-            <h4>{% trans "Feuilles de style" %}</h4>
-            <ul>
-                <li><a href="https://necolas.github.io/normalize.css/">Normalize.css</a></li>
-                <li><a href="https://sass-lang.com/">SCSS</a></li>
-            </ul>
+                <dt>{% trans "Tests" %}</dt>
+                <dd>
+                    <a href="https://faker.readthedocs.io/en/master/">Faker</a> &amp;
+                    <a href="https://factoryboy.readthedocs.io/en/stable/">factory_boy</a>
+                </dd>
+                <dd><a href="https://www.selenium.dev">Selenium</a></dd>
+                <dd><a href="https://kitchen.ci">Test Kitchen</a> (pour Ansible)</dd>
 
-            <h4>Javascript</h4>
-            <ul>
-                <li><a href="https://jquery.com/">jQuery</a></li>
-            </ul>
-        </div>
-    </div>
+                <dt>{% trans "Déploiement" %}</dt>
+                <dd>
+                    <a href="https://www.ansible.com">Ansible</a>
+                    (<a href="https://github.com/zestedesavoir/ansible-zestedesavoir">voir le playbook</a>)
+                </dd>
+                <dd><a href="https://nginx.org/en/">nginx</a></dd>
+                <dd><a href="https://gunicorn.org">Gunicorn</a></dd>
+
+                <dt>{% trans "Statistiques" %}</dt>
+                <dd><a href="https://fr.matomo.org/">Matomo</a> (suivi côté serveur)</dd>
+
+                <dt>{% trans "Surveillance" %}</dt>
+                <dd><a href="https://munin-monitoring.org">Munin</a></dd>
+                <dd><a href="https://sentry.io">Sentry</a></dd>
+                <dd><a href="https://hetrixtools.com">HetrixTools</a></dd>
+
+                <dt>{% trans "Sauvegardes" %}</dt>
+                <dd><a href="https://www.borgbackup.org">BorgBackup</a></dd>
+                <dd><a href="https://mariadb.com/kb/en/mariabackup-overview/">MariaBackup</a></dd>
+
+                <dt>{% trans "Documentation" %}</dt>
+                <dd><a href="https://www.sphinx-doc.org">Sphinx</a></dd>
+            </dl>
+        </article>
+    </section>
+
 {% endblock %}
