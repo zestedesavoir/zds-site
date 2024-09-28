@@ -199,7 +199,7 @@ class MemberDetail(DetailView):
             context["alerts"] = profile.alerts_on_this_profile.all().order_by("-pubdate")
             context["has_unsolved_alerts"] = profile.alerts_on_this_profile.filter(solved=False).exists()
         has_ban_provider_perm = self.request.user.has_perm("user.change_bannedemailprovider")
-        new_provider = NewEmailProvider.objects.where(user=usr).first()
+        new_provider = NewEmailProvider.objects.filter(user=usr).first()
         context["can_ban_provider"] = has_ban_provider_perm and new_provider is not None
         context["provider"] = new_provider
         context["summaries"] = self.get_summaries(profile, hide_forum_activity)
