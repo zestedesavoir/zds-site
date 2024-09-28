@@ -102,7 +102,7 @@ zmd-stop: ## Stop the zmarkdown server
 ## ~ Search Engine
 
 run-search-engine: ## Run the search server
-	./.local/typesense/typesense-server --data-dir=.local/typesense/typesense-data --api-key=xyz || echo 'No Typesense installed (you can add it locally with `./scripts/install_zds.sh +typesense-local`)'
+	@./.local/typesense/typesense-server --data-dir=.local/typesense/typesense-data --api-key=xyz || echo 'No Typesense installed (you can add it locally with `./scripts/install_zds.sh +typesense-local`)'
 
 index-all: ## Index the whole database in the search engine
 	python manage.py search_engine_manager index_all
