@@ -21,8 +21,8 @@ class override_for_contents(override_settings):
     def __init__(self, **kwargs):
         kwargs.update(MEDIA_ROOT=settings.BASE_DIR / "media-test", ZDS_APP=overridden_zds_app)
 
-        if "ES_ENABLED" not in kwargs:
-            kwargs.update(ES_ENABLED=False)
+        if "SEARCH_ENABLED" not in kwargs:
+            kwargs.update(SEARCH_ENABLED=False)
 
         super().__init__(**kwargs)
 

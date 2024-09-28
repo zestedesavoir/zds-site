@@ -123,20 +123,9 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertEqual(opinion.public_version.sha_public, opinion_draft.current_version)
 
         # Change the title:
-        random = "Whatever, we don't care about the details"
         result = self.client.post(
-            reverse("content:edit", args=[opinion.pk, opinion.slug]),
-            {
-                "title": "{} ({})".format(opinion.title, "modified"),
-                "description": random,
-                "introduction": random,
-                "conclusion": random,
-                "type": "OPINION",
-                "licence": opinion.licence.pk,
-                "subcategory": opinion.subcategory.first().pk,
-                "last_hash": opinion.load_version().compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[opinion.pk]),
+            {"title": f"{opinion.title} (modified)"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -187,14 +176,6 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertContains(resp, "Voir la page brouillon", msg_prefix="Author must access their draft directly")
         self.assertNotContains(resp, "{}?subcategory=".format(reverse("publication:list")))
         self.assertContains(resp, "{}?category=".format(reverse("opinion:list")))
-
-    def test_no_help_for_tribune(self):
-        self.client.force_login(self.user_author)
-
-    def test_help_for_article(self):
-        self.client.force_login(self.user_author)
-        resp = self.client.get(reverse("content:create-content", kwargs={"created_content_type": "ARTICLE"}))
-        self.assertEqual(200, resp.status_code)
 
     def test_opinion_publication_staff(self):
         """

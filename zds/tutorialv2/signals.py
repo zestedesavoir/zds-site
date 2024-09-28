@@ -30,9 +30,17 @@ beta_management = Signal()
 # Action is either "request", "cancel", "accept", "reject", "revoke", "reserve" or "unreserve".
 validation_management = Signal()
 
+# Thumbnail management
+# For the signal below, the arguments "performer" and "content" shall be provided.
+thumbnail_management = Signal()
+
 # Tags management
 # For the signal below, the arguments "performer" and "content"  shall be provided.
 tags_management = Signal()
+
+# Canonical link management
+# For the signal below, the arguments "performer" and "content"  shall be provided.
+canonical_link_management = Signal()
 
 # Suggestions management
 # For the signal below, the arguments "performer" and "content"  shall be provided.

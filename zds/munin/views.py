@@ -1,7 +1,18 @@
-from munin.helpers import muninview
+from django_munin.munin.helpers import muninview
 from zds.forum.models import Topic, Post
+from zds.member.models import Profile
 from zds.mp.models import PrivateTopic, PrivatePost
 from zds.tutorialv2.models.database import PublishableContent, ContentReaction
+
+
+@muninview(
+    config="""graph_title Banned Users
+graph_vlabel Banned Users
+graph_args --lower-limit 0
+graph_scale no"""
+)
+def banned_users(request):
+    return [("banned_users", Profile.objects.filter(can_read=False, end_ban_read=None).count())]
 
 
 @muninview(

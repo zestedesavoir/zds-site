@@ -1,16 +1,16 @@
 repos:
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.13.0
+    rev: v3.15.1
     hooks:
     -   id: pyupgrade
         args: [--py39-plus]
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 23.9.1 # needs to be also updated in requirements-dev.txt
+    rev: 24.2.0 # needs to be also updated in requirements-dev.txt
     hooks:
       - id: black
         language_version: python3
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
      - id: trailing-whitespace
        exclude_types: ["svg"]

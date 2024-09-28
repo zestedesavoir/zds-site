@@ -1,10 +1,23 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from zds.tutorialv2.views.contents import CreateContent, EditContent, EditContentLicense, DeleteContent
+from zds.tutorialv2.views.canonical import EditCanonicalLinkView
+from zds.tutorialv2.views.categories import EditCategoriesView
+from zds.tutorialv2.views.contents import (
+    CreateContentView,
+    DeleteContent,
+    EditTitle,
+    EditSubtitle,
+    EditIntroductionView,
+    EditConclusionView,
+)
+from zds.tutorialv2.views.thumbnail import EditThumbnailView
+from zds.tutorialv2.views.display.container import ContainerValidationView
+from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
+from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
@@ -33,7 +46,8 @@ from zds.tutorialv2.views.contributors import (
     RemoveContributorFromContent,
     ContentOfContributors,
 )
-from zds.tutorialv2.views.editorialization import RemoveSuggestion, AddSuggestion, EditContentTags
+from zds.tutorialv2.views.suggestions import RemoveSuggestion, AddSuggestion
+from zds.tutorialv2.views.tags import EditTags
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
@@ -73,6 +87,24 @@ def get_beta_pages():
     return beta_pages
 
 
+def get_validation_pages():
+    base_pattern = "validation/<int:pk>/<slug:slug>"
+    pages = [
+        path(
+            f"{base_pattern}/<slug:parent_container_slug>/<slug:container_slug>/",
+            ContainerValidationView.as_view(public_is_prioritary=False),
+            name="validation-view-container",
+        ),
+        path(
+            f"{base_pattern}/<slug:container_slug>/",
+            ContainerValidationView.as_view(public_is_prioritary=False),
+            name="validation-view-container",
+        ),
+        path(f"{base_pattern}/", ContentValidationView.as_view(), name="validation-view"),
+    ]
+    return pages
+
+
 def get_version_pages():
     base_pattern = "version/<str:version>/<int:pk>/<slug:slug>"
     specific_version_page = [
@@ -91,6 +123,7 @@ urlpatterns = (
     feeds
     + get_version_pages()
     + get_beta_pages()
+    + get_validation_pages()
     + [
         path(
             "voir/<str:username>/", ContentOfAuthor.as_view(type="ALL", context_object_name="contents"), name="find-all"
@@ -136,7 +169,7 @@ urlpatterns = (
         # typo:
         path("reactions/typo/", WarnTypo.as_view(), name="warn-typo"),
         # create:
-        path("nouveau-contenu/<str:created_content_type>/", CreateContent.as_view(), name="create-content"),
+        path("nouveau-contenu/<str:created_content_type>/", CreateContentView.as_view(), name="create-content"),
         path(
             "nouveau-conteneur/<int:pk>/<slug:slug>/<slug:container_slug>/",
             CreateContainer.as_view(),
@@ -176,7 +209,6 @@ urlpatterns = (
             name="edit-extract",
         ),
         path("editer-section/<int:pk>/<slug:slug>/<slug:extract_slug>/", EditExtract.as_view(), name="edit-extract"),
-        path("editer/<int:pk>/<slug:slug>/", EditContent.as_view(), name="edit"),
         path("deplacer/", MoveChild.as_view(), name="move-element"),
         path("historique/<int:pk>/<slug:slug>/", DisplayHistory.as_view(), name="history"),
         path("comparaison/<int:pk>/<slug:slug>/", DisplayDiff.as_view(), name="diff"),
@@ -184,10 +216,15 @@ urlpatterns = (
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
         path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorFromContent.as_view(), name="remove-author"),
-        # Modify the license
+        path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
+        path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
+        path("modifier-miniature/<int:pk>/", EditThumbnailView.as_view(), name="edit-thumbnail"),
+        path("modifier-introduction/<int:pk>/", EditIntroductionView.as_view(), name="edit-introduction"),
+        path("modifier-conclusion/<int:pk>/", EditConclusionView.as_view(), name="edit-conclusion"),
         path("modifier-licence/<int:pk>/", EditContentLicense.as_view(), name="edit-license"),
-        # Modify the tags
-        path("modifier-tags/<int:pk>/", EditContentTags.as_view(), name="edit-tags"),
+        path("modifier-tags/<int:pk>/", EditTags.as_view(), name="edit-tags"),
+        path("modifier-lien-canonique/<int:pk>", EditCanonicalLinkView.as_view(), name="edit-canonical-link"),
+        path("modifier-categories/<int:pk>/", EditCategoriesView.as_view(), name="edit-categories"),
         # beta:
         path("activer-beta/<int:pk>/<slug:slug>/", ManageBetaContent.as_view(action="set"), name="set-beta"),
         path(

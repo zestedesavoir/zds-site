@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 {% load captureas %}
+{% load get_item %}
 
 
 {% if display_config.validation_actions.show_validation_actions %}
@@ -9,9 +10,9 @@
         <ul>
             {% if display_config.validation_actions.show_validation_link %}
                 <li>
-                    {% url "content:view-version" pk=content.pk slug=content.slug version=validation.version as url_validation %}
+                    {% url "content:validation-view" pk=content.pk slug=content.slug as url_validation %}
                     <a href="{{ url_validation }}" class="ico-after online blue">
-                        {% trans "Voir la version en validation" %}
+                        {% trans "Voir la page de validation" %}
                     </a>
                 </li>
             {% endif %}
@@ -19,7 +20,7 @@
             {% if display_config.validation_actions.show_identical_message %}
                 <li class="inactive">
                     <span class="ico-after pin disabled">
-                        {% trans "La version en validation est identique à cette version." %}
+                        {{ display_config.validation_actions.messages|get_item:"validation_is_same" }}
                     </span>
                 </li>
             {% endif %}
@@ -166,7 +167,7 @@
                         <input type="hidden" name="redirect" value="true">
                         <p>
                             {% blocktrans with content_title=content.title %}
-                                Voulez-vous vraiment modérer le billet <em>{{ content_title }}</em> ?
+                                Voulez-vous vraiment modérer le billet <em>{{ content_title }}</em>&nbsp;?
                                 Il sera dépublié et ne pourra pas être republié.
                             {% endblocktrans %}
                         </p>

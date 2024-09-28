@@ -711,6 +711,7 @@
                                            name="ls-jrs"
                                            class="expand"
                                            placeholder="{% trans 'Durée de la lecture seule, en jours' %}"
+                                           required="required"
                                            min="1">
                                     {% csrf_token %}
                                     <button type="submit"
@@ -795,12 +796,13 @@
                                     <input type="number"
                                            name="ban-jrs"
                                            class="expand"
+                                           required="required"
                                            placeholder="{% trans 'Durée du bannissement, en jours' %}"
                                            min="1">
                                     {% csrf_token %}
                                     <button type="submit"
                                             name="ban-temp"
-                                            class="btn  btn-submit">
+                                            class="btn btn-submit">
                                         {% trans "Confirmer" %}
                                     </button>
                                 </form>

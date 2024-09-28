@@ -1,10 +1,6 @@
+from functools import wraps
 import inspect
 import logging
-
-try:
-    from functools import wraps
-except ImportError:
-    from django.utils.functional import wraps
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -48,7 +44,11 @@ def remove_group_subscription_on_quitting_groups(*, sender, instance, action, pk
         )
         return
 
-    for forum in Forum.objects.filter(groups__pk__in=list(pk_set)):
+    all_groups_pk = instance.groups.values_list("pk", flat=True)
+    removed_groups_pk = pk_set
+    kept_groups_pk = set(all_groups_pk) - set(removed_groups_pk)
+
+    for forum in Forum.objects.filter(groups__pk__in=removed_groups_pk).exclude(groups__pk__in=kept_groups_pk):
         subscriptions = []
 
         forum_subscription = NewTopicSubscription.objects.get_existing(instance, forum, True)

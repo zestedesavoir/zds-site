@@ -57,7 +57,6 @@ CACHES = {
     }
 }
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 SESSION_COOKIE_AGE = 60 * 60 * 24 * 7 * 4
 
 MEDIA_ROOT = Path("/opt/zds/data/media")
@@ -122,29 +121,10 @@ THUMBNAIL_OPTIMIZE_COMMAND = {
 }
 
 
-# python-social-auth
-# http://psa.matiasaguirre.net/docs/configuration/django.html
-SOCIAL_AUTH_PIPELINE = (
-    "social.pipeline.social_auth.social_details",
-    "social.pipeline.social_auth.social_uid",
-    "social.pipeline.social_auth.auth_allowed",
-    "social.pipeline.social_auth.social_user",
-    "social.pipeline.user.get_username",
-    "social.pipeline.social_auth.associate_by_email",
-    "social.pipeline.user.create_user",
-    "zds.member.models.save_profile",
-    "social.pipeline.social_auth.associate_user",
-    "social.pipeline.social_auth.load_extra_data",
-    "social.pipeline.user.user_details",
-)
-
-
 ###############################################################################
 # ZESTE DE SAVOIR SETTINGS
 
-
-ES_SEARCH_INDEX["shards"] = config["elasticsearch"].get("shards", 3)
-
+SEARCH_CONNECTION["api_key"] = config["typesense"].get("api_key", "xyz")
 
 ZDS_APP["site"]["association"]["email"] = "communication@zestedesavoir.com"
 

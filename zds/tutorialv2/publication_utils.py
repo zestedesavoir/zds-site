@@ -106,7 +106,6 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content_type = versioned.type
     public_version.content_pk = db_object.pk
     public_version.content = db_object
-    public_version.must_reindex = True
     public_version.char_count = char_count
     public_version.save()
     with contextlib.suppress(FileExistsError):
@@ -461,10 +460,6 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         # let's put 10 min of timeout because we do not generate latex everyday
         command_process.communicate(timeout=600)
-        with contextlib.suppress(ImportError):
-            import sentry_sdk
-
-            sentry_sdk.add_breadcrumb(message="lualatex call", data=command, type="cmd")
 
         pdf_file_path = path.splitext(texfile)[0] + self.extension
         return path.exists(pdf_file_path)
@@ -475,10 +470,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             command, shell=True, cwd=path.dirname(texfile), stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         std_out, std_err = command_process.communicate()
-        with contextlib.suppress(ImportError):
-            import sentry_sdk
 
-            sentry_sdk.add_breadcrumb(message="makeglossaries call", data=command, type="cmd")
         # TODO: check makeglossary exit codes to see if we can enhance error detection
         if "fatal" not in std_out.decode("utf-8").lower() and "fatal" not in std_err.decode("utf-8").lower():
             return True
@@ -504,10 +496,6 @@ def handle_tex_compiler_error(latex_file_path, ext):
 
             errors = "\n".join(lines)
     logger.debug("%s ext=%s", errors, ext)
-    with contextlib.suppress(ImportError):
-        import sentry_sdk
-
-        sentry_sdk.add_breadcrumb(message="luatex call", data=errors, type="cmd")
 
     raise FailureDuringPublication(errors)
 

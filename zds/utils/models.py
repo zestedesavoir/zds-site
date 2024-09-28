@@ -112,7 +112,6 @@ class SubCategory(models.Model):
 
 
 class CategorySubCategory(models.Model):
-
     """ManyToMany between Category and SubCategory but save a boolean to know
     if category is his main category."""
 
@@ -133,7 +132,6 @@ class CategorySubCategory(models.Model):
 
 
 class Licence(models.Model):
-
     """Publication licence."""
 
     class Meta:
@@ -368,7 +366,6 @@ def get_hat_to_add(hat_name, user):
 
 
 class Comment(models.Model):
-
     """Comment in forum, articles, tutorial, chapter, etc."""
 
     class Meta:
@@ -741,7 +738,6 @@ class Alert(models.Model):
 
 
 class CommentVote(models.Model):
-
     """Set of comment votes."""
 
     class Meta:
@@ -758,7 +754,6 @@ class CommentVote(models.Model):
 
 
 class Tag(models.Model):
-
     """Set of tags."""
 
     class Meta:

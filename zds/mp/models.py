@@ -486,7 +486,6 @@ class PrivatePost(models.Model):
 
 
 class PrivatePostVote(models.Model):
-
     """Set of Private Post votes."""
 
     class Meta:
@@ -512,6 +511,7 @@ class PrivateTopicRead(models.Model):
     class Meta:
         verbose_name = "Message privé lu"
         verbose_name_plural = "Messages privés lus"
+        constraints = [models.UniqueConstraint(fields=["privatetopic", "user"], name="unique_privatetopicread")]
 
     privatetopic = models.ForeignKey(PrivateTopic, db_index=True, on_delete=models.CASCADE)
     privatepost = models.ForeignKey(PrivatePost, db_index=True, on_delete=models.CASCADE)

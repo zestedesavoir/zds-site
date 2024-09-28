@@ -182,7 +182,7 @@ class ModalFormView(FormView):
 
 class FormWithPreview(FormView):
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
+        form = self.get_form()
 
         if "preview" in request.POST:
             self.form_invalid(form)
@@ -295,7 +295,6 @@ class MustRedirect(Exception):
 
 
 class SingleOnlineContentViewMixin(ContentTypeMixin):
-
     """
     Base mixin to get only one content online content
 

@@ -8,12 +8,12 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from captcha.fields import ReCaptchaField
+from django_recaptcha.fields import ReCaptchaField
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden, Div
 
-from zds.member.models import Profile, KarmaNote, BannedEmailProvider
+from zds.member.models import Profile, KarmaNote, BannedEmailProvider, Ban
 from zds.member.validators import (
     validate_not_empty,
     validate_zds_email,
@@ -48,7 +48,9 @@ class LoginForm(AuthenticationForm):
             "Vous n’avez pas encore activé votre compte, vous devez le faire pour pouvoir vous connecter sur le site."
             " <a href={}>Vous n’avez pas reçu le courriel d'activation ?</a>"
         ),
-        "banned": _("Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur."),
+        "banned": _(
+            "Vous n’êtes pas autorisé à vous connecter sur le site, vous avez été banni par un modérateur pour la raison suivante : « {} »."
+        ),
     }
 
     def __init__(self, request=None, next="", *args, **kwargs):
@@ -81,9 +83,10 @@ class LoginForm(AuthenticationForm):
                 error_text,
                 code="inactive",
             )
-        elif not user.profile.is_banned():
+        elif user.profile.is_banned():
+            ban_rationale = Ban.objects.filter(user=user).order_by("-pubdate").first().note
             raise ValidationError(
-                self.error_messages["banned"],
+                self.error_messages["banned"].format(ban_rationale),
                 code="banned",
             )
 

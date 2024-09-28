@@ -107,6 +107,7 @@ MIDDLEWARE = (
     "zds.utils.ThreadLocals",
     "zds.middlewares.setlastvisitmiddleware.SetLastVisitMiddleware",
     "zds.middlewares.matomomiddleware.MatomoMiddleware",
+    "zds.middlewares.managesessionsmiddleware.ManageSessionsMiddleware",
     "zds.member.utils.ZDSCustomizeSocialAuthExceptionMiddleware",
 )
 
@@ -143,6 +144,8 @@ django_template_engine = {
 
 TEMPLATES = [django_template_engine]
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap"
+
 CRISPY_TEMPLATE_PACK = "bootstrap"
 
 INSTALLED_APPS = (
@@ -156,14 +159,15 @@ INSTALLED_APPS = (
     "easy_thumbnails",
     "easy_thumbnails.optimize",
     "crispy_forms",
-    "munin",
+    "crispy_forms_bootstrap2",
     "social_django",
     "rest_framework",
     "drf_yasg",
     "dry_rest_permissions",
     "corsheaders",
     "oauth2_provider",
-    "captcha",
+    "django_recaptcha",
+    "django_munin.munin",
     # Apps DB tables are created in THIS order by default
     # --> Order is CRITICAL to properly handle foreign keys
     "zds.utils",
@@ -174,7 +178,7 @@ INSTALLED_APPS = (
     "zds.tutorialv2",
     "zds.member",
     "zds.featured",
-    "zds.searchv2",
+    "zds.search",
     "zds.notification",
     # Uncomment the next line to enable the admin:
     "django.contrib.admin",
@@ -282,7 +286,7 @@ LOGGING = {
     },
 }
 
-SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+SESSION_ENGINE = "zds.utils.custom_cached_db_backend"
 
 LOGIN_URL = "member-login"
 LOGIN_REDIRECT_URL = "/"

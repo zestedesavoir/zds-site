@@ -242,85 +242,35 @@ fi
 export ZDS_ENV=$(realpath $ZDS_VENV)
 
 
-# local jdk
-if  ! $(_in "-jdk-local" $@) && ( $(_in "+jdk-local" $@) || $(_in "+full" $@) ); then
-    print_info "* [+jdk-local] installing a local version of JDK (v$ZDS_JDK_VERSION)" --bold
-
-    mkdir -p $ZDS_VENV/lib/
-    cd $ZDS_VENV/lib/
-
-    jdk_path=$(realpath jdk)
-
-    if [ -d "$jdk_path" ]; then # remove previous install
-        rm -rf "$jdk_path"
-    fi
-
-    baseURL="https://github.com/adoptium/temurin11-binaries/releases/download/"
-    foldername="jdk-${ZDS_JDK_VERSION}+${ZDS_JDK_REV}"
-    folderPATH="${foldername}/OpenJDK11U-jdk_x64_linux_hotspot_${ZDS_JDK_VERSION}_${ZDS_JDK_REV}.tar.gz"
-
-    echo "GET ${baseURL}${folderPATH}"
-    wget -O ${foldername}.tar.gz ${baseURL}${folderPATH} -q --show-progress
-    tar xf ${foldername}.tar.gz
-
-    if [[ $? == 0 ]]; then
-        rm ${foldername}.tar.gz
-        mv ${foldername} "$jdk_path"
-
-        echo $($jdk_path/bin/java -version)
-
-        export PATH="$PATH:$jdk_path/bin"
-        export JAVA_HOME="$jdk_path"
-        export ES_JAVA_OPTS="-Xms512m -Xmx512m"
-
-        if [[ $(grep -c -i "export JAVA_HOME" $ZDS_ENV/bin/activate) == "0" ]]; then # add java to venv activate's
-            ACTIVATE_JAVA="export PATH=\"\$PATH:$jdk_path/bin\"\nexport JAVA_HOME=\"$jdk_path\"\nexport ES_JAVA_OPTS=\"-Xms512m -Xmx512m\""
-
-            echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate
-            echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate.csh
-            echo -e $ACTIVATE_JAVA >> $ZDS_ENV/bin/activate.fish
-        fi
-    else
-        print_error "!! Cannot get or extract jdk ${ZDS_JDK_VERSION}"
-        exit 1
-    fi
-    cd $ZDSSITE_DIR
-fi
-
-
-# local elasticsearch
-if  ! $(_in "-elastic-local" $@) && ( $(_in "+elastic-local" $@) || $(_in "+full" $@) ); then
-    print_info "* [+elastic-local] installing a local version of elasticsearch (v$ZDS_ELASTIC_VERSION)" --bold
+# local Typesense
+if  ! $(_in "-typesense-local" $@) && ( $(_in "+typesense-local" $@) || $(_in "+full" $@) ); then
+    print_info "* [+typesense-local] installing a local version of typesense (v$ZDS_TYPESENSE_VERSION)" --bold
 
     mkdir -p .local
     cd .local
 
-    es_path=$(realpath elasticsearch)
+    readonly typesense_path=$(realpath typesense)
 
-    if [ -d "$es_path" ]; then # remove previous install
-        rm -r "$es_path"
+    if [ -d "$typesense_path" ]; then # remove previous install
+        rm -r "$typesense_path"
     fi
 
-    wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-${ZDS_ELASTIC_VERSION}.zip -q --show-progress
+    mkdir $typesense_path
+    cd $typesense_path
+
+    readonly archive_name=typesense-server-$ZDS_TYPESENSE_VERSION-linux-amd64.tar.gz
+
+    wget  -q https://dl.typesense.org/releases/$ZDS_TYPESENSE_VERSION/$archive_name --show-progress
     if [[ $? == 0 ]]; then
-        unzip -q elasticsearch-${ZDS_ELASTIC_VERSION}.zip
-        rm elasticsearch-${ZDS_ELASTIC_VERSION}.zip
-        mv elasticsearch-${ZDS_ELASTIC_VERSION} elasticsearch
-
-        # add options to reduce memory consumption
-        print_info "#Options added by install_zds.sh" >> "$es_path/config/jvm.options"
-        print_info "-Xms512m" >> "$es_path/config/jvm.options"
-        print_info "-Xmx512m" >> "$es_path/config/jvm.options"
-
-        # symbolic link to elastic start script
-        ln -s "$es_path/bin/elasticsearch" $ZDS_ENV/bin/
+        tar -xzf $archive_name
+        rm $archive_name
+        mkdir typesense-data
     else
-        print_error "!! Cannot get elasticsearch ${ZDS_ELASTIC_VERSION}"
+        print_error "!! Cannot get typesense ${ZDS_TYPESENSE_VERSION}"
         exit 1
     fi
     cd $ZDSSITE_DIR
 fi
-
 
 # local texlive
 if  ! $(_in "-tex-local" $@) && ( $(_in "+tex-local" $@) || $(_in "+full" $@) ); then

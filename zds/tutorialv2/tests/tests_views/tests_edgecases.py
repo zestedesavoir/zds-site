@@ -36,18 +36,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         # login with author
         self.client.force_login(self.author.user)
         result = self.client.post(
-            reverse("content:edit", args=[opinion.pk, opinion.slug]),
-            {
-                "title": "new title",
-                "description": "subtitle",
-                "introduction": "introduction",
-                "conclusion": "conclusion",
-                "type": "OPINION",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": opinion.load_version().compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[opinion.pk]),
+            {"title": "new title"},
             follow=False,
         )
         self.assertEqual(result.status_code, 302)
@@ -56,18 +46,8 @@ class ContentTests(TutorialTestMixin, TestCase):
         result = self.client.get(article.get_absolute_url())
         self.assertEqual(200, result.status_code)
         result = self.client.post(
-            reverse("content:edit", args=[article.pk, article.slug]),
-            {
-                "title": "title",
-                "description": "subtitle",
-                "introduction": "introduction",
-                "conclusion": "conclusion",
-                "type": "ARTICLE",
-                "licence": self.licence.pk,
-                "subcategory": self.subcategory.pk,
-                "last_hash": article.load_version().compute_hash(),
-                "image": (settings.BASE_DIR / "fixtures" / "logo.png").open("rb"),
-            },
+            reverse("content:edit-title", args=[article.pk]),
+            {"title": "title"},
             follow=True,
         )
         self.assertEqual(200, result.status_code)

@@ -109,12 +109,12 @@
         {% include "tutorialv2/includes/content/content_pager.part.html" with content=content %}
     {% endif %}
 
-    {% if display_config.info_config.show_warn_typo %}
-        {% include "tutorialv2/includes/content/warn_typo.part.html" with content=content %}
-    {% endif %}
-
     {% if display_config.alerts_config.show_alert_button %}
         {% include "tutorialv2/includes/alert.html" with content=content current_content_type=current_content_type %}
+    {% endif %}
+
+    {% if display_config.info_config.show_warn_typo %}
+        {% include "tutorialv2/includes/content/warn_typo.part.html" with content=content %}
     {% endif %}
 {% endblock %}
 
@@ -170,22 +170,11 @@
         {% endfor %}
     {% endif %}
 
-    {% if display_config.draft_actions.show_license_edit  %}
-        <li>
-            {% url "content:edit" content.pk content.slug as edit_url %}
-            <a href="{{ edit_url }}" class="ico-after edit blue">{% trans "Éditer" %}</a>
-        </li>
-    {% endif %}
-
     {% if display_config.draft_actions.show_import_link %}
         <li>
             {% url "content:import" content.pk content.slug as import_url %}
             <a href="{{ import_url }}" class="ico-after import blue">{% trans "Importer une nouvelle version" %}</a>
         </li>
-    {% endif %}
-
-    {% if display_config.draft_actions.show_authors_management %}
-        {% include "tutorialv2/includes/sidebar/authors_management.part.html" %}
     {% endif %}
 
     {% if display_config.draft_actions.show_contributors_management %}

@@ -85,7 +85,7 @@ class PublishableContentFactory(factory.django.DjangoModelFactory):
         conclusion_content = attrs.pop("conclusion", text)
 
         publishable_content = super()._generate(create, attrs)
-        publishable_content.gallery = GalleryFactory()
+        publishable_content.gallery = GalleryFactory(title=publishable_content.title)
         publishable_content.licence = licence
         for auth in auths:
             publishable_content.authors.add(auth)
@@ -234,7 +234,10 @@ class BetaContentFactory(PublishableContentFactory):
 
 class PublishedContentFactory(PublishableContentFactory):
     """
-    Factory that creates a PublishableContent and the publish it.
+    Factory that creates a PublishableContent and then publishes it.
+
+    NOTE: This factory returns the PublishableContent object, not the
+    PublishedContent object (accessible through content.public_version).
     """
 
     @classmethod

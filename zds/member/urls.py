@@ -48,6 +48,7 @@ from zds.member.views.register import (
 from zds.member.views.password_recovery import forgot_password, new_password
 from zds.member.views.admin import settings_promote
 from zds.member.views.reports import CreateProfileReportView, SolveProfileReportView
+from zds.member.views.sessions import ListSessions, DeleteSession
 
 
 urlpatterns = [
@@ -62,6 +63,8 @@ urlpatterns = [
     path("parametres/profil/maj_avatar/", UpdateAvatarMember.as_view(), name="update-avatar-member"),
     path("parametres/compte/", UpdatePasswordMember.as_view(), name="update-password-member"),
     path("parametres/user/", UpdateUsernameEmailMember.as_view(), name="update-username-email-member"),
+    path("parametres/sessions/", ListSessions.as_view(), name="list-sessions"),
+    path("parametres/sessions/supprimer/", DeleteSession.as_view(), name="delete-session"),
     # moderation
     path("profil/signaler/<int:profile_pk>/", CreateProfileReportView.as_view(), name="report-profile"),
     path("profil/resoudre/<int:alert_pk>/", SolveProfileReportView.as_view(), name="solve-profile-alert"),

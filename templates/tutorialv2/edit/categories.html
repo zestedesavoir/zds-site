@@ -1,0 +1,26 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Modifier les catégories de " %}{{ content.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Modifier les catégories" %}</li>
+{% endblock %}
+
+{% block headline %}
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {% blocktrans with title=content.title %}Modifier les catégories de « {{ title }} »{% endblocktrans %}
+    </h1>
+{% endblock %}
+
+
+{% block content %}
+    {% crispy form %}
+{% endblock %}

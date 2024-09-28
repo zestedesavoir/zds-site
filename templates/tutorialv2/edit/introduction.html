@@ -1,0 +1,41 @@
+{% extends "tutorialv2/base.html" %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+{% load i18n %}
+{% load feminize %}
+
+{% block title %}
+    {% trans "Modifier l'introduction de " %}{{ content.title }}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li><a href="{{ content.get_absolute_url }}">{{ content.title }}</a></li>
+    <li>{% trans "Modifier l'introduction" %}</li>
+{% endblock %}
+
+{% block headline %}
+    <h1 {% if content.image %}class="illu"{% endif %}>
+        {% if content.image %}
+            <img src="{{content.image.physical.tutorial_illu.url }}" alt="">
+        {% endif %}
+        {% blocktrans with title=content.title %}Modifier l'introduction de « {{ title }} »{% endblocktrans %}
+    </h1>
+{% endblock %}
+
+
+{% block content %}
+    {% if new_version %}
+        <p class="ico-after warning">
+            {% trans "Une nouvelle version a été postée avant que vous ne validiez" %}.
+        </p>
+    {% endif %}
+    {% crispy form %}
+{% endblock %}
+
+{% block sidebar_actions %}
+    <li>
+        <a href="{% url "gallery:image-add" gallery.pk %}" class="ico-after more blue">
+            {% trans "Ajouter une image à la galerie" %}
+        </a>
+    </li>
+{% endblock %}

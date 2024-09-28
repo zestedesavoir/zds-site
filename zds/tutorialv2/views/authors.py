@@ -1,3 +1,7 @@
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
@@ -8,14 +12,69 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.models import UserGallery, GALLERY_WRITE
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.member.models import Profile
 from zds.member.utils import get_bot_account
 from zds.mp.models import is_reachable
 from zds.tutorialv2 import signals
 
-from zds.tutorialv2.forms import AuthorForm, RemoveAuthorForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp
+
+
+class AuthorForm(forms.Form):
+    username = forms.CharField(label=_("Auteurs à ajouter séparés d'une virgule."), required=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = "content-wrapper"
+        self.helper.form_method = "post"
+        self.helper.layout = Layout(
+            Field("username"),
+            StrictButton(_("Ajouter"), type="submit"),
+        )
+
+    def clean_username(self):
+        """Check every username and send it to the cleaned_data['user'] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super().clean()
+        users = []
+        if cleaned_data.get("username"):
+            for username in cleaned_data.get("username").split(","):
+                user = (
+                    Profile.objects.contactable_members()
+                    .filter(user__username__iexact=username.strip().lower())
+                    .first()
+                )
+                if user is not None:
+                    users.append(user.user)
+            if len(users) > 0:
+                cleaned_data["users"] = users
+        return cleaned_data
+
+    def is_valid(self):
+        return super().is_valid() and "users" in self.clean()
+
+
+class RemoveAuthorForm(AuthorForm):
+    def clean_username(self):
+        """Check every username and send it to the cleaned_data['user'] list
+
+        :return: a dictionary of all treated data with the users key added
+        """
+        cleaned_data = super(AuthorForm, self).clean()
+        users = []
+        for username in cleaned_data.get("username").split(","):
+            # we can remove all users (bots inclued)
+            user = Profile.objects.filter(user__username__iexact=username.strip().lower()).first()
+            if user is not None:
+                users.append(user.user)
+        if len(users) > 0:
+            cleaned_data["users"] = users
+        return cleaned_data
 
 
 class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
@@ -167,7 +226,8 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
 
         if not current_user:  # if the removed author is not current user
             messages.success(
-                self.request, _("Vous avez enlevé {} de la liste des auteurs de {}.").format(authors_list, _type[0])
+                self.request,
+                _("Vous avez enlevé {} de la liste des auteurs et autrices de {}.").format(authors_list, _type[0]),
             )
             self.success_url = self.object.get_absolute_url()
         else:  # if current user is leaving the content's redaction, redirect him to a more suitable page

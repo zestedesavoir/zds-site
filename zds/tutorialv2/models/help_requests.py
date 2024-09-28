@@ -6,7 +6,6 @@ from zds.utils.models import image_path_help
 
 
 class HelpWriting(models.Model):
-
     """Tutorial Help"""
 
     class Meta:

@@ -37,7 +37,7 @@ Pré-requis
   Ces instructions expliquent comment installer XCode, Homebrew, Python, pip, et
   les utilitaires GNU, sur macOS. Si vous avez déjà :
 
-  - une installation fonctionnelle de Homebrew et de Python 3.7+ ;
+  - une installation fonctionnelle de Homebrew et de Python 3.8+ ;
   - configuré votre terminal pour utiliser les utilitaires GNU à la place de
     ceux de BSD (avec `linuxify <https://github.com/darksonic37/linuxify#install>`_,
     par exemple) ;
@@ -205,10 +205,8 @@ lequel vous travaillerez avant d’envoyer des *Pull-Requests*.
 .. Attention::
 
   La version complète **ne peut être automatiquement installée pour le moment**
-  car l’installeur télécharge une version de Java (pour ElasticSearch) spécifique
-  à Linux. Cependant, vous pouvez remplacer la version de Java installée dans
-  ``zds-site/zdsenv/lib/jdk`` par une version fonctionnant sous macOS et ElasticSearch
-  fonctionnera.
+  car l’installeur télécharge une version de Typesense (le moteur de recherche) spécifique
+  à Linux.
 
   Le système de génération et d’export des PDF devrait fonctionner normalement.
 
@@ -216,7 +214,7 @@ lequel vous travaillerez avant d’envoyer des *Pull-Requests*.
 
 .. seealso::
 
-  - `Installation d’Elasticsearch <extra-install-es.html>`_ ;
+  - `Installation de Typesense <extra-install-search-engine.html>`_ ;
   - `installation de LaTeX <extra-install-latex.html>`_.
 
 Pour installer la version minimale, exécutez depuis la racine du dépôt que vous
@@ -261,9 +259,7 @@ Si vous voulez la version complète :
 
   Si vous installez la version complète, le script va, en plus :
 
-  - installer une version de Java pour Linux dans le dossier ``zds-site/zdsenv/lib/jdk``
-    et modifier l’environnement virtuel pour que cette version de Java soit utilisée ;
-  - installer ElasticSearch dans le dossier ``zds-site/.local/elasticsearch`` ;
+  - installer Typesense dans le dossier ``zds-site/.local/typesense`` ;
   - installer TeXLive (permettant de compiler du LaTeX en PDF, utilisé pour les
     exports PDF) dans le dossier ``zds-site/.local/texlive`` ;
   - cloner le dépôt contenant le modèle LaTeX utilisé par l’export PDF dans le

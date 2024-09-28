@@ -7,7 +7,14 @@ from django.urls import reverse
 from django.test import TestCase
 
 from zds.forum.commons import PostEditMixin
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory, TagFactory
+from zds.forum.tests.factories import (
+    ForumCategoryFactory,
+    ForumFactory,
+    TopicFactory,
+    PostFactory,
+    TagFactory,
+    create_category_and_forum,
+)
 from zds.forum.models import Forum, TopicRead, Post, Topic
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
@@ -1203,6 +1210,22 @@ class ManagerTests(TestCase):
         self.assertFalse(topic.is_read_by_user(author.user, check_auth=False))
         self.assertTrue(topic.is_read_by_user(self.staff.user, check_auth=False))
         self.assertFalse(topic.is_read_by_user(reader.user, check_auth=False))
+
+    def test_get_authorized_forums_pk(self):
+        user = ProfileFactory().user
+        hidden_forum = self.forum3
+
+        # Regular user can access only the public forum:
+        self.assertEqual(sorted(Forum.objects.get_authorized_forums_pk(user)), sorted([self.forum1.pk, self.forum2.pk]))
+
+        # Staff user can access all forums:
+        self.assertEqual(
+            sorted(Forum.objects.get_authorized_forums_pk(self.staff.user)),
+            sorted([self.forum1.pk, self.forum2.pk, hidden_forum.pk]),
+        )
+
+        # By default, only public forums are available:
+        self.assertEqual(sorted(Forum.objects.get_authorized_forums_pk(None)), sorted([self.forum1.pk, self.forum2.pk]))
 
 
 class TopicReadAndUnreadTests(TestCase):

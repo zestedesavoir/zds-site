@@ -3,6 +3,7 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
+from django.db.models import Case, When, IntegerField, Value
 from django.db.models.signals import post_save, post_delete
 from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import filters
@@ -81,12 +82,30 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     Profile resource to list and register.
     """
 
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ("user__username",)
     list_key_func = PagingSearchListKeyConstructor()
 
     def get_queryset(self):
-        return Profile.objects.contactable_members()
+        queryset = Profile.objects.contactable_members()
+        search_param = self.request.query_params.get("search", None)
+
+        if search_param:
+            queryset = (
+                queryset.filter(user__username__icontains=search_param)
+                .annotate(
+                    priority=Case(
+                        When(user__username=search_param, then=Value(1)),
+                        When(user__username__iexact=search_param, then=Value(2)),
+                        When(user__username__startswith=search_param, then=Value(3)),
+                        When(user__username__istartswith=search_param, then=Value(4)),
+                        When(user__username__contains=search_param, then=Value(5)),
+                        default=Value(6),
+                        output_field=IntegerField(),
+                    )
+                )
+                .order_by("priority", "user__username")
+            )
+
+        return queryset
 
     @etag(list_key_func)
     @cache_response(key_func=list_key_func)

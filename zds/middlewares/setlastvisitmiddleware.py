@@ -34,6 +34,6 @@ class SetLastVisitMiddleware:
                     profile.last_visit = datetime.datetime.now()
                     profile.last_ip_address = get_client_ip(request)
                     profile.save()
-            if not profile.can_read:
+            if profile.is_banned():
                 logout(request)
         return response

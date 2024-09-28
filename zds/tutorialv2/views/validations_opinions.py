@@ -1,10 +1,8 @@
 import json
 from datetime import datetime
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import F
 from django.http import Http404, HttpResponse
@@ -310,7 +308,7 @@ class PickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMixin
         db_object.save()
 
         # mark to reindex to boost correctly in the search
-        self.public_content_object.es_flagged = True
+        self.public_content_object.search_engine_requires_index = True
         self.public_content_object.save()
         PickListOperation.objects.create(
             content=self.object,
@@ -387,7 +385,7 @@ class UnpickOpinion(PermissionRequiredMixin, DoesNotRequireValidationFormViewMix
             self.request.user
         )
         # mark to reindex to boost correctly in the search
-        self.public_content_object.es_flagged = True
+        self.public_content_object.search_engine_requires_index = True
         self.public_content_object.save()
 
         msg = render_to_string(

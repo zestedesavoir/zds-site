@@ -1,11 +1,13 @@
+from datetime import datetime, timedelta
+
 from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase
 from django.utils.html import escape
 
 from zds.member.forms import LoginForm
-from zds.member.models import Profile
-from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory
+from zds.member.models import Profile, Ban
+from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory, StaffProfileFactory
 
 
 class LoginTests(TestCase):
@@ -19,6 +21,20 @@ class LoginTests(TestCase):
         self.test_ip = "192.168.0.110"  # must be different from the one set by the factory to test actual change
         self.assertNotEqual(self.test_ip, ProfileFactory.last_ip_address)
         settings.SESSION_COOKIE_AGE = 1337
+
+        self.staff_profile = StaffProfileFactory()
+        self.banned_profile = ProfileFactory()
+        self.banned_profile.end_ban_read = None
+        self.banned_profile.can_read = False
+        self.banned_profile.save()
+        self.ban = Ban.objects.create(
+            user=self.banned_profile.user,
+            moderator=self.staff_profile.user,
+            type="Bannissement illimité",
+            note="Test message",
+            pubdate=datetime.now(),
+        )
+        self.ban.save()
 
     def test_form_action_redirect(self):
         """The form shall have the 'next' parameter in the action url of the form."""
@@ -155,8 +171,26 @@ class LoginTests(TestCase):
         Expected: cannot log in, error associated with the ban.
         """
 
-        # Equivalent to a permanently banned user
+        result = self.client.post(
+            self.login_url,
+            {
+                "username": self.banned_profile.user.username,
+                "password": self.correct_password,
+                "remember": "remember",
+            },
+            follow=False,
+        )
+        self.assertContains(result, escape(LoginForm.error_messages["banned"].format(self.ban.note)))
+
+    def test_previously_temp_banned_user(self):
+        """
+        Nominal case: correct username, activated user, correct password, previously temp banned user.
+        Expected: successful login, redirect to homepage.
+        """
+
+        # Equivalent to a previously temporary banned user
         self.profile.can_read = False
+        self.profile.end_ban_read = datetime.now() - timedelta(days=30)
         self.profile.save()
 
         result = self.client.post(
@@ -164,11 +198,12 @@ class LoginTests(TestCase):
             {
                 "username": self.correct_username,
                 "password": self.correct_password,
-                "remember": "remember",
             },
-            follow=False,
+            follow=True,
         )
-        self.assertContains(result, escape(LoginForm.error_messages["banned"]))
+
+        self.assertRedirects(result, reverse("homepage"))
+        self.assertTrue(self.client.session.get_expire_at_browser_close())
 
     def test_redirection_good_target(self):
         """Nominal case: redirection to an existing page with the parameter 'next'."""
