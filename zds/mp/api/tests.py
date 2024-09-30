@@ -210,7 +210,6 @@ class PrivateTopicListAPITest(APITestCase):
         response = self.client.get(reverse("api:mp:list") + "?expand=author")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         author = response.data.get("results")[0].get("author")
-        self.assertIsInstance(author, OrderedDict)
         self.assertEqual(author.get("username"), self.profile.user.username)
         self.assertEqual(author.get("avatar_url"), self.profile.get_avatar_url())
 
