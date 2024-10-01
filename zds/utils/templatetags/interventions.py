@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 
 from django import template
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 from django.db.models import F
 
