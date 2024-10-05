@@ -29,22 +29,23 @@ class MemberModelsTest(TutorialTestMixin, TestCase):
     def test_get_absolute_url_for_details_of_member(self):
         self.assertEqual(self.user1.get_absolute_url(), f"/@{self.user1.user.username}")
 
-    def test_get_avatar_url(self):
-        # if no url was specified -> gravatar !
-        self.assertIn("gravatar.com", self.user1.get_avatar_url())
+    def test_get_absolute_avatar_url(self):
+        # if no url was specified -> nothing !
+        self.assertEqual(self.user1.get_absolute_avatar_url(), None)
 
         # if an url is specified -> take it !
         user2 = ProfileFactory()
         testurl = "http://test.com/avatar.jpg"
         user2.avatar_url = testurl
-        self.assertEqual(user2.get_avatar_url(), testurl)
+        self.assertEqual(user2.get_absolute_avatar_url(), testurl)
 
         # if url is relative, send absolute url
-        gallerie_avtar = GalleryFactory()
-        image_avatar = ImageFactory(gallery=gallerie_avtar)
+        gallerie_avatar = GalleryFactory()
+        image_avatar = ImageFactory(gallery=gallerie_avatar)
         user2.avatar_url = image_avatar.physical.url
-        self.assertNotEqual(user2.get_avatar_url(), image_avatar.physical.url)
-        self.assertIn("http", user2.get_avatar_url())
+        self.assertNotEqual(user2.get_absolute_avatar_url(), image_avatar.physical.url)
+        self.assertIn(image_avatar.physical.url, user2.get_absolute_avatar_url())
+        self.assertIn("http", user2.get_absolute_avatar_url())
 
     def test_get_post_count(self):
         # Start with 0

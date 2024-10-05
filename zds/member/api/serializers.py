@@ -16,7 +16,7 @@ class UserListSerializer(serializers.ModelSerializer):
     serializers.
     """
 
-    avatar_url = serializers.CharField(source="profile.get_avatar_url")
+    avatar_url = serializers.CharField(source="profile.get_absolute_avatar_url")
     html_url = serializers.CharField(source="get_absolute_url")
 
     class Meta:
@@ -34,7 +34,7 @@ class ProfileListSerializer(serializers.ModelSerializer):
     html_url = serializers.CharField(source="user.get_absolute_url")
     is_active = serializers.BooleanField(source="user.is_active")
     date_joined = serializers.DateTimeField(source="user.date_joined")
-    avatar_url = serializers.CharField(source="get_avatar_url")
+    avatar_url = serializers.CharField(source="get_absolute_avatar_url")
     permissions = DRYPermissionsField(additional_actions=["ban"])
 
     class Meta:
@@ -78,7 +78,7 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="user.email")
     is_active = serializers.BooleanField(source="user.is_active")
     date_joined = serializers.DateTimeField(source="user.date_joined")
-    avatar_url = serializers.CharField(source="get_avatar_url")
+    avatar_url = serializers.CharField(source="get_absolute_avatar_url")
     permissions = DRYPermissionsField(additional_actions=["ban"])
 
     class Meta:

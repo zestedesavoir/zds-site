@@ -211,7 +211,7 @@ class PrivateTopicListAPITest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         author = response.data.get("results")[0].get("author")
         self.assertEqual(author.get("username"), self.profile.user.username)
-        self.assertEqual(author.get("avatar_url"), self.profile.get_avatar_url())
+        self.assertEqual(author.get("avatar_url"), self.profile.get_absolute_avatar_url())
 
     def test_create_private_topics_with_client_unauthenticated(self):
         """

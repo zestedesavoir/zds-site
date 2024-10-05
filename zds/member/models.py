@@ -105,22 +105,14 @@ class Profile(models.Model):
 
         return geo_location
 
-    def get_avatar_url(self, size=80):
-        """Get the avatar URL for this profile.
-        If the user has defined a custom URL, use it.
-        If not, use Gravatar.
-        :return: The avatar URL for this profile
-        :rtype: str
+    def get_absolute_avatar_url(self):
+        """Gets the avatar URL of this profile.
+        :return: The absolute URL of this profile's avatar
+        :rtype: str or None
         """
-        if self.avatar_url:
-            if self.avatar_url.startswith(settings.MEDIA_URL):
-                return "{}{}".format(settings.ZDS_APP["site"]["url"], self.avatar_url)
-            else:
-                return self.avatar_url
-        else:
-            return "https://secure.gravatar.com/avatar/{}?d=identicon&s={}".format(
-                md5(self.user.email.lower().encode("utf-8")).hexdigest(), size
-            )
+        if self.avatar_url and self.avatar_url.startswith(settings.MEDIA_URL):
+            return settings.ZDS_APP["site"]["url"] + self.avatar_url
+        return self.avatar_url
 
     def get_post_count(self):
         """
