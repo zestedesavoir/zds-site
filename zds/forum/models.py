@@ -202,9 +202,6 @@ class Topic(AbstractSearchIndexableModel):
         "Post", null=True, related_name="last_message", verbose_name="Dernier message", on_delete=models.SET_NULL
     )
     pubdate = models.DateTimeField("Date de création", auto_now_add=True)
-    update_index_date = models.DateTimeField(
-        "Date de dernière modification pour la réindexation partielle", auto_now=True, db_index=True
-    )
     solved_by = models.ForeignKey(
         User,
         verbose_name="Utilisateur ayant noté le sujet comme résolu",
