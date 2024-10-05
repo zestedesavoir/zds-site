@@ -16,7 +16,7 @@
            {% endif %}>
 
             {% if avatar %}
-                <img src="{% avatar_url profile %}" alt="" class="avatar" itemprop="image" aria-hidden="true" />
+                {% avatar profile %}
             {% endif %}
 
             <span itemprop="name">{{ username }}</span>
