@@ -1518,6 +1518,8 @@ class PostEditTest(TestCase):
         topic = create_topic_in_forum(forum, profile)
         post_before_edit = Post.objects.get(pk=topic.last_message.pk)
 
+        post_before_edit.save(search_engine_requires_index=False)
+
         edits_count = CommentEdit.objects.count()
 
         # Edit post
@@ -1536,6 +1538,10 @@ class PostEditTest(TestCase):
         self.assertEqual(post_before_edit.pk, edit.comment.pk)
         self.assertEqual(post_before_edit.text, edit.original_text)
         self.assertEqual(profile.user, edit.editor)
+
+        # Check the post was marked as to reindex
+        post_before_edit.refresh_from_db()
+        self.assertTrue(post_before_edit.search_engine_requires_index)
 
 
 class PostUsefulTest(TestCase):

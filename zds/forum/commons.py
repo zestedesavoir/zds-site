@@ -176,10 +176,6 @@ class PostEditMixin:
         post.editor = user
         post.save()
 
-        # Save topic to update update_index_date
-        if post.position == 1:
-            post.topic.save()
-
         return post
 
 
