@@ -366,3 +366,24 @@ class FollowContentReaction(LoggedWithReadWriteHability, SingleOnlineContentView
         if is_ajax(self.request):
             return HttpResponse(json_handler.dumps(response), content_type="application/json")
         return redirect(self.get_object().get_absolute_url())
+
+
+class LockContentReactions(LoginRequiredMixin, PermissionRequiredMixin, SingleOnlineContentViewMixin, FormView):
+    """Lock or unlock content reactions for a content"""
+
+    permission_required = "tutorialv2.change_publishablecontent"
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        response = {}
+        self.public_content_object = self.get_public_object()
+        self.object = self.get_object()
+        if request.POST.get("action") == "lock":
+            self.object.is_locked = True
+            self.object.save()
+        elif request.POST.get("action") == "unlock":
+            self.object.is_locked = False
+            self.object.save()
+        if is_ajax(self.request):
+            return HttpResponse(json_handler.dumps(response), content_type="application/json")
+        return redirect(self.public_content_object.get_absolute_url())
