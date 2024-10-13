@@ -510,10 +510,11 @@ def load_contents(cli, size, fake, _type, *_, **__):
 
         current_size = content_sizes[created_content_index]
         action_flag = what_to_do[created_content_index]
+        title = ["Mini", "Medium", "Big"][current_size] + " " + fake.text(max_nb_chars=50)
 
         # creation:
         content = PublishableContentFactory(
-            type=_type, title=fake.text(max_nb_chars=60), description=fake.sentence(nb_words=15, variable_nb_words=True)
+            type=_type, title=title, description=fake.sentence(nb_words=15, variable_nb_words=True)
         )
 
         versioned = content.load_version()
@@ -564,12 +565,12 @@ def validate_edited_content(content, fake, nb_staffs, staffs, to_do, versioned):
 
 
 def generate_text_for_content(content_size, fake, nb_avg_containers_in_content, nb_avg_extracts_in_content, versioned):
-    if content_size == 0:
+    if content_size == 0:  # mini
         nb_extracts = random.randint(1, nb_avg_extracts_in_content * 2)
         for _ in range(nb_extracts):
             extract_title = fake.text(max_nb_chars=60)
             ExtractFactory(container=versioned, title=extract_title, light=False)
-    else:
+    else:  # medium or big
         nb_containers = random.randint(1, nb_avg_containers_in_content * 2)
         for _ in range(nb_containers):
             container_title = fake.text(max_nb_chars=60)
