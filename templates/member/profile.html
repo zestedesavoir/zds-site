@@ -867,7 +867,9 @@
                                 </a>
                                 <form method="post" action="{% url 'check-new-email-provider' provider_to_ban.pk %}" id="ban-provider-{{ provider_to_ban.pk }}" class="modal modal-flex">
                                     <p>
-                                        {% trans "Bannir le fournisseur email " %} <code>{{ provider_to_ban.provider }}</code>&nbsp;?
+                                        {% blocktrans with provider=provider_to_ban.provider %}
+                                            Bannir le fournisseur email <code>{{ provider }}</code>&nbsp;?
+                                        {% endblocktrans %}
                                     </p>
                                     {% csrf_token %}
                                     <button type="submit" name="ban" class="btn btn-submit">{% trans "Confirmer" %}</button>
