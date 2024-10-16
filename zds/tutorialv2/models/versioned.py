@@ -385,6 +385,9 @@ class Container:
         """
         return self.top_container().get_absolute_url() + self.get_path(relative=True, os_sensitive=False) + "/"
 
+    def get_relative_url(self):
+        return self.get_path(relative=True, os_sensitive=False) + "/"
+
     def get_absolute_url_online(self):
         """
 
@@ -947,6 +950,9 @@ class Extract:
         :rtype: str
         """
         return f"{self.container.get_absolute_url()}#{self.position_in_parent}-{self.slug}"
+
+    def get_relative_url(self):
+        return f"{self.container.get_relative_url()}#{self.position_in_parent}-{self.slug}"
 
     def get_absolute_url_online(self):
         """
