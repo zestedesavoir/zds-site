@@ -61,12 +61,6 @@
                 </li>
             </ul>
         </div>
-    {% elif not display_config.draft_actions.enable_edit or not content.can_add_extract and not content.can_add_container %}
-        <div class="ico-after warning">
-            <p>
-                {% trans "Ce contenu est vide." %}
-            </p>
-        </div>
     {% endif %}
 {% endfor %}
 
