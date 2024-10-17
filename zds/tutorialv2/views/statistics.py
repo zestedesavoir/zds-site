@@ -41,20 +41,13 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs["urls"] = [(named_url.url, named_url.name) for named_url in self.get_urls_to_render()]
+        self.get_urls_to_render()
+        kwargs["urls"] = [(named_url.url, named_url.name) for named_url in self.named_urls]
         return kwargs
 
     def form_valid(self, form):
         self.urls = form.cleaned_data["urls"]
         return super().get(self.request)
-
-    def get_urls_to_render(self):
-        all_named_urls = self.get_content_urls()
-        base_list = self.request.GET.getlist("urls", None) or self.urls
-        if base_list:
-            return [named_url for named_url in all_named_urls if named_url.url in base_list]
-        else:
-            return all_named_urls
 
     def get_content_urls(self):
         content = self.versioned_object
@@ -68,68 +61,24 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
                     urls.append(NamedUrl(subchild.title, subchild.get_absolute_url_online(), 2))
         return urls
 
-    def get_all_statistics(self, urls, start, end, methods):
-        date_ranges = "{},{}".format(start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"))
-        data_request = {"module": "API", "method": "API.getBulkRequest", "format": "json", "filter_limit": -1}
-        data_structured = {}
-
-        for method in methods:
-            data_structured[method] = []
-
-        for index, method_url in enumerate(itertools.product(methods, urls)):
-            method = method_url[0]
-            url = method_url[1]
-            absolute_url = f"{self.request.scheme}://{self.request.get_host()}{url.url}"
-            param_url = f"pageUrl=={urllib.parse.quote_plus(absolute_url)}"
-
-            request_params = {"method": method, "idSite": self.matomo_site_id, "date": date_ranges, "period": "day"}
-            if method.startswith("Referrers"):  # referrers requests use segment for define url
-                request_params["segment"] = ",".join([param_url])
-            elif method == "Actions.getPageUrl":
-                request_params["pageUrl"] = absolute_url
-
-            data_request.update({f"urls[{index}]": urllib.parse.urlencode(request_params)})
-
-        response_matomo = requests.post(url=self.matomo_api_url, data=data_request)
-        data = response_matomo.json()
-        if isinstance(data, dict) and data.get("result", "") == "error":
-            raise StatisticsException(self.logger.error, data.get("message", _("Pas de message d'erreur")))
-        else:
-            for index, method_url in enumerate(itertools.product(methods, urls)):
-                if isinstance(data[index], dict) and data[index].get("result", "") == "error":
-                    raise StatisticsException(
-                        self.logger.error, data[index].get("message", _("Pas de message d'erreur"))
-                    )
-
-                method = method_url[0]
-                data_structured[method].append(data[index])
-
-            return data_structured
-
-    @staticmethod
-    def get_stat_metrics(data, metric_name):
-        x = []
-        y = []
-        for key, val in data.items():
-            x.append(key)
-            if len(val) == 0:
-                y.append(0)
+    def get_urls_to_render(self):
+        all_named_urls = self.get_content_urls()
+        urls = self.request.GET.getlist("urls", None) or self.urls
+        if urls:
+            named_urls = [named_url for named_url in all_named_urls if named_url.url in urls]
+            requested_named_urls = named_urls
+            if len(urls) == 1:
+                display_mode = "details"
             else:
-                y.append(val[0].get(metric_name, 0))
+                display_mode = "comparison"
+        else:
+            requested_named_urls = [all_named_urls[0]]
+            named_urls = all_named_urls
+            display_mode = "global"
 
-        return (x, y)
-
-    @staticmethod
-    def get_ref_metrics(data):
-        refs = {}
-        for key, val in data.items():
-            for item in val:
-                if item["label"] in refs:
-                    refs[item["label"]] += item["nb_visits"]
-                else:
-                    refs[item["label"]] = item["nb_visits"]
-
-        return refs
+        self.requested_named_urls = requested_named_urls
+        self.named_urls = named_urls
+        self.display_mode = display_mode
 
     def get_start_and_end_dates(self):
         end_date = self.request.GET.get("end_date", None)
@@ -155,123 +104,159 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
 
         return start_date, end_date
 
-    def get_display_mode(self, urls):
-        # TODO make display_mode an enum ?
-        # Good idea, but not straightforward for the template integration
-        if len(urls) == len(self.get_content_urls()):
-            return "global"
-        if len(urls) == 1:
-            return "details"
-        return "comparison"
+    def get_matomo_request(self, request_data):
+        request_data.update(
+            {
+                "module": "API",
+                "idSite": self.matomo_site_id,
+                "language": "fr",
+                "format": "JSON",
+            }
+        )
+
+        # self.logger.info("Matomo request data")
+        # self.logger.info(request_data)
+        response = requests.post(url=self.matomo_api_url, data=request_data)
+        response_data = response.json()
+        # self.logger.info("Matomo response data")
+        # self.logger.info(response_data)
+        return response_data
 
     @staticmethod
-    def get_cumulative(stats):
-        cumul = {"total": 0}
-        for info_date, infos_stat in stats.items():
-            cumul["total"] += len(infos_stat)
-            for info_stat in infos_stat:
-                for key, val in info_stat.items():
-                    if type(val) == str:
-                        continue
-                    if key in cumul:
-                        cumul[key] += int(val)
-                    else:
-                        cumul[key] = int(val)
-        return cumul
-
-    @staticmethod
-    def merge_ref_to_data(metrics, refs):
-        for key, item in refs.items():
-            if key in metrics:
-                metrics[key] += item
+    def get_graph_metrics(data, metric_name):
+        x = []
+        y = []
+        for key, val in data.items():
+            x.append(key)
+            if len(val) == 0:
+                y.append(0)
             else:
-                metrics[key] = item
-        return metrics
-
-    @staticmethod
-    def merge_report_to_global(reports, fields):
-        metrics = {}
-        for key, item in reports.items():
-            for field, is_avg in fields:
-                if field in metrics:
-                    metrics[field] = (
-                        metrics[field][0],
-                        [i + j for (i, j) in zip(metrics[field][1], item.get(field)[1])],
-                    )
-                else:
-                    metrics[field] = item.get(field)
-        return metrics
+                y.append(val[0].get(metric_name, 0))
+        return (x, y)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if not (self.is_author or self.is_staff):
             raise PermissionDenied
 
-        urls = self.get_urls_to_render()
+        named_urls = self.named_urls
+        requested_named_urls = self.requested_named_urls
+        display_mode = self.display_mode
+
         start_date, end_date = self.get_start_and_end_dates()
-        display_mode = self.get_display_mode(urls)
-        reports = {}
-        cumulative_stats = {}
-        referrers = {}
-        type_referrers = {}
-        keywords = {}
-        report_field = [("nb_uniq_visitors", False), ("nb_hits", False), ("avg_time_on_page", True)]
+        date_range = "{},{}".format(start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d"))
 
-        try:
-            # Each function sends only one bulk request for all the urls
-            # Each variable is a list of dictionnaries (one for each url)
-            all_statistics = self.get_all_statistics(
-                urls,
-                start_date,
-                end_date,
-                ["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords", "Actions.getPageUrl"],
+        def get_request_label(named_url):
+            # Generate the "label" parameter corresponding to named_url for a request
+            # From: /alice-and-bob/foo-bar/
+            # To: alice-and-bob > foo-bar
+            return named_url.url[1:-1].replace("/", " > ")
+
+        def get_response_label(named_url):
+            # Generate the "label" corresponding to named_url in the response data
+            # From: /alice-and-bob/foo-bar/
+            # To: foo-bar
+            return named_url.url.split("/")[-2]
+
+        # GRAPHS
+        graphs_data = {}
+        for named_url in requested_named_urls:
+            graphs_data[named_url] = {}
+            response_data = self.get_matomo_request(
+                {
+                    "method": "Actions.getPageUrls",
+                    "date": date_range,
+                    "period": "day",
+                    "label": get_request_label(named_url),
+                }
             )
-        except StatisticsException as e:
-            all_statistics = {}
-            logger_method, msg = e.args
-            logger_method(f"Something failed with Matomo reporting system: {msg}")
-            messages.error(self.request, _("Impossible de récupérer les statistiques du site ({}).").format(msg))
-        except Exception as e:
-            all_statistics = {}
-            self.logger.error(f"Something failed with Matomo reporting system: {e}")
-            messages.error(self.request, _("Impossible de récupérer les statistiques du site ({}).").format(e))
+            for metric_name in ("avg_time_on_page", "nb_hits", "nb_visits"):
+                graphs_data[named_url][metric_name] = self.get_graph_metrics(response_data, metric_name)
+        # self.logger.info("Graphs data")
+        # self.logger.info(graphs_data)
 
-        if all_statistics != {}:
-            all_stats = all_statistics["Actions.getPageUrl"]
-            all_ref_websites = all_statistics["Referrers.getWebsites"]
-            all_ref_types = all_statistics["Referrers.getReferrerType"]
-            all_ref_keyword = all_statistics["Referrers.getKeywords"]
+        # HUGE TABLE
+        bulk_request_data = {"method": "API.getBulkRequest"}
+        for index, named_url in enumerate(named_urls):
+            individual_request_data = {
+                "method": "Actions.getPageUrls",
+                "idSite": self.matomo_site_id,
+                "date": date_range,
+                "period": "range",
+                "label": get_request_label(named_url),
+            }
+            bulk_request_data.update({f"urls[{index}]": urllib.parse.urlencode(individual_request_data)})
+        response_data = self.get_matomo_request(bulk_request_data)
 
-            for index, url in enumerate(urls):
-                cumul_stats = self.get_cumulative(all_stats[index])
-                reports[url] = {}
-                cumulative_stats[url] = {}
+        temp_data = {}
+        for elem in response_data:
+            try:
+                temp_data[elem[0]["label"]] = {
+                    "avg_time_on_page": elem[0]["avg_time_on_page"],
+                    "nb_hits": elem[0]["nb_hits"],
+                    "nb_visits": elem[0]["nb_visits"],
+                }
+            except IndexError:
+                continue
+        huge_table_data = {}
+        for named_url in named_urls:
+            try:
+                huge_table_data[named_url] = temp_data[get_response_label(named_url)]
+            except KeyError:
+                huge_table_data[named_url] = {
+                    "avg_time_on_page": 0,
+                    "nb_hits": 0,
+                    "nb_visits": 0,
+                }
+        # self.logger.info("Huge table data")
+        # self.logger.info(huge_table_data)
 
-                for item, is_avg in report_field:
-                    reports[url][item] = self.get_stat_metrics(all_stats[index], item)
-                    if is_avg:
-                        cumulative_stats[url][item] = 0
-                        if cumul_stats.get("total") > 0:
-                            cumulative_stats[url][item] = cumul_stats.get(item, 0) / cumul_stats.get("total")
-                    else:
-                        cumulative_stats[url][item] = cumul_stats.get(item, 0)
+        # SMALL TABLES
+        segments = []
+        for named_url in requested_named_urls:
+            # TODO: Replace https://zestedesavoir.com by the adequate settings variable
+            absolute_url = f"https://zestedesavoir.com{named_url.url}"
+            segments.append(f"pageUrl=^{urllib.parse.quote_plus(absolute_url)}")
 
-                referrers = self.merge_ref_to_data(referrers, self.get_ref_metrics(all_ref_websites[index]))
-                type_referrers = self.merge_ref_to_data(type_referrers, self.get_ref_metrics(all_ref_types[index]))
-                keywords = self.merge_ref_to_data(keywords, self.get_ref_metrics(all_ref_keyword[index]))
+        bulk_request_data = {"method": "API.getBulkRequest"}
+        for index, method in enumerate(["Referrers.getReferrerType", "Referrers.getWebsites", "Referrers.getKeywords"]):
+            individual_request_data = {
+                "method": method,
+                "idSite": self.matomo_site_id,
+                "date": date_range,
+                "period": "range",
+                "segment": ",".join(segments),
+            }
+            bulk_request_data.update({f"urls[{index}]": urllib.parse.urlencode(individual_request_data)})
+        response_data = self.get_matomo_request(bulk_request_data)
 
-            if display_mode.lower() == "global":
-                reports = {NamedUrl(display_mode, "", 0): self.merge_report_to_global(reports, report_field)}
+        referrer_types = {}
+        for elem in response_data[0]:
+            referrer_types[elem["label"]] = elem["nb_visits"]
+        # self.logger.info("Referrer types")
+        # self.logger.info(referrer_types)
+
+        referrer_websites = {}
+        for elem in response_data[1]:
+            referrer_websites[elem["label"]] = elem["nb_visits"]
+        # self.logger.info("Referrer websites")
+        # self.logger.info(referrer_websites)
+
+        referrer_keywords = {}
+        for elem in response_data[2]:
+            referrer_keywords[elem["label"]] = elem["nb_visits"]
+        # self.logger.info("Referrer keywords")
+        # self.logger.info(referrer_keywords)
 
         context.update(
             {
+                "urls": named_urls,
                 "display": display_mode,
-                "urls": urls,
-                "reports": reports,
-                "cumulative_stats": cumulative_stats,
-                "referrers": referrers,
-                "type_referrers": type_referrers,
-                "keywords": keywords,
+                "graphs_data": graphs_data,
+                "huge_table_data": huge_table_data,
+                "referrer_types": referrer_types,
+                "referrer_websites": referrer_websites,
+                "referrer_keywords": referrer_keywords,
             }
         )
         return context
