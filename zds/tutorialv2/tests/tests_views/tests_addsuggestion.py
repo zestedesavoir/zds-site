@@ -71,7 +71,7 @@ class AddSuggestionPermissionTests(TutorialTestMixin, TestCase):
         self.content.type = "OPINION"
         self.content.save()
         response = self.client.post(self.form_url, self.form_data)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(response, self.content_url)
 
 
 class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
@@ -94,10 +94,10 @@ class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
 
         # Get information to be reused in tests
         self.form_url = reverse("content:add-suggestion", kwargs={"pk": self.content.pk})
-        self.success_message_fragment = _("a été ajouté dans les suggestions")
-        self.error_message_fragment_unpublished = _("un contenu qui n'a pas été publié")
-        self.error_message_fragment_already_suggested = _("fait déjà partie des suggestions de")
-        self.error_message_fragment_self = _("en tant que suggestion pour lui-même")
+        self.success_message_fragment = _("a été ajouté aux suggestions")
+        self.error_message_fragment_unpublished = _("pas suggérer une publication non publique")
+        self.error_message_fragment_already_suggested = _("déjà suggéré pour cette publication")
+        self.error_message_fragment_self = _("la publication pour elle-même")
         self.error_messge_fragment_not_picked = _("un billet qui n'a pas été mis en avant")
 
         # Log in with an authorized user to perform the tests

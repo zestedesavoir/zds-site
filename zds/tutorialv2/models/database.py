@@ -45,7 +45,7 @@ from zds.tutorialv2.models import (
 from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-from zds.tutorialv2.models.versioned import NotAPublicVersion, VersionedContent
+from zds.tutorialv2.models.versioned import NotAPublicVersion
 from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
 from zds.utils import get_current_user
 from zds.utils.models import Category, SubCategory, Licence, Comment, Tag
@@ -1572,13 +1572,13 @@ class ContentContribution(models.Model):
 
 class ContentSuggestion(models.Model):
     class Meta:
-        verbose_name = "Suggestion de contenu"
-        verbose_name_plural = "Suggestions de contenu"
+        verbose_name = "Suggestion de publication"
+        verbose_name_plural = "Suggestions de publication"
 
     publication = models.ForeignKey(
         PublishableContent,
         null=False,
-        verbose_name="Contenu",
+        verbose_name="Publication",
         db_index=True,
         on_delete=models.CASCADE,
         related_name="publication",

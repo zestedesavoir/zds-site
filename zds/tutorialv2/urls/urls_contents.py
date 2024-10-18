@@ -46,7 +46,7 @@ from zds.tutorialv2.views.contributors import (
     RemoveContributorFromContent,
     ContentOfContributors,
 )
-from zds.tutorialv2.views.suggestions import RemoveSuggestion, AddSuggestion
+from zds.tutorialv2.views.suggestions import RemoveSuggestionView, AddSuggestionView
 from zds.tutorialv2.views.tags import EditTags
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
@@ -233,8 +233,8 @@ urlpatterns = (
             name="inactive-beta",
         ),
         path("stats/<int:pk>/<slug:slug>/", ContentStatisticsView.as_view(), name="stats-content"),
-        path("ajouter-suggestion/<int:pk>/", AddSuggestion.as_view(), name="add-suggestion"),
-        path("enlever-suggestion/<int:pk>/", RemoveSuggestion.as_view(), name="remove-suggestion"),
+        path("ajouter-suggestion/<int:pk>/", AddSuggestionView.as_view(), name="add-suggestion"),
+        path("enlever-suggestion/<int:pk>/", RemoveSuggestionView.as_view(), name="remove-suggestion"),
         # jsfiddle support:
         path("activer-js/", ActivateJSFiddleInContent.as_view(), name="activate-jsfiddle"),
         # delete:
