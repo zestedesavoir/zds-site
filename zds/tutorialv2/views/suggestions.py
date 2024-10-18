@@ -5,7 +5,6 @@ from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -19,7 +18,7 @@ import zds.tutorialv2.signals as signals
 
 class SearchSuggestionForm(forms.Form):
     suggestion_pk = forms.CharField(
-        label="Contenu à suggérer",
+        label="Publication à suggérer",
         required=False,
         widget=forms.TextInput(),
     )
@@ -64,7 +63,7 @@ class RemoveSuggestionForm(forms.Form):
         return pk_suggestion
 
 
-class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
+class RemoveSuggestionView(PermissionRequiredMixin, SingleContentFormViewMixin):
     form_class = RemoveSuggestionForm
     modal_form = True
     permission_required = "tutorialv2.change_publishablecontent"
@@ -72,8 +71,6 @@ class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
     @method_decorator(login_required)
     @method_decorator(can_write_and_read_now)
     def dispatch(self, *args, **kwargs):
-        if self.get_object().is_opinion:
-            raise PermissionDenied
         return super().dispatch(*args, **kwargs)
 
     def form_valid(self, form):
@@ -90,9 +87,8 @@ class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
         return super().form_invalid(form)
 
     def get_success_message(self, content_suggestion):
-        return _('Vous avez enlevé "{}" de la liste des suggestions de {}.').format(
-            content_suggestion.suggestion.title,
-            self.describe_type(),
+        return _('Vous avez enlevé "{}" de la liste des suggestions de cette publication.').format(
+            content_suggestion.suggestion.title
         )
 
     def get_success_url(self):
@@ -101,24 +97,13 @@ class RemoveSuggestion(PermissionRequiredMixin, SingleContentFormViewMixin):
         else:
             return self.object.get_absolute_url()
 
-    def describe_type(self):
-        if self.object.is_tutorial:
-            return _("ce tutoriel")
-        return _("cet article")
 
-
-class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, SingleContentFormViewMixin):
+class AddSuggestionView(LoggedWithReadWriteHability, PermissionRequiredMixin, SingleContentFormViewMixin):
     authorized_for_staff = True
     permission_required = "tutorialv2.change_publishablecontent"
 
     def post(self, request, *args, **kwargs):
         publication = get_object_or_404(PublishableContent, pk=kwargs["pk"])
-
-        _type = _("cet article")
-        if publication.is_tutorial:
-            _type = _("ce tutoriel")
-        elif self.object.is_opinion:
-            raise PermissionDenied
 
         if "options" in request.POST:
             options = request.POST.getlist("options")
@@ -127,22 +112,22 @@ class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, Single
                 if ContentSuggestion.objects.filter(publication=publication, suggestion=suggestion).exists():
                     messages.error(
                         self.request,
-                        _(f'Le contenu "{suggestion.title}" fait déjà partie des suggestions de {_type}.'),
+                        _(f'"{suggestion.title}" est déjà suggéré pour cette publication.'),
                     )
                 elif suggestion.pk == publication.pk:
                     messages.error(
                         self.request,
-                        _(f"Vous ne pouvez pas ajouter {_type} en tant que suggestion pour lui-même."),
+                        _(f"Vous ne pouvez pas suggérer la publication pour elle-même."),
                     )
                 elif suggestion.is_opinion and suggestion.sha_picked != suggestion.sha_public:
                     messages.error(
                         self.request,
-                        _(f"Vous ne pouvez pas suggérer pour {_type} un billet qui n'a pas été mis en avant."),
+                        _(f"Vous ne pouvez pas suggérer un billet qui n'a pas été mis en avant."),
                     )
                 elif not suggestion.sha_public:
                     messages.error(
                         self.request,
-                        _(f"Vous ne pouvez pas suggérer pour {_type} un contenu qui n'a pas été publié."),
+                        _(f"Vous ne pouvez pas suggérer une publication non publique."),
                     )
                 else:
                     obj_suggestion = ContentSuggestion(publication=publication, suggestion=suggestion)
@@ -155,7 +140,7 @@ class AddSuggestion(LoggedWithReadWriteHability, PermissionRequiredMixin, Single
                     )
                     messages.info(
                         self.request,
-                        _(f'Le contenu "{suggestion.title}" a été ajouté dans les suggestions de {_type}.'),
+                        _(f'"{suggestion.title}" a été ajouté aux suggestions de la publication.'),
                     )
 
         if self.object.public_version:
