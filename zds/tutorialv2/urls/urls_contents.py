@@ -3,7 +3,7 @@ from django.views.generic.base import RedirectView
 
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
 from zds.tutorialv2.views.archives import CreateContentFromArchive, DownloadContent, UpdateContentWithArchive
-from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorView
+from zds.tutorialv2.views.authors import AddAuthorView, RemoveAuthorView
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
@@ -213,7 +213,7 @@ urlpatterns = (
         path("comparaison/<int:pk>/<slug:slug>/", DisplayDiff.as_view(), name="diff"),
         path("ajouter-contributeur/<int:pk>/", AddContributorToContent.as_view(), name="add-contributor"),
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
-        path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
+        path("ajouter-auteur/<int:pk>/", AddAuthorView.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorView.as_view(), name="remove-author"),
         path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
         path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
