@@ -8,7 +8,7 @@ from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromCon
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
-from zds.tutorialv2.views.suggestions import AddSuggestion, RemoveSuggestion
+from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
 from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.labels import EditLabels
@@ -164,8 +164,8 @@ def record_event_canonical_link_management(sender, performer, signal, content, *
     ).save()
 
 
-@receiver(signals.suggestions_management, sender=AddSuggestion)
-@receiver(signals.suggestions_management, sender=RemoveSuggestion)
+@receiver(signals.suggestions_management, sender=AddSuggestionView)
+@receiver(signals.suggestions_management, sender=RemoveSuggestionView)
 def record_event_suggestion_management(sender, performer, signal, content, action, **_):
     Event(
         performer=performer,

@@ -37,7 +37,7 @@
                 </li>
             {% endif %}
 
-            {% if perms.tutorialv2.change_publishablecontent and not content.is_opinion %}
+            {% if perms.tutorialv2.change_publishablecontent %}
                 <li>
                     <a href="#add-suggestion" class="open-modal ico-after more blue">
                         {% trans "Ajouter une suggestion" %}
