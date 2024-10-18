@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2 import signals
-from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
+from zds.tutorialv2.views.authors import AddAuthorView, RemoveAuthorFromContent
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
@@ -97,7 +97,7 @@ def record_event_beta_management(sender, performer, signal, content, version, ac
     ).save()
 
 
-@receiver(signals.authors_management, sender=AddAuthorToContent)
+@receiver(signals.authors_management, sender=AddAuthorView)
 @receiver(signals.authors_management, sender=RemoveAuthorFromContent)
 def record_event_author_management(sender, performer, signal, content, author, action, **_):
     Event(

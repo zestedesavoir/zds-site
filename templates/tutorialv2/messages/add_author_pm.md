@@ -1,11 +1,10 @@
 {% load i18n %}
 
-{% blocktrans with title=content.title|safe type=type|safe user=user|safe %}
+{% blocktrans with title=content.title|safe user=user|safe %}
 Bonjour {{ user }},
 
-Vous avez été intégré à la rédaction du contenu « [{{ title }}]({{ url }}) ».
-Il a été ajouté à la liste de vos contenus en rédaction
-[ici]({{ index }}).
+Vous avez été intégré à la rédaction de « [{{ title }}]({{ url }}) ».
+Vous pouvez retrouver ce lien dans votre [liste de publications]({{ index }}).
 
 Plus rien maintenant ne retient votre plume, alors bon courage !
 {%  endblocktrans %}
