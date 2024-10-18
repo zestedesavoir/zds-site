@@ -38,7 +38,7 @@ from zds.tutorialv2.views.display import (
 )
 from zds.tutorialv2.views.history import DisplayHistory, DisplayDiff
 from zds.tutorialv2.views.help import ContentsWithHelps, ChangeHelp
-from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
+from zds.tutorialv2.views.authors import AddAuthorView, RemoveAuthorFromContent
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
 from zds.tutorialv2.views.archives import DownloadContent, UpdateContentWithArchive, CreateContentFromArchive
 from zds.tutorialv2.views.contributors import (
@@ -214,7 +214,7 @@ urlpatterns = (
         path("comparaison/<int:pk>/<slug:slug>/", DisplayDiff.as_view(), name="diff"),
         path("ajouter-contributeur/<int:pk>/", AddContributorToContent.as_view(), name="add-contributor"),
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
-        path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
+        path("ajouter-auteur/<int:pk>/", AddAuthorView.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorFromContent.as_view(), name="remove-author"),
         path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
         path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
