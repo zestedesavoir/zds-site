@@ -27,7 +27,7 @@ from zds.tutorialv2.mixins import (
 )
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
-from zds.tutorialv2.views.authors import RemoveAuthorFromContent
+from zds.tutorialv2.views.authors import RemoveAuthorView
 from zds.utils.forms import IncludeEasyMDE
 from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp, send_message_mp
@@ -450,11 +450,10 @@ class DeleteContent(LoginRequiredMixin, SingleContentViewMixin, DeleteView):
         elif self.object.is_opinion:
             _type = _("ce billet")
 
-        if self.object.authors.count() > 1:  # if more than one author, just remove author from list
-            RemoveAuthorFromContent.remove_author(self.object, self.request.user)
+        if self.object.remove_author(self.request.user):
             messages.success(self.request, _("Vous avez quitté la rédaction de {}.").format(_type))
-
         else:
+            # If removing the author failed, it is the last author, and we must delete the content.
             validation = Validation.objects.filter(content=self.object).order_by("-date_proposition").first()
 
             if validation and validation.status == "PENDING_V":  # if the validation have a validator, warn him by PM
