@@ -342,8 +342,6 @@ class UtilsTests(TutorialTestMixin, TestCase):
     def test_generate_pdf(self):
         """ensure the behavior of the `python manage.py generate_pdf` commmand"""
 
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = True  # this test need PDF build, if any
-
         tuto = PublishedContentFactory(type="TUTORIAL")  # generate and publish a tutorial
         published = PublishedContent.objects.get(content_pk=tuto.pk)
 
@@ -596,9 +594,6 @@ class UtilsExportOnlyReadyToPublishTests(TutorialTestMixin, TestCase):
         self.user_author = ProfileFactory().user
 
         self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
-        self.old_build_pdf_when_published = self.overridden_zds_app["content"]["build_pdf_when_published"]
-
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = True
 
     def get_latex_file_path(self, published: PublishedContent):
         """
@@ -856,4 +851,3 @@ class UtilsExportOnlyReadyToPublishTests(TutorialTestMixin, TestCase):
     def tearDown(self):
         super().tearDown()
         PublicatorRegistry.registry = self.old_registry
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = self.old_build_pdf_when_published

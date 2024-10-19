@@ -1,6 +1,8 @@
+from copy import deepcopy
 import shutil
 import os
 from django.conf import settings
+from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -12,13 +14,15 @@ from django.core.cache import caches
 from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.publication_utils import publish_content
 
+overridden_zds_app = deepcopy(settings.ZDS_APP)
+overridden_zds_app["content"]["extra_content_generation_policy"] = "NOTHING"
 
+
+@override_settings(ZDS_APP=overridden_zds_app)
 class TagListAPITest(APITestCase):
     def setUp(self):
         self.client = APIClient()
         caches[extensions_api_settings.DEFAULT_USE_CACHE].clear()
-        # don't build PDF to speed up the tests
-        settings.ZDS_APP["content"]["build_pdf_when_published"] = False
 
     def test_list_of_tags_empty(self):
         """
@@ -159,6 +163,3 @@ class TagListAPITest(APITestCase):
             shutil.rmtree(settings.ZDS_APP["content"]["repo_public_path"])
         if os.path.isdir(settings.MEDIA_ROOT):
             shutil.rmtree(settings.MEDIA_ROOT)
-
-        # re-activate PDF build
-        settings.ZDS_APP["content"]["build_pdf_when_published"] = True

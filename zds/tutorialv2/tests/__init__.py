@@ -14,7 +14,6 @@ overridden_zds_app = copy.deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
 overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
 overridden_zds_app["content"]["extra_content_generation_policy"] = "SYNC"
-overridden_zds_app["content"]["build_pdf_when_published"] = False
 
 
 class override_for_contents(override_settings):

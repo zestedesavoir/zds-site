@@ -129,7 +129,6 @@ SEARCH_CONNECTION["api_key"] = config["typesense"].get("api_key", "xyz")
 ZDS_APP["site"]["association"]["email"] = "communication@zestedesavoir.com"
 
 # content
-# ZDS_APP['content']['build_pdf_when_published'] = False
 ZDS_APP["article"]["repo_path"] = "/opt/zds/data/articles-data"
 ZDS_APP["content"]["repo_private_path"] = "/opt/zds/data/contents-private"
 ZDS_APP["content"]["repo_public_path"] = "/opt/zds/data/contents-public"
