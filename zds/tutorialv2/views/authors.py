@@ -3,7 +3,6 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 from django import forms
 from django.contrib import messages
-from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -139,63 +138,24 @@ class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin
         return super().form_valid(form)
 
 
-class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class RemoveAuthorView(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     form_class = RemoveAuthorForm
     must_be_author = True
     authorized_for_staff = True
-
-    @staticmethod
-    def remove_author(content, user):
-        """Remove a user from the authors and ensure that he is access to the content's gallery is also removed.
-        The last author is not removed.
-
-        :param content: the content
-        :type content: zds.tutorialv2.models.database.PublishableContent
-        :param user: the author
-        :type user: User
-        :return: ``True`` if the author was removed, ``False`` otherwise
-        """
-        if user in content.authors.all() and content.authors.count() > 1:
-            gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=content.gallery.pk).first()
-
-            if gallery:
-                gallery.delete()
-
-            content.authors.remove(user)
-            return True
-
-        return False
+    http_method_names = ["post"]
 
     def form_valid(self, form):
+        content = self.object
         current_user = False
         users = form.cleaned_data["users"]
 
-        _type = (_("cet article"), _("de l'article"))
-        if self.object.is_tutorial:
-            _type = (_("ce tutoriel"), _("du tutoriel"))
-        elif self.object.is_opinion:
-            _type = (_("ce billet"), _("du billet"))
-
         bot = get_bot_account()
         for user in users:
-            if RemoveAuthorFromContent.remove_author(self.object, user):
+            if content.remove_author(user):
                 if user.pk == self.request.user.pk:
                     current_user = True
                 elif is_reachable(user):
-                    send_mp(
-                        bot,
-                        [user],
-                        format_lazy("{}{}", _("Retrait de la rédaction "), _type[1]),
-                        self.versioned_object.title,
-                        render_to_string(
-                            "tutorialv2/messages/remove_author_pm.md",
-                            {
-                                "content": self.object,
-                                "user": user.username,
-                            },
-                        ),
-                        hat=get_hat_from_settings("validation"),
-                    )
+                    self.notify_by_private_message(user, bot)
                 signals.authors_management.send(
                     sender=self.__class__,
                     content=self.object,
@@ -206,36 +166,54 @@ class RemoveAuthorFromContent(LoggedWithReadWriteHability, SingleContentFormView
             else:  # if user is incorrect or alone
                 messages.error(
                     self.request,
-                    _("Vous êtes le seul auteur de {} ou le membre sélectionné en a déjà quitté la rédaction.").format(
-                        _type[0]
+                    _(
+                        "Vous êtes le seul auteur de la publication ou le membre sélectionné en a déjà quitté la rédaction."
                     ),
                 )
                 return redirect(self.object.get_absolute_url())
 
-        self.object.save()
+        content.save()
 
+        if current_user:  # Redirect self-removing authors to their publications list
+            messages.success(self.request, _("Vous avez bien quitté la rédaction de la publication."))
+            self.success_url = reverse("content:find-all", args=[self.request.user.username])
+        else:  # The user removed another user from the authors
+            authors_list = self.users_list(users)
+            messages.success(
+                self.request,
+                _("Vous avez enlevé {} de la liste des auteurs et autrices de la publication.").format(authors_list),
+            )
+            self.success_url = self.object.get_absolute_url()
+
+        return super().form_valid(form)
+
+    @staticmethod
+    def users_list(users):
         authors_list = ""
-
-        for index, user in enumerate(form.cleaned_data["users"]):
+        for index, user in enumerate(users):
             if index > 0:
                 if index == len(users) - 1:
                     authors_list += _(" et ")
                 else:
                     authors_list += _(", ")
             authors_list += user.username
+        return authors_list
 
-        if not current_user:  # if the removed author is not current user
-            messages.success(
-                self.request,
-                _("Vous avez enlevé {} de la liste des auteurs et autrices de {}.").format(authors_list, _type[0]),
-            )
-            self.success_url = self.object.get_absolute_url()
-        else:  # if current user is leaving the content's redaction, redirect him to a more suitable page
-            messages.success(self.request, _("Vous avez bien quitté la rédaction de {}.").format(_type[0]))
-            self.success_url = reverse(
-                self.object.type.lower() + ":find-" + self.object.type.lower(), args=[self.request.user.username]
-            )
-        return super().form_valid(form)
+    def notify_by_private_message(self, user, bot):
+        send_mp(
+            bot,
+            [user],
+            _("Retrait de la rédaction de la publication"),
+            self.versioned_object.title,
+            render_to_string(
+                "tutorialv2/messages/remove_author_pm.md",
+                {
+                    "content": self.object,
+                    "user": user.username,
+                },
+            ),
+            hat=get_hat_from_settings("validation"),
+        )
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))

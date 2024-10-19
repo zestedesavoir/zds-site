@@ -320,6 +320,21 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         # This is fast because there are few authors and the QuerySet is usually prefetched and cached.
         return user in self.authors.all()
 
+    def remove_author(self, user: User) -> bool:
+        """
+        Remove a user from the authors and remove his access to the gallery.
+        If the user is not an author, do nothing.
+        If the user is the last author, do nothing. This method will not delete the content.
+        Return ``True`` if the user was effectively removed from the authors and ``False`` otherwise.
+        """
+        if self.is_author(user) and self.authors.count() > 1:
+            gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=self.gallery.pk).first()
+            if gallery:
+                gallery.delete()
+            self.authors.remove(user)
+            return True
+        return False
+
     def is_permanently_unpublished(self):
         """Is this content permanently unpublished by a moderator ?"""
 
