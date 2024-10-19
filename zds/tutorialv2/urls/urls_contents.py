@@ -51,7 +51,7 @@ from zds.tutorialv2.views.tags import EditTags
 
 from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
-from zds.tutorialv2.views.misc import RequestFeaturedContent, FollowNewContent, WarnTypo
+from zds.tutorialv2.views.misc import RequestFeaturedContent, FollowNewContent, WarnTypoView
 from zds.tutorialv2.views.statistics import ContentStatisticsView
 from zds.tutorialv2.views.comments import (
     SendNoteFormView,
@@ -167,7 +167,7 @@ urlpatterns = (
         path("alerter/<int:pk>/", SendContentAlert.as_view(), name="alert-content"),
         path("resoudre/<int:pk>/", SolveContentAlert.as_view(), name="resolve-content"),
         # typo:
-        path("reactions/typo/", WarnTypo.as_view(), name="warn-typo"),
+        path("reactions/typo/", WarnTypoView.as_view(), name="warn-typo"),
         # create:
         path("nouveau-contenu/<str:created_content_type>/", CreateContentView.as_view(), name="create-content"),
         path(

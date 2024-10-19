@@ -3,7 +3,7 @@ from django.http import Http404
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.tutorialv2.forms import WarnTypoForm
+from zds.tutorialv2.views.misc import WarnTypoForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
