@@ -15,6 +15,7 @@ from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, User
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import ContentReactionAnswerSubscription, Notification
 from zds.tutorialv2.tests.factories import (
+    ContentReactionFactory,
     PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
@@ -2088,3 +2089,42 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         result = loads(resp.content.decode("utf-8"))
         self.assertEqual("ok", result.get("result", None))
         self.assertEqual(extract.compute_hash(), result.get("last_hash", None))
+
+    def test_remove_unpublished_opinion_with_alerted_comments(self):
+        """Test the page showing alerts with an alerted comment on a removed opinion"""
+
+        # 1. Publish opinion
+        opinion = PublishedContentFactory(type="OPINION", author_list=[self.user_author])
+
+        # 2. Comment the opinion
+        random_user = ProfileFactory().user
+        comment = ContentReactionFactory(related_content=opinion, author=random_user)
+
+        # 3. Create an alert for the comment
+        self.client.force_login(self.user_staff)
+        result = self.client.post(
+            reverse("content:alert-reaction", args=[comment.pk]),
+            {"signal_text": "No. Try not. Do... or do not. There is no try."},
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 302)
+
+        # 4. Unpublish the opinion
+        result = self.client.post(
+            reverse("validation:ignore-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
+            {
+                "operation": "REMOVE_PUB",
+            },
+            follow=False,
+        )
+        self.assertEqual(result.status_code, 200)
+
+        # 5. Remove the opinion
+        self.client.force_login(self.user_author)
+        result = self.client.post(reverse("content:delete", args=[opinion.pk, opinion.slug]), follow=False)
+        self.assertEqual(result.status_code, 302)
+
+        # 6. Display the page listing alerts
+        self.client.force_login(self.user_staff)
+        resp = self.client.get(reverse("pages-alerts"))
+        self.assertEqual(200, resp.status_code)

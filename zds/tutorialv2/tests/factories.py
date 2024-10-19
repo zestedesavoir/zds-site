@@ -195,6 +195,7 @@ class ContentReactionFactory(factory.django.DjangoModelFactory):
 
     ip_address = "192.168.3.1"
     text = "Bonjour, je me présente, je m'appelle l'homme au texte bidonné"
+    position = 1
 
     @classmethod
     def _generate(cls, create, attrs):

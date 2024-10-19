@@ -617,7 +617,7 @@ class CommentEdit(models.Model):
 
 
 class Alert(models.Model):
-    """Alerts on all kinds of Comments and PublishedContents."""
+    """Alerts on Profiles, PublishedContents and all kinds of Comments."""
 
     SCOPE_CHOICES = [
         ("PROFILE", _("Profil")),
@@ -637,7 +637,7 @@ class Alert(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     # use of string definition of pk to avoid circular import.
     profile = models.ForeignKey(
@@ -656,7 +656,7 @@ class Alert(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField("Texte d'alerte")
