@@ -47,6 +47,7 @@
                             {% elif alert.scope == 'PROFILE' %}
                                 <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
                             {% else %}
+                                {# This is an alert about a comment on something (any kind of content or forum post) #}
                                 <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a>
                             {% endif %}
                         </td>
@@ -94,9 +95,16 @@
                             {% elif alert.scope == 'PROFILE' %}
                                 <a href="{{ alert.profile.get_absolute_url }}">{{ alert.text }}</a>
                             {% else %}
+                                {# This is an alert about a comment on something (any kind of content or forum post) #}
+
                                 {% url "member-detail" alert.comment.author.username as url_member_detail %}
-                                <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a> par
-                                <a href="{{ url_member_detail }}">{{ alert.comment.author.username  }}</a>
+
+                                {% if alert.is_on_comment_on_unpublished_content %}
+                                    <em>{{ alert.text }}</em>
+                                {% else %}
+                                    <a href="{{ alert.get_comment_subclass.get_absolute_url }}">{{ alert.text }}</a>
+                                {% endif %}
+                                par <a href="{{ url_member_detail }}">{{ alert.comment.author.username  }}</a>
                             {% endif %}
                         </td>
                         <td>

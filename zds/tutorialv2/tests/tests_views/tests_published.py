@@ -2093,6 +2093,8 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
     def test_remove_unpublished_opinion_with_alerted_comments(self):
         """Test the page showing alerts with an alerted comment on a removed opinion"""
 
+        alert_page_url = reverse("pages-alerts")
+
         # 1. Publish opinion
         opinion = PublishedContentFactory(type="OPINION", author_list=[self.user_author])
 
@@ -2109,7 +2111,14 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 302)
 
-        # 4. Unpublish the opinion
+        # 4. Display the page listing alerts
+        resp = self.client.get(alert_page_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertContains(resp, comment.get_absolute_url())  # We have a link to the alerted comment
+        self.assertEqual(len(resp.context["alerts"]), 1)
+        self.assertEqual(len(resp.context["solved"]), 0)
+
+        # 5. Unpublish the opinion
         result = self.client.post(
             reverse("validation:ignore-opinion", kwargs={"pk": opinion.pk, "slug": opinion.slug}),
             {
@@ -2119,12 +2128,21 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         )
         self.assertEqual(result.status_code, 200)
 
-        # 5. Remove the opinion
+        # 6. Display the page listing alerts
+        resp = self.client.get(alert_page_url)
+        self.assertEqual(200, resp.status_code)
+        self.assertNotContains(resp, 'href="?page=1#p')  # We don't have wrong links
+        self.assertEqual(len(resp.context["alerts"]), 0)
+        self.assertEqual(len(resp.context["solved"]), 1)
+
+        # 7. Remove the opinion
         self.client.force_login(self.user_author)
         result = self.client.post(reverse("content:delete", args=[opinion.pk, opinion.slug]), follow=False)
         self.assertEqual(result.status_code, 302)
 
-        # 6. Display the page listing alerts
+        # 8. Display the page listing alerts
         self.client.force_login(self.user_staff)
-        resp = self.client.get(reverse("pages-alerts"))
+        resp = self.client.get(alert_page_url)
         self.assertEqual(200, resp.status_code)
+        self.assertEqual(len(resp.context["alerts"]), 0)
+        self.assertEqual(len(resp.context["solved"]), 0)
