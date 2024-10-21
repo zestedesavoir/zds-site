@@ -65,6 +65,8 @@ ZDS_APP = {
         "url": "https://zestedesavoir.com",
         "dns": "zestedesavoir.com",
         "email_contact": "zestedesavoir@gmail.com",
+        "email_asso_access": "association+accessibilite@zestedesavoir.com",
+        "email_tech_access": "technique+accessibilite@zestedesavoir.com",
         "email_noreply": "noreply@zestedesavoir.com",
         "forum_feedback_users": "/forums/communaute/bug-suggestions/",
         "contribute_link": "https://docs.zestedesavoir.com/contributing.html",
