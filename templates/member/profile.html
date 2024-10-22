@@ -858,6 +858,23 @@
                                     {% trans "Confirmer" %}
                                 </button>
                             </form>
+                            {% if provider_to_ban %}
+                                <!-- if the user was banned and he was the first for his mail provider, propose quick access to ban provider -->
+                                <a href="#ban-provider-{{ provider_to_ban.pk }}" class="open-modal tail">
+                                    <p>
+                                        {% trans "Bannir le fournisseur email" %}
+                                    </p>
+                                </a>
+                                <form method="post" action="{% url 'check-new-email-provider' provider_to_ban.pk %}" id="ban-provider-{{ provider_to_ban.pk }}" class="modal modal-flex">
+                                    <p>
+                                        {% blocktrans with provider=provider_to_ban.provider %}
+                                            Bannir le fournisseur email <code>{{ provider }}</code>&nbsp;?
+                                        {% endblocktrans %}
+                                    </p>
+                                    {% csrf_token %}
+                                    <button type="submit" name="ban" class="btn btn-submit">{% trans "Confirmer" %}</button>
+                                </form>
+                            {% endif %}
                             {% endif %}
                         </div>
                         {% endif %}
