@@ -2732,8 +2732,6 @@ class ContentTests(TutorialTestMixin, TestCase):
         NOTE: this test will take time !"""
         PublicatorRegistry.registry["pdf"] = ZMarkdownRebberLatexPublicator(".pdf")
         PublicatorRegistry.registry["epub"] = ZMarkdownEpubPublicator()
-        # obviously, PDF builds have to be enabled
-        self.overridden_zds_app["content"]["build_pdf_when_published"] = True
 
         title = "C'est pas le plus important ici !"
 

@@ -26,6 +26,7 @@ from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, Licen
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
 overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"
+overridden_zds_app["content"]["extra_content_generation_policy"] = "NOTHING"
 
 
 @override_settings(MEDIA_ROOT=settings.BASE_DIR / "media-test")
@@ -52,8 +53,6 @@ class PublicationFronttest(StaticLiveServerTestCase, TutorialTestMixin, Tutorial
 
     def setUp(self):
         self.overridden_zds_app = overridden_zds_app
-        # don't build PDF to speed up the tests
-        overridden_zds_app["content"]["build_pdf_when_published"] = False
 
         self.staff = StaffProfileFactory().user
 
