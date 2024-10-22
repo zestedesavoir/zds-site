@@ -42,6 +42,7 @@
     "gulp-imagemin": "7.1.0",
     "gulp-options": "1.1.1",
     "gulp-postcss": "10.0.0",
+    "gulp-run": "1.7.1",
     "gulp-terser-js": "5.2.2",
     "gulp.spritesmith": "6.13.0",
     "jdenticon": "3.3.0",
