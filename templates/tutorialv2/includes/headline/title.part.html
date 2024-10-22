@@ -23,7 +23,7 @@
     <div class="content-title-and-subtitle-group">
         <div class="content-title-group">
             {% spaceless %}
-            <h1 class="title">{{ title }}</h1>
+            <h1 class="title" itemprop="name">{{ title }}</h1>
             {% if show_form %}
                 <a href="#edit-title" class="open-modal edit-button" title="{% trans "Modifier le titre" %}">
                     <span class="visuallyhidden">{% trans "Modifier le titre" %}</span>
@@ -48,7 +48,7 @@
                 {% endif %}
                 {% crispy form_subtitle %}
             {% else %}
-                <p class="subtitle">{{ subtitle }}</p>
+                <h2 class="subtitle" itemprop="description">{{ subtitle }}</h2>
             {% endif %}
             {% endspaceless %}
         </div>
