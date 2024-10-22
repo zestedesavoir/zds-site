@@ -174,22 +174,16 @@ def write_md_file(md_file_path, parsed_with_local_images, versioned):
             )
 
 
-def generate_external_content(
-    base_name, extra_contents_path, md_file_path, overload_settings=False, excluded=None, **kwargs
-):
+def generate_external_content(base_name, extra_contents_path, md_file_path, excluded=None, **kwargs):
     """
     generate all static file that allow offline access to content
 
     :param base_name: base nae of file (without extension)
     :param extra_contents_path: internal directory where all files will be pushed
     :param md_file_path: bundled markdown file path
-    :param overload_settings: this option force the function to generate all registered formats even when settings \
-    ask for PDF not to be published
     :param excluded: list of excluded format, None if no exclusion
     """
     excluded = excluded or ["watchdog"]
-    if not settings.ZDS_APP["content"]["build_pdf_when_published"] and not overload_settings:
-        excluded.append("pdf")
     for publicator_name, publicator in PublicatorRegistry.get_all_registered(excluded):
         try:
             publicator.publish(

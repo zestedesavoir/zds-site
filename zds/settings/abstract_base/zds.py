@@ -190,7 +190,6 @@ ZDS_APP = {
         "user_page_number": 5,
         "default_image": BASE_DIR / "fixtures" / "noir_black.png",
         "import_image_prefix": "archive",
-        "build_pdf_when_published": True,
         "maximum_slug_size": 150,
         "characters_per_minute": 1500,
         "editorial_line_link": "https://zestedesavoir.com/articles/3978/la-ligne-editoriale-officielle-de-zeste-de-savoir-2/",

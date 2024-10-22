@@ -602,7 +602,6 @@ Ces paramètres sont à surcharger dans le dictionnaire ``ZDS_APP['content']``:
 - ``user_page_number``:  Nombre de contenus de chaque type qu'on affiche sur le profil d'un utilisateur, 5 par défaut,
 - ``default_image``: chemin vers l'image utilisée par défaut dans les icônes de contenu,
 - ``import_image_prefix``: préfixe mnémonique permettant d'indiquer que l'image se trouve dans l'archive jointe lors de l'import de contenu
-- ``build_pdf_when_published``: indique que la publication générera un PDF (quelque soit la politique, si ``False``, les PDF ne seront pas générés, sauf à appeler la commande adéquate),
 - ``maximum_slug_size``: taille maximale du slug d'un contenu
 
 Paramètres propres aux tribunes libres
