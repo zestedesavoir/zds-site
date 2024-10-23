@@ -617,7 +617,14 @@ class CommentEdit(models.Model):
 
 
 class Alert(models.Model):
-    """Alerts on all kinds of Comments and PublishedContents."""
+    """Alerts on Profiles, PublishedContents and all kinds of Comments.
+
+    The scope field indicates on which type of element the alert is made:
+    - PROFILE: the profile of a member
+    - FORUM: a post on a topic in a forum
+    - CONTENT: the content (article, opinion or tutorial) itself
+    - elements of TYPE_CHOICES (ARTICLE, OPINION, TUTORIAL): a comment on a content of this type
+    """
 
     SCOPE_CHOICES = [
         ("PROFILE", _("Profil")),
@@ -637,7 +644,7 @@ class Alert(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     # use of string definition of pk to avoid circular import.
     profile = models.ForeignKey(
@@ -656,7 +663,7 @@ class Alert(models.Model):
         db_index=True,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
     )
     scope = models.CharField(max_length=10, choices=SCOPE_CHOICES, db_index=True)
     text = models.TextField("Texte d'alerte")
@@ -681,9 +688,23 @@ class Alert(models.Model):
 
     def get_type(self):
         if self.scope in TYPE_CHOICES_DICT:
-            return _("Commentaire")
+            assert self.comment is not None
+            if self.is_on_comment_on_unpublished_content():
+                return _(f"Commentaire sur un {self.SCOPE_CHOICES_DICT[self.scope].lower()} dépublié")
+            else:
+                return _(f"Commentaire sur un {self.SCOPE_CHOICES_DICT[self.scope].lower()}")
+        elif self.scope == "FORUM":
+            assert self.comment is not None
+            return _("Message de forum")
+        elif self.scope == "PROFILE":
+            assert self.profile is not None
+            return _("Profil")
         else:
-            return self.get_scope_display()
+            assert self.content is not None
+            return self.SCOPE_CHOICES_DICT[self.content.type]
+
+    def is_on_comment_on_unpublished_content(self):
+        return self.scope in TYPE_CHOICES_DICT and not self.get_comment_subclass().related_content.in_public()
 
     def is_automated(self):
         """Returns true if this alert was opened automatically."""
