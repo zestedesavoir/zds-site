@@ -4,6 +4,7 @@ from crispy_forms.layout import Layout, Field
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -36,23 +37,27 @@ class AuthorForm(forms.Form):
         )
 
     def clean_username(self):
-        """Check every username and send it to the cleaned_data['user'] list
-
-        :return: a dictionary of all treated data with the users key added
+        """
+        Check each username in the comma-separated list and add the corresponding Users to cleaned_data["users"].
+        Skip non-existing usernames and remove duplicates.
         """
         cleaned_data = super().clean()
-        users = []
-        if cleaned_data.get("username"):
-            for username in cleaned_data.get("username").split(","):
-                user = (
-                    Profile.objects.contactable_members()
-                    .filter(user__username__iexact=username.strip().lower())
-                    .first()
-                )
-                if user is not None:
-                    users.append(user.user)
-            if len(users) > 0:
-                cleaned_data["users"] = users
+
+        username_field = cleaned_data.get("username")
+        if username_field is None:
+            return cleaned_data
+
+        usernames = username_field.split(",")
+        usernames_normalized = [username.strip().lower() for username in usernames]
+
+        condition = Q()
+        for username in usernames_normalized:
+            condition |= Q(username__iexact=username)
+        users = User.objects.filter(condition, profile__in=Profile.objects.contactable_members())
+
+        if len(users) > 0:
+            cleaned_data["users"] = list(users)
+
         return cleaned_data
 
     def is_valid(self):
@@ -77,61 +82,54 @@ class RemoveAuthorForm(AuthorForm):
         return cleaned_data
 
 
-class AddAuthorToContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):
+class AddAuthorView(LoggedWithReadWriteHability, SingleContentFormViewMixin):
     must_be_author = True
     form_class = AuthorForm
     authorized_for_staff = True
-
-    def get(self, request, *args, **kwargs):
-        content = self.get_object()
-        url = "content:find-{}".format("tutorial" if content.is_tutorial() else content.type.lower())
-        return redirect(url, self.request.user)
+    http_method_names = ["post"]
 
     def form_valid(self, form):
-        _type = _("de l'article")
-
-        if self.object.is_tutorial:
-            _type = _("du tutoriel")
-        elif self.object.is_opinion:
-            _type = _("du billet")
-
         bot = get_bot_account()
-        all_authors_pk = [author.pk for author in self.object.authors.all()]
-        for user in form.cleaned_data["users"]:
-            if user.pk not in all_authors_pk:
-                self.object.authors.add(user)
-                if self.object.validation_private_message:
-                    self.object.validation_private_message.add_participant(user)
-                all_authors_pk.append(user.pk)
-                if user != self.request.user:
-                    url_index = reverse(
-                        self.object.type.lower() + ":find-" + self.object.type.lower(), args=[user.username]
-                    )
-                    send_mp(
-                        bot,
-                        [user],
-                        format_lazy("{}{}", _("Ajout à la rédaction "), _type),
-                        self.versioned_object.title,
-                        render_to_string(
-                            "tutorialv2/messages/add_author_pm.md",
-                            {
-                                "content": self.object,
-                                "type": _type,
-                                "url": self.object.get_absolute_url(),
-                                "index": url_index,
-                                "user": user.username,
-                            },
-                        ),
-                        hat=get_hat_from_settings("validation"),
-                    )
-                UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
-                signals.authors_management.send(
-                    sender=self.__class__, content=self.object, performer=self.request.user, author=user, action="add"
-                )
+        authors = self.object.authors.all()
+        new_authors = [user for user in form.cleaned_data["users"] if user not in authors]
+        for user in new_authors:
+            self.object.authors.add(user)
+
+            if self.object.validation_private_message:
+                self.object.validation_private_message.add_participant(user)
+
+            if user != self.request.user:
+                self.notify_by_private_message(user, bot)
+
+            UserGallery(gallery=self.object.gallery, user=user, mode=GALLERY_WRITE).save()
+
+            signals.authors_management.send(
+                sender=self.__class__, content=self.object, performer=self.request.user, author=user, action="add"
+            )
+
         self.object.save()
         self.success_url = self.object.get_absolute_url()
 
         return super().form_valid(form)
+
+    def notify_by_private_message(self, user, bot):
+        url_index = reverse(f"content:find-all", args=[user.username])
+        send_mp(
+            bot,
+            [user],
+            _("Ajout à la rédaction d'une publication"),
+            self.versioned_object.title,
+            render_to_string(
+                "tutorialv2/messages/add_author_pm.md",
+                {
+                    "content": self.object,
+                    "url": self.object.get_absolute_url(),
+                    "index": url_index,
+                    "user": user.username,
+                },
+            ),
+            hat=get_hat_from_settings("validation"),
+        )
 
     def form_invalid(self, form):
         messages.error(self.request, _("Les auteurs sélectionnés n'existent pas."))
