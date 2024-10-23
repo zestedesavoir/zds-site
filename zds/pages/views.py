@@ -79,7 +79,7 @@ def association(request):
     return render(request, "pages/association.html")
 
 
-def accessibilite(request):
+def accessibility(request):
     """Display accessibility's page"""
     return render(request, "pages/accessibilite.html")
 
