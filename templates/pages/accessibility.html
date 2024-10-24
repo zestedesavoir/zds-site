@@ -23,12 +23,12 @@
 
 {% block content %}
 {% set app.site.association.name as asso_name %}
-{% set app.site.email_asso_access as email_asso %}
-{% set app.site.email_tech_access as email_tech %}
+{% set app.site.email_asso_accessibility as email_asso %}
+{% set app.site.email_tech_accessibility as email_tech %}
 {% set app.site.dns as site_dns %}
 {% set app.site.social.github as url_github %}
 {% blocktrans %}
-    <p>L’association {{asso_name}} s’engage à rendre son site internet accessibles conformément à
+    <p>L’association {{asso_name}} s’engage à rendre son site internet accessible conformément à
         <a href="https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000037388867" rel="nofollow">l’article 47 de la loi №&nbsp;2005-102 du 11 février 2005</a>.</p>
 {% endblocktrans %}
     <p>
@@ -44,7 +44,7 @@
         {% blocktrans %}Aucun audit n’a été encore effectué. Le site web {{asso_name}} est non-conforme avec le référentiel général d’amélioration de l’accessibilité (RGAA). {% endblocktrans %}
     </p>
     <p>
-        {% blocktrans %}Cependant, un audit de conformité est prévu, bien qu’aucune date ne soit connue aujourd’hui. {% endblocktrans %}
+        {% blocktrans %}Cependant, un audit de conformité est envisagé, sans que l'échéance n'ait été encore définie. {% endblocktrans %}
     </p>
 
     <h3>{% trans "Retour d’information et contact" %}</h3>

@@ -80,8 +80,8 @@ def association(request):
 
 
 def accessibility(request):
-    """Display accessibility's page"""
-    return render(request, "pages/accessibilite.html")
+    """Display accessibility page"""
+    return render(request, "pages/accessibility.html")
 
 
 class ContactView(ListView):

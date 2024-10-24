@@ -43,6 +43,15 @@ class PagesMemberTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
 
+    def test_url_accessibility(self):
+        """Test: check that accessibility page is alive."""
+
+        result = self.client.get(
+            reverse("pages-accessibility"),
+        )
+
+        self.assertEqual(result.status_code, 200)
+
     def test_url_contact(self):
         """Test: check that contact page is alive."""
 
@@ -103,6 +112,15 @@ class PagesStaffTests(TestCase):
 
         self.assertEqual(result.status_code, 200)
 
+    def test_url_accessibility(self):
+        """Test: check that accessibility page is alive."""
+
+        result = self.client.get(
+            reverse("pages-accessibility"),
+        )
+
+        self.assertEqual(result.status_code, 200)
+
     def test_url_contact(self):
         """Test: check that contact page is alive."""
 
@@ -155,6 +173,15 @@ class PagesGuestTests(TestCase):
 
         result = self.client.get(
             reverse("pages-technologies"),
+        )
+
+        self.assertEqual(result.status_code, 200)
+
+    def test_url_accessibility(self):
+        """Test: check that accessibility page is alive."""
+
+        result = self.client.get(
+            reverse("pages-accessibility"),
         )
 
         self.assertEqual(result.status_code, 200)
