@@ -18,13 +18,13 @@ from zds.tutorialv2.forms import (
     CancelValidationForm,
     RevokeValidationForm,
     UnpublicationForm,
-    WarnTypoForm,
     JsFiddleActivationForm,
     PublicationForm,
     PickOpinionForm,
     UnpickOpinionForm,
     PromoteOpinionToArticleForm,
 )
+from zds.tutorialv2.views.misc import WarnTypoForm
 from zds.tutorialv2.views.canonical import EditCanonicalLinkForm
 from zds.tutorialv2.views.contributors import ContributionForm
 from zds.tutorialv2.views.suggestions import SearchSuggestionForm
