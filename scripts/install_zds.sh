@@ -225,7 +225,7 @@ if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpat
 
     # Some dependencies (like rust ones) require a recent pip:
     print_info "* upgrading pip"
-    pip install --upgrade pip; exVal=$?
+    pip install pip==$ZDS_PIP_VERSION; exVal=$?
 
     if [[ $exVal != 0 ]]; then
         print_error "!! Failed to upgrade pip"
