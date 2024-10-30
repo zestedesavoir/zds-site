@@ -9,7 +9,7 @@ if [[ $ZDS_VENV_VERSION == "" ]]; then
 fi
 
 if [[ $ZDS_PIP_VERSION == "" ]]; then
-    ZDS_PIP_VERSION="24.2" # stick to it while https://github.com/pypa/pip/issues/13046 is not fixed, needs to be also updated in .github/workflows/ci.yml
+    ZDS_PIP_VERSION="24.3.1" # needs to be also updated in .github/workflows/ci.yml
 fi
 
 ZDS_NODE_VERSION=$(cat $ZDSSITE_DIR/.nvmrc)
