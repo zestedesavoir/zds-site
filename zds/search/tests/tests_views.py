@@ -142,6 +142,10 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 )  # … and only of the right type …
                 self.assertEqual(r["document"]["id"], ids[doc_type][i])  # … with the right id !
 
+        # Search with a query which returns results, but without highlights:
+        result = self.client.get(reverse("search:query") + "?q=-c", follow=False)
+        self.assertEqual(result.status_code, 200)
+
     def test_search_many_pages(self):
         if not self.manager.connected:
             return
