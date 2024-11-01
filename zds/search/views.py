@@ -214,7 +214,8 @@ class SearchView(ZdSPagingListView):
                         if "text_match" in entry:
                             entry["collection"] = search_collections[i]
                             entry["document"]["final_score"] = entry["text_match"] * entry["document"]["weight"]
-                            entry["document"]["highlights"] = entry["highlights"][0]
+                            if len(entry["highlights"]) > 0:
+                                entry["document"]["highlights"] = entry["highlights"][0]
 
                             if "tags" in entry["document"] and "tag_slugs" in entry["document"]:
                                 assert len(entry["document"]["tags"]) == len(entry["document"]["tag_slugs"])

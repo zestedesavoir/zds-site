@@ -1,6 +1,7 @@
+import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
-import sentry_sdk
+from sentry_sdk.types import Event, Hint
 
 from .abstract_base import *
 
@@ -85,6 +86,15 @@ def _get_version():
         return f"{__version__}/{git_version[:7]}"
 
 
+def sentry_before_send(event: Event, hint: Hint) -> Event:
+    # Do not log KeyboardInterrupt exceptions: they can only be triggered from
+    # manage.py commands in an interactive shell, intentionally by the user.
+    if hint.get("exc_info", [None])[0] == KeyboardInterrupt:
+        return None
+
+    return event
+
+
 sentry_sdk.init(
     dsn=config["sentry"]["dsn"],
     integrations=[DjangoIntegration()],
@@ -102,6 +112,7 @@ sentry_sdk.init(
     release=_get_version().replace("/", "#"),
     # /!\ It cannot contain slashes
     environment=config["sentry"]["environment"],
+    before_send=sentry_before_send,
 )
 
 # Ignoring emarkdown logging because it is too noisy
