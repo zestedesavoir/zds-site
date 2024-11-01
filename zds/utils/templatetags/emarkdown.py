@@ -47,11 +47,14 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
     try:
         timeout = 10
         real_input = str(md_input)
+        kwargs["heading_shift"] = 2
         if output_format.startswith("tex") or full_json:
             # latex may be really long to generate but it is also restrained by server configuration
             timeout = 120
             # use manifest renderer
             real_input = md_input
+            # do not shift title
+            kwargs["heading_shift"] = 0
         response = post(
             "{}{}".format(settings.ZDS_APP["zmd"]["server"], endpoint),
             json={
