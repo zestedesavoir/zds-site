@@ -253,9 +253,8 @@ ZDS_APP = {
         "boosts": {
             "publishedcontent": {
                 "global": global_weight_publishedcontent,
-                "if_article": global_weight_publishedcontent * 1.5,
-                "if_tutorial": global_weight_publishedcontent * 1.5,
-                "if_medium_or_big_tutorial": global_weight_publishedcontent * 1.7,
+                "if_validated": global_weight_publishedcontent * 1.5,
+                "if_validated_and_multipage": global_weight_publishedcontent * 1.7,
                 "if_opinion": global_weight_publishedcontent * 1.3,
                 "if_opinion_not_picked": global_weight_publishedcontent * 1.1,
                 "title": global_weight_publishedcontent * 4,
