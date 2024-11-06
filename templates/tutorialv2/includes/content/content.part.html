@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load emarkdown %}
+{% load captureas %}
 
 {% if content.get_introduction %}
     {% if display_config.draft_actions.enable_edit %}
@@ -47,19 +48,23 @@
 {% empty %}
     {% if content.can_add_extract and content.can_add_container and display_config.draft_actions.enable_edit %}
         <div class="ico-after warning">
+            {% captureas url_create_container %}{% url "content:create-container" content.pk content.slug %}{% endcaptureas %}
+            {% captureas url_create_extract %}{% url "content:create-extract" content.pk content.slug %}{% endcaptureas %}
+            {% blocktrans %}
             <p>
-                {% trans "Ce contenu est vide." %} {% trans "Vous pouvez :" %}
+                Ce contenu est vide. Vous pouvez :
             </p>
             <ul>
                 <li>
-                    <a href="{% url "content:create-container" content.pk content.slug %}">{% trans "Ajouter une partie" %}</a>
-                    {% trans " pour adopter le format big-tuto ou moyen-tuto. Vous pourrez y ajouter des chapitres ou des sections ;" %}
+                    <a href="{{ url_create_container }}">Ajouter une partie</a>
+                    pour une publication longue, affichée sur plusieurs pages ;
                 </li>
                 <li>
-                    <a href="{% url "content:create-extract" content.pk content.slug %}">{% trans "Ajouter une section" %}</a>
-                    {% trans " pour adopter le format mini-tuto composé uniquement de sections." %}
+                    <a href="{{ url_create_extract }}">Ajouter une section</a>
+                    pour une publication courte affichée sur une unique page.
                 </li>
             </ul>
+            {% endblocktrans %}
         </div>
     {% endif %}
 {% endfor %}

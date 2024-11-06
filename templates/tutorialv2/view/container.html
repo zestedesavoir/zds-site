@@ -129,24 +129,32 @@
                         {{ "Ce"|feminize:container.get_level_as_string }} {{ container.get_level_as_string|lower }}  {% trans " est vide." %}
                     </p>
                     {% if container.can_add_extract and container.can_add_container %}
+                        {% captureas url_create_container %}
+                            {% if container.parent == content %}
+                                {% url "content:create-container" content.pk content.slug container.slug %}
+                            {% else %}
+                                {% url "content:create-container" content.pk content.slug container.parent.slug %}
+                            {% endif %}
+                        {% endcaptureas %}
+                        {% captureas url_create_extract %}
+                            {% if container.parent == content %}
+                                {% url "content:create-extract" content.pk content.slug container.slug %}
+                            {% else %}
+                                {% url "content:create-extract" content.pk content.slug container.parent.slug %}
+                            {% endif %}
+                        {% endcaptureas %}
+                        {% blocktrans %}
                         <ul>
                             <li>
-                                <a href="{% if container.parent == content %}
-                                            {% url "content:create-container" content.pk content.slug container.slug %}
-                                        {%  else %}
-                                            {% url "content:create-container" content.pk content.slug container.parent.slug %}
-                                        {%  endif %}">{% trans "Ajouter un chapitre" %}</a>
-                                {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+                                <a href="{{ url_create_container }}">Ajouter un chapitre</a>
+                                pour subdiviser cette partie en plusieurs pages ;
                             </li>
                             <li>
-                                <a href="{% if container.parent == content %}
-                                            {% url "content:create-extract" content.pk content.slug container.slug %}
-                                        {%  else %}
-                                            {% url "content:create-extract" content.pk content.slug container.parent.slug %}
-                                        {%  endif %}">{% trans "Ajouter une section" %}</a>
-                                {% trans " pour adopter le format moyen-tuto, composé uniquement de sections." %}
+                                <a href="{{ url_create_extract }}">Ajouter une section</a>
+                                pour que cette partie soit affichée sur une unique page.
                             </li>
                         </ul>
+                        {% endblocktrans %}
                     {% endif %}
                 </div>
             {% endif %}
