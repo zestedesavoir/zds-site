@@ -302,7 +302,7 @@
                 {% captureas messages_count %}{% if perms.forum.change_post %}{{ profile.get_post_count_as_staff }}{% else %}{{ profile.get_post_count }}{% endif %}{% endcaptureas %}
 
                 {% with topics_count=profile.get_topic_count followed_topics_count=profile.get_followed_topic_count messages_count=messages_count|add:"0" %}
-                    {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or messages_count > 0 %}
+                    {% if profile.site or profile.show_email or public_tutos_count > 0 or articles_public_count > 0 or opinions_public_count > 0 or content_reactions_count > 0 or contribution_tutorials_count > 0 or contribution_articles_count > 0 or beta_tutos_count > 0 or beta_articles_count > 0 or topics_count > 0 or followed_topics_count > 0 or messages_count > 0 %}
                         <div class="activity">
                             <div class="content-linkbox-list {% if profile.biography or profile.sign or profile.user == user %}is-vertical{% endif %}">
                                 {% if not hide_because_banned %}
