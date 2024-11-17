@@ -150,16 +150,20 @@
                         {{ "Ce"|feminize:child.get_level_as_string }} {{ child.get_level_as_string|lower }} {% trans "est vide." %}
                     </p>
                     {% if not child.is_chapter %}
+                        {% captureas url_create_container %}{% url "content:create-container" content.pk content.slug child.slug %}{% endcaptureas %}
+                        {% captureas url_create_extract %}{% url "content:create-extract" content.pk content.slug child.slug %}{% endcaptureas %}
+                        {% blocktrans %}
                         <ul>
                             <li>
-                                <a href="{% url "content:create-container" content.pk content.slug child.slug %}">{% trans "Ajouter un chapitre" %}</a>
-                                {% trans " pour adopter le format big-tuto et ajouter des sections ;" %}
+                                <a href="{{ url_create_container }}">Ajouter un chapitre</a>
+                                pour subdiviser cette partie en plusieurs pages ;
                             </li>
                             <li>
-                                <a href="{% url "content:create-extract" content.pk content.slug child.slug %}">{% trans "Ajouter une section" %}</a>
-                                {% trans " pour adopter le format moyen-tuto, composé uniquement de sections." %}
+                                <a href="{{ url_create_extract }}">Ajouter une section</a>
+                                pour que cette partie soit affichée sur une unique page.
                             </li>
                         </ul>
+                        {% endblocktrans %}
                     {% endif %}
                 </div>
             {% elif child.can_add_extract and child.is_chapter %}
