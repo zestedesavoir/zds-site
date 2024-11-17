@@ -12,7 +12,7 @@ if [[ $ZDS_PIP_VERSION == "" ]]; then
     ZDS_PIP_VERSION="24.3.1" # needs to be also updated in .github/workflows/ci.yml
 fi
 
-ZDS_NODE_VERSION=$(cat $ZDSSITE_DIR/.nvmrc)
+ZDS_NODE_VERSION=$(head -n 1 $ZDSSITE_DIR/.nvmrc)
 
 if [[ $ZDS_NVM_VERSION == "" ]]; then
     ZDS_NVM_VERSION="0.39.5"
