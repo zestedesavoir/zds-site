@@ -1,2 +1,44 @@
 {% load static %}
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+        root: "/static/js",
+        tex2jax: {
+            inlineMath: [['$', '$']],
+            displayMath: [['$$','$$']],
+            processEscapes: true,
+            processClass: "mathjax-wrapper|mathjax-span",
+            ignoreClass: "page-container"
+        },
+        TeX: { extensions: ["color.js", "cancel.js", "enclose.js", "bbox.js", "mathchoice.js", "newcommand.js", "verb.js", "unicode.js", "autobold.js", "mhchem.js"] },
+        messageStyle: "none",
+    });
+</script>
+
+<script type="application/javascript">
+    // When the page has been loaded (which means the DOM and Mathjax has been loaded)
+    window.addEventListener("load", function() {
+
+        // We look for <span> inside contents
+        $(".message-content span, .article-content span").each(function () {
+            // We only want those with no CSS class
+            if($(this).attr("class") === undefined) {
+                var text = $(this).text();
+                // We check that they start with $ and end with $
+                if (text && text[0] == "$" && text[text.length - 1] == "$") {
+                    // We add a class to mark them
+                    $(this).addClass("mathjax-span");
+                }
+            }
+        });
+
+        // If there is content waiting for Mathjax
+        if($(".mathjax-span, .mathjax-wrapper").length) {
+            // We run Mathjax
+            MathJax.Hub.Configured();
+        }
+
+    });
+</script>
+
 <script src="{% static "js/MathJax.js" %}?locale=fr&config=TeX-AMS_HTML&delayStartupUntil=configured" async></script>
