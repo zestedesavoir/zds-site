@@ -18,7 +18,7 @@ from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView
 
 from zds.forum.models import Topic
-from zds.gallery.models import UserGallery
+from zds.gallery.models import UserGallery, GALLERY_WRITE
 from zds.member import NEW_ACCOUNT
 from zds.member.commons import (
     ProfileCreate,
@@ -242,7 +242,7 @@ def unregister(request):
         if gallery.gallery.get_linked_users().count() == 1:
             anonymous_gallery = UserGallery()
             anonymous_gallery.user = external
-            anonymous_gallery.mode = "w"
+            anonymous_gallery.mode = GALLERY_WRITE
             anonymous_gallery.gallery = gallery.gallery
             anonymous_gallery.save()
     galleries.delete()

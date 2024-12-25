@@ -56,7 +56,7 @@
     {% if ":" in ip %}
     <p>
         {% blocktrans %}
-            Liste des membres dont la dernière IP connue fait partie du bloc <code>{{ network_ip }}</code>
+            Liste des membres dont la dernière IP connue fait partie du bloc <code>{{ network_ip }}:/64</code>
         {% endblocktrans %}
     </p>
 
@@ -70,7 +70,10 @@
             {% for member in network_members %}
                 {% captureas last_visit %}{% if member.last_visit %}{{ member.last_visit|format_date:True }}{% else %}<i>{% trans "Jamais" %}</i>{% endif %}{% endcaptureas %}
                 <tr>
-                    <td>{% include "misc/member_item.part.html" with member=member avatar=True %}</td>
+                    <td>
+                        {% include "misc/member_item.part.html" with member=member avatar=True %}
+                        {% include "misc/badge.part.html" with member=member.user long_badge=False %}
+                    </td>
                     <td>{{ member.user.date_joined|format_date:True }}</td>
                     <td>{{ last_visit }}</td>
                 </tr>
