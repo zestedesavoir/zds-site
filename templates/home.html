@@ -109,40 +109,38 @@
                 {% endfor %}
             </div>
         </section>
+
         <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-tutorials home-heading" itemprop="name">
-                    <span>{% trans "Derniers tutoriels" %}</span>
-                    <a href="{% url 'publication:list' %}?type=tutorial" class="btn btn-grey">{% trans "Tous les tutoriels" %}</a>
+                    <span>{% trans "Dernières pépites validées par l'équipe" %}</span>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
-
-                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_tutorials col_number=1 ignore_categories=True %}
-            </section>
-
-            <section itemscope itemtype="http://schema.org/ItemList">
-                <h2 class="ico-after ico-articles home-heading" itemprop="name">
-                    <span>{% trans "Derniers articles" %}</span>
-                    <a href="{% url 'publication:list' %}?type=article" class="btn btn-grey">{% trans "Tous les articles" %}</a>
-                </h2>
-
-                <meta itemprop="itemListOrder" content="Descending">
-
-                {% include "tutorialv2/list_page_elements/list_of_online_contents.html" with public_contents=last_articles col_number=1 ignore_categories=True %}
 
                 <div class="content-item-list">
-
-                    <div class="content-item write-tutorial">
-                        <div class="write-tutorial-text">
-                            <p>
-                                {% blocktrans with plural=contents_count|pluralize_fr %}
-                                    Il y a {{ contents_count }} publication{{ plural }} sur Zeste de Savoir.
-                                {% endblocktrans %}
-                            </p>
-                            <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
+                    {% for content in last_contents %}
+                        {% include "tutorialv2/includes/content_item.part.html" with public_content=content show_description=True show_reactions=True ignore_categories=ignore_categories %}
+                    {% endfor %}
+                    <div class="content-item call-to-action">
+                        <div class="call-to-action-text">
+                                <p>
+                                    {% blocktrans with plural=contents_count|pluralize_fr %}
+                                        Mais ce n'est pas tout...
+                                    {% endblocktrans %}
+                                </p>
+                            <p class="lead">
+                                {% if validated_contents_count == 0 %}
+                                    {% blocktrans %}
+                                         Il y a {{ validated_contents_count }} publication validée par l'équipe.</p>
+                                    {% endblocktrans %}
+                                {% else %}
+                                    {% blocktrans %}
+                                         Il y a {{ validated_contents_count }} publications validées par l'équipe.</p>
+                                    {% endblocktrans %}
+                                {% endif %}
                         </div>
-                        <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="btn btn-write-tutorial">{% trans "Commencer à rédiger" %}</a>
+                         <a href="{% url "publication:list" %}" class="btn btn-call-to-action">{% trans "Montre-les moi !" %}</a>
                     </div>
                 </div>
             </section>
@@ -151,25 +149,46 @@
         <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="ico-after ico-opinions home-heading" itemprop="name">
-                    <span>{% trans "Derniers billets choisis" %}</span>
-                    <a href="{% url "opinion:list" %}" class="btn btn-grey">{% trans "Tous les billets" %}</a>
+                    <span>{% trans "Dernières publications de la communauté" %}</span>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
 
                 <div class="content-item-list">
+                    <div class="content-item call-to-action">
+                        <div class="call-to-action-text">
+                            <p>
+                                {% blocktrans with plural=contents_count|pluralize_fr %}
+                                    Il y a {{ contents_count }} publication{{ plural }} sur Zeste de Savoir.
+                                {% endblocktrans %}
+                            </p>
+                            <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
+                        </div>
+                        <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="btn btn-call-to-action">{% trans "Commencer à rédiger" %}</a>
+                    </div>
                     {% for opinion in last_opinions %}
                         {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" show_reactions=True ignore_categories=True %}
                     {% empty %}
                         <p>{% trans "Aucun billet disponible." %}</p>
                     {% endfor %}
+                    <div class="content-item call-to-action">
+                        <div class="call-to-action-text">
+                                <p>
+                                    {% blocktrans with plural=contents_count|pluralize_fr %}
+                                       D’autres publications de la communauté vous attendent.
+                                    {% endblocktrans %}
+                                </p>
+                        </div>
+                        <a href="{% url "opinion:list" %}" class="btn btn-call-to-action">{% trans "Fais voir !" %}</a>
+                    </div>
                 </div>
             </section>
+        </div>
 
+        <div class="home-row">
             <section itemscope itemtype="http://schema.org/ItemList">
                 <h2 class="home-heading ico-after ico-forum" itemprop="name">
-                    <span>{% trans "Derniers sujets" %}</span>
-                    <a href="{% url "forum:last-subjects" %}" class="btn btn-grey">{% trans "En voir plus" %}</a>
+                    <span>{% trans "En direct du forum" %}</span>
                 </h2>
 
                 <meta itemprop="itemListOrder" content="Descending">
@@ -180,6 +199,16 @@
                     {% empty %}
                         <p>{% trans "Aucun sujet disponible." %}</p>
                     {% endfor %}
+                    <div class="content-item call-to-action">
+                        <div class="call-to-action-text">
+                                <p>
+                                    {% blocktrans with plural=contents_count|pluralize_fr %}
+                                       Entraide, débats, discussions : venez sur nos forums !
+                                    {% endblocktrans %}
+                                </p>
+                        </div>
+                        <a href="{% url "forum:cats-forums-list" %}" class="btn btn-call-to-action">{% trans "Je participe" %}</a>
+                    </div>
                 </div>
             </section>
         </div>

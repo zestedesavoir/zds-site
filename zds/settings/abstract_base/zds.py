@@ -145,6 +145,7 @@ ZDS_APP = {
         "users_in_hats_list": 5,
         "requested_hats_per_page": 100,
         "update_last_visit_interval": 600,  # seconds
+        "topics_on_profile": 5,
     },
     "hats": {
         "moderation": "Staff",
@@ -156,12 +157,13 @@ ZDS_APP = {
         "gallery_per_page": 21,
         "images_per_page": 21,
     },
-    "tutorial": {
-        "home_number": 4,
+    "homepage": {
+        "contents_count": 5,
+        "opinions_count": 4,
+        "topics_count": 5,
+        "features_count": 5,
     },
-    "article": {"home_number": 3},
     "opinions": {
-        "home_number": 5,
         "allow_pdf": zds_config.get("opinions_allow_pdf", True),
         "allow_epub": zds_config.get("opinions_allow_epub", True),
         "allow_zip": zds_config.get("opinions_allow_zip", True),
@@ -210,7 +212,6 @@ ZDS_APP = {
         "beta_forum_id": zds_config.get("publications_being_written_forum_id", 1),
         "max_post_length": 1000000,
         "top_tag_max": 5,
-        "home_number": 6,
         "old_post_limit_days": 90,
         # Exclude tags from top tags list. Tags listed here should not be relevant for most of users.
         # Be warned exclude too much tags can restrict performance
@@ -219,15 +220,11 @@ ZDS_APP = {
         "description_size": 120,
         "max_similar_topics": 10,
     },
-    "topic": {
-        "home_number": 5,
-    },
     "comment": {
         "max_pings": 15,
     },
     "featured_resource": {
         "featured_per_page": 100,
-        "home_number": 5,
         "request_per_page": 50,
     },
     "notification": {

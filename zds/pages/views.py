@@ -30,28 +30,30 @@ except OSError:
 
 
 def home(request):
-    """Display the home page with last topics added."""
+    """Display the home page."""
 
-    tutos = PublishableContent.objects.get_last_tutorials()
-    articles = PublishableContent.objects.get_last_articles()
-    opinions = PublishableContent.objects.get_last_opinions()
-    quote = random.choice(QUOTES)
+    context = {
+        "featured_message": FeaturedMessage.objects.get_last_message(),
+        "contents_count": PublishedContent.objects.count_contents(),
+        "search_form": SearchForm(initial={}),
+        "validated_contents_count": PublishedContent.objects.count_validated_contents(),
+    }
 
-    return render(
-        request,
-        "home.html",
-        {
-            "featured_message": FeaturedMessage.objects.get_last_message(),
-            "last_tutorials": tutos,
-            "last_articles": articles,
-            "last_opinions": opinions,
-            "last_featured_resources": FeaturedResource.objects.get_last_featured(),
-            "last_topics": Topic.objects.get_last_topics(),
-            "contents_count": PublishedContent.objects.get_contents_count(),
-            "quote": quote.replace("\n", ""),
-            "search_form": SearchForm(initial={}),
-        },
-    )
+    contents_count = settings.ZDS_APP["homepage"]["contents_count"]
+    context["last_contents"] = PublishableContent.objects.get_last_contents(contents_count)
+
+    opinions_count = settings.ZDS_APP["homepage"]["opinions_count"]
+    context["last_opinions"] = PublishableContent.objects.get_last_opinions(opinions_count)
+
+    features_count = settings.ZDS_APP["homepage"]["features_count"]
+    context["last_featured_resources"] = FeaturedResource.objects.get_last_featured(features_count)
+
+    topics_count = settings.ZDS_APP["homepage"]["topics_count"]
+    context["last_topics"] = Topic.objects.get_last_topics(topics_count)
+
+    context["quote"] = random.choice(QUOTES).replace("\n", "")
+
+    return render(request, "home.html", context)
 
 
 def index(request):
@@ -59,7 +61,7 @@ def index(request):
 
 
 def about(request):
-    """Display many informations about the website."""
+    """Display many information about the website."""
     return render(
         request,
         "pages/technologies.html",

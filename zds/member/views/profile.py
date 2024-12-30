@@ -137,7 +137,8 @@ class MemberDetail(DetailView):
         usr = context["usr"]
         profile = usr.profile
         context["profile"] = profile
-        context["topics"] = list(Topic.objects.last_topics_of_a_member(usr, self.request.user))
+        topics_count = settings.ZDS_APP["member"]["topics_on_profile"]
+        context["topics"] = list(Topic.objects.last_topics_of_a_member(usr, self.request.user, count=topics_count))
         followed_query_set = TopicAnswerSubscription.objects.get_objects_followed_by(self.request.user.id)
         followed_topics = list(set(followed_query_set) & set(context["topics"]))
         for topic in context["topics"]:

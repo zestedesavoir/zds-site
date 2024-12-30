@@ -86,11 +86,11 @@ class PublishedContentManager(models.Manager):
     def last_opinions_of_a_member_loaded(self, author):
         return self.last_contents_of_a_member_loaded(author, _type="OPINION")
 
-    def get_contents_count(self):
-        """
-        :rtype: int
-        """
+    def count_contents(self) -> int:
         return self.filter(must_redirect=False).count()
+
+    def count_validated_contents(self) -> int:
+        return self.filter(must_redirect=False, content_type__in=["ARTICLE", "TUTORIAL"]).count()
 
     def get_top_tags(self, displayed_types, limit=-1):
         """
@@ -203,32 +203,7 @@ class PublishableContentManager(models.Manager):
                     content.sha_draft = sha
                     content.save()
 
-    def get_last_tutorials(self, number=0):
-        """
-        get list of last published tutorial
-
-        :param number: number of tutorial you want. By default it is interpreted as \
-        ``settings.ZDS_APP['tutorial']['home_number']``
-        :return: list of last published content
-        :rtype: list
-        """
-        number = number or settings.ZDS_APP["tutorial"]["home_number"]
-        all_contents = (
-            self.filter(type="TUTORIAL")
-            .filter(public_version__isnull=False)
-            .prefetch_related("authors")
-            .select_related("public_version")
-            .prefetch_related("subcategory")
-            .prefetch_related("tags")
-            .order_by("-public_version__publication_date")[:number]
-        )
-        published = []
-        for content in all_contents:
-            content.public_version.content = content
-            published.append(content.public_version)
-        return published
-
-    def get_last_articles(self, number=0):
+    def get_last_contents(self, number):
         """
         ..attention:
             this one uses a raw subquery for historical reasons. It will hopefully be replaced one day by an
@@ -244,9 +219,8 @@ class PublishableContentManager(models.Manager):
             "utils_comment.id",
             "tutorialv2_contentreaction.comment_ptr_id",
         )
-        number = number or settings.ZDS_APP["article"]["home_number"]
         all_contents = (
-            self.filter(type="ARTICLE")
+            self.filter(type__in=["ARTICLE", "TUTORIAL"])
             .filter(public_version__isnull=False)
             .prefetch_related("authors")
             .select_related("last_note")
@@ -263,14 +237,13 @@ class PublishableContentManager(models.Manager):
             published.append(content.public_version)
         return published
 
-    def get_last_opinions(self):
+    def get_last_opinions(self, count):
         """
         This depends on settings.ZDS_APP['opinions']['home_number'] parameter.
 
         :return: list of last opinions
         :rtype: list
         """
-        home_number = settings.ZDS_APP["opinions"]["home_number"]
         all_contents = (
             self.filter(type="OPINION")
             .filter(public_version__isnull=False, sha_picked=F("sha_public"))
@@ -279,7 +252,7 @@ class PublishableContentManager(models.Manager):
             .select_related("public_version")
             .prefetch_related("subcategory")
             .prefetch_related("tags")
-            .order_by("-public_version__publication_date")[:home_number]
+            .order_by("-public_version__publication_date")[:count]
         )
         published = []
         for content in all_contents:
