@@ -118,8 +118,7 @@
                             <form action="{% url 'search:query' %}" id="search-form" class="search" method="get">
                                 <label for="search-content" class="control-label">{% trans 'Recherche' %}</label>
                                 <input id="search-content" maxlength="150" name="q" required="required" type="search" placeholder="{% trans 'dans' %} {% if subcategory %}{{ subcategory.title }}{% elif category %}{{ category.title }}{% else %}{% trans 'la bibliothèque' %}{% endif %}">
-                                <input type="hidden" name="models" value="content">
-                                <input type="hidden" name="from_library" value="on">
+                                <input type="hidden" name="models" value="publishedcontent">
                                 {% if category %}
                                     <input type="hidden" name="category" value="{{ category.slug }}">
                                     {% if subcategory %}

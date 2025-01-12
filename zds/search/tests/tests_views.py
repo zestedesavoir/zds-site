@@ -212,6 +212,11 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context["object_list"]), 0)
 
+        # Check if the request contains an invalid models field:
+        result = self.client.get(reverse("search:query") + "?q=latex&models=", follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context["object_list"]), 0)
+
     def test_get_similar_topics(self):
         """Get similar topics lists"""
 
