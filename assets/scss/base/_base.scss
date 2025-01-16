@@ -76,7 +76,11 @@ fieldset {
 textarea {
     resize: vertical;
 }
-
+textarea,
+input[type="text"],
+input[type="password"] {
+    background-color: $white;
+}
 .old-browser-warning {
     position: fixed;
 
