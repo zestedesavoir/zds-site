@@ -154,8 +154,14 @@ class SearchView(ZdSPagingListView):
             search_collections = self.search_form.cleaned_data["search_collections"]
 
             searches = {
-                "publishedcontent": PublishedContent.get_search_query(),
-                "chapter": FakeChapter.get_search_query(),
+                "publishedcontent": PublishedContent.get_search_query(
+                    category_slug=self.search_form.cleaned_data["category"],
+                    subcategory_slug=self.search_form.cleaned_data["subcategory"],
+                ),
+                "chapter": FakeChapter.get_search_query(
+                    category_slug=self.search_form.cleaned_data["category"],
+                    subcategory_slug=self.search_form.cleaned_data["subcategory"],
+                ),
                 "topic": Topic.get_search_query(self.request.user),
                 "post": Post.get_search_query(self.request.user),
             }

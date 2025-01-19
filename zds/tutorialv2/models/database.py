@@ -1044,8 +1044,8 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             {"name": "publication_date", "type": "int64", "index": False},
             {"name": "tags", "type": "string[]", "facet": True, "optional": True},  # we search on it
             {"name": "tag_slugs", "type": "string[]", "index": False, "optional": True},
-            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},  # we search on it
-            {"name": "categories", "type": "string[]", "facet": True, "optional": True},  # we search on it
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
             {"name": "text", "type": "string", "facet": False, "optional": True},  # we search on it
             {"name": "description", "type": "string", "facet": False, "optional": True},  # we search on it
             {"name": "get_absolute_url_online", "type": "string", "index": False},
@@ -1110,7 +1110,9 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
     def get_document_source(self, excluded_fields=[]):
         """Overridden to handle the fact that most information are versioned"""
 
-        excluded_fields.extend(["title", "description", "tags", "categories", "text", "thumbnail", "publication_date"])
+        excluded_fields.extend(
+            ["title", "description", "tags", "categories", "subcategories", "text", "thumbnail", "publication_date"]
+        )
 
         data = super().get_document_source(excluded_fields=excluded_fields)
 
@@ -1168,8 +1170,8 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
                 return weights["if_opinion_not_picked"]
 
     @classmethod
-    def get_search_query(cls):
-        return {
+    def get_search_query(cls, category_slug=None, subcategory_slug=None):
+        ret = {
             "query_by": "title,description,categories,subcategories,tags,text",
             "query_by_weights": "{},{},{},{},{},{}".format(
                 settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["title"],
@@ -1181,6 +1183,18 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             ),
             "sort_by": "weight:desc",
         }
+
+        filter_by = SearchFilter()
+
+        if category_slug is not None and len(category_slug.strip()) != 0:
+            filter_by.add_exact_filter("categories", [category_slug])
+        if subcategory_slug is not None and len(subcategory_slug.strip()) != 0:
+            filter_by.add_exact_filter("subcategories", [subcategory_slug])
+
+        if str(filter_by) != "":
+            ret["filter_by"] = str(filter_by)
+
+        return ret
 
 
 @receiver(pre_delete, sender=PublishedContent)
@@ -1275,6 +1289,8 @@ class FakeChapter(AbstractSearchIndexable):
             {"name": "parent_get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False},
             {"name": "weight", "type": "float", "facet": False},  # we sort on it
+            {"name": "subcategories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
+            {"name": "categories", "type": "string[]", "facet": True, "optional": True},  # slugs; we search on it
         ]
 
         return search_engine_schema
@@ -1292,15 +1308,29 @@ class FakeChapter(AbstractSearchIndexable):
         return data
 
     @classmethod
-    def get_search_query(cls):
-        return {
-            "query_by": "title,text",
-            "query_by_weights": "{},{}".format(
+    def get_search_query(cls, category_slug=None, subcategory_slug=None):
+        ret = {
+            "query_by": "title,categories,subcategories,text",
+            "query_by_weights": "{},{},{},{}".format(
                 settings.ZDS_APP["search"]["boosts"]["chapter"]["title"],
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["categories"],
+                settings.ZDS_APP["search"]["boosts"]["chapter"]["subcategories"],
                 settings.ZDS_APP["search"]["boosts"]["chapter"]["text"],
             ),
             "sort_by": "weight:desc",
         }
+
+        filter_by = SearchFilter()
+
+        if category_slug is not None and len(category_slug.strip()) != 0:
+            filter_by.add_exact_filter("categories", [category_slug])
+        if subcategory_slug is not None and len(subcategory_slug.strip()) != 0:
+            filter_by.add_exact_filter("subcategories", [subcategory_slug])
+
+        if str(filter_by) != "":
+            ret["filter_by"] = str(filter_by)
+
+        return ret
 
     @classmethod
     def remove_from_search_engine(cls, search_engine_manager: SearchIndexManager, parent_search_engine_id: int):
