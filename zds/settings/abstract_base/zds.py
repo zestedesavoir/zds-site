@@ -264,6 +264,8 @@ ZDS_APP = {
             "chapter": {
                 "global": global_weight_chapter,
                 "title": global_weight_chapter * 3,
+                "categories": global_weight_chapter * 1,
+                "subcategories": global_weight_chapter * 1,
                 "text": global_weight_chapter * 2,
             },
             "topic": {

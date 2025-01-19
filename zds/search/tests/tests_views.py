@@ -22,6 +22,7 @@ from zds.tutorialv2.tests.factories import (
     SubCategoryFactory,
     publish_content,
 )
+from zds.utils.tests.factories import CategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"
@@ -38,6 +39,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         settings.ZDS_APP["member"]["bot_account"] = self.mas.username
 
         self.category, self.forum = create_category_and_forum()
+
+        self.tag = TagFactory(title="Clémentine à pépins")  # with accents to make a different slug
 
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
@@ -58,33 +61,19 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 continue
             self.manager.indexing_of_model(model, force_reindexing=True, verbose=False)
 
-    def test_basic_search(self):
-        """Basic search and filtering"""
-
-        tag = TagFactory(title="Clémentine à pépins")  # with accents to make a different slug
-
-        # 1. Index and test search:
-        text = "test"
-
-        topic_1 = TopicFactory(forum=self.forum, author=self.user, title=text)
-        topic_1.tags.add(tag)
-        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
-        post_1.text = post_1.text_html = text
-        post_1.save()
-
-        # create a middle-size content and publish it
+    def _create_tutorial(self, text):
         tuto = PublishableContentFactory(type="TUTORIAL")
         tuto_draft = tuto.load_version()
 
-        tuto.tags.add(tag)
+        tuto.tags.add(self.tag)
         tuto.title = text
         tuto.authors.add(self.user)
         tuto.save()
 
         tuto_draft.repo_update_top_container(text, tuto.slug, text, text)  # change title to be sure it will match
 
-        chapter1 = ContainerFactory(parent=tuto_draft, db_object=tuto)
-        extract = ExtractFactory(container=chapter1, db_object=tuto)
+        chapter = ContainerFactory(parent=tuto_draft, db_object=tuto)
+        extract = ExtractFactory(container=chapter, db_object=tuto)
         extract.repo_update(text, text)
 
         published = publish_content(tuto, tuto_draft, is_major_update=True)
@@ -93,6 +82,22 @@ class ViewsTests(TutorialTestMixin, TestCase):
         tuto.sha_draft = tuto_draft.current_version
         tuto.public_version = published
         tuto.save()
+
+        return tuto, chapter
+
+    def test_basic_search(self):
+        """Basic search and filtering"""
+
+        text = "test"
+
+        topic_1 = TopicFactory(forum=self.forum, author=self.user, title=text)
+        topic_1.tags.add(self.tag)
+        post_1 = PostFactory(topic=topic_1, author=self.user, position=1)
+        post_1.text = post_1.text_html = text
+        post_1.save()
+
+        # create a middle-size content and publish it
+        tuto1, chapter1 = self._create_tutorial(text)
 
         # nothing has been indexed yet:
         results = self.manager.search("*")
@@ -115,13 +120,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         # may contain or not these tags.
         content_search_results = result.content.decode()[result.content.decode().find("search-results") :]
         # The tag appears 2 times: in two search results
-        self.assertEqual(content_search_results.count(tag.title), 2)
-        self.assertEqual(content_search_results.count(tag.slug), 2)
+        self.assertEqual(content_search_results.count(self.tag.title), 2)
+        self.assertEqual(content_search_results.count(self.tag.slug), 2)
 
-        # 2. Test filtering:
+        # Test filtering:
         topic_1 = Topic.objects.get(pk=topic_1.pk)
         post_1 = Post.objects.get(pk=post_1.pk)
-        published = PublishedContent.objects.get(pk=published.pk)
+        published = PublishedContent.objects.get(pk=tuto1.public_version.pk)
 
         ids = {
             "topic": [topic_1.search_engine_id],
@@ -145,7 +150,51 @@ class ViewsTests(TutorialTestMixin, TestCase):
         result = self.client.get(reverse("search:query") + "?q=-c", follow=False)
         self.assertEqual(result.status_code, 200)
 
-    def test_search_many_pages(self):
+    def test_search_category_filter(self):
+        """Search in published contents of a specific category (form on the page of a category of contents)"""
+
+        text = "test"
+
+        cat1 = CategoryFactory()
+        subcat11 = SubCategoryFactory(category=cat1)
+        subcat12 = SubCategoryFactory(category=cat1)
+        cat2 = CategoryFactory()
+        subcat21 = SubCategoryFactory(category=cat2)
+
+        tuto1, _ = self._create_tutorial(text)
+        tuto1.subcategory.add(subcat11)
+        tuto1.save()
+
+        tuto2, _ = self._create_tutorial(text)
+        tuto2.subcategory.add(subcat12)
+        tuto2.save()
+
+        tuto3, _ = self._create_tutorial(text)
+        tuto3.subcategory.add(subcat21)
+        tuto3.save()
+
+        # index
+        self._index_everything()
+
+        # no filter on (sub)categories
+        result = self.client.get(reverse("search:query") + "?q=" + text, follow=False)
+        self.assertEqual(result.status_code, 200)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 6)  # get 6 results (3 tutorials and each tutorial has one chapter)
+
+        # filter on categories
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&category=" + cat1.slug, follow=False)
+        self.assertEqual(result.status_code, 200)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 4)  # get 4 results (2 tutorials and each tutorial has one chapter)
+
+        # filter on subcategories
+        result = self.client.get(reverse("search:query") + "?q=" + text + "&subcategory=" + subcat11.slug, follow=False)
+        self.assertEqual(result.status_code, 200)
+        response = result.context["object_list"]
+        self.assertEqual(len(response), 2)  # get 2 results (1 tutorial and with one chapter)
+
+    def test_search_pagination_of_results(self):
         text = "foo"
         url = reverse("search:query") + "?q=" + text
         results_per_page = settings.ZDS_APP["search"]["results_per_page"]

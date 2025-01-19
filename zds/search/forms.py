@@ -8,6 +8,8 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from zds.utils.models import Category, SubCategory
+
 
 class SearchForm(forms.Form):
     q = forms.CharField(
@@ -25,6 +27,15 @@ class SearchForm(forms.Form):
         widget=forms.CheckboxSelectMultiple(attrs={"class": "search-filters", "form": "search-form"}),
         required=False,
         choices=model_choices,
+    )
+
+    category = forms.CharField(  # actually the slug of the category
+        max_length=Category._meta.get_field("slug").max_length,
+        required=False,
+    )
+    subcategory = forms.CharField(  # actually the slug of the subcategory
+        max_length=SubCategory._meta.get_field("slug").max_length,
+        required=False,
     )
 
     def __init__(self, *args, **kwargs):
