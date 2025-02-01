@@ -23,7 +23,7 @@ SEARCH_CONNECTION = {
         }
     ],
     "api_key": "xyz",
-    "connection_timeout_seconds": 5,
+    "connection_timeout_seconds": 10,  # seconds; Gunicorn's default timeout is 30 s
 }
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
