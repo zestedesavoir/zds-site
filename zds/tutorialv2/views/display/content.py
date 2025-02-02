@@ -45,12 +45,13 @@ from zds.tutorialv2.views.display.config import (
 from zds.tutorialv2.views.goals import EditGoalsForm
 from zds.tutorialv2.views.labels import EditLabelsForm
 from zds.tutorialv2.views.licence import EditContentLicenseForm
-from zds.tutorialv2.views.misc import WarnTypoForm
 from zds.tutorialv2.views.suggestions import SearchSuggestionForm
 from zds.tutorialv2.views.tags import EditTagsForm
 from zds.tutorialv2.views.thumbnail import EditThumbnailForm
+from zds.tutorialv2.views.warntypo import WarnTypoForm
 from zds.utils.models import CommentVote
 from zds.utils.paginator import make_pagination
+
 
 logger = logging.getLogger(__name__)
 
