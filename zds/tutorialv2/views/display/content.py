@@ -86,7 +86,6 @@ class ContentBaseView(SingleContentDetailViewMixin):
         data_form_unpublication = data_form_revoke
         context["form_unpublication"] = UnpublicationForm(versioned, initial=data_form_unpublication)
 
-        context["form_warn_typo"] = WarnTypoForm(versioned, versioned, public=False)
         context["form_jsfiddle"] = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
         context["form_edit_license"] = EditContentLicenseForm(versioned)
 
