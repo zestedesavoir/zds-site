@@ -528,6 +528,7 @@ class Topic(AbstractSearchIndexableModel):
                 filter_by.add_exact_filter("topic_pk", [self.pk])
 
                 search_engine_manager.delete_by_query(Post.get_search_document_type(), {"filter_by": str(filter_by)})
+                # The topic may not exist in the search engine yet, if it was not yet indexed
                 search_engine_manager.delete_document(self)
 
         return super().save(*args, **kwargs)

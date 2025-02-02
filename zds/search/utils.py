@@ -1,3 +1,4 @@
+import contextlib
 from datetime import datetime
 from functools import lru_cache
 import logging
@@ -10,6 +11,7 @@ from django.db import transaction
 
 from bs4 import BeautifulSoup
 from typesense import Client as TypesenseClient
+from typesense.exceptions import ObjectNotFound as TypesenseObjectNotFound
 
 from zds.search.models import AbstractSearchIndexableModel
 
@@ -272,13 +274,12 @@ class SearchIndexManager:
         doc_type = document.get_search_document_type()
         doc_id = document.search_engine_id
 
-        if doc_id is None or doc_type not in self.collections:
-            # This condition is here especially for tests
-            return
-
-        answer = self.engine.collections[doc_type].documents[doc_id].delete()
-        if "id" not in answer or answer["id"] != doc_id:
-            self.logger.warn(f"Error when deleting: {answer}.")
+        # This can happen in tests or, for instance, we move a not-yet-indexed topic to a private forum.
+        # Try/except/pass while https://github.com/typesense/typesense-python/issues/65 is not fixed
+        with contextlib.suppress(TypesenseObjectNotFound):
+            answer = self.engine.collections[doc_type].documents[doc_id].delete()
+            if "id" not in answer or answer["id"] != doc_id:
+                self.logger.warn(f"Error when deleting: {answer}.")
 
     def delete_by_query(self, doc_type="", query={"filter_by": ""}):
         """Delete a bunch of documents that match a specific filter_by condition.
@@ -297,11 +298,10 @@ class SearchIndexManager:
         if not self.connected:
             return
 
-        if doc_type not in self.collections:
-            # This condition is here especially for tests
-            return
-
-        self.engine.collections[doc_type].documents.delete(query)
+        # This can happen in tests or, for instance, we move a not-yet-indexed topic to a private forum.
+        # Try/except/pass while https://github.com/typesense/typesense-python/issues/65 is not fixed
+        with contextlib.suppress(TypesenseObjectNotFound):
+            self.engine.collections[doc_type].documents.delete(query)
 
     def search(self, request):
         """Do a search in all collections (only used in tests)
