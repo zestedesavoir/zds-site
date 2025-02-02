@@ -71,7 +71,7 @@ Plusieurs formats d'entrées sont supportés par le serveur, à savoir le ``JSON
 
     $ curl -H "Content-Type: application/x-www-form-urlencoded" https://zestedesavoir.com/api/membres/
 
-Les `formats d'entrée (en) <http://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats d'entrée sont des ``parser``.
+Les `formats d'entrée (en) <http://www.django-rest-framework.org/api-guide/parsers/>`_ sont renseignés dans le fichier ``zds/settings/abstract_base/django.py`` sous l'attribut ``DEFAULT_PARSER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats d'entrée sont des ``parser``.
 
 .. sourcecode:: python
 
@@ -141,7 +141,7 @@ Si le serveur constate qu'il n'y a aucun changement dans la ressource, il renver
 Throttling
 ----------
 
-Le `throttling` permet d'imposer des limites au nombre de requêtes possibles pour un utilisateur anonyme et connecté. Cette fonctionnalité est native à Django Rest Framework et se met en place facilement via le fichier ``settings.py`` du projet sous l'attribut ``DEFAULT_THROTTLE_CLASSES`` du dictionnaire ``REST_FRAMEWORK`` pour spécifier les types de throttling à appliquer et sous ``DEFAULT_THROTTLE_RATES`` pour spécifier les taux.
+Le `throttling` permet d'imposer des limites au nombre de requêtes possibles pour un utilisateur anonyme et connecté. Cette fonctionnalité est native à Django Rest Framework et se met en place facilement via le fichier ``zds/settings/abstract_base/django.py`` du projet sous l'attribut ``DEFAULT_THROTTLE_CLASSES`` du dictionnaire ``REST_FRAMEWORK`` pour spécifier les types de throttling à appliquer et sous ``DEFAULT_THROTTLE_RATES`` pour spécifier les taux.
 
 .. sourcecode:: python
 
