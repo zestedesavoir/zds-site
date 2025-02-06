@@ -137,6 +137,7 @@ django_template_engine = {
             "zds.utils.context_processor.app_settings",
             "zds.utils.context_processor.version",
             "zds.utils.context_processor.header_notifications",
+            "zds.utils.context_processor.member_login_url",
             "zds.gallery.auto_upload_gallery.get_auto_upload_gallery",
         ],
     },

@@ -36,8 +36,9 @@ class LoginView(LoginView):
 
     def get_success_url(self):
         """In case of success, redirect to homepage for some special 'next' targets or non-existing pages."""
-        url = self.get_redirect_url()
-        if self.is_special(url) or not is_valid_path(url):
+        url = self.get_redirect_url()  # This is the value of the `next` GET param
+        # We want to keep GET parameters included in the `next` param, so validate only part before GET parameters:
+        if self.is_special(url) or not is_valid_path(url.split("?")[0]):
             url = settings.LOGIN_REDIRECT_URL
         return url
 
