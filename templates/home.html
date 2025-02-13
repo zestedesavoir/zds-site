@@ -158,13 +158,13 @@
                     <div class="content-item call-to-action">
                         <div class="call-to-action-text">
                             <p>
-                                {% blocktrans with plural=contents_count|pluralize_fr %}
-                                    Il y a {{ contents_count }} publication{{ plural }} sur Zeste de Savoir.
+                                {% blocktrans %}
+                                    Tout le monde peut publier sur Zeste de Savoir.
                                 {% endblocktrans %}
                             </p>
-                            <p class="lead">{% trans "Pourquoi pas la vôtre ?" %}</p>
+                            <p class="lead">{% trans "Pourquoi pas vous ?" %}</p>
                         </div>
-                        <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="btn btn-call-to-action">{% trans "Commencer à rédiger" %}</a>
+                        <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="btn btn-call-to-action">{% trans "Je rédige !" %}</a>
                     </div>
                     {% for opinion in last_opinions %}
                         {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" show_reactions=True ignore_categories=True %}
@@ -175,7 +175,7 @@
                         <div class="call-to-action-text">
                                 <p>
                                     {% blocktrans with plural=contents_count|pluralize_fr %}
-                                       D’autres publications de la communauté vous attendent.
+                                       Des centaines d’autres publications vous attendent…
                                     {% endblocktrans %}
                                 </p>
                         </div>
@@ -207,7 +207,7 @@
                                     {% endblocktrans %}
                                 </p>
                         </div>
-                        <a href="{% url "forum:cats-forums-list" %}" class="btn btn-call-to-action">{% trans "Je participe" %}</a>
+                        <a href="{% url "forum:cats-forums-list" %}" class="btn btn-call-to-action">{% trans "Je participe  !" %}</a>
                     </div>
                 </div>
             </section>
