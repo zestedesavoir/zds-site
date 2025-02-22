@@ -162,11 +162,10 @@ Il est possible de modifier les différents paramètres de la recherche dans
         "boosts": {
             "publishedcontent": {
                 "global": global_weight_publishedcontent,
-                "if_article": 2.0,  # s'il s'agit d'un article
-                "if_tutorial": 2.0, # s'il s'agit d'un tuto
-                "if_medium_or_big_tutorial": 2.5, # s'il s'agit d'un tuto d'une taille plutôt importante
+                "if_validated": 2.0,  # s'il s'agit d'une publication validée (article ou tuto)
+                "if_validated_and_multipage": 2.5, # s'il s'agit d'une publication validée sur plusieurs pages (medium ou big)
                 "if_opinion": 1.66, # s'il s'agit d'un billet
-                "if_opinion_not_picked": 1.5, # s'il s'agit d'un billet pas mis en avant
+                "if_opinion_not_picked": 1.5, # s'il s'agit d'un billet non mis en avant sur la page d'accueil
 
                 # poids des différents champs :
                 "title": global_weight_publishedcontent * 3,
@@ -328,7 +327,7 @@ doivent ensuite être surchargées :
               data["forum_get_absolute_url"] = self.forum.get_absolute_url()
               data["pubdate"] = date_to_timestamp_int(self.pubdate)
               data["text"] = clean_html(self.text_html)
-              data["weight"] = self._compute_search_weight()
+              data["weight"] = self._get_search_weight()
 
               return data
 

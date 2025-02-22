@@ -135,9 +135,6 @@ class SearchView(ZdSPagingListView):
 
         self.search_form = SearchForm(data=self.request.GET)
 
-        if self.search_query and not self.search_form.is_valid():
-            raise PermissionDenied("research form is invalid")
-
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -147,6 +144,9 @@ class SearchView(ZdSPagingListView):
 
         if not search_engine_manager.connected:
             messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
+        elif not self.search_form.is_valid():
+            # it can happen for instance if the model field doesn't match any possible search group (eg, &model=).
+            messages.warning(self.request, _("Votre recherche est invalide."))
         elif self.search_query and "*" in self.search_query:
             # '*' is used as the search string to return all documents:
             # https://typesense.org/docs/0.23.1/api/search.html#query-parameters

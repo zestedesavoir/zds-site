@@ -42,6 +42,14 @@ body {
 
     min-height: 100vh;
 
+    .has-top-banner & {
+        // Remove banner height from minimal page height
+        // Banner height formula :
+        // font-size (defined in #very-top-banner button) * line-height (inherited from button)
+        //  + border-bottom-width (defined in #very-top-banner)
+        min-height: calc(100vh - ($font-size-6 * 1.15 + $length-2) - .2rem);
+    }
+
     .main-container {
         display: flex;
 
