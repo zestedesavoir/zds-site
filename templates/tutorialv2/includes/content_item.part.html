@@ -65,7 +65,7 @@
     {% endif %}
 {% endcaptureas %}
 
-<article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }}">
+<article class="content-item{% if online and show_reactions %} has-reactions{% endif %}{{ item_class }} {% if is_obsolete %} is-obsolete {% endif %}">
 
     <a href="{{ link }}" tabindex="-1" class="content-illu {{ content.type|lower }}-illu">
         {% if content.image %}

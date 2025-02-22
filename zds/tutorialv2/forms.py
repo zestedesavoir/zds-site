@@ -1000,3 +1000,59 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_("Vous devez choisir des URL a comparer"))
         if len(urls) < 2:
             raise forms.ValidationError(_("Il faut au minimum 2 urls à comparer"))
+
+class MarkObsoleteForm(forms.Form):
+    text = forms.CharField(
+        label="",
+        required=True,
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi ce contenu est obsolète ?"), "rows": "4", "id": "confirm_text"}
+        ),
+    )
+
+    def __init__(self, obj, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse("validation:mark-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_method = "post"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = "mark-obsolete"
+
+        self.helper.layout = Layout(
+            HTML("<p>Êtes-vous certain de vouloir marquer ce contenu comme obsolète ?</p>"),
+            Field("text"),
+            ButtonHolder(StrictButton(_("Confirmer"), type="submit", css_class="btn-submit")),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        text = cleaned_data.get("text")
+
+        if text is None or not text.strip():
+            self._errors["text"] = self.error_class([_("Merci de fournir une raison d'obsolescence.")])
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
+
+        elif len(text) < 3:
+            self._errors["text"] = self.error_class([_("Votre commentaire doit faire au moins 3 caractères.")])
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
+
+        return cleaned_data
+
+class UnmarkObsoleteForm(forms.Form):
+
+    def __init__(self, obj, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_action = reverse("validation:mark-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_method = "post"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = "unmark-obsolete"
+
+        self.helper.layout = Layout(
+            HTML("<p>Êtes-vous certain de vouloir enlever la marque d'obsolescence sur ce contenu ?</p>"),
+            ButtonHolder(StrictButton(_("Confirmer"), type="submit", css_class="btn-submit")),
+        )

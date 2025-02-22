@@ -20,6 +20,27 @@ $content-item-padding-vertical: $length-14;
 
     background: $true-white;
 
+    &.is-obsolete {
+          background: $grey-100; // Change background if is_obsolete
+
+          .content-illu {
+            position: relative;
+            &::after {
+                content: "OBSOLÈTE";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                background: $red-400;
+                font-size: $font-size-8;
+                font-weight: bold;
+                color: $accent-300;
+                border-radius: $radius-3;
+                pointer-events: none;
+                transform: translate(-50%, -50%);
+            }
+          }
+    }
+
     flex: 1 1 400px;
 
     border: solid 1px $content-border-color;
@@ -63,6 +84,7 @@ $content-item-padding-vertical: $length-14;
         &.opinion-illu {
             background-image: url("/static/images/opinion-illu.png");
         }
+        
     }
 
     .content-info {

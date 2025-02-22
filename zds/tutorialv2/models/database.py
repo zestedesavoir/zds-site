@@ -703,7 +703,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
     content_type = models.CharField(max_length=10, choices=TYPE_CHOICES, db_index=True, verbose_name="Type de contenu")
     content_public_slug = models.CharField("Slug du contenu publié", max_length=80)
     content_pk = models.IntegerField("Pk du contenu publié", db_index=True)
-
+    is_obsolete = models.BooleanField("Est obsolète", default=False, db_index=True)
     publication_date = models.DateTimeField("Date de publication", db_index=True, blank=True, null=True)
     update_date = models.DateTimeField("Date de mise à jour", db_index=True, blank=True, null=True, default=None)
     sha_public = models.CharField("Sha1 de la version publiée", blank=True, null=True, max_length=80, db_index=True)
@@ -1044,6 +1044,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             {"name": "get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False, "optional": True},
             {"name": "weight", "type": "float"},  # we sort on it
+            {"name": "is_obsolete", "type": "bool"},
         ]
 
         return search_engine_schema

@@ -24,6 +24,8 @@ from zds.tutorialv2.forms import (
     PickOpinionForm,
     UnpickOpinionForm,
     PromoteOpinionToArticleForm,
+    MarkObsoleteForm,
+    UnmarkObsoleteForm,
 )
 from zds.tutorialv2.views.canonical import EditCanonicalLinkForm
 from zds.tutorialv2.views.contributors import ContributionForm
@@ -107,6 +109,10 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_edit_goals"] = EditGoalsForm(self.object)
         context["form_edit_labels"] = EditLabelsForm(self.object)
         context["is_antispam"] = self.object.antispam(self.request.user)
+
+        context["form_mark_obsolete"] = MarkObsoleteForm(self.object)
+        context["form_unmark_obsolete"] = UnmarkObsoleteForm(self.object) 
+
         return context
 
     def add_suggestions_context(self, context):
