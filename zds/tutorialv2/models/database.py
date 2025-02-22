@@ -1135,29 +1135,27 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         if versioned.has_extracts():
             data["text"] = clean_html(versioned.get_content_online())
 
-        is_medium_big_tutorial = versioned.has_sub_containers()
-        data["weight"] = self._compute_search_weight(is_medium_big_tutorial)
+        is_multipage = versioned.has_sub_containers()
+        data["weight"] = self._get_search_weight(is_multipage)
 
         return data
 
-    def _compute_search_weight(self, is_medium_big_tutorial: bool):
+    def _get_search_weight(self, is_multipage: bool):
         """
-        This function calculates a weight for publishedcontent in order to sort them according to different boosts.
-        There is a boost according to the type of content (article, opinion, tutorial),
-        if it is a big tutorial or if it is picked.
+        Calculate the weight used to sort search results.
+        We make a difference between validated content (either single or multipage) and content published freely
+        (picked for the front page or not).
         """
         weights = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]
 
-        if self.content_type == "ARTICLE":
-            return weights["if_article"]
-        elif self.content_type == "TUTORIAL":
-            if is_medium_big_tutorial:
-                return weights["if_medium_or_big_tutorial"]
+        if self.content.requires_validation():
+            if is_multipage:
+                return weights["if_validated_and_multipage"]
             else:
-                return weights["if_tutorial"]
+                return weights["if_validated"]
         else:
             assert self.content_type == "OPINION"
-            if self.content.sha_picked is not None:
+            if self.content.is_picked():
                 return weights["if_opinion"]
             else:
                 return weights["if_opinion_not_picked"]

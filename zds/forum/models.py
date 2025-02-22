@@ -488,7 +488,7 @@ class Topic(AbstractSearchIndexableModel):
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
-        data["weight"] = self._compute_search_weight()
+        data["weight"] = self._get_search_weight()
 
         return data
 
@@ -532,7 +532,7 @@ class Topic(AbstractSearchIndexableModel):
 
         return super().save(*args, **kwargs)
 
-    def _compute_search_weight(self):
+    def _get_search_weight(self):
         """
         This function calculates a weight for topics in order to sort them according to different boosts.
         There is a boost according to the state of the topic:
@@ -642,7 +642,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
         data["text"] = clean_html(self.text_html)
-        data["weight"] = self._compute_search_weight()
+        data["weight"] = self._get_search_weight()
 
         return data
 
@@ -654,7 +654,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         search_engine_manager = SearchIndexManager()
         search_engine_manager.delete_document(self)
 
-    def _compute_search_weight(self):
+    def _get_search_weight(self):
         """
         This function calculates a weight for post in order to sort them according to different boosts.
         There is a boost according to the position, the usefulness and the ration of likes.
