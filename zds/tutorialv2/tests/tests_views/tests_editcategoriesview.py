@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
@@ -103,15 +105,18 @@ class FunctionalTests(TutorialTestMixin, TestCase):
 
         self.client.force_login(self.author)
 
-    def test_add_category(self):
+    @patch("zds.tutorialv2.signals.categories_management")
+    def test_add_category(self, categories_management):
         form_data = {"subcategory": [str(self.category_0.pk)]}
         self.client.post(self.url, form_data)
 
         categories_real = self.content.subcategory.all()
         categories_expected = [self.category_0]
         self.assertQuerysetEqual(categories_real, categories_expected)
+        self.assertEqual(categories_management.send.call_count, 1)
 
-    def test_remove_category(self):
+    @patch("zds.tutorialv2.signals.categories_management")
+    def test_remove_category(self, categories_management):
         self.content.subcategory.add(self.category_0)
         self.assertQuerysetEqual(self.content.subcategory.all(), [self.category_0])
 
@@ -121,8 +126,10 @@ class FunctionalTests(TutorialTestMixin, TestCase):
         categories_real = self.content.subcategory.all()
         categories_expected = []
         self.assertQuerysetEqual(categories_real, categories_expected)
+        self.assertEqual(categories_management.send.call_count, 1)
 
-    def test_remove_published(self):
+    @patch("zds.tutorialv2.signals.categories_management")
+    def test_remove_published(self, categories_management):
         self.content.subcategory.add(self.category_0)
         self.assertQuerysetEqual(self.content.subcategory.all(), [self.category_0])
         publish(self.content)
@@ -131,3 +138,4 @@ class FunctionalTests(TutorialTestMixin, TestCase):
         response = self.client.post(self.url, form_data, follow=True)
         self.assertContains(response, escape(EditCategoriesForm.error_messages["no_category_but_public"]))
         self.assertQuerysetEqual(self.content.subcategory.all(), [self.category_0])
+        self.assertFalse(categories_management.send.called)
