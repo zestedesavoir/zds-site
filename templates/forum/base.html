@@ -168,6 +168,15 @@
                         </ul>
                     {% endif %}
                 {% endwith %}
+                <div class="mobile-menu-bloc mobile-all-links" data-title="{% trans "Toute mon activité" %}">
+                    <h3>{% trans "Toute mon activité" %}</h3>
+
+                    <ul>
+                        <li><a href="{% url "forum:topic-find" user.pk %}" class="ico-after pin blue">{% trans "Sujets créés" %}</a></li>
+                        <li><a href="{% url "forum:followed-topic-find" %}" class="ico-after pin blue">{% trans "Sujets suivis" %}</a></li>
+                        <li><a href="{% url "forum:post-find" user.pk %}" class="ico-after pin blue">{% trans "Messages postés" %}</a></li>
+                    </ul>
+                </div>
             </div>
         {% endif %}
 
