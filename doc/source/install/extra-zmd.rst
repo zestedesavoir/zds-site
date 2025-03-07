@@ -19,19 +19,10 @@ L'installation se fait simplement à l'aide de
 
     make zmd-install
 
-ou, sous Windows (non testé):
-
-.. sourcecode:: bash
-
-    cd zmarkdown
-    npm -g install pm2
-    npm install zmarkdown --production
-    cd ..
-
 
 Utilisation
 ===========
 
-Afin de pouvoir profiter de zmarkdown, vous devez lancer le serveur à l'aide de ``make zmd-start`` (ou, sous Windows, ``cd zmd/node_modules/zmarkdown && npm run server`` [non-testé]).
-Vous pouvez vérifier qu'il est bien lancé à l'aide de ``zmd-check`` (qui ne fonctionne pas sous Windows).
+Afin de pouvoir profiter de zmarkdown, vous devez lancer le serveur à l'aide de ``make zmd-start``.
+Vous pouvez vérifier qu'il est bien lancé à l'aide de ``zmd-check``.
 On arrête le serveur en utilisant ``make zmd-stop``, ou bien ``pm2 kill``.

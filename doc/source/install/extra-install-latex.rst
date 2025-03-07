@@ -4,7 +4,7 @@ Installation de LaTeX et de la *template*
 
 .. note::
 
-  La procédure peut ne pas fonctionner sous Windows (probable) et macOS (moins probable), où elle n'a pas été testée.
+  La procédure peut ne pas fonctionner sous macOS, où elle n'a pas été testée.
   N'hésitez pas à faire des retours sur `forum des Devs' de Zeste de Savoir <https://zestedesavoir.com/forums/communaute/dev-zone/>`_.
 
 
@@ -28,7 +28,6 @@ Avant toutes choses, vous devez installer les parties suivantes (peu importe vot
 Installer une distribution LaTeX
 --------------------------------
 
-+ Sous Windows, vous pouvez installer `MikTeX <https://miktex.org/download>`_ ou `TexLive <https://www.tug.org/texlive/>`_.
 + Sous macOS, vous pouvez installer `MacTex <https://www.tug.org/mactex/mactex-download.html>`_.
 + Sous Linux, vous pouvez utiliser `TexLive <https://www.tug.org/texlive/>`_ (qui est probablement disponible dans votre gestionnaire de paquet). Notez que si vous êtes à l'aise, vous pouvez également installer une version allégée, `comme c'est fait ici <https://github.com/zestedesavoir/latex-template/blob/master/scripts/install_texlive.sh>`_ ou `dans le script d'installation automatisé <./install-linux.html#composant-tex-local-et-latex-template>`_.
 
