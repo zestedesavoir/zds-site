@@ -1,22 +1,18 @@
-from django.contrib.auth.models import Group
+from os.path import dirname, isdir, isfile, join
 
-from os.path import isdir, isfile, join, dirname
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-)
-from zds.tutorialv2.models.database import PublishableContent
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
+from zds.tutorialv2.tests.factories import ContainerFactory, ExtractFactory, PublishableContentFactory
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()

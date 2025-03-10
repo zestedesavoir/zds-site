@@ -1,6 +1,6 @@
 import factory
 
-from zds.utils.models import Category, SubCategory, CategorySubCategory, Licence
+from zds.utils.models import Category, CategorySubCategory, Licence, SubCategory
 
 
 class CategoryFactory(factory.django.DjangoModelFactory):

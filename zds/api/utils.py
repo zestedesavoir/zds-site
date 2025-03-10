@@ -1,6 +1,5 @@
 from django.urls import reverse
-from oauth2_provider.models import Application, AccessToken
-
+from oauth2_provider.models import AccessToken, Application
 
 # As of django-oauth-toolkit (oauth2_provider) 2.0.0, `Application.client_secret` values are hashed
 # before being saved in the database. For the tests, we use the same method as django-oauth-toolkit's tests

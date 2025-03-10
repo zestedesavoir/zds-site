@@ -1,15 +1,14 @@
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Field, ButtonHolder, Hidden
+from crispy_forms.layout import HTML, ButtonHolder, Field, Hidden, Layout
 from django import forms
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.models import Gallery, Image, UserGallery
-from zds.utils.validators import with_svg_validator, slugify_raise_on_invalid, InvalidSlugError
+from zds.utils.validators import InvalidSlugError, slugify_raise_on_invalid, with_svg_validator
 
 
 class GalleryForm(forms.ModelForm):

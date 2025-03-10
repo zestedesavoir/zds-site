@@ -1,8 +1,8 @@
 import collections
 import contextlib
-from os import path, makedirs
-from pathlib import Path
 import copy
+from os import makedirs, path
+from pathlib import Path
 
 import requests
 from django.template.loader import render_to_string

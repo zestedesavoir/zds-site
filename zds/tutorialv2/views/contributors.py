@@ -2,14 +2,13 @@ from collections import OrderedDict
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
-
+from crispy_forms.layout import Field, Layout
 from django import forms
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -17,13 +16,13 @@ from django.utils.translation import gettext_lazy as _
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.models import Profile
 from zds.member.utils import get_bot_account
+from zds.mp.utils import send_mp
 from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import ReviewerTypeModelChoiceField
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
-from zds.tutorialv2.models.database import ContentContribution, PublishableContent, ContentContributionRole
-from zds.mp.utils import send_mp
+from zds.tutorialv2.models.database import ContentContribution, ContentContributionRole, PublishableContent
 from zds.utils.paginator import ZdSPagingListView
 
 

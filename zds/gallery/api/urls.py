@@ -1,12 +1,12 @@
 from django.urls import re_path
 
 from .views import (
-    GalleryListView,
     GalleryDetailView,
-    ImageListView,
+    GalleryListView,
     ImageDetailView,
-    ParticipantListView,
+    ImageListView,
     ParticipantDetailView,
+    ParticipantListView,
 )
 
 urlpatterns = [

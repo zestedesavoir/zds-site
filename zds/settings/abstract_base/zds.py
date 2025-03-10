@@ -2,8 +2,8 @@ from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
 
-from .config import config
 from .base_dir import BASE_DIR
+from .config import config
 
 zds_config = config.get("zds", {})
 

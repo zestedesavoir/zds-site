@@ -1,13 +1,13 @@
-import re
 import json
 import logging
-from requests import post, HTTPError
+import re
 
 from django import template
 from django.conf import settings
 from django.template.defaultfilters import stringfilter
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from requests import HTTPError, post
 
 logger = logging.getLogger(__name__)
 register = template.Library()

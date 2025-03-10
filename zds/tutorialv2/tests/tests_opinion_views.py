@@ -4,28 +4,19 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.management import call_command
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.notification.models import Notification
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-)
-from zds.tutorialv2.models.database import (
-    PublishableContent,
-    PublishedContent,
-    PickListOperation,
-    PublicationEvent,
-)
+from zds.tutorialv2.models.database import PickListOperation, PublicationEvent, PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
+from zds.tutorialv2.tests.factories import ExtractFactory, PublishableContentFactory, PublishedContentFactory
 from zds.utils.models import Alert
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()

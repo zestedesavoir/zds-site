@@ -9,7 +9,6 @@ from django.utils.translation import gettext_lazy as _
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2 import signals
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
-
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.utils.misc import is_ajax

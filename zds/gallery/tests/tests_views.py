@@ -1,12 +1,12 @@
 import os
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
+from zds.gallery.models import Gallery, Image, UserGallery
+from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
-from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
-from zds.gallery.models import Gallery, UserGallery, Image
-from django.conf import settings
 
 
 class GalleryListViewTest(TestCase):

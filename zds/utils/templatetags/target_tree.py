@@ -1,7 +1,7 @@
-from zds.tutorialv2.utils import get_target_tagged_tree
-from zds.tutorialv2.models.versioned import Extract, Container
 from django import template
 
+from zds.tutorialv2.models.versioned import Container, Extract
+from zds.tutorialv2.utils import get_target_tagged_tree
 
 register = template.Library()
 

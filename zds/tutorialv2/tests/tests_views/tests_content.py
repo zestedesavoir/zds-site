@@ -1,9 +1,8 @@
 import datetime
+import os
 import shutil
 import tempfile
 import zipfile
-
-import os
 from pathlib import Path
 from unittest.mock import patch
 
@@ -11,45 +10,36 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.http import HttpResponseNotAllowed
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
-from zds.forum.models import Topic, Post, TopicRead
+from zds import json_handler
+from zds.forum.models import Post, Topic, TopicRead
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.gallery.models import UserGallery, Gallery
-from zds.gallery.models import Image
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.mp.models import PrivateTopic, PrivatePost
-from zds.notification.models import (
-    ContentReactionAnswerSubscription,
-    NewPublicationSubscription,
-    Notification,
-)
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-    tricky_text_content,
-    BetaContentFactory,
-    HelpWritingFactory,
-)
-from zds.tutorialv2.models.database import (
-    PublishableContent,
-    Validation,
-    PublishedContent,
-)
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.notification.models import ContentReactionAnswerSubscription, NewPublicationSubscription, Notification
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent, Validation
+from zds.tutorialv2.models.help_requests import HelpWriting
 from zds.tutorialv2.publication_utils import (
-    PublicatorRegistry,
     Publicator,
-    ZMarkdownRebberLatexPublicator,
+    PublicatorRegistry,
     ZMarkdownEpubPublicator,
+    ZMarkdownRebberLatexPublicator,
 )
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from zds import json_handler
+from zds.tutorialv2.tests.factories import (
+    BetaContentFactory,
+    ContainerFactory,
+    ExtractFactory,
+    HelpWritingFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+    tricky_text_content,
+)
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()

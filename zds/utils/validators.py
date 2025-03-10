@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core import validators
 
-from zds.utils import old_slugify, VALID_SLUG
+from zds.utils import VALID_SLUG, old_slugify
 from zds.utils.uuslug_wrapper import slugify
 
 

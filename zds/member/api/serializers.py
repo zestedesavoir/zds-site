@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from zds.member.commons import ProfileCreate
 from zds.member.models import Profile
-from zds.member.validators import validate_not_empty, validate_zds_username, validate_zds_email
+from zds.member.validators import validate_not_empty, validate_zds_email, validate_zds_username
 
 
 class UserListSerializer(serializers.ModelSerializer):

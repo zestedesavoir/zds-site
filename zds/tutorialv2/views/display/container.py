@@ -6,13 +6,13 @@ from django.utils.translation import gettext_lazy as _
 from zds.tutorialv2.forms import WarnTypoForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.utils import search_container_or_404, get_target_tagged_tree
+from zds.tutorialv2.utils import get_target_tagged_tree, search_container_or_404
 from zds.tutorialv2.views.display.config import (
+    ConfigForBetaView,
     ConfigForContainerDraftView,
     ConfigForOnlineView,
-    ConfigForBetaView,
-    ConfigForVersionView,
     ConfigForValidationView,
+    ConfigForVersionView,
 )
 
 

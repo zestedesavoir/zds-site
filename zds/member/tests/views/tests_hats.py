@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.pages.models import GroupContact
 from zds.utils.models import Hat, HatRequest
 

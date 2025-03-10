@@ -3,12 +3,12 @@ from datetime import datetime
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, HTML, ButtonHolder
+from crispy_forms.layout import HTML, ButtonHolder, Field, Layout
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from django.forms import forms, CharField, Textarea, TextInput
+from django.forms import CharField, Textarea, TextInput, forms
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -19,20 +19,16 @@ from django.views.generic import DeleteView, FormView
 from zds.gallery.models import Gallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
+from zds.mp.utils import send_message_mp, send_mp
 from zds.tutorialv2.forms import ContentForm, FormWithTitle
-from zds.tutorialv2.mixins import (
-    SingleContentFormViewMixin,
-    SingleContentViewMixin,
-    FormWithPreview,
-)
+from zds.tutorialv2.mixins import FormWithPreview, SingleContentFormViewMixin, SingleContentViewMixin
+from zds.tutorialv2.models import CONTENT_TYPE_LIST
 from zds.tutorialv2.models.database import PublishableContent, Validation
 from zds.tutorialv2.utils import init_new_repo
 from zds.tutorialv2.views.authors import RemoveAuthorFromContent
 from zds.utils.forms import IncludeEasyMDE
 from zds.utils.models import get_hat_from_settings
-from zds.mp.utils import send_mp, send_message_mp
 from zds.utils.uuslug_wrapper import slugify
-from zds.tutorialv2.models import CONTENT_TYPE_LIST
 
 logger = logging.getLogger(__name__)
 

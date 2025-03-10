@@ -10,49 +10,47 @@ from django.utils.translation import gettext_lazy as _
 from zds.featured.mixins import FeatureableMixin
 from zds.notification.models import ContentReactionAnswerSubscription
 from zds.tutorialv2 import signals
-
 from zds.tutorialv2.forms import (
-    AskValidationForm,
     AcceptValidationForm,
-    RejectValidationForm,
+    AskValidationForm,
     CancelValidationForm,
+    JsFiddleActivationForm,
+    PickOpinionForm,
+    PromoteOpinionToArticleForm,
+    PublicationForm,
+    RejectValidationForm,
     RevokeValidationForm,
+    UnpickOpinionForm,
     UnpublicationForm,
     WarnTypoForm,
-    JsFiddleActivationForm,
-    PublicationForm,
-    PickOpinionForm,
-    UnpickOpinionForm,
-    PromoteOpinionToArticleForm,
 )
-from zds.tutorialv2.views.canonical import EditCanonicalLinkForm
-from zds.tutorialv2.views.contributors import ContributionForm
-from zds.tutorialv2.views.suggestions import SearchSuggestionForm
-from zds.tutorialv2.views.licence import EditContentLicenseForm
-from zds.tutorialv2.views.tags import EditTagsForm
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import (
-    ContentSuggestion,
     ContentContribution,
+    ContentReaction,
+    ContentSuggestion,
     PublishableContent,
     PublishedContent,
-    ContentReaction,
 )
 from zds.tutorialv2.utils import last_participation_is_old, mark_read
-from zds.tutorialv2.views.contents import EditTitleForm, EditSubtitleForm
-from zds.tutorialv2.views.thumbnail import EditThumbnailForm
+from zds.tutorialv2.views.canonical import EditCanonicalLinkForm
+from zds.tutorialv2.views.contents import EditSubtitleForm, EditTitleForm
+from zds.tutorialv2.views.contributors import ContributionForm
 from zds.tutorialv2.views.display.config import (
-    ConfigForContentDraftView,
-    ConfigForVersionView,
-    ConfigForOnlineView,
     ConfigForBetaView,
+    ConfigForContentDraftView,
+    ConfigForOnlineView,
     ConfigForValidationView,
+    ConfigForVersionView,
 )
 from zds.tutorialv2.views.goals import EditGoalsForm
 from zds.tutorialv2.views.labels import EditLabelsForm
+from zds.tutorialv2.views.licence import EditContentLicenseForm
+from zds.tutorialv2.views.suggestions import SearchSuggestionForm
+from zds.tutorialv2.views.tags import EditTagsForm
+from zds.tutorialv2.views.thumbnail import EditThumbnailForm
 from zds.utils.models import CommentVote
 from zds.utils.paginator import make_pagination
-
 
 logger = logging.getLogger(__name__)
 

@@ -3,10 +3,9 @@ from datetime import datetime
 from django.test import TestCase
 from django.urls import reverse
 
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-
 
 view_name = "content:edit-introduction"
 

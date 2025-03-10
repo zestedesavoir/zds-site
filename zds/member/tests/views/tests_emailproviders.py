@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.contrib.auth.models import Group, User
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.member.models import NewEmailProvider, BannedEmailProvider, TokenRegister
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.member.models import BannedEmailProvider, NewEmailProvider, TokenRegister
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 
 
 class EmailProvidersTests(TestCase):

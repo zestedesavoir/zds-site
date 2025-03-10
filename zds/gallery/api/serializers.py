@@ -1,20 +1,19 @@
-from rest_framework import serializers, exceptions
-from dry_rest_permissions.generics import DRYPermissionsField
-
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from dry_rest_permissions.generics import DRYPermissionsField
+from rest_framework import exceptions, serializers
 
 from zds.api.serializers import ZdSModelSerializer
-from zds.gallery.models import Gallery, Image, UserGallery
 from zds.gallery.mixins import (
     GalleryCreateMixin,
     GalleryUpdateOrDeleteMixin,
     ImageCreateMixin,
     ImageTooLarge,
     ImageUpdateOrDeleteMixin,
-    UserNotInGallery,
     NotAnImage,
+    UserNotInGallery,
 )
+from zds.gallery.models import Gallery, Image, UserGallery
 from zds.member.models import User
 
 

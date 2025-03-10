@@ -1,12 +1,12 @@
 from django.urls import re_path
 
 from zds.member.api.views import (
-    MemberListAPI,
     MemberDetailAPI,
-    MemberDetailReadingOnly,
     MemberDetailBan,
-    MemberMyDetailAPI,
+    MemberDetailReadingOnly,
     MemberExistsAPI,
+    MemberListAPI,
+    MemberMyDetailAPI,
 )
 
 urlpatterns = [

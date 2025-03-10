@@ -1,21 +1,21 @@
 from math import ceil
 from unittest.mock import patch
 
+from django.conf import settings
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import Group
-from django.conf import settings
 
 from zds.member.tests.factories import ProfileFactory
-from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
 from zds.mp.models import (
-    is_privatetopic_unread,
-    is_reachable,
-    mark_read,
     NotParticipatingError,
     NotReachableError,
     PrivateTopic,
+    is_privatetopic_unread,
+    is_reachable,
+    mark_read,
 )
+from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
 
 # by moment, i wrote the scenario to be simpler
 

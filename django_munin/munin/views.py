@@ -1,13 +1,13 @@
+import time
 from datetime import datetime, timedelta
 from importlib import import_module
-import time
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.models import Q
+
 from .helpers import muninview
 from .models import Test
-
 
 User = get_user_model()
 Session = import_module(settings.SESSION_ENGINE).CustomSession

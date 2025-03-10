@@ -1,67 +1,66 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
+from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
+from zds.tutorialv2.views.archives import CreateContentFromArchive, DownloadContent, UpdateContentWithArchive
+from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
+from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
+from zds.tutorialv2.views.comments import (
+    FollowContentReaction,
+    HideReaction,
+    SendNoteAlert,
+    SendNoteFormView,
+    ShowReaction,
+    SolveNoteAlert,
+    UpdateNoteView,
+)
+from zds.tutorialv2.views.containers_extracts import (
+    CreateContainer,
+    CreateExtract,
+    DeleteContainerOrExtract,
+    EditContainer,
+    EditExtract,
+    MoveChild,
+)
 from zds.tutorialv2.views.contents import (
     CreateContentView,
     DeleteContent,
-    EditTitle,
-    EditSubtitle,
-    EditIntroductionView,
     EditConclusionView,
+    EditIntroductionView,
+    EditSubtitle,
+    EditTitle,
 )
-from zds.tutorialv2.views.thumbnail import EditThumbnailView
+from zds.tutorialv2.views.contributors import (
+    AddContributorToContent,
+    ContentOfContributors,
+    RemoveContributorFromContent,
+)
+from zds.tutorialv2.views.display import (
+    ContainerBetaView,
+    ContainerDraftView,
+    ContainerVersionView,
+    ContentBetaView,
+    ContentDraftView,
+    ContentVersionView,
+)
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
 from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
+from zds.tutorialv2.views.help import ChangeHelp, ContentsWithHelps
+from zds.tutorialv2.views.history import DisplayDiff, DisplayHistory
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
 from zds.tutorialv2.views.licence import EditContentLicense
-from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
-from zds.tutorialv2.views.containers_extracts import (
-    CreateContainer,
-    EditContainer,
-    CreateExtract,
-    EditExtract,
-    DeleteContainerOrExtract,
-    MoveChild,
-)
-from zds.tutorialv2.views.beta import ManageBetaContent
-from zds.tutorialv2.views.display import (
-    ContentBetaView,
-    ContainerBetaView,
-    ContentDraftView,
-    ContainerDraftView,
-    ContentVersionView,
-    ContainerVersionView,
-)
-from zds.tutorialv2.views.history import DisplayHistory, DisplayDiff
-from zds.tutorialv2.views.help import ContentsWithHelps, ChangeHelp
-from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
+from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, TagsListView
+from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent, WarnTypo
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
-from zds.tutorialv2.views.archives import DownloadContent, UpdateContentWithArchive, CreateContentFromArchive
-from zds.tutorialv2.views.contributors import (
-    AddContributorToContent,
-    RemoveContributorFromContent,
-    ContentOfContributors,
-)
-from zds.tutorialv2.views.suggestions import RemoveSuggestionView, AddSuggestionView
-from zds.tutorialv2.views.tags import EditTags
-
-from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor, ListContentReactions
-from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
-from zds.tutorialv2.views.misc import RequestFeaturedContent, FollowNewContent, WarnTypo
 from zds.tutorialv2.views.statistics import ContentStatisticsView
-from zds.tutorialv2.views.comments import (
-    SendNoteFormView,
-    UpdateNoteView,
-    HideReaction,
-    ShowReaction,
-    SendNoteAlert,
-    SolveNoteAlert,
-    FollowContentReaction,
-)
+from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
+from zds.tutorialv2.views.tags import EditTags
+from zds.tutorialv2.views.thumbnail import EditThumbnailView
+from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
 
 feeds = [
     path("flux/rss/", RedirectView.as_view(pattern_name="publication:feed-rss", permanent=True), name="feed-rss"),

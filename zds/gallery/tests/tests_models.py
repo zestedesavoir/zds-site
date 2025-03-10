@@ -1,11 +1,11 @@
 import os
 
+from django.conf import settings
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
+from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
-from django.conf import settings
 
 
 class UserGalleryTest(TestCase):

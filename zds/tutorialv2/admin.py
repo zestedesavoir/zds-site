@@ -1,20 +1,20 @@
 from django.contrib import admin
 
 from zds.tutorialv2.models.database import (
-    PublishableContent,
-    Validation,
-    ContentReaction,
-    PublishedContent,
-    PickListOperation,
-    ContentRead,
-    PublicationEvent,
     ContentContributionRole,
+    ContentReaction,
+    ContentRead,
     ContentSuggestion,
+    PickListOperation,
+    PublicationEvent,
+    PublishableContent,
+    PublishedContent,
+    Validation,
 )
 from zds.tutorialv2.models.events import Event
 from zds.tutorialv2.models.goals import Goal
-from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.tutorialv2.models.labels import Label
 
 
 class PublishableContentAdmin(admin.ModelAdmin):

@@ -1,44 +1,43 @@
 import datetime
 import logging
 
-from django.utils.translation import gettext_lazy as _
 from django.core.cache import cache
-from django.db.models import Case, When, IntegerField, Value
-from django.db.models.signals import post_save, post_delete
+from django.db.models import Case, IntegerField, Value, When
+from django.db.models.signals import post_delete, post_save
+from django.utils.translation import gettext_lazy as _
 from dry_rest_permissions.generics import DRYPermissions
-from rest_framework import filters
-from rest_framework import status
+from rest_framework import filters, status
 from rest_framework.generics import (
     ListAPIView,
     ListCreateAPIView,
-    RetrieveUpdateAPIView,
     RetrieveAPIView,
+    RetrieveUpdateAPIView,
     get_object_or_404,
 )
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
-from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 
+from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
+from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
+from zds.member.api.permissions import IsOwnerOrReadOnly
 from zds.member.api.serializers import (
-    ProfileListSerializer,
     ProfileCreateSerializer,
     ProfileDetailSerializer,
+    ProfileListSerializer,
     ProfileValidatorSerializer,
 )
-from zds.member.api.permissions import IsOwnerOrReadOnly
-from zds.member.api.generics import CreateDestroyMemberSanctionAPIView
 from zds.member.commons import (
-    TemporaryReadingOnlySanction,
-    ReadingOnlySanction,
-    DeleteReadingOnlySanction,
-    TemporaryBanSanction,
     BanSanction,
     DeleteBanSanction,
+    DeleteReadingOnlySanction,
     ProfileCreate,
+    ReadingOnlySanction,
+    TemporaryBanSanction,
+    TemporaryReadingOnlySanction,
     TokenGenerator,
 )
 from zds.member.models import Profile

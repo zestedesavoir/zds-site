@@ -1,18 +1,18 @@
-from copy import deepcopy
-import shutil
 import os
+import shutil
+from copy import deepcopy
+
 from django.conf import settings
+from django.core.cache import caches
 from django.test.utils import override_settings
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
-
-from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
+from rest_framework.test import APIClient, APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
-from django.core.cache import caches
-from zds.tutorialv2.tests.factories import PublishableContentFactory
+
+from zds.api.pagination import REST_MAX_PAGE_SIZE, REST_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests.factories import PublishableContentFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["extra_content_generation_policy"] = "NOTHING"

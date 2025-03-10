@@ -1,8 +1,8 @@
+from django.contrib.auth.models import Permission, User
 from django.db import migrations, models
-
-from django.contrib.auth.models import User, Permission
-from zds.member.models import Profile
 from django.db.models import Q
+
+from zds.member.models import Profile
 
 
 def forwards_func(apps, schema_editor):

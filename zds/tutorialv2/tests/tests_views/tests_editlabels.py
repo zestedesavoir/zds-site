@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory, LabelFactory, PublishedContentFactory
+from zds.tutorialv2.tests.factories import LabelFactory, PublishableContentFactory, PublishedContentFactory
 
 
 class EditLabelsPermissionTests(TestCase):

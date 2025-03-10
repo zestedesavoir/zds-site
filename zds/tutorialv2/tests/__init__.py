@@ -1,10 +1,9 @@
 import copy
-
-from django.conf import settings
 import shutil
 
-from django.urls import reverse
+from django.conf import settings
 from django.test.utils import override_settings
+from django.urls import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 

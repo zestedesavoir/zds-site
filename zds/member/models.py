@@ -1,7 +1,8 @@
+import logging
 from datetime import datetime
 from hashlib import md5
-import logging
 
+import homoglyphs as hg
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -16,9 +17,7 @@ from zds.member.utils import get_geo_location_from_ip
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils import old_slugify
-from zds.utils.models import Alert, Licence, Hat
-
-import homoglyphs as hg
+from zds.utils.models import Alert, Hat, Licence
 
 
 class Profile(models.Model):

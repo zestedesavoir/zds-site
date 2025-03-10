@@ -6,7 +6,6 @@ import time
 import zipfile
 from datetime import datetime
 
-from PIL import Image as ImagePIL
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -14,9 +13,10 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 from easy_thumbnails.files import get_thumbnailer
+from PIL import Image as ImagePIL
 
 from zds import json_handler
-from zds.gallery.models import Image, Gallery
+from zds.gallery.models import Gallery, Image
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import ImportContentForm, ImportNewContentForm
 from zds.tutorialv2.mixins import SingleContentDownloadViewMixin, SingleContentFormViewMixin
@@ -24,13 +24,13 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.utils import (
     BadArchiveError,
-    get_content_from_json,
     BadManifestError,
     default_slug_pool,
+    get_content_from_json,
     init_new_repo,
 )
-from zds.utils.validators import InvalidSlugError
 from zds.utils.uuslug_wrapper import slugify
+from zds.utils.validators import InvalidSlugError
 
 
 class DownloadContent(LoginRequiredMixin, SingleContentDownloadViewMixin):

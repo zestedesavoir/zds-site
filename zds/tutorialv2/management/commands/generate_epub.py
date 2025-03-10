@@ -2,12 +2,13 @@ import contextlib
 import os
 from pathlib import Path
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
+
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.models.versioned import NotAPublicVersion
-from zds.tutorialv2.publication_utils import PublicatorRegistry, FailureDuringPublication
+from zds.tutorialv2.publication_utils import FailureDuringPublication, PublicatorRegistry
 
 
 class Command(BaseCommand):

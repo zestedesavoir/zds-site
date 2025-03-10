@@ -1,43 +1,42 @@
 import datetime
+from copy import deepcopy
 from json import loads
 
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core import mail
-from django.urls import reverse
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
+from zds import json_handler
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic, is_privatetopic_unread
 from zds.notification.models import ContentReactionAnswerSubscription, Notification
-from zds.tutorialv2.tests.factories import (
-    ContentReactionFactory,
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-    HelpWritingFactory,
-)
 from zds.tutorialv2.models.database import (
-    PickListOperation,
-    PublishableContent,
-    Validation,
-    PublishedContent,
     ContentReaction,
     ContentRead,
+    PickListOperation,
+    PublishableContent,
+    PublishedContent,
+    Validation,
 )
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
-from zds.utils.models import Alert, Tag, Hat
-from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
+from zds.tutorialv2.tests.factories import (
+    ContainerFactory,
+    ContentReactionFactory,
+    ExtractFactory,
+    HelpWritingFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+)
 from zds.utils.header_notifications import get_header_notifications
-from copy import deepcopy
-from zds import json_handler
-
+from zds.utils.models import Alert, Hat, Tag
+from zds.utils.tests.factories import CategoryFactory, LicenceFactory, SubCategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"

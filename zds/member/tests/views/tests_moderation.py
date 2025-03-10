@@ -1,17 +1,16 @@
 from datetime import datetime
 
 from django.conf import settings
-from django.core import mail
 from django.contrib.auth.models import Group
+from django.core import mail
+from django.test import TestCase
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.test import TestCase
-
 
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
-from zds.member.views.moderation import member_from_ip
+from zds.member.models import Ban, KarmaNote, Profile
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.member.models import Profile, Ban, KarmaNote
+from zds.member.views.moderation import member_from_ip
 from zds.notification.models import Notification
 
 

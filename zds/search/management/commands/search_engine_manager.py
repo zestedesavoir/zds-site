@@ -1,7 +1,7 @@
 import time
 
-from django.core.management.base import BaseCommand, CommandError
 from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
 
 from zds.search.utils import SearchIndexManager, get_all_indexable_classes
 

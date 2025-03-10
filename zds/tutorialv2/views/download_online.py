@@ -1,8 +1,8 @@
 import os
 
-from django.http import HttpResponsePermanentRedirect, Http404
+from django.http import Http404, HttpResponsePermanentRedirect
 
-from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, DownloadViewMixin, MustRedirect
+from zds.tutorialv2.mixins import DownloadViewMixin, MustRedirect, SingleOnlineContentViewMixin
 
 
 class DownloadOnlineContent(SingleOnlineContentViewMixin, DownloadViewMixin):

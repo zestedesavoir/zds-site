@@ -1,8 +1,8 @@
 from copy import deepcopy
+
 from django.conf import settings
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import override_settings
-from django.test import tag
+from django.test import override_settings, tag
 from django.urls import reverse
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver import Firefox
@@ -13,15 +13,11 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
-from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-)
-from zds.tutorialv2.models.database import PublishedContent, PublishableContent
-from zds.tutorialv2.tests import TutorialTestMixin, TutorialFrontMixin
-from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory, LicenceFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.database import PublishableContent, PublishedContent
+from zds.tutorialv2.tests import TutorialFrontMixin, TutorialTestMixin
+from zds.tutorialv2.tests.factories import ContainerFactory, ExtractFactory, PublishableContentFactory
+from zds.utils.tests.factories import CategoryFactory, LicenceFactory, SubCategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"

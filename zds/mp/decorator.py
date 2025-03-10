@@ -1,7 +1,8 @@
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from zds.mp.models import PrivateTopic, PrivatePost
+
+from zds.mp.models import PrivatePost, PrivateTopic
 
 
 def is_participant(func):

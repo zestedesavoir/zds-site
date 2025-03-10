@@ -1,8 +1,9 @@
 from django.contrib.auth.models import AnonymousUser
-from rest_framework.serializers import ModelSerializer, SerializerMethodField, IntegerField, ChoiceField
-from zds.utils.models import Comment, Tag
-from zds.member.api.serializers import UserListSerializer
 from dry_rest_permissions.generics import DRYPermissions
+from rest_framework.serializers import ChoiceField, IntegerField, ModelSerializer, SerializerMethodField
+
+from zds.member.api.serializers import UserListSerializer
+from zds.utils.models import Comment, Tag
 
 
 class TagSerializer(ModelSerializer):

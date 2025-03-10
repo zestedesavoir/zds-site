@@ -1,11 +1,11 @@
 from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
+from zds.tutorialv2.feeds import LastArticlesFeedATOM, LastArticlesFeedRSS
 from zds.tutorialv2.views.contributors import ContentOfContributors
-from zds.tutorialv2.views.lists import TagsListView, ContentOfAuthor
-from zds.tutorialv2.views.download_online import DownloadOnlineArticle
 from zds.tutorialv2.views.display import ArticleOnlineView, ContainerOnlineView
-from zds.tutorialv2.feeds import LastArticlesFeedRSS, LastArticlesFeedATOM
+from zds.tutorialv2.views.download_online import DownloadOnlineArticle
+from zds.tutorialv2.views.lists import ContentOfAuthor, TagsListView
 
 feed_patterns = [
     path("flux/rss/", LastArticlesFeedRSS(), name="feed-rss"),

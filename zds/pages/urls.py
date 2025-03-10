@@ -1,18 +1,18 @@
 from django.urls import path
 
 from zds.pages.views import (
+    CommentEditsHistory,
+    ContactView,
+    EditDetail,
     about,
-    association,
-    eula,
     accessibility,
     alerts,
+    association,
     cookies,
-    index,
-    ContactView,
-    CommentEditsHistory,
-    EditDetail,
-    restore_edit,
     delete_edit_content,
+    eula,
+    index,
+    restore_edit,
 )
 
 urlpatterns = [

@@ -1,13 +1,12 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-
 from zds.mp.models import PrivateTopic
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.utils.models import Alert
 
 

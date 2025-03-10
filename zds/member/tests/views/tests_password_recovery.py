@@ -1,12 +1,12 @@
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core import mail
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
-from zds.member.models import TokenForgotPassword
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.member.models import TokenForgotPassword
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 
 
 class MemberTests(TestCase):

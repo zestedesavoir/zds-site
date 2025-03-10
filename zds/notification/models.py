@@ -1,27 +1,26 @@
 import logging
 from smtplib import SMTPException
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import EmailMultiAlternatives
-from django.core.validators import validate_email, ValidationError
-from django.db import models, IntegrityError, transaction
+from django.core.validators import ValidationError, validate_email
+from django.db import IntegrityError, models, transaction
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
 
-from zds.forum.models import Topic, Post
+from zds.forum.models import Post, Topic
 from zds.notification.managers import (
-    NotificationManager,
-    SubscriptionManager,
-    TopicFollowedManager,
-    TopicAnswerSubscriptionManager,
     NewPublicationSubscriptionManager,
     NewTopicSubscriptionManager,
+    NotificationManager,
+    SubscriptionManager,
+    TopicAnswerSubscriptionManager,
+    TopicFollowedManager,
 )
 from zds.utils.misc import convert_camel_to_underscore
-
 
 LOG = logging.getLogger(__name__)
 

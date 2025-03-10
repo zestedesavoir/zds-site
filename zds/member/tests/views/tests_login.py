@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 
 from django.conf import settings
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.html import escape
 
 from zds.member.forms import LoginForm
-from zds.member.models import Profile, Ban
-from zds.member.tests.factories import ProfileFactory, NonAsciiProfileFactory, StaffProfileFactory
+from zds.member.models import Ban, Profile
+from zds.member.tests.factories import NonAsciiProfileFactory, ProfileFactory, StaffProfileFactory
 
 
 class LoginTests(TestCase):

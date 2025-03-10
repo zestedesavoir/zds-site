@@ -1,34 +1,30 @@
 from copy import deepcopy
 
 from django.conf import settings
-from django.urls import reverse
 from django.core import mail
 from django.test import TestCase
 from django.test.utils import override_settings
+from django.urls import reverse
 
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.forum.models import Topic
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.tests.factories import UserGalleryFactory
-from zds.member.tests.factories import StaffProfileFactory, ProfileFactory, MultipleGroupsProfileFactory
+from zds.member.tests.factories import MultipleGroupsProfileFactory, ProfileFactory, StaffProfileFactory
+from zds.mp.utils import send_message_mp, send_mp
 from zds.notification.models import (
-    NewTopicSubscription,
-    TopicAnswerSubscription,
-    Notification,
-    NewPublicationSubscription,
     ContentReactionAnswerSubscription,
+    NewPublicationSubscription,
+    NewTopicSubscription,
+    Notification,
     PingSubscription,
+    TopicAnswerSubscription,
 )
 from zds.tutorialv2 import signals
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    PublishedContentFactory,
-    ContentReactionFactory,
-)
-from zds.tutorialv2.publication_utils import publish_content, notify_update
+from zds.tutorialv2.publication_utils import notify_update, publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from zds.mp.utils import send_mp, send_message_mp
+from zds.tutorialv2.tests.factories import ContentReactionFactory, PublishableContentFactory, PublishedContentFactory
 from zds.utils.header_notifications import get_header_notifications
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 

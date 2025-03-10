@@ -1,11 +1,12 @@
 import datetime
 import logging
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import BaseCommand
 from django.db import transaction
-from django.conf import settings
 from django.utils.translation import gettext as _
+
 from zds.utils.models import Alert
 
 

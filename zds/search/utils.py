@@ -1,15 +1,14 @@
 import contextlib
-from datetime import datetime
-from functools import lru_cache
 import logging
 import re
 import time
+from datetime import datetime
+from functools import lru_cache
 
+from bs4 import BeautifulSoup
 from django.apps import apps
 from django.conf import settings
 from django.db import transaction
-
-from bs4 import BeautifulSoup
 from typesense import Client as TypesenseClient
 from typesense.exceptions import ObjectNotFound as TypesenseObjectNotFound
 

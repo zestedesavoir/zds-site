@@ -1,18 +1,18 @@
-from datetime import datetime, timedelta
 import uuid
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404
-from django.template.loader import render_to_string
 from django.template.defaultfilters import pluralize
+from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 
-from zds.member.models import Profile, TokenRegister, Ban
+from zds.member.models import Ban, Profile, TokenRegister
 from zds.member.utils import get_bot_account
-from zds.utils.models import get_hat_from_settings
 from zds.mp.utils import send_mp
+from zds.utils.models import get_hat_from_settings
 
 
 class ProfileCreate:

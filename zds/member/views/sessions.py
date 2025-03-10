@@ -10,7 +10,6 @@ from django.views.generic import View
 from zds.member.utils import get_geo_location_from_ip, get_info_from_user_agent
 from zds.utils.paginator import ZdSPagingListView
 
-
 Session = import_module(settings.SESSION_ENGINE).CustomSession
 SessionStore = import_module(settings.SESSION_ENGINE).SessionStore
 

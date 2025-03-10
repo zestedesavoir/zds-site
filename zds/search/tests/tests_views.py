@@ -1,5 +1,5 @@
-from copy import deepcopy
 import datetime
+from copy import deepcopy
 from math import ceil
 
 from django.conf import settings
@@ -9,21 +9,19 @@ from django.test.utils import override_settings
 from django.urls import reverse
 
 from zds import json_handler
-from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
-from zds.forum.tests.factories import create_category_and_forum
+from zds.forum.tests.factories import Post, PostFactory, TagFactory, Topic, TopicFactory, create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.search.utils import SearchIndexManager
+from zds.tutorialv2.models.database import FakeChapter, PublishableContent, PublishedContent
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    publish_content,
+    PublishableContentFactory,
     PublishedContentFactory,
     SubCategoryFactory,
+    publish_content,
 )
-from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"

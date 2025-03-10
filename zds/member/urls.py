@@ -2,54 +2,48 @@ from django.contrib.auth.views import LogoutView
 from django.urls import path
 
 from zds.member.views import MemberList
-from zds.member.views.profile import (
-    UpdateMember,
-    UpdateGitHubToken,
-    remove_github_token,
-    UpdateAvatarMember,
-    UpdatePasswordMember,
-    UpdateUsernameEmailMember,
-    redirect_old_profile_to_new,
+from zds.member.views.admin import settings_promote
+from zds.member.views.emailproviders import (
+    AddBannedEmailProvider,
+    BannedEmailProvidersList,
+    MembersWithProviderList,
+    NewEmailProvidersList,
+    check_new_email_provider,
+    remove_banned_email_provider,
 )
-from zds.member.views.moderation import (
-    modify_karma,
-    settings_mini_profile,
-    member_from_ip,
-    modify_profile,
-)
-from zds.member.views.login import LoginView
 from zds.member.views.hats import (
+    HatDetail,
+    HatRequestDetail,
+    HatsList,
     HatsSettings,
     RequestedHatsList,
-    HatRequestDetail,
+    SolvedHatRequestsList,
     add_hat,
     remove_hat,
     solve_hat_request,
-    HatsList,
-    HatDetail,
-    SolvedHatRequestsList,
 )
-from zds.member.views.emailproviders import (
-    BannedEmailProvidersList,
-    NewEmailProvidersList,
-    AddBannedEmailProvider,
-    remove_banned_email_provider,
-    check_new_email_provider,
-    MembersWithProviderList,
+from zds.member.views.login import LoginView
+from zds.member.views.moderation import member_from_ip, modify_karma, modify_profile, settings_mini_profile
+from zds.member.views.password_recovery import forgot_password, new_password
+from zds.member.views.profile import (
+    UpdateAvatarMember,
+    UpdateGitHubToken,
+    UpdateMember,
+    UpdatePasswordMember,
+    UpdateUsernameEmailMember,
+    redirect_old_profile_to_new,
+    remove_github_token,
 )
 from zds.member.views.register import (
     RegisterView,
     SendValidationEmailView,
-    unregister,
-    warning_unregister,
     activate_account,
     generate_token_account,
+    unregister,
+    warning_unregister,
 )
-from zds.member.views.password_recovery import forgot_password, new_password
-from zds.member.views.admin import settings_promote
 from zds.member.views.reports import CreateProfileReportView, SolveProfileReportView
-from zds.member.views.sessions import ListSessions, DeleteSession
-
+from zds.member.views.sessions import DeleteSession, ListSessions
 
 urlpatterns = [
     # list

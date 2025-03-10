@@ -1,20 +1,18 @@
-from copy import deepcopy
 import os
+from copy import deepcopy
 
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.core.management import call_command
 
+from zds.forum.tests.factories import Post, PostFactory, Topic, TopicFactory, create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
+from zds.search.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
-from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.tests.factories import create_category_and_forum
-from zds.search.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-
+from zds.tutorialv2.tests.factories import ContainerFactory, ExtractFactory, PublishableContentFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"

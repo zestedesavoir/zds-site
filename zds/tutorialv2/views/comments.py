@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import Http404, StreamingHttpResponse, HttpResponse
-from django.shortcuts import render, get_object_or_404, redirect
+from django.http import Http404, HttpResponse, StreamingHttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.datastructures import MultiValueDictKeyError
 from django.utils.decorators import method_decorator
@@ -17,11 +17,11 @@ from zds import json_handler
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.views import get_client_ip
 from zds.notification.models import ContentReactionAnswerSubscription
-from zds.tutorialv2.forms import NoteForm, NoteEditForm
-from zds.tutorialv2.mixins import SingleOnlineContentFormViewMixin, MustRedirect, SingleOnlineContentViewMixin
+from zds.tutorialv2.forms import NoteEditForm, NoteForm
+from zds.tutorialv2.mixins import MustRedirect, SingleOnlineContentFormViewMixin, SingleOnlineContentViewMixin
 from zds.tutorialv2.models.database import ContentReaction
 from zds.utils.misc import is_ajax
-from zds.utils.models import CommentEdit, get_hat_from_request, Alert
+from zds.utils.models import Alert, CommentEdit, get_hat_from_request
 
 
 class SendNoteFormView(LoggedWithReadWriteHability, SingleOnlineContentFormViewMixin):

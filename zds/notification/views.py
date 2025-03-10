@@ -1,20 +1,20 @@
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
-from django.utils.decorators import method_decorator
-from django.contrib import messages
-from django.views.decorators.http import require_POST
-from django.utils.translation import gettext_lazy as _
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
 
-from django.conf import settings
+from zds.forum.models import Post
+from zds.forum.models import mark_read as mark_topic_read
 from zds.mp.models import PrivateTopic
 from zds.notification.models import Notification
-from zds.utils.paginator import ZdSPagingListView
-from zds.forum.models import Post
 from zds.tutorialv2.models.database import ContentReaction
-from zds.forum.models import mark_read as mark_topic_read
 from zds.tutorialv2.utils import mark_read as mark_content_read
+from zds.utils.paginator import ZdSPagingListView
 
 
 class NotificationList(ZdSPagingListView):

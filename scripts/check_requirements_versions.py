@@ -1,7 +1,8 @@
 import re
+from pathlib import Path
+
 import requests
 from packaging import version
-from pathlib import Path
 
 print_red = lambda x: print("\33[91m", x, "\33[0m")
 print_green = lambda x: print("\33[92m", x, "\33[0m")

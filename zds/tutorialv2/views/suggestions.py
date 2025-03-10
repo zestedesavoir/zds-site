@@ -1,6 +1,6 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Field, Layout
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -10,10 +10,10 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 
+import zds.tutorialv2.signals as signals
 from zds.member.decorator import LoggedWithReadWriteHability, can_write_and_read_now
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import ContentSuggestion, PublishableContent
-import zds.tutorialv2.signals as signals
 
 
 class SearchSuggestionForm(forms.Form):

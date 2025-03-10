@@ -1,13 +1,12 @@
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Hidden, ButtonHolder, HTML
 from crispy_forms.bootstrap import StrictButton
-
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, ButtonHolder, Field, Hidden, Layout
 from django import forms
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from zds.mp.models import PrivateTopic
-from zds.mp.validators import ParticipantsStringValidator, TitleValidator, TextValidator
+from zds.mp.validators import ParticipantsStringValidator, TextValidator, TitleValidator
 from zds.utils.forms import CommonLayoutEditor
 
 

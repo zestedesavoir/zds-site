@@ -6,36 +6,24 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse, reverse_lazy
 from django.http import StreamingHttpResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
-from django.utils.translation import gettext_lazy as _
 from django.utils.translation import gettext as __
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import DetailView, UpdateView
 
 from zds.forum.models import Topic, TopicRead
 from zds.gallery.forms import ImageAsAvatarForm
 from zds.member import EMAIL_EDIT
-
-from zds.member.forms import (
-    ProfileForm,
-    ChangePasswordForm,
-    ChangeUserForm,
-    KarmaForm,
-    GitHubTokenForm,
-)
-from zds.member.models import (
-    Profile,
-    KarmaNote,
-    Ban,
-    NewEmailProvider,
-)
+from zds.member.forms import ChangePasswordForm, ChangeUserForm, GitHubTokenForm, KarmaForm, ProfileForm
+from zds.member.models import Ban, KarmaNote, NewEmailProvider, Profile
 from zds.member.utils import get_bot_account
-from zds.notification.models import TopicAnswerSubscription, NewPublicationSubscription
+from zds.notification.models import NewPublicationSubscription, TopicAnswerSubscription
 from zds.tutorialv2.models import CONTENT_TYPES
-from zds.tutorialv2.models.database import PublishedContent, ContentContribution, ContentReaction
+from zds.tutorialv2.models.database import ContentContribution, ContentReaction, PublishedContent
 from zds.utils.misc import is_ajax
 from zds.utils.templatetags.pluralize_fr import pluralize_fr
 

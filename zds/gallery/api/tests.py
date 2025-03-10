@@ -1,20 +1,19 @@
 import os
 from uuid import uuid4
 
+from django.conf import settings
 from django.core.cache import caches
 from django.urls import reverse
-from django.conf import settings
-
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APIClient, APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.api.utils import authenticate_oauth2_client
-from zds.gallery.tests.factories import UserGalleryFactory, GalleryFactory, ImageFactory
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, Image, GALLERY_READ
+from zds.gallery.models import GALLERY_READ, GALLERY_WRITE, Gallery, Image, UserGallery
+from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import PublishableContentFactory
 
 
 class GalleryListAPITest(APITestCase):

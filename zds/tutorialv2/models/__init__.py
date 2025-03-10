@@ -1,6 +1,5 @@
 from django.utils.translation import gettext_lazy as _
 
-
 CONTENT_TYPES = (
     # Configuration of content names
     # name                  Type ID (unique and uppercase)
