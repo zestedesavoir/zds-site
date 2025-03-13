@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load captureas %}
 {% load crispy_forms_tags %}
+{% load set %}
 
 {% if administration_actions.show_block %}
     <div class="mobile-menu-bloc mobile-all-links mobile-show-ico" data-title="Administration">
@@ -59,6 +60,24 @@
                     {% endif %}
                 </li>
                 {% crispy form_jsfiddle %}
+            {% endif %}
+
+            {% if administration_actions.show_content_reactions_lock %}
+                {% if content.is_locked %}
+                    {% trans "Déverrouiller les commentaires" as button_text %}
+                    {% set "unlock" as hidden_action %}
+                {% else %}
+                    {% trans "Verrouiller les commentaires" as button_text %}
+                    {% set "lock" as hidden_action %}
+                {% endif %}
+
+                <li>
+                    <form action="{% url 'content:lock-reactions' object.pk %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="{{ hidden_action }}">
+                        <button class="ico-after lock" type="submit">{{ button_text }}</button>
+                    </form>
+                </li>
             {% endif %}
         </ul>
     </div>
