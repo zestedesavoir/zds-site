@@ -14,8 +14,10 @@ from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     AskValidationForm,
     AcceptValidationForm,
+    DecideObsoleteForm,
     RejectValidationForm,
     CancelValidationForm,
+    ReportObsoleteForm,
     RevokeValidationForm,
     UnpublicationForm,
     WarnTypoForm,
@@ -107,6 +109,7 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_edit_goals"] = EditGoalsForm(self.object)
         context["form_edit_labels"] = EditLabelsForm(self.object)
         context["is_antispam"] = self.object.antispam(self.request.user)
+        context["form_report_obsolete"] = ReportObsoleteForm(self.object)
         return context
 
     def add_suggestions_context(self, context):

@@ -12,6 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, FormView
 
+from django_munin.munin.views import User
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.mp.models import mark_read, filter_reachable
@@ -30,7 +31,7 @@ from zds.tutorialv2.mixins import (
     SingleOnlineContentFormViewMixin,
     RequiresValidationViewMixin,
 )
-from zds.tutorialv2.models.database import Validation, PublishableContent
+from zds.tutorialv2.models.database import PotentialObsolete, Validation, PublishableContent
 from zds.tutorialv2.publication_utils import (
     publish_content,
     unpublish_content,
@@ -596,23 +597,86 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return super().form_valid(form)
 
 
-class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
-    permission_required = "tutorialv2.change_validation"
+class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "tutorialv2.change_publishablecontent"
 
     def get(self, request, *args, **kwargs):
-        raise Http404("Marquer un contenu comme obsolète n'est pas disponible en GET.")
+        raise Http404("Décider si un contenu est obsolète n'est pas disponible en GET.")
+
+    def post(self, request, *args, **kwargs):
+        report = get_object_or_404(PotentialObsolete, pk=kwargs["pk"])
+        content = report.publishable_content
+        if not content.in_public():
+            raise Http404
+        print(content)
+        decision = request.POST.get("decision_obsolete")
+        if decision == "True":
+            messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
+            PotentialObsolete.update_report_status(report.id, "traite")
+            content.is_obsolete = True
+            content.obsolete_justif = request.POST.get("text")
+
+            # Send MP to authors
+            bot = get_bot_account()
+            msg_pm = render_to_string(
+                "tutorialv2/messages/marquer_obsolete.md",
+                {
+                    "title": content.title,
+                    "url": content.get_absolute_url(),
+                    "reason": content.obsolete_justif,
+                },
+            )
+            recipients = filter_reachable(content.authors.all())
+            send_mp(
+                bot,
+                recipients,
+                "Votre contenu a été marqué comme obsolète",
+                "Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour.",
+                msg_pm,
+            )
+        else:
+            messages.info(request, _("Le signalement a été ignoré."))
+            PotentialObsolete.update_report_status(report.id, "ignore")
+        content.save()
+        return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "tutorialv2.change_publishablecontent"
+
+    def get(self, request, *args, **kwargs):
+        raise Http404("Signaler un contenu comme obsolète n'est pas disponible en GET.")
 
     def post(self, request, *args, **kwargs):
         content = get_object_or_404(PublishableContent, pk=kwargs["pk"])
         if not content.in_public():
             raise Http404
         if content.is_obsolete:
-            content.is_obsolete = False
-            messages.info(request, _("Le contenu n'est plus marqué comme obsolète."))
+            messages.info(request, _("Le contenu est déja marqué comme obsolète."))
         else:
-            content.is_obsolete = True
-            messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
-        content.save()
+            PotentialObsolete.create_report(
+                message=request.POST.get("text"), author=get_current_user(), publishable_content=content
+            )
+            messages.info(request, _("Le contenu a été signalé comme obsolète."))
+            # SEND MP TO STAFF
+            bot = get_bot_account()
+            report_interface_url = reverse("potentialobsolete-list")
+            msg_pm = render_to_string(
+                "tutorialv2/messages/obsolete_report_alert.md",
+                {
+                    "title": content.title,
+                    "url": content.get_absolute_url(),
+                    "report_interface_url": report_interface_url,
+                },
+            )
+            recipients = filter_reachable(User.objects.filter(is_staff=True))  # Staff members
+            send_mp(
+                bot,
+                recipients,
+                "Nouvelle alerte : Contenu signalé comme obsolète",
+                "Ce contenu a été signalé comme obsolète. Vérifiez le signalement et prenez une décision.",
+                msg_pm,
+            )
         return redirect(content.get_absolute_url_online())
 
 

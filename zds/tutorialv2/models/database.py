@@ -151,6 +151,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     js_support = models.BooleanField("Support du Javascript", default=False)
 
     is_obsolete = models.BooleanField("Est obsolète", default=False)
+    obsolete_justif = models.TextField("Justificatif d'obsolescence", null=True, blank=True)
 
     public_version = models.ForeignKey(
         "PublishedContent", verbose_name="Version publiée", blank=True, null=True, on_delete=models.SET_NULL
@@ -1566,6 +1567,70 @@ class ContentContribution(models.Model):
         return "<Contribution a '{}' par {} de type {}, #{}>".format(
             self.content.title, self.user.username, self.contribution_role.title, self.pk
         )
+
+
+class PotentialObsolete(models.Model):
+    """
+    This model stores the details of a report for potentially obsolete content, including:
+    - The report message,
+    - The author of the report,
+    - The date of the report,
+    - The link to a published content (PublishableContent),
+    - The status of the report, which can be "new", "processed", or "ignored".
+    """
+
+    message = models.TextField("Message")
+    author = models.ForeignKey(
+        User,
+        verbose_name="Author of the report",
+        related_name="obsolete_reports",
+        on_delete=models.CASCADE,
+    )
+    report_date = models.DateTimeField("Date du signalement", auto_now_add=True)
+    publishable_content = models.ForeignKey(
+        PublishableContent, verbose_name="Contenu publié", on_delete=models.CASCADE, related_name="obsolete_reports"
+    )
+
+    STATUS_CHOICES = (
+        ("nouveau", "Nouveau"),
+        ("traite", "Traité"),
+        ("ignore", "Ignoré"),
+    )
+    status = models.CharField("Statut", max_length=10, choices=STATUS_CHOICES, default="nouveau")
+
+    @classmethod
+    def create_report(cls, message, author, publishable_content):
+        """Creates a new report for potentially obsolete content."""
+        report = cls.objects.create(
+            message=message,
+            author=author,
+            publishable_content=publishable_content,
+            status="nouveau",  # Default to "new"
+        )
+        return report
+
+    @classmethod
+    def get_all_reports(cls):
+        """Returns all obsolete content reports."""
+        return cls.objects.all()
+
+    @classmethod
+    def get_reports_by_status(cls, status):
+        """Returns reports filtered by their status."""
+        return cls.objects.filter(status=status)
+
+    @classmethod
+    def get_reports_for_content(cls, publishable_content):
+        """Returns all reports related to a given PublishableContent instance."""
+        return cls.objects.filter(publishable_content=publishable_content)
+
+    @classmethod
+    def update_report_status(cls, report_id, new_status):
+        """Updates the status of a report."""
+        if new_status not in ["nouveau", "traite", "ignore"]:
+            raise ValueError("Invalid status provided.")
+        report = cls.objects.filter(id=report_id).update(status=new_status)
+        return report
 
 
 class ContentSuggestion(models.Model):

@@ -47,7 +47,7 @@ from zds.member.views.register import (
 )
 from zds.member.views.password_recovery import forgot_password, new_password
 from zds.member.views.admin import settings_promote
-from zds.member.views.reports import CreateProfileReportView, SolveProfileReportView
+from zds.member.views.reports import CreateProfileReportView, SolveProfileReportView, PotentialObsoleteListView
 from zds.member.views.sessions import ListSessions, DeleteSession
 
 
@@ -114,4 +114,5 @@ urlpatterns = [
     path("envoi_jeton/", generate_token_account, name="member-generate-token-account"),
     path("desinscrire/valider/", unregister, name="member-unregister"),
     path("desinscrire/avertissement/", warning_unregister, name="member-warning-unregister"),
+    path("potentialobsolete-list/", PotentialObsoleteListView.as_view(), name="potentialobsolete-list"),
 ]

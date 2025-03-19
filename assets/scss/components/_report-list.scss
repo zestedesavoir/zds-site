@@ -1,0 +1,69 @@
+/* Styles for the reports list */
+.report-list {
+    margin: 0;
+    padding: 0;
+
+    .report {
+      padding: $length-2;
+      border-bottom: $length-1 solid $grey-200;
+
+      // Title styles
+      .report-header {
+        .report-status {
+          font-weight: bold;
+          margin-right: $length-2;
+        }
+        h4 {
+          margin: 0;
+          font-size: $font-size-6;
+
+          a {
+            text-decoration: none;
+            color: $primary-400;
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+
+      // Body container with flex layout
+      .report-body {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: $length-2;
+
+        // Left column: status and justification text
+        .report-details {
+          display: flex;
+          align-items: flex-start;
+          font-size: $font-size-8;
+
+          .report-justification {
+            font-style: italic;
+            padding: $length-6 $length-8;
+            margin-left: $length-4;
+        }
+        }
+
+
+        // Right column: meta info (signal and date)
+        .report-meta {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          font-size: $font-size-10;
+          text-align: right;
+
+          .report-signal {
+            margin-bottom: $length-20;
+          }
+
+          .report-date {
+            color: $grey-500;
+          }
+        }
+      }
+    }
+  }

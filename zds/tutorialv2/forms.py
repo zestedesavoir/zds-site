@@ -1000,3 +1000,87 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_("Vous devez choisir des URL a comparer"))
         if len(urls) < 2:
             raise forms.ValidationError(_("Il faut au minimum 2 urls à comparer"))
+
+
+class ReportObsoleteForm(forms.Form):
+    text = forms.CharField(
+        label="",
+        required=True,
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi ce contenu est obsolète ?"), "rows": "4", "id": "confirm_text"}
+        ),
+    )
+
+    def __init__(self, obj, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse("validation:report-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_method = "post"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = "report-obsolete"
+
+        self.helper.layout = Layout(
+            Field("text"),
+            ButtonHolder(StrictButton(_("Confirmer"), type="submit", css_class="btn-submit")),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        text = cleaned_data.get("text")
+
+        if text is None or not text.strip():
+            self._errors["text"] = self.error_class([_("Merci de fournir une raison d'obsolescence.")])
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
+
+        elif len(text) < 3:
+            self._errors["text"] = self.error_class([_("Votre commentaire doit faire au moins 3 caractères.")])
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
+
+        return cleaned_data
+
+
+class DecideObsoleteForm(forms.Form):
+    text = forms.CharField(
+        label=_("La justification d'obsolescence : "),
+        required=True,
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi ce contenu est obsolète ?"), "rows": "4", "id": "confirm_text"}
+        ),
+    )
+
+    decision_obsolete = forms.ChoiceField(
+        label=_("Le contenu est effectivement obsolète ?"),
+        choices=[(True, _("Oui")), (False, _("Non"))],
+        widget=forms.RadioSelect,
+        required=True,
+    )
+
+    def __init__(self, obj, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.obj = obj  # Store obj instance to ensure uniqueness
+        self.fields["text"].initial = obj.message  # Now correctly assigns the unique message
+        self.helper = FormHelper()
+        self.helper.form_action = reverse("validation:decide-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_method = "post"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = f"decide-obsolete-{obj.pk}"  # Unique form ID per object
+
+        self.helper.layout = Layout(
+            Field("text"),
+            Field("decision_obsolete"),
+            ButtonHolder(StrictButton(_("Confirmer"), type="submit", css_class="btn-submit")),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        text = cleaned_data.get("text")
+
+        if text is None or not text.strip():
+            self.add_error("text", _("Merci de fournir une raison d'obsolescence."))
+        elif len(text) < 3:
+            self.add_error("text", _("Votre commentaire doit faire au moins 3 caractères."))
+
+        return cleaned_data
