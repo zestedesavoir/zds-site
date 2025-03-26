@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load date %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% trans "Signalements des contenus obsolètes" %}
+{% endblock %}
+
+{% block breadcrumb %}
+    <li>{% trans "Signalements des contenus obsolètes" %}</li>
+{% endblock %}
+
+{% block headline %}
+    {% trans "Signalements des contenus obsolètes" %}
+{% endblock %}
+
+{% block content %}
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if reports %}
+    <div class="report-list navigable-list">
+        {% for report in reports %}
+          <div class="report navigation-elem {% if report.status == 'nouveau' %}unread{% endif %}">
+            <div class="report-header">
+              <span class="report-status">{{ report.get_status_display }}</span>
+              <h4>
+                <a href="{{ report.publishable_content.get_absolute_url }}" class="navigable-link" title="{{ report.publishable_content.title }}">
+                  {{ report.publishable_content.title }}
+                </a>
+              </h4>
+            </div>
+            <div class="report-body">
+              <div class="report-details">
+                <p>Justification fourni par {% include "misc/member_item.part.html" with member=report.author %} :</p>
+                <p class="report-justification">"{{ report.message }}"</p>
+              </div>
+              <div class="report-meta">
+                <span class="report-date">{{ report.report_date|format_date:True|capfirst }}</span>
+              </div>
+
+              <a href="#decide-obsolete-{{ report.pk }}" class="open-modal btn btn-submit">{% trans "Décider" %}</a>
+                  {% with forms_decide_obsolete|get_item:report.pk as form %}
+                    {% if form %}
+                      <div id="decide-obsolete-{{ report.pk }}">
+                      {% crispy form %}
+                      </div>
+                    {% endif %}
+                  {% endwith %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+        {% trans "Aucun signalement potentiel d'obsolescence." %}
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}
