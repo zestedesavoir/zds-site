@@ -56,8 +56,8 @@ class SolveProfileReportView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class PotentialObsoleteListView(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     """
-    Displays a paginated list of potential obsolete reports.
-    Only accessible to logged-in users.
+    Displays a paginated list of reports of potential obsolete contents.
+    Only accessible to staff members.
     """
 
     permission_required = "tutorialv2.change_publishablecontent"
