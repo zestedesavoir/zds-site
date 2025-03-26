@@ -630,8 +630,8 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             send_mp(
                 bot,
                 recipients,
-                "Votre contenu a été marqué comme obsolète",
-                "Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour.",
+                _("Votre contenu a été marqué comme obsolète"),
+                _("Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour."),
                 msg_pm,
             )
         else:
@@ -673,8 +673,8 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             send_mp(
                 bot,
                 recipients,
-                "Nouvelle alerte : Contenu signalé comme obsolète",
-                "Ce contenu a été signalé comme obsolète. Vérifiez le signalement et prenez une décision.",
+                _("Nouvelle alerte : Contenu signalé comme obsolète"),
+                _("Ce contenu a été signalé comme obsolète. Vérifiez le signalement et prenez une décision."),
                 msg_pm,
             )
         return redirect(content.get_absolute_url_online())

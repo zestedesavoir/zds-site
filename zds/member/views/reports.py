@@ -56,8 +56,8 @@ class SolveProfileReportView(LoginRequiredMixin, PermissionRequiredMixin, View):
 
 class PotentialObsoleteContentListView(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     """
-    Displays a paginated list of potential obsolete reports.
-    Only accessible to logged-in users.
+    Displays a paginated list of reports of potential obsolete contents.
+    Only accessible to staff members.
     """
 
     permission_required = "tutorialv2.change_publishablecontent"
@@ -69,7 +69,7 @@ class PotentialObsoleteContentListView(LoginRequiredMixin, PermissionRequiredMix
 
     def get_queryset(self):
         """Customize the queryset to order by report_date (most recent first)."""
-        return PotentialObsolete.objects.all().order_by(self.ordering)
+        return PotentialObsolete.objects.all().select_related("published_content").order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
