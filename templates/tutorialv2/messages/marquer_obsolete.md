@@ -11,5 +11,5 @@ Votre contenu « [{{ title }}]({{ url }}) » a été marqué comme obsolète.
 {% endblocktrans %}
 
 {% blocktrans %}
-Merci pour votre contribution au site !
+Si vous en avez la possibilité, pourriez-vous mettre à jour votre contenu ?
 {% endblocktrans %}
