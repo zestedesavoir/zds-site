@@ -1584,7 +1584,9 @@ class PotentialObsolete(models.Model):
         User,
         verbose_name="L’auteur du signalement",
         related_name="obsolete_reports",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     report_date = models.DateTimeField("Date du signalement", auto_now_add=True)
     publishable_content = models.ForeignKey(
@@ -1627,7 +1629,7 @@ class PotentialObsolete(models.Model):
     @classmethod
     def update_report_status(cls, report_id, new_status):
         """Updates the status of a report."""
-        if new_status not in STATE_CHOICES:
+        if new_status not in STATUS_CHOICES:
             raise ValueError("Invalid status provided.")
         report = cls.objects.filter(id=report_id).update(status=new_status)
         return report

@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, FormView
 
-from django_munin.munin.views import User
+from django.contrib.auth.models import User
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.mp.models import mark_read, filter_reachable
