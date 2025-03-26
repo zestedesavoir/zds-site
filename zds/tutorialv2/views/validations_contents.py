@@ -658,7 +658,7 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 message=request.POST.get("text"), author=get_current_user(), publishable_content=content
             )
             messages.info(request, _("Le contenu a été signalé comme obsolète."))
-            # SEND MP TO STAFF
+            # Send MP to staff
             bot = get_bot_account()
             report_interface_url = reverse("potentialobsolete-list")
             msg_pm = render_to_string(

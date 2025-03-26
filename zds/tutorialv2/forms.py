@@ -1002,7 +1002,7 @@ class ContentCompareStatsURLForm(forms.Form):
             raise forms.ValidationError(_("Il faut au minimum 2 urls à comparer"))
 
 
-class ReportObsoleteForm(forms.Form):
+class ReportObsoleteContentForm(forms.Form):
     text = forms.CharField(
         label="",
         required=True,
@@ -1033,7 +1033,6 @@ class ReportObsoleteForm(forms.Form):
             self._errors["text"] = self.error_class([_("Merci de fournir une raison d'obsolescence.")])
             if "text" in cleaned_data:
                 del cleaned_data["text"]
-
         elif len(text) < 3:
             self._errors["text"] = self.error_class([_("Votre commentaire doit faire au moins 3 caractères.")])
             if "text" in cleaned_data:
@@ -1080,7 +1079,11 @@ class DecideObsoleteForm(forms.Form):
 
         if text is None or not text.strip():
             self.add_error("text", _("Merci de fournir une raison d'obsolescence."))
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
         elif len(text) < 3:
             self.add_error("text", _("Votre commentaire doit faire au moins 3 caractères."))
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
 
         return cleaned_data

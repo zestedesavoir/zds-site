@@ -54,7 +54,7 @@ class SolveProfileReportView(LoginRequiredMixin, PermissionRequiredMixin, View):
         return redirect(alert.profile.get_absolute_url())
 
 
-class PotentialObsoleteListView(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
+class PotentialObsoleteContentListView(LoginRequiredMixin, PermissionRequiredMixin, ZdSPagingListView):
     """
     Displays a paginated list of potential obsolete reports.
     Only accessible to logged-in users.
@@ -62,10 +62,10 @@ class PotentialObsoleteListView(LoginRequiredMixin, PermissionRequiredMixin, ZdS
 
     permission_required = "tutorialv2.change_publishablecontent"
     model = PotentialObsolete
-    template_name = "member/potentialobsolete_list.html"  # Ensure this template exists
+    template_name = "tutorialv2/list_page_elements/potentialobsolete_list.html"
     context_object_name = "reports"
     ordering = "-report_date"
-    paginate_by = 10  # Enable pagination
+    paginate_by = 10
 
     def get_queryset(self):
         """Customize the queryset to order by report_date (most recent first)."""
