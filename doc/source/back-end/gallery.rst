@@ -121,7 +121,7 @@ Chaque galerie (classe ``Gallery``) est stockée en base de données avec son ti
 
 Une image (classe ``Image``) est renseignée en base de données avec son titre, sa légende, un lien vers la galerie qui la contient, son *slug* et un lien *physique* vers le fichier image (ainsi que la date de création et de dernière modification).
 
-Les images sont stockées dans le dossier renseigné par la variable ``MEDIA_URL`` (dans le fichier ``settings.py``), dans un sous-dossier dont le nom correspond au ``pk`` de la galerie. C'est la librairie `easy_thumbnails <https://github.com/SmileyChris/easy-thumbnails>`_ qui gère la génération des miniatures correspondantes aux images uploadées, à la demande du *back*.
+Les images sont stockées dans le dossier renseigné par la variable ``MEDIA_URL`` (dans le fichier ``zds/settings/abstract_base/django.py``), dans un sous-dossier dont le nom correspond au ``pk`` de la galerie. C'est la bibliothèque `easy_thumbnails <https://github.com/SmileyChris/easy-thumbnails>`_ qui gère la génération des miniatures correspondantes aux images uploadées, à la demande du *back-end*.
 
 Outils logiciels utilisés
 =========================
