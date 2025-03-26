@@ -4,30 +4,6 @@ from zds.member.models import Profile
 from unittest.mock import patch
 from zds.utils.spam_detector import SpamDetector
 
-"""class SpamDetectorTestCase(TestCase):
-
-    @patch('zds.utils.spam_detector.SpamDetector.send_alert')  #To avoid sending the actual alert
-    def test_check_profile_no_bio(self, mock_send_alert):
-        # Create a user profile
-        self.user = User.objects.create_user(username="testuser1", password="password")
-        self.profile = Profile.objects.create(user=self.user)
-
-        self.spam_detector = SpamDetector()
-        #User without a biography
-        self.profile.biography = ""
-
-        # Appeler la méthode qui devrait vérifier la biographie de l'utilisateur
-        self.spam_detector.check_profile(self.profile)
-
-        # Vérifier que l'alerte n'a pas été envoyée
-        mock_send_alert.assert_not_called()
-
-        # Vérifier le message de log
-        with self.assertLogs(self.spam_detector.logger, level='INFO') as log:
-            self.spam_detector.check_profile(self.profile)
-            self.assertIn("∅  testuser has no biography", log.output)
-"""
-
 
 class SpamDetectorTestCase(TestCase):
 
