@@ -630,8 +630,8 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             send_mp(
                 bot,
                 recipients,
-                "Votre contenu a été marqué comme obsolète",
-                "Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour.",
+                _("Votre contenu a été marqué comme obsolète"),
+                _("Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour."),
                 msg_pm,
             )
         else:
