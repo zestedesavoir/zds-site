@@ -673,8 +673,8 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             send_mp(
                 bot,
                 recipients,
-                "Nouvelle alerte : Contenu signalé comme obsolète",
-                "Ce contenu a été signalé comme obsolète. Vérifiez le signalement et prenez une décision.",
+                _("Nouvelle alerte : Contenu signalé comme obsolète"),
+                _("Ce contenu a été signalé comme obsolète. Vérifiez le signalement et prenez une décision."),
                 msg_pm,
             )
         return redirect(content.get_absolute_url_online())
