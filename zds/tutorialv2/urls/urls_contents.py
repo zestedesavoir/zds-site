@@ -1,6 +1,7 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
+from zds.member.views.reports import PotentialObsoleteContentListView
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contents import (
@@ -18,7 +19,7 @@ from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
 from zds.tutorialv2.views.licence import EditContentLicense
-from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
+from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent, DecideObsolete, ReportObsolete
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
     EditContainer,
@@ -265,5 +266,8 @@ urlpatterns = (
         # Label-based classification
         path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
         path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
+        path("signaler-obsolete/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete"),
+        path("decider-obsolete/<int:pk>/", DecideObsolete.as_view(), name="decide-obsolete"),
+        path("potentialobsolete-list/", PotentialObsoleteContentListView.as_view(), name="potentialobsolete-list"),
     ]
 )

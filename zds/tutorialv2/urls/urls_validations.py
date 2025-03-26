@@ -1,8 +1,6 @@
 from django.urls import path
 from zds.tutorialv2.views.validations_contents import (
     AskValidationForContent,
-    DecideObsolete,
-    ReportObsolete,
     ReserveValidation,
     ValidationHistoryView,
     AcceptValidation,
@@ -40,8 +38,6 @@ urlpatterns = [
     path("retirer/<int:pk>/<slug:slug>/", UnpickOpinion.as_view(), name="unpick-opinion"),
     path("promouvoir/<int:pk>/<slug:slug>/", PromoteOpinionToArticle.as_view(), name="promote-opinion"),
     # VALIDATION VIEWS FOR STAFF
-    path("signaler-obsolete/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete"),
-    path("decider-obsolete/<int:pk>/", DecideObsolete.as_view(), name="decide-obsolete"),
     path("billets/", ValidationOpinionListView.as_view(), name="list-opinion"),
     path("", ValidationListView.as_view(), name="list"),
 ]
