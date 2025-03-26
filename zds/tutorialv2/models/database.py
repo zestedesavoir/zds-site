@@ -1571,18 +1571,18 @@ class ContentContribution(models.Model):
 
 class PotentialObsolete(models.Model):
     """
-    This model stores the details of a report for potentially obsolete content, including:
-    - The report message,
-    - The author of the report,
-    - The date of the report,
-    - The link to a published content (PublishableContent),
-    - The status of the report, which can be "new", "processed", or "ignored".
+    Ce modèle stocke les détails d’un signalement pour un contenu potentiellement obsolète, y compris :
+    - Le message du signalement,
+    - L’auteur du signalement,
+    - La date du signalement,
+    - Le lien vers un contenu publié (PublishableContent),
+    - Le statut du signalement, qui peut être "nouveau", "traité" ou "ignoré".
     """
 
     message = models.TextField("Message")
     author = models.ForeignKey(
         User,
-        verbose_name="Author of the report",
+        verbose_name="L’auteur du signalement",
         related_name="obsolete_reports",
         on_delete=models.CASCADE,
     )
@@ -1627,7 +1627,7 @@ class PotentialObsolete(models.Model):
     @classmethod
     def update_report_status(cls, report_id, new_status):
         """Updates the status of a report."""
-        if new_status not in ["nouveau", "traite", "ignore"]:
+        if new_status not in STATE_CHOICES:
             raise ValueError("Invalid status provided.")
         report = cls.objects.filter(id=report_id).update(status=new_status)
         return report

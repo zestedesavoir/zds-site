@@ -1,7 +1,6 @@
 from django.urls import path
 from django.views.generic.base import RedirectView
 
-from zds.member.views.reports import PotentialObsoleteContentListView
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contents import (
@@ -12,6 +11,7 @@ from zds.tutorialv2.views.contents import (
     EditIntroductionView,
     EditConclusionView,
 )
+from zds.tutorialv2.views.report_obsolete import PotentialObsoleteContentListView
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.display.container import ContainerValidationView
 from zds.tutorialv2.views.display.content import ContentValidationView
@@ -266,8 +266,8 @@ urlpatterns = (
         # Label-based classification
         path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
         path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
-        path("signaler-obsolete/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete"),
+        path("report-obsolete/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete"),
         path("decider-obsolete/<int:pk>/", DecideObsolete.as_view(), name="decide-obsolete"),
-        path("potentialobsolete-list/", PotentialObsoleteContentListView.as_view(), name="potentialobsolete-list"),
+        path("obsolete/", PotentialObsoleteContentListView.as_view(), name="obsolete"),
     ]
 )

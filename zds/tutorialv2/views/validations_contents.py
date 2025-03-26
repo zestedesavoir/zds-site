@@ -610,7 +610,6 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             raise Http404
         decision = request.POST.get("decision_obsolete")
         if decision == "True":
-            messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
             PotentialObsolete.update_report_status(report.id, "traite")
             content.is_obsolete = True
             content.obsolete_justif = request.POST.get("text")
@@ -618,7 +617,7 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             # Send MP to authors
             bot = get_bot_account()
             msg_pm = render_to_string(
-                "tutorialv2/messages/marquer_obsolete.md",
+                "tutorialv2/messages/marked_obsolete_alert.md",
                 {
                     "title": content.title,
                     "url": content.get_absolute_url(),
@@ -633,6 +632,7 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 _("Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour."),
                 msg_pm,
             )
+            messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
         else:
             messages.info(request, _("Le signalement a été ignoré."))
             PotentialObsolete.update_report_status(report.id, "ignore")
@@ -659,7 +659,7 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             messages.info(request, _("Le contenu a été signalé comme obsolète."))
             # Send MP to staff
             bot = get_bot_account()
-            report_interface_url = reverse("potentialobsolete-list")
+            report_interface_url = reverse("obsolete")
             msg_pm = render_to_string(
                 "tutorialv2/messages/obsolete_report_alert.md",
                 {
