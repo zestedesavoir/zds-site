@@ -608,7 +608,6 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         content = report.publishable_content
         if not content.in_public():
             raise Http404
-        print(content)
         decision = request.POST.get("decision_obsolete")
         if decision == "True":
             messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
