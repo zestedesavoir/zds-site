@@ -69,7 +69,7 @@ class PotentialObsoleteListView(LoginRequiredMixin, PermissionRequiredMixin, ZdS
 
     def get_queryset(self):
         """Customize the queryset to order by report_date (most recent first)."""
-        return PotentialObsolete.objects.all().order_by(self.ordering)
+        return PotentialObsolete.objects.all().select_related("published_content").order_by(self.ordering)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
