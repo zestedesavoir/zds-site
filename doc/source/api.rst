@@ -54,7 +54,7 @@ Les autres verbes ne sont pas supportés.
 Les formats d'entrées/sorties
 -----------------------------
 
-Par défaut, le serveur renvoie les réponses au format ``JSON``. Les `formats de sortie (en) <http://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``settings.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
+Par défaut, le serveur renvoie les réponses au format ``JSON``. Les `formats de sortie (en) <http://www.django-rest-framework.org/api-guide/renderers/>`_ sont renseignés dans le fichier ``zds/settings/abstract_base/django.py`` sous l'attribut ``DEFAULT_RENDERER_CLASSES`` du dictionnaire ``REST_FRAMEWORK``. Pour Django Rest Framework, tous les formats de sorties sont des ``renderer``.
 
 .. sourcecode:: python
 
