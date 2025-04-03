@@ -28,3 +28,24 @@ Disallow: /tutoriels/epub/
 Disallow: /tutoriels/md/
 Disallow: /tutoriels/tex/
 Disallow: /tutoriels/zip/
+
+User-Agent: Amazonbot
+User-agent: anthropic-ai
+User-Agent: Applebot-Extended
+User-Agent: Bytespider
+User-Agent: CCBot
+User-Agent: ChatGPT-User
+User-Agent: Claude-Web
+User-Agent: ClaudeBot
+User-Agent: diffbot
+User-Agent: Facebookbot
+User-agent: Google-CloudVertexBot
+User-agent: Google-Extended
+User-Agent: GPTBot
+User-Agent: ImagesiftBot
+User-Agent: Meta-ExternalAgent
+User-Agent: Omgili
+User-Agent: Omgilibot
+User-Agent: PerplexityBot
+User-Agent: Youbot
+Disallow: /
