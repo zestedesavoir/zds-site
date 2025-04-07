@@ -171,6 +171,13 @@ class Profile(models.Model):
         """
         return self.get_user_contents_queryset(_type).filter(sha_validation__isnull=False)
 
+    def get_user_obsolete_contents(self, _type=None):
+        """
+        :param _type: if provided, request a specific type of content
+        :return: Queryset of contents in validation with this user as author.
+        """
+        return self.get_user_contents_queryset(_type).filter(obsolete_justif__isnull=False)
+
     def get_user_beta_contents_queryset(self, _type=None):
         """
         :param _type: if provided, request a specific type of content

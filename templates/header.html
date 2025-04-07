@@ -412,6 +412,12 @@
                             {% endwith %}
                         {% endif %}
 
+                        {% if perms.tutorialv2.change_publishablecontent %}
+                            <li class="staff-only">
+                                <a href="{% url "potentialobsolete-list" %}">{% trans "Signalements des contenus obsolètes" %}</a>
+                            </li>
+                        {% endif %}
+
                         {% if perms.utils.change_hat %}
                             {% with requested_hats_count=user|requested_hats_count %}
                                 <li class="staff-only">
