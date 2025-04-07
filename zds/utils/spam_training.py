@@ -3,24 +3,23 @@ from sklearn.svm import LinearSVC
 from pprint import pprint
 import json
 import os
+import factory
+from factory.fuzzy import FuzzyText
 
 # Data importation
 
 _bio = []
 _can_read = []
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-json_path = os.path.join(current_dir, "spamdata.json")
+spam_bibliographies = [f"spam {FuzzyText(prefix='spammy').fuzz()} buy now free money!!!" for n in range(50)]
 
-with open(json_path) as f:
-    _data = json.load(f)
+non_spam_bibliographies = [
+    f"correct {FuzzyText(prefix='normal').fuzz()} about my professional interests" for n in range(50)
+]
 
-for _elem in _data:
-    if not _elem["biography"]:
-        continue
 
-    _bio.append(_elem["biography"])
-    _can_read.append(1 if _elem["can_read"] else 0)
+_bio = spam_bibliographies + non_spam_bibliographies
+_can_read = [0] * len(spam_bibliographies) + [1] * len(non_spam_bibliographies)
 
 _limit = int(round(len(_bio) * 0.8))
 

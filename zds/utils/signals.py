@@ -5,17 +5,7 @@ from django.apps import apps
 import logging
 import os
 
-# Logger Setup
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.ERROR)
-current_dir = os.path.dirname(os.path.abspath(__file__))
-log_file = os.path.join(current_dir, "spam_signals.log")
-
-# File Handler
-handler = logging.FileHandler(log_file)
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-handler.setFormatter(formatter)
 
 # arguments: instance, user, by_email
 ping = Signal()

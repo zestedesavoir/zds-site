@@ -7,6 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from zds.utils.models import Alert
 from zds.member.models import Profile
 from django.contrib.auth.models import User
+import factory
+from factory.fuzzy import FuzzyText
 
 
 class SpamDetector:
@@ -26,11 +28,6 @@ class SpamDetector:
 
         current_dir = os.path.dirname(os.path.abspath(__file__))
         log_file = os.path.join(current_dir, "spam_detector.log")
-
-        handler = logging.FileHandler(log_file, mode="a")
-        formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        handler.setFormatter(formatter)
-        self.logger.addHandler(handler)
 
     def check_profile(self, profile):
         """
