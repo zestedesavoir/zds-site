@@ -1,6 +1,6 @@
 {% load i18n %}
 
-{% blocktrans with title=title|safe url=url |safe reason=reason %}
+{% blocktrans with title=title url=url reason=reason %}
 Bonjour,
 
 Votre contenu « [{{ title }}]({{ url }}) » a été marqué comme obsolète avec la précision suivante :

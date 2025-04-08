@@ -1503,6 +1503,12 @@ STATE_CHOICES = [
     ("FAILURE", _("Export échoué")),
 ]
 
+REPORT_STATUS = (
+    ("nouveau", "Nouveau"),
+    ("traite", "Traité"),
+    ("ignore", "Ignoré"),
+)
+
 
 class PublicationEvent(models.Model):
     class Meta:
@@ -1593,12 +1599,7 @@ class PotentialObsolete(models.Model):
         PublishableContent, verbose_name="Contenu publié", on_delete=models.CASCADE, related_name="obsolete_reports"
     )
 
-    STATUS_CHOICES = (
-        ("nouveau", "Nouveau"),
-        ("traite", "Traité"),
-        ("ignore", "Ignoré"),
-    )
-    status = models.CharField("Statut", max_length=10, choices=STATUS_CHOICES, default="nouveau")
+    status = models.CharField("Statut", max_length=10, choices=REPORT_STATUS, default="nouveau")
 
     @classmethod
     def create_report(cls, message, author, publishable_content):
@@ -1629,7 +1630,9 @@ class PotentialObsolete(models.Model):
     @classmethod
     def update_report_status(cls, report_id, new_status):
         """Updates the status of a report."""
-        if new_status not in STATUS_CHOICES:
+        if new_status not in [code for code, _ in REPORT_STATUS]:
+            print("given : ", new_status)
+            print("possible : ", REPORT_STATUS)
             raise ValueError("Invalid status provided.")
         report = cls.objects.filter(id=report_id).update(status=new_status)
         return report

@@ -609,6 +609,9 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         if not content.in_public():
             raise Http404
         decision = request.POST.get("decision_obsolete")
+        print("this is report id : ", report.id)
+        print("this is justif : ", request.POST.get("text"))
+
         if decision == "True":
             PotentialObsolete.update_report_status(report.id, "traite")
             content.is_obsolete = True
