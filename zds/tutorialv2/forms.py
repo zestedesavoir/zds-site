@@ -1014,7 +1014,7 @@ class ReportObsoleteContentForm(forms.Form):
     def __init__(self, obj, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse("validation:report-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_action = reverse("content:report-obsolete", kwargs={"pk": obj.pk})
         self.helper.form_method = "post"
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = "report-obsolete"
@@ -1062,7 +1062,7 @@ class DecideObsoleteForm(forms.Form):
         self.obj = obj  # Store obj instance to ensure uniqueness
         self.fields["text"].initial = obj.message  # Now correctly assigns the unique message
         self.helper = FormHelper()
-        self.helper.form_action = reverse("validation:decide-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_action = reverse("content:decide-obsolete", kwargs={"pk": obj.pk})
         self.helper.form_method = "post"
         self.helper.form_class = "modal modal-flex"
         self.helper.form_id = f"decide-obsolete-{obj.pk}"  # Unique form ID per object
