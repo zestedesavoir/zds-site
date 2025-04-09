@@ -5,7 +5,9 @@
 
 # load nvm
 function load_nvm {
-    export NVM_DIR="$HOME/.nvm"
+    if [ -z "$NVM_DIR" ]; then
+      export NVM_DIR="$HOME/.nvm"
+    fi
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 }
 
@@ -201,7 +203,7 @@ if ! $(_in "--force-skip-activating" $@) && [[ ( $VIRTUAL_ENV == "" || $(realpat
 
     print_info "* activating venv \`$ZDS_VENV\`"
 
-    if [ -d $HOME/.nvm ]; then # load nvm, in case of
+    if [ -n "$NVM_DIR" ] || [ -d $HOME/.nvm ]; then # load nvm, in case of
         load_nvm
     fi
 
