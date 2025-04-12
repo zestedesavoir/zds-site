@@ -414,7 +414,7 @@
 
                         {% if perms.tutorialv2.change_publishablecontent %}
                             <li class="staff-only">
-                                <a href="{% url "potentialobsolete-list" %}">{% trans "Signalements des contenus obsolètes" %}</a>
+                                <a href="{% url "content:obsolete" %}">{% trans "Signalements des contenus obsolètes" %}</a>
                             </li>
                         {% endif %}
 
