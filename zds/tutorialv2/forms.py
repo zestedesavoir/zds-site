@@ -1087,3 +1087,62 @@ class DecideObsoleteForm(forms.Form):
                 del cleaned_data["text"]
 
         return cleaned_data
+
+
+class MarkObsoleteContentForm(forms.Form):
+    text = forms.CharField(
+        label="",
+        required=True,
+        widget=forms.Textarea(
+            attrs={"placeholder": _("Pourquoi ce contenu est obsolète ?"), "rows": "4", "id": "confirm_text"}
+        ),
+    )
+
+    def __init__(self, obj, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse("content:mark-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_method = "post"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = "mark-obsolete"
+
+        self.helper.layout = Layout(
+            Field("text"),
+            ButtonHolder(StrictButton(_("Confirmer"), type="submit", css_class="btn-submit")),
+        )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        text = cleaned_data.get("text")
+
+        if text is None or not text.strip():
+            self._errors["text"] = self.error_class([_("Merci de fournir une raison d'obsolescence.")])
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
+        elif len(text) < 3:
+            self._errors["text"] = self.error_class([_("Votre commentaire doit faire au moins 3 caractères.")])
+            if "text" in cleaned_data:
+                del cleaned_data["text"]
+
+        return cleaned_data
+
+
+class UnMarkObsoleteContentForm(forms.Form):
+
+    def __init__(self, obj, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_action = reverse("content:unmark-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_method = "post"
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = "unmark-obsolete"
+
+        self.helper.layout = Layout(
+            HTML(
+                "<p><strong>{}</strong></p>".format(
+                    _("Êtes-vous sûr de vouloir retirer la marque d'obsolescence de ce contenu&nbsp;?")
+                )
+            ),
+            ButtonHolder(StrictButton(_("Oui"), type="submit", css_class="btn-submit")),
+        )

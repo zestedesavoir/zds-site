@@ -75,9 +75,18 @@
             {% endif %}
 
             {% if perms.tutorialv2.change_validation %}
-                <li>
-                    <a href="#report-obsolete" class="open-modal ico-after alert blue">{% trans "Signaler comme obsolète" %}</a>
-                    {% crispy form_report_obsolete %}
+               <li>
+                            {% if is_obsolete %}
+                                <a href="#unmark-obsolete" class="open-modal ico-after alert blue">
+                                    {% trans "Marquer comme non obsolète" %}
+                                </a>
+                                {% crispy form_unmark_obsolete %}
+                            {% else %}
+                                <a href="#mark-obsolete" class="open-modal ico-after alert blue">
+                                {% trans "Marquer comme obsolète" %}
+                                </a>
+                                {% crispy form_mark_obsolete %}
+                            {% endif %}
                 </li>
             {% endif %}
 

@@ -15,10 +15,12 @@ from zds.tutorialv2.forms import (
     AskValidationForm,
     AcceptValidationForm,
     DecideObsoleteForm,
+    MarkObsoleteContentForm,
     RejectValidationForm,
     CancelValidationForm,
     ReportObsoleteContentForm,
     RevokeValidationForm,
+    UnMarkObsoleteContentForm,
     UnpublicationForm,
     WarnTypoForm,
     JsFiddleActivationForm,
@@ -110,6 +112,8 @@ class ContentBaseView(SingleContentDetailViewMixin):
         context["form_edit_labels"] = EditLabelsForm(self.object)
         context["is_antispam"] = self.object.antispam(self.request.user)
         context["form_report_obsolete"] = ReportObsoleteContentForm(self.object)
+        context["form_mark_obsolete"] = MarkObsoleteContentForm(self.object)
+        context["form_unmark_obsolete"] = UnMarkObsoleteContentForm(self.object)
         return context
 
     def add_suggestions_context(self, context):

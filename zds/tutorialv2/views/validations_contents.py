@@ -597,6 +597,28 @@ class RevokeValidation(LoginRequiredMixin, PermissionRequiredMixin, SingleOnline
         return super().form_valid(form)
 
 
+class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
+    permission_required = "tutorialv2.change_validation"
+
+    def get(self, request, *args, **kwargs):
+        raise Http404("Marquer un contenu comme obsolète n'est pas disponible en GET.")
+
+    def post(self, request, *args, **kwargs):
+        content = get_object_or_404(PublishableContent, pk=kwargs["pk"])
+        if not content.in_public():
+            raise Http404
+        if content.is_obsolete:
+            content.is_obsolete = False
+            content.obsolete_justif = None
+            messages.info(request, _("Le contenu n'est plus marqué comme obsolète."))
+        else:
+            content.is_obsolete = True
+            content.obsolete_justif = request.POST.get("text")
+            messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
+        content.save()
+        return redirect(content.get_absolute_url_online())
+
+
 class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     permission_required = "tutorialv2.change_publishablecontent"
 
@@ -609,8 +631,6 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         if not content.in_public():
             raise Http404
         decision = request.POST.get("decision_obsolete")
-        print("this is report id : ", report.id)
-        print("this is justif : ", request.POST.get("text"))
 
         if decision == "True":
             PotentialObsolete.update_report_status(report.id, "traite")
