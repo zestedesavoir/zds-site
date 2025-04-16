@@ -16,6 +16,7 @@ from django.contrib.auth.models import User
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.mp.models import mark_read, filter_reachable
+from zds.search.utils import SearchIndexManager
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     AskValidationForm,
@@ -616,6 +617,12 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             content.obsolete_justif = request.POST.get("text")
             messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
         content.save()
+
+        # Trigger re indexing
+        manager = SearchIndexManager()
+        for pub in content.publishedcontent_set.all():
+            manager.indexing_of_model(pub.__class__, force_reindexing=True, verbose=False)
+
         return redirect(content.get_absolute_url_online())
 
 

@@ -1044,6 +1044,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             {"name": "description", "type": "string", "facet": False, "optional": True},  # we search on it
             {"name": "get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False, "optional": True},
+            {"name": "obsolete_justif", "type": "string", "facet": False, "optional": True},
             {"name": "weight", "type": "float"},  # we sort on it
         ]
 
@@ -1138,7 +1139,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         is_multipage = versioned.has_sub_containers()
         data["weight"] = self._get_search_weight(is_multipage)
-
+        data["obsolete_justif"] = self.content.obsolete_justif
         return data
 
     def _get_search_weight(self, is_multipage: bool):
@@ -1268,6 +1269,7 @@ class FakeChapter(AbstractSearchIndexable):
             {"name": "get_absolute_url_online", "type": "string", "index": False},
             {"name": "parent_get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False},
+            {"name": "obsolete_justif", "type": "string", "facet": False, "optional": True},
             {"name": "weight", "type": "float", "facet": False},  # we sort on it
         ]
 
@@ -1282,7 +1284,6 @@ class FakeChapter(AbstractSearchIndexable):
         data["parent_publication_date"] = date_to_timestamp_int(self.parent_publication_date)
         data["weight"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
         data["text"] = clean_html(self.text)
-
         return data
 
     @classmethod
