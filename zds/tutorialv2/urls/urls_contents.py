@@ -19,7 +19,12 @@ from zds.tutorialv2.views.events import EventsList
 from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
 from zds.tutorialv2.views.licence import EditContentLicense
-from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent, DecideObsolete, ReportObsolete
+from zds.tutorialv2.views.validations_contents import (
+    ActivateJSFiddleInContent,
+    DecideObsolete,
+    MarkObsolete,
+    ReportObsolete,
+)
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
     EditContainer,
@@ -266,6 +271,8 @@ urlpatterns = (
         # Label-based classification
         path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
         path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
+        path("marquer-obsolete/<int:pk>/", MarkObsolete.as_view(), name="mark-obsolete"),
+        path("retirer-obsolete/<int:pk>/", MarkObsolete.as_view(), name="unmark-obsolete"),
         path("report-obsolete/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete"),
         path("decider-obsolete/<int:pk>/", DecideObsolete.as_view(), name="decide-obsolete"),
         path("obsolete/", PotentialObsoleteContentListView.as_view(), name="obsolete"),
