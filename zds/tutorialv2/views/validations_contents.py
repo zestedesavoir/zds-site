@@ -608,13 +608,29 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         content = get_object_or_404(PublishableContent, pk=kwargs["pk"])
         if not content.in_public():
             raise Http404
-        if content.is_obsolete:
-            content.is_obsolete = False
+        if bool(content.obsolete_justif):
             content.obsolete_justif = None
             messages.info(request, _("Le contenu n'est plus marqué comme obsolète."))
         else:
-            content.is_obsolete = True
             content.obsolete_justif = request.POST.get("text")
+            # Send MP to authors
+            bot = get_bot_account()
+            msg_pm = render_to_string(
+                "tutorialv2/messages/marked_obsolete_alert.md",
+                {
+                    "title": content.title,
+                    "url": content.get_absolute_url(),
+                    "reason": content.obsolete_justif,
+                },
+            )
+            recipients = filter_reachable(content.authors.all())
+            send_mp(
+                bot,
+                recipients,
+                _("Votre contenu a été marqué comme obsolète"),
+                _("Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour."),
+                msg_pm,
+            )
             messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
         content.save()
 
@@ -641,7 +657,6 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
         if decision == "True":
             PotentialObsolete.update_report_status(report.id, "traite")
-            content.is_obsolete = True
             content.obsolete_justif = request.POST.get("text")
 
             # Send MP to authors
@@ -663,10 +678,17 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 msg_pm,
             )
             messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
+            print("THis is normally should be executed")
+            content.save()
+            # Trigger re indexing
+            manager = SearchIndexManager()
+            for pub in content.publishedcontent_set.all():
+                manager.indexing_of_model(pub.__class__, force_reindexing=True, verbose=False)
         else:
             messages.info(request, _("Le signalement a été ignoré."))
             PotentialObsolete.update_report_status(report.id, "ignore")
-        content.save()
+            content.save()
+
         return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
@@ -680,7 +702,7 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         content = get_object_or_404(PublishableContent, pk=kwargs["pk"])
         if not content.in_public():
             raise Http404
-        if content.is_obsolete:
+        if bool(content.obsolete_justif):
             messages.info(request, _("Le contenu est déja marqué comme obsolète."))
         else:
             PotentialObsolete.create_report(

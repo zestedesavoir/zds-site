@@ -673,7 +673,6 @@ def save_validation_state(
     db_object.public_version = published
     if is_major or not is_update or db_object.pubdate is None:
         db_object.pubdate = datetime.now()
-        db_object.is_obsolete = False
 
     # close beta if is an article
     close_article_beta(db_object, versioned, user=user, request=request)
