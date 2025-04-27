@@ -622,7 +622,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         self.assertEqual(FeaturedRequested.objects.count(), 2)
 
         # set tutorial as obsolete: cannot toggle
-        tutorial.is_obsolete = True
+        tutorial.obsolete_justif = True
         tutorial.save()
 
         response = self.client.post(

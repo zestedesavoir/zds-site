@@ -423,7 +423,7 @@ class SingleOnlineContentDetailViewMixin(SingleOnlineContentViewMixin, DetailVie
         context = super().get_context_data(**kwargs)
 
         context["content"] = self.versioned_object
-        context["is_obsolete"] = self.object.is_obsolete
+        context["is_obsolete"] = bool(self.object.obsolete_justif)
         context["public_object"] = self.public_content_object
         context["can_edit"] = self.request.user in self.object.authors.all()
         context["is_staff"] = self.is_staff

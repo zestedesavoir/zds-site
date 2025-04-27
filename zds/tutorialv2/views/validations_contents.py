@@ -608,12 +608,10 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         content = get_object_or_404(PublishableContent, pk=kwargs["pk"])
         if not content.in_public():
             raise Http404
-        if content.is_obsolete:
-            content.is_obsolete = False
+        if bool(content.obsolete_justif):
             content.obsolete_justif = None
             messages.info(request, _("Le contenu n'est plus marqué comme obsolète."))
         else:
-            content.is_obsolete = True
             content.obsolete_justif = request.POST.get("text")
             # Send MP to authors
             bot = get_bot_account()
@@ -659,7 +657,6 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
         if decision == "True":
             PotentialObsolete.update_report_status(report.id, "traite")
-            content.is_obsolete = True
             content.obsolete_justif = request.POST.get("text")
 
             # Send MP to authors
@@ -705,7 +702,7 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         content = get_object_or_404(PublishableContent, pk=kwargs["pk"])
         if not content.in_public():
             raise Http404
-        if content.is_obsolete:
+        if bool(content.obsolete_justif):
             messages.info(request, _("Le contenu est déja marqué comme obsolète."))
         else:
             PotentialObsolete.create_report(
