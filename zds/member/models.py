@@ -174,9 +174,11 @@ class Profile(models.Model):
     def get_user_obsolete_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
-        :return: Queryset of contents in validation with this user as author.
+        :return: Queryset of contents with obsolete_justif NULL or blank.
         """
-        return self.get_user_contents_queryset(_type).filter(obsolete_justif__isnull=False)
+        return self.get_user_contents_queryset(_type).filter(
+            obsolete_justif__isnull=True
+        ) | self.get_user_contents_queryset(_type).filter(obsolete_justif="")
 
     def get_user_beta_contents_queryset(self, _type=None):
         """

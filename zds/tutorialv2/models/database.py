@@ -1613,21 +1613,6 @@ class PotentialObsolete(models.Model):
         return report
 
     @classmethod
-    def get_all_reports(cls):
-        """Returns all obsolete content reports."""
-        return cls.objects.all()
-
-    @classmethod
-    def get_reports_by_status(cls, status):
-        """Returns reports filtered by their status."""
-        return cls.objects.filter(status=status)
-
-    @classmethod
-    def get_reports_for_content(cls, publishable_content):
-        """Returns all reports related to a given PublishableContent instance."""
-        return cls.objects.filter(publishable_content=publishable_content)
-
-    @classmethod
     def update_report_status(cls, report_id, new_status):
         """Updates the status of a report."""
         if new_status not in [code for code, _ in REPORT_STATUS]:

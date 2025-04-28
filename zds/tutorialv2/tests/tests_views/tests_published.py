@@ -1571,34 +1571,44 @@ class PublishedContentTests(TutorialTestMixin, TestCase):
         self.assertTrue(beta_topic.is_locked)
         self.assertEqual(beta_topic.last_message, last_message)
 
-    def test_obsolete(self):
-        # check that this function is only available for staff
+    def test_mark_and_unmark_obsolete(self):
+        # 1. Check that marking obsolete is forbidden for normal user
         self.client.force_login(self.user_author)
-        result = self.client.post(reverse("validation:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
-        self.assertEqual(result.status_code, 403)
-        # login as staff
+        response = self.client.post(reverse("content:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
+        self.assertEqual(response.status_code, 403)
+
+        # 2. Login as staff
         self.client.force_login(self.user_staff)
-        # check that when the content is not marked as obsolete, the alert is not shown
-        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
-        self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, _("Ce contenu est obsolète."))
-        # now, let's mark the tutoriel as obsolete
-        result = self.client.post(reverse("validation:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
-        self.assertEqual(result.status_code, 302)
-        # check that the alert is shown
-        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
-        self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _("Ce contenu est obsolète."))
-        # and on a chapter
-        result = self.client.get(self.chapter1.get_absolute_url_online(), follow=False)
-        self.assertEqual(result.status_code, 200)
-        self.assertContains(result, _("Ce contenu est obsolète."))
-        # finally, check that this alert can be hidden
-        result = self.client.post(reverse("validation:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
-        self.assertEqual(result.status_code, 302)
-        result = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
-        self.assertEqual(result.status_code, 200)
-        self.assertNotContains(result, _("Ce contenu est obsolète."))
+
+        # 3. Check that at first the content is not marked obsolete
+        response = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Ce contenu est obsolète."))
+
+        # 4. Mark the tutorial as obsolete
+        response = self.client.post(
+            reverse("content:mark-obsolete", kwargs={"pk": self.tuto.pk}), {"text": "Obsolete reason"}, follow=False
+        )
+        self.assertEqual(response.status_code, 302)  # redirected
+
+        # 5. Now it should show the obsolete message
+        response = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Ce contenu est obsolète."))
+
+        # 6. Also on a chapter
+        response = self.client.get(self.chapter1.get_absolute_url_online(), follow=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, _("Ce contenu est obsolète."))
+
+        # 7. Now unmark the tutorial as obsolete
+        response = self.client.post(reverse("content:mark-obsolete", kwargs={"pk": self.tuto.pk}), follow=False)
+        self.assertEqual(response.status_code, 302)
+
+        # 8. Check that the obsolete message disappears
+        response = self.client.get(self.tuto.get_absolute_url_online(), follow=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, _("Ce contenu est obsolète."))
 
     def test_list_publications(self):
         """Test the behavior of the publication list"""

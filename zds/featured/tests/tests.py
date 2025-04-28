@@ -622,7 +622,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         self.assertEqual(FeaturedRequested.objects.count(), 2)
 
         # set tutorial as obsolete: cannot toggle
-        tutorial.obsolete_justif = True
+        tutorial.obsolete_justif = "Obsolete justification"
         tutorial.save()
 
         response = self.client.post(
@@ -637,7 +637,7 @@ class FeaturedRequestToggleTest(TutorialTestMixin, TestCase):
         self.assertIn(author.user, r.users_voted.all())
 
         # reject tutorial proposition
-        tutorial.is_obsolete = False  # can vote again
+        tutorial.obsolete_justif = ""  # can vote again
         tutorial.save()
 
         r = FeaturedRequested.objects.get(pk=r.pk)
