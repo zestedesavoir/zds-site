@@ -5,6 +5,7 @@ import logging
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -176,9 +177,7 @@ class Profile(models.Model):
         :param _type: if provided, request a specific type of content
         :return: Queryset of contents with obsolete_justif NULL or blank.
         """
-        return self.get_user_contents_queryset(_type).filter(
-            obsolete_justif__isnull=True
-        ) | self.get_user_contents_queryset(_type).filter(obsolete_justif="")
+        return self.get_user_contents_queryset(_type).filter(Q(obsolete_justif__isnull=False) & ~Q(obsolete_justif=""))
 
     def get_user_beta_contents_queryset(self, _type=None):
         """

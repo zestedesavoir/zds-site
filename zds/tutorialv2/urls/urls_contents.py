@@ -271,6 +271,7 @@ urlpatterns = (
         # Label-based classification
         path("modifier-labels/<int:pk>/", EditLabels.as_view(), name="edit-labels"),
         path("labels/<slug:slug>/", ViewContentsByLabel.as_view(), name="view-labels"),
+        # Obsolete content management
         path("marquer-obsolete/<int:pk>/", MarkObsolete.as_view(), name="mark-obsolete"),
         path("retirer-obsolete/<int:pk>/", MarkObsolete.as_view(), name="unmark-obsolete"),
         path("report-obsolete/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete"),

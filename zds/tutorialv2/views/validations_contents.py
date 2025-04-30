@@ -634,11 +634,6 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
         content.save()
 
-        # Trigger re indexing
-        manager = SearchIndexManager()
-        for pub in content.publishedcontent_set.all():
-            manager.indexing_of_model(pub.__class__, force_reindexing=True, verbose=False)
-
         return redirect(content.get_absolute_url_online())
 
 
@@ -678,12 +673,7 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 msg_pm,
             )
             messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
-            print("THis is normally should be executed")
             content.save()
-            # Trigger re indexing
-            manager = SearchIndexManager()
-            for pub in content.publishedcontent_set.all():
-                manager.indexing_of_model(pub.__class__, force_reindexing=True, verbose=False)
         else:
             messages.info(request, _("Le signalement a été ignoré."))
             PotentialObsolete.update_report_status(report.id, "ignore")

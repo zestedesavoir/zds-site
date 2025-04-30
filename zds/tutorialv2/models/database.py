@@ -1616,8 +1616,6 @@ class PotentialObsolete(models.Model):
     def update_report_status(cls, report_id, new_status):
         """Updates the status of a report."""
         if new_status not in [code for code, _ in REPORT_STATUS]:
-            print("given : ", new_status)
-            print("possible : ", REPORT_STATUS)
             raise ValueError("Invalid status provided.")
         report = cls.objects.filter(id=report_id).update(status=new_status)
         return report
