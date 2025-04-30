@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="publishablecontent",
             name="obsolete_justif",
-            field=models.TextField(blank=True, null=True, verbose_name="Justificatif d'obsolescence"),
+            field=models.TextField(blank=True, null=True, verbose_name="Justification d'obsolescence"),
         ),
         migrations.CreateModel(
             name="PotentialObsolete",

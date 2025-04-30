@@ -213,7 +213,7 @@ class OnlineState:
         self.enabled = enabled
         self.user_is_authenticated = user.is_authenticated
         self.requires_validation = content.requires_validation()
-        self.is_obsolete = bool(content.obsolete_justif)
+        self.is_obsolete = bool(content.obsolete_reason)
 
     def show_dcmi_card(self) -> bool:
         return self.enabled

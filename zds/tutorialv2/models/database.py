@@ -150,7 +150,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     is_locked = models.BooleanField("Est verrouillé", default=False)
     js_support = models.BooleanField("Support du Javascript", default=False)
 
-    obsolete_justif = models.TextField("Justificatif d'obsolescence", null=True, blank=True)
+    obsolete_reason = models.TextField("Justification d'obsolescence", null=True, blank=True)
 
     public_version = models.ForeignKey(
         "PublishedContent", verbose_name="Version publiée", blank=True, null=True, on_delete=models.SET_NULL
@@ -1043,7 +1043,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             {"name": "description", "type": "string", "facet": False, "optional": True},  # we search on it
             {"name": "get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False, "optional": True},
-            {"name": "obsolete_justif", "type": "string", "facet": False, "optional": True},
+            {"name": "is_obsolete", "type": "bool", "facet": False, "optional": True},
             {"name": "weight", "type": "float"},  # we sort on it
         ]
 
@@ -1138,7 +1138,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         is_multipage = versioned.has_sub_containers()
         data["weight"] = self._get_search_weight(is_multipage)
-        data["obsolete_justif"] = self.content.obsolete_justif
+        data["is_obsolete"] = bool(self.content.obsolete_reason)
         return data
 
     def _get_search_weight(self, is_multipage: bool):
@@ -1268,7 +1268,7 @@ class FakeChapter(AbstractSearchIndexable):
             {"name": "get_absolute_url_online", "type": "string", "index": False},
             {"name": "parent_get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False},
-            {"name": "obsolete_justif", "type": "string", "facet": False, "optional": True},
+            {"name": "is_obsolete", "type": "bool", "facet": False, "optional": True},
             {"name": "weight", "type": "float", "facet": False},  # we sort on it
         ]
 
@@ -1600,17 +1600,6 @@ class PotentialObsolete(models.Model):
     )
 
     status = models.CharField("Statut", max_length=10, choices=REPORT_STATUS, default="nouveau")
-
-    @classmethod
-    def create_report(cls, message, author, publishable_content):
-        """Creates a new report for potentially obsolete content."""
-        report = cls.objects.create(
-            message=message,
-            author=author,
-            publishable_content=publishable_content,
-            status="nouveau",  # Default to "new"
-        )
-        return report
 
     @classmethod
     def update_report_status(cls, report_id, new_status):

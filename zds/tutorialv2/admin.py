@@ -18,8 +18,8 @@ from zds.tutorialv2.models.help_requests import HelpWriting
 
 
 class PublishableContentAdmin(admin.ModelAdmin):
-    list_display = ("type", "title", "creation_date", "update_date", "obsolete_justif")
-    list_filter = ("type", "licence", "is_locked", "js_support", "obsolete_justif")
+    list_display = ("type", "title", "creation_date", "update_date", "obsolete_reason")
+    list_filter = ("type", "licence", "is_locked", "js_support", "obsolete_reason")
     ordering = ("-update_date", "-creation_date")
     raw_id_fields = ("authors", "tags", "image", "gallery", "beta_topic", "last_note", "public_version")
     search_fields = (

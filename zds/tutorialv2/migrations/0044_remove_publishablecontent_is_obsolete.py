@@ -5,7 +5,7 @@ from django.db import migrations
 
 def update_obsolete_justif(apps, schema_editor):
     PublishableContent = apps.get_model("tutorialv2", "PublishableContent")
-    PublishableContent.objects.filter(is_obsolete=True).update(obsolete_justif="Contenu obsolète.")
+    PublishableContent.objects.filter(is_obsolete=True).update(obsolete_reason="Contenu obsolète.")
 
 
 class Migration(migrations.Migration):

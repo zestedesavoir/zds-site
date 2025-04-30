@@ -25,7 +25,7 @@ class RequestFeaturedContent(LoggedWithReadWriteHability, FeatureableMixin, Sing
 
     def featured_request_allowed(self):
         """Featured request is not allowed on obsolete content and opinions"""
-        return self.object.type != "OPINION" and not bool(self.object.obsolete_justif)
+        return self.object.type != "OPINION" and not bool(self.object.obsolete_reason)
 
     def post(self, request, *args, **kwargs):
         self.public_content_object = self.get_public_object()

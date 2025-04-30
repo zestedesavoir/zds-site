@@ -15,7 +15,7 @@ class PotentialObsoleteModelTests(TestCase):
         self.content = PublishableContentFactory()
 
     def test_create_report_sets_fields_and_defaults(self):
-        report = PotentialObsolete.create_report(
+        report = PotentialObsolete.objects.create(
             message="Outdated info", author=self.author, publishable_content=self.content
         )
 
@@ -31,7 +31,7 @@ class PotentialObsoleteModelTests(TestCase):
         self.assertIsNotNone(report.report_date)
 
     def test_update_report_status_valid(self):
-        report = PotentialObsolete.create_report(
+        report = PotentialObsolete.objects.create(
             message="Check this", author=self.author, publishable_content=self.content
         )
 
@@ -48,7 +48,7 @@ class PotentialObsoleteModelTests(TestCase):
         self.assertEqual(report.status, new_status)
 
     def test_update_report_status_invalid_raises(self):
-        report = PotentialObsolete.create_report(
+        report = PotentialObsolete.objects.create(
             message="Invalid status test", author=self.author, publishable_content=self.content
         )
 

@@ -175,9 +175,9 @@ class Profile(models.Model):
     def get_user_obsolete_contents(self, _type=None):
         """
         :param _type: if provided, request a specific type of content
-        :return: Queryset of contents with obsolete_justif NULL or blank.
+        :return: Queryset of contents with obsolete_reason NULL or blank.
         """
-        return self.get_user_contents_queryset(_type).filter(Q(obsolete_justif__isnull=False) & ~Q(obsolete_justif=""))
+        return self.get_user_contents_queryset(_type).filter(Q(obsolete_justif__isnull=False) & ~Q(obsolete_reason=""))
 
     def get_user_beta_contents_queryset(self, _type=None):
         """

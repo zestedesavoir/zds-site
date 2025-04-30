@@ -611,7 +611,7 @@ class Post(Comment, AbstractSearchIndexableModel):
             {"name": "pubdate", "type": "int64", "index": False},
             {"name": "get_absolute_url", "type": "string", "index": False},
             {"name": "forum_get_absolute_url", "type": "string", "index": False},
-            {"name": "obsolete_justif", "type": "string", "facet": False, "optional": True},
+            {"name": "is_obsolete", "type": "bool", "facet": False, "optional": True},
             {"name": "weight", "type": "float", "facet": False},  # we sort on it
         ]
 
