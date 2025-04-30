@@ -16,11 +16,11 @@
         {% crispy form_warn_typo %}
         <a href="#report-obsolete" class="open-modal btn btn-grey ico-after edit blue">
             {% if not container %}
-                {% trans "Signaler une obselescence dans cette publication" %}
+                {% trans "Signaler une obsolescence dans cette publication" %}
             {% elif container.is_chapter %}
-                {% trans "Signaler une obselescence dans ce chapitre" %}
+                {% trans "Signaler une obsolescence dans ce chapitre" %}
             {% else %}
-                {% trans "Signaler une obselescence dans cette partie" %}
+                {% trans "Signaler une obsolescence dans cette partie" %}
             {% endif %}
         </a>
 
