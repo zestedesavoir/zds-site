@@ -1,11 +1,13 @@
 import datetime
+
 from django.conf import settings
 from django.test import TestCase
+
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.tests.factories import PublishedContentFactory
-from zds.utils.misc import contains_utf8mb4, check_essential_accounts, remove_utf8mb4
-from zds.utils.models import Alert
 from zds.utils.context_processor import get_header_notifications
+from zds.utils.misc import check_essential_accounts, contains_utf8mb4, remove_utf8mb4
+from zds.utils.models import Alert
 
 
 class Misc(TestCase):

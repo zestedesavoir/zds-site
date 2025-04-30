@@ -2,17 +2,17 @@ import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from django.http import QueryDict
 from dry_rest_permissions.generics import DRYPermissions
-from rest_framework import status, exceptions, filters
+from rest_framework import exceptions, filters, status
 from rest_framework.generics import (
-    RetrieveUpdateDestroyAPIView,
     DestroyAPIView,
-    ListCreateAPIView,
-    get_object_or_404,
-    RetrieveUpdateAPIView,
     ListAPIView,
+    ListCreateAPIView,
+    RetrieveUpdateAPIView,
+    RetrieveUpdateDestroyAPIView,
+    get_object_or_404,
 )
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -22,24 +22,24 @@ from rest_framework_extensions.key_constructor import bits
 from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
 
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
-from zds.api.key_constructor import PagingListKeyConstructor, DetailKeyConstructor
+from zds.api.key_constructor import DetailKeyConstructor, PagingListKeyConstructor
 from zds.mp.api.permissions import (
+    IsAuthor,
+    IsLastPrivatePostOfCurrentUser,
+    IsNotAloneInPrivatePost,
     IsParticipant,
     IsParticipantFromPrivatePost,
-    IsLastPrivatePostOfCurrentUser,
-    IsAuthor,
-    IsNotAloneInPrivatePost,
 )
 from zds.mp.api.serializers import (
-    PrivateTopicSerializer,
-    PrivateTopicUpdateSerializer,
-    PrivateTopicCreateSerializer,
-    PrivatePostSerializer,
     PrivatePostActionSerializer,
     PrivatePostKarmaSerializer,
+    PrivatePostSerializer,
+    PrivateTopicCreateSerializer,
+    PrivateTopicSerializer,
+    PrivateTopicUpdateSerializer,
 )
 from zds.mp.commons import LeavePrivateTopic
-from zds.mp.models import PrivateTopic, PrivatePost, mark_read
+from zds.mp.models import PrivatePost, PrivateTopic, mark_read
 from zds.notification.models import Notification
 
 

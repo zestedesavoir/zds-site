@@ -1,11 +1,11 @@
-from django.test import TestCase
-from django.db import IntegrityError, transaction
 from django.contrib.auth.models import Group
+from django.db import IntegrityError, transaction
+from django.test import TestCase
 
 from zds.member.models import Profile
 from zds.member.tests.factories import ProfileFactory
 from zds.utils.forms import TagValidator
-from zds.utils.models import Tag, Hat
+from zds.utils.models import Hat, Tag
 
 
 class TagsTests(TestCase):

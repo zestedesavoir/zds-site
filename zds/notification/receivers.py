@@ -1,31 +1,31 @@
-from functools import wraps
 import inspect
 import logging
+from functools import wraps
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import DatabaseError
-from django.db.models.signals import post_save, m2m_changed, pre_delete
+from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver
 
-from zds.forum.models import Topic, Post, Forum
 import zds.forum.signals as forum_signals
-from zds.mp.models import PrivateTopic, PrivatePost
 import zds.mp.signals as mp_signals
-from zds.notification.models import (
-    TopicAnswerSubscription,
-    ContentReactionAnswerSubscription,
-    PrivateTopicAnswerSubscription,
-    Subscription,
-    Notification,
-    NewTopicSubscription,
-    NewPublicationSubscription,
-    PingSubscription,
-)
 import zds.notification.signals as notification_signals
-from zds.tutorialv2.models.database import PublishableContent, ContentReaction
 import zds.tutorialv2.signals as tuto_signals
 import zds.utils.signals as utils_signals
+from zds.forum.models import Forum, Post, Topic
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.notification.models import (
+    ContentReactionAnswerSubscription,
+    NewPublicationSubscription,
+    NewTopicSubscription,
+    Notification,
+    PingSubscription,
+    PrivateTopicAnswerSubscription,
+    Subscription,
+    TopicAnswerSubscription,
+)
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.utils.models import Tag
 
 logger = logging.getLogger(__name__)

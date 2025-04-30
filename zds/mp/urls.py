@@ -2,16 +2,16 @@ from django.urls import path
 from django.views.generic.base import RedirectView
 
 from zds.mp.views import (
-    PrivateTopicList,
-    PrivatePostList,
-    PrivateTopicNew,
-    PrivateTopicAddParticipant,
-    PrivateTopicLeaveDetail,
-    PrivateTopicLeaveList,
     PrivatePostAnswer,
     PrivatePostEdit,
+    PrivatePostList,
     PrivatePostUnread,
+    PrivateTopicAddParticipant,
     PrivateTopicEdit,
+    PrivateTopicLeaveDetail,
+    PrivateTopicLeaveList,
+    PrivateTopicList,
+    PrivateTopicNew,
 )
 
 app_name = "mp"

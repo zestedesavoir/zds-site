@@ -4,13 +4,12 @@ import shutil
 import tempfile
 import zipfile
 
-from PIL import Image as ImagePIL
-from easy_thumbnails.files import get_thumbnailer
-
 from django.conf import settings
+from easy_thumbnails.files import get_thumbnailer
+from PIL import Image as ImagePIL
 from svglib.svglib import load_svg_file
 
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
+from zds.gallery.models import GALLERY_READ, GALLERY_WRITE, Gallery, Image, UserGallery
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.uuslug_wrapper import slugify
 

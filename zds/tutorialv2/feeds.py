@@ -5,10 +5,10 @@ from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 from pytz import AmbiguousTimeError, NonExistentTimeError
 
-from zds.utils.feeds import DropControlCharsRss201rev2Feed, DropControlCharsAtom1Feed
+from zds.tutorialv2.models.database import PublishedContent
+from zds.utils.feeds import DropControlCharsAtom1Feed, DropControlCharsRss201rev2Feed
 from zds.utils.models import Category, SubCategory, Tag
 from zds.utils.uuslug_wrapper import slugify
-from zds.tutorialv2.models.database import PublishedContent
 
 
 class LastContentFeedRSS(Feed):

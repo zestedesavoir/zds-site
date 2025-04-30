@@ -1,6 +1,7 @@
 from django.test import TestCase
-from zds.utils.templatetags.french_typography import french_typography
 from django.utils.safestring import mark_safe
+
+from zds.utils.templatetags.french_typography import french_typography
 
 
 class FrenchTypographyTests(TestCase):

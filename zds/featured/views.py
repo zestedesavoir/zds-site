@@ -1,19 +1,19 @@
 from datetime import datetime
 
-from django.contrib import messages
-from django.db.models import Count
-from django.urls import reverse
-from django.shortcuts import redirect
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.utils.translation import gettext as _
-from django.views.generic import CreateView, RedirectView, UpdateView, FormView, DeleteView
-from django.views.generic.list import MultipleObjectMixin
-from django.http import HttpResponse
-
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.db.models import Count
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.urls import reverse
+from django.utils.translation import gettext as _
+from django.views.generic import CreateView, DeleteView, FormView, RedirectView, UpdateView
+from django.views.generic.list import MultipleObjectMixin
+
 from zds import json_handler
-from zds.featured.forms import FeaturedResourceForm, FeaturedMessageForm
-from zds.featured.models import FeaturedResource, FeaturedMessage, FeaturedRequested, FEATUREABLES
+from zds.featured.forms import FeaturedMessageForm, FeaturedResourceForm
+from zds.featured.models import FEATUREABLES, FeaturedMessage, FeaturedRequested, FeaturedResource
 from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.paginator import ZdSPagingListView

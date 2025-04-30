@@ -1,32 +1,28 @@
-from datetime import datetime
+import logging
 import os
 import string
 import uuid
-import logging
+from datetime import datetime
 
 from django.conf import settings
-
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
+from django.db import models
+from django.dispatch import receiver
+from django.shortcuts import get_object_or_404
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import smart_str
-from django.db import models
-from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
-from django.dispatch import receiver
-from django.template.loader import render_to_string
+from model_utils.managers import InheritanceManager
 
 from zds.member.utils import get_bot_account
-from zds.utils import signals
 from zds.mp.models import PrivateTopic
-from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
 from zds.mp.utils import send_mp
-from zds.utils import old_slugify
+from zds.tutorialv2.models import TYPE_CHOICES, TYPE_CHOICES_DICT
+from zds.utils import old_slugify, signals
 from zds.utils.misc import contains_utf8mb4
 from zds.utils.templatetags.emarkdown import render_markdown
 from zds.utils.uuslug_wrapper import uuslug
-
-from model_utils.managers import InheritanceManager
-
 
 logger = logging.getLogger(__name__)
 

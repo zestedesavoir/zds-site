@@ -10,21 +10,22 @@ from os import makedirs, path
 from pathlib import Path
 
 import requests
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import date
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
+
+from zds.forum.utils import lock_topic, send_post
 from zds.tutorialv2 import signals
 from zds.tutorialv2.epub_utils import build_ebook
-from zds.tutorialv2.models.database import ContentReaction, PublishedContent, PublicationEvent
+from zds.tutorialv2.models.database import ContentReaction, PublicationEvent, PublishedContent
 from zds.tutorialv2.publish_container import publish_use_manifest
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import export_content
-from zds.forum.utils import send_post, lock_topic
 from zds.utils.templatetags.emarkdown import render_markdown
-from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
+from zds.utils.templatetags.smileys_def import LICENSES_BASE_PATH, SMILEYS_BASE_PATH
 
 logger = logging.getLogger(__name__)
 licences = {

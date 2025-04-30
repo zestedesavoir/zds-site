@@ -1,5 +1,5 @@
-from uuslug import uuslug as uuslug_uuslug
 from uuslug import slugify as uuslug_slugify
+from uuslug import uuslug as uuslug_uuslug
 
 
 def wrapper(text):

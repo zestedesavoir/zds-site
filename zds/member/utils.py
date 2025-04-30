@@ -1,4 +1,3 @@
-from geoip2.errors import AddressNotFoundError
 import logging
 
 from django.conf import settings
@@ -7,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.gis.geoip2 import GeoIP2, GeoIP2Exception
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from geoip2.errors import AddressNotFoundError
 from social_django.middleware import SocialAuthExceptionMiddleware
 from ua_parser import user_agent_parser
 

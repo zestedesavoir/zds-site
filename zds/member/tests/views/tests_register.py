@@ -3,28 +3,26 @@ from datetime import datetime
 from smtplib import SMTPException
 from unittest.mock import Mock
 
-from oauth2_provider.models import AccessToken, Application
-
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core import mail
 from django.core.mail.backends.base import BaseEmailBackend
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils.html import escape
-from django.test import TestCase, override_settings
+from oauth2_provider.models import AccessToken, Application
 
-from zds.member.tests.factories import ProfileFactory, UserFactory, StaffProfileFactory
-from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.member.models import KarmaNote, NewEmailProvider
+from zds.forum.models import Post, Topic
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.gallery.models import Gallery, UserGallery
+from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
+from zds.member.models import Ban, KarmaNote, NewEmailProvider, TokenRegister
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import PrivatePost, PrivateTopic
-from zds.member.models import TokenRegister, Ban
-from zds.tutorialv2.tests.factories import PublishableContentFactory, PublishedContentFactory, BetaContentFactory
+from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.forum.models import Topic, Post
-from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
-from zds.gallery.models import Gallery, UserGallery
+from zds.tutorialv2.tests.factories import BetaContentFactory, PublishableContentFactory, PublishedContentFactory
 from zds.utils.models import CommentVote
 
 

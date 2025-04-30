@@ -7,18 +7,18 @@ from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.models import Topic, Forum, mark_read
+from zds.forum.models import Forum, Topic, mark_read
+from zds.forum.utils import create_topic, lock_topic, send_post, unlock_topic
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.mp.models import filter_reachable
+from zds.mp.utils import send_message_mp, send_mp
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import BetaForm
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
-from zds.forum.utils import create_topic, send_post, lock_topic, unlock_topic
 from zds.utils.models import get_hat_from_settings
-from zds.mp.utils import send_mp, send_message_mp
 
 
 class ManageBetaContent(LoggedWithReadWriteHability, SingleContentFormViewMixin):

@@ -1,6 +1,6 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, HTML, Field
+from crispy_forms.layout import HTML, Field, Layout
 from django import forms
 from django.contrib import messages
 from django.shortcuts import redirect
@@ -12,7 +12,6 @@ from zds.tutorialv2 import signals as signals
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils import get_current_user
-
 from zds.utils.forms import TagValidator
 
 

@@ -1,13 +1,12 @@
 import random
 
-from django import forms
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Field, Layout
+from django import forms
+from django.conf import settings
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 
 class SearchForm(forms.Form):

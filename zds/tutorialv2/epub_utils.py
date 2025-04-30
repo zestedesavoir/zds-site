@@ -4,13 +4,14 @@ import os
 import re
 import shutil
 from collections import namedtuple
-from urllib import parse
 from os import path
-from bs4 import BeautifulSoup
 from pathlib import Path
 from shutil import copy
-from django.template.loader import render_to_string
+from urllib import parse
+
+from bs4 import BeautifulSoup
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from zds.tutorialv2.publish_container import publish_container
 from zds.utils import old_slugify

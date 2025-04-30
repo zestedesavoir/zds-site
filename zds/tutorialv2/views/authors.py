@@ -1,6 +1,6 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Field, Layout
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -10,16 +10,15 @@ from django.urls import reverse
 from django.utils.text import format_lazy
 from django.utils.translation import gettext_lazy as _
 
-from zds.gallery.models import UserGallery, GALLERY_WRITE
+from zds.gallery.models import GALLERY_WRITE, UserGallery
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.models import Profile
 from zds.member.utils import get_bot_account
 from zds.mp.models import is_reachable
+from zds.mp.utils import send_mp
 from zds.tutorialv2 import signals
-
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.utils.models import get_hat_from_settings
-from zds.mp.utils import send_mp
 
 
 class AuthorForm(forms.Form):

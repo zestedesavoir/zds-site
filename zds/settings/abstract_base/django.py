@@ -3,8 +3,8 @@ from urllib.parse import quote
 from django.contrib.messages import constants as message_constants
 from django.utils.translation import gettext_lazy as _
 
-from .config import config
 from .base_dir import BASE_DIR
+from .config import config
 
 # especially for debug toolbar:
 INTERNAL_IPS = (

@@ -1,45 +1,42 @@
 import copy
 from datetime import datetime, timedelta
+
+from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
-from django.urls import reverse
-from django.test import TestCase
 from django.db import IntegrityError
+from django.test import TestCase
+from django.urls import reverse
 
-from django.conf import settings
+from zds.forum.models import Topic
 from zds.forum.tests.factories import (
     ForumCategoryFactory,
     ForumFactory,
-    TopicFactory,
     PostFactory,
     TagFactory,
+    TopicFactory,
     create_category_and_forum,
 )
-from zds.forum.models import Topic
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.mp.models import mark_read
-from zds.tutorialv2 import signals
+from zds.mp.utils import send_message_mp, send_mp
 from zds.notification.models import (
-    Notification,
-    TopicAnswerSubscription,
     ContentReactionAnswerSubscription,
-    PrivateTopicAnswerSubscription,
-    NewTopicSubscription,
     NewPublicationSubscription,
+    NewTopicSubscription,
+    Notification,
+    PrivateTopicAnswerSubscription,
+    TopicAnswerSubscription,
 )
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContentReactionFactory,
-    PublishedContentFactory,
-)
+from zds.tutorialv2 import signals
 from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 from zds.tutorialv2.publication_utils import notify_update, publish_content
-from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import ContentReactionFactory, PublishableContentFactory, PublishedContentFactory
 from zds.utils import old_slugify
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from zds.mp.utils import send_mp, send_message_mp
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 class NotificationForumTest(TestCase):

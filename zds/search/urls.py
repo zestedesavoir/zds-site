@@ -1,5 +1,6 @@
 from django.urls import path
-from zds.search.views import SearchView, opensearch, SimilarTopicsView, SuggestionContentView
+
+from zds.search.views import SearchView, SimilarTopicsView, SuggestionContentView, opensearch
 
 app_name = "search"
 

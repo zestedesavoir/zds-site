@@ -1,27 +1,25 @@
+import codecs
 import contextlib
 import copy
-from pathlib import Path
-
-from zds import json_handler
-from git import Repo
 import os
 import shutil
-import codecs
+from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.template.loader import render_to_string
+from git import Repo
 
-from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
+from zds import json_handler
 from zds.tutorialv2.models import CONTENT_TYPES_REQUIRING_VALIDATION
-from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from zds.tutorialv2.utils import get_blob
-from zds.utils.validators import InvalidSlugError, check_slug
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
+from zds.tutorialv2.utils import InvalidOperationError, default_slug_pool, export_content, get_blob, get_commit_author
 from zds.utils.misc import compute_hash
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.uuslug_wrapper import slugify
+from zds.utils.validators import InvalidSlugError, check_slug
 
 
 class Container:

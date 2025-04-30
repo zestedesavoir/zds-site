@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import OuterRef, Subquery, Count
+from django.db.models import Count, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 
 
@@ -12,8 +12,8 @@ class GalleryManager(models.Manager):
 
         :rtype: QuerySet
         """
-        from zds.tutorialv2.models.database import PublishableContent
         from zds.gallery.models import Image
+        from zds.tutorialv2.models.database import PublishableContent
 
         linked_content = PublishableContent.objects.filter(gallery__pk=OuterRef("pk")).values("pk")
 

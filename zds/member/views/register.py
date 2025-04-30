@@ -1,6 +1,5 @@
+import logging
 from datetime import datetime, timedelta
-
-from oauth2_provider.models import AccessToken
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,47 +7,29 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.mail import EmailMultiAlternatives
-from django.urls import reverse
 from django.db import transaction
 from django.db.models import Q
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic import CreateView, FormView
+from oauth2_provider.models import AccessToken
 
 from zds.forum.models import Topic
-from zds.gallery.models import UserGallery, GALLERY_WRITE
+from zds.gallery.models import GALLERY_WRITE, UserGallery
 from zds.member import NEW_ACCOUNT
-from zds.member.commons import (
-    ProfileCreate,
-    TokenGenerator,
-)
-from zds.member.forms import RegisterForm, UsernameAndEmailForm, LoginForm, UnregisterForm
-from zds.member.models import (
-    Profile,
-    TokenRegister,
-    KarmaNote,
-    Ban,
-    BannedEmailProvider,
-    NewEmailProvider,
-)
-from zds.member.utils import get_bot_account, get_anonymous_account, get_external_account
+from zds.member.commons import ProfileCreate, TokenGenerator
+from zds.member.forms import LoginForm, RegisterForm, UnregisterForm, UsernameAndEmailForm
+from zds.member.models import Ban, BannedEmailProvider, KarmaNote, NewEmailProvider, Profile, TokenRegister
+from zds.member.utils import get_anonymous_account, get_bot_account, get_external_account
 from zds.member.views import get_client_ip
 from zds.mp.models import PrivatePost, PrivateTopic
+from zds.mp.utils import send_mp
 from zds.tutorialv2.models.database import PickListOperation
 from zds.tutorialv2.models.events import Event
-from zds.utils.models import (
-    Comment,
-    CommentVote,
-    Alert,
-    CommentEdit,
-    HatRequest,
-    get_hat_from_settings,
-)
-import logging
-
-from zds.mp.utils import send_mp
+from zds.utils.models import Alert, Comment, CommentEdit, CommentVote, HatRequest, get_hat_from_settings
 
 
 class RegisterView(CreateView, ProfileCreate, TokenGenerator):

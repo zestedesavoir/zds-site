@@ -1,9 +1,11 @@
-from zds.tutorialv2.models.versioned import Extract, VersionedContent, Container
+import os
+
 from django.core.management.base import BaseCommand
+
+from zds import json_handler
+from zds.tutorialv2.models.versioned import Container, Extract, VersionedContent
 from zds.utils.models import Licence
 from zds.utils.uuslug_wrapper import slugify
-import os
-from zds import json_handler
 
 
 class Command(BaseCommand):

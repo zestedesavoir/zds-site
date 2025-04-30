@@ -1,27 +1,26 @@
 import random
-from datetime import datetime
 import sys
+from datetime import datetime
 
 import django
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.core.exceptions import PermissionDenied
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, DetailView
-from django.core.exceptions import PermissionDenied
 from django.views.decorators.http import require_POST
+from django.views.generic import DetailView, ListView
 
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedMessage, FeaturedResource
 from zds.forum.models import Topic
 from zds.member.decorator import can_write_and_read_now
 from zds.pages.models import GroupContact
 from zds.search.forms import SearchForm
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.utils.context_processor import get_repository_url
-from zds.utils.models import Alert, CommentEdit, Comment
-
+from zds.utils.models import Alert, Comment, CommentEdit
 
 try:
     with (settings.BASE_DIR / "quotes.txt").open("r", encoding="utf-8") as quotes_file:

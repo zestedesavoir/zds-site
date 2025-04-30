@@ -1,22 +1,21 @@
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import gettext_lazy as _
-from django.conf import settings
-from django.db.models import Count
+from django.db.models import Count, F, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, TemplateView
-from django.db.models import F, Q
 
 from zds.forum.models import Forum
 from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2.mixins import ContentTypeMixin
-from zds.tutorialv2.models import TYPE_CHOICES_DICT, CONTENT_TYPE_LIST
-from zds.tutorialv2.models.database import PublishedContent, PublishableContent, ContentReaction
-from zds.utils.models import Tag, Category, SubCategory, CategorySubCategory
-from zds.utils.paginator import make_pagination, ZdSPagingListView
+from zds.tutorialv2.models import CONTENT_TYPE_LIST, TYPE_CHOICES_DICT
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublishedContent
+from zds.utils.models import Category, CategorySubCategory, SubCategory, Tag
+from zds.utils.paginator import ZdSPagingListView, make_pagination
 from zds.utils.templatetags.topbar import topbar_publication_categories
 from zds.utils.uuslug_wrapper import slugify
 

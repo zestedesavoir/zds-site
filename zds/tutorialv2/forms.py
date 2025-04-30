@@ -1,20 +1,18 @@
-from django import forms
-from django.conf import settings
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Layout, Submit, Field, ButtonHolder, Hidden
-from django.urls import reverse
+from crispy_forms.layout import HTML, ButtonHolder, Field, Hidden, Layout, Submit
+from django import forms
+from django.conf import settings
 from django.core.validators import MinLengthValidator
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
-from zds.tutorialv2.utils import get_content_version_url
-from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor
-from zds.utils.models import SubCategory
 from zds.tutorialv2.models import TYPE_CHOICES
 from zds.tutorialv2.models.database import PublishableContent
-from django.utils.translation import gettext_lazy as _
-from zds.utils.forms import IncludeEasyMDE
-from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError
+from zds.tutorialv2.utils import get_content_version_url
+from zds.utils.forms import CommonLayoutEditor, CommonLayoutVersionEditor, IncludeEasyMDE
+from zds.utils.models import SubCategory
+from zds.utils.validators import InvalidSlugError, slugify_raise_on_invalid
 
 
 class FormWithTitle(forms.Form):

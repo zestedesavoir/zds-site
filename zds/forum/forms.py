@@ -1,13 +1,13 @@
+from crispy_forms.bootstrap import StrictButton
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Field, Hidden, Layout
 from django import forms
 from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Hidden, HTML
-from crispy_forms.bootstrap import StrictButton
 from zds.forum.models import Forum, Topic
-from zds.utils.forms import CommonLayoutEditor, TagValidator, FieldValidatorMixin
+from zds.utils.forms import CommonLayoutEditor, FieldValidatorMixin, TagValidator
 
 
 class TopicForm(forms.Form, FieldValidatorMixin):

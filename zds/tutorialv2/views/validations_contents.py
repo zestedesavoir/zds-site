@@ -4,46 +4,47 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import ListView, FormView
+from django.views.generic import FormView, ListView
 
 from django.contrib.auth.models import User
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.mp.models import mark_read, filter_reachable
 from zds.search.utils import SearchIndexManager
+from zds.mp.utils import send_message_mp, send_mp
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
-    AskValidationForm,
-    RejectValidationForm,
     AcceptValidationForm,
-    RevokeValidationForm,
+    AskValidationForm,
     CancelValidationForm,
     JsFiddleActivationForm,
+    RejectValidationForm,
+    RevokeValidationForm,
 )
 from zds.tutorialv2.mixins import (
-    SingleContentFormViewMixin,
     ModalFormView,
-    SingleOnlineContentFormViewMixin,
     RequiresValidationViewMixin,
+    SingleContentFormViewMixin,
+    SingleOnlineContentFormViewMixin,
 )
 from zds.tutorialv2.models.database import PotentialObsolete, Validation, PublishableContent
+
 from zds.tutorialv2.publication_utils import (
-    publish_content,
-    unpublish_content,
-    notify_update,
     FailureDuringPublication,
+    notify_update,
+    publish_content,
     save_validation_state,
+    unpublish_content,
 )
 from zds.tutorialv2.utils import get_content_version_url
 from zds.utils import get_current_user
 from zds.utils.models import SubCategory, get_hat_from_settings
-from zds.mp.utils import send_mp, send_message_mp
 
 logger = logging.getLogger(__name__)
 

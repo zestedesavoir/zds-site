@@ -1,27 +1,27 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 from django.dispatch import receiver
 
-from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2 import signals
+from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorFromContent
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
+from zds.tutorialv2.views.goals import EditGoals
+from zds.tutorialv2.views.help import ChangeHelp
+from zds.tutorialv2.views.labels import EditLabels
 from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
 from zds.tutorialv2.views.tags import EditTags
-from zds.tutorialv2.views.goals import EditGoals
-from zds.tutorialv2.views.labels import EditLabels
-from zds.tutorialv2.views.help import ChangeHelp
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.validations_contents import (
-    ReserveValidation,
+    AcceptValidation,
+    ActivateJSFiddleInContent,
     AskValidationForContent,
     CancelValidation,
     RejectValidation,
-    AcceptValidation,
+    ReserveValidation,
     RevokeValidation,
-    ActivateJSFiddleInContent,
 )
 from zds.tutorialv2.views.validations_opinions import PublishOpinion, UnpublishOpinion
 

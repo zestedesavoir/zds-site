@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.http import Http404
-from git import objects, GitCommandError
+from git import GitCommandError, objects
 from gitdb.exc import BadName, BadObject
 
 from zds.member.decorator import LoggedWithReadWriteHability

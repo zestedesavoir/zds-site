@@ -5,10 +5,11 @@ from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render
+from django.utils.translation import gettext as _
 from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
-from django.utils.translation import gettext as _
-from zds.forum.models import Forum, Topic, Post
+
+from zds.forum.models import Forum, Post, Topic
 from zds.member.views import get_client_ip
 from zds.utils.misc import contains_utf8mb4, is_ajax
 from zds.utils.mixins import QuoteMixin

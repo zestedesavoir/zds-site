@@ -1,6 +1,6 @@
 import factory
 
-from zds.mp.models import PrivateTopic, PrivatePost
+from zds.mp.models import PrivatePost, PrivateTopic
 
 
 class PrivateTopicFactory(factory.django.DjangoModelFactory):

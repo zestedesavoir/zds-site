@@ -1,5 +1,4 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.core.exceptions import PermissionDenied
 from django.utils.decorators import method_decorator
 

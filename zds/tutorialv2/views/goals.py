@@ -1,18 +1,18 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder
+from crispy_forms.layout import ButtonHolder, Field, Layout
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ValidationError
 from django.db.models import Count
 from django.forms import (
-    forms,
-    ModelMultipleChoiceField,
-    CheckboxSelectMultiple,
-    IntegerField,
     BooleanField,
+    CheckboxSelectMultiple,
     HiddenInput,
+    IntegerField,
+    ModelMultipleChoiceField,
+    forms,
 )
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404

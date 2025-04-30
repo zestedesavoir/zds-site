@@ -1,10 +1,9 @@
+from django.conf import settings
 from django.test import TestCase
 
-from zds.forum.forms import TopicForm, PostForm
-
+from zds.forum.forms import PostForm, TopicForm
 from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
 from zds.member.tests.factories import ProfileFactory
-from django.conf import settings
 
 text_too_long = (settings.ZDS_APP["forum"]["max_post_length"] + 1) * "a"
 

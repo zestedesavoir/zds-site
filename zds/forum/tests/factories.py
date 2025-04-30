@@ -1,6 +1,6 @@
 import factory
 
-from zds.forum.models import ForumCategory, Forum, Topic, Post
+from zds.forum.models import Forum, ForumCategory, Post, Topic
 from zds.utils.models import Tag
 
 

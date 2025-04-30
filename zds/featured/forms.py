@@ -1,11 +1,11 @@
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, ButtonHolder
+from crispy_forms.layout import ButtonHolder, Field, Layout
 from django import forms
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.featured.models import FeaturedResource, FeaturedMessage
+from zds.featured.models import FeaturedMessage, FeaturedResource
 
 
 class FeaturedResourceForm(forms.ModelForm):

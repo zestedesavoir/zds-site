@@ -1,13 +1,13 @@
 from unittest.mock import patch
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import Group
 
 from zds.member.tests.factories import ProfileFactory, UserFactory
-from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import PrivateTopic, PrivatePost, PrivateTopicRead, mark_read
+from zds.mp.models import PrivatePost, PrivateTopic, PrivateTopicRead, mark_read
+from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
 from zds.utils.models import Hat
 
 

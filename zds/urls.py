@@ -2,12 +2,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.sitemaps import GenericSitemap, Sitemap
-from django.contrib.sitemaps.views import index as index_view, sitemap as sitemap_view
-from django.urls import include, re_path, path, get_resolver, reverse
+from django.contrib.sitemaps.views import index as index_view
+from django.contrib.sitemaps.views import sitemap as sitemap_view
+from django.urls import get_resolver, include, path, re_path, reverse
 
-from zds.forum.models import ForumCategory, Forum, Topic, Tag
-from zds.pages.views import home as home_view
+from zds.forum.models import Forum, ForumCategory, Tag, Topic
 from zds.member.views.profile import MemberDetail
+from zds.pages.views import home as home_view
 from zds.tutorialv2.models.database import PublishedContent
 
 

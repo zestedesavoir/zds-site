@@ -1,15 +1,14 @@
 from django.core.cache import caches
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
+from rest_framework.test import APIClient, APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
 from zds.api.utils import authenticate_oauth2_client
 from zds.member.tests.factories import ProfileFactory
 from zds.mp.tests.factories import PrivateTopicFactory
-from zds.notification.models import Notification
 from zds.mp.utils import send_message_mp
+from zds.notification.models import Notification
 
 
 class NotificationListAPITest(APITestCase):

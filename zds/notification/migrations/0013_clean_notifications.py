@@ -1,7 +1,7 @@
 from django.db import migrations
 
-from zds.notification.models import TopicAnswerSubscription
 from zds.forum.models import Topic
+from zds.notification.models import TopicAnswerSubscription
 
 
 def cleanup(apps, *_):

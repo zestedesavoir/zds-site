@@ -2,8 +2,8 @@
 
 
 import os
-import sys
 import signal
+import sys
 
 
 def patch_create_suffix(original):

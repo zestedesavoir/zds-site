@@ -3,16 +3,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
-from django.shortcuts import redirect, get_object_or_404
-from django.views.decorators.http import require_POST
-from django.views.generic import CreateView
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.http import require_POST
+from django.views.generic import CreateView
 
 from zds.member.decorator import LoginRequiredMixin
 from zds.member.forms import BannedEmailProviderForm
-from zds.member.models import NewEmailProvider, BannedEmailProvider, Profile
-
+from zds.member.models import BannedEmailProvider, NewEmailProvider, Profile
 from zds.utils.paginator import ZdSPagingListView
 
 

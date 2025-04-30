@@ -3,8 +3,8 @@ from django.urls import reverse
 
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
-from zds.tutorialv2.tests import override_for_contents, TutorialTestMixin
-from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import ContainerFactory, PublishableContentFactory
 
 
 def mock_publication_process(content: PublishableContent):

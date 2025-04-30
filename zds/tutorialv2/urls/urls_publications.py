@@ -1,7 +1,7 @@
 from django.urls import path
 
+from zds.tutorialv2.feeds import LastContentFeedATOM, LastContentFeedRSS
 from zds.tutorialv2.views.lists import ViewPublications
-from zds.tutorialv2.feeds import LastContentFeedRSS, LastContentFeedATOM
 
 urlpatterns = [
     # Flux

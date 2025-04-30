@@ -1,8 +1,8 @@
 from django_munin.munin.helpers import muninview
-from zds.forum.models import Topic, Post
+from zds.forum.models import Post, Topic
 from zds.member.models import Profile
-from zds.mp.models import PrivateTopic, PrivatePost
-from zds.tutorialv2.models.database import PublishableContent, ContentReaction
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent
 
 
 @muninview(

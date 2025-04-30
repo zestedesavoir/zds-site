@@ -1,9 +1,9 @@
 from django.urls import path
 
-from zds.tutorialv2.feeds import LastOpinionsFeedRSS, LastOpinionsFeedATOM
-from zds.tutorialv2.views.lists import ListOpinions, ContentOfAuthor
+from zds.tutorialv2.feeds import LastOpinionsFeedATOM, LastOpinionsFeedRSS
+from zds.tutorialv2.views.display import ContainerOnlineView, OpinionOnlineView
 from zds.tutorialv2.views.download_online import DownloadOnlineOpinion
-from zds.tutorialv2.views.display import OpinionOnlineView, ContainerOnlineView
+from zds.tutorialv2.views.lists import ContentOfAuthor, ListOpinions
 
 feed_patterns = [
     path("flux/rss/", LastOpinionsFeedRSS(), name="feed-rss"),

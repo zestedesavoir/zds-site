@@ -10,46 +10,38 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE
-from django.db.models.signals import pre_delete, post_delete, pre_save, post_save
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from git import Repo, BadObject
+from git import BadObject, Repo
 from gitdb.exc import BadName
 
 from zds import json_handler
 from zds.forum.models import Topic
-from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
+from zds.gallery.models import GALLERY_WRITE, Gallery, Image, UserGallery
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
-from zds.search.models import (
-    AbstractSearchIndexableModel,
-    AbstractSearchIndexable,
-)
-from zds.search.utils import (
-    SearchFilter,
-    SearchIndexManager,
-    date_to_timestamp_int,
-    clean_html,
-)
-from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
+from zds.search.models import AbstractSearchIndexable, AbstractSearchIndexableModel
+from zds.search.utils import SearchFilter, SearchIndexManager, clean_html, date_to_timestamp_int
+from zds.tutorialv2.managers import PublishableContentManager, PublishedContentManager, ReactionManager
 from zds.tutorialv2.models import (
-    TYPE_CHOICES,
-    STATUS_CHOICES,
+    CONTENT_TYPES_BETA,
     CONTENT_TYPES_REQUIRING_VALIDATION,
     PICK_OPERATIONS,
-    CONTENT_TYPES_BETA,
+    STATUS_CHOICES,
+    TYPE_CHOICES,
 )
 from zds.tutorialv2.models.goals import Goal
-from zds.tutorialv2.models.labels import Label
-from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-from zds.tutorialv2.models.versioned import NotAPublicVersion
-from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
-from zds.utils import get_current_user
-from zds.utils.models import Category, SubCategory, Licence, Comment, Tag
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.tutorialv2.models.labels import Label
+from zds.tutorialv2.models.mixins import OnlineLinkableContentMixin, TemplatableContentModelMixin
+from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.utils import BadManifestError, get_blob, get_content_from_json
+from zds.utils import get_current_user
+from zds.utils.models import Category, Comment, Licence, SubCategory, Tag
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.uuslug_wrapper import uuslug
 

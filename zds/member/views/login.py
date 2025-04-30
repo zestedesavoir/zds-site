@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
-from django.urls import reverse, is_valid_path
+from django.urls import is_valid_path, reverse
 
 from zds.member.forms import LoginForm
 from zds.member.views import get_client_ip

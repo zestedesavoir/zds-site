@@ -4,33 +4,33 @@ import logging
 import random
 import sys
 import time
-
 from datetime import datetime
-
-from django.core.management.base import BaseCommand
 from random import randint
-from faker import Factory
-from zds.utils.templatetags.emarkdown import emarkdown
 
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, TopicFactory, PostFactory
-from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory, ImageFactory
-from zds.member.tests.factories import StaffProfileFactory, ProfileFactory
-from django.contrib.auth.models import User, Permission
-from zds.member.models import Profile
-from zds.forum.models import Forum, Topic, ForumCategory
-from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
-from zds.utils import old_slugify
 from django.conf import settings
-from django.db import transaction, IntegrityError
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-    Validation as CValidation,
-    ContentReactionFactory,
-)
+from django.contrib.auth.models import Permission, User
+from django.core.management.base import BaseCommand
+from django.db import IntegrityError, transaction
+from faker import Factory
+
+from zds.forum.models import Forum, ForumCategory, Topic
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
+from zds.gallery.tests.factories import GalleryFactory, ImageFactory, UserGalleryFactory
+from zds.member.models import Profile
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.publication_utils import publish_content
+from zds.tutorialv2.tests.factories import (
+    ContainerFactory,
+    ContentReactionFactory,
+    ExtractFactory,
+    PublishableContentFactory,
+)
+from zds.tutorialv2.tests.factories import Validation as CValidation
+from zds.utils import old_slugify
+from zds.utils.models import Category as TCategory
+from zds.utils.models import CategorySubCategory, Licence, SubCategory, Tag
+from zds.utils.templatetags.emarkdown import emarkdown
 
 
 def load_member(cli, size, fake, root, *_):

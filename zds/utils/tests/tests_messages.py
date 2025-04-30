@@ -1,10 +1,8 @@
-from django.contrib.messages.storage.base import Message
 from django.contrib.messages import constants, utils
-
+from django.contrib.messages.storage.base import Message
 from django.test import SimpleTestCase
 
 from zds.utils.templatetags.messages import messages
-
 
 LEVEL_TAGS = utils.get_level_tags()
 

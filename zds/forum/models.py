@@ -3,21 +3,16 @@ from datetime import datetime, timedelta
 from math import ceil
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User, AnonymousUser
-from django.urls import reverse
+from django.contrib.auth.models import AnonymousUser, Group, User
 from django.db import models
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from django.db.models.signals import pre_delete, post_save
+from django.urls import reverse
 
 from zds.forum import signals
-from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
+from zds.forum.managers import ForumManager, PostManager, TopicManager, TopicReadManager
 from zds.search.models import AbstractSearchIndexableModel
-from zds.search.utils import (
-    SearchFilter,
-    SearchIndexManager,
-    date_to_timestamp_int,
-    clean_html,
-)
+from zds.search.utils import SearchFilter, SearchIndexManager, clean_html, date_to_timestamp_int
 from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 

@@ -1,17 +1,16 @@
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.http import Http404, HttpResponse, HttpResponsePermanentRedirect, StreamingHttpResponse
-from django.template.loader import render_to_string
 from django.shortcuts import redirect
+from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import DetailView, FormView
-from django.views.generic import View
+from django.views.generic import DetailView, FormView, View
 
 from zds.forum.models import Topic
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentRead
-from zds.tutorialv2.utils import mark_read
+from zds.tutorialv2.models.database import ContentRead, PublishableContent, PublishedContent
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.tutorialv2.utils import mark_read
 from zds.utils.misc import is_ajax
 
 

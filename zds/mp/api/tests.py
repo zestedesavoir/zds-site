@@ -4,16 +4,15 @@ from django.conf import settings
 from django.contrib.auth.models import Group
 from django.core.cache import caches
 from django.urls import reverse
-
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APIClient, APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
 
-from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
+from zds.api.pagination import REST_MAX_PAGE_SIZE, REST_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
 from zds.api.utils import authenticate_oauth2_client
 from zds.member.tests.factories import ProfileFactory, UserFactory
-from zds.mp.tests.factories import PrivateTopicFactory, PrivatePostFactory
-from zds.mp.models import PrivateTopic, PrivatePostVote
+from zds.mp.models import PrivatePostVote, PrivateTopic
+from zds.mp.tests.factories import PrivatePostFactory, PrivateTopicFactory
 
 
 class PrivateTopicListAPITest(APITestCase):

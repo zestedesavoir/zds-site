@@ -1,31 +1,32 @@
+from copy import deepcopy
+
 from django.conf import settings
 from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
 
+from zds.forum.tests.factories import TagFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory
-from zds.forum.tests.factories import TagFactory
-from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.feeds import (
-    LastTutorialsFeedRSS,
-    LastTutorialsFeedATOM,
-    LastArticlesFeedRSS,
     LastArticlesFeedATOM,
-    LastOpinionsFeedRSS,
+    LastArticlesFeedRSS,
     LastOpinionsFeedATOM,
+    LastOpinionsFeedRSS,
+    LastTutorialsFeedATOM,
+    LastTutorialsFeedRSS,
 )
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    PublishedContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-)
+from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from copy import deepcopy
+from zds.tutorialv2.tests.factories import (
+    ContainerFactory,
+    ExtractFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+)
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"

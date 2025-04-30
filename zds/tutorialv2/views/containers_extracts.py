@@ -4,7 +4,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.http import JsonResponse, Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -13,17 +13,17 @@ from django.views.generic import DeleteView, FormView
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.forms import ContainerForm, ExtractForm, MoveElementForm
 from zds.tutorialv2.mixins import (
-    SingleContentFormViewMixin,
     FormWithPreview,
-    SingleContentViewMixin,
+    SingleContentFormViewMixin,
     SingleContentPostMixin,
+    SingleContentViewMixin,
 )
 from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.utils import (
+    TooDeepContainerError,
     search_container_or_404,
     search_extract_or_404,
     try_adopt_new_child,
-    TooDeepContainerError,
 )
 from zds.utils.misc import is_ajax
 

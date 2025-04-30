@@ -1,7 +1,8 @@
 import contextlib
+
 import factory
 
-from zds.gallery.models import Image, Gallery, UserGallery
+from zds.gallery.models import Gallery, Image, UserGallery
 from zds.utils import old_slugify
 
 

@@ -1,8 +1,8 @@
 from django.core.management import BaseCommand
 
-from zds.utils.models import Tag
 from zds.forum.models import Topic
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils.models import Tag
 
 
 class Command(BaseCommand):

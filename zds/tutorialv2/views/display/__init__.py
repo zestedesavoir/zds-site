@@ -1,15 +1,9 @@
+from .container import ContainerBetaView, ContainerDraftView, ContainerOnlineView, ContainerVersionView
 from .content import (
-    ContentDraftView,
     ArticleOnlineView,
-    TutorialOnlineView,
-    OpinionOnlineView,
     ContentBetaView,
+    ContentDraftView,
     ContentVersionView,
-)
-
-from .container import (
-    ContainerDraftView,
-    ContainerVersionView,
-    ContainerOnlineView,
-    ContainerBetaView,
+    OpinionOnlineView,
+    TutorialOnlineView,
 )
