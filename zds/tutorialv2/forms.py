@@ -1012,10 +1012,10 @@ class ReportObsoleteContentForm(forms.Form):
     def __init__(self, obj, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse("content:report-obsolete", kwargs={"pk": obj.pk})
+        self.helper.form_action = reverse("content:report-obsolete-modal", kwargs={"pk": obj.pk})
         self.helper.form_method = "post"
         self.helper.form_class = "modal modal-flex"
-        self.helper.form_id = "report-obsolete"
+        self.helper.form_id = "report-obsolete-modal"
 
         self.helper.layout = Layout(
             Field("text"),

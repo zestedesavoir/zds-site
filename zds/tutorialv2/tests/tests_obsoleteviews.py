@@ -1,10 +1,11 @@
-from django.test import TestCase
-from django.urls import reverse
 from unittest.mock import patch
 
+from django.test import TestCase
+from django.urls import reverse
+
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishedContentFactory
 from zds.tutorialv2.models.database import PotentialObsolete
+from zds.tutorialv2.tests.factories import PublishedContentFactory
 
 
 class ObsoleteViewsTests(TestCase):
@@ -80,7 +81,7 @@ class ObsoleteViewsTests(TestCase):
         self.content.obsolete_reason = None
         self.content.save()
 
-        url = reverse("content:report-obsolete", kwargs={"pk": self.content.pk})
+        url = reverse("content:report-obsolete-modal", kwargs={"pk": self.content.pk})
         response = self.client.post(url, {"text": "Seems outdated"})
 
         self.assertEqual(response.status_code, 302)

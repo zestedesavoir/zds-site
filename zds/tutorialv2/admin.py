@@ -41,7 +41,7 @@ class PublishedContentAdmin(admin.ModelAdmin):
         "content__licence",
         "content__is_locked",
         "content__js_support",
-        "content__obsolete_justif",
+        "content__obsolete_reason",
     )
     ordering = ("-update_date", "-publication_date")
     raw_id_fields = ("content", "authors")
@@ -73,7 +73,7 @@ class ValidationAdmin(admin.ModelAdmin):
         "content__licence",
         "content__is_locked",
         "content__js_support",
-        "content__obsolete_justif",
+        "content__obsolete_reason",
     )
     ordering = ("-date_validation", "-date_reserve", "-date_proposition")
     raw_id_fields = ("content", "validator")

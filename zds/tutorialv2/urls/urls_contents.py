@@ -16,22 +16,6 @@ from zds.tutorialv2.views.comments import (
     SolveNoteAlert,
     UpdateNoteView,
 )
-
-from zds.tutorialv2.views.report_obsolete import PotentialObsoleteContentListView
-from zds.tutorialv2.views.thumbnail import EditThumbnailView
-from zds.tutorialv2.views.display.container import ContainerValidationView
-from zds.tutorialv2.views.display.content import ContentValidationView
-from zds.tutorialv2.views.events import EventsList
-from zds.tutorialv2.views.goals import EditGoals, MassEditGoals, ViewContentsByGoal
-from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
-from zds.tutorialv2.views.licence import EditContentLicense
-from zds.tutorialv2.views.validations_contents import (
-    ActivateJSFiddleInContent,
-    DecideObsolete,
-    MarkObsolete,
-    ReportObsolete,
-)
-
 from zds.tutorialv2.views.containers_extracts import (
     CreateContainer,
     CreateExtract,
@@ -72,11 +56,17 @@ from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, TagsListView
 from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent, WarnTypo
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
+from zds.tutorialv2.views.report_obsolete import PotentialObsoleteContentListView
 from zds.tutorialv2.views.statistics import ContentStatisticsView
 from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
 from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
-from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
+from zds.tutorialv2.views.validations_contents import (
+    ActivateJSFiddleInContent,
+    DecideObsolete,
+    MarkObsolete,
+    ReportObsolete,
+)
 
 feeds = [
     path("flux/rss/", RedirectView.as_view(pattern_name="publication:feed-rss", permanent=True), name="feed-rss"),
@@ -283,7 +273,7 @@ urlpatterns = (
         # Obsolete content management
         path("marquer-obsolete/<int:pk>/", MarkObsolete.as_view(), name="mark-obsolete"),
         path("retirer-obsolete/<int:pk>/", MarkObsolete.as_view(), name="unmark-obsolete"),
-        path("report-obsolete/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete"),
+        path("report-obsolete-modal/<int:pk>/", ReportObsolete.as_view(), name="report-obsolete-modal"),
         path("decider-obsolete/<int:pk>/", DecideObsolete.as_view(), name="decide-obsolete"),
         path("obsolete/", PotentialObsoleteContentListView.as_view(), name="obsolete"),
     ]
