@@ -413,9 +413,16 @@
                         {% endif %}
 
                         {% if perms.tutorialv2.change_publishablecontent %}
-                            <li class="staff-only">
-                                <a href="{% url "content:obsolete" %}">{% trans "Signalements des contenus obsolètes" %}</a>
-                            </li>
+                            {% with obsolete_count=""|new_obsolete_count %}
+                                <li class="staff-only">
+                                    <a href="{% url "content:obsolete" %}">
+                                        {% trans "Signalements des contenus obsolètes" %}
+                                        {% if obsolete_count > 0 %}
+                                            ({{ obsolete_count }})
+                                        {% endif %}
+                                    </a>
+                                </li>
+                            {% endwith %}
                         {% endif %}
 
                         {% if perms.utils.change_hat %}
