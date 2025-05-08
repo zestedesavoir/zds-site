@@ -270,15 +270,15 @@ class ImageCreateMixin(ImageMixin):
         error_files = []
 
         for i in zfile.namelist():
-            info = zfile.getinfo(i)
+            file_info = zfile.getinfo(i)
 
-            if info.filename[-1] == "/":  # .is_dir() in python 3.6
+            if file_info.is_dir():
                 continue
 
             basename = os.path.basename(i)
             (name, ext) = os.path.splitext(basename)
 
-            if info.file_size > settings.ZDS_APP["gallery"]["image_max_size"]:
+            if file_info.file_size > settings.ZDS_APP["gallery"]["image_max_size"]:
                 error_files.append(i)
                 continue
 

@@ -32,7 +32,3 @@ drf-yasg==1.21.7
 # Dependencies for slug generation, please be extra careful with those
 django-uuslug==2.0.0
 python-slugify==8.0.4
-
-# tomllib was added to the standard library in Python 3.11
-# tomli is only needed for older Python versions
-tomli==2.0.1 ; python_version < "3.11"

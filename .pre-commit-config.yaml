@@ -3,7 +3,7 @@ repos:
     rev: v3.17.0
     hooks:
     -   id: pyupgrade
-        args: [--py39-plus]
+        args: [--py311-plus]
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 24.8.0 # needs to be also updated in requirements-dev.txt
     hooks:
