@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -699,7 +699,7 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         if not content.in_public():
             raise Http404
         if bool(content.obsolete_reason):
-            messages.info(request, _("Le contenu est déja marqué comme obsolète."))
+            return HttpResponseBadRequest("Ce contenu est déjà marqué comme obsolète.")
         else:
             PotentialObsolete.objects.create(
                 message=request.POST.get("text"), author=get_current_user(), publishable_content=content
