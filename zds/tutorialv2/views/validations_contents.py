@@ -685,8 +685,7 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     permission_required = "tutorialv2.change_publishablecontent"
 
-    def get(self, request, *args, **kwargs):
-        raise Http404("Signaler un contenu comme obsolète n'est pas disponible en GET.")
+    http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
         content = get_object_or_404(PublishableContent, pk=kwargs["pk"])
