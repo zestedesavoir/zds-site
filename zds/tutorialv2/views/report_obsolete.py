@@ -18,7 +18,14 @@ class PotentialObsoleteContentListView(LoginRequiredMixin, PermissionRequiredMix
     subcategory = None
 
     def get_queryset(self):
-        queryset = PotentialObsolete.objects.all().select_related("publishable_content")
+        queryset = (
+            PotentialObsolete.objects.all()
+            .prefetch_related("publishable_content")
+            .prefetch_related("publishable_content__authors")
+            .prefetch_related("publishable_content__subcategory")
+            .prefetch_related("publishable_content__authors")
+            .prefetch_related("author")
+        )
 
         # filtering by type
         try:
