@@ -23,6 +23,7 @@ from zds.tutorialv2.forms import (
     AcceptValidationForm,
     AskValidationForm,
     CancelValidationForm,
+    DecideObsoleteForm,
     JsFiddleActivationForm,
     RejectValidationForm,
     RevokeValidationForm,
@@ -639,19 +640,27 @@ class MarkObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
 
 class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     permission_required = "tutorialv2.change_publishablecontent"
-
+    form_class = DecideObsoleteForm
     http_method_names = ["post"]
 
-    def post(self, request, *args, **kwargs):
-        report = get_object_or_404(PotentialObsolete, pk=kwargs["pk"])
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs["obj"] = get_object_or_404(PotentialObsolete, pk=self.kwargs["pk"])
+        return kwargs
+
+    def form_valid(self, form):
+        report = get_object_or_404(PotentialObsolete, pk=self.kwargs["pk"])
         content = report.publishable_content
+
         if not content.in_public():
             raise Http404
-        decision = request.POST.get("decision_obsolete")
+
+        decision = form.cleaned_data["decision_obsolete"]
+        reason = form.cleaned_data["text"]
 
         if decision == "True":
             PotentialObsolete.update_report_status(report.id, "traite")
-            content.obsolete_reason = request.POST.get("text")
+            content.obsolete_reason = reason
 
             # Send MP to authors
             bot = get_bot_account()
@@ -660,7 +669,7 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 {
                     "title": content.title,
                     "url": content.get_absolute_url(),
-                    "reason": content.obsolete_reason,
+                    "reason": reason,
                 },
             )
             recipients = filter_reachable(content.authors.all())
@@ -671,13 +680,12 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                 _("Nous avons remarqué que votre contenu contient des informations qui ne sont plus à jour."),
                 msg_pm,
             )
-            messages.info(request, _("Le contenu est maintenant marqué comme obsolète."))
-            content.save()
+            messages.info(self.request, _("Le contenu est maintenant marqué comme obsolète."))
         else:
-            messages.info(request, _("Le signalement a été ignoré."))
+            messages.info(self.request, _("Le signalement a été ignoré."))
             PotentialObsolete.update_report_status(report.id, "ignore")
-            content.save()
 
+        content.save()
         return redirect(content.get_absolute_url_online())
 
 
