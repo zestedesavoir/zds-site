@@ -17,7 +17,7 @@ lxml==5.4.0
 Pillow==11.2.1
 pymemcache==4.0.0
 requests==2.32.3
-typesense==0.21.0
+typesense==1.0.3
 ua-parser==1.0.1
 
 # Api dependencies

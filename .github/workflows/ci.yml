@@ -12,7 +12,7 @@ env:
   PIP_VERSION: "25.1.1" # needs to be also updated in scripts/define_variable.sh
   MARIADB_VERSION: "10.11.11"
   COVERALLS_VERSION: "4.0.1" # check if Coverage needs to be also updated in requirements-ci.txt
-  TYPESENSE_VERSION: "27.0" # needs to be also updated in scripts/define_variable.sh
+  TYPESENSE_VERSION: "28.0" # needs to be also updated in scripts/define_variable.sh
 
   # As GitHub Action does not allow environment variables
   # to be used in services definitions, these are only for
