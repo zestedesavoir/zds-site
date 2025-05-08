@@ -32,30 +32,30 @@ class PotentialObsoleteContentListView(LoginRequiredMixin, PermissionRequiredMix
             type_ = self.request.GET["type"]
             if type_ == "unprocessed":
                 queryset = queryset.filter(status="nouveau")
-            if type_ == "processed":
+            elif type_ == "processed":
                 queryset = queryset.filter(status="traite")
-            if type_ == "ignored":
+            elif type_ == "ignored":
                 queryset = queryset.filter(status="ignore")
-            if type_ == "article":
+            elif type_ == "article":
                 queryset = queryset.filter(publishable_content__type="ARTICLE")
-            if type_ == "tuto":
+            elif type_ == "tuto":
                 queryset = queryset.filter(publishable_content__type="TUTORIAL")
-            if type_ == "opinion":
+            elif type_ == "opinion":
                 queryset = queryset.filter(publishable_content__type="OPINION")
             else:
-                raise KeyError()
+                raise Http404("Type de filtre invalide.")
         except KeyError:
             pass
 
         # filtering by category
-        try:
-            category_pk = int(self.request.GET["subcategory"])
-            self.subcategory = get_object_or_404(SubCategory, pk=category_pk)
-            queryset = queryset.filter(publishable_content__subcategory__in=[self.subcategory])
-        except KeyError:
-            pass
-        except ValueError:
-            raise Http404("Format invalide pour le paramètre de la sous-catégorie.")
+        category_pk = self.request.GET.get("subcategory")
+        if category_pk is not None:
+            try:
+                _category_pk = int(category_pk)
+                self.subcategory = get_object_or_404(SubCategory, pk=_category_pk)
+                queryset = queryset.filter(publishable_content__subcategory__in=[self.subcategory])
+            except ValueError:
+                raise Http404("Format invalide pour le paramètre de la sous-catégorie.")
 
         return queryset.order_by(self.ordering).all()
 
