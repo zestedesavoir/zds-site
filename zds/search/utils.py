@@ -1,4 +1,3 @@
-import contextlib
 import logging
 import re
 import time
@@ -10,7 +9,6 @@ from django.apps import apps
 from django.conf import settings
 from django.db import transaction
 from typesense import Client as TypesenseClient
-from typesense.exceptions import ObjectNotFound as TypesenseObjectNotFound
 
 from zds.search.models import AbstractSearchIndexableModel
 
@@ -74,10 +72,9 @@ class SearchIndexManager:
             self.engine = TypesenseClient(settings.SEARCH_CONNECTION)
 
             try:
-                self.engine.api_call.get("/health")
-                self.connected = True
-            except:
-                self.logger.warn("failed to connect to the search engine")
+                self.connected = self.engine.operations.is_healthy()
+            except Exception as e:
+                self.logger.warn(f"failed to connect to the search engine ({e})")
 
     @property
     def collections(self):
@@ -273,10 +270,14 @@ class SearchIndexManager:
         doc_type = document.get_search_document_type()
         doc_id = document.search_engine_id
 
-        # This can happen in tests or, for instance, we move a not-yet-indexed topic to a private forum.
-        # Try/except/pass while https://github.com/typesense/typesense-python/issues/65 is not fixed
-        with contextlib.suppress(TypesenseObjectNotFound):
-            answer = self.engine.collections[doc_type].documents[doc_id].delete()
+        # Documents may not exist in the search engine (thus by default raising
+        # a NotFound exception) in tests or, for instance, we move a
+        # not-yet-indexed topic to a private forum.
+        #
+        # If the collection doesn't exist, it can also raise an NotFound exception,
+        # regardless of the ignore_not_found param
+        if doc_type in self.collections:
+            answer = self.engine.collections[doc_type].documents[doc_id].delete({"ignore_not_found": True})
             if "id" not in answer or answer["id"] != doc_id:
                 self.logger.warn(f"Error when deleting: {answer}.")
 
@@ -297,9 +298,15 @@ class SearchIndexManager:
         if not self.connected:
             return
 
-        # This can happen in tests or, for instance, we move a not-yet-indexed topic to a private forum.
-        # Try/except/pass while https://github.com/typesense/typesense-python/issues/65 is not fixed
-        with contextlib.suppress(TypesenseObjectNotFound):
+        if "ignore_not_found" not in query:
+            # Documents may not exist in the search engine (thus by default raising
+            # a NotFound exception) in tests or, for instance, we move a
+            # not-yet-indexed topic to a private forum.
+            query["ignore_not_found"] = True
+
+        # If the collection doesn't exist, it can also raise an NotFound exception,
+        # regardless of the ignore_not_found param
+        if not query["ignore_not_found"] or doc_type in self.collections:
             self.engine.collections[doc_type].documents.delete(query)
 
     def search(self, request):
@@ -358,4 +365,10 @@ class SearchFilter:
         :param values: A list of integer values the field cannot have.
         :type values: list[int]
         """
-        self._add_filter(f"{field}:!=[" + ",".join(map(str, values)) + "]")
+
+        # Starting from version 27.1 of Typesense, there is a bug making filter_by=field:!=[1,2] not work.
+        # The workaround is to make a more verbose version of the filter: filter_by=field:!=1&&field:!=2
+        # The bug was reported upstream: https://github.com/typesense/typesense/issues/2350
+        # Please switch back to the :!=[1,2] version when the bug will be fixed.
+        # self._add_filter(f"{field}:!= [" + ", ".join(map(str, values)) + "]")
+        self._add_filter(" && ".join(map(lambda s: f"{field}:!={s}", values)))
