@@ -74,7 +74,6 @@
                                       {{ report.publishable_content.title }}
                                   </a>
                                   <br>
-                                  {% if report.publishable_content.subcategory.all %}
                                       {% trans "Catégories :" %}
                                       {% for subcategory in report.publishable_content.subcategory.all %}
                                           {% if not forloop.first %}
@@ -84,9 +83,6 @@
                                               {{ subcategory.title }}
                                           </a>
                                       {% endfor %}
-                                  {% else %}
-                                      <em>{% trans "Aucune catégorie" %}</em>
-                                  {% endif %}
                               </td>
                               <td>
                                   {% if report.publishable_content.type == "ARTICLE" %}
