@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import Http404
@@ -12,12 +13,11 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, ListView
 
-from django.contrib.auth.models import User
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
-from zds.mp.models import mark_read, filter_reachable
-from zds.search.utils import SearchIndexManager
+from zds.mp.models import filter_reachable, mark_read
 from zds.mp.utils import send_message_mp, send_mp
+from zds.search.utils import SearchIndexManager
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     AcceptValidationForm,
@@ -33,8 +33,7 @@ from zds.tutorialv2.mixins import (
     SingleContentFormViewMixin,
     SingleOnlineContentFormViewMixin,
 )
-from zds.tutorialv2.models.database import PotentialObsolete, Validation, PublishableContent
-
+from zds.tutorialv2.models.database import PotentialObsolete, PublishableContent, Validation
 from zds.tutorialv2.publication_utils import (
     FailureDuringPublication,
     notify_update,
@@ -680,7 +679,7 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             PotentialObsolete.update_report_status(report.id, "ignore")
             content.save()
 
-        return redirect(request.META.get("HTTP_REFERER", "/"))
+        return redirect(content.get_absolute_url_online())
 
 
 class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
@@ -709,6 +708,7 @@ class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
                     "title": content.title,
                     "url": content.get_absolute_url(),
                     "report_interface_url": report_interface_url,
+                    "raison": request.POST.get("text"),
                 },
             )
             recipients = filter_reachable(User.objects.filter(is_staff=True))  # Staff members
