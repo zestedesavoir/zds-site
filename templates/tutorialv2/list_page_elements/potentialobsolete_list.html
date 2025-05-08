@@ -109,9 +109,9 @@
                               </td>
                               <td>
                                   {% if report.status == 'traite' %}
-                                    <span>Traité</span>
+                                    <p>Traité</p>
                                   {% elif report.status == 'ignore' %}
-                                    <span>Ignoré</span>
+                                    <p>Ignoré</p>
                                   {% elif report.status == 'nouveau' %}
                                     <a href="#decide-obsolete-{{ report.pk }}" class="open-modal btn btn-submit">{% trans "Décider" %}</a>
                                     {% with forms_decide_obsolete|get_item:report.pk as form %}
