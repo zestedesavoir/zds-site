@@ -33,6 +33,8 @@ class PotentialObsoleteContentListView(LoginRequiredMixin, PermissionRequiredMix
                 queryset = queryset.filter(publishable_content__type="ARTICLE")
             if type_ == "tuto":
                 queryset = queryset.filter(publishable_content__type="TUTORIAL")
+            if type_ == "opinion":
+                queryset = queryset.filter(publishable_content__type="OPINION")
             else:
                 raise KeyError()
         except KeyError:
