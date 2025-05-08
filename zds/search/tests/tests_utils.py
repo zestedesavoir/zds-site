@@ -35,11 +35,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         self.search_engine_manager = SearchIndexManager()
 
+        if not self.search_engine_manager.connected:
+            self.skipTest("Could not connect to search engine")
+
     def test_manager(self):
         """Test the behavior of the ``search_engine_manager`` command"""
-
-        if not self.search_engine_manager.connected:
-            return
 
         def call_search_engine_manager_command(cmd: str):
             with open(os.devnull, "w") as f:

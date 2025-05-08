@@ -46,16 +46,17 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.manager = SearchIndexManager()
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
+
+        self.manager = SearchIndexManager()
+
+        if not self.manager.connected:
+            self.skipTest("Could not connect to search engine")
 
         self.manager.reset_index()
 
     def test_setup_functions(self):
         """Test the behavior of the reset_index() and clear_index() functions"""
-
-        if not self.manager.connected:
-            return
 
         # 1. Creation:
         models = [Topic, Post]
@@ -71,9 +72,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
     def test_indexation(self):
         """test the indexation and deletion of the different documents"""
-
-        if not self.manager.connected:
-            return
 
         # create a topic with a post
         topic = TopicFactory(forum=self.forum, author=self.user)
@@ -230,9 +228,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def test_special_case_of_contents(self):
         """test that the old publishedcontent does not stay when a new one is created"""
 
-        if not self.manager.connected:
-            return
-
         # 1. Create a middle-tutorial, publish it, then index it
         tuto = PublishableContentFactory(type="TUTORIAL")
         tuto.authors.add(self.user)
@@ -310,9 +305,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
     def test_update_topic(self):
         """test that changing an attribute of a topic marks it as to index"""
-
-        if not self.manager.connected:
-            return
 
         group = Group.objects.create(name="DummyGroup_1")
         self.user.groups.add(group)
@@ -416,9 +408,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def test_update_post(self):
         """test that changing an attribute of a post marks it as to index"""
 
-        if not self.manager.connected:
-            return
-
         group = Group.objects.create(name="DummyGroup_1")
         self.user.groups.add(group)
         self.user.save()
@@ -520,9 +509,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         published content starts by removing all its fake chapters from the
         search engine.
         """
-
-        if not self.manager.connected:
-            return
 
         published_content = PublishedContentFactory().public_version
         published_content.save(search_engine_requires_index=False)
