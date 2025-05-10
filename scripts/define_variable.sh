@@ -30,12 +30,6 @@ if [[ $ZDS_LATEX_REPO == "" ]]; then
     ZDS_LATEX_REPO="https://github.com/zestedesavoir/latex-template.git"
 fi
 
-if [[ $ZDS_JDK_VERSION == "" ]]; then
-    ZDS_JDK_VERSION="11.0.20.1"
-    # shellcheck disable=SC2034
-    ZDS_JDK_REV="1"
-fi
-
 if [[ $ZMD_URL == "" ]]; then
     ZMD_URL="http://localhost:27272"
 fi

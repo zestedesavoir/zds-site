@@ -74,7 +74,6 @@
                                       {{ report.publishable_content.title }}
                                   </a>
                                   <br>
-                                  {% if report.publishable_content.subcategory.all %}
                                       {% trans "Catégories :" %}
                                       {% for subcategory in report.publishable_content.subcategory.all %}
                                           {% if not forloop.first %}
@@ -84,15 +83,14 @@
                                               {{ subcategory.title }}
                                           </a>
                                       {% endfor %}
-                                  {% else %}
-                                      <em>{% trans "Aucune catégorie" %}</em>
-                                  {% endif %}
                               </td>
                               <td>
                                   {% if report.publishable_content.type == "ARTICLE" %}
                                       <a href="{% url 'content:obsolete' %}?type=article">{% trans "Article" %}</a>
-                                  {% else %}
+                                  {% elif report.publishable_content.type == "TUTORIAL" %}
                                       <a href="{% url 'content:obsolete' %}?type=tuto">{% trans "Tutoriel" %}</a>
+                                  {% elif report.publishable_content.type == "OPINION" %}
+                                      <a href="{% url 'content:obsolete' %}?type=opinion">{% trans "Billet" %}</a>
                                   {% endif %}
                               </td>
                               <td>
@@ -104,16 +102,16 @@
                                   {% include 'misc/member_item.part.html' with member=report.author avatar=True %}
                               </td>
                               <td>
-                                  <span>{{ report.report_date|format_date:True|capfirst }}</span>
+                                  <p>{{ report.report_date|format_date:True|capfirst }}</p>
                               </td>
                               <td>
-                                  <span>{{ report.message }}</span>
+                                  <p>{{ report.message }}</p>
                               </td>
                               <td>
                                   {% if report.status == 'traite' %}
-                                    <span>Traité</span>
+                                    <p>Traité</p>
                                   {% elif report.status == 'ignore' %}
-                                    <span>Ignoré</span>
+                                    <p>Ignoré</p>
                                   {% elif report.status == 'nouveau' %}
                                     <a href="#decide-obsolete-{{ report.pk }}" class="open-modal btn btn-submit">{% trans "Décider" %}</a>
                                     {% with forms_decide_obsolete|get_item:report.pk as form %}
@@ -132,7 +130,7 @@
                 </table>
             {% else %}
                 <p>
-                    {% trans "Aucun contenu en validation" %}
+                    {% trans "Aucun contenu signalé comme obsolète" %}
                     {% if request.GET.type %}
                         {% trans " ne répond à ce critère" %}
                     {% endif %}
@@ -172,6 +170,11 @@
         <li>
             <a href="{% url "content:obsolete" %}?type=tuto" class="ico-after view {% if request.GET.type == "tuto" %}selected{% endif %}">
                 {% trans "Tutoriels" %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url "content:obsolete" %}?type=opinion" class="ico-after view {% if request.GET.type == "opinion" %}selected{% endif %}">
+                {% trans "Billets" %}
             </a>
         </li>
         {% if request.GET.type or request.GET.subcategory %}
