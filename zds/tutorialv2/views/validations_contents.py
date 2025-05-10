@@ -17,7 +17,6 @@ from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.utils import get_bot_account
 from zds.mp.models import filter_reachable, mark_read
 from zds.mp.utils import send_message_mp, send_mp
-from zds.search.utils import SearchIndexManager
 from zds.tutorialv2 import signals
 from zds.tutorialv2.forms import (
     AcceptValidationForm,
