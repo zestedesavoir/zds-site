@@ -687,6 +687,13 @@ class DecideObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
         content.save()
         return redirect(content.get_absolute_url_online())
 
+    def form_invalid(self, form):
+        # treat any invalid submission as “ignore” and redirect
+        report = get_object_or_404(PotentialObsolete, pk=self.kwargs["pk"])
+        PotentialObsolete.update_report_status(report.id, "ignore")
+        messages.info(self.request, _("Le signalement a été ignoré."))
+        return redirect(report.publishable_content.get_absolute_url_online())
+
 
 class ReportObsolete(LoginRequiredMixin, PermissionRequiredMixin, FormView):
     permission_required = "tutorialv2.change_publishablecontent"
