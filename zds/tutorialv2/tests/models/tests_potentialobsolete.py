@@ -1,9 +1,9 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 from zds.member.tests.factories import ProfileFactory
+from zds.tutorialv2.models.database import REPORT_STATUS, PotentialObsolete
 from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.tutorialv2.models.database import PotentialObsolete, REPORT_STATUS
 
 User = get_user_model()
 

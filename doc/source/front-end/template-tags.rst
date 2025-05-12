@@ -322,7 +322,7 @@ Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tu
 
 
 ``new_obsolete_count``
------------------
+------------------------
 
 Récupère le nombre de contenus signalés comme obsolètes ayant le **status** "nouveau".
 
