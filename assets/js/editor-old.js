@@ -738,7 +738,6 @@ function uploadImage (e, dataTransferAttr, csrf){
         var formData = new FormData();
         formData.append('physical', f);
         formData.append('title', f.name);
-        // WARN: if you test zds with sqlite, you can't upload multiple files at a time
         $.ajax({
             url: galleryUrl,
             data: formData, type: 'POST',

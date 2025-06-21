@@ -152,7 +152,7 @@ ZDS_APP = {
         "hats_management": "Staff",
     },
     "gallery": {
-        "image_max_size": 1024 * 1024,
+        "image_max_size": 1024 * 1024,  # bytes, also hard-coded in editor JS scripts
         "gallery_per_page": 21,
         "images_per_page": 21,
     },
