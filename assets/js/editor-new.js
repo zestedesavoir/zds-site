@@ -310,10 +310,20 @@
   const uploadImage = function(file, onSuccess, onError) {
     const galleryUrl = '/api/galeries/' + document.body.getAttribute('data-gallery') + '/images/'
 
+    if (file.type.indexOf('image') !== 0) {
+      onError(`L'image "${file.name}" a un format invalide !`)
+      return
+    }
+
+    const filesize = Math.round(file.size / 1024) // KB
+    if (filesize > 1024) {
+      onError(`L'image "${file.name}" est trop lourde (${filesize} Kio). La taille maximale est de 1024 Kio !`)
+      return
+    }
+
     const formData = new FormData()
     formData.append('physical', file)
     formData.append('title', file.name)
-    // WARN: if you test zds with sqlite, you can't upload multiple files at a time
     $.ajax({
       url: galleryUrl,
       data: formData,
