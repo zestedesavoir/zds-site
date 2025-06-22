@@ -331,6 +331,13 @@ class TestRegister(TutorialTestMixin, TestCase):
                 "password_confirm": "flavour",
                 "email": "firm1@zestedesavoir.com",
             },
+            # username with non-printable-character
+            {
+                "username": "\u0020\u202efirm1",
+                "password": "flavour",
+                "password_confirm": "flavour",
+                "email": "firm1@zestedesavoir.com",
+            },
         ]
 
         for user in users:

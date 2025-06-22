@@ -106,6 +106,11 @@ def validate_zds_username(value, check_username_available=True):
         msg = _("Le nom d'utilisateur ne peut contenir de barres obliques")
     elif contains_utf8mb4(value):
         msg = _("Le nom d'utilisateur ne peut pas contenir des caractères utf8mb4")
+    elif not value.isprintable():
+        # https://docs.python.org/fr/3.11/library/stdtypes.html#str.isprintable
+        msg = _(
+            "Le nom d'utilisateur ne peut contenir des caractères non affichables (caractères Unicode des catégories Z ou C)"
+        )
     elif check_username_available and user_count > 0:
         msg = _("Ce nom d'utilisateur est déjà utilisé")
     elif check_username_available and skeleton_user_count > 0:
