@@ -326,7 +326,7 @@ class TestRegister(TutorialTestMixin, TestCase):
             },
             # username with utf8mb4 chars
             {
-                "username": " firm1",
+                "username": "🍆firm1",
                 "password": "flavour",
                 "password_confirm": "flavour",
                 "email": "firm1@zestedesavoir.com",
