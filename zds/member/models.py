@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.forum.models import Forum, Post, Topic
 from zds.member import NEW_PROVIDER_USES
-from zds.member.managers import ProfileManager
+from zds.member.managers import BlockedIPManager, ProfileManager
 from zds.member.utils import get_geo_location_from_ip
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.database import PublishableContent
@@ -606,3 +606,29 @@ class KarmaNote(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - note : {self.note} ({self.pubdate}) "
+
+
+class BlockedIP(models.Model):
+    """
+    IP addresses blocked from signing up or logging in.
+    """
+
+    class Meta:
+        verbose_name = "Adresse IP bloquée"
+        verbose_name_plural = "Adresses IP bloquées"
+
+    ip_address = models.GenericIPAddressField("Adresse IP", unique=True, db_index=True)
+    is_network_address = models.BooleanField("Représente le bloc /64 de l'adresse IP", db_index=True)
+    moderator = models.ForeignKey(
+        User, verbose_name="Modérateur", related_name="blocked_ips", on_delete=models.SET_NULL, null=True
+    )
+    blocked_date = models.DateTimeField("Date du blocage", auto_now_add=True)
+    reason = models.CharField("Raison du blocage", max_length=250)
+
+    objects = BlockedIPManager()
+
+    def __str__(self):
+        if self.is_network_address:
+            return f"Block network IP {self.ip_address}/64"
+        else:
+            return f"Block IP {self.ip_address}"

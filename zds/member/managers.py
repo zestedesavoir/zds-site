@@ -1,3 +1,4 @@
+import ipaddress
 from datetime import datetime
 
 from django.conf import settings
@@ -26,3 +27,20 @@ class ProfileManager(models.Manager):
         )
 
         return qs
+
+
+class BlockedIPManager(models.Manager):
+    def is_blocked(self, ip_address: str):
+        """
+        Checks if an IP address is block or not.
+        """
+
+        qs = self.get_queryset()
+        if ":" in ip_address:
+            network_ip = ipaddress.ip_network(ip_address + "/64", strict=False).network_address
+            qs = qs.filter(
+                Q(ip_address=ip_address) | (Q(is_network_address=True) & Q(ip_address__startswith=network_ip))
+            )
+        else:
+            qs = qs.filter(ip_address=ip_address)
+        return qs.count() > 0
