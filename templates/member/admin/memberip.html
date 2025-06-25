@@ -4,6 +4,7 @@
 {% load date %}
 {% load i18n %}
 {% load remove_url_scheme %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     {% trans "Membres par IP" %}
@@ -89,5 +90,16 @@
             l'IP demandée.
         {% endblocktrans %}
     </p>
+    {% endif %}
+
+    {% if ip_is_already_blocked %}
+        <p>
+            <a class="btn btn-cancel" disabled>{% trans "Cette adresse IP est déjà bloquée" %}</a>
+        </p>
+    {% else %}
+        <p>
+            <a href="#blocked-ip-modal" class="btn btn-cancel open-modal">{% trans "Bloquer cette adresse IP" %}</a>
+        </p>
+        {% crispy blocked_ip_form %}
     {% endif %}
 {% endblock %}

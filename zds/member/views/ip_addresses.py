@@ -1,6 +1,7 @@
 import ipaddress
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ValidationError
@@ -10,6 +11,7 @@ from django.shortcuts import render
 from django.utils.translation import gettext_lazy as _
 
 from zds.member.decorator import LoginRequiredMixin
+from zds.member.forms import BlockedIPForm
 from zds.member.models import BlockedIP, Profile
 from zds.member.utils import get_geo_location_from_ip
 from zds.utils.paginator import ZdSPagingListView
@@ -42,13 +44,16 @@ def member_from_ip(request, ip_address):
     except ValidationError:
         raise Http404(_("Mauvais format d'adresse IP"))
 
+    ip_is_already_blocked = BlockedIP.objects.is_blocked(ip_address)
     members = Profile.objects.filter(last_ip_address=ip_address).order_by("-last_visit")
     context_data = {
         "members": members,
         "ip": ip_address,
         "ip_location": get_geo_location_from_ip(ip_address),
+        "ip_is_already_blocked": ip_is_already_blocked,
     }
 
+    ipv6 = False
     if ":" in ip_address:  # Check if it's an IPv6
         network_ip = ipaddress.ip_network(ip_address + "/64", strict=False).network_address  # Get the network / block
         # Remove the additional ":" at the end of the network address, so we can filter the IP adresses on this network
@@ -56,5 +61,25 @@ def member_from_ip(request, ip_address):
         network_members = Profile.objects.filter(last_ip_address__startswith=network_ip).order_by("-last_visit")
         context_data["network_members"] = network_members
         context_data["network_ip"] = network_ip
+        ipv6 = True
+
+    if request.method == "POST":
+        form = BlockedIPForm(ipv6, request.POST)
+        if form.is_valid():
+            if not ip_is_already_blocked:
+                BlockedIP(
+                    ip_address=ip_address,
+                    is_network_address=form.data["is_network_address"],
+                    moderator=request.user,
+                    reason=form.data["reason"],
+                ).save()
+                messages.success(request, "Cette adresse IP a été bloquée !")
+                context_data["ip_is_already_blocked"] = True
+            else:
+                messages.error(request, "Cette adresse IP est déjà bloquée.")
+    else:
+        form = BlockedIPForm(ipv6)
+
+    context_data["blocked_ip_form"] = form
 
     return render(request, "member/admin/memberip.html", context_data)
