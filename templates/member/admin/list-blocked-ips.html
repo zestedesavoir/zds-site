@@ -1,0 +1,61 @@
+{% extends "member/admin/base.html" %}
+{% load date %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Adresses IP bloquées" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        {% trans "Adresses IP bloquées" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Adresses IP bloquées" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% trans "Cette page liste les adresses IP bloquées par l'équipe de modération, avec lesquelles il n'est pas possible de s'inscrire ou de se connecter. Cependant, le site web reste accessible en mode non connecté." %}
+    </p>
+
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if blocked_ips %}
+        <table class="fullwidth">
+            <thead>
+                <th>{% trans "Adresse IP" %}</th>
+                <th class="wide">{% trans "Date du blocage" %}</th>
+                <th class="wide">{% trans "Modérateur" %}</th>
+                <th class="wide">{% trans "Raison du blocage" %}</th>
+            </thead>
+            <tbody>
+                {% for blocked_ip in blocked_ips %}
+                    <tr>
+                        {% if blocked_ip.is_network_address %}
+                            <td>{{ blocked_ip.ip_address }}/64</td>
+                        {% else %}
+                            <td>{{ blocked_ip.ip_address }}</td>
+                        {% endif %}
+                        <td class="wide">{{ blocked_ip.blocked_date|format_date|capfirst }}</td>
+                        <td class="wide">{% include 'misc/member_item.part.html' with member=blocked_ip.moderator avatar=True %}</td>
+                        <td class="wide">{{ blocked_ip.reason }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <em>{% trans "Aucune adresse IP n'a été bloquée pour le moment." %}</em>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}

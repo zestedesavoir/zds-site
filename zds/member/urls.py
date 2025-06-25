@@ -22,6 +22,7 @@ from zds.member.views.hats import (
     remove_hat,
     solve_hat_request,
 )
+from zds.member.views.ip_addresses import BlockedIPListView
 from zds.member.views.login import LoginView
 from zds.member.views.moderation import member_from_ip, modify_karma, modify_profile, settings_mini_profile
 from zds.member.views.password_recovery import forgot_password, new_password
@@ -65,7 +66,9 @@ urlpatterns = [
     path("profil/karmatiser/", modify_karma, name="member-modify-karma"),
     path("profil/modifier/<int:user_pk>/", modify_profile, name="member-modify-profile"),
     path("parametres/mini_profil/<user_name>/", settings_mini_profile, name="member-settings-mini-profile"),
+    # ip addresses
     path("profil/multi/<ip_address>/", member_from_ip, name="member-from-ip"),
+    path("adresses-ip-bloquees/", BlockedIPListView.as_view(), name="list-blocked-ips"),
     # email providers
     path("fournisseurs-email/nouveaux/", NewEmailProvidersList.as_view(), name="new-email-providers"),
     path(

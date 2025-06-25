@@ -618,7 +618,7 @@ class BlockedIP(models.Model):
         verbose_name_plural = "Adresses IP bloquées"
 
     ip_address = models.GenericIPAddressField("Adresse IP", unique=True, db_index=True)
-    is_network_address = models.BooleanField("Représente le bloc /64 de l'adresse IP", db_index=True)
+    is_network_address = models.BooleanField("Bloquer le bloc /64 de cette adresse IP ?", db_index=True)
     moderator = models.ForeignKey(
         User, verbose_name="Modérateur", related_name="blocked_ips", on_delete=models.SET_NULL, null=True
     )
@@ -629,6 +629,6 @@ class BlockedIP(models.Model):
 
     def __str__(self):
         if self.is_network_address:
-            return f"Block network IP {self.ip_address}/64"
+            return f"Blocked network IP {self.ip_address}/64"
         else:
-            return f"Block IP {self.ip_address}"
+            return f"Blocked IP {self.ip_address}"
