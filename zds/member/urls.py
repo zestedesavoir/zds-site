@@ -22,9 +22,9 @@ from zds.member.views.hats import (
     remove_hat,
     solve_hat_request,
 )
-from zds.member.views.ip_addresses import BlockedIPListView
+from zds.member.views.ip_addresses import BlockedIPListView, member_from_ip
 from zds.member.views.login import LoginView
-from zds.member.views.moderation import member_from_ip, modify_karma, modify_profile, settings_mini_profile
+from zds.member.views.moderation import modify_karma, modify_profile, settings_mini_profile
 from zds.member.views.password_recovery import forgot_password, new_password
 from zds.member.views.profile import (
     UpdateAvatarMember,
