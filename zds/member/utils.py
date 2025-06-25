@@ -88,3 +88,16 @@ def get_info_from_user_agent(user_agent):
     browser = user_agent_parser.PrettyUserAgent(*parsed_ua["user_agent"].values())
 
     return f"{device} / {os} / {browser}"
+
+
+def get_client_ip(request):
+    """Retrieve the real IP address of the client."""
+
+    if "HTTP_X_REAL_IP" in request.META:  # nginx
+        return request.META.get("HTTP_X_REAL_IP")
+    elif "REMOTE_ADDR" in request.META:
+        # other
+        return request.META.get("REMOTE_ADDR")
+    else:
+        # Should never happen
+        return "0.0.0.0"

@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.decorators import method_decorator
 
 from zds.member.models import BlockedIP
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 
 
 def can_write_and_read_now(func):

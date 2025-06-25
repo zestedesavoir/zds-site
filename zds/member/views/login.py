@@ -5,7 +5,7 @@ from django.urls import is_valid_path, reverse
 
 from zds.member.decorator import BlockedIPMixin
 from zds.member.forms import LoginForm
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 
 
 class LoginView(BlockedIPMixin, LoginView):

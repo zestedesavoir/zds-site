@@ -24,8 +24,7 @@ from zds.member.commons import ProfileCreate, TokenGenerator
 from zds.member.decorator import BlockedIPMixin
 from zds.member.forms import LoginForm, RegisterForm, UnregisterForm, UsernameAndEmailForm
 from zds.member.models import Ban, BannedEmailProvider, KarmaNote, NewEmailProvider, Profile, TokenRegister
-from zds.member.utils import get_anonymous_account, get_bot_account, get_external_account
-from zds.member.views import get_client_ip
+from zds.member.utils import get_anonymous_account, get_bot_account, get_client_ip, get_external_account
 from zds.mp.models import PrivatePost, PrivateTopic
 from zds.mp.utils import send_mp
 from zds.tutorialv2.models.database import PickListOperation

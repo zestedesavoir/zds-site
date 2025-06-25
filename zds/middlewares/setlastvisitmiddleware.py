@@ -3,7 +3,7 @@ import datetime
 from django.conf import settings
 from django.contrib.auth import logout
 
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 
 
 class SetLastVisitMiddleware:
