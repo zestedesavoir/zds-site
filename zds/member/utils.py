@@ -1,3 +1,4 @@
+import ipaddress
 import logging
 
 from django.conf import settings
@@ -101,3 +102,28 @@ def get_client_ip(request):
     else:
         # Should never happen
         return "0.0.0.0"
+
+
+def is_valid_ip(ip_address):
+    """Checks if this input is a valid IP address."""
+    try:
+        ipaddress.ip_address(ip_address)
+    except ValueError:
+        return False
+    else:
+        return True
+
+
+def is_ipv6(ip_address):
+    """Checks if this IP address is an IPv6"""
+    return ipaddress.ip_address(ip_address).version == 6
+
+
+def get_network_ip(ip_address):
+    """Retrieve the network address of this IP address"""
+    return ipaddress.ip_network(ip_address + "/64", strict=False)
+
+
+def get_network_ip_filter(ip_address):
+    """Retrieves the network address of this IP address without the last colon, so we can filter IP addresses on this network"""
+    return str(get_network_ip(ip_address).network_address)[:-1]

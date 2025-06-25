@@ -41,11 +41,15 @@
             <tbody>
                 {% for blocked_ip in blocked_ips %}
                     <tr>
-                        {% if blocked_ip.is_network_address %}
-                            <td>{{ blocked_ip.ip_address }}/64</td>
-                        {% else %}
-                            <td>{{ blocked_ip.ip_address }}</td>
-                        {% endif %}
+                        <td>
+                            <a href="{% url 'members-from-ip' blocked_ip.ip_address %}">
+                                {% if blocked_ip.is_network_address %}
+                                    {{ blocked_ip.network_address }}
+                                {% else %}
+                                    {{ blocked_ip.ip_address }}
+                                {% endif %}
+                            </a>
+                        </td>
                         <td class="wide">{{ blocked_ip.blocked_date|format_date|capfirst }}</td>
                         <td class="wide">{% include 'misc/member_item.part.html' with member=blocked_ip.moderator avatar=True %}</td>
                         <td class="wide">{{ blocked_ip.reason }}</td>

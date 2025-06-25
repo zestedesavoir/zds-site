@@ -13,7 +13,7 @@ from django.utils.translation import gettext_lazy as _
 from zds.forum.models import Forum, Post, Topic
 from zds.member import NEW_PROVIDER_USES
 from zds.member.managers import BlockedIPManager, ProfileManager
-from zds.member.utils import get_geo_location_from_ip
+from zds.member.utils import get_geo_location_from_ip, get_network_ip
 from zds.notification.models import TopicAnswerSubscription
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils import old_slugify
@@ -629,6 +629,10 @@ class BlockedIP(models.Model):
 
     def __str__(self):
         if self.is_network_address:
-            return f"Blocked network IP {self.ip_address}/64"
+            return f"Blocked network IP {self.network_address}"
         else:
             return f"Blocked IP {self.ip_address}"
+
+    @property
+    def network_address(self):
+        return get_network_ip(self.ip_address)

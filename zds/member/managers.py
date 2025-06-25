@@ -6,6 +6,8 @@ from django.contrib.auth.models import Group
 from django.db import models
 from django.db.models import Q
 
+from zds.member.utils import get_network_ip_filter, is_ipv6
+
 
 class ProfileManager(models.Manager):
     def contactable_members(self):
@@ -32,12 +34,12 @@ class ProfileManager(models.Manager):
 class BlockedIPManager(models.Manager):
     def is_blocked(self, ip_address: str):
         """
-        Checks if an IP address is block or not.
+        Checks if an IP address is blocked or not.
         """
 
         qs = self.get_queryset()
-        if ":" in ip_address:
-            network_ip = ipaddress.ip_network(ip_address + "/64", strict=False).network_address
+        if is_ipv6(ip_address):
+            network_ip = get_network_ip_filter(ip_address)
             qs = qs.filter(
                 Q(ip_address=ip_address) | (Q(is_network_address=True) & Q(ip_address__startswith=network_ip))
             )
