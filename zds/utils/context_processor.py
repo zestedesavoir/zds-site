@@ -1,6 +1,8 @@
 from copy import deepcopy
+from urllib.parse import quote
 
 from django.conf import settings
+from django.urls import reverse
 
 from zds import __version__, git_version
 
@@ -24,6 +26,25 @@ def get_repository_url(repository_name, url_type):
         raise Exception("Incorrect repository_name: " + repository_name)
 
     return settings.ZDS_APP["github_projects"][url_type](repository_name)
+
+
+def member_login_url(request):
+    """Get the URL to access the login page, containing the current URL, where
+    we should redirect after a successful login"""
+    full_path = request.get_full_path()
+
+    # We keep GET parameters in the value of the `next` GET param, so to avoid
+    # recursion (eg the link to the login form when on the login form page),
+    # include current GET params only if `next` is not already a GET param:
+    if "?next=" in full_path:
+        return {"member_login_url": full_path}
+    else:
+        return {
+            # `quote()` is the function used by the `urlencode` template tag
+            "member_login_url": reverse("member-login")
+            + "?next="
+            + quote(full_path)
+        }
 
 
 def version(request):
