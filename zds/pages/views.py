@@ -37,6 +37,7 @@ def home(request):
         "contents_count": PublishedContent.objects.count_contents(),
         "search_form": SearchForm(initial={}),
         "validated_contents_count": PublishedContent.objects.count_validated_contents(),
+        "quote": random.choice(QUOTES).replace("\n", ""),
     }
 
     contents_count = settings.ZDS_APP["homepage"]["contents_count"]
@@ -50,8 +51,6 @@ def home(request):
 
     topics_count = settings.ZDS_APP["homepage"]["topics_count"]
     context["last_topics"] = Topic.objects.get_last_topics(topics_count)
-
-    context["quote"] = random.choice(QUOTES).replace("\n", "")
 
     return render(request, "home.html", context)
 

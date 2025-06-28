@@ -1,4 +1,3 @@
-import django.db.models
 from django.db import models
 from django.db.models import F, Q
 from model_utils.managers import InheritanceManager
@@ -85,7 +84,7 @@ class TopicManager(models.Manager):
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
 
-    def get_last_topics(self, count) -> django.db.models.QuerySet:
+    def get_last_topics(self, count) -> models.QuerySet:
         """Get last topics and prefetch some related properties."""
         return (
             self.filter(is_locked=False, forum__groups__isnull=True)
