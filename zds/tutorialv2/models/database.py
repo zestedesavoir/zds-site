@@ -320,9 +320,9 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
         Return ``True`` if the user was effectively removed from the authors and ``False`` otherwise.
         """
         if self.is_author(user) and self.authors.count() > 1:
-            gallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=self.gallery.pk).first()
-            if gallery:
-                gallery.delete()
+            usergallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=self.gallery.pk).first()
+            if usergallery:
+                usergallery.delete()
             self.authors.remove(user)
             return True
         return False
