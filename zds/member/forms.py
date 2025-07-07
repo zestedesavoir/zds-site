@@ -773,8 +773,8 @@ class BlockedIPForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, ipv6, *args, **kwargs):
-        if ipv6:
+    def __init__(self, is_ipv6, *args, **kwargs):
+        if is_ipv6:
             is_network_address = Field("is_network_address")
         else:
             is_network_address = Hidden("is_network_address", False)

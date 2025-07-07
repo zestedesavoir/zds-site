@@ -39,24 +39,24 @@ def members_from_ip(request, ip_address):
         raise Http404(_("Cette adresse IP n'est pas valide."))
 
     ip_is_already_blocked = BlockedIP.objects.is_blocked(ip_address)
-    ipv6 = is_ipv6(ip_address)
+    is_ipv6_ = is_ipv6(ip_address)
     members = Profile.objects.filter(last_ip_address=ip_address).order_by("-last_visit")
     context_data = {
         "members": members,
         "ip": ip_address,
-        "is_ipv6": ipv6,
+        "is_ipv6": is_ipv6_,
         "ip_location": get_geo_location_from_ip(ip_address),
         "ip_is_already_blocked": ip_is_already_blocked,
     }
 
-    if ipv6:
+    if is_ipv6_:
         network_ip_filter = get_network_ip_filter(ip_address)
         network_members = Profile.objects.filter(last_ip_address__startswith=network_ip_filter).order_by("-last_visit")
         context_data["network_members"] = network_members
         context_data["network_ip"] = get_network_ip(ip_address)
 
     if request.method == "POST":
-        form = BlockedIPForm(ipv6, request.POST)
+        form = BlockedIPForm(is_ipv6_, request.POST)
         if form.is_valid():
             if ip_is_already_blocked:
                 messages.error(request, "Cette adresse IP est déjà bloquée.")
@@ -70,7 +70,7 @@ def members_from_ip(request, ip_address):
                 messages.success(request, "Cette adresse IP a été bloquée !")
                 context_data["ip_is_already_blocked"] = True
     else:
-        form = BlockedIPForm(ipv6)
+        form = BlockedIPForm(is_ipv6_)
 
     context_data["blocked_ip_form"] = form
 
