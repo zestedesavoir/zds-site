@@ -38,7 +38,8 @@ def members_from_ip(request, ip_address):
     if not is_valid_ip(ip_address):
         raise Http404(_("Cette adresse IP n'est pas valide."))
 
-    ip_is_already_blocked = BlockedIP.objects.is_blocked(ip_address)
+    blocked_ips = BlockedIP.objects.get_details(ip_address)
+    ip_is_already_blocked = True if blocked_ips else False
     is_ipv6_ = is_ipv6(ip_address)
     members = Profile.objects.filter(last_ip_address=ip_address).order_by("-last_visit")
     context_data = {
@@ -47,6 +48,7 @@ def members_from_ip(request, ip_address):
         "is_ipv6": is_ipv6_,
         "ip_location": get_geo_location_from_ip(ip_address),
         "ip_is_already_blocked": ip_is_already_blocked,
+        "blocked_ips": blocked_ips,
     }
 
     if is_ipv6_:

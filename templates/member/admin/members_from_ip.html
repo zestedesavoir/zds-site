@@ -95,6 +95,7 @@
         <p>
             <a class="btn btn-cancel" disabled>{% trans "Cette adresse IP est déjà bloquée" %}</a>
         </p>
+        {% include "member/includes/blocked_ips.part.html" with blocked_ips=blocked_ips %}
     {% else %}
         <p>
             <a href="#blocked-ip-modal" class="btn btn-cancel open-modal">{% trans "Bloquer cette adresse IP" %}</a>

@@ -1,0 +1,29 @@
+{% load date %}
+{% load i18n %}
+
+<table class="fullwidth">
+    <thead>
+        <th>{% trans "Adresse IP" %}</th>
+        <th class="wide">{% trans "Date du blocage" %}</th>
+        <th class="wide">{% trans "Modérateur" %}</th>
+        <th class="wide">{% trans "Raison du blocage" %}</th>
+    </thead>
+    <tbody>
+        {% for blocked_ip in blocked_ips %}
+            <tr>
+                <td>
+                    <a href="{% url 'members-from-ip' blocked_ip.ip_address %}">
+                        {% if blocked_ip.is_network_address %}
+                            {{ blocked_ip.network_address }}
+                        {% else %}
+                            {{ blocked_ip.ip_address }}
+                        {% endif %}
+                    </a>
+                </td>
+                <td class="wide">{{ blocked_ip.blocked_date|format_date|capfirst }}</td>
+                <td class="wide">{% include 'misc/member_item.part.html' with member=blocked_ip.moderator avatar=True %}</td>
+                <td class="wide">{{ blocked_ip.reason }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
