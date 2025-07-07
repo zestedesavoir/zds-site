@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.html import escape
 
 from zds.member.forms import LoginForm
-from zds.member.models import Ban, Profile
+from zds.member.models import Ban, BlockedIP, Profile
 from zds.member.tests.factories import NonAsciiProfileFactory, ProfileFactory, StaffProfileFactory
 
 
@@ -36,6 +36,15 @@ class LoginTests(TestCase):
             pubdate=datetime.now(),
         )
         self.ban.save()
+
+        self.blocked_ip = "2001:db8:b9fb:7b2c:c288:61c1:d143:dd50"
+        ip_from_the_same_block = "2001:db8:b9fb:7b2c:7f4d:ed24:c4ef:f33e"
+        BlockedIP(
+            ip_address=ip_from_the_same_block,
+            is_network_address=True,
+            moderator=self.staff_profile.user,
+            reason="42",
+        ).save()
 
     def test_form_action_redirect(self):
         """The form shall have the 'next' parameter in the action url of the form."""
@@ -278,3 +287,7 @@ class LoginTests(TestCase):
         )
         # It redirects to the initial URL, with the GET parameter:
         self.assertRedirects(result, tutorial_list_url)
+
+    def test_fails_blocked_ip(self):
+        result = self.client.get(self.login_url, REMOTE_ADDR=self.blocked_ip)
+        self.assertEqual(result.status_code, 403)
