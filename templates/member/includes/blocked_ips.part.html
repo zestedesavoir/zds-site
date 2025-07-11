@@ -13,7 +13,7 @@
             <tr>
                 <td>
                     <a href="{% url 'members-from-ip' blocked_ip.ip_address %}">
-                        {% if blocked_ip.is_network_address %}
+                        {% if blocked_ip.is_network_address is True %}
                             {{ blocked_ip.network_address }}
                         {% else %}
                             {{ blocked_ip.ip_address }}
