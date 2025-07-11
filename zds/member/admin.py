@@ -79,7 +79,7 @@ class BannedEmailProviderAdmin(admin.ModelAdmin):
 class BlockedIPAdmin(admin.ModelAdmin):
     """Representation of BlockedIP model in the admin interface"""
 
-    list_display = ("ip_address", "is_network_address", "moderator")
+    list_display = ("ip_address", "is_network_address", "moderator", "reason")
     ordering = ("-blocked_date",)
     search_fields = ("ip_address", "moderator")
     raw_id_fields = ("moderator",)

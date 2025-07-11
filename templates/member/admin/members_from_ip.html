@@ -92,7 +92,7 @@
     {% endif %}
 
     {% if ip_is_already_blocked %}
-        <p>
+        <p class="clearfix">
             <a class="btn btn-cancel" disabled>{% trans "Cette adresse IP est déjà bloquée" %}</a>
         </p>
         {% include "member/includes/blocked_ips.part.html" with blocked_ips=blocked_ips %}

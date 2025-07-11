@@ -41,6 +41,26 @@ def members_from_ip(request, ip_address):
     blocked_ips = BlockedIP.objects.get_details(ip_address)
     ip_is_already_blocked = True if blocked_ips else False
     is_ipv6_ = is_ipv6(ip_address)
+
+    if request.method == "POST":
+        form = BlockedIPForm(is_ipv6_, request.POST)
+        if form.is_valid():
+            if ip_is_already_blocked:
+                messages.error(request, "Cette adresse IP est déjà bloquée.")
+            else:
+                blocked_ip = BlockedIP(
+                    ip_address=ip_address,
+                    is_network_address=form.data["is_network_address"],
+                    moderator=request.user,
+                    reason=form.data["reason"],
+                )
+                blocked_ip.save()
+                messages.success(request, "Cette adresse IP a été bloquée !")
+                ip_is_already_blocked = True
+                blocked_ips = [blocked_ip]
+    else:
+        form = BlockedIPForm(is_ipv6_)
+
     members = Profile.objects.filter(last_ip_address=ip_address).order_by("-last_visit")
     context_data = {
         "members": members,
@@ -49,6 +69,7 @@ def members_from_ip(request, ip_address):
         "ip_location": get_geo_location_from_ip(ip_address),
         "ip_is_already_blocked": ip_is_already_blocked,
         "blocked_ips": blocked_ips,
+        "blocked_ip_form": form,
     }
 
     if is_ipv6_:
@@ -56,24 +77,5 @@ def members_from_ip(request, ip_address):
         network_members = Profile.objects.filter(last_ip_address__startswith=network_ip_filter).order_by("-last_visit")
         context_data["network_members"] = network_members
         context_data["network_ip"] = get_network_ip(ip_address)
-
-    if request.method == "POST":
-        form = BlockedIPForm(is_ipv6_, request.POST)
-        if form.is_valid():
-            if ip_is_already_blocked:
-                messages.error(request, "Cette adresse IP est déjà bloquée.")
-            else:
-                BlockedIP(
-                    ip_address=ip_address,
-                    is_network_address=form.data["is_network_address"],
-                    moderator=request.user,
-                    reason=form.data["reason"],
-                ).save()
-                messages.success(request, "Cette adresse IP a été bloquée !")
-                context_data["ip_is_already_blocked"] = True
-    else:
-        form = BlockedIPForm(is_ipv6_)
-
-    context_data["blocked_ip_form"] = form
 
     return render(request, "member/admin/members_from_ip.html", context_data)
