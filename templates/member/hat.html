@@ -1,6 +1,7 @@
 {% extends "member/base.html" %}
 
 
+{% load email_obfuscator %}
 {% load emarkdown %}
 {% load i18n %}
 
@@ -35,6 +36,13 @@
 {% block content %}
     {% if groupcontact.description %}
         <p>{{ groupcontact.description|emarkdown }}</p>
+    {% endif %}
+    {% if groupcontact.email %}
+        <p>
+            {% blocktrans with group_name=groupcontact.name|lower group_email=groupcontact.email|obfuscate_mailto_top_subject:"Contact" %}
+                Vous pouvez joindre {{ group_name }} par courriel via {{ group_email }}.
+            {% endblocktrans %}
+        </p>
     {% endif %}
 
     {% if users %}
