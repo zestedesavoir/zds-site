@@ -3,11 +3,12 @@ from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.urls import is_valid_path, reverse
 
+from zds.member.decorator import BlockedIPMixin
 from zds.member.forms import LoginForm
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 
 
-class LoginView(LoginView):
+class LoginView(BlockedIPMixin, LoginView):
     form_class = LoginForm
     template_name = "member/login.html"
 

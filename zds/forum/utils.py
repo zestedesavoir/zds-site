@@ -10,7 +10,7 @@ from django.views.generic import CreateView
 from django.views.generic.detail import SingleObjectMixin
 
 from zds.forum.models import Forum, Post, Topic
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 from zds.utils.misc import contains_utf8mb4, is_ajax
 from zds.utils.mixins import QuoteMixin
 from zds.utils.models import CommentVote, get_hat_from_request

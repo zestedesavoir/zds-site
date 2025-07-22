@@ -438,6 +438,12 @@
                             {% endwith %}
                         {% endif %}
 
+                        {% if perms.member.change_blockedip %}
+                            <li class="staff-only">
+                                <a href="{% url 'list-blocked-ips' %}">{% trans "Adresses IP bloquées" %}</a>
+                            </li>
+                        {% endif %}
+
                         {% if perms.featured.change_featuredresource %}
                             <li class="staff-only">
                                 <a href="{% url "featured:resource-list" %}">{% trans 'Gestion des mises en avant' %}</a>

@@ -39,7 +39,7 @@
 {% block content_out %}
     {% captureas ip %}
         {% if perms.member.show_ip %}
-            {% url "member-from-ip" profile.last_ip_address as url_check_multi_ips %}
+            {% url "members-from-ip" profile.last_ip_address as url_check_multi_ips %}
             {% captureas city %}{% if profile.get_city %} ({{ profile.get_city }}){% endif %}{% endcaptureas %}
             {% blocktrans with ip=profile.last_ip_address city=city url_check_multi_ips=url_check_multi_ips %}
                 via <a href="{{ url_check_multi_ips }}">{{ ip }}</a> {{ city }}
@@ -663,7 +663,7 @@
                                 </div>
                             {% endif %}
 
-                            <a href="{% url "member-from-ip" profile.last_ip_address %}" class="tail">
+                            <a href="{% url "members-from-ip" profile.last_ip_address %}" class="tail">
                                 <p>{% trans "Voir les membres avec cette IP" %}</p>
                             </a>
                         </div>

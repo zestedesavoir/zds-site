@@ -4,19 +4,6 @@ from zds.member.models import Profile
 from zds.utils.paginator import ZdSPagingListView
 
 
-def get_client_ip(request):
-    """Retrieve the real IP address of the client."""
-
-    if "HTTP_X_REAL_IP" in request.META:  # nginx
-        return request.META.get("HTTP_X_REAL_IP")
-    elif "REMOTE_ADDR" in request.META:
-        # other
-        return request.META.get("REMOTE_ADDR")
-    else:
-        # Should never happen
-        return "0.0.0.0"
-
-
 class MemberList(ZdSPagingListView):
     """Display the list of registered users."""
 

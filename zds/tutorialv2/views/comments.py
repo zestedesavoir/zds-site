@@ -15,7 +15,7 @@ from django.views.generic import FormView
 
 from zds import json_handler
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 from zds.notification.models import ContentReactionAnswerSubscription
 from zds.tutorialv2.forms import NoteEditForm, NoteForm
 from zds.tutorialv2.mixins import MustRedirect, SingleOnlineContentFormViewMixin, SingleOnlineContentViewMixin

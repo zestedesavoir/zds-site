@@ -1,0 +1,39 @@
+{% extends "member/admin/base.html" %}
+{% load i18n %}
+
+
+{% block title %}
+    {% trans "Adresses IP bloquées" %}
+{% endblock %}
+
+
+
+{% block breadcrumb %}
+    <li>
+        {% trans "Adresses IP bloquées" %}
+    </li>
+{% endblock %}
+
+
+
+{% block headline %}
+    {% trans "Adresses IP bloquées" %}
+{% endblock %}
+
+
+
+{% block content %}
+    <p>
+        {% trans "Cette page liste les adresses IP bloquées par l'équipe de modération, avec lesquelles il n'est pas possible de s'inscrire ou de se connecter. Cependant, le site web reste accessible en mode non connecté." %}
+    </p>
+
+    {% include "misc/paginator.html" with position="top" %}
+
+    {% if blocked_ips %}
+        {% include "member/includes/blocked_ips.part.html" with blocked_ips=blocked_ips %}
+    {% else %}
+        <em>{% trans "Aucune adresse IP n'a été bloquée pour le moment." %}</em>
+    {% endif %}
+
+    {% include "misc/paginator.html" with position="bottom" %}
+{% endblock %}

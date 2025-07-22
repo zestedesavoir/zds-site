@@ -1,3 +1,4 @@
+import ipaddress
 import logging
 
 from django.conf import settings
@@ -88,3 +89,41 @@ def get_info_from_user_agent(user_agent):
     browser = user_agent_parser.PrettyUserAgent(*parsed_ua["user_agent"].values())
 
     return f"{device} / {os} / {browser}"
+
+
+def get_client_ip(request):
+    """Retrieve the real IP address of the client."""
+
+    if "HTTP_X_REAL_IP" in request.META:  # nginx
+        return request.META.get("HTTP_X_REAL_IP")
+    elif "REMOTE_ADDR" in request.META:
+        # other
+        return request.META.get("REMOTE_ADDR")
+    else:
+        # Should never happen
+        return "0.0.0.0"
+
+
+def is_valid_ip(ip_address):
+    """Checks if this input is a valid IP address."""
+    try:
+        ipaddress.ip_address(ip_address)
+    except ValueError:
+        return False
+    else:
+        return True
+
+
+def is_ipv6(ip_address):
+    """Checks if this IP address is an IPv6"""
+    return ipaddress.ip_address(ip_address).version == 6
+
+
+def get_network_ip(ip_address):
+    """Retrieve the network address of this IP address"""
+    return ipaddress.ip_network(ip_address + "/64", strict=False)
+
+
+def get_network_ip_filter(ip_address):
+    """Retrieves the network address of this IP address without the last colon, so we can filter IP addresses on this network"""
+    return str(get_network_ip(ip_address).network_address)[:-1]

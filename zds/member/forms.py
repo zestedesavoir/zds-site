@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_recaptcha.fields import ReCaptchaField
 
-from zds.member.models import Ban, BannedEmailProvider, KarmaNote, Profile
+from zds.member.models import Ban, BannedEmailProvider, BlockedIP, KarmaNote, Profile
 from zds.member.validators import (
     validate_not_empty,
     validate_passwords,
@@ -758,3 +758,37 @@ class HatRequestForm(forms.ModelForm):
         except Hat.DoesNotExist:
             pass
         return data
+
+
+class BlockedIPForm(forms.ModelForm):
+    class Meta:
+        model = BlockedIP
+        fields = ("is_network_address", "reason")
+        widgets = {
+            "reason": forms.TextInput(
+                attrs={
+                    "autofocus": "on",
+                    "placeholder": "Raison du blocage",
+                }
+            ),
+        }
+
+    def __init__(self, is_ipv6, *args, **kwargs):
+        if is_ipv6:
+            is_network_address = Field("is_network_address")
+        else:
+            is_network_address = Hidden("is_network_address", False)
+
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = "modal modal-flex"
+        self.helper.form_id = "blocked-ip-modal"
+        self.helper.form_method = "post"
+
+        self.helper.layout = Layout(
+            is_network_address,
+            Field("reason"),
+            ButtonHolder(
+                StrictButton("Bloquer cette adresse IP", type="submit"),
+            ),
+        )

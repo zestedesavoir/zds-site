@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 
 
 class ManageSessionsMiddleware:
