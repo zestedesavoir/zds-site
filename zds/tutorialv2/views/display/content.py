@@ -52,7 +52,6 @@ from zds.tutorialv2.views.warntypo import WarnTypoForm
 from zds.utils.models import CommentVote
 from zds.utils.paginator import make_pagination
 
-
 logger = logging.getLogger(__name__)
 
 

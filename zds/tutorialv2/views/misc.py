@@ -9,7 +9,7 @@ from zds import json_handler
 from zds.featured.mixins import FeatureableMixin
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.notification.models import NewPublicationSubscription
-from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, SingleContentFormViewMixin
+from zds.tutorialv2.mixins import SingleOnlineContentViewMixin
 from zds.utils.misc import is_ajax
 
 
