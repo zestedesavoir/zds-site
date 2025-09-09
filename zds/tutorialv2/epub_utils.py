@@ -129,16 +129,11 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     meta_inf_dir_path = Path(working_dir, "ebook", "META-INF")
     target_image_dir = Path(ops_dir, "images")
 
-    with contextlib.suppress(FileExistsError):  # Forced to use this until python 3.5 is used and ok_exist appears
-        text_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        style_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        font_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        meta_inf_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        target_image_dir.mkdir(parents=True)
+    text_dir_path.mkdir(parents=True, exist_ok=True)
+    style_dir_path.mkdir(parents=True, exist_ok=True)
+    font_dir_path.mkdir(parents=True, exist_ok=True)
+    meta_inf_dir_path.mkdir(parents=True, exist_ok=True)
+    target_image_dir.mkdir(parents=True, exist_ok=True)
 
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, "ebook", mimetype_conf["filename"])

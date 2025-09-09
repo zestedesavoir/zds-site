@@ -92,8 +92,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     altered_version.pubdate = datetime.now()
 
     md_file_path = base_name + ".md"
-    with contextlib.suppress(OSError):
-        Path(Path(md_file_path).parent, "images").mkdir()
+    Path(Path(md_file_path).parent, "images").mkdir(exist_ok=True)
     is_update = False
 
     if db_object.public_version:
@@ -109,8 +108,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content = db_object
     public_version.char_count = char_count
     public_version.save()
-    with contextlib.suppress(FileExistsError):
-        makedirs(public_version.get_extra_contents_directory())
+    makedirs(public_version.get_extra_contents_directory(), exist_ok=True)
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
     elif is_update:
@@ -360,8 +358,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         base_directory = Path(base_name).parent
         image_dir = base_directory / "images"
-        with contextlib.suppress(FileExistsError):
-            image_dir.mkdir(parents=True)
+        image_dir.mkdir(parents=True, exist_ok=True)
         if (settings.MEDIA_ROOT / "galleries" / str(gallery_pk)).exists():
             for image in (settings.MEDIA_ROOT / "galleries" / str(gallery_pk)).iterdir():
                 with contextlib.suppress(OSError):
@@ -513,8 +510,7 @@ class ZMarkdownEpubPublicator(Publicator):
             epub_path = Path(published_content_entity.get_extra_contents_directory(), Path(epub_file_path.name))
             if epub_path.exists():
                 os.remove(str(epub_path))
-            if not epub_path.parent.exists():
-                epub_path.parent.mkdir(parents=True)
+            epub_path.parent.mkdir(parents=True, exist_ok=True)
             logger.info(
                 "created %s. moving it to %s", epub_file_path, published_content_entity.get_extra_contents_directory()
             )

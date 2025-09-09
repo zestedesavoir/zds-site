@@ -626,8 +626,7 @@ class Container:
         repo = self.top_container().repository
         path = self.top_container().get_path()
         rel_path = subcontainer.get_path(relative=True)
-        with contextlib.suppress(FileExistsError):
-            Path(path, rel_path).mkdir(parents=True)
+        Path(path, rel_path).mkdir(parents=True, exist_ok=True)
 
         repo.index.add([rel_path])
 
@@ -869,8 +868,7 @@ class Container:
         if self.has_extracts():
             return
         current_dir_path = Path(base_dir, self.get_prod_path(relative=True))  # create subdirectory
-        with contextlib.suppress(FileExistsError):
-            current_dir_path.mkdir(parents=True)
+        current_dir_path.mkdir(parents=True, exist_ok=True)
 
         if self.introduction:
             path = current_dir_path / "introduction.html"
