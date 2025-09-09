@@ -46,8 +46,7 @@ class Command(BaseCommand):
                 building_extra_content_path = Path(
                     str(Path(extra_content_dir).parent) + "__building", "extra_contents", content.content_public_slug
                 )
-                if not building_extra_content_path.exists():
-                    building_extra_content_path.mkdir(parents=True)
+                building_extra_content_path.mkdir(parents=True, exist_ok=True)
                 base_name = str(Path(str(extra_content_dir), content.content_public_slug))
 
                 PublicatorRegistry.get("md").publish(

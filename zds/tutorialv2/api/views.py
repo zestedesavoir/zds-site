@@ -91,10 +91,8 @@ class ExportView(APIView):
     def ensure_directories(self, content: PublishableContent):
         final_directory = Path(content.public_version.get_extra_contents_directory())
         building_directory = Path(str(final_directory.parent) + "__building", final_directory.name)
-        with contextlib.suppress(FileExistsError):
-            final_directory.mkdir(parents=True)
-        with contextlib.suppress(FileExistsError):
-            building_directory.mkdir(parents=True)
+        final_directory.mkdir(parents=True, exist_ok=True)
+        building_directory.mkdir(parents=True, exist_ok=True)
         return building_directory, final_directory
 
     def post(self, request, *args, **kwargs):
