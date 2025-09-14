@@ -904,6 +904,19 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertContains(result, reverse("search:query"))
         self.assertContains(result, reverse("search:opensearch"))
 
+    def test_apostrophe(self):
+        topic1 = TopicFactory(forum=self.forum, author=self.user, title="Parlons d'une harmonie qui sonne bien")
+        topic2 = TopicFactory(forum=self.forum, author=self.user, title="Voici l'harmonie qui sonne bien")
+        topic3 = TopicFactory(forum=self.forum, author=self.user, title="Rien à voir")
+
+        self._index_everything()
+
+        response = self.client.get(reverse("search:query") + "?q=harmonie", follow=False)
+        self.assertEqual(response.status_code, 200)
+
+        results = response.context["object_list"]
+        self.assertEqual(len(results), 2)
+
     def test_upercase_and_lowercase_search_give_same_results(self):
         """Pretty self-explanatory function name, isn't it ?"""
 
