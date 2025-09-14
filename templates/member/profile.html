@@ -69,6 +69,13 @@
                     {% endblocktrans %}
                 </li>
             {% endif %}
+            {% if login_providers %}
+                <li>
+                    {% blocktrans with providers=login_providers|join:", " %}
+                        Authentification par {{ providers }}
+                    {% endblocktrans %}
+                </li>
+            {% endif %}
         {% endif %}
     {% endcaptureas %}
 
