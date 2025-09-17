@@ -365,10 +365,4 @@ class SearchFilter:
         :param values: A list of integer values the field cannot have.
         :type values: list[int]
         """
-
-        # Starting from version 27.1 of Typesense, there is a bug making filter_by=field:!=[1,2] not work.
-        # The workaround is to make a more verbose version of the filter: filter_by=field:!=1&&field:!=2
-        # The bug was reported upstream: https://github.com/typesense/typesense/issues/2350
-        # Please switch back to the :!=[1,2] version when the bug will be fixed.
-        # self._add_filter(f"{field}:!= [" + ", ".join(map(str, values)) + "]")
-        self._add_filter(" && ".join(map(lambda s: f"{field}:!={s}", values)))
+        self._add_filter(f"{field}:!=[" + ",".join(map(str, values)) + "]")

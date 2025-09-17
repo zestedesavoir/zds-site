@@ -19,7 +19,7 @@ if [[ $ZDS_NVM_VERSION == "" ]]; then
 fi
 
 if [[ $ZDS_TYPESENSE_VERSION == "" ]]; then
-    ZDS_TYPESENSE_VERSION="28.0" # needs to be also updated in .github/workflows/ci.yml
+    ZDS_TYPESENSE_VERSION="29.0" # needs to be also updated in .github/workflows/ci.yml
 fi
 
 if [[ $ZDS_TYPESENSE_API_KEY == "" ]]; then
