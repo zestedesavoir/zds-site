@@ -204,6 +204,4 @@ class SearchFilterTests(TestCase):
         f = SearchFilter()
 
         f.add_not_numerical_filter("forum_pk", [6, 7])
-        self.assertEqual(str(f), "(forum_pk:!=6 && forum_pk:!=7)")
-        # Expected output when a Typesense bug will be fixed (see comment in tested function):
-        # self.assertEqual(str(f), "(forum_pk:!=[6,7])")
+        self.assertEqual(str(f), "(forum_pk:!=[6,7])")
