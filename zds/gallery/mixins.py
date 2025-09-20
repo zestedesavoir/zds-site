@@ -5,6 +5,7 @@ import tempfile
 import zipfile
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 from easy_thumbnails.files import get_thumbnailer
 from PIL import Image as ImagePIL
 from svglib.svglib import load_svg_file
@@ -279,7 +280,16 @@ class ImageCreateMixin(ImageMixin):
             (name, ext) = os.path.splitext(basename)
 
             if file_info.file_size > settings.ZDS_APP["gallery"]["image_max_size"]:
-                error_files.append(i)
+                error_files.append(
+                    {
+                        "filename": i,
+                        "error": _(
+                            "l'image dépasse la taille maximale autorisée ({} Ko)".format(
+                                settings.ZDS_APP["gallery"]["image_max_size"] / 1024
+                            )
+                        ),
+                    }
+                )
                 continue
 
             # create file for image
@@ -295,7 +305,12 @@ class ImageCreateMixin(ImageMixin):
                 self.perform_create(name, f_im)
                 f_im.close()
             except NotAnImage:
-                error_files.append(i)
+                error_files.append(
+                    {
+                        "filename": i,
+                        "error": _("ce n'est pas une image"),
+                    }
+                )
                 continue
             if os.path.exists(ph_temp):
                 os.remove(ph_temp)
