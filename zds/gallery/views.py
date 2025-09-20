@@ -430,10 +430,8 @@ class ImportImages(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWit
 
         error_files = self.perform_create_multi(archive)
 
-        if len(error_files) > 0:
-            messages.error(
-                self.request, _('Les fichiers suivants n\'ont pas été importés: "{}"').format('", "'.join(error_files))
-            )
+        for e in error_files:
+            messages.error(self.request, _(f'Le fichier {e["filename"]} n\'a pas été importé : {e["error"]}.'))
 
         self.success_url = self.gallery.get_absolute_url()
         return super().form_valid(form)
