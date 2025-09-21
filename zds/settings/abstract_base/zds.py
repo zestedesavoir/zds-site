@@ -159,7 +159,7 @@ ZDS_APP = {
     },
     "homepage": {
         "contents_count": 5,
-        "opinions_count": 4,
+        "opinions_count": 6,
         "topics_count": 5,
         "features_count": 5,
     },

@@ -164,7 +164,7 @@
                             </p>
                             <p class="lead">{% trans "Pourquoi pas vous ?" %}</p>
                         </div>
-                        <a href="{% url "content:create-content" created_content_type='TUTORIAL' %}" class="btn btn-call-to-action">{% trans "Je rédige !" %}</a>
+                        <a href="{% url "content:create-content" created_content_type='OPINION' %}" class="btn btn-call-to-action">{% trans "Je rédige !" %}</a>
                     </div>
                     {% for opinion in last_opinions %}
                         {% include 'tutorialv2/includes/content_item.part.html' with public_content=opinion show_description=True item_class=forloop.first|yesno:", mini" show_reactions=True ignore_categories=True %}
