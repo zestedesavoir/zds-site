@@ -13,7 +13,7 @@ from zds.notification.models import (
     TopicAnswerSubscription,
 )
 from zds.tutorialv2.models import TYPE_CHOICES_DICT
-from zds.tutorialv2.models.database import PickListOperation, PublishableContent, Validation
+from zds.tutorialv2.models.database import PickListOperation, PotentialObsolete, PublishableContent, Validation
 from zds.utils import get_current_user
 from zds.utils.context_processor import get_repository_url
 from zds.utils.models import HatRequest
@@ -145,6 +145,14 @@ def waiting_count(content_type):
         )
 
     return Validation.objects.filter(validator__isnull=True, status="PENDING", content__type=content_type).count()
+
+
+@register.filter(name="new_obsolete_count")
+def new_obsolete_count(_):
+    """
+    Gets the number of contents marked as potentially obsolete and not treated.
+    """
+    return PotentialObsolete.objects.filter(status="nouveau").count()
 
 
 @register.filter(name="new_providers_count")

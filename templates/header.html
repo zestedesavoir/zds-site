@@ -412,6 +412,19 @@
                             {% endwith %}
                         {% endif %}
 
+                        {% if perms.tutorialv2.change_publishablecontent %}
+                            {% with obsolete_count=""|new_obsolete_count %}
+                                <li class="staff-only">
+                                    <a href="{% url "content:obsolete" %}">
+                                        {% trans "Signalements des contenus obsolètes" %}
+                                        {% if obsolete_count > 0 %}
+                                            ({{ obsolete_count }})
+                                        {% endif %}
+                                    </a>
+                                </li>
+                            {% endwith %}
+                        {% endif %}
+
                         {% if perms.utils.change_hat %}
                             {% with requested_hats_count=user|requested_hats_count %}
                                 <li class="staff-only">

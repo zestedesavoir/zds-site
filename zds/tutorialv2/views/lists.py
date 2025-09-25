@@ -335,6 +335,10 @@ class ContentOfAuthor(ZdSPagingListView):
         [
             ("public", [lambda p, t: p.get_user_public_contents_queryset(t), _("Publiés"), True, "tick green"]),
             ("validation", [lambda p, t: p.get_user_validate_contents_queryset(t), _("En validation"), False, "tick"]),
+            (
+                "obsolete",
+                [lambda p, t: p.get_user_obsolete_contents(t), _("Obsolètes"), False, ""],
+            ),  # TODO: Add an icon
             ("beta", [lambda p, t: p.get_user_beta_contents_queryset(t), _("En bêta"), True, "beta"]),
             ("redaction", [lambda p, t: p.get_user_draft_contents_queryset(t), _("Brouillons"), False, "edit"]),
         ]

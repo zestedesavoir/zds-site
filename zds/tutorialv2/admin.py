@@ -18,8 +18,8 @@ from zds.tutorialv2.models.labels import Label
 
 
 class PublishableContentAdmin(admin.ModelAdmin):
-    list_display = ("type", "title", "creation_date", "update_date", "is_obsolete")
-    list_filter = ("type", "licence", "is_locked", "js_support", "is_obsolete")
+    list_display = ("type", "title", "creation_date", "update_date", "obsolete_reason")
+    list_filter = ("type", "licence", "is_locked", "js_support", "obsolete_reason")
     ordering = ("-update_date", "-creation_date")
     raw_id_fields = ("authors", "tags", "image", "gallery", "beta_topic", "last_note", "public_version")
     search_fields = (
@@ -41,7 +41,7 @@ class PublishedContentAdmin(admin.ModelAdmin):
         "content__licence",
         "content__is_locked",
         "content__js_support",
-        "content__is_obsolete",
+        "content__obsolete_reason",
     )
     ordering = ("-update_date", "-publication_date")
     raw_id_fields = ("content", "authors")
@@ -73,7 +73,7 @@ class ValidationAdmin(admin.ModelAdmin):
         "content__licence",
         "content__is_locked",
         "content__js_support",
-        "content__is_obsolete",
+        "content__obsolete_reason",
     )
     ordering = ("-date_validation", "-date_reserve", "-date_proposition")
     raw_id_fields = ("content", "validator")

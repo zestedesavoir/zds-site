@@ -142,7 +142,7 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     is_locked = models.BooleanField("Est verrouillé", default=False)
     js_support = models.BooleanField("Support du Javascript", default=False)
 
-    is_obsolete = models.BooleanField("Est obsolète", default=False)
+    obsolete_reason = models.TextField("Justification d'obsolescence", null=True, blank=True)
 
     public_version = models.ForeignKey(
         "PublishedContent", verbose_name="Version publiée", blank=True, null=True, on_delete=models.SET_NULL
@@ -1050,6 +1050,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
             {"name": "description", "type": "string", "facet": False, "optional": True},  # we search on it
             {"name": "get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False, "optional": True},
+            {"name": "is_obsolete", "type": "bool", "facet": False, "optional": True},
             {"name": "weight", "type": "float"},  # we sort on it
         ]
 
@@ -1144,7 +1145,7 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
 
         is_multipage = versioned.has_sub_containers()
         data["weight"] = self._get_search_weight(is_multipage)
-
+        data["is_obsolete"] = bool(self.content.obsolete_reason)
         return data
 
     def _get_search_weight(self, is_multipage: bool):
@@ -1274,6 +1275,7 @@ class FakeChapter(AbstractSearchIndexable):
             {"name": "get_absolute_url_online", "type": "string", "index": False},
             {"name": "parent_get_absolute_url_online", "type": "string", "index": False},
             {"name": "thumbnail", "type": "string", "index": False},
+            {"name": "is_obsolete", "type": "bool", "facet": False, "optional": True},
             {"name": "weight", "type": "float", "facet": False},  # we sort on it
         ]
 
@@ -1288,7 +1290,6 @@ class FakeChapter(AbstractSearchIndexable):
         data["parent_publication_date"] = date_to_timestamp_int(self.parent_publication_date)
         data["weight"] = settings.ZDS_APP["search"]["boosts"]["chapter"]["global"]
         data["text"] = clean_html(self.text)
-
         return data
 
     @classmethod
@@ -1509,6 +1510,12 @@ STATE_CHOICES = [
     ("FAILURE", _("Export échoué")),
 ]
 
+REPORT_STATUS = (
+    ("nouveau", "Nouveau"),
+    ("traite", "Traité"),
+    ("ignore", "Ignoré"),
+)
+
 
 class PublicationEvent(models.Model):
     class Meta:
@@ -1573,6 +1580,41 @@ class ContentContribution(models.Model):
         return "<Contribution a '{}' par {} de type {}, #{}>".format(
             self.content.title, self.user.username, self.contribution_role.title, self.pk
         )
+
+
+class PotentialObsolete(models.Model):
+    """
+    Ce modèle stocke les détails d’un signalement pour un contenu potentiellement obsolète, y compris :
+    - Le message du signalement,
+    - L’auteur du signalement,
+    - La date du signalement,
+    - Le lien vers un contenu publié (PublishableContent),
+    - Le statut du signalement, qui peut être "nouveau", "traité" ou "ignoré".
+    """
+
+    message = models.TextField("Message")
+    author = models.ForeignKey(
+        User,
+        verbose_name="L’auteur du signalement",
+        related_name="obsolete_reports",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    report_date = models.DateTimeField("Date du signalement", auto_now_add=True)
+    publishable_content = models.ForeignKey(
+        PublishableContent, verbose_name="Contenu publié", on_delete=models.CASCADE, related_name="obsolete_reports"
+    )
+
+    status = models.CharField("Statut", max_length=10, choices=REPORT_STATUS, default="nouveau")
+
+    @classmethod
+    def update_report_status(cls, report_id, new_status):
+        """Updates the status of a report."""
+        if new_status not in [code for code, _ in REPORT_STATUS]:
+            raise ValueError("Invalid status provided.")
+        report = cls.objects.filter(id=report_id).update(status=new_status)
+        return report
 
 
 class ContentSuggestion(models.Model):

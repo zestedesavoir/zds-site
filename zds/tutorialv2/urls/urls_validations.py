@@ -39,7 +39,6 @@ urlpatterns = [
     path("operation/annuler/<int:pk>/", RevokePickOperation.as_view(), name="revoke-ignore-opinion"),
     path("retirer/<int:pk>/<slug:slug>/", UnpickOpinion.as_view(), name="unpick-opinion"),
     path("promouvoir/<int:pk>/<slug:slug>/", PromoteOpinionToArticle.as_view(), name="promote-opinion"),
-    path("marquer-obsolete/<int:pk>/", MarkObsolete.as_view(), name="mark-obsolete"),
     # VALIDATION VIEWS FOR STAFF
     path("billets/", ValidationOpinionListView.as_view(), name="list-opinion"),
     path("", ValidationListView.as_view(), name="list"),

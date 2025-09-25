@@ -320,6 +320,22 @@ Récupère le nombre de tutoriels ou d'articles dans la zone de validation n'aya
 
 Le filtre doit être appelé sur ``"TUTORIAL"`` pour récupérer le nombre de tutoriels en attente et sur ``"ARTICLE"`` pour le nombre d'articles.
 
+
+``new_obsolete_count``
+------------------------
+
+Récupère le nombre de contenus signalés comme obsolètes ayant le **status** "nouveau".
+
+.. sourcecode:: html+django
+
+    {% load interventions %}
+    {% with new_obsolete_count=""|new_obsolete_count %}
+        ...
+    {% endwith %}
+
+Le filtre doit être appelé sans argument pour récupérer le nombre de signalements de contenus obsolètes avec un status "nouveau".
+
+
 ``humane_delta``
 ----------------
 
