@@ -3,7 +3,7 @@ from django.views.generic.base import RedirectView
 
 from zds.tutorialv2.views.alerts import SendContentAlert, SolveContentAlert
 from zds.tutorialv2.views.archives import CreateContentFromArchive, DownloadContent, UpdateContentWithArchive
-from zds.tutorialv2.views.authors import AddAuthorToContent, RemoveAuthorView
+from zds.tutorialv2.views.authors import AddAuthorView, RemoveAuthorView
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
 from zds.tutorialv2.views.categories import EditCategoriesView
@@ -54,13 +54,14 @@ from zds.tutorialv2.views.history import DisplayDiff, DisplayHistory
 from zds.tutorialv2.views.labels import EditLabels, ViewContentsByLabel
 from zds.tutorialv2.views.licence import EditContentLicense
 from zds.tutorialv2.views.lists import ContentOfAuthor, ListContentReactions, TagsListView
-from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent, WarnTypo
+from zds.tutorialv2.views.misc import FollowNewContent, RequestFeaturedContent
 from zds.tutorialv2.views.redirect import RedirectOldContentOfAuthor
 from zds.tutorialv2.views.statistics import ContentStatisticsView
 from zds.tutorialv2.views.suggestions import AddSuggestionView, RemoveSuggestionView
 from zds.tutorialv2.views.tags import EditTags
 from zds.tutorialv2.views.thumbnail import EditThumbnailView
 from zds.tutorialv2.views.validations_contents import ActivateJSFiddleInContent
+from zds.tutorialv2.views.warntypo import WarnTypoView
 
 feeds = [
     path("flux/rss/", RedirectView.as_view(pattern_name="publication:feed-rss", permanent=True), name="feed-rss"),
@@ -166,7 +167,7 @@ urlpatterns = (
         path("alerter/<int:pk>/", SendContentAlert.as_view(), name="alert-content"),
         path("resoudre/<int:pk>/", SolveContentAlert.as_view(), name="resolve-content"),
         # typo:
-        path("reactions/typo/", WarnTypo.as_view(), name="warn-typo"),
+        path("reactions/typo/", WarnTypoView.as_view(), name="warn-typo"),
         # create:
         path("nouveau-contenu/<str:created_content_type>/", CreateContentView.as_view(), name="create-content"),
         path(
@@ -213,7 +214,7 @@ urlpatterns = (
         path("comparaison/<int:pk>/<slug:slug>/", DisplayDiff.as_view(), name="diff"),
         path("ajouter-contributeur/<int:pk>/", AddContributorToContent.as_view(), name="add-contributor"),
         path("enlever-contributeur/<int:pk>/", RemoveContributorFromContent.as_view(), name="remove-contributor"),
-        path("ajouter-auteur/<int:pk>/", AddAuthorToContent.as_view(), name="add-author"),
+        path("ajouter-auteur/<int:pk>/", AddAuthorView.as_view(), name="add-author"),
         path("enlever-auteur/<int:pk>/", RemoveAuthorView.as_view(), name="remove-author"),
         path("modifier-titre/<int:pk>/", EditTitle.as_view(), name="edit-title"),
         path("modifier-sous-titre/<int:pk>/", EditSubtitle.as_view(), name="edit-subtitle"),
