@@ -16,10 +16,10 @@
 
 
 
-{% blocktrans with username=user.username|safe title=content.title|safe type=type|safe %}
+{% blocktrans with username=user.username|safe title=content.title|safe %}
 Salut !
 
-Il me semble avoir déniché une erreur dans {{ type }} « [{{ title }}]({{ content_url }}) ».{% endblocktrans %}
+Il me semble avoir déniché une erreur dans « [{{ title }}]({{ content_url }}) ».{% endblocktrans %}
 {% if target != content %}
 {% blocktrans with title=target.title|safe %}Fourbe, elle se situe sournoisement dans {{ feminized }} {{ level }} « [{{ title }}]({{ target_url }}) ».{% endblocktrans %}
 {% endif %}
