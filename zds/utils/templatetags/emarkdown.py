@@ -53,8 +53,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
             timeout = 120
             # use manifest renderer
             real_input = md_input
-            # do not shift title
-            kwargs["heading_shift"] = 0
+            kwargs["heading_shift"] = -1
         response = post(
             "{}{}".format(settings.ZDS_APP["zmd"]["server"], endpoint),
             json={
