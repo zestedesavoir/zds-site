@@ -22,7 +22,6 @@ from zds.tutorialv2.forms import (
     RevokeValidationForm,
     UnpickOpinionForm,
     UnpublicationForm,
-    WarnTypoForm,
 )
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin, SingleOnlineContentDetailViewMixin
 from zds.tutorialv2.models.database import (
@@ -49,6 +48,7 @@ from zds.tutorialv2.views.licence import EditContentLicenseForm
 from zds.tutorialv2.views.suggestions import SearchSuggestionForm
 from zds.tutorialv2.views.tags import EditTagsForm
 from zds.tutorialv2.views.thumbnail import EditThumbnailForm
+from zds.tutorialv2.views.warntypo import WarnTypoForm
 from zds.utils.models import CommentVote
 from zds.utils.paginator import make_pagination
 
@@ -86,7 +86,6 @@ class ContentBaseView(SingleContentDetailViewMixin):
         data_form_unpublication = data_form_revoke
         context["form_unpublication"] = UnpublicationForm(versioned, initial=data_form_unpublication)
 
-        context["form_warn_typo"] = WarnTypoForm(versioned, versioned, public=False)
         context["form_jsfiddle"] = JsFiddleActivationForm(initial={"js_support": self.object.js_support})
         context["form_edit_license"] = EditContentLicenseForm(versioned)
 

@@ -1,6 +1,4 @@
-import logging
 from datetime import datetime
-from hashlib import md5
 
 import homoglyphs as hg
 from django.conf import settings
