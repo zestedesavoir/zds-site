@@ -1,17 +1,12 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 
-from zds.member.tests.factories import (
-    ProfileFactory,
-    StaffProfileFactory,
-    UserFactory,
-    DevProfileFactory,
-)
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.member.models import Profile
+from zds.member.tests.factories import DevProfileFactory, ProfileFactory, StaffProfileFactory, UserFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 
 
 @override_for_contents()
@@ -78,10 +73,20 @@ class MemberTests(TutorialTestMixin, TestCase):
         """
         To test details of a member given.
         """
-
-        # details of a staff user.
+        # Test staff user profile without activity on forums first
         result = self.client.get(reverse("member-detail", args=[self.staff.username]), follow=False)
         self.assertEqual(result.status_code, 200)
+        self.assertNotContains(result, "Derniers sujets créés")  # Checks that no topics are shown
+
+        # Add a forum topic
+        topic = TopicFactory(forum=self.forum11, author=self.staff)
+        PostFactory(topic=topic, author=self.staff, position=1)
+
+        # Test profile with some activity on forums
+        result = self.client.get(reverse("member-detail", args=[self.staff.username]), follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, "Derniers sujets créés")  # Checks that topics section is shown
+        self.assertContains(result, topic.title)  # Checks that the topic is displayed
 
         # details of an unknown user.
         result = self.client.get(reverse("member-detail", args=["unknown_user"]), follow=False)

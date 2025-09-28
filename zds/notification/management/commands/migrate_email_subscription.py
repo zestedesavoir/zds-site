@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from zds.member.models import Profile
-from zds.notification.models import TopicFollowed, TopicAnswerSubscription
+from zds.notification.models import TopicAnswerSubscription, TopicFollowed
 
 
 class Command(BaseCommand):

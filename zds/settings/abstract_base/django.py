@@ -3,8 +3,8 @@ from urllib.parse import quote
 from django.contrib.messages import constants as message_constants
 from django.utils.translation import gettext_lazy as _
 
-from .config import config
 from .base_dir import BASE_DIR
+from .config import config
 
 # especially for debug toolbar:
 INTERNAL_IPS = (
@@ -137,6 +137,7 @@ django_template_engine = {
             "zds.utils.context_processor.app_settings",
             "zds.utils.context_processor.version",
             "zds.utils.context_processor.header_notifications",
+            "zds.utils.context_processor.member_login_url",
             "zds.gallery.auto_upload_gallery.get_auto_upload_gallery",
         ],
     },

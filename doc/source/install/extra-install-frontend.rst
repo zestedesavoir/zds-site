@@ -62,8 +62,6 @@ Utilisation des outils
 
 Vous avez installé les outils ? Voilà comment on s'en sert dans notre projet !
 
-**Note :** dans la suite de ce document, les utilisateurs d'OS X et de GNU/Linux préféreront utiliser ``make``, les utilisateurs de Windows qui ne connaissent pas ``make`` préféreront utiliser ``yarn`` directement.
-
 
 Présentation de Gulp
 --------------------

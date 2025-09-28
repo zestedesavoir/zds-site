@@ -2,11 +2,11 @@ from datetime import datetime
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Field, Layout
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.forms import forms, FileField
+from django.forms import FileField, forms
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -18,7 +18,6 @@ from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils import get_current_user
 from zds.utils.uuslug_wrapper import slugify
-
 from zds.utils.validators import with_svg_validator
 
 

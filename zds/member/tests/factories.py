@@ -1,7 +1,6 @@
 import factory
-
-from django.contrib.auth.models import User, Permission, Group
 from django.conf import settings
+from django.contrib.auth.models import Group, Permission, User
 
 from zds.member.models import Profile
 from zds.utils.models import Hat

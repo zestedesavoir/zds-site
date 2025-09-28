@@ -1,24 +1,25 @@
 from django.urls import path
+
 from zds.tutorialv2.views.validations_contents import (
-    AskValidationForContent,
-    ReserveValidation,
-    ValidationHistoryView,
     AcceptValidation,
-    RejectValidation,
-    RevokeValidation,
+    AskValidationForContent,
     CancelValidation,
-    ValidationListView,
     MarkObsolete,
+    RejectValidation,
+    ReserveValidation,
+    RevokeValidation,
+    ValidationHistoryView,
+    ValidationListView,
 )
 from zds.tutorialv2.views.validations_opinions import (
-    PublishOpinion,
-    UnpublishOpinion,
     DoNotPickOpinion,
-    RevokePickOperation,
     PickOpinion,
-    UnpickOpinion,
-    ValidationOpinionListView,
     PromoteOpinionToArticle,
+    PublishOpinion,
+    RevokePickOperation,
+    UnpickOpinion,
+    UnpublishOpinion,
+    ValidationOpinionListView,
 )
 
 urlpatterns = [

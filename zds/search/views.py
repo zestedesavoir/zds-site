@@ -1,22 +1,21 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from django.conf import settings
-from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
-from django.utils.translation import gettext_lazy as _
 from django.shortcuts import render
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 
-from zds.forum.models import Topic, Post
+from zds.forum.models import Post, Topic
 from zds.search.forms import SearchForm
 from zds.search.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.models.database import FakeChapter, PublishedContent
 from zds.utils.paginator import ZdSPagingListView
-
 
 logger = logging.getLogger(__name__)
 
@@ -135,9 +134,6 @@ class SearchView(ZdSPagingListView):
 
         self.search_form = SearchForm(data=self.request.GET)
 
-        if self.search_query and not self.search_form.is_valid():
-            raise PermissionDenied("research form is invalid")
-
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -147,6 +143,9 @@ class SearchView(ZdSPagingListView):
 
         if not search_engine_manager.connected:
             messages.warning(self.request, _("Impossible de se connecter au moteur de recherche"))
+        elif not self.search_form.is_valid():
+            # it can happen for instance if the model field doesn't match any possible search group (eg, &model=).
+            messages.warning(self.request, _("Votre recherche est invalide."))
         elif self.search_query and "*" in self.search_query:
             # '*' is used as the search string to return all documents:
             # https://typesense.org/docs/0.23.1/api/search.html#query-parameters

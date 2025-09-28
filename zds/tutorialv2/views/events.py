@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.tutorialv2.mixins import SingleContentDetailViewMixin
 from zds.tutorialv2.models.events import Event

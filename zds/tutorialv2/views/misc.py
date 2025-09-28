@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import HttpResponse, Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.translation import gettext_lazy as _
@@ -12,11 +12,11 @@ from zds import json_handler
 from zds.featured.mixins import FeatureableMixin
 from zds.member.decorator import LoggedWithReadWriteHability
 from zds.member.models import Profile
+from zds.mp.utils import send_mp
 from zds.notification.models import NewPublicationSubscription
 from zds.tutorialv2.forms import WarnTypoForm
-from zds.tutorialv2.mixins import SingleOnlineContentViewMixin, SingleContentFormViewMixin
+from zds.tutorialv2.mixins import SingleContentFormViewMixin, SingleOnlineContentViewMixin
 from zds.tutorialv2.utils import search_container_or_404
-from zds.mp.utils import send_mp
 from zds.utils.misc import is_ajax
 
 

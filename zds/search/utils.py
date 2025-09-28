@@ -1,14 +1,13 @@
-from datetime import datetime
-from functools import lru_cache
 import logging
 import re
 import time
+from datetime import datetime
+from functools import lru_cache
 
+from bs4 import BeautifulSoup
 from django.apps import apps
 from django.conf import settings
 from django.db import transaction
-
-from bs4 import BeautifulSoup
 from typesense import Client as TypesenseClient
 
 from zds.search.models import AbstractSearchIndexableModel
@@ -73,10 +72,9 @@ class SearchIndexManager:
             self.engine = TypesenseClient(settings.SEARCH_CONNECTION)
 
             try:
-                self.engine.api_call.get("/health")
-                self.connected = True
-            except:
-                self.logger.warn("failed to connect to the search engine")
+                self.connected = self.engine.operations.is_healthy()
+            except Exception as e:
+                self.logger.warn(f"failed to connect to the search engine ({e})")
 
     @property
     def collections(self):
@@ -272,13 +270,16 @@ class SearchIndexManager:
         doc_type = document.get_search_document_type()
         doc_id = document.search_engine_id
 
-        if doc_id is None or doc_type not in self.collections:
-            # This condition is here especially for tests
-            return
-
-        answer = self.engine.collections[doc_type].documents[doc_id].delete()
-        if "id" not in answer or answer["id"] != doc_id:
-            self.logger.warn(f"Error when deleting: {answer}.")
+        # Documents may not exist in the search engine (thus by default raising
+        # a NotFound exception) in tests or, for instance, we move a
+        # not-yet-indexed topic to a private forum.
+        #
+        # If the collection doesn't exist, it can also raise an NotFound exception,
+        # regardless of the ignore_not_found param
+        if doc_type in self.collections:
+            answer = self.engine.collections[doc_type].documents[doc_id].delete({"ignore_not_found": True})
+            if "id" not in answer or answer["id"] != doc_id:
+                self.logger.warn(f"Error when deleting: {answer}.")
 
     def delete_by_query(self, doc_type="", query={"filter_by": ""}):
         """Delete a bunch of documents that match a specific filter_by condition.
@@ -297,11 +298,16 @@ class SearchIndexManager:
         if not self.connected:
             return
 
-        if doc_type not in self.collections:
-            # This condition is here especially for tests
-            return
+        if "ignore_not_found" not in query:
+            # Documents may not exist in the search engine (thus by default raising
+            # a NotFound exception) in tests or, for instance, we move a
+            # not-yet-indexed topic to a private forum.
+            query["ignore_not_found"] = True
 
-        self.engine.collections[doc_type].documents.delete(query)
+        # If the collection doesn't exist, it can also raise an NotFound exception,
+        # regardless of the ignore_not_found param
+        if not query["ignore_not_found"] or doc_type in self.collections:
+            self.engine.collections[doc_type].documents.delete(query)
 
     def search(self, request):
         """Do a search in all collections (only used in tests)

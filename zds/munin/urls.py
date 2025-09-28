@@ -1,15 +1,14 @@
-from django.urls import path, include
+from django.urls import include, path
 
 from zds.munin.views import (
     banned_users,
-    total_topics,
-    total_posts,
-    total_mps,
-    total_tutorials,
     total_articles,
+    total_mps,
     total_opinions,
+    total_posts,
+    total_topics,
+    total_tutorials,
 )
-
 
 urlpatterns = [
     path("", include(("django_munin.munin.urls", "base"))),

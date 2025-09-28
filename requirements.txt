@@ -1,38 +1,34 @@
 # Implicit dependencies (optional dependencies of dependencies)
 crispy-forms-bootstrap2==2024.1
-social-auth-app-django==5.4.2
+social-auth-app-django==5.4.3
 
 # Explicit dependencies (references in code)
-beautifulsoup4==4.12.3
-django-crispy-forms==2.3
+beautifulsoup4==4.13.4
+django-crispy-forms==2.4
 django-model-utils==5.0.0
-django-recaptcha==4.0.0
-Django==4.2.16
+django-recaptcha==4.1.0
+Django==4.2.21
 easy-thumbnails[svg]==2.10.0
-factory-boy==3.3.1
-geoip2==4.8.0
-GitPython==3.1.43
+factory-boy==3.3.3
+geoip2==5.1.0
+GitPython==3.1.44
 homoglyphs==2.0.4
-lxml==5.3.0
-Pillow==10.4.0
+lxml==5.4.0
+Pillow==11.2.1
 pymemcache==4.0.0
 requests==2.32.3
-typesense==0.21.0
-ua-parser==0.18.0
+typesense==1.1.1
+ua-parser==1.0.1
 
 # Api dependencies
-django-cors-headers==4.4.0
-django-filter==24.3
-django-oauth-toolkit==2.3.0
-djangorestframework==3.15.2
-drf-extensions==0.7.1
+django-cors-headers==4.7.0
+django-filter==25.1
+django-oauth-toolkit==3.0.1
+djangorestframework==3.16.0
+drf-extensions==0.8.0
 dry-rest-permissions==0.1.10
-drf-yasg==1.21.7
+drf-yasg==1.21.10
 
 # Dependencies for slug generation, please be extra careful with those
 django-uuslug==2.0.0
 python-slugify==8.0.4
-
-# tomllib was added to the standard library in Python 3.11
-# tomli is only needed for older Python versions
-tomli==2.0.1 ; python_version < "3.11"

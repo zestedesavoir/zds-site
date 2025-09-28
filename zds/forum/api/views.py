@@ -1,7 +1,8 @@
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from zds.member.api.permissions import CanReadTopic, CanReadAndWriteNowOrReadOnly, IsNotOwnerOrReadOnly
-from zds.utils.api.views import KarmaView
+
 from zds.forum.models import Post
+from zds.member.api.permissions import CanReadAndWriteNowOrReadOnly, CanReadTopic, IsNotOwnerOrReadOnly
+from zds.utils.api.views import KarmaView
 
 
 class PostKarmaView(KarmaView):

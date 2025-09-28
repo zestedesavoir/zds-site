@@ -1,8 +1,8 @@
-from django.test import TestCase, RequestFactory
-from django.template import TemplateSyntaxError, Context, VariableDoesNotExist, Template
+from django.template import Context, Template, TemplateSyntaxError, VariableDoesNotExist
 from django.template.base import Token, TokenType
+from django.test import RequestFactory, TestCase
 
-from zds.utils.templatetags.append_query_params import easy_tag, AppendGetNode
+from zds.utils.templatetags.append_query_params import AppendGetNode, easy_tag
 
 
 class EasyTagTest(TestCase):

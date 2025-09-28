@@ -1,4 +1,5 @@
 import os
+
 from django.conf import settings
 
 SMILEYS_BASE_PATH = settings.BASE_DIR / "dist" / "smileys"

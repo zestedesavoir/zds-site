@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
+import base64
+import os
 import sys
 import urllib.request
-import os
-import base64
-
 
 plugin_name = os.path.basename(__file__)
 route = plugin_name[plugin_name.find("_") + 1 :]

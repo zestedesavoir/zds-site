@@ -1,6 +1,5 @@
 from haystack.utils import Highlighter
 
-
 MAX_WRAP_TEXT = 50
 
 

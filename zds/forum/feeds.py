@@ -1,9 +1,10 @@
-from django.contrib.syndication.views import Feed
 from django.conf import settings
+from django.contrib.syndication.views import Feed
 from django.utils.timezone import make_aware
 from pytz import AmbiguousTimeError, NonExistentTimeError
 
-from zds.utils.feeds import DropControlCharsRss201rev2Feed, DropControlCharsAtom1Feed
+from zds.utils.feeds import DropControlCharsAtom1Feed, DropControlCharsRss201rev2Feed
+
 from .models import Post, Topic
 
 

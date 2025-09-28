@@ -1,6 +1,11 @@
 [tool.black]
 line-length = 120
-target-version = ["py38", "py39", "py310", "py311", "py312"]
+target-version = ["py311", "py312"]
 extend-exclude = """
 ^/doc
 """
+
+[tool.isort]
+profile = "hug"
+skip_gitignore = true
+line_length = 120

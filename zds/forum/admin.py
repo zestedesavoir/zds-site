@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from zds.forum.models import ForumCategory, Forum, Post, Topic, TopicRead
+from zds.forum.models import Forum, ForumCategory, Post, Topic, TopicRead
 
 
 class TopicAdmin(admin.ModelAdmin):

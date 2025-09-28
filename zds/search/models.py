@@ -19,8 +19,9 @@ class AbstractSearchIndexable:
     You also need to maintain ``search_engine_id``, which is actually a string.
     For objects that are also stored in the database, we use the database
     primary key. We have to define it here (and not in child class
-    ``AbstractSearchIndexableModel``) because there are objects indexed in the
-    search engine, but not stored in the database.
+    ``AbstractSearchIndexableModel``) and we cannot rely on the `pk` field of
+    models because there are objects indexed in the search engine, but not
+    stored in the database.
     """
 
     search_engine_id = ""
@@ -48,6 +49,9 @@ class AbstractSearchIndexable:
         search_engine_schema = dict()
         search_engine_schema["name"] = self.get_search_document_type()
         search_engine_schema["fields"] = [{"name": ".*", "type": "auto"}]
+        search_engine_schema["token_separators"] = [
+            "'",  # "l'harmonie" should match "harmonie"
+        ]
         search_engine_schema["symbols_to_index"] = [
             "+",  # c++
             "#",  # c#
@@ -125,6 +129,9 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
     def __init__(self, *args, **kwargs):
         """Override to make the search engine document ID equal to the database primary key."""
         super().__init__(*args, **kwargs)
+
+        # If the object doesn't exist yet in the database, the pk is None and
+        # we will update the search_engine_id in the save() method.
         self.search_engine_id = str(self.pk) if self.pk else None
 
     @classmethod
@@ -159,7 +166,8 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
 
     def save(self, *args, **kwargs):
         """Override the ``save()`` method to flag the object as requiring to be reindexed
-        (since a save assumes a modification of the object).
+        (since a save assumes a modification of the object) and set
+        search_engine_id in case of creation.
 
         .. note::
             Flagging can be prevented using ``save(search_engine_requires_index=False)``.
@@ -167,4 +175,10 @@ class AbstractSearchIndexableModel(AbstractSearchIndexable, models.Model):
 
         self.search_engine_requires_index = kwargs.pop("search_engine_requires_index", True)
 
-        return super().save(*args, **kwargs)
+        ret = super().save(*args, **kwargs)
+
+        # Now we are sure the object exists in databse, so we have a pk
+        assert self.pk is not None
+        self.search_engine_id = str(self.pk)
+
+        return ret

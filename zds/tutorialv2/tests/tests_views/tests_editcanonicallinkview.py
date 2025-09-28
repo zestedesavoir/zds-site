@@ -5,10 +5,10 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext_lazy as _
 
-from zds.tutorialv2.views.canonical import EditCanonicalLinkForm, EditCanonicalLinkView
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.views.canonical import EditCanonicalLinkForm, EditCanonicalLinkView
 
 
 @override_for_contents()

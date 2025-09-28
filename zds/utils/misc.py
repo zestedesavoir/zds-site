@@ -55,7 +55,7 @@ def remove_utf8mb4(s):
     """
     if not isinstance(s, str):
         s = str(s, "utf-8")
-    re_pattern = re.compile("[^\u0000-\uD7FF\uE000-\uFFFF]", re.UNICODE)
+    re_pattern = re.compile("[^\u0000-\ud7ff\ue000-\uffff]", re.UNICODE)
     return re_pattern.sub("", s)
 
 

@@ -6,31 +6,31 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.db import transaction
 from django.http import Http404, HttpResponse, StreamingHttpResponse
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
-from django.views.decorators.http import require_POST, require_GET
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.decorators.http import require_GET, require_POST
+from django.views.generic import CreateView, DetailView, ListView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 
-from zds.forum.commons import TopicEditMixin, PostEditMixin, SinglePostObjectMixin, ForumEditMixin
-from zds.forum.forms import TopicForm, PostForm, MoveTopicForm
-from zds.forum.models import ForumCategory, Forum, Topic, Post, mark_read, TopicRead
+from zds.featured.mixins import FeatureableMixin
+from zds.forum import signals
+from zds.forum.commons import ForumEditMixin, PostEditMixin, SinglePostObjectMixin, TopicEditMixin
+from zds.forum.forms import MoveTopicForm, PostForm, TopicForm
+from zds.forum.models import Forum, ForumCategory, Post, Topic, TopicRead, mark_read
+from zds.forum.utils import CreatePostView, create_topic, send_post
 from zds.member.decorator import can_write_and_read_now
 from zds.member.models import user_readable_forums
-from zds.forum import signals
 from zds.notification.models import NewTopicSubscription, TopicAnswerSubscription
-from zds.featured.mixins import FeatureableMixin
 from zds.utils import old_slugify
 from zds.utils.context_processor import get_repository_url
-from zds.forum.utils import create_topic, send_post, CreatePostView
 from zds.utils.misc import is_ajax
 from zds.utils.mixins import FilterMixin
-from zds.utils.models import Alert, Tag, CommentVote
+from zds.utils.models import Alert, CommentVote, Tag
 from zds.utils.paginator import ZdSPagingListView
 
 

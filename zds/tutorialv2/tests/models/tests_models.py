@@ -1,28 +1,26 @@
-import unittest
-
-from django.urls import reverse
-from datetime import datetime, timedelta
 import os
+import unittest
+from datetime import datetime, timedelta
 
 from django.conf import settings
+from django.template.defaultfilters import date
 from django.test import TestCase
+from django.urls import reverse
 
 from zds.gallery.models import UserGallery
-
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-)
 from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.models.database import PublishableContent, PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
+from zds.tutorialv2.tests.factories import (
+    ContainerFactory,
+    ExtractFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+)
 from zds.utils.models import Tag
-from django.template.defaultfilters import date
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 @override_for_contents()

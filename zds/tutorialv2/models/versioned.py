@@ -1,27 +1,25 @@
+import codecs
 import contextlib
 import copy
-from pathlib import Path
-
-from zds import json_handler
-from git import Repo
 import os
 import shutil
-import codecs
+from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.template.loader import render_to_string
+from git import Repo
 
-from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
+from zds import json_handler
 from zds.tutorialv2.models import CONTENT_TYPES_REQUIRING_VALIDATION
-from zds.tutorialv2.utils import default_slug_pool, export_content, get_commit_author, InvalidOperationError
-from zds.tutorialv2.utils import get_blob
-from zds.utils.validators import InvalidSlugError, check_slug
+from zds.tutorialv2.models.mixins import TemplatableContentModelMixin
+from zds.tutorialv2.utils import InvalidOperationError, default_slug_pool, export_content, get_blob, get_commit_author
 from zds.utils.misc import compute_hash
 from zds.utils.templatetags.emarkdown import emarkdown
 from zds.utils.uuslug_wrapper import slugify
+from zds.utils.validators import InvalidSlugError, check_slug
 
 
 class Container:
@@ -628,8 +626,7 @@ class Container:
         repo = self.top_container().repository
         path = self.top_container().get_path()
         rel_path = subcontainer.get_path(relative=True)
-        with contextlib.suppress(FileExistsError):
-            Path(path, rel_path).mkdir(parents=True)
+        Path(path, rel_path).mkdir(parents=True, exist_ok=True)
 
         repo.index.add([rel_path])
 
@@ -871,8 +868,7 @@ class Container:
         if self.has_extracts():
             return
         current_dir_path = Path(base_dir, self.get_prod_path(relative=True))  # create subdirectory
-        with contextlib.suppress(FileExistsError):
-            current_dir_path.mkdir(parents=True)
+        current_dir_path.mkdir(parents=True, exist_ok=True)
 
         if self.introduction:
             path = current_dir_path / "introduction.html"

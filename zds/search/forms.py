@@ -1,13 +1,12 @@
 import random
 
-from django import forms
-from django.conf import settings
-from django.utils.translation import gettext_lazy as _
-
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Field, Layout
+from django import forms
+from django.conf import settings
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 
 class SearchForm(forms.Form):
@@ -54,18 +53,19 @@ class SearchForm(forms.Form):
         """Override clean() to add a field containing collections we have actually to search into."""
         cleaned_data = super().clean()
 
-        if len(cleaned_data["models"]) == 0:
-            # Search in all collections
-            cleaned_data["search_collections"] = [
-                c for _, v in settings.ZDS_APP["search"]["search_groups"].items() for c in v[1]
-            ]
-        else:
-            # Search in collections of selected models
-            cleaned_data["search_collections"] = [
-                c
-                for k, v in settings.ZDS_APP["search"]["search_groups"].items()
-                for c in v[1]
-                if k in cleaned_data["models"]
-            ]
+        if self.is_valid():
+            if len(cleaned_data.get("models", [])) == 0:
+                # Search in all collections
+                cleaned_data["search_collections"] = [
+                    c for _, v in settings.ZDS_APP["search"]["search_groups"].items() for c in v[1]
+                ]
+            else:
+                # Search in collections of selected models
+                cleaned_data["search_collections"] = [
+                    c
+                    for k, v in settings.ZDS_APP["search"]["search_groups"].items()
+                    for c in v[1]
+                    if k in cleaned_data["models"]
+                ]
 
         return cleaned_data

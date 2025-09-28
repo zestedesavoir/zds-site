@@ -10,21 +10,22 @@ from os import makedirs, path
 from pathlib import Path
 
 import requests
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.template.defaultfilters import date
 from django.template.loader import render_to_string
 from django.utils import translation
 from django.utils.translation import gettext_lazy as _
-from django.conf import settings
+
+from zds.forum.utils import lock_topic, send_post
 from zds.tutorialv2 import signals
 from zds.tutorialv2.epub_utils import build_ebook
-from zds.tutorialv2.models.database import ContentReaction, PublishedContent, PublicationEvent
+from zds.tutorialv2.models.database import ContentReaction, PublicationEvent, PublishedContent
 from zds.tutorialv2.publish_container import publish_use_manifest
 from zds.tutorialv2.signals import content_unpublished
 from zds.tutorialv2.utils import export_content
-from zds.forum.utils import send_post, lock_topic
 from zds.utils.templatetags.emarkdown import render_markdown
-from zds.utils.templatetags.smileys_def import SMILEYS_BASE_PATH, LICENSES_BASE_PATH
+from zds.utils.templatetags.smileys_def import LICENSES_BASE_PATH, SMILEYS_BASE_PATH
 
 logger = logging.getLogger(__name__)
 licences = {
@@ -91,8 +92,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     altered_version.pubdate = datetime.now()
 
     md_file_path = base_name + ".md"
-    with contextlib.suppress(OSError):
-        Path(Path(md_file_path).parent, "images").mkdir()
+    Path(Path(md_file_path).parent, "images").mkdir(exist_ok=True)
     is_update = False
 
     if db_object.public_version:
@@ -108,8 +108,7 @@ def publish_content(db_object, versioned, is_major_update=True):
     public_version.content = db_object
     public_version.char_count = char_count
     public_version.save()
-    with contextlib.suppress(FileExistsError):
-        makedirs(public_version.get_extra_contents_directory())
+    makedirs(public_version.get_extra_contents_directory(), exist_ok=True)
     if is_major_update or not is_update:
         public_version.publication_date = datetime.now()
     elif is_update:
@@ -359,8 +358,7 @@ class ZMarkdownRebberLatexPublicator(Publicator):
         )
         base_directory = Path(base_name).parent
         image_dir = base_directory / "images"
-        with contextlib.suppress(FileExistsError):
-            image_dir.mkdir(parents=True)
+        image_dir.mkdir(parents=True, exist_ok=True)
         if (settings.MEDIA_ROOT / "galleries" / str(gallery_pk)).exists():
             for image in (settings.MEDIA_ROOT / "galleries" / str(gallery_pk)).iterdir():
                 with contextlib.suppress(OSError):
@@ -512,8 +510,7 @@ class ZMarkdownEpubPublicator(Publicator):
             epub_path = Path(published_content_entity.get_extra_contents_directory(), Path(epub_file_path.name))
             if epub_path.exists():
                 os.remove(str(epub_path))
-            if not epub_path.parent.exists():
-                epub_path.parent.mkdir(parents=True)
+            epub_path.parent.mkdir(parents=True, exist_ok=True)
             logger.info(
                 "created %s. moving it to %s", epub_file_path, published_content_entity.get_extra_contents_directory()
             )

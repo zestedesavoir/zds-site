@@ -4,12 +4,12 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
 
+from zds.forum.tests.factories import TagFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.views.tags import EditTagsForm, EditTags
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.forum.tests.factories import TagFactory
+from zds.tutorialv2.views.tags import EditTags, EditTagsForm
 from zds.utils.forms import TagValidator
 from zds.utils.models import Tag
 

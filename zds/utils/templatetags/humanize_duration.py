@@ -1,10 +1,11 @@
 import logging
 import numbers
-from typing import Tuple, List
-from collections.abc import Iterator, Iterable
+from collections.abc import Iterable, Iterator
+from typing import List, Tuple
 
 from django import template
-from django.utils.translation import ngettext, gettext as _
+from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 logger = logging.getLogger(__file__)
 register = template.Library()

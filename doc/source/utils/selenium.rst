@@ -23,7 +23,7 @@ Il est nécessaire d'installer deux choses pour utiliser Selenium avec Django : 
    # Ajout du webdriver dans le PATH
    export PATH=$PATH:$PWD/geckodriver
 
-Pour Mac OS ou Windows, il suffit de lire les instructions à l'adresse suivante : https://github.com/mozilla/geckodriver/
+Pour macOS, il suffit de lire les instructions à l'adresse suivante : https://github.com/mozilla/geckodriver/
 
 .. attention::
 

@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from django.db.models import Q, F
+from django.db.models import F, Q
 from model_utils.managers import InheritanceManager
 
 from zds.utils import get_current_user

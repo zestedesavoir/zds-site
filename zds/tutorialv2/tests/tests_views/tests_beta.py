@@ -1,24 +1,24 @@
 from unittest.mock import patch
 
 from django.contrib.auth.models import Group
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.forum.tests.factories import ForumFactory, ForumCategoryFactory
-from zds.forum.models import Topic, Post, TopicRead
+from zds.forum.models import Post, Topic, TopicRead
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, UserFactory
 from zds.mp.models import PrivateTopic
 from zds.notification.models import TopicAnswerSubscription
+from zds.tutorialv2.models.database import PublishableContent
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
     HelpWritingFactory,
+    PublishableContentFactory,
 )
-from zds.tutorialv2.models.database import PublishableContent
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.models import Tag
 
 

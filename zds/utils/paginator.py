@@ -1,8 +1,8 @@
 from django.conf import settings
+from django.core.paginator import EmptyPage, Paginator
+from django.http import Http404
 from django.views.generic import ListView
 from django.views.generic.list import MultipleObjectMixin
-from django.core.paginator import Paginator, EmptyPage
-from django.http import Http404
 
 
 class ZdSPagingListView(ListView):

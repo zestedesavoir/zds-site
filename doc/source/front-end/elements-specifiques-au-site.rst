@@ -507,9 +507,9 @@ Le formulaire transmettra les champs suivants :
 Ajouter un design temporaire
 ============================
 
-Il y a dans le fichier ``settings.py`` un tableau ``ZDS_APP.visual_changes``. Ce tableau de chaînes de caractères est injecté sous forme de classes au body, avec comme prefixe ``vc-`` (si l'utilisateur n'as pas bloqué les designs temporaires dans ses paramètres).
+Il y a dans le fichier ``zds/settings/abstract_base/zds.py`` un tableau ``ZDS_APP["visual_changes"]``. Ce tableau de chaînes de caractères est injecté sous forme de classes CSS à l'élément HTML ``<body>``, avec comme prefixe ``vc-`` (si l'utilisateur n'as pas bloqué les designs temporaires dans ses paramètres).
 
-Il suffit donc, dans le style et dans les scripts si le ``body`` a la classe ``vc-{...}`` correspondante au changement visuel.
+Il suffit donc, dans le style et dans les scripts de tester si la balise ``<body>`` a la classe ``vc-{...}`` correspondante au changement visuel.
 
 .. sourcecode:: scss
 
@@ -537,7 +537,7 @@ Les changements visuels disponibles sont:
   - ``clem-halloween``: remplace la Clem de la page d'accueil par une Clem qui fait peur
   - ``valentine-snow``: ajoute des cœurs dans le header à la place de la neige
 
-Par exemple, pour activer les changements ``snow`` et ``clem-christmas``, il faut ajouter au ``settings_prod.py``:
+Par exemple, pour activer les changements ``snow`` et ``clem-christmas``, il faut définir ``ZDS_APP["visual_changes"]`` comme suit.
 
 .. sourcecode:: python
 

@@ -1,40 +1,45 @@
+import datetime
 import os
 import shutil
 from pathlib import Path
-import datetime
 
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    ContainerFactory,
-    ExtractFactory,
-    PublishedContentFactory,
-    ContentReactionFactory,
-)
+from zds import json_handler
 from zds.gallery.tests.factories import UserGalleryFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.tutorialv2.models.database import ContentReaction, ContentRead, PublishableContent, PublishedContent
 from zds.tutorialv2.models.versioned import Container
+from zds.tutorialv2.publication_utils import (
+    Publicator,
+    PublicatorRegistry,
+    ZMarkdownRebberLatexPublicator,
+    publish_content,
+    unpublish_content,
+)
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
+from zds.tutorialv2.tests.factories import (
+    ContainerFactory,
+    ContentReactionFactory,
+    ExtractFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
+)
 from zds.tutorialv2.utils import (
+    BadManifestError,
+    get_commit_author,
+    get_content_from_json,
     get_target_tagged_tree_for_container,
     get_target_tagged_tree_for_extract,
     last_participation_is_old,
-    BadManifestError,
-    get_content_from_json,
-    get_commit_author,
 )
-from zds.utils.validators import slugify_raise_on_invalid, InvalidSlugError, check_slug
-from zds.tutorialv2.publication_utils import publish_content, unpublish_content
-from zds.tutorialv2.models.database import PublishableContent, PublishedContent, ContentReaction, ContentRead
-from django.core.management import call_command
-from zds.tutorialv2.publication_utils import Publicator, PublicatorRegistry, ZMarkdownRebberLatexPublicator
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-from zds import json_handler
-from zds.utils.tests.factories import LicenceFactory
-from zds.utils.models import Alert
 from zds.utils.header_notifications import get_header_notifications
+from zds.utils.models import Alert
+from zds.utils.tests.factories import LicenceFactory
+from zds.utils.validators import InvalidSlugError, check_slug, slugify_raise_on_invalid
 
 
 @override_for_contents()

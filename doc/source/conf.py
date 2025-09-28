@@ -8,8 +8,10 @@ import datetime
 
 now = datetime.datetime.now()
 
-import sphinx_rtd_theme
+import os
+import sys
 
+import sphinx_rtd_theme
 
 # -- Path setup --------------------------------------------------------------
 
@@ -21,8 +23,6 @@ import sphinx_rtd_theme
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
-import os
-import sys
 
 sys.path.insert(0, os.path.abspath("../../"))  # add modules to python search path
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zds.settings.dev")  # Django should use OUR settings also with SPHINX
@@ -32,7 +32,6 @@ import django
 django.setup()
 
 from zds import __version__ as zds_version
-
 
 # -- Project information -----------------------------------------------------
 

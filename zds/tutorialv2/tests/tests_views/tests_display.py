@@ -12,7 +12,6 @@ from zds.tutorialv2.tests.utils import request_validation
 from zds.tutorialv2.views.display.config import PublicActionsState, ValidationActions
 from zds.utils.tests.factories import LicenceFactory
 
-
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["repo_private_path"] = settings.BASE_DIR / "contents-private-test"
 overridden_zds_app["content"]["repo_public_path"] = settings.BASE_DIR / "contents-public-test"

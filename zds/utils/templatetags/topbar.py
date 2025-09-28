@@ -1,11 +1,12 @@
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
+
 from django import template
 from django.conf import settings
+from django.db.models import Count, Q
 
 from zds.forum.models import Forum
 from zds.tutorialv2.models.database import PublishedContent
 from zds.utils.models import CategorySubCategory, Tag
-from django.db.models import Count, Q
 
 register = template.Library()
 

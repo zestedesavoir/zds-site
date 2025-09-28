@@ -1,7 +1,7 @@
 import itertools
 import logging
 import urllib.parse
-from datetime import timedelta, datetime, date
+from datetime import date, datetime, timedelta
 
 import requests
 from django.conf import settings

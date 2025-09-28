@@ -1,13 +1,14 @@
 import logging
 
 from crispy_forms.bootstrap import StrictButton
-from crispy_forms.layout import Layout, ButtonHolder, Field, Div, HTML
-from django.contrib.auth import authenticate
+from crispy_forms.layout import HTML, ButtonHolder, Div, Field, Layout
 from django import forms
-from django.utils.translation import gettext_lazy as _
+from django.contrib.auth import authenticate
 from django.template import defaultfilters
-from zds.utils.models import Tag
+from django.utils.translation import gettext_lazy as _
+
 from zds.utils.misc import contains_utf8mb4
+from zds.utils.models import Tag
 
 
 class IncludeEasyMDE(Layout):

@@ -5,21 +5,27 @@ from django.contrib.auth.models import Group
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
-from zds.forum.tests.factories import create_category_and_forum, create_topic_in_forum
+from zds.forum.tests.factories import (
+    Post,
+    PostFactory,
+    TagFactory,
+    Topic,
+    TopicFactory,
+    create_category_and_forum,
+    create_topic_in_forum,
+)
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.search.utils import SearchIndexManager
+from zds.tutorialv2.models.database import FakeChapter, PublishableContent, PublishedContent
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
-    PublishedContentFactory,
     ContainerFactory,
     ExtractFactory,
+    PublishableContentFactory,
+    PublishedContentFactory,
     publish_content,
 )
-from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.tests.factories import CategoryFactory, SubCategoryFactory
-
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"
@@ -40,16 +46,17 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.manager = SearchIndexManager()
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
+
+        self.manager = SearchIndexManager()
+
+        if not self.manager.connected:
+            self.skipTest("Could not connect to search engine")
 
         self.manager.reset_index()
 
     def test_setup_functions(self):
         """Test the behavior of the reset_index() and clear_index() functions"""
-
-        if not self.manager.connected:
-            return
 
         # 1. Creation:
         models = [Topic, Post]
@@ -65,9 +72,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
     def test_indexation(self):
         """test the indexation and deletion of the different documents"""
-
-        if not self.manager.connected:
-            return
 
         # create a topic with a post
         topic = TopicFactory(forum=self.forum, author=self.user)
@@ -224,9 +228,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def test_special_case_of_contents(self):
         """test that the old publishedcontent does not stay when a new one is created"""
 
-        if not self.manager.connected:
-            return
-
         # 1. Create a middle-tutorial, publish it, then index it
         tuto = PublishableContentFactory(type="TUTORIAL")
         tuto.authors.add(self.user)
@@ -304,9 +305,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
 
     def test_update_topic(self):
         """test that changing an attribute of a topic marks it as to index"""
-
-        if not self.manager.connected:
-            return
 
         group = Group.objects.create(name="DummyGroup_1")
         self.user.groups.add(group)
@@ -410,9 +408,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
     def test_update_post(self):
         """test that changing an attribute of a post marks it as to index"""
 
-        if not self.manager.connected:
-            return
-
         group = Group.objects.create(name="DummyGroup_1")
         self.user.groups.add(group)
         self.user.save()
@@ -441,7 +436,8 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         number_of_results = sum(result["found"] for result in results)
         self.assertEqual(number_of_results, 3)
 
-        # Move the private topic to a private forum
+        # Move the topic to a private forum, so it becomes a private topic
+        # (this also tests we can move a topic to a private forum before it was even indexed)
         private_topic.forum = private_forum
         private_topic.save()
         private_topic.refresh_from_db()
@@ -513,9 +509,6 @@ class SearchIndexManagerTests(TutorialTestMixin, TestCase):
         published content starts by removing all its fake chapters from the
         search engine.
         """
-
-        if not self.manager.connected:
-            return
 
         published_content = PublishedContentFactory().public_version
         published_content.save(search_engine_requires_index=False)

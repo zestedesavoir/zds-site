@@ -1,8 +1,8 @@
 from collections import namedtuple
 from textwrap import dedent
 
-from django.test import TestCase
 from django.template import Context, Template
+from django.test import TestCase
 
 from zds.utils.templatetags.emarkdown import shift_heading
 

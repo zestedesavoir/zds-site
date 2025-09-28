@@ -11,10 +11,10 @@ from django.utils.translation import gettext_lazy as _
 
 from zds.gallery.tests.factories import UserGalleryFactory
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
-from zds.tutorialv2.models.database import Validation, PublishedContent
+from zds.tutorialv2.models.database import PublishedContent, Validation
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.tests import TutorialTestMixin
+from zds.tutorialv2.tests.factories import ContainerFactory, ExtractFactory, PublishableContentFactory
 from zds.utils.tests.factories import LicenceFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)

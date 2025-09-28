@@ -6,17 +6,17 @@ from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import Http404, StreamingHttpResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
-from django.views.generic import DetailView, CreateView
+from django.views.generic import CreateView, DetailView
 
 from zds.member.decorator import LoginRequiredMixin
 from zds.member.forms import HatRequestForm
 from zds.pages.models import GroupContact
 from zds.utils.misc import is_ajax
-from zds.utils.models import HatRequest, Hat, get_hat_to_add
+from zds.utils.models import Hat, HatRequest, get_hat_to_add
 from zds.utils.paginator import ZdSPagingListView
 
 

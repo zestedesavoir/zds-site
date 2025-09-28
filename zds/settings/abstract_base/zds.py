@@ -2,8 +2,8 @@ from pathlib import Path
 
 from django.utils.translation import gettext_lazy as _
 
-from .config import config
 from .base_dir import BASE_DIR
+from .config import config
 
 zds_config = config.get("zds", {})
 
@@ -23,7 +23,7 @@ SEARCH_CONNECTION = {
         }
     ],
     "api_key": "xyz",
-    "connection_timeout_seconds": 5,
+    "connection_timeout_seconds": 10,  # seconds; Gunicorn's default timeout is 30 s
 }
 
 # Anonymous [Dis]Likes. Authors of [dis]likes before those pk will never be shown
@@ -152,7 +152,7 @@ ZDS_APP = {
         "hats_management": "Staff",
     },
     "gallery": {
-        "image_max_size": 1024 * 1024,
+        "image_max_size": 1024 * 1024,  # bytes, also hard-coded in editor JS scripts
         "gallery_per_page": 21,
         "images_per_page": 21,
     },
@@ -253,9 +253,8 @@ ZDS_APP = {
         "boosts": {
             "publishedcontent": {
                 "global": global_weight_publishedcontent,
-                "if_article": global_weight_publishedcontent * 1.5,
-                "if_tutorial": global_weight_publishedcontent * 1.5,
-                "if_medium_or_big_tutorial": global_weight_publishedcontent * 1.7,
+                "if_validated": global_weight_publishedcontent * 1.5,
+                "if_validated_and_multipage": global_weight_publishedcontent * 1.7,
                 "if_opinion": global_weight_publishedcontent * 1.3,
                 "if_opinion_not_picked": global_weight_publishedcontent * 1.1,
                 "title": global_weight_publishedcontent * 4,

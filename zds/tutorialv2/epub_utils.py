@@ -4,13 +4,14 @@ import os
 import re
 import shutil
 from collections import namedtuple
-from urllib import parse
 from os import path
-from bs4 import BeautifulSoup
 from pathlib import Path
 from shutil import copy
-from django.template.loader import render_to_string
+from urllib import parse
+
+from bs4 import BeautifulSoup
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from zds.tutorialv2.publish_container import publish_container
 from zds.utils import old_slugify
@@ -128,21 +129,18 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
     meta_inf_dir_path = Path(working_dir, "ebook", "META-INF")
     target_image_dir = Path(ops_dir, "images")
 
-    with contextlib.suppress(FileExistsError):  # Forced to use this until python 3.5 is used and ok_exist appears
-        text_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        style_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        font_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        meta_inf_dir_path.mkdir(parents=True)
-    with contextlib.suppress(FileExistsError):
-        target_image_dir.mkdir(parents=True)
+    text_dir_path.mkdir(parents=True, exist_ok=True)
+    style_dir_path.mkdir(parents=True, exist_ok=True)
+    font_dir_path.mkdir(parents=True, exist_ok=True)
+    meta_inf_dir_path.mkdir(parents=True, exist_ok=True)
+    target_image_dir.mkdir(parents=True, exist_ok=True)
 
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, "ebook", mimetype_conf["filename"])
-    with contextlib.suppress(FileExistsError, FileNotFoundError):
-        for img in published_content_entity.content.gallery.get_gallery_path().iterdir():
+    for img in published_content_entity.content.gallery.get_gallery_path().iterdir():
+        # Do not interrupt the whole loop if one item triggers an exception
+        # IsADirectoryError: ignore directories (which can be there only if created manually)
+        with contextlib.suppress(FileExistsError, FileNotFoundError, IsADirectoryError):
             shutil.copy(str(img), str(target_image_dir))
 
     with mime_path.open(mode="w", encoding="utf-8") as mimefile:

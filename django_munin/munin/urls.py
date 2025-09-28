@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import total_users, active_users, total_sessions, active_sessions, db_performance
+from .views import active_sessions, active_users, db_performance, total_sessions, total_users
 
 urlpatterns = [
     path("total_users/", total_users, name="total-users"),

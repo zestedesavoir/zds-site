@@ -1,8 +1,8 @@
-from django.core.management import BaseCommand
 from django.contrib.contenttypes.models import ContentType
+from django.core.management import BaseCommand
 
-from zds.notification.models import Notification
 from zds.forum.models import Topic
+from zds.notification.models import Notification
 
 
 class Command(BaseCommand):

@@ -1,17 +1,16 @@
 from django.conf import settings
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group, User
 from django.core import mail
+from django.core.cache import caches
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
-
-from zds.api.pagination import REST_PAGE_SIZE, REST_MAX_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
-from zds.api.utils import authenticate_oauth2_client
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, ProfileNotSyncFactory
-from zds.member.models import TokenRegister, BannedEmailProvider
+from rest_framework.test import APIClient, APITestCase
 from rest_framework_extensions.settings import extensions_api_settings
-from django.core.cache import caches
+
+from zds.api.pagination import REST_MAX_PAGE_SIZE, REST_PAGE_SIZE, REST_PAGE_SIZE_QUERY_PARAM
+from zds.api.utils import authenticate_oauth2_client
+from zds.member.models import BannedEmailProvider, TokenRegister
+from zds.member.tests.factories import ProfileFactory, ProfileNotSyncFactory, StaffProfileFactory
 
 
 class MemberListAPITest(APITestCase):

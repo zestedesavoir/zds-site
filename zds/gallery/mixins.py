@@ -4,13 +4,13 @@ import shutil
 import tempfile
 import zipfile
 
-from PIL import Image as ImagePIL
-from easy_thumbnails.files import get_thumbnailer
-
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
+from easy_thumbnails.files import get_thumbnailer
+from PIL import Image as ImagePIL
 from svglib.svglib import load_svg_file
 
-from zds.gallery.models import Gallery, UserGallery, GALLERY_WRITE, GALLERY_READ, Image
+from zds.gallery.models import GALLERY_READ, GALLERY_WRITE, Gallery, Image, UserGallery
 from zds.tutorialv2.models.database import PublishableContent
 from zds.utils.uuslug_wrapper import slugify
 
@@ -271,16 +271,25 @@ class ImageCreateMixin(ImageMixin):
         error_files = []
 
         for i in zfile.namelist():
-            info = zfile.getinfo(i)
+            file_info = zfile.getinfo(i)
 
-            if info.filename[-1] == "/":  # .is_dir() in python 3.6
+            if file_info.is_dir():
                 continue
 
             basename = os.path.basename(i)
             (name, ext) = os.path.splitext(basename)
 
-            if info.file_size > settings.ZDS_APP["gallery"]["image_max_size"]:
-                error_files.append(i)
+            if file_info.file_size > settings.ZDS_APP["gallery"]["image_max_size"]:
+                error_files.append(
+                    {
+                        "filename": i,
+                        "error": _(
+                            "l'image dépasse la taille maximale autorisée ({} Ko)".format(
+                                settings.ZDS_APP["gallery"]["image_max_size"] / 1024
+                            )
+                        ),
+                    }
+                )
                 continue
 
             # create file for image
@@ -296,7 +305,12 @@ class ImageCreateMixin(ImageMixin):
                 self.perform_create(name, f_im)
                 f_im.close()
             except NotAnImage:
-                error_files.append(i)
+                error_files.append(
+                    {
+                        "filename": i,
+                        "error": _("ce n'est pas une image"),
+                    }
+                )
                 continue
             if os.path.exists(ph_temp):
                 os.remove(ph_temp)

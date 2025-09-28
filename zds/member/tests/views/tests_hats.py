@@ -1,13 +1,14 @@
 from django.conf import settings
 from django.contrib.auth.models import Group
-from django.urls import reverse
 from django.test import TestCase
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory, UserFactory
 from zds.pages.models import GroupContact
 from zds.utils.models import Hat, HatRequest
+from zds.utils.templatetags.email_obfuscator import obfuscate
 
 
 class HatTests(TestCase):
@@ -287,6 +288,7 @@ class HatTests(TestCase):
         self.assertContains(result, "Staff")  # this hat hat was created with the staff user
 
     def test_hat_detail(self):
+        group_email_address = "foo@bar.fr"
         # we will use the staff hat, created with the staff user
         hat = Hat.objects.get(name="Staff")
         # test the page is accessible without being authenticated
@@ -305,8 +307,18 @@ class HatTests(TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, self.staff.username)
         # if we display this group on the contact page...
-        GroupContact.objects.create(group=Group.objects.get(name="staff"), description="group description", position=1)
+        group_contact = GroupContact.objects.create(
+            group=Group.objects.get(name="staff"), description="group description", position=1
+        )
         # the description should be shown on this page too
         result = self.client.get(hat.get_absolute_url())
         self.assertEqual(result.status_code, 200)
         self.assertContains(result, "group description")
+        self.assertNotContains(result, group_email_address)
+        # now set an email address to the group
+        group_contact.email = group_email_address
+        group_contact.save()
+        # the email address should appear obfuscated
+        result = self.client.get(hat.get_absolute_url())
+        self.assertEqual(result.status_code, 200)
+        self.assertContains(result, obfuscate(group_email_address))

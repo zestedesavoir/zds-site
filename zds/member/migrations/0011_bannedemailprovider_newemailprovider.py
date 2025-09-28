@@ -1,6 +1,6 @@
-from django.db import migrations, models
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db import migrations, models
 
 from zds.member.models import BannedEmailProvider
 from zds.member.utils import get_bot_account

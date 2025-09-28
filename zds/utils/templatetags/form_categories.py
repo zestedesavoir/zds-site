@@ -2,7 +2,6 @@ from django import template
 
 from zds.utils.models import SubCategory
 
-
 register = template.Library()
 
 

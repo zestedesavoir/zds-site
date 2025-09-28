@@ -4,6 +4,7 @@
 {% load date %}
 {% load i18n %}
 {% load remove_url_scheme %}
+{% load crispy_forms_tags %}
 
 {% block title %}
     {% trans "Membres par IP" %}
@@ -12,7 +13,7 @@
 
 
 {% block breadcrumb %}
-    <li>{% trans "IP" %}</li>
+    <li>{% trans "Membres par IP" %}</li>
 {% endblock %}
 
 
@@ -52,11 +53,10 @@
         </tbody>
     </table>
 
-    {# Checks if it's an IPV6 to show the members from the same IPV6 network #}
-    {% if ":" in ip %}
+    {% if is_ipv6 %}
     <p>
         {% blocktrans %}
-            Liste des membres dont la dernière IP connue fait partie du bloc <code>{{ network_ip }}:/64</code>
+            Liste des membres dont la dernière IP connue fait partie du bloc <code>{{ network_ip }}</code>
         {% endblocktrans %}
     </p>
 
@@ -89,5 +89,17 @@
             l'IP demandée.
         {% endblocktrans %}
     </p>
+    {% endif %}
+
+    {% if ip_is_already_blocked %}
+        <p class="clearfix">
+            <a class="btn btn-cancel" disabled>{% trans "Cette adresse IP est déjà bloquée" %}</a>
+        </p>
+        {% include "member/includes/blocked_ips.part.html" with blocked_ips=blocked_ips %}
+    {% else %}
+        <p>
+            <a href="#blocked-ip-modal" class="btn btn-cancel open-modal">{% trans "Bloquer cette adresse IP" %}</a>
+        </p>
+        {% crispy blocked_ip_form %}
     {% endif %}
 {% endblock %}

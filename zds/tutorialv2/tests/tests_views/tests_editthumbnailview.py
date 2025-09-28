@@ -6,9 +6,9 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils.html import escape
 
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.views.thumbnail import EditThumbnailForm, EditThumbnailView
 
 

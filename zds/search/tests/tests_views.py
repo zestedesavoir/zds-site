@@ -1,5 +1,5 @@
-from copy import deepcopy
 import datetime
+from copy import deepcopy
 from math import ceil
 
 from django.conf import settings
@@ -9,21 +9,19 @@ from django.test.utils import override_settings
 from django.urls import reverse
 
 from zds import json_handler
-from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post, TagFactory
-from zds.forum.tests.factories import create_category_and_forum
+from zds.forum.tests.factories import Post, PostFactory, TagFactory, Topic, TopicFactory, create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.search.utils import SearchIndexManager
+from zds.tutorialv2.models.database import FakeChapter, PublishableContent, PublishedContent
+from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.tutorialv2.tests.factories import (
-    PublishableContentFactory,
     ContainerFactory,
     ExtractFactory,
-    publish_content,
+    PublishableContentFactory,
     PublishedContentFactory,
     SubCategoryFactory,
+    publish_content,
 )
-from zds.tutorialv2.models.database import PublishedContent, FakeChapter, PublishableContent
-from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"
@@ -44,8 +42,12 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.user = ProfileFactory().user
         self.staff = StaffProfileFactory().user
 
-        self.manager = SearchIndexManager()
         self.indexable = [FakeChapter, PublishedContent, Topic, Post]
+
+        self.manager = SearchIndexManager()
+
+        if not self.manager.connected:
+            self.skipTest("Could not connect to search engine")
 
         self.manager.reset_index()
 
@@ -58,9 +60,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
     def test_basic_search(self):
         """Basic search and filtering"""
-
-        if not self.manager.connected:
-            return
 
         tag = TagFactory(title="Clémentine à pépins")  # with accents to make a different slug
 
@@ -147,9 +146,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
 
     def test_search_many_pages(self):
-        if not self.manager.connected:
-            return
-
         text = "foo"
         url = reverse("search:query") + "?q=" + text
         results_per_page = settings.ZDS_APP["search"]["results_per_page"]
@@ -199,9 +195,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertTrue(result.context["has_more_results"])
 
     def test_invalid_search(self):
-        if not self.manager.connected:
-            return
-
         # Check if the request is *, no result is displayed
         result = self.client.get(reverse("search:query") + "?q=*", follow=False)
         self.assertEqual(result.status_code, 200)
@@ -212,11 +205,13 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(result.status_code, 200)
         self.assertEqual(len(result.context["object_list"]), 0)
 
+        # Check if the request contains an invalid models field:
+        result = self.client.get(reverse("search:query") + "?q=latex&models=", follow=False)
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(len(result.context["object_list"]), 0)
+
     def test_get_similar_topics(self):
         """Get similar topics lists"""
-
-        if not self.manager.connected:
-            return
 
         text = "Clem ne se mange pas"
 
@@ -278,9 +273,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
     def test_hidden_post_are_not_in_results(self):
         """Hidden posts should not show up in the search results"""
 
-        if not self.manager.connected:
-            return
-
         # 1. Index and test search:
         text = "test"
 
@@ -322,11 +314,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 0)  # nothing in the results
 
     def test_hidden_forums_give_no_results_if_user_not_allowed(self):
-        """Long name, isn't ?"""
-
-        if not self.manager.connected:
-            return
-
         # 1. Create a hidden forum belonging to a hidden staff group.
         text = "test"
 
@@ -376,9 +363,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
     def test_boosts(self):
         """Check if boosts are doing their job"""
-
-        if not self.manager.connected:
-            return
 
         # 1. Create topics (with identical titles), posts (with identical texts), an article and a tuto
         text = "test"
@@ -636,7 +620,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
             == response[3]["document"]["weight"]
         )
 
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"] = 2.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_validated"] = 2.0
 
         # Reindex to update the weight
         self._index_everything()
@@ -650,8 +634,8 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(published_article.pk))  # obvious
 
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_article"] = 1.0
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_validated"] = 1.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_validated_and_multipage"] = 2.0
 
         # Reindex to update the weight
         self._index_everything()
@@ -665,7 +649,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
 
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 1.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_validated_and_multipage"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"] = 2.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"] = 4.0
         # Note: in "real life", unpicked opinion would get a boost < 1.
@@ -689,7 +673,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
 
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion"] = 1.0
         settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_opinion_not_picked"] = 1.0
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 2.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_validated_and_multipage"] = 2.0
 
         # Reindex to update the weight
         self._index_everything()
@@ -703,7 +687,7 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertTrue(response[0]["document"]["weight"] > response[1]["document"]["weight"])
         self.assertEqual(response[0]["document"]["id"], str(published_tuto.pk))  # obvious
 
-        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_medium_or_big_tutorial"] = 1.0
+        settings.ZDS_APP["search"]["boosts"]["publishedcontent"]["if_validated_and_multipage"] = 1.0
 
         # Reindex to update the weight
         self._index_everything()
@@ -732,9 +716,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
                 settings.ZDS_APP["search"]["boosts"][collection][key] = 1
 
     def test_change_topic_impacts_posts(self):
-        if not self.manager.connected:
-            return
-
         # 1. Create a hidden forum belonging to a hidden group and add staff in it.
         text = "test"
 
@@ -821,9 +802,6 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertEqual(len(response), 0)  # ok
 
     def test_change_publishedcontents_impacts_chapter(self):
-        if not self.manager.connected:
-            return
-
         # 1. Create middle-size content and index it
         text = "test"
 
@@ -926,11 +904,21 @@ class ViewsTests(TutorialTestMixin, TestCase):
         self.assertContains(result, reverse("search:query"))
         self.assertContains(result, reverse("search:opensearch"))
 
+    def test_apostrophe(self):
+        topic1 = TopicFactory(forum=self.forum, author=self.user, title="Parlons d'une harmonie qui sonne bien")
+        topic2 = TopicFactory(forum=self.forum, author=self.user, title="Voici l'harmonie qui sonne bien")
+        topic3 = TopicFactory(forum=self.forum, author=self.user, title="Rien à voir")
+
+        self._index_everything()
+
+        response = self.client.get(reverse("search:query") + "?q=harmonie", follow=False)
+        self.assertEqual(response.status_code, 200)
+
+        results = response.context["object_list"]
+        self.assertEqual(len(results), 2)
+
     def test_upercase_and_lowercase_search_give_same_results(self):
         """Pretty self-explanatory function name, isn't it ?"""
-
-        if not self.manager.connected:
-            return
 
         # 1. Index lowercase stuffs
         text_lc = "test"

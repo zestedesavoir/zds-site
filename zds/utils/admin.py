@@ -2,14 +2,14 @@ from django.contrib import admin
 
 from zds.utils.models import (
     Alert,
-    Licence,
     Category,
-    SubCategory,
     CategorySubCategory,
-    Tag,
     CommentEdit,
     Hat,
     HatRequest,
+    Licence,
+    SubCategory,
+    Tag,
 )
 
 

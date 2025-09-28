@@ -1,15 +1,13 @@
-from _datetime import datetime
-from queue import Queue
-
-import requests
 import logging
-
-from django.conf import settings
+from queue import Queue
 from threading import Thread
 
+import requests
+from _datetime import datetime
+from django.conf import settings
 from django.urls import reverse
 
-from zds.member.views import get_client_ip
+from zds.member.utils import get_client_ip
 from zds.utils.misc import is_ajax
 
 matomo_token_auth = settings.ZDS_APP["site"]["matomo_token_auth"]

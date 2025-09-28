@@ -1,12 +1,14 @@
 import datetime
+
 from django.core.cache import cache
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_delete, post_save
 from rest_framework import filters
-from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
+from rest_framework.generics import ListAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework_extensions.cache.decorators import cache_response
 from rest_framework_extensions.etag.decorators import etag
 from rest_framework_extensions.key_constructor import bits
+from rest_framework_extensions.key_constructor.constructors import DefaultKeyConstructor
+
 from zds.api.bits import DJRF3xPaginationKeyBit, UpdatedAtKeyBit
 from zds.utils.api.permissions import UpdatePotentialSpamPermission
 from zds.utils.api.serializers import KarmaSerializer, PotentialSpamSerializer, TagSerializer

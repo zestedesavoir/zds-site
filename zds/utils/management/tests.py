@@ -1,22 +1,19 @@
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import Permission, User
 from django.core.management import call_command
 from django.test import TestCase
 
+from zds.forum.models import Forum, ForumCategory, Topic
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TopicFactory
 from zds.gallery.models import Gallery, UserGallery
 from zds.member.models import Profile
 from zds.member.tests.factories import ProfileFactory
-from zds.forum.models import Forum, Topic, ForumCategory
-from zds.forum.tests.factories import TopicFactory, PostFactory, ForumFactory, ForumCategoryFactory
+from zds.tutorialv2.models.database import ContentReaction, PublishableContent, PublishedContent
+from zds.tutorialv2.models.database import Validation as CValidation
 from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.tutorialv2.models.database import (
-    PublishableContent,
-    PublishedContent,
-    ContentReaction,
-    Validation as CValidation,
-)
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
 from zds.utils.management.commands.load_fixtures import Command as FixtureCommand
-from zds.utils.models import Tag, Category as TCategory, CategorySubCategory, SubCategory, Licence
+from zds.utils.models import Category as TCategory
+from zds.utils.models import CategorySubCategory, Licence, SubCategory, Tag
 
 
 @override_for_contents()

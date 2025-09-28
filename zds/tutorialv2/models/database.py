@@ -10,46 +10,38 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import CASCADE
-from django.db.models.signals import pre_delete, post_delete, pre_save, post_save
+from django.db.models.signals import post_delete, post_save, pre_delete, pre_save
 from django.dispatch import receiver
 from django.http import Http404
 from django.urls import reverse
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
-from git import Repo, BadObject
+from git import BadObject, Repo
 from gitdb.exc import BadName
 
 from zds import json_handler
 from zds.forum.models import Topic
-from zds.gallery.models import Image, Gallery, UserGallery, GALLERY_WRITE
+from zds.gallery.models import GALLERY_WRITE, Gallery, Image, UserGallery
 from zds.member.utils import get_external_account
 from zds.mp.models import PrivateTopic
-from zds.search.models import (
-    AbstractSearchIndexableModel,
-    AbstractSearchIndexable,
-)
-from zds.search.utils import (
-    SearchFilter,
-    SearchIndexManager,
-    date_to_timestamp_int,
-    clean_html,
-)
-from zds.tutorialv2.managers import PublishedContentManager, PublishableContentManager, ReactionManager
+from zds.search.models import AbstractSearchIndexable, AbstractSearchIndexableModel
+from zds.search.utils import SearchFilter, SearchIndexManager, clean_html, date_to_timestamp_int
+from zds.tutorialv2.managers import PublishableContentManager, PublishedContentManager, ReactionManager
 from zds.tutorialv2.models import (
-    TYPE_CHOICES,
-    STATUS_CHOICES,
+    CONTENT_TYPES_BETA,
     CONTENT_TYPES_REQUIRING_VALIDATION,
     PICK_OPERATIONS,
-    CONTENT_TYPES_BETA,
+    STATUS_CHOICES,
+    TYPE_CHOICES,
 )
 from zds.tutorialv2.models.goals import Goal
-from zds.tutorialv2.models.labels import Label
-from zds.tutorialv2.models.mixins import TemplatableContentModelMixin, OnlineLinkableContentMixin
-from zds.tutorialv2.models.versioned import NotAPublicVersion
-from zds.tutorialv2.utils import get_content_from_json, BadManifestError, get_blob
-from zds.utils import get_current_user
-from zds.utils.models import Category, SubCategory, Licence, Comment, Tag
 from zds.tutorialv2.models.help_requests import HelpWriting
+from zds.tutorialv2.models.labels import Label
+from zds.tutorialv2.models.mixins import OnlineLinkableContentMixin, TemplatableContentModelMixin
+from zds.tutorialv2.models.versioned import NotAPublicVersion
+from zds.tutorialv2.utils import BadManifestError, get_blob, get_content_from_json
+from zds.utils import get_current_user
+from zds.utils.models import Category, Comment, Licence, SubCategory, Tag
 from zds.utils.templatetags.emarkdown import render_markdown_stats
 from zds.utils.uuslug_wrapper import uuslug
 
@@ -319,6 +311,21 @@ class PublishableContent(models.Model, TemplatableContentModelMixin):
     def is_author(self, user: User) -> bool:
         # This is fast because there are few authors and the QuerySet is usually prefetched and cached.
         return user in self.authors.all()
+
+    def remove_author(self, user: User) -> bool:
+        """
+        Remove a user from the authors and remove his access to the gallery.
+        If the user is not an author, do nothing.
+        If the user is the last author, do nothing. This method will not delete the content.
+        Return ``True`` if the user was effectively removed from the authors and ``False`` otherwise.
+        """
+        if self.is_author(user) and self.authors.count() > 1:
+            usergallery = UserGallery.objects.filter(user__pk=user.pk, gallery__pk=self.gallery.pk).first()
+            if usergallery:
+                usergallery.delete()
+            self.authors.remove(user)
+            return True
+        return False
 
     def is_permanently_unpublished(self):
         """Is this content permanently unpublished by a moderator ?"""
@@ -1135,29 +1142,27 @@ class PublishedContent(AbstractSearchIndexableModel, TemplatableContentModelMixi
         if versioned.has_extracts():
             data["text"] = clean_html(versioned.get_content_online())
 
-        is_medium_big_tutorial = versioned.has_sub_containers()
-        data["weight"] = self._compute_search_weight(is_medium_big_tutorial)
+        is_multipage = versioned.has_sub_containers()
+        data["weight"] = self._get_search_weight(is_multipage)
 
         return data
 
-    def _compute_search_weight(self, is_medium_big_tutorial: bool):
+    def _get_search_weight(self, is_multipage: bool):
         """
-        This function calculates a weight for publishedcontent in order to sort them according to different boosts.
-        There is a boost according to the type of content (article, opinion, tutorial),
-        if it is a big tutorial or if it is picked.
+        Calculate the weight used to sort search results.
+        We make a difference between validated content (either single or multipage) and content published freely
+        (picked for the front page or not).
         """
         weights = settings.ZDS_APP["search"]["boosts"]["publishedcontent"]
 
-        if self.content_type == "ARTICLE":
-            return weights["if_article"]
-        elif self.content_type == "TUTORIAL":
-            if is_medium_big_tutorial:
-                return weights["if_medium_or_big_tutorial"]
+        if self.content.requires_validation():
+            if is_multipage:
+                return weights["if_validated_and_multipage"]
             else:
-                return weights["if_tutorial"]
+                return weights["if_validated"]
         else:
             assert self.content_type == "OPINION"
-            if self.content.sha_picked is not None:
+            if self.content.is_picked():
                 return weights["if_opinion"]
             else:
                 return weights["if_opinion_not_picked"]

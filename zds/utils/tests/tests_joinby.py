@@ -1,4 +1,5 @@
 from django.test import TestCase
+
 from zds.utils.templatetags.joinby import joinby
 
 

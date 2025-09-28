@@ -3,11 +3,11 @@ from math import ceil
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.urls import reverse
 from django.db import models
+from django.urls import reverse
 
-from zds.mp.managers import PrivateTopicManager, PrivatePostManager
 from zds.mp import signals
+from zds.mp.managers import PrivatePostManager, PrivateTopicManager
 from zds.utils import get_current_user, old_slugify
 
 

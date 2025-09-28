@@ -43,8 +43,6 @@ On retrouve également dans ce dossier les quelques fichiers suivants, nécessai
 
     zds/
     ├── urls.py # définition générale des URLs du site, inclus celle de chacun des modules
-    ├── settings.py # paramètres du site
-    ├── settings_test.py # paramètres spécifiques aux tests
     └── wsgi.py
 
 Contenu d'un module

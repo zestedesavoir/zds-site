@@ -1,10 +1,9 @@
 from django.test import TestCase
-
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.tutorialv2.models.goals import Goal
-from zds.tutorialv2.tests.factories import PublishableContentFactory, GoalFactory, PublishedContentFactory
+from zds.tutorialv2.tests.factories import GoalFactory, PublishableContentFactory, PublishedContentFactory
 from zds.tutorialv2.views.goals import MassEditGoalsForm
 
 

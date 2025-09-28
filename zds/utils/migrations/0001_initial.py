@@ -1,6 +1,7 @@
-from django.db import models, migrations
 import easy_thumbnails.fields
 from django.conf import settings
+from django.db import migrations, models
+
 import zds.utils.models
 
 

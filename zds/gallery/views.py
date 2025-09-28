@@ -1,38 +1,38 @@
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse
 from django.http import Http404, HttpResponseRedirect
-from django.views.generic import FormView, View
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import FormView, View
 
 from zds.gallery.forms import (
     ArchiveImageForm,
-    ImageForm,
-    UpdateImageForm,
     GalleryForm,
-    UpdateGalleryForm,
-    UserGalleryForm,
     ImageAsAvatarForm,
+    ImageForm,
+    UpdateGalleryForm,
+    UpdateImageForm,
+    UserGalleryForm,
 )
-from zds.gallery.models import UserGallery, Image, Gallery, GALLERY_WRITE
 from zds.gallery.mixins import (
     GalleryCreateMixin,
     GalleryMixin,
     GalleryUpdateOrDeleteMixin,
-    NoMoreUserWithWriteIfLeave,
-    ImageUpdateOrDeleteMixin,
     ImageCreateMixin,
+    ImageUpdateOrDeleteMixin,
+    NoMoreUserWithWriteIfLeave,
+    NotAnImage,
     UserAlreadyInGallery,
     UserNotInGallery,
-    NotAnImage,
 )
+from zds.gallery.models import GALLERY_WRITE, Gallery, Image, UserGallery
 from zds.member.decorator import LoggedWithReadWriteHability
-from zds.utils.paginator import ZdSPagingListView
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils.paginator import ZdSPagingListView
 
 
 class ListGallery(LoginRequiredMixin, ZdSPagingListView):
@@ -430,10 +430,8 @@ class ImportImages(ImageFromGalleryContextViewMixin, ImageCreateMixin, LoggedWit
 
         error_files = self.perform_create_multi(archive)
 
-        if len(error_files) > 0:
-            messages.error(
-                self.request, _('Les fichiers suivants n\'ont pas été importés: "{}"').format('", "'.join(error_files))
-            )
+        for e in error_files:
+            messages.error(self.request, _(f'Le fichier {e["filename"]} n\'a pas été importé : {e["error"]}.'))
 
         self.success_url = self.gallery.get_absolute_url()
         return super().form_valid(form)

@@ -6,12 +6,11 @@ from rest_framework.fields import IntegerField
 from rest_framework.serializers import ModelSerializer
 
 from zds.api.serializers import ZdSModelSerializer
-
 from zds.member.api.serializers import UserListSerializer
 from zds.mp.commons import UpdatePrivatePost
-from zds.mp.models import PrivateTopic, PrivatePost
-from zds.mp.validators import ParticipantsUserValidator, TitleValidator, TextValidator
-from zds.mp.utils import send_mp, send_message_mp
+from zds.mp.models import PrivatePost, PrivateTopic
+from zds.mp.utils import send_message_mp, send_mp
+from zds.mp.validators import ParticipantsUserValidator, TextValidator, TitleValidator
 from zds.utils.api.serializers import KarmaSerializer
 
 

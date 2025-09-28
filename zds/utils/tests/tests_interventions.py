@@ -1,15 +1,15 @@
 from datetime import datetime
 
-from django.urls import reverse
-from django.utils.html import escape
 from django.template import Context, Template
 from django.test import TestCase
+from django.urls import reverse
+from django.utils.html import escape
 
+from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
+from zds.mp.utils import send_message_mp, send_mp
 from zds.tutorialv2.models.database import Validation
 from zds.tutorialv2.tests.factories import PublishableContentFactory
-from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.utils.tests.factories import SubCategoryFactory, LicenceFactory
-from zds.mp.utils import send_message_mp, send_mp
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
 class InterventionsTest(TestCase):

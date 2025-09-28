@@ -1,5 +1,5 @@
 from datetime import datetime
-from os.path import join, basename
+from os.path import basename, join
 from shutil import copyfile
 
 import factory
@@ -7,16 +7,16 @@ from django.conf import settings
 
 from zds.forum.tests.factories import PostFactory, TopicFactory
 from zds.gallery.tests.factories import GalleryFactory, UserGalleryFactory
+from zds.tutorialv2.models.database import ContentContributionRole, ContentReaction, PublishableContent, Validation
 from zds.tutorialv2.models.goals import Goal
 from zds.tutorialv2.models.help_requests import HelpWriting
-from zds.utils import old_slugify
-from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
-from zds.utils.models import Licence
-from zds.tutorialv2.models.database import PublishableContent, Validation, ContentReaction, ContentContributionRole
+from zds.tutorialv2.models.labels import Label
 from zds.tutorialv2.models.versioned import Container, Extract
 from zds.tutorialv2.publication_utils import publish_content
 from zds.tutorialv2.utils import init_new_repo
-from zds.tutorialv2.models.labels import Label
+from zds.utils import old_slugify
+from zds.utils.models import Licence
+from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 text_content = "Ceci est un texte bidon, **avec markown**"
 

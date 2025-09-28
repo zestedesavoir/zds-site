@@ -3,21 +3,16 @@ from datetime import datetime, timedelta
 from math import ceil
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User, AnonymousUser
-from django.urls import reverse
+from django.contrib.auth.models import AnonymousUser, Group, User
 from django.db import models
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from django.db.models.signals import pre_delete, post_save
+from django.urls import reverse
 
 from zds.forum import signals
-from zds.forum.managers import TopicManager, ForumManager, PostManager, TopicReadManager
+from zds.forum.managers import ForumManager, PostManager, TopicManager, TopicReadManager
 from zds.search.models import AbstractSearchIndexableModel
-from zds.search.utils import (
-    SearchFilter,
-    SearchIndexManager,
-    date_to_timestamp_int,
-    clean_html,
-)
+from zds.search.utils import SearchFilter, SearchIndexManager, clean_html, date_to_timestamp_int
 from zds.utils import get_current_user, old_slugify
 from zds.utils.models import Comment, Tag
 
@@ -488,7 +483,7 @@ class Topic(AbstractSearchIndexableModel):
         data["forum_title"] = self.forum.title
         data["forum_get_absolute_url"] = self.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
-        data["weight"] = self._compute_search_weight()
+        data["weight"] = self._get_search_weight()
 
         return data
 
@@ -528,11 +523,12 @@ class Topic(AbstractSearchIndexableModel):
                 filter_by.add_exact_filter("topic_pk", [self.pk])
 
                 search_engine_manager.delete_by_query(Post.get_search_document_type(), {"filter_by": str(filter_by)})
+                # The topic may not exist in the search engine yet, if it was not yet indexed
                 search_engine_manager.delete_document(self)
 
         return super().save(*args, **kwargs)
 
-    def _compute_search_weight(self):
+    def _get_search_weight(self):
         """
         This function calculates a weight for topics in order to sort them according to different boosts.
         There is a boost according to the state of the topic:
@@ -642,7 +638,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         data["forum_get_absolute_url"] = self.topic.forum.get_absolute_url()
         data["pubdate"] = date_to_timestamp_int(self.pubdate)
         data["text"] = clean_html(self.text_html)
-        data["weight"] = self._compute_search_weight()
+        data["weight"] = self._get_search_weight()
 
         return data
 
@@ -654,7 +650,7 @@ class Post(Comment, AbstractSearchIndexableModel):
         search_engine_manager = SearchIndexManager()
         search_engine_manager.delete_document(self)
 
-    def _compute_search_weight(self):
+    def _get_search_weight(self):
         """
         This function calculates a weight for post in order to sort them according to different boosts.
         There is a boost according to the position, the usefulness and the ration of likes.

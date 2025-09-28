@@ -2,7 +2,7 @@ from datetime import datetime
 
 from crispy_forms.bootstrap import StrictButton
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Field, Layout, HTML
+from crispy_forms.layout import HTML, Field, Layout
 from django import forms
 from django.conf import settings
 from django.contrib import messages
@@ -14,7 +14,6 @@ from django.utils.translation import gettext_lazy as _
 from zds.member.models import Profile
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
-
 from zds.utils.models import Licence
 
 

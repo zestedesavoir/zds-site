@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory, GoalFactory
+from zds.tutorialv2.tests.factories import GoalFactory, PublishableContentFactory
 
 
 class EditGoalsPermissionTests(TestCase):

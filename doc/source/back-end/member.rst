@@ -103,15 +103,13 @@ Pour que ces membres soient ajoutés à la base de données, il est donc nécés
     Les utilisateurs ``anonymous`` et ``external`` **doivent** être présents dans la base de données pour le bon fonctionnement du site.
     En effet, ils permettent le bon fonctionnement du processus d'anonymisation (voir `plus haut <#desinscription>`_)
 
-Les utilisateurs ``anonymous`` et ``external`` sont totalement paramétrables dans le fichier ``zds/settings.py`` :
-pour changer le nom d'utilisateur (*username*) de ces comptes, agissez sur les constantes suivantes (du dictionnaire ZDS_APP):
+Les utilisateurs ``anonymous`` et ``external`` sont totalement paramétrables dans le fichier ``zds/settings/abstract_base/zds.py`` : pour changer le nom d'utilisateur (*username*) par défaut de ces comptes, agissez sur les constantes suivantes (du dictionnaire ``ZDS_APP``):
 
 .. sourcecode:: python
 
-    # Constant for anonymisation
+   "anonymous_account": zds_config.get("member_anonymous_username", "anonymous"),
+   "external_account": zds_config.get("member_external_username", "external"),
 
-    anonymous_account = "anonymous"
-    external_account = "external"
 
 Bien entendu, les comptes correspondants doivent exister dans la base de données.
 
@@ -148,7 +146,7 @@ Les membres peuvent supprimer eux-mêmes leurs casquettes. Les utilisateurs ayan
 
 Attention : la casse est déterminée lors du premier ajout d'une casquette. Ainsi, si vous ajoutez une casquette « Staff » à un membre, ajouter une casquette « staff » à un autre membre par la suite lui ajoutera en réalité la casquette « Staff ». Si nécessaire, la casse d'une casquette peut être modifiée via l'administration de Django.
 
-Les casquettes sont ajoutées aux MP automatiques en fonction des paramètres ``ZDS_APP['hats']`` renseignés dans le fichier ``settings.py``.
+Les casquettes sont ajoutées aux MP automatiques en fonction des paramètres ``ZDS_APP["hats"]`` renseignés dans le fichier ``zds/settings/abstract_base/zds.py``.
 
 L'interface de karma
 --------------------

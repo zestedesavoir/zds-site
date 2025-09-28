@@ -1,20 +1,18 @@
-from copy import deepcopy
 import os
+from copy import deepcopy
 
 from django.conf import settings
+from django.core.management import call_command
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.core.management import call_command
 
+from zds.forum.tests.factories import Post, PostFactory, Topic, TopicFactory, create_category_and_forum
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
-from zds.tutorialv2.tests.factories import PublishableContentFactory, ContainerFactory, ExtractFactory
+from zds.search.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.models.database import PublishedContent
 from zds.tutorialv2.publication_utils import publish_content
-from zds.forum.tests.factories import TopicFactory, PostFactory, Topic, Post
-from zds.forum.tests.factories import create_category_and_forum
-from zds.search.utils import SearchFilter, SearchIndexManager
 from zds.tutorialv2.tests import TutorialTestMixin, override_for_contents
-
+from zds.tutorialv2.tests.factories import ContainerFactory, ExtractFactory, PublishableContentFactory
 
 overridden_zds_app = deepcopy(settings.ZDS_APP)
 overridden_zds_app["content"]["extra_content_generation_policy"] = "NONE"
@@ -37,11 +35,11 @@ class UtilsTests(TutorialTestMixin, TestCase):
 
         self.search_engine_manager = SearchIndexManager()
 
+        if not self.search_engine_manager.connected:
+            self.skipTest("Could not connect to search engine")
+
     def test_manager(self):
         """Test the behavior of the ``search_engine_manager`` command"""
-
-        if not self.search_engine_manager.connected:
-            return
 
         def call_search_engine_manager_command(cmd: str):
             with open(os.devnull, "w") as f:

@@ -1,5 +1,5 @@
-from django.test import TestCase
 from django.template import Context, Template, TemplateSyntaxError
+from django.test import TestCase
 
 
 class CaptureasNodeTest(TestCase):
