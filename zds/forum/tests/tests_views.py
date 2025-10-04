@@ -95,7 +95,8 @@ class CategoriesForumsListViewTests(TestCase):
         _, forum = create_category_and_forum()
         topic = create_topic_in_forum(forum, profile)
 
-        topics_nb = len(Topic.objects.get_last_topics())
+        topics_count = 5
+        topics_nb = len(Topic.objects.get_last_topics(topics_count))
 
         self.client.force_login(staff.user)
         data = {"lock": "true", "topic": topic.pk}
@@ -104,7 +105,7 @@ class CategoriesForumsListViewTests(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertTrue(Topic.objects.get(pk=topic.pk).is_locked)
 
-        self.assertEqual(len(Topic.objects.get_last_topics()), topics_nb - 1)
+        self.assertEqual(len(Topic.objects.get_last_topics(topics_count)), topics_nb - 1)
 
 
 class CategoryForumsDetailViewTest(TestCase):

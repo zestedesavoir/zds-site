@@ -1,9 +1,6 @@
-from django.conf import settings
 from django.db import models
 from django.db.models import F, Q
 from model_utils.managers import InheritanceManager
-
-from zds.utils import get_current_user
 
 
 class ForumManager(models.Manager):
@@ -65,17 +62,13 @@ class TopicManager(models.Manager):
     """
 
     def visibility_check_query(self, current_user):
-        """
-        Build a subquery that checks if a topic is readable by current user
-        :param current_user:
-        :return:
-        """
+        """Build a subquery that checks if a topic is readable by current user"""
         if current_user.is_authenticated:
             return Q(forum__groups__isnull=True) | Q(forum__groups__pk__in=current_user.profile.group_pks)
         else:
             return Q(forum__groups__isnull=True)
 
-    def last_topics_of_a_member(self, author, user):
+    def last_topics_of_a_member(self, author, user, count):
         """
         Gets last topics of a member but exclude all topics not accessible
         for the request user.
@@ -86,24 +79,19 @@ class TopicManager(models.Manager):
         queryset = self.filter(author=author).prefetch_related("author")
         queryset = queryset.filter(self.visibility_check_query(user)).distinct()
 
-        return queryset.order_by("-pubdate").all()[: settings.ZDS_APP["forum"]["home_number"]]
+        return queryset.order_by("-pubdate").all()[:count]
 
     def get_beta_topic_of(self, tutorial):
         return self.filter(key=tutorial.pk, key__isnull=False).first()
 
-    def get_last_topics(self):
-        """
-        Get last posted topics and prefetch some related properties.
-        Depends on settings.ZDS_APP['topic']['home_number']
-        :return:
-        :rtype: django.models.Queryset
-        """
+    def get_last_topics(self, count) -> models.QuerySet:
+        """Get last topics and prefetch some related properties."""
         return (
             self.filter(is_locked=False, forum__groups__isnull=True)
             .select_related("forum", "author", "author__profile", "last_message")
             .prefetch_related("tags")
             .order_by("-pubdate")
-            .all()[: settings.ZDS_APP["topic"]["home_number"]]
+            .all()[:count]
         )
 
     def get_all_topics_of_a_forum(self, forum_pk, is_sticky=False):

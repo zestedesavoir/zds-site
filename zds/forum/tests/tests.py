@@ -8,14 +8,7 @@ from django.urls import reverse
 
 from zds.forum.commons import PostEditMixin
 from zds.forum.models import Forum, Post, Topic, TopicRead
-from zds.forum.tests.factories import (
-    ForumCategoryFactory,
-    ForumFactory,
-    PostFactory,
-    TagFactory,
-    TopicFactory,
-    create_category_and_forum,
-)
+from zds.forum.tests.factories import ForumCategoryFactory, ForumFactory, PostFactory, TagFactory, TopicFactory
 from zds.forum.utils import get_tag_by_title
 from zds.member.tests.factories import ProfileFactory, StaffProfileFactory
 from zds.notification.models import TopicAnswerSubscription
@@ -1182,7 +1175,7 @@ class ManagerTests(TestCase):
         TopicFactory(forum=self.forum3, author=self.staff.user)
 
     def test_get_last_topics(self):
-        topics = Topic.objects.get_last_topics()
+        topics = Topic.objects.get_last_topics(5)
         self.assertEqual(2, len(topics))
 
     def test_get_unread_post(self):

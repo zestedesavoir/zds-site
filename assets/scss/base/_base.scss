@@ -25,7 +25,7 @@ body {
 }
 
 // Elements with a dark background
-.flexpage-header, .write-tutorial, .page-footer, .header-menu, .header-right, .modal-title, .taglist, .hat, .linkbox-item.primary {
+.flexpage-header, .call-to-action, .page-footer, .header-menu, .header-right, .modal-title, .taglist, .hat, .linkbox-item.primary {
     &::selection, *::selection {
         @include negative-selection;
     }
