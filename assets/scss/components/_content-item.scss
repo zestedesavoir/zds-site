@@ -336,13 +336,6 @@ $content-item-padding-vertical: $length-14;
 
     color: $grey-000;
 
-    &:hover {
-        .btn-call-to-action {
-            background-color: $true-white;
-            transform: scale(1.05);
-        }
-    }
-
     .call-to-action-text {
         flex: 1;
         text-align: center;
@@ -372,6 +365,11 @@ $content-item-padding-vertical: $length-14;
         transition: color $transition-duration ease-in-out,
                     background-color $transition-duration ease-in-out,
                     transform $transition-duration ease-in-out;
+
+        &:hover {
+            background-color: $true-white;
+            transform: scale(1.05);
+        }
     }
 }
 
