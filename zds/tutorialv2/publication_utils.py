@@ -405,7 +405,6 @@ class ZMarkdownRebberLatexPublicator(Publicator):
             smileys_directory=str(SMILEYS_BASE_PATH / "svg"),
             images_download_dir=str(base_directory / "images"),
             local_url_to_local_path=["/", replacement_image_url],
-            heading_shift=-1,
             date=date(published_content_entity.last_publication_date, "l d F Y"),
         )
         if content == "" and messages:
