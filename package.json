@@ -25,14 +25,14 @@
   },
   "homepage": "https://github.com/zestedesavoir/zds-site",
   "dependencies": {
-    "@fontsource/merriweather": "5.0.12",
-    "@fontsource/source-code-pro": "5.0.17",
-    "@fontsource/source-sans-pro": "5.0.8",
+    "@fontsource/merriweather": "5.2.11",
+    "@fontsource/source-code-pro": "5.2.7",
+    "@fontsource/source-sans-pro": "5.2.5",
     "@fortawesome/fontawesome-free": "5.12.1",
-    "autoprefixer": "10.4.18",
+    "autoprefixer": "10.4.21",
     "chart.js": "3.9.1",
     "chartjs-adapter-moment": "1.0.1",
-    "cssnano": "6.1.0",
+    "cssnano": "7.1.1",
     "del": "6.1.1",
     "easymde": "2.18.0",
     "gulp": "4.0.2",
@@ -43,22 +43,22 @@
     "gulp-options": "1.1.1",
     "gulp-postcss": "10.0.0",
     "gulp-terser-js": "5.2.2",
-    "gulp.spritesmith": "6.13.0",
+    "gulp.spritesmith": "6.13.1",
     "jdenticon": "3.3.0",
     "jquery": "3.7.1",
     "mathjax": "2.7.1",
     "moment": "2.30.1",
     "normalize.css": "8.0.1",
-    "postcss": "8.4.35"
+    "postcss": "8.5.6"
   },
   "devDependencies": {
     "david": "12.0.0",
     "eslint": "8.57.0",
     "eslint-config-standard": "17.1.0",
-    "eslint-plugin-import": "2.29.1",
-    "eslint-plugin-jsdoc": "48.2.1",
-    "eslint-plugin-n": "16.6.2",
-    "eslint-plugin-promise": "6.1.1"
+    "eslint-plugin-import": "2.32.0",
+    "eslint-plugin-jsdoc": "50.8.0",
+    "eslint-plugin-n": "17.23.1",
+    "eslint-plugin-promise": "7.2.1"
   },
   "browserslist": [
     "last 2 versions",
