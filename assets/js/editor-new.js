@@ -1,4 +1,4 @@
-/* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */ // eslint-disable-line camelcase
+/* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */
 (function($) {
   'use strict'
   const $saveButton = $('.inline-save-button')
@@ -1143,7 +1143,7 @@ function spellcheckerEasyMDE(easyMDE) {
     })
   }
 
-  if (typeof estPresentAntidoteAPI_JSConnect === 'function' && estPresentAntidoteAPI_JSConnect()) { // eslint-disable-line camelcase
+  if (typeof estPresentAntidoteAPI_JSConnect === 'function' && estPresentAntidoteAPI_JSConnect()) {
     activeAntidoteAPI_JSConnect()
   } else {
     $(easyMDE.toolbarElements['abc-spellchecker']).hide()
