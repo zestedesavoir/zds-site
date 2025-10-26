@@ -38,8 +38,11 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
 
     inline = kwargs.get("inline", False) is True
 
-    # If use_manifest is True, we send to ZMarkdown all content (eg all chapters) at once
+    # If use_manifest is True, we send to ZMarkdown all content (eg all
+    # chapters) at once (used especially for HTML and TeX)
     use_manifest = kwargs.pop("use_manifest", False)
+    if output_format.startswith("tex"):
+        use_manifest = True
 
     if settings.ZDS_APP["zmd"]["disable_pings"] is True:
         kwargs["disable_ping"] = True
@@ -50,12 +53,12 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         timeout = 10
         real_input = str(md_input)
         kwargs["heading_shift"] = 2
-        if output_format.startswith("tex") or use_manifest:
-            # latex may be really long to generate but it is also restrained by server configuration
-            timeout = 120
-            # use manifest renderer
-            real_input = md_input
-            kwargs["heading_shift"] = -1
+        if use_manifest:
+            timeout = 120  # tex or manifest can be long to generate
+            real_input = md_input  # with manifest rendering, md_input is actually a dict/JSON object with metadata
+            kwargs["heading_shift"] = 0  # by default when manifest is used
+        if output_format.startswith("tex"):
+            kwargs["heading_shift"] = -1  # required for tex export
         response = post(
             "{}{}".format(settings.ZDS_APP["zmd"]["server"], endpoint),
             json={
