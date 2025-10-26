@@ -37,7 +37,9 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         logger.error(f"kwargs: {kwargs!r}")
 
     inline = kwargs.get("inline", False) is True
-    full_json = kwargs.pop("full_json", False)
+
+    # If use_manifest is True, we send to ZMarkdown all content (eg all chapters) at once
+    use_manifest = kwargs.pop("use_manifest", False)
 
     if settings.ZDS_APP["zmd"]["disable_pings"] is True:
         kwargs["disable_ping"] = True
@@ -48,7 +50,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
         timeout = 10
         real_input = str(md_input)
         kwargs["heading_shift"] = 2
-        if output_format.startswith("tex") or full_json:
+        if output_format.startswith("tex") or use_manifest:
             # latex may be really long to generate but it is also restrained by server configuration
             timeout = 120
             # use manifest renderer
@@ -84,7 +86,7 @@ def _render_markdown_once(md_input, *, output_format="html", **kwargs):
             content = content.strip()
         if inline:
             content = content.replace("</p>\n", "\n\n").replace("\n<p>", "\n")
-        if full_json:
+        if use_manifest:
             return content, metadata, messages
         return mark_safe(content), metadata, messages
     except:  # noqa
