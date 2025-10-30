@@ -34,12 +34,6 @@ class GalleryFactory(factory.django.DjangoModelFactory):
     subtitle = factory.Sequence("Sous-titre de la gallerie {}".format)
     slug = factory.LazyAttribute(lambda o: f"{old_slugify(o.title)}")
 
-    @classmethod
-    def _generate(cls, create, attrs):
-        gallery = super()._generate(create, attrs)
-        gallery.get_gallery_path().mkdir(parents=True, exist_ok=True)
-        return gallery
-
 
 class UserGalleryFactory(factory.django.DjangoModelFactory):
     class Meta:
