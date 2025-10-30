@@ -103,16 +103,16 @@ Une modale s'ouvre ensuite, demandant de confirmer le choix :
 Une fois cliqué sur "Confirmer", la galerie et les images qu'elle contient sont supprimées.
 
 .. attention::
-   Si une galerie est liée à un tutoriel existant, elle ne peut pas être supprimée.
+   Si une galerie est liée à un contenu existant, elle ne peut pas être supprimée.
 
-Lien galerie <-> Tutoriel
-=========================
+Lien galerie <-> Contenu
+========================
 
-Chaque tutoriel possède une galerie en propre. Par défaut cette galerie possède le même nom qui a été donné au tutoriel lors de sa création.
+Chaque contenu (tutoriel, article ou billet) possède une galerie en propre. Par défaut cette galerie possède le même nom qui a été donné au contenu lors de sa création.
 
-Chaque auteur possède un droit d'accès en écriture (``GALLERY_WRITE``) sur la galerie liée au tutoriel.
+Chaque auteur possède un droit d'accès en écriture (``GALLERY_WRITE``) sur la galerie liée au contenu.
 
-Si un membre possède un droit de lecture seule (``GALLERY_READ``) sur la galerie d'un tutoriel, aucun droit n'est accordé à ce membre quant au tutoriel.
+Si un membre possède un droit de lecture seule (``GALLERY_READ``) sur la galerie d'un contenu, aucun droit n'est accordé à ce membre quant au contenu.
 
 Aspects techniques
 ==================
