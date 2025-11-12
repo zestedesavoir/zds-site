@@ -11,7 +11,7 @@ env:
   PYTHON_VERSION: "3.11"
   PIP_VERSION: "25.1.1" # needs to be also updated in scripts/define_variable.sh
   MARIADB_VERSION: "10.11.11"
-  COVERALLS_VERSION: "4.0.1" # check if Coverage needs to be also updated in requirements-ci.txt
+  COVERALLS_VERSION: "4.0.2" # check if Coverage needs to be also updated in requirements-ci.txt
   TYPESENSE_VERSION: "29.0" # needs to be also updated in scripts/define_variable.sh
 
   # As GitHub Action does not allow environment variables
@@ -73,6 +73,9 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements-dev.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
+
+      - name: Install Cairo
+        run: sudo apt-get update && sudo apt-get install libcairo2-dev
 
       - name: Install python dependencies
         run: pip install -r requirements-dev.txt
@@ -215,6 +218,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "${{ env.NODE_VERSION }}"
+
+      - name: Install Cairo
+        run: sudo apt-get update && sudo apt-get install libcairo2-dev
 
       - name: Install Python dependencies
         run: pip install -r requirements-ci.txt

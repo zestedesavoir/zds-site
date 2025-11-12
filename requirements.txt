@@ -1,33 +1,33 @@
 # Implicit dependencies (optional dependencies of dependencies)
 crispy-forms-bootstrap2==2024.1
-social-auth-app-django==5.4.3
+social-auth-app-django==5.4.3  # more recent versions require Django 5
 
 # Explicit dependencies (references in code)
-beautifulsoup4==4.13.4
-django-crispy-forms==2.4
+beautifulsoup4==4.14.2
+django-crispy-forms==2.5
 django-model-utils==5.0.0
 django-recaptcha==4.1.0
-Django==4.2.21
+Django==4.2.26
 easy-thumbnails[svg]==2.10.1
 factory-boy==3.3.3
 geoip2==5.1.0
-GitPython==3.1.44
+GitPython==3.1.45
 homoglyphs==2.0.4
-lxml==5.4.0
-Pillow==11.2.1
+lxml==6.0.2
+Pillow==12.0.0
 pymemcache==4.0.0
-requests==2.32.3
+requests==2.32.5
 typesense==1.1.1
 ua-parser==1.0.1
 
 # Api dependencies
-django-cors-headers==4.7.0
-django-filter==25.1
-django-oauth-toolkit==3.0.1
-djangorestframework==3.16.0
+django-cors-headers==4.9.0
+django-filter==25.1  # more recent versions require Django 5
+django-oauth-toolkit==3.1.0
+djangorestframework==3.16.1
 drf-extensions==0.8.0
 dry-rest-permissions==0.1.10
-drf-yasg==1.21.10
+drf-yasg==1.21.11
 
 # Dependencies for slug generation, please be extra careful with those
 django-uuslug==2.0.0
