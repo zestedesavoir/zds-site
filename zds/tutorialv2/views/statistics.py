@@ -2,7 +2,7 @@ import itertools
 import logging
 import urllib.parse
 from datetime import date, datetime, timedelta
-from typing import Any
+from typing import Any, List
 
 import requests
 from django.conf import settings
@@ -213,13 +213,13 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
         return "comparison"
 
     @staticmethod
-    def get_cumulative(stats) -> dict[str, int]:
+    def get_cumulative(stats: dict[str, list]) -> dict[str, int]:
         cumul = {"total": 0}
         for info_date, infos_stat in stats.items():
             cumul["total"] += len(infos_stat)
             for info_stat in infos_stat:
                 for key, val in info_stat.items():
-                    if type(val) == str:
+                    if type(val) == str or isinstance(val, dict):
                         continue
                     if key in cumul:
                         cumul[key] += int(val)
