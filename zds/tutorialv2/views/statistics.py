@@ -256,7 +256,6 @@ class ContentStatisticsView(SingleOnlineContentDetailViewMixin, FormView):
             raise PermissionDenied
 
         urls = self.get_urls_to_render()
-        export_urls = self
         start_date, end_date = self.get_start_and_end_dates()
         display_mode = self.get_display_mode(urls)
         reports = {}
