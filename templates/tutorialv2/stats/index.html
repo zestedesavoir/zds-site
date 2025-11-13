@@ -41,21 +41,21 @@
             {% endif %}
         </h2>
 
-        {% if reports %}
+        {% if graphs_data %}
             <!-- Tab links -->
             <div class="tab">
                 <span class="tablinks" tabindex="0" id="tab-view-graph">{% trans "Pages vues" %}</span>
                 <span class="tablinks" tabindex="0" id="tab-visit-time-graph">{% trans "Temps moyen de lecture" %}</span>
-                <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visiteurs uniques" %}</span>
+                <span class="tablinks" tabindex="0" id="tab-users-graph">{% trans "Nombre de visites" %}</span>
             </div>
             <!-- Tab content -->
-            {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" report_key="nb_hits" y_label="Nombre de pages" %}
-            {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps moyen lecture (en secondes)" canvas_id="visit-time-graph" report_key="avg_time_on_page" y_label="Secondes" %}
-            {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visiteurs uniques" canvas_id="users-graph" report_key="nb_uniq_visitors" y_label="Nombre de visiteurs" %}
+            {% include "misc/graph.part.html" with tab_name="tab-view-graph-content" graph_title="Évolution des pages vues sur le contenu" canvas_id="view-graph" graph_data_key="nb_hits" y_label="Nombre de pages" %}
+            {% include "misc/graph.part.html" with tab_name="tab-visit-time-graph-content" graph_title="Évolution du temps moyen lecture (en secondes)" canvas_id="visit-time-graph" graph_data_key="avg_time_on_page" y_label="Secondes" %}
+            {% include "misc/graph.part.html" with tab_name="tab-users-graph-content" graph_title="Évolution du nombre de visites" canvas_id="users-graph" graph_data_key="nb_visits" y_label="Nombre de visites" %}
         {% endif %}
 
-        {% if cumulative_stats %}
-            {% if display == 'global' and cumulative_stats|length > 1 %}
+        {% if huge_table_data %}
+            {% if display == 'global' and huge_table_data|length > 1 %}
                 {% if form.non_field_errors %}
                     <p class="content-wrapper alert-box warning">
                         {{ form.non_field_errors.as_text }}
@@ -69,22 +69,22 @@
                     <th>{% trans "Partie" %}</th>
                     <th>{% trans "Vues" %}</th>
                     <th>{% trans "Temps moyen sur la page" %}</th>
-                    <th>{% trans "Visiteurs uniques" %}</th>
-                    {% if display == 'global' and cumulative_stats|length > 1 %}<th></th>{% endif %}
+                    <th>{% trans "Visites" %}</th>
+                    {% if display == 'global' and huge_table_data|length > 1 %}<th></th>{% endif %}
                 </thead>
                 <tbody>
-                    {% for url, view in cumulative_stats.items %}
+                    {% for url, view in huge_table_data.items %}
                         <tr>
                             <td class="level-{{url.level}}">
                                 <a href="{{ url.url }}">{{ url.name }}</a>
-                                {% if display != 'details' and cumulative_stats|length > 1 %}
+                                {% if display != 'details' and huge_table_data|length > 1 %}
                                 - <a href="?urls={{ url.url }}{% if request.GET.start_date %}&start_date={{request.GET.start_date}}{% endif %}{% if request.GET.end_date %}&end_date={{request.GET.end_date}}{% endif %}" >{% trans "(détails)" %}</a>
                                 {% endif %}
                             </td>
                             <td>{{ view.nb_hits }}</td>
                             <td>{{ view.avg_time_on_page|seconds_to_duration }}</td>
-                            <td>{{ view.nb_uniq_visitors }}</td>
-                            {% if display == 'global' and cumulative_stats|length > 1 %}
+                            <td>{{ view.nb_visits }}</td>
+                            {% if display == 'global' and huge_table_data|length > 1 %}
                                 <td><input name="urls" id="id_urls_{{forloop.counter1}}" value="{{ url.url }}" type="checkbox"></td>
                             {% endif %}
                         </tr>
@@ -92,7 +92,7 @@
                 </tbody>
             </table>
             {% if display == 'global' %}
-                {% if cumulative_stats|length > 1 %}
+                {% if huge_table_data|length > 1 %}
                     <button type="submit" class="btn">{% trans "Comparer" %}</button>
                     </form>
                 {% endif %}
@@ -113,9 +113,9 @@
                             <th>{% trans "Visites" %}</th>
                         </thead>
                         <tbody>
-                        {% for category, visits in type_referrers.items %}
+                        {% for type, visits in referrer_types.items %}
                             <tr>
-                                <td>{{ category }}</td>
+                                <td>{{ type }}</td>
                                 <td>{{ visits }}</td>
                             </tr>
                         {% endfor %}
@@ -126,13 +126,13 @@
                 <h2>{% trans "Sites entrants vers ces pages" %}</h2>
                 <table class="stat-table fullwidth">
                     <thead>
-                        <th>{% trans "Site" %}</th>
+                        <th>{% trans "Site web" %}</th>
                         <th>{% trans "Visites" %}</th>
                     </thead>
                     <tbody>
-                    {% for referrer, visits in referrers.items %}
+                    {% for website, visits in referrer_websites.items %}
                         <tr>
-                            <td>{{ referrer }}</td>
+                            <td>{{ website }}</td>
                             <td>{{ visits }}</td>
                         </tr>
                     {% endfor %}
@@ -147,7 +147,7 @@
                             <th>{% trans "Visites" %}</th>
                         </thead>
                         <tbody>
-                        {% for keyword, visits in keywords.items %}
+                        {% for keyword, visits in referrer_keywords.items %}
                             <tr>
                                 <td>{{ keyword }}</td>
                                 <td>{{ visits }}</td>
@@ -247,4 +247,4 @@
             </ul>
         </div>
     </aside>
-{% endblock sidebar %}
+{% endblock %}
