@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 
-from zds.member.utils import get_geo_location_from_ip, get_info_from_user_agent
+from zds.member.utils import get_geo_location_from_ip, get_info_from_user_agent, remove_session
 from zds.utils.paginator import ZdSPagingListView
 
 Session = import_module(settings.SESSION_ENGINE).CustomSession
@@ -51,8 +51,6 @@ class DeleteSession(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         session_key = request.POST.get("session_key", None)
         if session_key and session_key != self.request.session.session_key:
-            session = SessionStore(session_key=session_key)
-            if session.get("_auth_user_id", "") == str(self.request.user.pk):
-                session.flush()
+            remove_session(session_key, self.request.user.pk)
 
         return redirect(reverse("list-sessions"))

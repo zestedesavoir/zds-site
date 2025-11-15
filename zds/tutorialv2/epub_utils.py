@@ -137,11 +137,15 @@ def build_ebook(published_content_entity, working_dir, final_file_path):
 
     mimetype_conf = __build_mime_type_conf()
     mime_path = Path(working_dir, "ebook", mimetype_conf["filename"])
-    for img in published_content_entity.content.gallery.get_gallery_path().iterdir():
-        # Do not interrupt the whole loop if one item triggers an exception
-        # IsADirectoryError: ignore directories (which can be there only if created manually)
-        with contextlib.suppress(FileExistsError, FileNotFoundError, IsADirectoryError):
-            shutil.copy(str(img), str(target_image_dir))
+    if published_content_entity.content.gallery.get_gallery_path().exists():
+        # The gallery dir is created only when uploading the first image, so if
+        # the content doesn't have any image from its gallery, the folder may
+        # not exist.
+        for img in published_content_entity.content.gallery.get_gallery_path().iterdir():
+            # Do not interrupt the whole loop if one item triggers an exception
+            # IsADirectoryError: ignore directories (which can be there only if created manually)
+            with contextlib.suppress(FileExistsError, FileNotFoundError, IsADirectoryError):
+                shutil.copy(str(img), str(target_image_dir))
 
     with mime_path.open(mode="w", encoding="utf-8") as mimefile:
         mimefile.write(mimetype_conf["content"])
