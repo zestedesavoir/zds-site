@@ -72,6 +72,9 @@
 {% elif event.type == "labels_management" %}
     <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les labels du contenu.
 
+{% elif event.type == "categories_management" %}
+    <a href="{{ performer_href }}">{{ event.performer }}</a> a modifié les catégories du contenu.
+
 {% elif event.type == "suggestions_management" %}
     {% if event.action == "add" %}
         <a href="{{ performer_href }}">{{ event.performer }}</a> a ajouté une suggestion de contenu.

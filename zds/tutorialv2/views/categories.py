@@ -8,8 +8,10 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView
 
 from zds.member.decorator import LoggedWithReadWriteHability
+from zds.tutorialv2 import signals
 from zds.tutorialv2.mixins import SingleContentFormViewMixin
 from zds.tutorialv2.models.database import PublishableContent
+from zds.utils import get_current_user
 from zds.utils.models import SubCategory
 
 
@@ -69,5 +71,7 @@ class EditCategoriesView(LoggedWithReadWriteHability, SingleContentFormViewMixin
             content.subcategory.add(subcat)
 
         self.success_url = reverse("content:view", args=[content.pk, content.slug])
+
+        signals.categories_management.send(sender=self.__class__, performer=get_current_user(), content=self.object)
 
         return super().form_valid(form)

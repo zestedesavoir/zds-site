@@ -7,6 +7,7 @@ from zds.tutorialv2.models.database import PublishableContent
 from zds.tutorialv2.views.authors import AddAuthorView, RemoveAuthorView
 from zds.tutorialv2.views.beta import ManageBetaContent
 from zds.tutorialv2.views.canonical import EditCanonicalLinkView
+from zds.tutorialv2.views.categories import EditCategoriesView
 from zds.tutorialv2.views.contributors import AddContributorToContent, RemoveContributorFromContent
 from zds.tutorialv2.views.goals import EditGoals
 from zds.tutorialv2.views.help import ChangeHelp
@@ -58,6 +59,7 @@ types = {
     signals.help_management: "help_management",
     signals.jsfiddle_management: "jsfiddle_management",
     signals.opinions_management: "opinions_management",
+    signals.categories_management: "categories_management",
 }
 
 
@@ -186,6 +188,15 @@ def record_event_goals_management(sender, performer, signal, content, **_):
 
 @receiver(signals.labels_management, sender=EditLabels)
 def record_event_labels_management(sender, performer, signal, content, **_):
+    Event(
+        performer=performer,
+        type=types[signal],
+        content=content,
+    ).save()
+
+
+@receiver(signals.categories_management, sender=EditCategoriesView)
+def record_event_categories_management(sender, performer, signal, content, **_):
     Event(
         performer=performer,
         type=types[signal],

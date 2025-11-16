@@ -1,12 +1,12 @@
 -r requirements.txt
 
-black==25.1.0  # needs to be also updated in .pre-commit-config.yaml
-colorlog==6.9.0
-django-debug-toolbar==5.2.0
+black==25.11.0  # needs to be also updated in .pre-commit-config.yaml
+colorlog==6.10.1
+django-debug-toolbar==6.1.0
 django-extensions==4.1
-Faker==37.1.0
-pre-commit==4.2.0
-PyYAML==6.0.2
-selenium==4.32.0
+Faker==38.0.0
+pre-commit==4.4.0
+PyYAML==6.0.3
+selenium==4.38.0
 Sphinx==8.2.3
 sphinx-rtd-theme==3.0.2

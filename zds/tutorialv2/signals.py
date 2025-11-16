@@ -68,3 +68,7 @@ jsfiddle_management = Signal()
 # For the signal below, the arguments "performer", "content" and "action" shall be provided.
 # Action is either "publish" or "unpublish".
 opinions_management = Signal()
+
+# Categories management
+# For the signal below, the arguments "performer", "content" and "action" shall be provided.
+categories_management = Signal()
