@@ -311,23 +311,24 @@ class ReserveValidation(LoginRequiredMixin, PermissionRequiredMixin, FormView):
             validation.status = "PENDING_V"
             validation.save()
 
-            versioned = validation.content.load_version(sha=validation.version)
-            msg = render_to_string(
-                "tutorialv2/messages/validation_reserve.md",
-                {
-                    "content": versioned,
-                    "url": get_content_version_url(versioned, validation.version),
-                },
-            )
+            recipients = filter_reachable(validation.content.authors.all())
+            if validation.validator in recipients:
+                recipients.remove(validation.validator)
+            if len(recipients) > 0:
+                versioned = validation.content.load_version(sha=validation.version)
+                msg = render_to_string(
+                    "tutorialv2/messages/validation_reserve.md",
+                    {
+                        "content": versioned,
+                        "url": get_content_version_url(versioned, validation.version),
+                    },
+                )
 
-            authors = list(validation.content.authors.all())
-            if validation.validator in authors:
-                authors.remove(validation.validator)
-            if len(authors) > 0:
                 if not validation.content.validation_private_message:
+
                     validation.content.validation_private_message = send_mp(
                         validation.validator,
-                        authors,
+                        recipients,
                         _("Contenu réservé - {0}").format(validation.content.title),
                         validation.content.title,
                         msg,
@@ -420,16 +421,20 @@ class RejectValidation(LoginRequiredMixin, PermissionRequiredMixin, ModalFormVie
 
         bot = get_bot_account()
         if not validation.content.validation_private_message:
-            validation.content.validation_private_message = send_mp(
-                bot,
-                validation.content.authors.all(),
-                _("Rejet de la demande de publication").format(),
-                validation.content.title,
-                msg,
-                send_by_mail=True,
-                hat=get_hat_from_settings("validation"),
-            )
-            validation.content.save()
+            recipients = filter_reachable(validation.content.authors.all())
+            if validation.validator in recipients:
+                recipients.remove(validation.validator)
+            if len(recipients) > 0:
+                validation.content.validation_private_message = send_mp(
+                    bot,
+                    validation.content.authors.all(),
+                    _("Rejet de la demande de publication").format(),
+                    validation.content.title,
+                    msg,
+                    send_by_mail=True,
+                    hat=get_hat_from_settings("validation"),
+                )
+                validation.content.save()
         else:
             send_message_mp(
                 bot, validation.content.validation_private_message, msg, no_notification_for=[self.request.user]

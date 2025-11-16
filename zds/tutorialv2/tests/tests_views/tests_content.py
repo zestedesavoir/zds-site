@@ -39,6 +39,7 @@ from zds.tutorialv2.tests.factories import (
     PublishedContentFactory,
     tricky_text_content,
 )
+from zds.tutorialv2.tests.utils import request_validation
 from zds.utils.tests.factories import LicenceFactory, SubCategoryFactory
 
 
@@ -74,11 +75,16 @@ class ContentTests(TutorialTestMixin, TestCase):
         self.tuto_draft = self.tuto.load_version()
         self.part1 = ContainerFactory(parent=self.tuto_draft, db_object=self.tuto)
         self.chapter1 = ContainerFactory(parent=self.part1, db_object=self.tuto)
-
         self.extract1 = ExtractFactory(container=self.chapter1, db_object=self.tuto)
-        bot = Group(name=self.overridden_zds_app["member"]["bot_group"])
-        bot.save()
-        self.external = UserFactory(username=self.overridden_zds_app["member"]["external_account"], password="anything")
+
+        bot_group = Group(name=self.overridden_zds_app["member"]["bot_group"])
+        bot_group.save()
+
+        self.profile_external = ProfileFactory()
+        self.profile_external.user.username = settings.ZDS_APP["member"]["external_account"]
+        self.profile_external.user.save()
+        self.profile_external.user.groups.add(bot_group)
+
         self.old_registry = {key: value for key, value in PublicatorRegistry.get_all_registered()}
 
         class TestPdfPublicator(Publicator):
@@ -2017,6 +2023,35 @@ class ContentTests(TutorialTestMixin, TestCase):
         validation = Validation.objects.filter(content=tuto).last()
         self.assertEqual(validation.status, "PENDING_V")
         self.assertEqual(validation.validator, self.user_staff)
+
+    def test_validation_external_author(self):
+        """Test we can reserve and reject a validation of a content without any reachable author"""
+
+        tuto = PublishableContent.objects.get(pk=self.tuto.pk)
+        tuto.authors.clear()
+        tuto.authors.add(self.profile_external.user)  # external author is not a reachable author
+        tuto.save()
+
+        validation = request_validation(tuto)
+
+        self.client.force_login(self.user_staff)
+
+        result = self.client.post(
+            reverse("validation:reserve", kwargs={"pk": validation.pk}), {"version": validation.version}, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        validation.refresh_from_db()
+        self.assertEqual(validation.status, "PENDING_V")
+        self.assertEqual(validation.validator, self.user_staff)
+
+        result = self.client.post(
+            reverse("validation:reject", kwargs={"pk": validation.pk}), {"text": "Reject"}, follow=False
+        )
+        self.assertEqual(result.status_code, 302)
+
+        validation.refresh_from_db()
+        self.assertEqual(validation.status, "REJECT")
 
     def test_delete_while_validating(self):
         """this test ensure that the validator is warned if the content he is validing is removed"""

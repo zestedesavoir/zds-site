@@ -267,6 +267,16 @@ class ValidationFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Validation
 
+    @classmethod
+    def _generate(cls, create, attrs):
+
+        content = attrs.get("content")
+
+        validation = super()._generate(create, attrs)
+        validation.version = content.sha_draft
+
+        return validation
+
 
 class HelpWritingFactory(factory.django.DjangoModelFactory):
     """
