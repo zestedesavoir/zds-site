@@ -16,8 +16,6 @@ from .abstract_base import *
 
 DEBUG = False
 
-USE_L10N = True
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",

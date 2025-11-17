@@ -39,12 +39,11 @@ USE_I18N = True
 
 LOCALE_PATHS = (str(BASE_DIR / "conf" / "locale"),)
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale.
-USE_L10N = False
-
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False
+
+# prepare for django 6
+FORMS_URLFIELD_ASSUME_HTTPS = True
 
 LANGUAGES = (
     ("fr", _("Français")),

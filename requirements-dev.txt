@@ -1,6 +1,6 @@
 -r requirements.txt
 
-black==25.11.0  # needs to be also updated in .pre-commit-config.yaml
+black==25.11.0 # needs to be also updated in .pre-commit-config.yaml
 colorlog==6.10.1
 django-debug-toolbar==6.1.0
 django-extensions==4.1
