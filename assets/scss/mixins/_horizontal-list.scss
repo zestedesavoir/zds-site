@@ -1,4 +1,5 @@
 @use "sass:math";
+@use "../variables" as *;
 
 // This mixin transforms an unstyled list to a horizontal, dot-separated list.
 // Lists with a single element will appear as a normal text.

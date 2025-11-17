@@ -1,4 +1,4 @@
-(function(ajax) {
+export default (function(ajax) {
   function setButtonState(button, state) {
     const buttonClasses = button.classList
 
@@ -31,4 +31,4 @@
         () => setButtonState(current, !newActivation)
       )
     }))
-})(window.ajax)
+})(window.ajax);

@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../mixins" as *;
+
 $message-arrow-width: 20px;
 
 div.msg-are-hidden {

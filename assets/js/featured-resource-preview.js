@@ -2,7 +2,9 @@
    Preview when editing news
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery"
+
+export default (function($) {
   function convertToNbsp(text) {
     // Any change here should also be made in zds/utils/templatetags/french_typography.py
     return text
@@ -45,4 +47,4 @@
       link: $('.featured-edit-form input[name=url]').val()
     }, $('.featured-resource-edit-form .featured-resource-item'))
   })
-})(jQuery)
+})(jQuery);

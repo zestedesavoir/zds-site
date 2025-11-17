@@ -1,0 +1,287 @@
+import { defineConfig, normalizePath } from "vite";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
+import Spritesmith from "vite-plugin-spritesmith";
+import autoprefixer from "autoprefixer";
+import cssnanoPlugin from "cssnano";
+import viteImageMin from "vite-plugin-imagemin";
+import { viteStaticCopy } from "vite-plugin-static-copy";
+
+// The directory of the source vitejs file
+const VITE_CONFIG_DIR = path.dirname(fileURLToPath(import.meta.url));
+function get_node_modules_dir() {
+  const file = fileURLToPath(import.meta.resolve("vite"));
+  let dir = path.dirname(file);
+  while (!(dir.endsWith("node_modules") || dir.endsWith("node_modules/")))
+    dir = path.dirname(dir);
+  return dir;
+}
+const NODE_MODULES_DIR = get_node_modules_dir();
+const ZMD_NODE_MODULES_DIR = path.join(VITE_CONFIG_DIR, "zmd/node_modules/");
+if (!fs.existsSync(ZMD_NODE_MODULES_DIR))
+  throw new Error("The 'node_modules/' directory of zmd package is not found. Cannot build.");
+
+const NAME_MAP = {
+  // Load all the images in the assets
+  picture: "vite-src/pictures.html",
+
+  "js/script": "vite-src/script.js",
+  // Generates CSS for the website and the ebooks
+  main: "vite-src/main__css.js",
+  zmd: "vite-src/main_zmd__css.js",
+  /* Get CSS minified files from packages
+   * Get also sourcemaps for all CSS files, required by Django's ManifestStaticFilesStorage since 4.1 (see
+   * https://docs.djangoproject.com/fr/4.2/ref/contrib/staticfiles/#manifeststaticfilesstorage) */
+  "all.min": "vite-src/fontawesome__css.js",
+  // Prepares files for zmarkdown
+  "katex.min": "vite-src/zmarkdown__css.js",
+  // Generates CSS for the static error pages in the folder `errors/`
+  "errors.main": "vite-src/errors__css.js",
+  // Prepares files for easy mde
+  "easymde.min": "vite-src/easymde__css.js",
+  // Get text fonts files from packages
+  fontsource: "vite-src/fontsource.js",
+};
+const reversed_map = Object.entries(NAME_MAP).reduce(
+  (acc, pair) => ({ ...acc, [pair[1]]: pair[0] }),
+  {},
+);
+
+const outputHandling = {
+  process_lib_assets: (originalFileName) => {
+    // Get text fonts files from packages
+    if (originalFileName.includes("@fontsource")) {
+      return `css/files/[name][extname]`;
+    }
+    // Get icon fonts files from packages
+    if (originalFileName.includes("@fortawesome/fontawesome-free/webfonts")) {
+      return `webfonts/[name][extname]`;
+    }
+    // Prepares files for zmarkdown
+    if (originalFileName.includes("katex/dist/fonts")) {
+      return "css/fonts/[name][extname]";
+    }
+    return false;
+  },
+
+  process_source_assets: (originalFileName) => {
+    // Keep the same directory structure as in the assets directory
+    const parts = originalFileName.split("/");
+    if (parts[0] === "assets") {
+      const subDir = parts.slice(1, parts.length - 1).join("/");
+      return `${subDir}/[name][extname]`;
+    }
+    return false;
+  },
+
+  process_css: (originalFileName, assetName) => {
+    // Custom css output must be defined as in the NAME_MAP
+    if (assetName.endsWith("css")) {
+      if (originalFileName.endsWith("errors__css.js"))
+        // TODO: put this file in the correct errors directory
+        // for now, it is managed by another plugin
+        return `css/errors[extname]`;
+      const name = reversed_map[originalFileName];
+      return `css/${name}[extname]`;
+    }
+    return false;
+  },
+};
+
+function staticCopyOfLibs() {
+  // TODO: for optimizing the loading, these assets should be loaded as lib
+  // assets, not statically copied
+  const paths = [
+    "jquery/dist/jquery.min.js", // .map addable
+    "moment/min/moment.min.js",
+    "moment/locale/fr.js",
+    "chartjs-adapter-moment/dist/chartjs-adapter-moment.min.js",
+    "chart.js/dist/chart.min.js",
+    "easymde/dist/easymde.min.js",
+    "jdenticon/dist/jdenticon.min.js", // .map addable
+  ]
+    .map((p) => path.join(NODE_MODULES_DIR, p))
+    .concat(path.resolve(path.join(NODE_MODULES_DIR, "mathjax", "unpacked/*")))
+    .map(normalizePath);
+  return viteStaticCopy({
+    targets: paths.map((p) => ({ src: p, dest: "js/" })),
+  });
+}
+
+function moveAndDeleteFiles(inWatchMode) {
+  // Remove all useless .js and .map files in the dist
+  // Also move the errors files out of the dist directory
+  return {
+    name: "move-after-build",
+    closeBundle() {
+      // Move errors.css in the correct directory
+      const source = path.join(VITE_CONFIG_DIR, "dist/css/errors.css");
+      const destination = path.join(VITE_CONFIG_DIR, "errors/css/main.css");
+      const destDir = path.join(VITE_CONFIG_DIR, "errors/css/");
+      if (!fs.existsSync(destDir)) fs.mkdirSync(destDir);
+      if (fs.existsSync(source)) {
+        if (inWatchMode) fs.copyFileSync(source, destination);
+        else fs.renameSync(source, destination);
+        console.log(`🚚 Fichier errors.css déplacé vers : ${destination}`);
+      }
+
+      if (inWatchMode) return;
+
+      // Delete the useless files generated by Vite
+      const distDir = path.join(VITE_CONFIG_DIR, "dist/");
+      if (fs.existsSync(distDir)) {
+        console.log(
+          `🗑️ Suppression des fichiers .js and .map inutiles dans ${distDir}...`,
+        );
+        const viteFilesToDelete = fs
+          .readdirSync(distDir)
+          .filter((file) => file.endsWith(".js") || file.endsWith(".map"))
+          .map((file) => path.join(distDir, file));
+        for (const file of viteFilesToDelete) {
+          if (fs.existsSync(file)) {
+            fs.rmSync(file);
+          }
+        }
+        console.log(`\t Terminé!`);
+        const viteDirToDelete = path.join(distDir, "vite-src");
+        if (fs.existsSync(viteDirToDelete)) {
+          console.log(`🗑️📁 Suppression de ${viteDirToDelete}`);
+          fs.rmSync(viteDirToDelete, { recursive: true, force: true });
+          console.log(`\t Terminé!`);
+        }
+      }
+    },
+  };
+}
+
+// Assets that are built by Vite and must be reprocessed later by the building
+// They must be ignored by the watching
+const INTERMEDIARY_ASSETS = [
+  "assets/scss/_sprite.scss",
+  "assets/images/sprite.png",
+  "assets/images/sprite@2x.png",
+].map((p) => "**/" + p);
+
+export default defineConfig(({ command }) => {
+  const inWatchMode = command === "serve" || process.argv.includes("--watch");
+  if (inWatchMode) console.log("👀 Watching mode detected...");
+  return {
+    root: ".",
+    base: "./",
+    resolve: {
+      alias: {
+        "@zmd-lib": ZMD_NODE_MODULES_DIR,
+        "@lib": NODE_MODULES_DIR
+      },
+    },
+    build: {
+      outDir: "./dist",
+      assetsDir: ".",
+      sourcemap: true,
+      rollupOptions: {
+        input: NAME_MAP,
+        output: {
+          assetFileNames: (assetInfo) => {
+            // Extract the subdirectory structure from the source path
+            const assetPath = assetInfo.originalFileNames[0] || "";
+            const assetName = assetInfo.names[0] || "";
+
+            for (const k of Object.keys(outputHandling)) {
+              const fn = outputHandling[k];
+              const result = fn(assetPath, assetName);
+              if (result !== false) return result;
+            }
+
+            // Default fallback if no subdirectory found
+            return "assets/[name][extname]";
+          },
+          entryFileNames: (entryInfo) => {
+            // Remove hash
+            if (entryInfo.name.startsWith("js/")) return "[name].js";
+            return "[name]-[hash].js";
+          },
+        },
+      },
+      cssCodeSplit: true,
+      assetsInlineLimit: 0,
+      watch: inWatchMode
+        ? {
+            exclude: INTERMEDIARY_ASSETS,
+          }
+        : null,
+    },
+    server: inWatchMode
+      ? {
+          watch: {
+            ignored: INTERMEDIARY_ASSETS,
+          },
+        }
+      : null,
+    plugins: [
+      inWatchMode
+        ? {
+            watchChange(id, change) {
+              console.log(`📄 One file has changed: ${id} (${change.event})`);
+            },
+          }
+        : {},
+      Spritesmith({
+        watch: inWatchMode,
+        src: {
+          cwd: ".",
+          glob: "./assets/images/sprite/*.png",
+        },
+        target: {
+          image: "./assets/images/sprite.png",
+          css: [
+            [
+              "./assets/scss/_sprite.scss",
+              {
+                format: "handlebars_based_template",
+              },
+            ],
+          ],
+        },
+        retina: "@2x",
+        apiOptions: {
+          cssImageRef: "/assets/images/sprite.png",
+          spritesheet_info: {
+            name: "vite1",
+            format: "handlebars_based_template_retina",
+          },
+        },
+        customTemplates: {
+          handlebars_based_template_retina: "./assets/scss/_sprite.scss.hbs",
+        },
+      }),
+      viteImageMin({
+        gifsicle: {},
+        mozjpeg: {},
+        optipng: {},
+        svgo: {
+          plugins: [
+            {
+              // Avoid over-optimizing svg animations
+              name: "removeHiddenElems",
+              active: false,
+            },
+          ],
+        },
+      }),
+      staticCopyOfLibs(),
+      moveAndDeleteFiles(inWatchMode),
+    ],
+    css: {
+      devSourcemap: true,
+      preprocessorOptions: {
+        scss: {
+          sourceMap: true,
+        },
+      },
+      postcss: {
+        plugins: [autoprefixer, cssnanoPlugin],
+      },
+    },
+  };
+});

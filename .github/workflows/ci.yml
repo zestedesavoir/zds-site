@@ -119,7 +119,9 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install front-end
-        run: make install-front
+        run: |
+          make zmd-install
+          make install-front
 
       - name: Lint front-end
         run: make lint-front

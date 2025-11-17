@@ -4,7 +4,9 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   $('body').on('keydown', function(e) {
@@ -31,4 +33,4 @@
       }
     }
   })
-})(jQuery)
+})(jQuery);

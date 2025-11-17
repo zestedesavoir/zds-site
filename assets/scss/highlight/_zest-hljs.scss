@@ -2,6 +2,7 @@
 /* Based on a11y-light theme by ericwbailey: https://github.com/highlightjs/highlight.js/blob/35cd46312bf3e898471617c47d52f9528fedd763/src/styles/a11y-light.css */
 /* Itself based on the Tomorrow Night Eighties theme: https://github.com/isagalaev/highlight.js/blob/master/src/styles/tomorrow-night-eighties.css */
 /* @author: Amaury Carrade */
+@use "../variables" as *;
 
 // Comment
 .hljs-comment,

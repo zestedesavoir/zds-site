@@ -4,7 +4,9 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   function buildOldSpoilers($elem) {
@@ -58,4 +60,4 @@
       return buildNewSpoilers()
     })
   })
-})(jQuery)
+})(jQuery);

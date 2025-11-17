@@ -1,4 +1,4 @@
-(function() {
+export default (function() {
   /**
    * HSV to RGB color conversion
    *
@@ -199,4 +199,4 @@
     })
   })
   displayTab(document.querySelector('.tablinks'))
-})()
+})();

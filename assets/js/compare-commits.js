@@ -2,7 +2,7 @@
  * Allow the user to compare two commits
  */
 
-(function() {
+export default (function() {
   function prevAll(element) {
     const result = []
     while (element) {
@@ -60,4 +60,4 @@
       })
     )
   })
-})()
+})();

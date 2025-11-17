@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../sprite" as *;
+
 .search-box {
     position: relative;
     margin: $length-32 auto 0;
@@ -75,16 +78,16 @@
         width: 68px;
         height: 134px;
 
-        background: url('../images/home-clem.png');
+        background: url(/assets/images/home-clem.png);
         background-size: 100%;
 
         @at-root {
             body.vc-clem-christmas .search-box::before {
-                background-image: url('../images/home-clem-christmas.png');
+                background-image: url(/assets/images/home-clem-christmas.png);
             }
 
             body.vc-clem-halloween .search-box::before {
-                background-image: url('../images/home-clem-halloween.png');
+                background-image: url(/assets/images/home-clem-halloween.png);
 
                 // Halloween Clem's size
                 width: 160px;

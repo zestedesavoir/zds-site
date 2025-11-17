@@ -1,4 +1,4 @@
-(function() {
+export default (function() {
   'use strict'
   const csrfInput = document.querySelector('input[name=csrfmiddlewaretoken]')
   if (!csrfInput) {
@@ -35,4 +35,4 @@
         })
     })
   }
-})()
+})();

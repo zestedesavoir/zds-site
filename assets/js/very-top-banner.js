@@ -1,4 +1,4 @@
-(function() {
+export default (function() {
   const banner = document.getElementById('very-top-banner')
   if (!banner) {
     return
@@ -39,4 +39,4 @@
     // storage.
     window.addEventListener('storage', removeBannerIfNeeded)
   }
-}())
+}());

@@ -4,7 +4,7 @@
    Author: Alex-D, firm1
    ========================================================================== */
 
-(function() {
+export default (function() {
   function accordeon(element) {
     const nextSearchElt = ['OL', 'UL']
 
@@ -26,4 +26,4 @@
   window.addEventListener('DOMContentLoaded', () => {
     Array.from(document.querySelectorAll('.main .sidebar.accordeon, .main .sidebar .accordeon')).forEach(item => accordeon(item))
   })
-})()
+})();

@@ -4,7 +4,7 @@
    Author: Alex-D / Alexandre Demode, firm1
    ========================================================================== */
 
-(function() {
+export default (function() {
   window.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', e => {
       if (!e.target.classList.contains('close-alert-box')) return
@@ -12,4 +12,4 @@
       e.preventDefault()
     })
   })
-})()
+})();

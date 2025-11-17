@@ -1,4 +1,6 @@
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   /**
@@ -231,4 +233,4 @@
 
     return tooltip
   }
-})(jQuery)
+})(jQuery);

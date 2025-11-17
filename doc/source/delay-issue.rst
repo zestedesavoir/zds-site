@@ -2,19 +2,6 @@
 Problème de lenteur lors du dev ?
 =================================
 
-J'ai des lenteurs avec gulp (build|watch)
------------------------------------------
-
-Pour le développement et uniquement ce but, notre script `gulp` prend en entrée un paramètre ``--speed`` qui désactive les optimisations du code pour la prod. Ainsi ``watch`` a besoin de calculer moins de choses donc utilise moins de CPU.
-
-Avec gulp il faudra faire :
-
-.. sourcecode:: bash
-
-    $ yarn run watch --speed
-
-Si vous utilisez ``make run`` pour lancer le site, cette configuration est utilisée par défaut.
-
 Le changement de page est très lent !
 --------------------------------------
 

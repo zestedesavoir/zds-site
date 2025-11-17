@@ -4,7 +4,9 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   /**
@@ -317,4 +319,4 @@
     }
   })
   $(window).trigger('resize')
-})(jQuery)
+})(jQuery);

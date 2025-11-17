@@ -4,7 +4,9 @@
    Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery"
+
+export default (function($) {
   'use strict'
 
   function AutoComplete(input, options) {
@@ -308,4 +310,4 @@
       if ($(this).data) { $(this).autocomplete() }
     })
   })
-})(jQuery)
+})(jQuery);

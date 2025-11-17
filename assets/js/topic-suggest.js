@@ -4,7 +4,9 @@
    Author: A-312, AmarOk
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   if (!$('#topic-suggest')[0]) { return }
@@ -65,4 +67,4 @@
       myHandler.call(that)
     }, (length < 5) ? (12 - length * 2) * 200 : 2000) // ANTI-FLOOD
   })
-})(jQuery)
+})(jQuery);

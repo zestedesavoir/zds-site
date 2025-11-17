@@ -1,0 +1,11 @@
+@forward "colors";
+@forward "typography";
+@forward "lengths";
+@forward "shadows";
+@forward "radius";
+@forward "media-queries";
+
+@use "lengths";
+$transition-duration: .15s;
+$modal-margin: lengths.$length-24;
+$header-height: lengths.$length-64;

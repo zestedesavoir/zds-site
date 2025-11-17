@@ -1,4 +1,6 @@
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   $('.featured-request').on('click', '.unpick-action', function() {
     const $button = $(this)
     const $row = $button.parent().parent()
@@ -28,4 +30,4 @@
       }
     })
   })
-})(jQuery)
+})(jQuery);

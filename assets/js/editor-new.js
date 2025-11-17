@@ -1,5 +1,5 @@
 /* globals oGrammalecteAPI, estPresentAntidoteAPI_JSConnect, activeAntidoteAPI_JSConnect */ // eslint-disable-line camelcase
-(function($) {
+const fun = (function($) {
   'use strict'
   const $saveButton = $('.inline-save-button')
   if (localStorage.getItem('editor_choice') !== 'new') {
@@ -1163,3 +1163,5 @@ function spellcheckerEasyMDE(easyMDE) {
     stalker.observe(easyMDE.toolbarElements['abc-spellchecker'], { attributes: true })
   }
 }
+
+export default fun;

@@ -1,4 +1,4 @@
-(function() {
+export default (function() {
   'use strict'
 
   const messagesActionsHandles = document.querySelectorAll('article.topic-message header aside.message-actions ul li')
@@ -32,4 +32,4 @@
       }
     })
   }
-})()
+})();

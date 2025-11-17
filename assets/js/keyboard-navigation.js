@@ -4,7 +4,9 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   $(document).ready(function() {
@@ -59,4 +61,4 @@
       $lists = $('#content .navigable-list')
     })
   })
-})(jQuery)
+})(jQuery);

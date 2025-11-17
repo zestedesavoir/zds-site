@@ -2,7 +2,9 @@
    Manage action button AJAX requests
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   /**
@@ -364,4 +366,4 @@
     e.stopPropagation()
     e.preventDefault()
   })
-})(jQuery)
+})(jQuery);

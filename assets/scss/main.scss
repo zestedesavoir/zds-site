@@ -4,107 +4,37 @@
  * @file main.scss
  */
 
-@import "variables/variables";
-@import "mixins/horizontal-list";
-@import "sprite";
+@use "variables" as *;
+@use "mixins";
+@use 'sprite';
 
 /*------------------------
 1. External dependencies
 ------------------------*/
-@import "normalize.css/normalize";
+@use "normalize.css/normalize";
 
 /*------------------------
-2. Base
+2. Base, Typography, Icons, Helpers
+   and High pixel ratio (retina)
 ------------------------*/
-@import "base/base";
-@import "base/tables";
-@import "base/forms";
+@use "base";
 
 /*------------------------
-3. Typography
+3. Syntax highlighting theme
 ------------------------*/
-@import "base/typography";
+@use "highlight";
 
 /*------------------------
-4. Icons
+4. Layout
 ------------------------*/
-@import "base/icons";
+@use "layout";
 
 /*------------------------
-5. Helpers
+5. Components
 ------------------------*/
-@import "base/helpers";
+@use "components";
 
 /*------------------------
-6. Syntax highlighting theme
+6. Pages
 ------------------------*/
-@import "highlight/zest-hljs";
-@import "highlight/zest-codemirror";
-
-/*------------------------
-7. Header
-------------------------*/
-@import "layout/header";
-@import "components/header-dropdown";
-@import "components/header-search";
-@import "components/accessibility-bar";
-
-/*------------------------
-8. Layout
-------------------------*/
-@import "layout/sidebar";
-@import "layout/main";
-@import "layout/content";
-@import "layout/footer";
-
-/*------------------------
-9. Components
-------------------------*/
-@import "components/alert-box";
-@import "components/aside-meta";
-@import "components/autocomplete";
-@import "components/breadcrumb";
-@import "components/content-item";
-@import "components/dropdown";
-@import "components/editor-new";
-@import "components/editor-old";
-@import "components/featured-item";
-@import "components/markdown-help";
-@import "components/members";
-@import "components/mobile-menu";
-@import "components/modals";
-@import "components/moderation-alert";
-@import "components/pagination";
-@import "components/pygments";
-@import "components/search-box";
-@import "components/tags";
-@import "components/hats";
-@import "components/tooltips";
-@import "components/topic-list";
-@import "components/notification-list";
-@import "components/topic-message";
-@import "components/topic-new";
-@import "components/user-profile";
-@import "components/very-top-banner";
-@import "components/linkbox";
-@import "components/more-link";
-
-/*------------------------
-10. Pages
-------------------------*/
-@import "pages/flexpage";
-@import "pages/home";
-@import "pages/gallery";
-@import "pages/api";
-@import "pages/search";
-@import "pages/stats";
-@import "pages/tutorial-help";
-@import "pages/tutorial-history";
-@import "pages/content-editor";
-@import "pages/content-exports";
-@import "pages/mass-edit-goals";
-
-/*-------------------------
-11. High pixel ratio (retina)
--------------------------*/
-@import "base/high-pixel-ratio";
+@use "pages";

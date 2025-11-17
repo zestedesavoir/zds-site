@@ -1,3 +1,3 @@
-(function() {
+export default (function() {
   document.documentElement.classList.add('js')
-})()
+})();

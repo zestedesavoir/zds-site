@@ -2,7 +2,9 @@
    Manage Karma buttons
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   /**
@@ -280,4 +282,4 @@
   $(document).ready(function() {
     $('.topic-message').has('.message-karma').karma()
   })
-})(jQuery)
+})(jQuery);

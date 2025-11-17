@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../sprite" as *;
+
 @media only screen and (-webkit-min-device-pixel-ratio: 1.3),
        only screen and (min--moz-device-pixel-ratio: 1.3),
        only screen and (-o-min-device-pixel-ratio: 4/3),
@@ -6,7 +9,7 @@
        only screen and (min-resolution: 2dppx) {
 
     .header-container .header-logo-link {
-        background-image: url('../images/logo@2x.png');
+        background-image: url(/assets/images/logo@2x.png);
     }
 
     .ico,
@@ -24,15 +27,15 @@
     }
 
     .home .home-search-box::before {
-        background-image: url('../images/home-clem@2x.png');
+        background-image: url(/assets/images/home-clem@2x.png);
 
         @at-root {
             body.vc-clem-christmas.home .home-search-box::before {
-                background-image: url('../images/home-clem-christmas@2x.png');
+                background-image: url(/assets/images/home-clem-christmas@2x.png);
             }
 
             body.vc-clem-halloween.home .home-search-box::before {
-                background-image: url('../images/home-clem-halloween@2x.png');
+                background-image: url(/assets/images/home-clem-halloween@2x.png);
             }
         }
     }
@@ -50,6 +53,6 @@
     }
 
     .page-container .header-logo-link {
-        background-image: url('../images/logo-mobile@2x.png') !important;
+        background-image: url(/assets/images/logo-mobile@2x.png) !important;
     }
 }

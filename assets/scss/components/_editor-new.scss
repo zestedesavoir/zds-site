@@ -1,3 +1,5 @@
+@use "../variables" as *;
+
 .content-container {
     form {
         .alert-box {
@@ -66,85 +68,85 @@
                     height: 32px;
 
                     &.smile {
-                        background: url(/static/smileys/svg/smile.svg) no-repeat;
+                        background: url(/assets/smileys/svg/smile.svg) no-repeat;
                     }
                     &.heureux {
-                        background: url(/static/smileys/svg/heureux.svg) no-repeat;
+                        background: url(/assets/smileys/svg/heureux.svg) no-repeat;
                     }
                     &.clin {
-                        background: url(/static/smileys/svg/clin.svg) no-repeat;
+                        background: url(/assets/smileys/svg/clin.svg) no-repeat;
                     }
                     &.langue {
-                        background: url(/static/smileys/svg/langue.svg) no-repeat;
+                        background: url(/assets/smileys/svg/langue.svg) no-repeat;
                     }
                     &.rire {
-                        background: url(/static/smileys/svg/rire.svg) no-repeat;
+                        background: url(/assets/smileys/svg/rire.svg) no-repeat;
                     }
                     &.unsure {
-                        background: url(/static/smileys/svg/unsure.svg) no-repeat;
+                        background: url(/assets/smileys/svg/unsure.svg) no-repeat;
                     }
                     &.triste {
-                        background: url(/static/smileys/svg/triste.svg) no-repeat;
+                        background: url(/assets/smileys/svg/triste.svg) no-repeat;
                     }
                     &.huh {
-                        background: url(/static/smileys/svg/huh.svg) no-repeat;
+                        background: url(/assets/smileys/svg/huh.svg) no-repeat;
                     }
                     &.b {
-                        background: url(/static/smileys/svg/b.svg) no-repeat;
+                        background: url(/assets/smileys/svg/b.svg) no-repeat;
                     }
                     &.mechant {
-                        background: url(/static/smileys/svg/mechant.svg) no-repeat;
+                        background: url(/assets/smileys/svg/mechant.svg) no-repeat;
                     }
                     &.blink {
-                        background: url(/static/smileys/svg/blink.svg) no-repeat;
+                        background: url(/assets/smileys/svg/blink.svg) no-repeat;
                     }
                     &.hihi {
-                        background: url(/static/smileys/svg/hihi.svg) no-repeat;
+                        background: url(/assets/smileys/svg/hihi.svg) no-repeat;
                     }
                     &.siffle {
-                        background: url(/static/smileys/svg/siffle.svg) no-repeat;
+                        background: url(/assets/smileys/svg/siffle.svg) no-repeat;
                     }
                     &.ange {
-                        background: url(/static/smileys/svg/ange.svg) no-repeat;
+                        background: url(/assets/smileys/svg/ange.svg) no-repeat;
                     }
                     &.angry {
-                        background: url(/static/smileys/svg/angry.svg) no-repeat;
+                        background: url(/assets/smileys/svg/angry.svg) no-repeat;
                     }
                     &.diable {
-                        background: url(/static/smileys/svg/diable.svg) no-repeat;
+                        background: url(/assets/smileys/svg/diable.svg) no-repeat;
                     }
                     &.magicien {
-                        background: url(/static/smileys/svg/magicien.svg) no-repeat;
+                        background: url(/assets/smileys/svg/magicien.svg) no-repeat;
                     }
                     &.ninja {
-                        background: url(/static/smileys/svg/ninja.svg) no-repeat;
+                        background: url(/assets/smileys/svg/ninja.svg) no-repeat;
                     }
                     &.pinch {
-                        background: url(/static/smileys/svg/pinch.svg) no-repeat;
+                        background: url(/assets/smileys/svg/pinch.svg) no-repeat;
                     }
                     &.pirate {
-                        background: url(/static/smileys/svg/pirate.svg) no-repeat;
+                        background: url(/assets/smileys/svg/pirate.svg) no-repeat;
                     }
                     &.pleure {
-                        background: url(/static/smileys/svg/pleure.svg) no-repeat;
+                        background: url(/assets/smileys/svg/pleure.svg) no-repeat;
                     }
                     &.rouge {
-                        background: url(/static/smileys/svg/rouge.svg) no-repeat;
+                        background: url(/assets/smileys/svg/rouge.svg) no-repeat;
                     }
                     &.soleil {
-                        background: url(/static/smileys/svg/soleil.svg) no-repeat;
+                        background: url(/assets/smileys/svg/soleil.svg) no-repeat;
                     }
                     &.waw {
-                        background: url(/static/smileys/svg/waw.svg) no-repeat;
+                        background: url(/assets/smileys/svg/waw.svg) no-repeat;
                     }
                     &.zorro {
-                        background: url(/static/smileys/svg/zorro.svg) no-repeat;
+                        background: url(/assets/smileys/svg/zorro.svg) no-repeat;
                     }
                     &.popcorn {
-                        background: url(/static/smileys/svg/popcorn.svg) no-repeat;
+                        background: url(/assets/smileys/svg/popcorn.svg) no-repeat;
                     }
                     &.bounce {
-                        background: url(/static/smileys/svg/bounce.svg) no-repeat;
+                        background: url(/assets/smileys/svg/bounce.svg) no-repeat;
                     }
                 }
                 &.bloc_information {
@@ -199,7 +201,7 @@
             }
 
             &.zi-grammalecte > i {
-                background-image: url(../images/editor/svg/grammalecte_H084561.svg);
+                background-image: url(/assets/images/editor/svg/grammalecte_H084561.svg);
             }
         }
 

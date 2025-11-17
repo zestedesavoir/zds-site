@@ -1,3 +1,5 @@
+@use "../variables" as *;
+
 .content-linkbox-list {
     --color-linkbox-head: #{$grey-600};
     --color-linkbox-body: #{$grey-500};

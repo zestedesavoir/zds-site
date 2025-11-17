@@ -4,7 +4,9 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery"
+
+export default (function($) {
   'use strict'
 
   let mouseDown = false
@@ -197,4 +199,4 @@
       $container: $container
     }
   }
-})(jQuery)
+})(jQuery);

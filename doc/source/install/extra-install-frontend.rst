@@ -45,7 +45,7 @@ Pour ce qui est de Node.js, utilisez soit votre gestionnaire de paquet, soit nvm
 Installation des dépendances Yarn
 ---------------------------------
 
-L'installation de Gulp, ainsi que des différentes dépendances et bibliothèques, se fait via Yarn dans le répertoire du projet :
+L'installation de Vite, ainsi que des différentes dépendances et bibliothèques, se fait via Yarn dans le répertoire du projet :
 
 .. sourcecode:: bash
 
@@ -63,15 +63,19 @@ Utilisation des outils
 Vous avez installé les outils ? Voilà comment on s'en sert dans notre projet !
 
 
-Présentation de Gulp
+Présentation de Vite
 --------------------
 
-Gulp est un outil permettant d'automatiser les tâches liées au *front-end*. C’est une sorte de Makefile.
+Vite est un outil de construction (*build tool*) permettant d'automatiser certaines tâches liées au *front-end*. Il permet dans notre cas de :
 
-Utilisation de Gulp
+- assembler et minifier le JavaScript ;
+- compiler le SCSS en CSS ;
+- copier et optimiser différentes ressources utilisées par le frontend (images, polices, etc.).
+
+Utilisation de Vite
 -------------------
 
-Gulp se lance avec ``yarn run gulp -- [tâche]`` où ``[tâche]`` est la tâche à lancer.
+Vite se lance avec ``yarn run vite-dev``.
 
 Générer les fichiers avec ``build``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -100,7 +104,7 @@ Les fichiers générés sont disponibles dans le dossier ``dist/`` (un aperçu e
    C'est la tâche que vous utiliserez sûrement le plus souvent car vous devez la lancer à chaque modification
    de ``assets/`` !
 
-Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Gulp, pensez à vider le cache de votre navigateur !
+Si vos modifications n'apparaissent pas dans votre navigateur et que ce n'est pas dû à Vite, pensez à vider le cache de votre navigateur !
 
 Supprimer les fichiers générés avec ``clean``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -127,11 +131,9 @@ Coder plus simplement avec ``watch``
 
 ``watch`` surveille les fichiers SCSS et Javascript lance la tâche ``build`` dès qu'ils sont modifiés. C'est très utile pour le développement car ça permet de ne pas avoir à relancer ``build`` manuellement. Pour lancer cette commande, faites ``make watch-front`` ou ``yarn run watch``. Pour arrêter cette commande, il suffit de presser ``Ctrl+C``.
 
-Si votre ordinateur n'est pas très puissant ou la commande ``watch`` est lente. Vous aurez besoin de l'option ``--speed``. Cette option permet de désactiver les fonctions de parsing pour la prod. Ainsi ``watch`` a besoin de moins de CPU.
-
 .. sourcecode:: bash
 
-    $ npm run watch -- --speed
+    $ npm run watch
 
 
 -----

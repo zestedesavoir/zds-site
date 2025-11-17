@@ -4,7 +4,9 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   if ($('.open-zen-mode').length > 0) {
@@ -59,4 +61,4 @@
       }
     }
   }
-})(jQuery)
+})(jQuery);

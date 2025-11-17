@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../sprite" as *;
+
 .deletable {
   display: flex;
   align-items: center;

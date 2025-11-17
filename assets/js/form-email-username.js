@@ -1,7 +1,10 @@
 /**
  * Used by recovering password and send again validation email functionality.
  */
-(function($) {
+
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   if ($('body').hasClass('form-email-username')) {
@@ -43,4 +46,4 @@
       e.preventDefault()
     })
   }
-})(jQuery)
+})(jQuery);

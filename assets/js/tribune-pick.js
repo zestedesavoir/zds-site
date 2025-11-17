@@ -1,4 +1,6 @@
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   const $opinions = $('.opinion')
   const $opinionCount = $('#opinion-count')
   $opinions.on('click', '.unpick-action', function() {
@@ -38,4 +40,4 @@
       })
     }
   })
-})(jQuery)
+})(jQuery);

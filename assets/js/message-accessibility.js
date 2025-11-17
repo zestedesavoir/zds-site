@@ -1,4 +1,4 @@
-(function() {
+export default (function() {
   'use strict'
 
   function hasAnyOfTheChildrenGotTheFocus(element, relatedTarget) {
@@ -39,4 +39,4 @@
       })
     })
   })
-})()
+})();

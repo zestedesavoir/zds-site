@@ -62,4 +62,5 @@ class ZDSAjax {
     }).then(dataCallback).catch(errorCallback)
   }
 }
-window.ajax = new ZDSAjax()
+
+export default ZDSAjax;

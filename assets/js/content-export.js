@@ -4,7 +4,7 @@
    Author: Amaury Carrade
    ========================================================================== */
 
-(function() {
+export default (function() {
   const exportsModal = document.getElementById('exports-modal')
 
   // Not on a tutorial page
@@ -201,4 +201,4 @@
   })
 
   exportsRequestButton.addEventListener('click', requestExports)
-})()
+})();

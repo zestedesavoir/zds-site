@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../sprite" as *;
+
 $logo-horizontal-margin: $length-10;
 $logo-width: 24rem;
 
@@ -128,7 +131,7 @@ $logo-width: 24rem;
         width: $logo-width + $logo-horizontal-margin;
         height: $header-height;
 
-        background: url("../images/logo.png") no-repeat center center;
+        background: url(/assets/images/logo.png) no-repeat center center;
         background-size: $logo-width auto;
 
         text-indent: -9999px;
@@ -520,7 +523,7 @@ $logo-width: 24rem;
             height: 100%;
 
             background-size: 100%;
-            background-image: url("../images/logo-mobile.png") !important;
+            background-image: url(/assets/images/logo-mobile.png) !important;
         }
 
         > header {

@@ -4,7 +4,9 @@
    Author: Sandhose / Quentin Gliech
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   const $btn = $('.toggle-gallery-view')
@@ -33,4 +35,4 @@
       .on('change', updateCheckbox)
       .each(updateCheckbox)
   }
-})(jQuery)
+})(jQuery);

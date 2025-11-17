@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../sprite" as *;
+
 .small-content-wrapper {
     width: 90%;
     max-width: $length-512;
@@ -81,15 +84,15 @@
                 }
 
                 &.article-illu {
-                    background-image: url("/static/images/article-illu.png");
+                    background-image: url(/assets/images/article-illu.png);
                 }
 
                 &.tutorial-illu {
-                    background-image: url("/static/images/tutorial-illu.png");
+                    background-image: url(/assets/images/tutorial-illu.png);
                 }
 
                 &.opinion-illu {
-                    background-image: url("/static/images/opinion-illu.png");
+                    background-image: url(/assets/images/opinion-illu.png);
                 }
             }
 
@@ -233,7 +236,7 @@
         margin-bottom: $length-20;
         color: $black;
 
-        @import "base/content";
+        @import "../base/content";
     }
 
     .message-content {

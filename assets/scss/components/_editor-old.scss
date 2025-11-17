@@ -1,3 +1,6 @@
+@use "../variables" as *;
+@use "../sprite" as *;
+
 .zform-toolbar {
     margin: 0;
     padding: $length-2;

@@ -1,3 +1,5 @@
+import jQuery from "jquery";
+
 'use strict'
 function toggleSubmitButtonsState() {
   $('button[type=submit]').each((_, b) => {
@@ -26,7 +28,7 @@ function saveFormNoRedirect($form, $saveButton) {
   })
 }
 
-(function($) {
+export default (function($) {
   $('.inline-save-button').click(e => {
     const $form = $(e.target.form)
     e.preventDefault()
@@ -34,4 +36,4 @@ function saveFormNoRedirect($form, $saveButton) {
     saveFormNoRedirect($form, $(e.target))
     return true
   })
-})(jQuery)
+})(jQuery);

@@ -1,4 +1,6 @@
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   let choice = localStorage.getItem('editor_choice')
@@ -26,4 +28,4 @@
     const box = $('<div class="markdown-help">' + message + ' <a href="' + link + '">' + linkMessage + '</a></div>')
     box.insertBefore(this)
   })
-})(jQuery)
+})(jQuery);

@@ -1,4 +1,5 @@
 @use "sass:math";
+@use "../variables" as *;
 
 body.userprofilepage {
     .flexpage-title-tool .actions button.is-following,

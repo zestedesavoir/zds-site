@@ -2,6 +2,11 @@
  * Base styling for content.
  * This is included in layout/_content.scss and zmd.scss
  */
+@use "../variables" as *;
+@use "../sprite" as *;
+
+@forward "source-code";
+
 p,
 > a,
 p a,
@@ -456,9 +461,6 @@ pre,
 samp {
     font-family: $font-monospace;
 }
-
-// code
-@import "base/source-code";
 
 // touche
 kbd {

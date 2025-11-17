@@ -1,4 +1,5 @@
 /* Temp fix to #2667 ; see: https://github.com/zestedesavoir/zds-site/issues/2667 */
+@use "../variables" as *;
 
 .tutorial-help-item {
     display: flex;

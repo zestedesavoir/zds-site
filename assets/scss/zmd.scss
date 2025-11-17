@@ -3,11 +3,11 @@
  */
 
 // FIXME: high-dpi support for icons?
-@import "variables/variables";
-@import "sprite";
-@import "highlight/zest-hljs";
-@import "components/alert-box";
-@import "base/icons";
+@use "variables";
+@use 'sprite';
+@use "highlight/zest-hljs";
+@use "components/alert-box";
+@use "base/icons";
 
 .zmarkdown {
     color: #424242;

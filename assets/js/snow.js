@@ -1,5 +1,4 @@
-
-(function() {
+export default (function() {
   function LetItSnow(element, isValentine = false) {
     this.isValentine = isValentine
 
@@ -137,4 +136,4 @@
       }, 1000) // to be sure to have the DOM completely ready
     }
   })
-})()
+})();

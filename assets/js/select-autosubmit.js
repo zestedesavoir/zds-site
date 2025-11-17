@@ -4,10 +4,12 @@
    Author: Alex-D / Alexandre Demode
    ========================================================================== */
 
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   'use strict'
 
   $('body').on('change', '.select-autosubmit', function() {
     $(this).parents('form:first').submit()
   })
-})(jQuery)
+})(jQuery);

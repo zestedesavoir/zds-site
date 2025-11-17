@@ -4,7 +4,7 @@
    Author: Alex-D / Alexandre Demode, firm1
    ========================================================================== */
 
-(function() {
+export default (function() {
   function isHidden(el) {
     const style = window.getComputedStyle(el)
     return (style.display === 'none')
@@ -31,4 +31,4 @@
   window.addEventListener('DOMContentLoaded', () => {
     Array.from(document.querySelectorAll('#accessibility a')).forEach(item => accessibility(item))
   })
-})()
+})();

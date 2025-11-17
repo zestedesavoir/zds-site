@@ -1,4 +1,6 @@
-(function($) {
+import jQuery from "jquery";
+
+export default (function($) {
   $('.readiness').on('click', function(e) {
     const url = $(e.target).data('url')
     const readiness = $(e.target).data('is-ready').toString() === 'true'
@@ -22,4 +24,4 @@
       }
     })
   })
-})(jQuery)
+})(jQuery);
