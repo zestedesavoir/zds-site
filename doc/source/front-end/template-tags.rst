@@ -8,25 +8,6 @@ Le dossier ``zds/utils/templatetags/`` contient un ensemble de tags et filtres p
 La majorité de ces modules proposent aussi des fonctions proposant les même fonctionnalités depuis le reste du code
 Python.
 
-append_query_params
-===================
-
-L'élément ``append_query_params`` permet de rajouter des paramètres à la requête ``GET`` courante. Par exemple, sur une page
-``module/toto``, le code de template suivant :
-
-.. sourcecode:: html+django
-
-    {% load append_query_params %}
-    <a href="{% append_query_params key1=var1,key2=var2 %}">Mon lien</a>
-
-produira le code suivant :
-
-.. sourcecode:: html+django
-
-    <a href="module/toto?key1=1&key2=2">Mon lien</a>
-
-…si le contenu de ``var1`` est ``1`` et le contenu de ``var2`` est ``2``.
-
 Le module ``trail``
 ===================
 
