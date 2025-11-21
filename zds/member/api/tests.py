@@ -44,6 +44,15 @@ class MemberListAPITest(APITestCase):
         self.assertIsNone(response.data.get("next"))
         self.assertIsNone(response.data.get("previous"))
 
+    def test_head_list_of_users(self):
+        """
+        Gets head list of users not empty in the database does not generate error 500.
+        """
+        self.create_multiple_users()
+
+        response = self.client.head(reverse("api:member:list"))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_list_of_users_with_several_pages(self):
         """
         Gets list of users with several pages in the database.
