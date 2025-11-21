@@ -82,6 +82,7 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
     """
 
     list_key_func = PagingSearchListKeyConstructor()
+    permission_classes = [AllowAny, DRYPermissions]
 
     def get_queryset(self):
         queryset = Profile.objects.contactable_members()
@@ -154,18 +155,12 @@ class MemberListAPI(ListCreateAPIView, ProfileCreate, TokenGenerator):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def get_serializer_class(self):
-        if self.request.method == "GET":
-            return ProfileListSerializer
-        elif self.request.method == "POST":
+        if self.request.method == "POST":
             return ProfileCreateSerializer
-
-    def get_permissions(self):
-        permission_classes = [
-            AllowAny,
-        ]
-        if self.request.method == "GET" or self.request.method == "POST":
-            permission_classes.append(DRYPermissions)
-        return [permission() for permission in permission_classes]
+        # DRF uses the GET workflow to handle HEAD queries but only returns headers afterward
+        # you can see that in django.views.generic.base.View where the setup method tells
+        # `self.head = self.get`
+        return ProfileListSerializer
 
 
 class MemberExistsAPI(ListAPIView):
@@ -177,6 +172,7 @@ class MemberExistsAPI(ListAPIView):
     search_fields = ("=user__username",)
     list_key_func = PagingSearchListKeyConstructor()
     serializer_class = ProfileDetailSerializer
+    permission_classes = [AllowAny, DRYPermissions]
 
     def get_queryset(self):
         return Profile.objects.contactable_members()
@@ -209,14 +205,6 @@ class MemberExistsAPI(ListAPIView):
         if r.data["count"] == 0:
             return Response(r.data, status=status.HTTP_404_NOT_FOUND)
         return r
-
-    def get_permissions(self):
-        permission_classes = [
-            AllowAny,
-        ]
-        if self.request.method == "GET":
-            permission_classes.append(DRYPermissions)
-        return [permission() for permission in permission_classes]
 
 
 class MemberMyDetailAPI(RetrieveAPIView):
