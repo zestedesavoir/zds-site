@@ -112,30 +112,30 @@ class FunctionalTests(TutorialTestMixin, TestCase):
 
         categories_real = self.content.subcategory.all()
         categories_expected = [self.category_0]
-        self.assertQuerysetEqual(categories_real, categories_expected)
+        self.assertQuerySetEqual(categories_real, categories_expected)
         self.assertEqual(categories_management.send.call_count, 1)
 
     @patch("zds.tutorialv2.signals.categories_management")
     def test_remove_category(self, categories_management):
         self.content.subcategory.add(self.category_0)
-        self.assertQuerysetEqual(self.content.subcategory.all(), [self.category_0])
+        self.assertQuerySetEqual(self.content.subcategory.all(), [self.category_0])
 
         form_data = {"subcategory": []}
         self.client.post(self.url, form_data)
 
         categories_real = self.content.subcategory.all()
         categories_expected = []
-        self.assertQuerysetEqual(categories_real, categories_expected)
+        self.assertQuerySetEqual(categories_real, categories_expected)
         self.assertEqual(categories_management.send.call_count, 1)
 
     @patch("zds.tutorialv2.signals.categories_management")
     def test_remove_published(self, categories_management):
         self.content.subcategory.add(self.category_0)
-        self.assertQuerysetEqual(self.content.subcategory.all(), [self.category_0])
+        self.assertQuerySetEqual(self.content.subcategory.all(), [self.category_0])
         publish(self.content)
 
         form_data = {"subcategory": []}
         response = self.client.post(self.url, form_data, follow=True)
         self.assertContains(response, escape(EditCategoriesForm.error_messages["no_category_but_public"]))
-        self.assertQuerysetEqual(self.content.subcategory.all(), [self.category_0])
+        self.assertQuerySetEqual(self.content.subcategory.all(), [self.category_0])
         self.assertFalse(categories_management.send.called)

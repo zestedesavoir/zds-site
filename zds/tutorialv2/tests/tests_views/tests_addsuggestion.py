@@ -143,21 +143,21 @@ class AddSuggestionWorkflowTests(TutorialTestMixin, TestCase):
     def test_self(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.content.pk}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment_self))
-        self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.assertQuerySetEqual(ContentSuggestion.objects.all(), [])
         self.check_signal(suggestions_management, emitted=False)
 
     @patch("zds.tutorialv2.signals.suggestions_management")
     def test_not_picked_opinion(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.not_picked_opinion.pk}, follow=True)
         self.assertContains(response, escape(self.error_messge_fragment_not_picked))
-        self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.assertQuerySetEqual(ContentSuggestion.objects.all(), [])
         self.check_signal(suggestions_management, emitted=False)
 
     @patch("zds.tutorialv2.signals.suggestions_management")
     def test_unpublished(self, suggestions_management):
         response = self.client.post(self.form_url, {"options": self.unpublished_content.pk}, follow=True)
         self.assertContains(response, escape(self.error_message_fragment_unpublished))
-        self.assertQuerysetEqual(ContentSuggestion.objects.all(), [])
+        self.assertQuerySetEqual(ContentSuggestion.objects.all(), [])
         self.check_signal(suggestions_management, emitted=False)
 
     @patch("zds.tutorialv2.signals.suggestions_management")
