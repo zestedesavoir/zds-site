@@ -62,7 +62,12 @@ MEDIA_ROOT = Path("/opt/zds/data/media")
 
 STATIC_ROOT = Path("/opt/zds/data/static")
 
-STORAGES = {"staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"}}
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"},
+}
 
 django_template_engine["APP_DIRS"] = False
 django_template_engine["OPTIONS"]["loaders"] = [
